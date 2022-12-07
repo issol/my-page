@@ -4,39 +4,40 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Dashboards',
+      title: 'Dashboards1',
       icon: 'mdi:home-outline',
-      badgeContent: 'new',
+
+      // badgeContent: 'new',
       badgeColor: 'error',
       children: [
         {
-          title: 'CRM',
+          title: 'Style1',
           path: '/dashboards/crm'
         },
         {
-          title: 'Analytics',
+          title: 'Style2',
           path: '/dashboards/analytics'
         },
         {
-          title: 'eCommerce',
+          title: 'Style3',
           path: '/dashboards/ecommerce'
         }
       ]
     },
     {
-      title: 'Charts',
+      title: 'Dashboards2',
       icon: 'mdi:chart-donut',
       children: [
         {
-          title: 'Apex',
+          title: 'Style1',
           path: '/charts/apex-charts'
         },
         {
-          title: 'Recharts',
+          title: 'Style2',
           path: '/charts/recharts'
         },
         {
-          title: 'ChartJS',
+          title: 'Style3',
           path: '/charts/chartjs'
         }
       ]
