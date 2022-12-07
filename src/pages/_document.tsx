@@ -23,8 +23,12 @@ class CustomDocument extends Document {
           />
           <link rel='apple-touch-icon' sizes='180x180' href='/images/apple-touch-icon.png' />
           <link rel='shortcut icon' href='/images/favicon.png' />
+          {/* Editor css */}
+          <link rel='stylesheet' href='https://uicdn.toast.com/editor/latest/toastui-editor-viewer.min.css' />
         </Head>
         <body>
+          {/* Editor */}
+          <script src='https://uicdn.toast.com/editor/latest/toastui-editor-viewer.js' defer />
           <Main />
           <NextScript />
         </body>
