@@ -1,6 +1,5 @@
 import { initializeApp } from 'firebase/app'
-import { getToken, onMessage } from 'firebase/messaging'
-import { getMessaging } from 'firebase/messaging/sw'
+import { getMessaging, getToken, onMessage } from 'firebase/messaging'
 import { useEffect } from 'react'
 
 export default function PushAlarm() {
@@ -24,11 +23,11 @@ export default function PushAlarm() {
     return window.localStorage.getItem('sentToServer') === '1'
   }
 
-  function setTokenSentToServer(sent) {
+  function setTokenSentToServer(sent: any) {
     window.localStorage.setItem('sentToServer', sent ? '1' : '0')
   }
 
-  function sendTokenToServer(currentToken) {
+  function sendTokenToServer(token) {
     if (!isTokenSentToServer()) {
       //Todo : 서버로 토큰일 전송하는 로직 추가
       setTokenSentToServer(true)
