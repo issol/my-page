@@ -67,6 +67,9 @@ import '../../styles/globals.css'
 
 import '../../styles/editor.css'
 
+/* push notification for demo */
+import usePushNotification from '../hooks/pushNotification'
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
@@ -121,6 +124,11 @@ const App = (props: ExtendedAppProps) => {
   const guestGuard = Component.guestGuard ?? false
 
   const aclAbilities = Component.acl ?? defaultACLObj
+
+  const pushNotification = usePushNotification()
+  pushNotification?.fireNotificationWithTimeout('알람이용', 5000, {
+    body: `알림이 왔어요`
+  })
 
   return (
     <Provider store={store}>
