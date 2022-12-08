@@ -6,6 +6,7 @@ import Head from 'next/head'
 import { Router } from 'next/router'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
+import dynamic from 'next/dynamic'
 
 // ** Store Imports
 import { store } from 'src/store'
@@ -79,6 +80,7 @@ type GuardProps = {
 }
 
 const clientSideEmotionCache = createEmotionCache()
+const PushAlarm = dynamic<any>(() => import('../views/components/push-alarm').then(m => m), { ssr: false })
 
 // ** Pace Loader
 if (themeConfig.routingLoader) {
@@ -143,6 +145,7 @@ const App = (props: ExtendedAppProps) => {
                       <Guard authGuard={authGuard} guestGuard={guestGuard}>
                         <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
                           {getLayout(<Component {...pageProps} />)}
+                          <PushAlarm />
                         </AclGuard>
                       </Guard>
                     </WindowWrapper>
