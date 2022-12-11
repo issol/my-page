@@ -36,29 +36,18 @@ const WysiwygEditor: React.FC<Props> = props => {
     props.onChange(instance.getMarkdown())
   }, [props, editorRef])
 
-  function handleDownload() {
-    if (typeof window === 'object') {
-      sessionStorage.setItem('content', editorRef.current ? editorRef.current.toString() : '')
-    }
-
-    router.push('/apps/editor/print')
-  }
-
   return (
     <div>
       <EditorWithForwardedRef
         {...props}
-        initialValue={initialValue || 'hello react editor world!'}
+        initialValue={initialValue || ''}
         previewStyle={previewStyle || 'vertical'}
         height={height || '600px'}
-        initialEditType={initialEditType || 'markdown'}
+        initialEditType={initialEditType || 'wysiwyg'}
         useCommandShortcut={useCommandShortcut || true}
         ref={editorRef}
         onChange={handleChange}
       />
-      {/* <button className='preview' onClick={() => handleDownload()}>
-        Download
-      </button> */}
     </div>
   )
 }

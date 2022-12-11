@@ -1,4 +1,3 @@
-import dynamic from 'next/dynamic'
 import Viewer from './viewer'
 
 // ** React Imports

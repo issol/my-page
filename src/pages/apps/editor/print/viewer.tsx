@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 import Viewer from 'src/@core/components/editor/TuiViewer'
 
 export default function PrintViewer() {
@@ -8,10 +8,15 @@ export default function PrintViewer() {
     if (typeof window === 'object') {
       setContents(sessionStorage.getItem('content') || '')
     }
-    // if (contents) {
-    //   window.print()
-    // }
+  }, [])
+
+  useEffect(() => {
+    if (typeof window === 'object' && contents !== '') {
+      setTimeout(() => {
+        window.print()
+      }, 1000)
+    }
   }, [contents])
 
-  return <Viewer initialValue={contents} />
+  return <div style={{ margin: '24px' }}>{contents ? <Viewer initialValue={contents} /> : ''}</div>
 }
