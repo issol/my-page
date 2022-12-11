@@ -9,7 +9,7 @@ import { ReactNode } from 'react'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 const ViewerPrint = () => {
-  return <Viewer />
+  return Viewer && typeof window === 'object' && <Viewer />
 }
 
 ViewerPrint.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>

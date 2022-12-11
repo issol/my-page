@@ -1,12 +1,13 @@
 import { useRouter } from 'next/router'
-import Editor from '@toast-ui/editor'
+
+// import Editor from '@toast-ui/editor'
 import { useEffect, useState } from 'react'
-import Viewer from '@toast-ui/editor/dist/toastui-editor-viewer'
-import chart from '@toast-ui/editor-plugin-chart'
-import codeSyntaxHighlight from '@toast-ui/editor-plugin-code-syntax-highlight'
-import colorSyntax from '@toast-ui/editor-plugin-color-syntax'
-import tableMergedCell from '@toast-ui/editor-plugin-table-merged-cell'
-import uml from '@toast-ui/editor-plugin-uml'
+// import Viewer from '@toast-ui/editor/dist/toastui-editor-viewer'
+// import chart from '@toast-ui/editor-plugin-chart'
+// import codeSyntaxHighlight from '@toast-ui/editor-plugin-code-syntax-highlight'
+// import colorSyntax from '@toast-ui/editor-plugin-color-syntax'
+// import tableMergedCell from '@toast-ui/editor-plugin-table-merged-cell'
+// import uml from '@toast-ui/editor-plugin-uml'
 
 export default function EditorComp() {
   const [content, setContent] = useState(`💩Write whatever you want💩`)
@@ -21,68 +22,63 @@ export default function EditorComp() {
     maxHeight: 300
   }
 
-  useEffect(() => {
-    setEditor(
-      new Editor({
-        el: document.querySelector('#editor') as HTMLElement,
-        height: '500px',
-        plugins: [[chart, chartOptions], codeSyntaxHighlight, colorSyntax, tableMergedCell, uml],
-        initialEditType: 'wysiwyg',
-        previewStyle: 'vertical',
-        initialValue: content,
-        toolbarItems: [
-          ['heading', 'bold', 'italic', 'strike'],
-          ['hr', 'quote'],
-          ['ul', 'ol', 'task', 'indent', 'outdent'],
-          ['table', 'image', 'link'],
-          ['code', 'codeblock']
-        ]
-      })
-    )
+  // useEffect(() => {
+  //   setEditor(
+  //     new Editor({
+  //       el: document.querySelector('#editor') as HTMLElement,
+  //       height: '500px',
 
-    setViewer(
-      new Viewer({
-        el: document.querySelector('#viewer') as HTMLElement,
-        initialValue: content,
-        plugins: [[chart, chartOptions], codeSyntaxHighlight, tableMergedCell, uml]
-      })
-    )
-  }, [])
+  //       plugins: [[chart, chartOptions], codeSyntaxHighlight, colorSyntax, tableMergedCell, uml],
+  //       initialEditType: 'wysiwyg',
+  //       previewStyle: 'vertical',
+  //       initialValue: content,
+  //       toolbarItems: [
+  //         ['heading', 'bold', 'italic', 'strike'],
+  //         ['hr', 'quote'],
+  //         ['ul', 'ol', 'task', 'indent', 'outdent'],
+  //         ['table', 'image', 'link'],
+  //         ['code', 'codeblock']
+  //       ]
+  //     })
+  //   )
 
-  useEffect(() => {
-    if (viewer) {
-      viewer.setMarkdown(content)
-    }
-  }, [content])
+  //   setViewer(
+  //     new Viewer({
+  //       el: document.querySelector('#viewer') as HTMLElement,
+  //       initialValue: content,
 
-  function handleOnClick() {
-    setContent(editor?.getMarkdown())
-  }
+  //       plugins: [[chart, chartOptions], codeSyntaxHighlight, tableMergedCell, uml]
+  //     })
+  //   )
+  // }, [])
 
-  function handleDownload() {
-    if (typeof window === 'object') {
-      sessionStorage.setItem('content', content)
-    }
+  // useEffect(() => {
+  //   if (viewer) {
+  //     viewer.setMarkdown(content)
+  //   }
+  // }, [content])
 
-    // router.push(
-    //   {
-    //     pathname: '/editor/print',
-    //     query: { content }
-    //   },
-    //   '/apps/editor/print'
-    // )
-    router.push('/apps/editor/print')
-  }
+  // function handleOnClick() {
+  //   setContent(editor?.getMarkdown())
+  // }
+
+  // function handleDownload() {
+  //   if (typeof window === 'object') {
+  //     sessionStorage.setItem('content', content)
+  //   }
+
+  //   router.push('/apps/editor/print')
+  // }
 
   return (
     <div>
       <div id='editor'></div>
-      <button className='preview' onClick={() => handleOnClick()}>
+      {/* <button className='preview' onClick={() => handleOnClick()}>
         show preview
       </button>
       <button className='preview' onClick={() => handleDownload()}>
         Download
-      </button>
+      </button> */}
       <div
         id='viewer'
         style={{

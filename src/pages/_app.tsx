@@ -125,10 +125,10 @@ const App = (props: ExtendedAppProps) => {
 
   const aclAbilities = Component.acl ?? defaultACLObj
 
-  const pushNotification = usePushNotification()
-  pushNotification?.fireNotificationWithTimeout('알람이용', 5000, {
-    body: `알림이 왔어요`
-  })
+  // const pushNotification = usePushNotification()
+  // pushNotification?.fireNotificationWithTimeout('알람이용', 5000, {
+  //   body: `알림이 왔어요`
+  // })
 
   return (
     <Provider store={store}>

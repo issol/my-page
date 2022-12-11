@@ -27,7 +27,7 @@ export default function PushAlarm() {
     window.localStorage.setItem('sentToServer', sent ? '1' : '0')
   }
 
-  function sendTokenToServer(token) {
+  function sendTokenToServer(token: any) {
     if (!isTokenSentToServer()) {
       //Todo : 서버로 토큰일 전송하는 로직 추가
       setTokenSentToServer(true)
