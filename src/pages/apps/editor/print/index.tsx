@@ -1,6 +1,5 @@
 import dynamic from 'next/dynamic'
-
-const Viewer = dynamic<any>(() => import('./viewer').then(m => m), { ssr: false })
+import Viewer from './viewer'
 
 // ** React Imports
 import { ReactNode } from 'react'
@@ -9,7 +8,7 @@ import { ReactNode } from 'react'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 const ViewerPrint = () => {
-  return Viewer && typeof window === 'object' && <Viewer />
+  return <Viewer />
 }
 
 ViewerPrint.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
