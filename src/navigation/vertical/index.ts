@@ -4,7 +4,7 @@ import { VerticalNavItemsType } from 'src/@core/layouts/types'
 const navigation = (): VerticalNavItemsType => {
   return [
     {
-      title: 'Dashboards1',
+      title: 'Dashboard1',
       icon: 'mdi:home-outline',
 
       // badgeContent: 'new',
@@ -25,7 +25,7 @@ const navigation = (): VerticalNavItemsType => {
       ]
     },
     {
-      title: 'Dashboards2',
+      title: 'Dashboard2',
       icon: 'mdi:chart-donut',
       children: [
         {
@@ -43,7 +43,12 @@ const navigation = (): VerticalNavItemsType => {
       ]
     },
     {
-      sectionTitle: 'Apps & Pages'
+      sectionTitle: 'Pages'
+    },
+    {
+      title: 'Calendar',
+      icon: 'mdi:calendar-blank-outline',
+      path: '/apps/calendar'
     },
     {
       title: 'Editor',
@@ -62,11 +67,7 @@ const navigation = (): VerticalNavItemsType => {
     //   path: '/apps/chat'
     // }
 
-    // {
-    //   title: 'Calendar',
-    //   icon: 'mdi:calendar-blank-outline',
-    //   path: '/apps/calendar'
-    // },
+
     // {
     //   title: 'Invoice',
     //   icon: 'mdi:file-document-outline',
