@@ -37,7 +37,7 @@ import {
   MailLabelType,
   MailFolderType,
   MailFoldersArrType,
-  MailFoldersObjType
+  MailFoldersObjType,
 } from 'src/types/apps/emailTypes'
 import { OptionType } from 'src/@core/components/option-menu/types'
 
@@ -46,9 +46,10 @@ const MailItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(3),
   justifyContent: 'space-between',
-  transition: 'border 0.15s ease-in-out, transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
-  '&:not(:first-child)': {
-    borderTop: `1px solid ${theme.palette.divider}`
+  transition:
+    'border 0.15s ease-in-out, transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out',
+  '&:not(:first-of-type)': {
+    borderTop: `1px solid ${theme.palette.divider}`,
   },
   '&:hover': {
     zIndex: 2,
@@ -56,23 +57,39 @@ const MailItem = styled(ListItem)<ListItemProps>(({ theme }) => ({
     transform: 'translateY(-2px)',
     '& .mail-actions': { display: 'flex' },
     '& .mail-info-right': { display: 'none' },
-    '& + .MuiListItem-root': { borderColor: 'transparent' }
+    '& + .MuiListItem-root': { borderColor: 'transparent' },
   },
   [theme.breakpoints.up('xs')]: {
     paddingLeft: theme.spacing(2.5),
-    paddingRight: theme.spacing(2.5)
+    paddingRight: theme.spacing(2.5),
   },
   [theme.breakpoints.up('sm')]: {
     paddingLeft: theme.spacing(5),
-    paddingRight: theme.spacing(5)
-  }
+    paddingRight: theme.spacing(5),
+  },
 }))
 
-const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
+const ScrollWrapper = ({
+  children,
+  hidden,
+}: {
+  children: ReactNode
+  hidden: boolean
+}) => {
   if (hidden) {
-    return <Box sx={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>{children}</Box>
+    return (
+      <Box sx={{ height: '100%', overflowY: 'auto', overflowX: 'hidden' }}>
+        {children}
+      </Box>
+    )
   } else {
-    return <PerfectScrollbar options={{ wheelPropagation: false, suppressScrollX: true }}>{children}</PerfectScrollbar>
+    return (
+      <PerfectScrollbar
+        options={{ wheelPropagation: false, suppressScrollX: true }}
+      >
+        {children}
+      </PerfectScrollbar>
+    )
   }
 }
 
@@ -96,7 +113,7 @@ const MailLog = (props: MailLogType) => {
     handleSelectMail,
     setMailDetailsOpen,
     handleSelectAllMail,
-    handleLeftSidebarToggle
+    handleLeftSidebarToggle,
   } = props
 
   // ** State
@@ -110,7 +127,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:pencil-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     {
       name: 'spam',
@@ -118,7 +135,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:alert-octagon-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     {
       name: 'trash',
@@ -126,7 +143,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:delete-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     {
       name: 'inbox',
@@ -134,8 +151,8 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:email-outline' fontSize={20} />
         </Box>
-      )
-    }
+      ),
+    },
   ]
 
   const foldersConfig = {
@@ -145,7 +162,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:pencil-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     spam: {
       name: 'spam',
@@ -153,7 +170,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:alert-octagon-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     trash: {
       name: 'trash',
@@ -161,7 +178,7 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:delete-outline' fontSize={20} />
         </Box>
-      )
+      ),
     },
     inbox: {
       name: 'inbox',
@@ -169,8 +186,8 @@ const MailLog = (props: MailLogType) => {
         <Box component='span' sx={{ mr: 2, display: 'flex' }}>
           <Icon icon='mdi:email-outline' fontSize={20} />
         </Box>
-      )
-    }
+      ),
+    },
   }
 
   const foldersObj: MailFoldersObjType = {
@@ -178,11 +195,16 @@ const MailLog = (props: MailLogType) => {
     sent: [foldersConfig.trash],
     draft: [foldersConfig.trash],
     spam: [foldersConfig.inbox, foldersConfig.trash],
-    trash: [foldersConfig.inbox, foldersConfig.spam]
+    trash: [foldersConfig.inbox, foldersConfig.spam],
   }
 
   const handleMoveToTrash = () => {
-    dispatch(updateMail({ emailIds: store.selectedMails, dataToUpdate: { folder: 'trash' } }))
+    dispatch(
+      updateMail({
+        emailIds: store.selectedMails,
+        dataToUpdate: { folder: 'trash' },
+      }),
+    )
     dispatch(handleSelectAllMail(false))
   }
 
@@ -202,7 +224,10 @@ const MailLog = (props: MailLogType) => {
     dispatch(updateMailLabel({ emailIds: arr, label }))
   }
 
-  const handleFolderUpdate = (id: number | number[], folder: MailFolderType) => {
+  const handleFolderUpdate = (
+    id: number | number[],
+    folder: MailFolderType,
+  ) => {
     const arr = Array.isArray(id) ? [...id] : [id]
     dispatch(updateMail({ emailIds: arr, dataToUpdate: { folder } }))
   }
@@ -216,7 +241,9 @@ const MailLog = (props: MailLogType) => {
     const array: OptionType[] = []
     Object.entries(labelColors).map(([key, value]: string[]) => {
       array.push({
-        text: <Typography sx={{ textTransform: 'capitalize' }}>{key}</Typography>,
+        text: (
+          <Typography sx={{ textTransform: 'capitalize' }}>{key}</Typography>
+        ),
         icon: (
           <Box component='span' sx={{ mr: 2, color: `${value}.main` }}>
             <Icon icon='mdi:circle' fontSize='0.75rem' />
@@ -226,8 +253,8 @@ const MailLog = (props: MailLogType) => {
           onClick: () => {
             handleLabelUpdate(store.selectedMails, key as MailLabelType)
             dispatch(handleSelectAllMail(false))
-          }
-        }
+          },
+        },
       })
     })
 
@@ -237,18 +264,27 @@ const MailLog = (props: MailLogType) => {
   const handleFoldersMenu = () => {
     const array: OptionType[] = []
 
-    if (routeParams && routeParams.folder && !routeParams.label && foldersObj[routeParams.folder]) {
+    if (
+      routeParams &&
+      routeParams.folder &&
+      !routeParams.label &&
+      foldersObj[routeParams.folder]
+    ) {
       foldersObj[routeParams.folder].map((folder: MailFoldersArrType) => {
         array.length = 0
         array.push({
           icon: folder.icon,
-          text: <Typography sx={{ textTransform: 'capitalize' }}>{folder.name}</Typography>,
+          text: (
+            <Typography sx={{ textTransform: 'capitalize' }}>
+              {folder.name}
+            </Typography>
+          ),
           menuItemProps: {
             onClick: () => {
               handleFolderUpdate(store.selectedMails, folder.name)
               dispatch(handleSelectAllMail(false))
-            }
-          }
+            },
+          },
         })
       })
     } else if (routeParams && routeParams.label) {
@@ -256,13 +292,17 @@ const MailLog = (props: MailLogType) => {
         array.length = 0
         array.push({
           icon: folder.icon,
-          text: <Typography sx={{ textTransform: 'capitalize' }}>{folder.name}</Typography>,
+          text: (
+            <Typography sx={{ textTransform: 'capitalize' }}>
+              {folder.name}
+            </Typography>
+          ),
           menuItemProps: {
             onClick: () => {
               handleFolderUpdate(store.selectedMails, folder.name)
               dispatch(handleSelectAllMail(false))
-            }
-          }
+            },
+          },
         })
       })
     } else {
@@ -270,13 +310,17 @@ const MailLog = (props: MailLogType) => {
         array.length = 0
         array.push({
           icon: folder.icon,
-          text: <Typography sx={{ textTransform: 'capitalize' }}>{folder.name}</Typography>,
+          text: (
+            <Typography sx={{ textTransform: 'capitalize' }}>
+              {folder.name}
+            </Typography>
+          ),
           menuItemProps: {
             onClick: () => {
               handleFolderUpdate(store.selectedMails, folder.name)
               dispatch(handleSelectAllMail(false))
-            }
-          }
+            },
+          },
         })
       })
     }
@@ -287,7 +331,11 @@ const MailLog = (props: MailLogType) => {
   const renderMailLabels = (arr: MailLabelType[]) => {
     return arr.map((label: MailLabelType, index: number) => {
       return (
-        <Box key={index} component='span' sx={{ mr: 3.5, color: `${labelColors[label]}.main` }}>
+        <Box
+          key={index}
+          component='span'
+          sx={{ mr: 3.5, color: `${labelColors[label]}.main` }}
+        >
           <Icon icon='mdi:circle' fontSize='0.625rem' />
         </Box>
       )
@@ -309,16 +357,26 @@ const MailLog = (props: MailLogType) => {
     handleLabelUpdate,
     handleFolderUpdate,
     setMailDetailsOpen,
-    mail: store && store.currentMail ? store.currentMail : null
+    mail: store && store.currentMail ? store.currentMail : null,
   }
 
   return (
-    <Box sx={{ width: '100%', overflow: 'hidden', position: 'relative', '& .ps__rail-y': { zIndex: 5 } }}>
+    <Box
+      sx={{
+        width: '100%',
+        overflow: 'hidden',
+        position: 'relative',
+        '& .ps__rail-y': { zIndex: 5 },
+      }}
+    >
       <Box sx={{ height: '100%', backgroundColor: 'background.paper' }}>
         <Box sx={{ px: 5, py: 3 }}>
           <Box sx={{ display: 'flex', alignItems: 'center', width: '100%' }}>
             {lgAbove ? null : (
-              <IconButton onClick={handleLeftSidebarToggle} sx={{ mr: 1, ml: -2 }}>
+              <IconButton
+                onClick={handleLeftSidebarToggle}
+                sx={{ mr: 1, ml: -2 }}
+              >
                 <Icon icon='mdi:menu' fontSize={20} />
               </IconButton>
             )}
@@ -328,7 +386,10 @@ const MailLog = (props: MailLogType) => {
               onChange={e => setQuery(e.target.value)}
               sx={{ width: '100%', '&:before, &:after': { display: 'none' } }}
               startAdornment={
-                <InputAdornment position='start' sx={{ color: 'text.disabled' }}>
+                <InputAdornment
+                  position='start'
+                  sx={{ color: 'text.disabled' }}
+                >
                   <Icon icon='mdi:magnify' fontSize='1.375rem' />
                 </InputAdornment>
               }
@@ -337,15 +398,29 @@ const MailLog = (props: MailLogType) => {
         </Box>
         <Divider sx={{ m: '0 !important' }} />
         <Box sx={{ py: 1.75, px: { xs: 2.5, sm: 5 } }}>
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}
+          >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               {store && store.mails && store.selectedMails ? (
                 <Checkbox
-                  onChange={e => dispatch(handleSelectAllMail(e.target.checked))}
-                  checked={(store.mails.length && store.mails.length === store.selectedMails.length) || false}
+                  onChange={e =>
+                    dispatch(handleSelectAllMail(e.target.checked))
+                  }
+                  checked={
+                    (store.mails.length &&
+                      store.mails.length === store.selectedMails.length) ||
+                    false
+                  }
                   sx={{
                     '& .MuiSvgIcon-root': { fontSize: '1.375rem' },
-                    '&:not(.Mui-checked) .MuiSvgIcon-root': { color: 'text.disabled' }
+                    '&:not(.Mui-checked) .MuiSvgIcon-root': {
+                      color: 'text.disabled',
+                    },
                   }}
                   indeterminate={
                     !!(
@@ -357,67 +432,118 @@ const MailLog = (props: MailLogType) => {
                 />
               ) : null}
 
-              {store && store.selectedMails.length && store.mails && store.mails.length ? (
+              {store &&
+              store.selectedMails.length &&
+              store.mails &&
+              store.mails.length ? (
                 <Fragment>
                   {routeParams && routeParams.folder !== 'trash' ? (
                     <IconButton onClick={handleMoveToTrash}>
                       <Icon icon='mdi:delete-outline' />
                     </IconButton>
                   ) : null}
-                  <IconButton onClick={() => handleReadMail(store.selectedMails, false)}>
+                  <IconButton
+                    onClick={() => handleReadMail(store.selectedMails, false)}
+                  >
                     <Icon icon='mdi:email-outline' />
                   </IconButton>
-                  <OptionsMenu leftAlignMenu options={handleFoldersMenu()} icon={<Icon icon='mdi:folder-outline' />} />
-                  <OptionsMenu leftAlignMenu options={handleLabelsMenu()} icon={<Icon icon='mdi:label-outline' />} />
+                  <OptionsMenu
+                    leftAlignMenu
+                    options={handleFoldersMenu()}
+                    icon={<Icon icon='mdi:folder-outline' />}
+                  />
+                  <OptionsMenu
+                    leftAlignMenu
+                    options={handleLabelsMenu()}
+                    icon={<Icon icon='mdi:label-outline' />}
+                  />
                 </Fragment>
               ) : null}
             </Box>
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <IconButton size='small' onClick={handleRefreshMailsClick} sx={{ '& svg': { color: 'text.disabled' } }}>
+              <IconButton
+                size='small'
+                onClick={handleRefreshMailsClick}
+                sx={{ '& svg': { color: 'text.disabled' } }}
+              >
                 <Icon icon='mdi:reload' fontSize='1.375rem' />
               </IconButton>
-              <IconButton size='small' sx={{ '& svg': { color: 'text.disabled' } }}>
+              <IconButton
+                size='small'
+                sx={{ '& svg': { color: 'text.disabled' } }}
+              >
                 <Icon icon='mdi:dots-vertical' fontSize='1.375rem' />
               </IconButton>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ m: '0 !important' }} />
-        <Box sx={{ p: 0, position: 'relative', overflowX: 'hidden', height: 'calc(100% - 7rem)' }}>
+        <Box
+          sx={{
+            p: 0,
+            position: 'relative',
+            overflowX: 'hidden',
+            height: 'calc(100% - 7rem)',
+          }}
+        >
           <ScrollWrapper hidden={hidden}>
             {store && store.mails && store.mails.length ? (
               <List sx={{ p: 0 }}>
                 {store.mails.map((mail: MailType) => {
-                  const mailReadToggleIcon = mail.isRead ? 'mdi:email-outline' : 'mdi:email-open-outline'
+                  const mailReadToggleIcon = mail.isRead
+                    ? 'mdi:email-outline'
+                    : 'mdi:email-open-outline'
 
                   return (
                     <MailItem
                       key={mail.id}
-                      sx={{ backgroundColor: mail.isRead ? 'action.hover' : 'background.paper' }}
+                      sx={{
+                        backgroundColor: mail.isRead
+                          ? 'action.hover'
+                          : 'background.paper',
+                      }}
                       onClick={() => {
                         setMailDetailsOpen(true)
                         dispatch(getCurrentMail(mail.id))
-                        dispatch(updateMail({ emailIds: [mail.id], dataToUpdate: { isRead: true } }))
+                        dispatch(
+                          updateMail({
+                            emailIds: [mail.id],
+                            dataToUpdate: { isRead: true },
+                          }),
+                        )
                         setTimeout(() => {
                           dispatch(handleSelectAllMail(false))
                         }, 600)
                       }}
                     >
-                      <Box sx={{ mr: 4, display: 'flex', overflow: 'hidden', alignItems: 'center' }}>
+                      <Box
+                        sx={{
+                          mr: 4,
+                          display: 'flex',
+                          overflow: 'hidden',
+                          alignItems: 'center',
+                        }}
+                      >
                         <Checkbox
                           onClick={e => e.stopPropagation()}
                           onChange={() => dispatch(handleSelectMail(mail.id))}
-                          checked={store.selectedMails.includes(mail.id) || false}
+                          checked={
+                            store.selectedMails.includes(mail.id) || false
+                          }
                         />
                         <IconButton
                           size='small'
-                          onClick={e => handleStarMail(e, mail.id, !mail.isStarred)}
+                          onClick={e =>
+                            handleStarMail(e, mail.id, !mail.isStarred)
+                          }
                           sx={{
                             mr: { xs: 0, sm: 3 },
-                            color: mail.isStarred ? 'warning.main' : 'text.secondary',
+                            color: mail.isStarred
+                              ? 'warning.main'
+                              : 'text.secondary',
                             '& svg': {
-                              display: { xs: 'none', sm: 'block' }
-                            }
+                              display: { xs: 'none', sm: 'block' },
+                            },
                           }}
                         >
                           <Icon icon='mdi:star-outline' />
@@ -432,7 +558,7 @@ const MailLog = (props: MailLogType) => {
                             display: 'flex',
                             overflow: 'hidden',
                             flexDirection: { xs: 'column', sm: 'row' },
-                            alignItems: { xs: 'flex-start', sm: 'center' }
+                            alignItems: { xs: 'flex-start', sm: 'center' },
                           }}
                         >
                           <Typography
@@ -442,26 +568,39 @@ const MailLog = (props: MailLogType) => {
                               whiteSpace: 'nowrap',
                               width: ['100%', 'auto'],
                               overflow: ['hidden', 'unset'],
-                              textOverflow: ['ellipsis', 'unset']
+                              textOverflow: ['ellipsis', 'unset'],
                             }}
                           >
                             {mail.from.name}
                           </Typography>
-                          <Typography noWrap variant='body2' sx={{ width: '100%' }}>
+                          <Typography
+                            noWrap
+                            variant='body2'
+                            sx={{ width: '100%' }}
+                          >
                             {mail.subject}
                           </Typography>
                         </Box>
                       </Box>
                       <Box
                         className='mail-actions'
-                        sx={{ display: 'none', alignItems: 'center', justifyContent: 'flex-end' }}
+                        sx={{
+                          display: 'none',
+                          alignItems: 'center',
+                          justifyContent: 'flex-end',
+                        }}
                       >
                         {routeParams && routeParams.folder !== 'trash' ? (
                           <Tooltip placement='top' title='Delete Mail'>
                             <IconButton
                               onClick={e => {
                                 e.stopPropagation()
-                                dispatch(updateMail({ emailIds: [mail.id], dataToUpdate: { folder: 'trash' } }))
+                                dispatch(
+                                  updateMail({
+                                    emailIds: [mail.id],
+                                    dataToUpdate: { folder: 'trash' },
+                                  }),
+                                )
                               }}
                             >
                               <Icon icon='mdi:delete-outline' />
@@ -469,7 +608,10 @@ const MailLog = (props: MailLogType) => {
                           </Tooltip>
                         ) : null}
 
-                        <Tooltip placement='top' title={mail.isRead ? 'Unread Mail' : 'Read Mail'}>
+                        <Tooltip
+                          placement='top'
+                          title={mail.isRead ? 'Unread Mail' : 'Read Mail'}
+                        >
                           <IconButton
                             onClick={e => {
                               e.stopPropagation()
@@ -492,17 +634,28 @@ const MailLog = (props: MailLogType) => {
                       </Box>
                       <Box
                         className='mail-info-right'
-                        sx={{ display: 'flex', alignItems: 'center', justifyContent: 'flex-end' }}
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          justifyContent: 'flex-end',
+                        }}
                       >
-                        <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>{renderMailLabels(mail.labels)}</Box>
+                        <Box sx={{ display: { xs: 'none', sm: 'flex' } }}>
+                          {renderMailLabels(mail.labels)}
+                        </Box>
                         <Typography
                           variant='caption'
-                          sx={{ minWidth: '50px', textAlign: 'right', whiteSpace: 'nowrap', color: 'text.disabled' }}
+                          sx={{
+                            minWidth: '50px',
+                            textAlign: 'right',
+                            whiteSpace: 'nowrap',
+                            color: 'text.disabled',
+                          }}
                         >
                           {new Date(mail.time).toLocaleTimeString('en-US', {
                             hour: '2-digit',
                             minute: '2-digit',
-                            hour12: true
+                            hour12: true,
                           })}
                         </Typography>
                       </Box>
@@ -511,7 +664,15 @@ const MailLog = (props: MailLogType) => {
                 })}
               </List>
             ) : (
-              <Box sx={{ mt: 6, display: 'flex', justifyContent: 'center', alignItems: 'center', '& svg': { mr: 2 } }}>
+              <Box
+                sx={{
+                  mt: 6,
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
+                  '& svg': { mr: 2 },
+                }}
+              >
                 <Icon icon='mdi:alert-circle-outline' fontSize={20} />
                 <Typography>No Mails Found</Typography>
               </Box>
@@ -524,7 +685,7 @@ const MailLog = (props: MailLogType) => {
               zIndex: 5,
               position: 'absolute',
               color: 'common.white',
-              backgroundColor: 'action.disabledBackground'
+              backgroundColor: 'action.disabledBackground',
             }}
           >
             <CircularProgress color='inherit' />

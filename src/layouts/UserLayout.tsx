@@ -23,6 +23,7 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { useAuth } from 'src/hooks/useAuth'
 
 interface Props {
   children: ReactNode
@@ -32,6 +33,7 @@ interface Props {
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+  const auth = useAuth()
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -59,7 +61,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       contentHeightFixed={contentHeightFixed}
       verticalLayoutProps={{
         navMenu: {
-          navItems: VerticalNavItems()
+          navItems: VerticalNavItems(auth.user ? auth.user.role : ''),
 
           // Uncomment the below line when using server-side menu in vertical layout and comment the above line
           // navItems: verticalMenuItems
@@ -72,25 +74,30 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               saveSettings={saveSettings}
               toggleNavVisibility={props.toggleNavVisibility}
             />
-          )
-        }
+          ),
+        },
       }}
       {...(settings.layout === 'horizontal' && {
         horizontalLayoutProps: {
           navMenu: {
-            navItems: HorizontalNavItems()
+            navItems: HorizontalNavItems(),
 
             // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
             // navItems: horizontalMenuItems
           },
           appBar: {
-            content: () => <HorizontalAppBarContent hidden={hidden} settings={settings} saveSettings={saveSettings} />
-          }
-        }
+            content: () => (
+              <HorizontalAppBarContent
+                hidden={hidden}
+                settings={settings}
+                saveSettings={saveSettings}
+              />
+            ),
+          },
+        },
       })}
     >
       {children}
-      
     </Layout>
   )
 }

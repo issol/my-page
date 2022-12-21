@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode } from 'react'
+import React, { ReactNode, Suspense, useState } from 'react'
 
 // ** Next Imports
 import Head from 'next/head'
@@ -42,7 +42,10 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
 import { AuthProvider } from 'src/context/AuthContext'
-import { SettingsConsumer, SettingsProvider } from 'src/@core/context/settingsContext'
+import {
+  SettingsConsumer,
+  SettingsProvider,
+} from 'src/@core/context/settingsContext'
 
 // ** Styled Components
 import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
@@ -64,7 +67,10 @@ import 'src/iconify-bundle/icons-bundle-react'
 // ** Global css styles
 import '../../styles/globals.css'
 
-import '../../styles/editor.css'
+import { QueryClient, QueryClientProvider } from 'react-query'
+import ErrorBoundary from 'src/@core/components/error/error-boundary'
+import ErrorFallback from 'src/@core/components/error/error-fallback'
+import FallbackSpinner from 'src/@core/components/spinner'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -106,11 +112,29 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+  const [queryClient] = useState(
+    () =>
+      new QueryClient({
+        defaultOptions: {
+          queries: {
+            // staleTime: 60 * 1000, // 1
+            cacheTime: 1000 * 60 * 1,
+
+            refetchOnWindowFocus: false,
+            suspense: false,
+            retry: false,
+          },
+        },
+      }),
+  )
 
   // Variables
   const contentHeightFixed = Component.contentHeightFixed ?? false
   const getLayout =
-    Component.getLayout ?? (page => <UserLayout contentHeightFixed={contentHeightFixed}>{page}</UserLayout>)
+    Component.getLayout ??
+    (page => (
+      <UserLayout contentHeightFixed={contentHeightFixed}>{page}</UserLayout>
+    ))
 
   const setConfig = Component.setConfig ?? undefined
 
@@ -121,42 +145,64 @@ const App = (props: ExtendedAppProps) => {
   const aclAbilities = Component.acl ?? defaultACLObj
 
   return (
-    <Provider store={store}>
-      <CacheProvider value={emotionCache}>
-        <Head>
-          <title>{`${themeConfig.templateName} - Material Design React Admin Template`}</title>
-          <meta
-            name='description'
-            content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
-          />
-          <meta name='keywords' content='Material Design, MUI, Admin Template, React Admin Template' />
-          <meta name='viewport' content='initial-scale=1, width=device-width' />
-        </Head>
+    <QueryClientProvider client={queryClient}>
+      <Provider store={store}>
+        <CacheProvider value={emotionCache}>
+          <Head>
+            <title>{`${themeConfig.templateName}`}</title>
+            <meta
+              name='description'
+              content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
+            />
+            <meta
+              name='keywords'
+              content='Material Design, MUI, Admin Template, React Admin Template'
+            />
+            <meta
+              name='viewport'
+              content='initial-scale=1, width=device-width'
+            />
+          </Head>
 
-        <AuthProvider>
-          <SettingsProvider {...(setConfig ? { pageSettings: setConfig() } : {})}>
-            <SettingsConsumer>
-              {({ settings }) => {
-                return (
-                  <ThemeComponent settings={settings}>
-                    <WindowWrapper>
-                      <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                        <AclGuard aclAbilities={aclAbilities} guestGuard={guestGuard}>
-                          {getLayout(<Component {...pageProps} />)}
-                        </AclGuard>
-                      </Guard>
-                    </WindowWrapper>
-                    <ReactHotToast>
-                      <Toaster position={settings.toastPosition} toastOptions={{ className: 'react-hot-toast' }} />
-                    </ReactHotToast>
-                  </ThemeComponent>
-                )
-              }}
-            </SettingsConsumer>
-          </SettingsProvider>
-        </AuthProvider>
-      </CacheProvider>
-    </Provider>
+          <AuthProvider>
+            <SettingsProvider
+              {...(setConfig ? { pageSettings: setConfig() } : {})}
+            >
+              <SettingsConsumer>
+                {({ settings }) => {
+                  return (
+                    <ThemeComponent settings={settings}>
+                      <WindowWrapper>
+                        <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                          <AclGuard
+                            aclAbilities={aclAbilities}
+                            guestGuard={guestGuard}
+                          >
+                            <Suspense fallback={<FallbackSpinner />}>
+                              <ErrorBoundary
+                                FallbackComponent={<ErrorFallback />}
+                              >
+                                {getLayout(<Component {...pageProps} />)}
+                              </ErrorBoundary>
+                            </Suspense>
+                          </AclGuard>
+                        </Guard>
+                      </WindowWrapper>
+                      <ReactHotToast>
+                        <Toaster
+                          position={settings.toastPosition}
+                          toastOptions={{ className: 'react-hot-toast' }}
+                        />
+                      </ReactHotToast>
+                    </ThemeComponent>
+                  )
+                }}
+              </SettingsConsumer>
+            </SettingsProvider>
+          </AuthProvider>
+        </CacheProvider>
+      </Provider>
+    </QueryClientProvider>
   )
 }
 

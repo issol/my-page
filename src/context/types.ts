@@ -1,4 +1,5 @@
-export type ErrCallbackType = (err: { [key: string]: string }) => void
+// export type ErrCallbackType = (err: { [key: string]: string }) => void
+export type ErrCallbackType = any
 
 export type LoginParams = {
   email: string
@@ -14,12 +15,21 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: string
+  role: 'ADMIN' | 'GLOHUB_ADMIN' | 'PRO' | 'CLIENT' | 'TAD' | 'LPM'
   email: string
   fullName: string
   username: string
-  password: string
+  password?: string
   avatar?: string | null
+  policy?: any
+}
+
+export type LoginSuccessResponse = {
+  email: string
+  accessToken: string
+  isFirstLogin: string | boolean
+  role: string
+  originatorCredentials: string | null
 }
 
 export type AuthValuesType = {
