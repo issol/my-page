@@ -1,4 +1,3 @@
-import '../styles/editor.css'
 import '../styles/globals.css'
 
 import * as NextImage from 'next/image'
