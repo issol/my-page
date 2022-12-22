@@ -10,11 +10,11 @@ export const AntSwitch = muiStyled(Switch)(({ theme }) => ({
   display: 'flex',
   '&:active': {
     '& .MuiSwitch-thumb': {
-      width: 15
+      width: 15,
     },
     '& .MuiSwitch-switchBase.Mui-checked': {
-      transform: 'translateX(9px)'
-    }
+      transform: 'translateX(9px)',
+    },
   },
   '& .MuiSwitch-switchBase': {
     padding: 2,
@@ -23,9 +23,9 @@ export const AntSwitch = muiStyled(Switch)(({ theme }) => ({
       color: '#fff',
       '& + .MuiSwitch-track': {
         opacity: 1,
-        backgroundColor: `${palette.primary.main}`
-      }
-    }
+        backgroundColor: `${palette.primary.main}`,
+      },
+    },
   },
   '& .MuiSwitch-thumb': {
     boxShadow: '0 2px 4px 0 rgb(0 35 11 / 20%)',
@@ -33,15 +33,16 @@ export const AntSwitch = muiStyled(Switch)(({ theme }) => ({
     height: 12,
     borderRadius: 6,
     transition: theme.transitions.create(['width'], {
-      duration: 200
-    })
+      duration: 200,
+    }),
   },
   '& .MuiSwitch-track': {
     borderRadius: 16 / 2,
     opacity: 1,
-    backgroundColor: theme.palette.mode === 'dark' ? 'rgba(255,255,255,.35)' : 'rgba(0,0,0,.25)',
-    boxSizing: 'border-box'
-  }
+    backgroundColor:
+      theme.palette.mode === 'dark' ? palette.grey[400] : 'rgba(0,0,0,.25)',
+    boxSizing: 'border-box',
+  },
 }))
 
 export function ToggleButton(props: Omit<SwitchProps, 'inputRef'>) {

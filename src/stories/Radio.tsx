@@ -3,7 +3,10 @@ import { PaletteType } from '../@core/theme/palette/type'
 import styled from '@emotion/styled'
 import { InputHTMLAttributes } from 'react'
 
-export const CustomRadio = styled.label<{ color?: 'primary' | 'secondary'; palette: PaletteType }>`
+const CustomRadio = styled.label<{
+  color?: 'primary' | 'secondary'
+  palette: PaletteType
+}>`
   display: flex;
   align-items: center;
   gap: 8px;
@@ -26,13 +29,16 @@ export const CustomRadio = styled.label<{ color?: 'primary' | 'secondary'; palet
   }
   input:checked + .dot {
     display: inline-block;
-    border: 1px solid ${({ color, palette }) => (color === 'secondary' ? palette.secondary.main : palette.primary.main)};
+    border: 1px solid
+      ${({ color, palette }) =>
+        color === 'secondary' ? palette.secondary.main : palette.primary.main};
   }
   .dot:after {
     content: '';
     display: none;
     position: absolute;
-    background: ${({ color, palette }) => (color === 'secondary' ? palette.secondary.main : palette.primary.main)};
+    background: ${({ color, palette }) =>
+      color === 'secondary' ? palette.secondary.main : palette.primary.main};
     transform: translate(50%, 50%);
     width: 8px;
     height: 8px;
@@ -55,7 +61,16 @@ type RadioProps = {
   color?: 'primary' | 'secondary'
 }
 
-export function RadioButton({ htmlFor, name, disabled, checked, onChange, labelName, value, color }: RadioProps) {
+export function RadioButton({
+  htmlFor,
+  name,
+  disabled,
+  checked,
+  onChange,
+  labelName,
+  value,
+  color,
+}: RadioProps) {
   const palette = pal('light', 'default')
   CustomRadio.defaultProps = { htmlFor }
 
