@@ -24,6 +24,7 @@ import CrmProjectTimeline from 'src/views/dashboards/crm/CrmProjectTimeline'
 import CrmMeetingSchedule from 'src/views/dashboards/crm/CrmMeetingSchedule'
 import CrmSocialNetworkVisits from 'src/views/dashboards/crm/CrmSocialNetworkVisits'
 import CrmMostSalesInCountries from 'src/views/dashboards/crm/CrmMostSalesInCountries'
+import { notificationTest } from 'src/apis/notification.api'
 
 const CrmDashboard = () => {
   return (

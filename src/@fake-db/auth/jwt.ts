@@ -13,27 +13,27 @@ import { UserDataType } from 'src/context/types'
 const users: UserDataType[] = [
   {
     id: 1,
-    role: 'admin',
+    role: 'ADMIN',
     password: 'admin',
     fullName: 'John Doe',
     username: 'johndoe',
-    email: 'admin@materialize.com'
+    email: 'admin@materialize.com',
   },
   {
     id: 2,
-    role: 'client',
+    role: 'CLIENT',
     password: 'client',
     fullName: 'Jane Doe',
     username: 'janedoe',
-    email: 'client@materialize.com'
-  }
+    email: 'client@materialize.com',
+  },
 ]
 
 // ! These two secrets should be in .env file and not in any other file
 const jwtConfig = {
   secret: process.env.NEXT_PUBLIC_JWT_SECRET,
   expirationTime: process.env.NEXT_PUBLIC_JWT_EXPIRATION,
-  refreshTokenSecret: process.env.NEXT_PUBLIC_JWT_REFRESH_TOKEN_SECRET
+  refreshTokenSecret: process.env.NEXT_PUBLIC_JWT_REFRESH_TOKEN_SECRET,
 }
 
 type ResponseType = [number, { [key: string]: any }]
@@ -42,23 +42,25 @@ mock.onPost('/jwt/login').reply(request => {
   const { email, password } = JSON.parse(request.data)
 
   let error = {
-    email: ['Something went wrong']
+    email: ['Something went wrong'],
   }
 
   const user = users.find(u => u.email === email && u.password === password)
 
   if (user) {
-    const accessToken = jwt.sign({ id: user.id }, jwtConfig.secret as string, { expiresIn: jwtConfig.expirationTime })
+    const accessToken = jwt.sign({ id: user.id }, jwtConfig.secret as string, {
+      expiresIn: jwtConfig.expirationTime,
+    })
 
     const response = {
       accessToken,
-      userData: { ...user, password: undefined }
+      userData: { ...user, password: undefined },
     }
 
     return [200, response]
   } else {
     error = {
-      email: ['email or Password is Invalid']
+      email: ['email or Password is Invalid'],
     }
 
     return [400, { error }]
@@ -69,10 +71,14 @@ mock.onPost('/jwt/register').reply(request => {
   if (request.data.length > 0) {
     const { email, password, username } = JSON.parse(request.data)
     const isEmailAlreadyInUse = users.find(user => user.email === email)
-    const isUsernameAlreadyInUse = users.find(user => user.username === username)
+    const isUsernameAlreadyInUse = users.find(
+      user => user.username === username,
+    )
     const error = {
       email: isEmailAlreadyInUse ? 'This email is already in use.' : null,
-      username: isUsernameAlreadyInUse ? 'This username is already in use.' : null
+      username: isUsernameAlreadyInUse
+        ? 'This username is already in use.'
+        : null,
     }
 
     if (!error.username && !error.email) {
@@ -81,19 +87,22 @@ mock.onPost('/jwt/register').reply(request => {
       if (length) {
         lastIndex = users[length - 1].id
       }
-      const userData = {
+      const userData: UserDataType = {
         id: lastIndex + 1,
         email,
         password,
         username,
         avatar: null,
         fullName: '',
-        role: 'admin'
+        role: 'ADMIN',
       }
 
       users.push(userData)
 
-      const accessToken = jwt.sign({ id: userData.id }, jwtConfig.secret as string)
+      const accessToken = jwt.sign(
+        { id: userData.id },
+        jwtConfig.secret as string,
+      )
 
       const user = { ...userData }
       delete user.password
@@ -137,12 +146,19 @@ mock.onGet('/auth/me').reply(config => {
         const user = users.find(u => u.id === userId)
 
         // ** Sign a new token
-        const accessToken = jwt.sign({ id: userId }, jwtConfig.secret as string, {
-          expiresIn: jwtConfig.expirationTime
-        })
+        const accessToken = jwt.sign(
+          { id: userId },
+          jwtConfig.secret as string,
+          {
+            expiresIn: jwtConfig.expirationTime,
+          },
+        )
 
         // ** Set new token in localStorage
-        window.localStorage.setItem(defaultAuthConfig.storageTokenKeyName, accessToken)
+        window.localStorage.setItem(
+          defaultAuthConfig.storageTokenKeyName,
+          accessToken,
+        )
 
         const obj = { userData: { ...user, password: undefined } }
 
@@ -155,7 +171,9 @@ mock.onGet('/auth/me').reply(config => {
       const userId = decoded.id
 
       // ** Get user that matches id in token
-      const userData = JSON.parse(JSON.stringify(users.find((u: UserDataType) => u.id === userId)))
+      const userData = JSON.parse(
+        JSON.stringify(users.find((u: UserDataType) => u.id === userId)),
+      )
 
       delete userData.password
 

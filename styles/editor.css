@@ -104,7 +104,9 @@ img.ProseMirror-separator {
 .toastui-editor-md-container .toastui-editor-md-preview > p:first-child {
   margin-top: 0 !important;
 }
-.toastui-editor-md-container .toastui-editor-md-preview .toastui-editor-contents {
+.toastui-editor-md-container
+  .toastui-editor-md-preview
+  .toastui-editor-contents {
   padding-top: 8px;
 }
 .toastui-editor-main .toastui-editor-md-tab-style > .toastui-editor,
@@ -122,7 +124,9 @@ img.ProseMirror-separator {
   display: block;
 }
 .toastui-editor-main .toastui-editor-md-vertical-style .toastui-editor,
-.toastui-editor-main .toastui-editor-md-vertical-style .toastui-editor-md-preview {
+.toastui-editor-main
+  .toastui-editor-md-vertical-style
+  .toastui-editor-md-preview {
   width: 50%;
 }
 .toastui-editor-main .toastui-editor-md-splitter {
@@ -133,7 +137,9 @@ img.ProseMirror-separator {
   position: absolute;
   width: 1px;
 }
-.toastui-editor-main .toastui-editor-md-vertical-style .toastui-editor-md-splitter {
+.toastui-editor-main
+  .toastui-editor-md-vertical-style
+  .toastui-editor-md-splitter {
   display: block;
 }
 .toastui-editor-ww-container {
@@ -189,8 +195,8 @@ img.ProseMirror-separator {
 .toastui-editor-defaultUI {
   border: 1px solid #dadde6;
   border-radius: 4px;
-  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕, Nanum Barun Gothic, 맑은고딕, Malgun Gothic,
-    sans-serif;
+  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕,
+    Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
   height: 100%;
   position: relative;
 }
@@ -591,7 +597,7 @@ img.ProseMirror-separator {
 .toastui-editor-popup-add-heading h3 {
   font-size: 24px;
 }
-/* 
+/*
 .toastui-editor-popup-add-heading h4 {
   font-size: 18px;
 }
@@ -747,8 +753,8 @@ img.ProseMirror-separator {
   background-color: #444;
   border-radius: 3px;
   color: #fff;
-  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕, Nanum Barun Gothic, 맑은고딕, Malgun Gothic,
-    sans-serif;
+  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕,
+    Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
   font-size: 12px;
   padding: 4px 7px;
   position: absolute;
@@ -860,8 +866,8 @@ img.ProseMirror-separator {
 .ProseMirror {
   overflow-x: hidden;
   color: #222;
-  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕, Nanum Barun Gothic, 맑은고딕, Malgun Gothic,
-    sans-serif;
+  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕,
+    Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
   font-size: 13px;
   height: calc(100% - 36px);
   overflow-y: auto;
@@ -879,8 +885,8 @@ table.ProseMirror-selectednode {
   outline: 2px solid #00a9ff;
 }
 .toastui-editor-contents {
-  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕, Nanum Barun Gothic, 맑은고딕, Malgun Gothic,
-    sans-serif;
+  font-family: Open Sans, Helvetica Neue, Helvetica, Arial, 나눔바른고딕,
+    Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
   font-size: 13px;
   margin: 0;
   padding: 0;
@@ -991,8 +997,9 @@ table.ProseMirror-selectednode {
 .toastui-editor-contents pre {
   border: 0;
   border-radius: 0;
-  font-family: Consolas, Courier, Apple SD 산돌고딕 Neo, -apple-system, Lucida Grande, Apple SD Gothic Neo, 맑은 고딕,
-    Malgun Gothic, Segoe UI, 돋움, dotum, sans-serif;
+  font-family: Consolas, Courier, Apple SD 산돌고딕 Neo, -apple-system,
+    Lucida Grande, Apple SD Gothic Neo, 맑은 고딕, Malgun Gothic, Segoe UI, 돋움,
+    dotum, sans-serif;
 }
 .toastui-editor-contents pre {
   background-color: #f4f7f8;
@@ -1170,7 +1177,8 @@ table.ProseMirror-selectednode {
   padding: 9px 13px 8px 12px;
   position: relative;
 }
-.toastui-editor-custom-block.ProseMirror-selectednode .toastui-editor-custom-block-view {
+.toastui-editor-custom-block.ProseMirror-selectednode
+  .toastui-editor-custom-block-view {
   border: 1px solid #dbd4ea;
   border-radius: 2px;
 }
@@ -1180,7 +1188,9 @@ table.ProseMirror-selectednode {
   right: 10px;
   top: 7px;
 }
-.toastui-editor-custom-block.ProseMirror-selectednode .toastui-editor-custom-block-view .tool {
+.toastui-editor-custom-block.ProseMirror-selectednode
+  .toastui-editor-custom-block-view
+  .tool {
   display: block;
 }
 .toastui-editor-custom-block-view button {
@@ -1393,7 +1403,8 @@ table.ProseMirror-selectednode {
 }
 .toastui-editor-md-code,
 .toastui-editor-md-code-block {
-  font-family: Consolas, Courier, Lucida Grande, 나눔바른고딕, Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
+  font-family: Consolas, Courier, Lucida Grande, 나눔바른고딕,
+    Nanum Barun Gothic, 맑은고딕, Malgun Gothic, sans-serif;
 }
 .toastui-editor-md-custom-block {
   color: #452d6b;

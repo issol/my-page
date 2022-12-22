@@ -1,633 +1,234 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
-const navigation = (): VerticalNavItemsType => {
+const navigation = (role: string): VerticalNavItemsType => {
   return [
+    // ** Dashboard - Client, LPM, TAD, Pro
     {
-      title: 'Dashboards',
+      title: 'Dashboard',
       icon: 'mdi:home-outline',
-      badgeContent: 'new',
-      badgeColor: 'error',
-      children: [
-        {
-          title: 'CRM',
-          path: '/dashboards/crm'
-        },
-        {
-          title: 'Analytics',
-          path: '/dashboards/analytics'
-        },
-        {
-          title: 'eCommerce',
-          path: '/dashboards/ecommerce'
-        }
-      ]
+      action: 'dashboard-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/dashboard`,
+    },
+    // ** Account - Client, LPM, TAD
+    {
+      title: 'Account',
+      icon: 'mdi:home-outline',
+      action: 'account-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/account`,
+    },
+    // ** My Page - Pro
+    {
+      title: 'My Page',
+      icon: 'mdi:home-outline',
+      action: 'myPage-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/my-page`,
     },
     {
-      title: 'Charts',
-      icon: 'mdi:chart-donut',
-      children: [
-        {
-          title: 'Apex',
-          path: '/charts/apex-charts'
-        },
-        {
-          title: 'Recharts',
-          path: '/charts/recharts'
-        },
-        {
-          title: 'ChartJS',
-          path: '/charts/chartjs'
-        }
-      ]
+      title: 'Email',
+      icon: 'mdi:home-outline',
+      action: 'email-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/email`,
     },
     {
-      sectionTitle: 'Apps & Pages'
+      title: 'Onboarding',
+      icon: 'mdi:home-outline',
+      action: 'onboarding-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Onboarding List',
+          path: `/${role.toLowerCase()}/onboarding/onboarding-list`,
+          action: 'onboardingList-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Recruiting',
+      icon: 'mdi:home-outline',
+      action: 'recruiting-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Recruiting List',
+          path: `/${role.toLowerCase()}/recruiting/recruiting-list`,
+          action: 'recruitingList-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Create Recruiting',
+          path: `/${role.toLowerCase()}/recruiting/recruiting-create`,
+          action: 'recruitingCreate-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Job Posting',
+          path: `/${role.toLowerCase()}/recruiting/job-posting`,
+          action: 'recruitingJobPosting-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Pros',
+      icon: 'mdi:home-outline',
+      action: 'pros-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Pro List',
+          path: `/${role.toLowerCase()}/pros/pro-list`,
+          action: 'proList-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Create Pro',
+          path: `/${role.toLowerCase()}/pros/pro-create`,
+          action: 'proCreate-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Clients',
+      icon: 'mdi:home-outline',
+      action: 'clients-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Client List',
+          path: `/${role.toLowerCase()}/clients/client-list`,
+          action: 'clientList-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Create Client',
+          path: `/${role.toLowerCase()}/clients/client-create`,
+          action: 'clientCreate-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Quotes',
+      icon: 'mdi:home-outline',
+      action: 'quotes-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Quote List',
+          path: `/${role.toLowerCase()}/quotes/quote-list`,
+          action: 'quoteList-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Create Quote',
+          path: `/${role.toLowerCase()}/quotes/quote-create`,
+          action: 'quoteCreate-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Orders',
+      icon: 'mdi:home-outline',
+      action: 'orders-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Order List',
+          path: `/${role.toLowerCase()}/orders/order-list`,
+          action: 'orderList-read',
+          subject: `${role}`,
+        },
+        {
+          title: 'Create Order',
+          path: `/${role.toLowerCase()}/orders/order-create`,
+          action: 'orderCreate-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Jobs',
+      icon: 'mdi:home-outline',
+      action: 'jobs-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: 'Job List',
+          action: 'jobList-read',
+          subject: `${role}`,
+          path: `/${role.toLowerCase()}/jobs/job-list`,
+        },
+      ],
+    },
+    {
+      title: 'Invoices',
+      icon: 'mdi:home-outline',
+      action: 'invoices-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: `Client's invoice list`,
+          path: `/${role.toLowerCase()}/invoices/client-invoice-list`,
+          action: 'clientInvoiceList-read',
+          subject: `${role}`,
+        },
+        {
+          title: `Create client's invoice`,
+          path: `/${role.toLowerCase()}/invoices/client-invoice-create`,
+          action: 'clientInvoiceCreate-read',
+          subject: `${role}`,
+        },
+        {
+          title: `Pros' invoice list`,
+          path: `/${role.toLowerCase()}/invoices/pro-invoice-list`,
+          action: 'proInvoiceList-read',
+          subject: `${role}`,
+        },
+        {
+          title: `Create pro’s invoice`,
+          path: `/${role.toLowerCase()}/invoices/pro-invoice-create`,
+          action: 'proInvoiceCreate-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+    {
+      title: 'Certification Test',
+      icon: 'mdi:home-outline',
+      action: 'certificationTest-read',
+      subject: `${role}`,
+      children: [
+        {
+          title: `Test List`,
+          path: `/${role.toLowerCase()}/certification-test/test-list`,
+          action: 'certificationTestList-read',
+          subject: `${role}`,
+        },
+        {
+          title: `Test Materials`,
+          path: `/${role.toLowerCase()}/certification-test/test-materials`,
+          action: 'certificationTestMaterials-read',
+          subject: `${role}`,
+        },
+      ],
+    },
+
+    {
+      sectionTitle: 'Apps & Pages',
     },
     {
       title: 'Editor',
       icon: 'mdi:library-edit-outline',
-      path: '/apps/editor'
-    }
-
-    // {
-    //   title: 'Email',
-    //   icon: 'mdi:email-outline',
-    //   path: '/apps/email'
-    // },
-    // {
-    //   title: 'Chat',
-    //   icon: 'mdi:message-outline',
-    //   path: '/apps/chat'
-    // }
-
-    // {
-    //   title: 'Calendar',
-    //   icon: 'mdi:calendar-blank-outline',
-    //   path: '/apps/calendar'
-    // },
-    // {
-    //   title: 'Invoice',
-    //   icon: 'mdi:file-document-outline',
-    //   children: [
-    //     {
-    //       title: 'List',
-    //       path: '/apps/invoice/list'
-    //     },
-    //     {
-    //       title: 'Preview',
-    //       path: '/apps/invoice/preview'
-    //     },
-    //     {
-    //       title: 'Edit',
-    //       path: '/apps/invoice/edit'
-    //     },
-    //     {
-    //       title: 'Add',
-    //       path: '/apps/invoice/add'
-    //     }
-    //   ]
-    // }
-
-    // {
-    //   title: 'User',
-    //   icon: 'mdi:account-outline',
-    //   children: [
-    //     {
-    //       title: 'List',
-    //       path: '/apps/user/list'
-    //     },
-    //     {
-    //       title: 'View',
-    //       children: [
-    //         {
-    //           title: 'Overview',
-    //           path: '/apps/user/view/overview'
-    //         },
-    //         {
-    //           title: 'Security',
-    //           path: '/apps/user/view/security'
-    //         },
-    //         {
-    //           title: 'Billing & Plans',
-    //           path: '/apps/user/view/billing-plan'
-    //         },
-    //         {
-    //           title: 'Notifications',
-    //           path: '/apps/user/view/notification'
-    //         },
-    //         {
-    //           title: 'Connection',
-    //           path: '/apps/user/view/connection'
-    //         }
-    //       ]
-    //     }
-    //   ]
-    // },
-    // {
-    //   title: 'Roles & Permissions',
-    //   icon: 'mdi:shield-outline',
-    //   children: [
-    //     {
-    //       title: 'Roles',
-    //       path: '/apps/roles'
-    //     },
-    //     {
-    //       title: 'Permissions',
-    //       path: '/apps/permissions'
-    //     }
-    //   ]
-    // },
-    // {
-    //   title: 'Pages',
-    //   icon: 'mdi:file-document-outline',
-    //   children: [
-    //     {
-    //       title: 'User Profile',
-    //       children: [
-    //         {
-    //           title: 'Profile',
-    //           path: '/pages/user-profile/profile'
-    //         },
-    //         {
-    //           title: 'Teams',
-    //           path: '/pages/user-profile/teams'
-    //         },
-    //         {
-    //           title: 'Projects',
-    //           path: '/pages/user-profile/projects'
-    //         },
-    //         {
-    //           title: 'Connections',
-    //           path: '/pages/user-profile/connections'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Account Settings',
-    //       children: [
-    //         {
-    //           title: 'Account',
-    //           path: '/pages/account-settings/account'
-    //         },
-    //         {
-    //           title: 'Security',
-    //           path: '/pages/account-settings/security'
-    //         },
-    //         {
-    //           title: 'Billing',
-    //           path: '/pages/account-settings/billing'
-    //         },
-    //         {
-    //           title: 'Notifications',
-    //           path: '/pages/account-settings/notifications'
-    //         },
-
-    //         {
-    //           title: 'Connections',
-    //           path: '/pages/account-settings/connections'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'FAQ',
-    //       path: '/pages/faq'
-    //     },
-    //     {
-    //       title: 'Help Center',
-    //       path: '/pages/help-center'
-    //     },
-    //     {
-    //       title: 'Pricing',
-    //       path: '/pages/pricing'
-    //     },
-    //     {
-    //       title: 'Miscellaneous',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Coming Soon',
-    //           path: '/pages/misc/coming-soon'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Under Maintenance',
-    //           path: '/pages/misc/under-maintenance'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Page Not Found - 404',
-    //           path: '/pages/misc/404-not-found'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Not Authorized - 401',
-    //           path: '/pages/misc/401-not-authorized'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Server Error - 500',
-    //           path: '/pages/misc/500-server-error'
-    //         }
-    //       ]
-    //     }
-    //   ]
-    // },
-    // {
-    //   title: 'Auth Pages',
-    //   icon: 'mdi:lock-outline',
-    //   children: [
-    //     {
-    //       title: 'Login',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Login v1',
-    //           path: '/pages/auth/login-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Login v2',
-    //           path: '/pages/auth/login-v2'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Login With AppBar',
-    //           path: '/pages/auth/login-with-appbar'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Register',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Register v1',
-    //           path: '/pages/auth/register-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Register v2',
-    //           path: '/pages/auth/register-v2'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Register Multi-Steps',
-    //           path: '/pages/auth/register-multi-steps'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Verify Email',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Verify Email v1',
-    //           path: '/pages/auth/verify-email-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Verify Email v2',
-    //           path: '/pages/auth/verify-email-v2'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Forgot Password',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Forgot Password v1',
-    //           path: '/pages/auth/forgot-password-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Forgot Password v2',
-    //           path: '/pages/auth/forgot-password-v2'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Reset Password',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Reset Password v1',
-    //           path: '/pages/auth/reset-password-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Reset Password v2',
-    //           path: '/pages/auth/reset-password-v2'
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Two Steps',
-    //       children: [
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Two Steps v1',
-    //           path: '/pages/auth/two-steps-v1'
-    //         },
-    //         {
-    //           openInNewTab: true,
-    //           title: 'Two Steps v2',
-    //           path: '/pages/auth/two-steps-v2'
-    //         }
-    //       ]
-    //     }
-    //   ]
-    // },
-    // {
-    //   title: 'Wizard Examples',
-    //   icon: 'mdi:transit-connection-horizontal',
-    //   children: [
-    //     {
-    //       title: 'Checkout',
-    //       path: '/pages/wizard-examples/checkout'
-    //     },
-    //     {
-    //       title: 'Property Listing',
-    //       path: '/pages/wizard-examples/property-listing'
-    //     },
-    //     {
-    //       title: 'Create Deal',
-    //       path: '/pages/wizard-examples/create-deal'
-    //     }
-    //   ]
-    // },
-    // {
-    //   icon: 'mdi:vector-arrange-below',
-    //   title: 'Dialog Examples',
-    //   path: '/pages/dialog-examples'
-    // },
-    // {
-    //   sectionTitle: 'User Interface'
-    // },
-    // {
-    //   title: 'Typography',
-    //   icon: 'mdi:format-letter-case',
-    //   path: '/ui/typography'
-    // },
-    // {
-    //   title: 'Icons',
-    //   path: '/ui/icons',
-    //   icon: 'mdi:google-circles-extended'
-    // },
-    // {
-
-    //   title: 'Cards',
-    //   icon: 'mdi:credit-card-outline',
-    //   children: [
-    //     {
-    //       title: 'Basic',
-    //       path: '/ui/cards/basic'
-    //     },
-    //     {
-    //       title: 'Advanced',
-    //       path: '/ui/cards/advanced'
-    //     },
-    //     {
-    //       title: 'Statistics',
-    //       path: '/ui/cards/statistics'
-    //     },
-    //     {
-    //       title: 'Widgets',
-    //       path: '/ui/cards/widgets'
-    //     },
-    //     {
-    //       title: 'Gamification',
-    //       path: '/ui/cards/gamification'
-    //     },
-    //     {
-    //       title: 'Actions',
-    //       path: '/ui/cards/actions'
-    //     }
-    //   ]
-    // },
-    // {
-    //   badgeContent: '18',
-    //   title: 'Components',
-    //   icon: 'mdi:archive-outline',
-    //   badgeColor: 'primary',
-    //   children: [
-    //     {
-    //       title: 'Accordion',
-    //       path: '/components/accordion'
-    //     },
-    //     {
-    //       title: 'Alerts',
-    //       path: '/components/alerts'
-    //     },
-    //     {
-    //       title: 'Avatars',
-    //       path: '/components/avatars'
-    //     },
-    //     {
-    //       title: 'Badges',
-    //       path: '/components/badges'
-    //     },
-    //     {
-    //       title: 'Buttons',
-    //       path: '/components/buttons'
-    //     },
-    //     {
-    //       title: 'Button Group',
-    //       path: '/components/button-group'
-    //     },
-    //     {
-    //       title: 'Chips',
-    //       path: '/components/chips'
-    //     },
-    //     {
-    //       title: 'Dialogs',
-    //       path: '/components/dialogs'
-    //     },
-    //     {
-    //       title: 'List',
-    //       path: '/components/list'
-    //     },
-    //     {
-    //       title: 'Menu',
-    //       path: '/components/menu'
-    //     },
-    //     {
-    //       title: 'Pagination',
-    //       path: '/components/pagination'
-    //     },
-    //     {
-    //       title: 'Ratings',
-    //       path: '/components/ratings'
-    //     },
-    //     {
-    //       title: 'Snackbar',
-    //       path: '/components/snackbar'
-    //     },
-    //     {
-    //       title: 'Swiper',
-    //       path: '/components/swiper'
-    //     },
-    //     {
-    //       title: 'Tabs',
-    //       path: '/components/tabs'
-    //     },
-    //     {
-    //       title: 'Timeline',
-    //       path: '/components/timeline'
-    //     },
-    //     {
-    //       title: 'Toasts',
-    //       path: '/components/toast'
-    //     },
-    //     {
-    //       title: 'Tree View',
-    //       path: '/components/tree-view'
-    //     },
-    //     {
-    //       title: 'More',
-    //       path: '/components/more'
-    //     },
-    //   ]
-    // },
-    // {
-    //   sectionTitle: 'Forms & Tables'
-    // },
-    // {
-    //   title: 'Form Elements',
-    //   icon: 'mdi:form-select',
-    //   children: [
-    //     {
-    //       title: 'Text Field',
-    //       path: '/forms/form-elements/text-field'
-    //     },
-    //     {
-    //       title: 'Select',
-    //       path: '/forms/form-elements/select'
-    //     },
-    //     {
-    //       title: 'Checkbox',
-    //       path: '/forms/form-elements/checkbox'
-    //     },
-    //     {
-    //       title: 'Radio',
-    //       path: '/forms/form-elements/radio'
-    //     },
-    //     {
-    //       title: 'Custom Inputs',
-    //       path: '/forms/form-elements/custom-inputs'
-    //     },
-    //     {
-    //       title: 'Textarea',
-    //       path: '/forms/form-elements/textarea'
-    //     },
-    //     {
-    //       title: 'Autocomplete',
-    //       path: '/forms/form-elements/autocomplete'
-    //     },
-    //     {
-    //       title: 'Date Pickers',
-    //       path: '/forms/form-elements/pickers'
-    //     },
-    //     {
-    //       title: 'Switch',
-    //       path: '/forms/form-elements/switch'
-    //     },
-    //     {
-    //       title: 'File Uploader',
-    //       path: '/forms/form-elements/file-uploader'
-    //     },
-    //     {
-    //       title: 'Editor',
-    //       path: '/forms/form-elements/editor'
-    //     },
-    //     {
-    //       title: 'Slider',
-    //       path: '/forms/form-elements/slider'
-    //     },
-    //     {
-    //       title: 'Input Mask',
-    //       path: '/forms/form-elements/input-mask'
-    //     },
-    //   ]
-    // },
-    // {
-    //   icon: 'mdi:cube-outline',
-    //   title: 'Form Layouts',
-    //   path: '/forms/form-layouts'
-    // },
-    // {
-    //   title: 'Form Validation',
-    //   path: '/forms/form-validation',
-    //   icon: 'mdi:checkbox-marked-circle-outline'
-    // },
-    // {
-    //   title: 'Form Wizard',
-    //   path: '/forms/form-wizard',
-    //   icon: 'mdi:transit-connection-horizontal'
-    // },
-    // {
-    //   title: 'Table',
-    //   icon: 'mdi:grid-large',
-    //   path: '/tables/mui'
-    // },
-    // {
-    //   title: 'Mui DataGrid',
-    //   icon: 'mdi:grid',
-    //   path: '/tables/data-grid'
-    // },
-    // {
-    //   sectionTitle: 'Charts & Misc'
-    // },
-
-    // {
-    //   path: '/acl',
-    //   action: 'read',
-    //   subject: 'acl-page',
-    //   icon: 'mdi:shield-outline',
-    //   title: 'Access Control'
-    // },
-    // {
-    //   title: 'Others',
-    //   icon: 'mdi:dots-horizontal',
-    //   children: [
-    //     {
-    //       title: 'Menu Levels',
-    //       children: [
-    //         {
-    //           title: 'Menu Level 2.1'
-    //         },
-    //         {
-    //           title: 'Menu Level 2.2',
-    //           children: [
-    //             {
-    //               title: 'Menu Level 3.1'
-    //             },
-    //             {
-    //               title: 'Menu Level 3.2'
-    //             }
-    //           ]
-    //         }
-    //       ]
-    //     },
-    //     {
-    //       title: 'Disabled Menu',
-    //       disabled: true
-    //     },
-    //     {
-    //       title: 'Raise Support',
-    //       externalLink: true,
-    //       openInNewTab: true,
-    //       path: 'https://pixinvent.ticksy.com/'
-    //     },
-    //     {
-    //       title: 'Documentation',
-    //       externalLink: true,
-    //       openInNewTab: true,
-    //       path: 'https://pixinvent.com/demo/materialize-mui-react-nextjs-admin-template/documentation'
-    //     }
-    //   ]
-    // }
+      path: '/apps/editor',
+    },
   ]
 }
 

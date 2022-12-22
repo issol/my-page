@@ -54,13 +54,19 @@ const StyledBoxForShadow = styled(Box)<BoxProps>(({ theme }) => ({
   height: theme.mixins.toolbar.minHeight,
   transition: 'opacity .15s ease-in-out',
   '&.scrolled': {
-    opacity: 1
-  }
+    opacity: 1,
+  },
 }))
 
 const Navigation = (props: Props) => {
   // ** Props
-  const { hidden, settings, afterNavMenuContent, beforeNavMenuContent, navMenuContent: userNavMenuContent } = props
+  const {
+    hidden,
+    settings,
+    afterNavMenuContent,
+    beforeNavMenuContent,
+    navMenuContent: userNavMenuContent,
+  } = props
   console.log(props)
 
   // ** States
@@ -76,7 +82,10 @@ const Navigation = (props: Props) => {
   const { mode } = settings
 
   // ** Var
-  const { afterVerticalNavMenuContentPosition, beforeVerticalNavMenuContentPosition } = themeConfig
+  const {
+    afterVerticalNavMenuContentPosition,
+    beforeVerticalNavMenuContentPosition,
+  } = themeConfig
 
   // ** Fixes Navigation InfiniteScroll
   const handleInfiniteScroll = (ref: HTMLElement) => {
@@ -95,7 +104,10 @@ const Navigation = (props: Props) => {
 
   // ** Scroll Menu
   const scrollMenu = (container: any) => {
-    if (beforeVerticalNavMenuContentPosition === 'static' || !beforeNavMenuContent) {
+    if (
+      beforeVerticalNavMenuContentPosition === 'static' ||
+      !beforeNavMenuContent
+    ) {
       container = hidden ? container.target : container
       if (shadowRef && container.scrollTop > 0) {
         // @ts-ignore
@@ -112,20 +124,30 @@ const Navigation = (props: Props) => {
 
   const shadowBgColor = () => {
     if (mode === 'light') {
-      return `linear-gradient(${theme.palette.customColors.lightBg} 5%,${hexToRGBA(
+      return `linear-gradient(${
+        theme.palette.customColors.lightBg
+      } 5%,${hexToRGBA(
         theme.palette.customColors.lightBg,
-        0.85
-      )} 30%,${hexToRGBA(theme.palette.customColors.lightBg, 0.5)} 65%,${hexToRGBA(
+        0.85,
+      )} 30%,${hexToRGBA(
         theme.palette.customColors.lightBg,
-        0.3
+        0.5,
+      )} 65%,${hexToRGBA(
+        theme.palette.customColors.lightBg,
+        0.3,
       )} 75%,transparent)`
     } else {
-      return `linear-gradient(${theme.palette.customColors.darkBg} 5%,${hexToRGBA(
+      return `linear-gradient(${
+        theme.palette.customColors.darkBg
+      } 5%,${hexToRGBA(
         theme.palette.customColors.darkBg,
-        0.85
-      )} 30%,${hexToRGBA(theme.palette.customColors.darkBg, 0.5)} 65%,${hexToRGBA(
+        0.85,
+      )} 30%,${hexToRGBA(
         theme.palette.customColors.darkBg,
-        0.3
+        0.5,
+      )} 65%,${hexToRGBA(
+        theme.palette.customColors.darkBg,
+        0.3,
       )} 75%,transparent)`
     }
   }
@@ -135,9 +157,15 @@ const Navigation = (props: Props) => {
   return (
     <Drawer {...props} navHover={navHover} setNavHover={setNavHover}>
       <VerticalNavHeader {...props} navHover={navHover} />
-      {beforeNavMenuContent && beforeVerticalNavMenuContentPosition === 'fixed' ? beforeNavMenuContent(props) : null}
-      {(beforeVerticalNavMenuContentPosition === 'static' || !beforeNavMenuContent) && (
-        <StyledBoxForShadow ref={shadowRef} sx={{ background: shadowBgColor() }} />
+      {beforeNavMenuContent && beforeVerticalNavMenuContentPosition === 'fixed'
+        ? beforeNavMenuContent(props)
+        : null}
+      {(beforeVerticalNavMenuContentPosition === 'static' ||
+        !beforeNavMenuContent) && (
+        <StyledBoxForShadow
+          ref={shadowRef}
+          sx={{ background: shadowBgColor() }}
+        />
       )}
       <Box sx={{ position: 'relative', overflow: 'hidden' }}>
         {/* @ts-ignore */}
@@ -145,21 +173,25 @@ const Navigation = (props: Props) => {
           {...(hidden
             ? {
                 onScroll: (container: any) => scrollMenu(container),
-                sx: { height: '100%', overflowY: 'auto', overflowX: 'hidden' }
+                sx: { height: '100%', overflowY: 'auto', overflowX: 'hidden' },
               }
             : {
                 options: { wheelPropagation: false },
                 onScrollY: (container: any) => scrollMenu(container),
-                containerRef: (ref: any) => handleInfiniteScroll(ref)
+                containerRef: (ref: any) => handleInfiniteScroll(ref),
               })}
         >
-          {beforeNavMenuContent && beforeVerticalNavMenuContentPosition === 'static'
+          {beforeNavMenuContent &&
+          beforeVerticalNavMenuContentPosition === 'static'
             ? beforeNavMenuContent(props)
             : null}
           {userNavMenuContent ? (
             userNavMenuContent(props)
           ) : (
-            <List className='nav-items' sx={{ pt: 0, '& > :first-child': { mt: '0' } }}>
+            <List
+              className='nav-items'
+              sx={{ pt: 0, '& > :first-of-type': { mt: '0' } }}
+            >
               <VerticalNavItems
                 navHover={navHover}
                 groupActive={groupActive}
@@ -170,10 +202,15 @@ const Navigation = (props: Props) => {
               />
             </List>
           )}
-          {afterNavMenuContent && afterVerticalNavMenuContentPosition === 'static' ? afterNavMenuContent(props) : null}
+          {afterNavMenuContent &&
+          afterVerticalNavMenuContentPosition === 'static'
+            ? afterNavMenuContent(props)
+            : null}
         </ScrollWrapper>
       </Box>
-      {afterNavMenuContent && afterVerticalNavMenuContentPosition === 'fixed' ? afterNavMenuContent(props) : null}
+      {afterNavMenuContent && afterVerticalNavMenuContentPosition === 'fixed'
+        ? afterNavMenuContent(props)
+        : null}
     </Drawer>
   )
 }
