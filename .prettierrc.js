@@ -5,13 +5,27 @@ module.exports = {
   insertPragma: false,
   bracketSameLine: false,
   jsxSingleQuote: true,
-  printWidth: 120,
+
   proseWrap: 'preserve',
   quoteProps: 'as-needed',
   requirePragma: false,
   semi: false,
   singleQuote: true,
   tabWidth: 2,
-  trailingComma: 'none',
-  useTabs: false
+
+  useTabs: false,
+
+  singleQuote: true,
+  semi: false,
+  tabWidth: 2,
+  trailingComma: 'all',
+  printWidth: 80,
+  overrides: [
+    {
+      files: '*.json',
+      options: {
+        printWidth: 120
+      }
+    }
+  ]
 }

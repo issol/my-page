@@ -50,23 +50,23 @@ const tabAvatars: TabAvatarType[] = [
   {
     imgWidth: 30,
     imgHeight: 58,
-    category: 'mobile'
+    category: 'mobile',
   },
   {
     imgWidth: 52,
     imgHeight: 42,
-    category: 'desktop'
+    category: 'desktop',
   },
   {
     imgWidth: 60,
     imgHeight: 42,
-    category: 'console'
+    category: 'console',
   },
   {
     imgWidth: 44,
     imgHeight: 50,
-    category: 'watch'
-  }
+    category: 'watch',
+  },
 ]
 
 const tabContentData: TabContentDataType = {
@@ -77,7 +77,7 @@ const tabContentData: TabContentDataType = {
       total: '$1,698',
       imgAlt: 'samsung-s22',
       product: 'Samsung s22',
-      imgSrc: '/images/cards/samsung-s22.png'
+      imgSrc: '/images/cards/samsung-s22.png',
     },
     {
       quantity: 1,
@@ -85,7 +85,7 @@ const tabContentData: TabContentDataType = {
       total: '$599',
       imgAlt: 'apple-iPhone-13-pro',
       product: 'Apple iPhone 13 Pro',
-      imgSrc: '/images/cards/apple-iPhone-13-pro.png'
+      imgSrc: '/images/cards/apple-iPhone-13-pro.png',
     },
     {
       quantity: 4,
@@ -93,7 +93,7 @@ const tabContentData: TabContentDataType = {
       total: '$1,596',
       imgAlt: 'oneplus-9-pro',
       product: 'Oneplus 9 Pro',
-      imgSrc: '/images/cards/oneplus-9-pro.png'
+      imgSrc: '/images/cards/oneplus-9-pro.png',
     },
     {
       quantity: 3,
@@ -101,8 +101,8 @@ const tabContentData: TabContentDataType = {
       total: '$1,350',
       imgAlt: 'google-pixel-6',
       product: 'Google Pixel 6',
-      imgSrc: '/images/cards/google-pixel-6.png'
-    }
+      imgSrc: '/images/cards/google-pixel-6.png',
+    },
   ],
   desktop: [
     {
@@ -111,7 +111,7 @@ const tabContentData: TabContentDataType = {
       total: '$1,698',
       imgAlt: 'apple-mac-mini',
       product: 'Apple Mac Mini',
-      imgSrc: '/images/cards/apple-mac-mini.png'
+      imgSrc: '/images/cards/apple-mac-mini.png',
     },
     {
       quantity: 4,
@@ -119,7 +119,7 @@ const tabContentData: TabContentDataType = {
       total: '$2,396',
       imgAlt: 'hp-envy-x360',
       product: 'Newest HP Envy x360',
-      imgSrc: '/images/cards/hp-envy-x360.png'
+      imgSrc: '/images/cards/hp-envy-x360.png',
     },
     {
       quantity: 1,
@@ -127,7 +127,7 @@ const tabContentData: TabContentDataType = {
       total: '$399',
       imgAlt: 'dell-inspiron-3000',
       product: 'Dell Inspiron 3000',
-      imgSrc: '/images/cards/dell-inspiron-3000.png'
+      imgSrc: '/images/cards/dell-inspiron-3000.png',
     },
     {
       quantity: 3,
@@ -135,8 +135,8 @@ const tabContentData: TabContentDataType = {
       total: '$1,350',
       imgAlt: 'apple-iMac-4k',
       product: 'Apple iMac 4k',
-      imgSrc: '/images/cards/apple-iMac-4k.png'
-    }
+      imgSrc: '/images/cards/apple-iMac-4k.png',
+    },
   ],
   console: [
     {
@@ -145,7 +145,7 @@ const tabContentData: TabContentDataType = {
       total: '$599',
       imgAlt: 'sony-play-station-5',
       product: 'Sony Play Station 5',
-      imgSrc: '/images/cards/sony-play-station-5.png'
+      imgSrc: '/images/cards/sony-play-station-5.png',
     },
     {
       quantity: 3,
@@ -153,7 +153,7 @@ const tabContentData: TabContentDataType = {
       total: '$1,467',
       imgAlt: 'xbox-series-x',
       product: 'XBOX Series X',
-      imgSrc: '/images/cards/xbox-series-x.png'
+      imgSrc: '/images/cards/xbox-series-x.png',
     },
     {
       quantity: 4,
@@ -161,7 +161,7 @@ const tabContentData: TabContentDataType = {
       total: '$1,340',
       imgAlt: 'nintendo-switch',
       product: 'Nintendo Switch',
-      imgSrc: '/images/cards/nintendo-switch.png'
+      imgSrc: '/images/cards/nintendo-switch.png',
     },
     {
       quantity: 8,
@@ -169,8 +169,8 @@ const tabContentData: TabContentDataType = {
       total: '$112',
       imgAlt: 'sup-game-box-400',
       product: 'SUP Game Box 400',
-      imgSrc: '/images/cards/sup-game-box-400.png'
-    }
+      imgSrc: '/images/cards/sup-game-box-400.png',
+    },
   ],
   watch: [
     {
@@ -179,7 +179,7 @@ const tabContentData: TabContentDataType = {
       total: '$404',
       imgAlt: 'samsung-watch-4',
       product: 'Samsung Watch 4',
-      imgSrc: '/images/cards/samsung-watch-4.png'
+      imgSrc: '/images/cards/samsung-watch-4.png',
     },
     {
       quantity: 1,
@@ -187,7 +187,7 @@ const tabContentData: TabContentDataType = {
       total: '$399',
       imgAlt: 'apple-watch-7',
       product: 'Apple Watch 7',
-      imgSrc: '/images/cards/apple-watch-7.png'
+      imgSrc: '/images/cards/apple-watch-7.png',
     },
     {
       quantity: 3,
@@ -195,7 +195,7 @@ const tabContentData: TabContentDataType = {
       total: '$177',
       imgAlt: 'amazon-echo-dot',
       product: 'Amazon Echo Dot',
-      imgSrc: '/images/cards/amazon-echo-dot.png'
+      imgSrc: '/images/cards/amazon-echo-dot.png',
     },
     {
       quantity: 1,
@@ -203,9 +203,9 @@ const tabContentData: TabContentDataType = {
       total: '$139',
       imgAlt: 'gramin-verve',
       product: 'Gramin Verve',
-      imgSrc: '/images/cards/gramin-verve.png'
-    }
-  ]
+      imgSrc: '/images/cards/gramin-verve.png',
+    },
+  ],
 }
 
 const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
@@ -213,7 +213,13 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
     <TableContainer>
       <Table>
         <TableHead>
-          <TableRow sx={{ '& .MuiTableCell-root': { py: theme => `${theme.spacing(2.5)} !important` } }}>
+          <TableRow
+            sx={{
+              '& .MuiTableCell-root': {
+                py: theme => `${theme.spacing(2.5)} !important`,
+              },
+            }}
+          >
             <TableCell>Image</TableCell>
             <TableCell sx={{ whiteSpace: 'nowrap' }}>Product Name</TableCell>
             <TableCell align='right'>Qty</TableCell>
@@ -228,18 +234,23 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
               sx={{
                 '& .MuiTableCell-root': {
                   border: 0,
-                  py: theme => `${theme.spacing(1.5)} !important`
+                  py: theme => `${theme.spacing(1.5)} !important`,
                 },
-                '&:first-child .MuiTableCell-body': {
-                  pt: theme => `${theme.spacing(3)} !important`
+                '&:first-of-type .MuiTableCell-body': {
+                  pt: theme => `${theme.spacing(3)} !important`,
                 },
                 '&:last-child .MuiTableCell-body': {
-                  pb: theme => `${theme.spacing(3)} !important`
-                }
+                  pb: theme => `${theme.spacing(3)} !important`,
+                },
               }}
             >
               <TableCell>
-                <Avatar alt={row.imgAlt} src={row.imgSrc} variant='rounded' sx={{ width: 34, height: 34 }} />
+                <Avatar
+                  alt={row.imgAlt}
+                  src={row.imgSrc}
+                  variant='rounded'
+                  sx={{ width: 34, height: 34 }}
+                />
               </TableCell>
               <TableCell sx={{ whiteSpace: 'nowrap' }}>{row.product}</TableCell>
               <TableCell align='right'>{row.quantity}</TableCell>
@@ -272,7 +283,9 @@ const CardTopReferralSources = () => {
         backgroundColor: 'transparent',
         '& img': { width: data.imgWidth, height: data.imgHeight },
         border: theme =>
-          value === data.category ? `2px solid ${theme.palette.primary.main}` : `2px dashed ${theme.palette.divider}`
+          value === data.category
+            ? `2px solid ${theme.palette.primary.main}`
+            : `2px dashed ${theme.palette.divider}`,
       }}
     />
   )
@@ -299,13 +312,29 @@ const CardTopReferralSources = () => {
             mb: 2.5,
             px: 5,
             '& .MuiTab-root:not(:last-child)': { mr: 4 },
-            '& .MuiTabs-indicator': { display: 'none' }
+            '& .MuiTabs-indicator': { display: 'none' },
           }}
         >
-          <Tab value='mobile' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[0]} />} />
-          <Tab value='desktop' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[1]} />} />
-          <Tab value='console' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[2]} />} />
-          <Tab value='watch' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[3]} />} />
+          <Tab
+            value='mobile'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[0]} />}
+          />
+          <Tab
+            value='desktop'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[1]} />}
+          />
+          <Tab
+            value='console'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[2]} />}
+          />
+          <Tab
+            value='watch'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[3]} />}
+          />
           <Tab
             disabled
             value='add'
@@ -318,7 +347,9 @@ const CardTopReferralSources = () => {
                   height: 92,
                   backgroundColor: 'transparent',
                   border: theme =>
-                    value === 'add' ? `2px solid ${theme.palette.primary.main}` : `2px dashed ${theme.palette.divider}`
+                    value === 'add'
+                      ? `2px solid ${theme.palette.primary.main}`
+                      : `2px dashed ${theme.palette.divider}`,
                 }}
               >
                 <Box
@@ -330,7 +361,8 @@ const CardTopReferralSources = () => {
                     alignItems: 'center',
                     color: 'action.active',
                     justifyContent: 'center',
-                    backgroundColor: theme => hexToRGBA(theme.palette.secondary.main, 0.12)
+                    backgroundColor: theme =>
+                      hexToRGBA(theme.palette.secondary.main, 0.12),
                   }}
                 >
                   <Icon icon='mdi:plus' />

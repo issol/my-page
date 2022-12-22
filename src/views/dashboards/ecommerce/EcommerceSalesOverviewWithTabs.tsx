@@ -60,25 +60,25 @@ interface TabContentDataType {
 const statusObj: StatusObj = {
   'in-stock': { text: 'In Stock', color: 'success' },
   'coming-soon': { text: 'Coming Soon', color: 'warning' },
-  'out-of-stock': { text: 'Out of Stock', color: 'primary' }
+  'out-of-stock': { text: 'Out of Stock', color: 'primary' },
 }
 
 const tabAvatars: TabAvatarType[] = [
   {
     imgWidth: 30,
     imgHeight: 58,
-    category: 'mobile'
+    category: 'mobile',
   },
   {
     imgWidth: 52,
     imgHeight: 42,
-    category: 'desktop'
+    category: 'desktop',
   },
   {
     imgWidth: 60,
     imgHeight: 42,
-    category: 'console'
-  }
+    category: 'console',
+  },
 ]
 
 const tabContentData: TabContentDataType = {
@@ -89,7 +89,7 @@ const tabContentData: TabContentDataType = {
       imgAlt: 'samsung-s22',
       status: 'out-of-stock',
       product: 'Samsung s22',
-      imgSrc: '/images/cards/samsung-s22.png'
+      imgSrc: '/images/cards/samsung-s22.png',
     },
     {
       revenue: '$45k',
@@ -98,7 +98,7 @@ const tabContentData: TabContentDataType = {
       imgAlt: 'apple-iPhone-13-pro',
       product: 'Apple iPhone 13 Pro',
       conversionDifference: 'negative',
-      imgSrc: '/images/cards/apple-iPhone-13-pro.png'
+      imgSrc: '/images/cards/apple-iPhone-13-pro.png',
     },
     {
       revenue: '$98.2k',
@@ -106,8 +106,8 @@ const tabContentData: TabContentDataType = {
       status: 'coming-soon',
       imgAlt: 'oneplus-9-pro',
       product: 'Oneplus 9 Pro',
-      imgSrc: '/images/cards/oneplus-9-pro.png'
-    }
+      imgSrc: '/images/cards/oneplus-9-pro.png',
+    },
   ],
   desktop: [
     {
@@ -116,7 +116,7 @@ const tabContentData: TabContentDataType = {
       status: 'in-stock',
       imgAlt: 'apple-mac-mini',
       product: 'Apple Mac Mini',
-      imgSrc: '/images/cards/apple-mac-mini.png'
+      imgSrc: '/images/cards/apple-mac-mini.png',
     },
     {
       revenue: '$76.5k',
@@ -124,7 +124,7 @@ const tabContentData: TabContentDataType = {
       status: 'coming-soon',
       imgAlt: 'hp-envy-x360',
       product: 'Newest HP Envy x360',
-      imgSrc: '/images/cards/hp-envy-x360.png'
+      imgSrc: '/images/cards/hp-envy-x360.png',
     },
     {
       revenue: '$69.3k',
@@ -133,8 +133,8 @@ const tabContentData: TabContentDataType = {
       imgAlt: 'dell-inspiron-3000',
       product: 'Dell Inspiron 3000',
       conversionDifference: 'negative',
-      imgSrc: '/images/cards/dell-inspiron-3000.png'
-    }
+      imgSrc: '/images/cards/dell-inspiron-3000.png',
+    },
   ],
   console: [
     {
@@ -143,7 +143,7 @@ const tabContentData: TabContentDataType = {
       status: 'coming-soon',
       imgAlt: 'sony-play-station-5',
       product: 'Sony Play Station 5',
-      imgSrc: '/images/cards/sony-play-station-5.png'
+      imgSrc: '/images/cards/sony-play-station-5.png',
     },
     {
       revenue: '$29.7k',
@@ -152,7 +152,7 @@ const tabContentData: TabContentDataType = {
       imgAlt: 'xbox-series-x',
       product: 'XBOX Series X',
       conversionDifference: 'negative',
-      imgSrc: '/images/cards/xbox-series-x.png'
+      imgSrc: '/images/cards/xbox-series-x.png',
     },
     {
       revenue: '$10.4k',
@@ -160,9 +160,9 @@ const tabContentData: TabContentDataType = {
       status: 'in-stock',
       imgAlt: 'nintendo-switch',
       product: 'Nintendo Switch',
-      imgSrc: '/images/cards/nintendo-switch.png'
-    }
-  ]
+      imgSrc: '/images/cards/nintendo-switch.png',
+    },
+  ],
 }
 
 const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
@@ -170,7 +170,13 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
     <TableContainer>
       <Table>
         <TableHead>
-          <TableRow sx={{ '& .MuiTableCell-root': { py: theme => `${theme.spacing(2.5)} !important` } }}>
+          <TableRow
+            sx={{
+              '& .MuiTableCell-root': {
+                py: theme => `${theme.spacing(2.5)} !important`,
+              },
+            }}
+          >
             <TableCell>Image</TableCell>
             <TableCell sx={{ whiteSpace: 'nowrap' }}>Product Name</TableCell>
             <TableCell align='right'>Status</TableCell>
@@ -185,21 +191,33 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
               sx={{
                 '& .MuiTableCell-root': {
                   border: 0,
-                  py: theme => `${theme.spacing(1.5)} !important`
+                  py: theme => `${theme.spacing(1.5)} !important`,
                 },
-                '&:first-child .MuiTableCell-body': {
-                  pt: theme => `${theme.spacing(3)} !important`
+                '&:first-of-type .MuiTableCell-body': {
+                  pt: theme => `${theme.spacing(3)} !important`,
                 },
                 '&:last-child .MuiTableCell-body': {
-                  pb: theme => `${theme.spacing(3)} !important`
-                }
+                  pb: theme => `${theme.spacing(3)} !important`,
+                },
               }}
             >
               <TableCell>
-                <Avatar alt={row.imgAlt} src={row.imgSrc} variant='rounded' sx={{ width: 34, height: 34 }} />
+                <Avatar
+                  alt={row.imgAlt}
+                  src={row.imgSrc}
+                  variant='rounded'
+                  sx={{ width: 34, height: 34 }}
+                />
               </TableCell>
               <TableCell>
-                <Typography variant='body2' sx={{ fontWeight: 600, whiteSpace: 'nowrap', color: 'text.primary' }}>
+                <Typography
+                  variant='body2'
+                  sx={{
+                    fontWeight: 600,
+                    whiteSpace: 'nowrap',
+                    color: 'text.primary',
+                  }}
+                >
                   {row.product}
                 </Typography>
               </TableCell>
@@ -209,13 +227,22 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
                   size='small'
                   label={statusObj[row.status].text}
                   color={statusObj[row.status].color}
-                  sx={{ height: 20, fontWeight: 500, '& .MuiChip-label': { px: 1.625, lineHeight: 1.539 } }}
+                  sx={{
+                    height: 20,
+                    fontWeight: 500,
+                    '& .MuiChip-label': { px: 1.625, lineHeight: 1.539 },
+                  }}
                 />
               </TableCell>
               <TableCell>
                 <Typography
                   variant='body2'
-                  sx={{ fontWeight: 600, textAlign: 'right', whiteSpace: 'nowrap', color: 'text.primary' }}
+                  sx={{
+                    fontWeight: 600,
+                    textAlign: 'right',
+                    whiteSpace: 'nowrap',
+                    color: 'text.primary',
+                  }}
                 >
                   {row.revenue}
                 </Typography>
@@ -226,7 +253,10 @@ const RenderTabContent = ({ data }: { data: TabContentType[] }) => {
                   sx={{
                     fontWeight: 600,
                     textAlign: 'right',
-                    color: row.conversionDifference === 'negative' ? 'error.main' : 'success.main'
+                    color:
+                      row.conversionDifference === 'negative'
+                        ? 'error.main'
+                        : 'success.main',
                   }}
                 >{`${row.conversion}%`}</Typography>
               </TableCell>
@@ -257,7 +287,9 @@ const EcommerceSalesOverviewWithTabs = () => {
         backgroundColor: 'transparent',
         '& img': { width: data.imgWidth, height: data.imgHeight },
         border: theme =>
-          value === data.category ? `2px solid ${theme.palette.primary.main}` : `2px dashed ${theme.palette.divider}`
+          value === data.category
+            ? `2px solid ${theme.palette.primary.main}`
+            : `2px dashed ${theme.palette.divider}`,
       }}
     />
   )
@@ -284,12 +316,24 @@ const EcommerceSalesOverviewWithTabs = () => {
             mb: 2.5,
             px: 5,
             '& .MuiTab-root:not(:last-child)': { mr: 4 },
-            '& .MuiTabs-indicator': { display: 'none' }
+            '& .MuiTabs-indicator': { display: 'none' },
           }}
         >
-          <Tab value='mobile' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[0]} />} />
-          <Tab value='desktop' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[1]} />} />
-          <Tab value='console' sx={{ p: 0 }} label={<RenderTabAvatar data={tabAvatars[2]} />} />
+          <Tab
+            value='mobile'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[0]} />}
+          />
+          <Tab
+            value='desktop'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[1]} />}
+          />
+          <Tab
+            value='console'
+            sx={{ p: 0 }}
+            label={<RenderTabAvatar data={tabAvatars[2]} />}
+          />
           <Tab
             disabled
             value='add'
@@ -302,7 +346,9 @@ const EcommerceSalesOverviewWithTabs = () => {
                   height: 92,
                   backgroundColor: 'transparent',
                   border: theme =>
-                    value === 'add' ? `2px solid ${theme.palette.primary.main}` : `2px dashed ${theme.palette.divider}`
+                    value === 'add'
+                      ? `2px solid ${theme.palette.primary.main}`
+                      : `2px dashed ${theme.palette.divider}`,
                 }}
               >
                 <Box
@@ -314,7 +360,8 @@ const EcommerceSalesOverviewWithTabs = () => {
                     alignItems: 'center',
                     color: 'action.active',
                     justifyContent: 'center',
-                    backgroundColor: theme => hexToRGBA(theme.palette.secondary.main, 0.12)
+                    backgroundColor: theme =>
+                      hexToRGBA(theme.palette.secondary.main, 0.12),
                   }}
                 >
                   <Icon icon='mdi:plus' />
