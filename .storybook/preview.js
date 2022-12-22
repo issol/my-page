@@ -9,7 +9,7 @@ import { darkTheme } from '../src/@core/theme/dark.theme'
 
 export const withMuiTheme = Story => (
   <ThemeProvider theme={darkTheme}>
-    <CssBaseline />
+    {/* <CssBaseline /> */}
     <Story />
   </ThemeProvider>
 )
@@ -20,7 +20,7 @@ const OriginalNextImage = NextImage.default
 
 Object.defineProperty(NextImage, 'default', {
   configurable: true,
-  value: props => <OriginalNextImage {...props} unoptimized />
+  value: props => <OriginalNextImage {...props} unoptimized />,
 })
 
 export const parameters = {
@@ -29,7 +29,7 @@ export const parameters = {
     expanded: true, // Adds the description and default columns
     matchers: {
       color: /(background|color)$/i,
-      date: /Date$/
-    }
-  }
+      date: /Date$/,
+    },
+  },
 }
