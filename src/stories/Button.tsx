@@ -1,6 +1,5 @@
 import React, { ReactNode } from 'react'
 import styled from '@emotion/styled'
-import { css } from '@emotion/css'
 import { device } from '../shared/helpers/device.helper'
 import pal from '../@core/theme/palette'
 import { PaletteType } from '../@core/theme/palette/type'
