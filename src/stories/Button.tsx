@@ -28,6 +28,7 @@ const CtaButtonStyle = styled.button<CtaButtonProps & ButtonProps>`
   justify-content: center;
   border-radius: ${({ shape }) => (shape === 'round' ? '30px' : '4px')};
   color: #fff;
+  background: ${({ palette }) => palette.primary.main};
   border: none;
   ${({ color, palette }) =>
     color === 'primary' &&
@@ -66,6 +67,7 @@ const CtaButtonStyle = styled.button<CtaButtonProps & ButtonProps>`
   font-size: ${({ fontSize }) => (fontSize ? fontSize : '1rem')};
   font-weight: 700;
   :hover {
+    background: ${({ palette }) => palette.primary.dark};
     ${({ color, palette }) =>
       color === 'primary' &&
       `
