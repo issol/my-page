@@ -22,6 +22,7 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
+import { UserDataType } from 'src/context/types'
 
 interface Props {
   settings: Settings
@@ -33,12 +34,14 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
   height: 8,
   borderRadius: '50%',
   backgroundColor: theme.palette.success.main,
-  boxShadow: `0 0 0 2px ${theme.palette.background.paper}`
+  boxShadow: `0 0 0 2px ${theme.palette.background.paper}`,
 }))
 
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
+
+  const auth = useAuth()
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
@@ -72,8 +75,8 @@ const UserDropdown = (props: Props) => {
     '& svg': {
       mr: 2,
       fontSize: '1.375rem',
-      color: 'text.primary'
-    }
+      color: 'text.primary',
+    },
   }
 
   const handleLogout = () => {
@@ -90,14 +93,14 @@ const UserDropdown = (props: Props) => {
         badgeContent={<BadgeContentSpan />}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
       >
         <Avatar
-          alt='John Doe'
+          alt={auth?.user?.fullName}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
-          src='/images/avatars/1.png'
+          src={auth?.user?.avatar ?? '/images/avatars/1.png'}
         />
       </Badge>
       <Menu
@@ -105,8 +108,14 @@ const UserDropdown = (props: Props) => {
         open={Boolean(anchorEl)}
         onClose={() => handleDropdownClose()}
         sx={{ '& .MuiMenu-paper': { width: 230, mt: 4 } }}
-        anchorOrigin={{ vertical: 'bottom', horizontal: direction === 'ltr' ? 'right' : 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: direction === 'ltr' ? 'right' : 'left' }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: direction === 'ltr' ? 'right' : 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: direction === 'ltr' ? 'right' : 'left',
+        }}
       >
         <Box sx={{ pt: 2, pb: 3, px: 4 }}>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -115,61 +124,98 @@ const UserDropdown = (props: Props) => {
               badgeContent={<BadgeContentSpan />}
               anchorOrigin={{
                 vertical: 'bottom',
-                horizontal: 'right'
+                horizontal: 'right',
               }}
             >
-              <Avatar alt='John Doe' src='/images/avatars/1.png' sx={{ width: '2.5rem', height: '2.5rem' }} />
+              <Avatar
+                alt='John Doe'
+                src='/images/avatars/1.png'
+                sx={{ width: '2.5rem', height: '2.5rem' }}
+              />
             </Badge>
-            <Box sx={{ display: 'flex', ml: 3, alignItems: 'flex-start', flexDirection: 'column' }}>
-              <Typography sx={{ fontWeight: 600 }}>John Doe</Typography>
-              <Typography variant='body2' sx={{ fontSize: '0.8rem', color: 'text.disabled' }}>
-                Admin
+            <Box
+              sx={{
+                display: 'flex',
+                ml: 3,
+                alignItems: 'flex-start',
+                flexDirection: 'column',
+              }}
+            >
+              <Typography sx={{ fontWeight: 600 }}>
+                {auth?.user?.fullName}
+              </Typography>
+              <Typography
+                variant='body2'
+                sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
+              >
+                {auth?.user?.role}
               </Typography>
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: '0 !important' }} />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/user-profile/profile')}>
+        {/* <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/pages/user-profile/profile')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:account-outline' />
             Profile
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/email')}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/apps/email')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:email-outline' />
             Inbox
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/apps/chat')}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/apps/chat')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:message-outline' />
             Chat
           </Box>
         </MenuItem>
         <Divider />
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/account-settings/account')}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/pages/account-settings/account')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:cog-outline' />
             Settings
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/pricing')}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/pages/pricing')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:currency-usd' />
             Pricing
           </Box>
         </MenuItem>
-        <MenuItem sx={{ p: 0 }} onClick={() => handleDropdownClose('/pages/faq')}>
+        <MenuItem
+          sx={{ p: 0 }}
+          onClick={() => handleDropdownClose('/pages/faq')}
+        >
           <Box sx={styles}>
             <Icon icon='mdi:help-circle-outline' />
             FAQ
           </Box>
         </MenuItem>
-        <Divider />
+        <Divider /> */}
         <MenuItem
           onClick={handleLogout}
-          sx={{ py: 2, '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' } }}
+          sx={{
+            py: 2,
+            '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' },
+          }}
         >
           <Icon icon='mdi:logout-variant' />
           Logout

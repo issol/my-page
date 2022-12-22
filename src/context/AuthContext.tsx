@@ -5,8 +5,9 @@ import { createContext, useEffect, useState, ReactNode } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Axios
-import axios from 'src/configs/axios-client'
-import axiosDefault from 'axios'
+// import axios from 'src/configs/axios-client'
+// import axiosDefault from 'axios'
+import axios from 'axios'
 
 // ** Config
 import authConfig from 'src/configs/auth'
@@ -40,6 +41,10 @@ type Props = {
   children: ReactNode
 }
 
+type RoleType = {
+  role: string
+}
+
 const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
@@ -48,35 +53,141 @@ const AuthProvider = ({ children }: Props) => {
   // ** Hooks
   const router = useRouter()
 
+  // useEffect(() => {
+  //   const initAuth = async (): Promise<void> => {
+  //     const storedToken = window.localStorage.getItem(
+  //       authConfig.storageTokenKeyName,
+  //     )!
+
+  //     if (storedToken) {
+  //       setLoading(true)
+  //       await axios
+  //         .get(`/api/pika/user/profile`, {
+  //           headers: { Authorization: `Bearer ${storedToken}` },
+  //         })
+  //         .then(async (response: any) => {
+  //           setLoading(false)
+  //           const data = await axiosDefault.get('/api/policy/data', {
+  //             params: { role: response.data.role },
+  //           })
+  //           setUser({
+  //             id: response.data.id,
+  //             role: response.data.role,
+  //             // role: 'LPM',
+  //             email: response.data.email,
+  //             fullName: `${response.data.firstName} ${response.data.lastName}`,
+  //             username: response.data.nickname,
+  //             avatar: response.data.profileImageUrl,
+  //             policy: data.data,
+  //           })
+  //         })
+
+  //         .catch(() => {
+  //           localStorage.removeItem('userData')
+  //           localStorage.removeItem('refreshToken')
+  //           localStorage.removeItem('accessToken')
+  //           setUser(null)
+  //           setLoading(false)
+  //           if (
+  //             authConfig.onTokenExpiration === 'logout' &&
+  //             !router.pathname.includes('login')
+  //           ) {
+  //             router.replace('/login')
+  //           }
+  //         })
+  //     } else {
+  //       setLoading(false)
+  //     }
+  //   }
+
+  //   initAuth()
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
+
+  // const loginMutation = useMutation((info: LoginParams) =>
+  //   login(info.email, info.password),
+  // )
+
+  // const handleLogin = (
+  //   params: LoginParams,
+  //   errorCallback?: ErrCallbackType,
+  // ) => {
+  //   loginMutation.mutate(params, {
+  //     onSuccess: async (data: LoginSuccessResponse) => {
+  //       params.rememberMe
+  //         ? window.localStorage.setItem(
+  //             authConfig.storageTokenKeyName,
+  //             data.accessToken,
+  //           )
+  //         : null
+
+  //       // const returnUrl = router.query.returnUrl
+  //       await axios
+  //         .get(`/api/pika/user/profile`, {
+  //           headers: { Authorization: `Bearer ${data.accessToken}` },
+  //         })
+  //         .then(async (response: any) => {
+  //           setLoading(false)
+  //           const data = await axiosDefault.get('/api/policy/data', {
+  //             params: { role: response.data.role },
+  //           })
+
+  //           setUser({
+  //             id: response.data.id,
+  //             role: response.data.role,
+  //             // role: 'LPM',
+  //             email: response.data.email,
+  //             fullName: `${response.data.firstName} ${response.data.lastName}`,
+  //             username: response.data.nickname,
+  //             avatar: response.data.profileImageUrl,
+  //             policy: data.data,
+  //           })
+  //         })
+  //         .catch(() => {
+  //           localStorage.removeItem('userData')
+  //           localStorage.removeItem('refreshToken')
+  //           localStorage.removeItem('accessToken')
+  //           setUser(null)
+  //           setLoading(false)
+  //           if (
+  //             authConfig.onTokenExpiration === 'logout' &&
+  //             !router.pathname.includes('login')
+  //           ) {
+  //             router.replace('/login')
+  //           }
+  //         })
+  //       params.rememberMe
+  //         ? window.localStorage.setItem('userData', JSON.stringify(data))
+  //         : null
+
+  //       // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+  //       router.replace('/')
+  //     },
+  //     onError: err => {
+  //       if (errorCallback) errorCallback(err)
+  //     },
+  //   })
+  // }
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
       const storedToken = window.localStorage.getItem(
         authConfig.storageTokenKeyName,
       )!
-
       if (storedToken) {
         setLoading(true)
         await axios
-          .get(`/api/pika/user/profile`, {
-            headers: { Authorization: `Bearer ${storedToken}` },
+          .get(authConfig.meEndpoint, {
+            headers: {
+              Authorization: storedToken,
+            },
           })
-          .then(async (response: any) => {
+          .then(async response => {
+            const data = await axios.get('/api/policy/data', {
+              params: { role: response.data.userData.role },
+            })
             setLoading(false)
-            const data = await axiosDefault.get('/api/policy/data', {
-              params: { role: response.data.role },
-            })
-            setUser({
-              id: response.data.id,
-              role: response.data.role,
-              // role: 'LPM',
-              email: response.data.email,
-              fullName: `${response.data.firstName} ${response.data.lastName}`,
-              username: response.data.nickname,
-              avatar: response.data.profileImageUrl,
-              policy: data.data,
-            })
+            setUser({ ...response.data.userData, policy: data.data })
           })
-
           .catch(() => {
             localStorage.removeItem('userData')
             localStorage.removeItem('refreshToken')
@@ -99,69 +210,43 @@ const AuthProvider = ({ children }: Props) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
-  const loginMutation = useMutation((info: LoginParams) =>
-    login(info.email, info.password),
-  )
-
   const handleLogin = (
     params: LoginParams,
     errorCallback?: ErrCallbackType,
   ) => {
-    loginMutation.mutate(params, {
-      onSuccess: async (data: LoginSuccessResponse) => {
+    axios
+      .post(authConfig.loginEndpoint, params)
+      .then(async response => {
+        console.log(response)
+
         params.rememberMe
           ? window.localStorage.setItem(
               authConfig.storageTokenKeyName,
-              data.accessToken,
+              response.data.accessToken,
+            )
+          : null
+        const returnUrl = router.query.returnUrl
+
+        const data = await axios.get('/api/policy/data', {
+          params: { role: response.data.userData.role },
+        })
+
+        setUser({ ...response.data.userData, policy: data.data })
+        params.rememberMe
+          ? window.localStorage.setItem(
+              'userData',
+              JSON.stringify(response.data.userData),
             )
           : null
 
-        // const returnUrl = router.query.returnUrl
-        await axios
-          .get(`/api/pika/user/profile`, {
-            headers: { Authorization: `Bearer ${data.accessToken}` },
-          })
-          .then(async (response: any) => {
-            setLoading(false)
-            const data = await axiosDefault.get('/api/policy/data', {
-              params: { role: response.data.role },
-            })
+        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
-            setUser({
-              id: response.data.id,
-              role: response.data.role,
-              // role: 'LPM',
-              email: response.data.email,
-              fullName: `${response.data.firstName} ${response.data.lastName}`,
-              username: response.data.nickname,
-              avatar: response.data.profileImageUrl,
-              policy: data.data,
-            })
-          })
-          .catch(() => {
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
-            setUser(null)
-            setLoading(false)
-            if (
-              authConfig.onTokenExpiration === 'logout' &&
-              !router.pathname.includes('login')
-            ) {
-              router.replace('/login')
-            }
-          })
-        params.rememberMe
-          ? window.localStorage.setItem('userData', JSON.stringify(data))
-          : null
+        router.replace(redirectURL as string)
+      })
 
-        // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-        router.replace('/')
-      },
-      onError: err => {
+      .catch(err => {
         if (errorCallback) errorCallback(err)
-      },
-    })
+      })
   }
 
   const handleLogout = () => {

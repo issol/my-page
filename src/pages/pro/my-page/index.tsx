@@ -4,6 +4,6 @@ const ProMyPage = () => {
 export default ProMyPage
 
 ProMyPage.acl = {
-  action: 'read',
-  subject: 'My Page - Pro',
+  action: 'myPage-read',
+  subject: 'PRO',
 }

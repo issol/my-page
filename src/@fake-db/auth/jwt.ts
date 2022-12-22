@@ -13,19 +13,35 @@ import { UserDataType } from 'src/context/types'
 const users: UserDataType[] = [
   {
     id: 1,
-    role: 'ADMIN',
-    password: 'admin',
-    fullName: 'John Doe',
-    username: 'johndoe',
-    email: 'admin@materialize.com',
+    role: 'CLIENT',
+    password: 'client',
+    fullName: 'Jay Lee',
+    username: 'jay',
+    email: 'jay@glozinc.com',
   },
   {
     id: 2,
-    role: 'CLIENT',
-    password: 'client',
-    fullName: 'Jane Doe',
-    username: 'janedoe',
-    email: 'client@materialize.com',
+    role: 'TAD',
+    password: 'lerielkim',
+    fullName: 'Leriel Kim',
+    username: 'leriel',
+    email: 'leriel@glozinc.com',
+  },
+  {
+    id: 2,
+    role: 'LPM',
+    password: 'bonkim',
+    fullName: 'Bon Kim',
+    username: 'bon',
+    email: 'bon@glozinc.com',
+  },
+  {
+    id: 2,
+    role: 'PRO',
+    password: 'moonmoon',
+    fullName: 'Moon Moon',
+    username: 'moon',
+    email: 'Moon@glozinc.com',
   },
 ]
 
@@ -39,6 +55,8 @@ const jwtConfig = {
 type ResponseType = [number, { [key: string]: any }]
 
 mock.onPost('/jwt/login').reply(request => {
+  console.log(request)
+
   const { email, password } = JSON.parse(request.data)
 
   let error = {

@@ -463,15 +463,28 @@ const lpmData = {
   },
 }
 
-mock.onGet('/api/policy/data', { params: { role: 'PRO' } }).reply(() => {
-  return [200, data]
+mock.onGet('/api/policy/data').reply(request => {
+  const { role } = request.params
+
+  switch (role) {
+    case 'PRO':
+      return [200, data]
+    case 'CLIENT':
+      return [200, clientData]
+    case 'TAD':
+      return [200, tadData]
+    case 'LPM':
+      return [200, lpmData]
+    default:
+      return [200, data]
+  }
 })
-mock.onGet('/api/policy/data', { params: { role: 'CLIENT' } }).reply(() => {
-  return [200, clientData]
-})
-mock.onGet('/api/policy/data', { params: { role: 'TAD' } }).reply(() => {
-  return [200, tadData]
-})
-mock.onGet('/api/policy/data', { params: { role: 'LPM' } }).reply(() => {
-  return [200, lpmData]
-})
+// mock.onGet('/api/policy/data', { params: { role: 'CLIENT' } }).reply(() => {
+//   return [200, clientData]
+// })
+// mock.onGet('/api/policy/data', { params: { role: 'TAD' } }).reply(() => {
+//   return [200, tadData]
+// })
+// mock.onGet('/api/policy/data', { params: { role: 'LPM' } }).reply(() => {
+//   return [200, lpmData]
+// })
