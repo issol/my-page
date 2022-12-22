@@ -6,6 +6,7 @@ import Head from 'next/head'
 import { Router } from 'next/router'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
+import dynamic from 'next/dynamic'
 
 // ** Store Imports
 import { store } from 'src/store'
@@ -72,6 +73,9 @@ import ErrorBoundary from 'src/@core/components/error/error-boundary'
 import ErrorFallback from 'src/@core/components/error/error-fallback'
 import FallbackSpinner from 'src/@core/components/spinner'
 
+/* push notification for demo */
+import usePushNotification from '../hooks/pushNotification'
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
@@ -85,6 +89,10 @@ type GuardProps = {
 }
 
 const clientSideEmotionCache = createEmotionCache()
+const PushAlarm = dynamic<any>(
+  () => import('../views/components/push-alarm').then(m => m),
+  { ssr: false },
+)
 
 // ** Pace Loader
 if (themeConfig.routingLoader) {
@@ -143,6 +151,11 @@ const App = (props: ExtendedAppProps) => {
   const guestGuard = Component.guestGuard ?? false
 
   const aclAbilities = Component.acl ?? defaultACLObj
+
+  const pushNotification = usePushNotification()
+  pushNotification?.fireNotificationWithTimeout('Welcome to TAD DEMO', 50000, {
+    body: `Welcome to TAD DEMO`,
+  })
 
   return (
     <QueryClientProvider client={queryClient}>
