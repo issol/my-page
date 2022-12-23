@@ -1,32 +1,33 @@
-import { styled } from '@mui/material/styles'
-import Box, { BoxProps } from '@mui/material/Box'
-import { hexToRGBA } from '../../@core/utils/hex-to-rgba'
 import 'react-datepicker/dist/react-datepicker.css'
-import pal from '../../@core/theme/palette'
-import { PaletteType } from '../../@core/theme/palette/type'
 import ReactDatePicker, {
   CalendarContainerProps,
   ReactDatePickerCustomHeaderProps,
-  ReactDatePickerProps,
 } from 'react-datepicker'
+
+import * as Popper from '@popperjs/core'
+import { styled } from '@mui/material/styles'
+import Box, { BoxProps } from '@mui/material/Box'
+import { hexToRGBA } from '../../@core/utils/hex-to-rgba'
+import pal from '../../@core/theme/palette'
+import { PaletteType } from '../../@core/theme/palette/type'
 
 const palette: PaletteType = pal('light', 'default')
 
 interface Picker<WithRange extends boolean | undefined = undefined> {
   adjustDateOnChange?: boolean | undefined
   allowSameDay?: boolean | undefined
-  ariaDescribedBy?: string | undefined
-  ariaInvalid?: string | undefined
-  ariaLabelClose?: string | undefined
+  // ariaDescribedBy?: string | undefined
+  // ariaInvalid?: string | undefined
+  // ariaLabelClose?: string | undefined
   ariaLabelledBy?: string | undefined
-  ariaRequired?: string | undefined
-  autoComplete?: string | undefined
+  // ariaRequired?: string | undefined
+  // autoComplete?: string | undefined
   autoFocus?: boolean | undefined
-  calendarClassName?: string | undefined
+  // calendarClassName?: string | undefined
   calendarContainer?(props: CalendarContainerProps): React.ReactNode
-  calendarStartDay?: number | undefined
+  calendarStartDay?: 0 | 1 | 2 | 3 | 4 | 5 | 6 | undefined
   children?: React.ReactNode | undefined
-  chooseDayAriaLabelPrefix?: string | undefined
+  // chooseDayAriaLabelPrefix?: string | undefined
   className?: string | undefined
   clearButtonClassName?: string | undefined
   clearButtonTitle?: string | undefined
@@ -35,12 +36,12 @@ interface Picker<WithRange extends boolean | undefined = undefined> {
   customInputRef?: string | undefined
   customTimeInput?: React.ReactNode | undefined
   dateFormat?: string | string[] | undefined
-  dateFormatCalendar?: string | undefined
+  // dateFormatCalendar?: string | undefined
   dayClassName?(date: Date): string | null
   weekDayClassName?(date: Date): string | null
   monthClassName?(date: Date): string | null
   timeClassName?(date: Date): string | null
-  disabledDayAriaLabelPrefix?: string | undefined
+  // disabledDayAriaLabelPrefix?: string | undefined
   disabled?: boolean | undefined
   disabledKeyboardNavigation?: boolean | undefined
   dropdownMode?: 'scroll' | 'select' | undefined
@@ -51,7 +52,7 @@ interface Picker<WithRange extends boolean | undefined = undefined> {
   filterDate?(date: Date): boolean
   filterTime?(date: Date): boolean
   fixedHeight?: boolean | undefined
-  forceShowMonthNavigation?: boolean | undefined
+  // forceShowMonthNavigation?: boolean | undefined
   formatWeekDay?(formattedDate: string): React.ReactNode
   formatWeekNumber?(date: Date): string | number
   // highlightDates?: Array<HighlightDates | Date> | undefined;
@@ -75,30 +76,30 @@ interface Picker<WithRange extends boolean | undefined = undefined> {
   nextYearAriaLabel?: string | undefined
   nextYearButtonLabel?: string | React.ReactNode | undefined
   onBlur?(event: React.FocusEvent<HTMLInputElement>): void
-  onCalendarClose?(): void
-  onCalendarOpen?(): void
+  // onCalendarClose?(): void
+  // onCalendarOpen?(): void
   onChange(
     date: WithRange extends false | undefined
       ? Date | null
       : [Date | null, Date | null],
     event: React.SyntheticEvent<any> | undefined,
   ): void
-  onChangeRaw?(event: React.FocusEvent<HTMLInputElement>): void
-  onClickOutside?(event: React.MouseEvent<HTMLDivElement>): void
-  onDayMouseEnter?: ((date: Date) => void) | undefined
+  // onChangeRaw?(event: React.FocusEvent<HTMLInputElement>): void
+  // onClickOutside?(event: React.MouseEvent<HTMLDivElement>): void
+  // onDayMouseEnter?: ((date: Date) => void) | undefined
   onFocus?(event: React.FocusEvent<HTMLInputElement>): void
   onInputClick?(): void
   onInputError?(err: { code: number; msg: string }): void
   onKeyDown?(event: React.KeyboardEvent<HTMLDivElement>): void
-  onMonthChange?(date: Date): void
-  onMonthMouseLeave?: (() => void) | undefined
+  // onMonthChange?(date: Date): void
+  // onMonthMouseLeave?: (() => void) | undefined
   onSelect?(date: Date, event: React.SyntheticEvent<any> | undefined): void
-  onWeekSelect?(
-    firstDayOfWeek: Date,
-    weekNumber: string | number,
-    event: React.SyntheticEvent<any> | undefined,
-  ): void
-  onYearChange?(date: Date): void
+  // onWeekSelect?(
+  //   firstDayOfWeek: Date,
+  //   weekNumber: string | number,
+  //   event: React.SyntheticEvent<any> | undefined,
+  // ): void
+  // onYearChange?(date: Date): void
   open?: boolean | undefined
   openToDate?: Date | undefined
   peekNextMonth?: boolean | undefined
@@ -106,6 +107,7 @@ interface Picker<WithRange extends boolean | undefined = undefined> {
   popperClassName?: string | undefined
   popperContainer?(props: { children: React.ReactNode[] }): React.ReactNode
   popperProps?: {} | undefined
+  popperPlacement?: Popper.Placement | undefined
   preventOpenOnFocus?: boolean | undefined
   previousMonthAriaLabel?: string | undefined
   previousMonthButtonLabel?: string | React.ReactNode | undefined
@@ -148,20 +150,20 @@ interface Picker<WithRange extends boolean | undefined = undefined> {
   timeIntervals?: number | undefined
   title?: string | undefined
   todayButton?: React.ReactNode | undefined
-  useShortMonthInDropdown?: boolean | undefined
+  // useShortMonthInDropdown?: boolean | undefined
   useWeekdaysShort?: boolean | undefined
-  weekAriaLabelPrefix?: string | undefined
-  monthAriaLabelPrefix?: string | undefined
+  // weekAriaLabelPrefix?: string | undefined
+  // monthAriaLabelPrefix?: string | undefined
   value?: string | undefined
-  weekLabel?: string | undefined
+  // weekLabel?: string | undefined
   withPortal?: boolean | undefined
-  portalId?: string | undefined
-  portalHost?: ShadowRoot | undefined
-  wrapperClassName?: string | undefined
+  // portalId?: string | undefined
+  // portalHost?: ShadowRoot | undefined
+  // wrapperClassName?: string | undefined
   yearDropdownItemNumber?: number | undefined
   excludeScrollbar?: boolean | undefined
-  enableTabLoop?: boolean | undefined
-  yearItemNumber?: number | undefined
+  // enableTabLoop?: boolean | undefined
+  // yearItemNumber?: number | undefined
 }
 export const DatePicker = (props: Picker) => {
   return (
@@ -629,14 +631,14 @@ const DatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
         },
     },
     '& .react-datepicker__close-icon': {
-      paddingRight: theme.spacing(4),
-      ...(theme.direction === 'rtl' ? { right: 0, left: 'auto' } : {}),
+      position: 'relative',
+      paddingLeft: '4px',
       '&:after': {
-        width: 'unset',
-        height: 'unset',
-        fontSize: '1.5rem',
+        width: '1rem',
+        height: '1rem',
+        fontSize: '1rem',
         color: theme.palette.text.primary,
-        backgroundColor: 'transparent !important',
+        backgroundColor: palette.primary.main,
       },
     },
   }
