@@ -34,7 +34,9 @@ const CardSnippet = (props: CardSnippetProps) => {
 
   // ** States
   const [showCode, setShowCode] = useState<boolean>(false)
-  const [tabValue, setTabValue] = useState<'tsx' | 'jsx'>(code.tsx !== null ? 'tsx' : 'jsx')
+  const [tabValue, setTabValue] = useState<'tsx' | 'jsx'>(
+    code.tsx !== null ? 'tsx' : 'jsx',
+  )
 
   // ** Hooks
   const clipboard = useClipboard()
