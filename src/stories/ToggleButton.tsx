@@ -1,6 +1,6 @@
 import { Switch, SwitchProps } from '@mui/material'
 import { styled as muiStyled } from '@mui/material/styles'
-import pal from '../@core/theme/palette'
+import pal from 'src/@core/theme/palette'
 
 const palette = pal('light', 'default')
 export const AntSwitch = muiStyled(Switch)(({ theme }) => ({

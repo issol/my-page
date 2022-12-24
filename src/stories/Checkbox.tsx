@@ -1,7 +1,7 @@
 import Checkbox, { CheckboxProps } from '@mui/material/Checkbox'
 import styled from '@emotion/styled'
-import pal from '../@core/theme/palette'
-import { PaletteType } from '../@core/theme/palette/type'
+import pal from 'src/@core/theme/palette'
+import { PaletteType } from 'src/@core/theme/palette/type'
 
 const palette: PaletteType = pal('light', 'default')
 

@@ -7,9 +7,9 @@ import ReactDatePicker, {
 import * as Popper from '@popperjs/core'
 import { styled } from '@mui/material/styles'
 import Box, { BoxProps } from '@mui/material/Box'
-import { hexToRGBA } from '../../@core/utils/hex-to-rgba'
-import pal from '../../@core/theme/palette'
-import { PaletteType } from '../../@core/theme/palette/type'
+import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import pal from 'src/@core/theme/palette'
+import { PaletteType } from 'src/@core/theme/palette/type'
 
 const palette: PaletteType = pal('light', 'default')
 
