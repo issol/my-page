@@ -28,11 +28,12 @@ const Buttons = () => {
           title='Contained'
           code={{
             tsx: source.ButtonsContainedTSXCode,
-            jsx: source.ButtonsContainedJSXCode
+            jsx: source.ButtonsContainedJSXCode,
           }}
         >
           <Typography>
-            Use <code>variant='contained'</code> prop with <code>&lt;Button&gt;</code> component for contained buttons.
+            Use <code>variant='contained'</code> prop with{' '}
+            <code>&lt;Button&gt;</code> component for contained buttons.
           </Typography>
           <ButtonsContained />
         </CardSnippet>
@@ -42,11 +43,12 @@ const Buttons = () => {
           title='Text'
           code={{
             tsx: source.ButtonsTextTSXCode,
-            jsx: source.ButtonsTextJSXCode
+            jsx: source.ButtonsTextJSXCode,
           }}
         >
           <Typography>
-            Use <code>variant='text'</code> prop with <code>&lt;Button&gt;</code> component for buttons with text only.
+            Use <code>variant='text'</code> prop with{' '}
+            <code>&lt;Button&gt;</code> component for buttons with text only.
           </Typography>
           <ButtonsText />
         </CardSnippet>
@@ -56,11 +58,12 @@ const Buttons = () => {
           title='Outlined'
           code={{
             tsx: source.ButtonsOutlinedTSXCode,
-            jsx: source.ButtonsOutlinedJSXCode
+            jsx: source.ButtonsOutlinedJSXCode,
           }}
         >
           <Typography>
-            Use <code>variant='outlined'</code> prop with <code>&lt;Button&gt;</code> component for outlined buttons.
+            Use <code>variant='outlined'</code> prop with{' '}
+            <code>&lt;Button&gt;</code> component for outlined buttons.
           </Typography>
           <ButtonsOutlined />
         </CardSnippet>
@@ -70,11 +73,12 @@ const Buttons = () => {
           title='Buttons With Icon and Label'
           code={{
             tsx: source.ButtonsWithIconAndLabelTSXCode,
-            jsx: source.ButtonsWithIconAndLabelJSXCode
+            jsx: source.ButtonsWithIconAndLabelJSXCode,
           }}
         >
           <Typography>
-            Use <code>startIcon | endIcon</code> prop with <code>&lt;Button&gt;</code> component to add an icon inside a
+            Use <code>startIcon | endIcon</code> prop with{' '}
+            <code>&lt;Button&gt;</code> component to add an icon inside a
             button.
           </Typography>
           <ButtonsWithIconAndLabel />
@@ -85,12 +89,13 @@ const Buttons = () => {
           title='Icon Buttons'
           code={{
             tsx: source.ButtonsIconsTSXCode,
-            jsx: source.ButtonsIconsJSXCode
+            jsx: source.ButtonsIconsJSXCode,
           }}
         >
           <Typography>
-            Use an icon component inside <code>&lt;IconButton&gt;</code> component. For different colors, use{' '}
-            <code>color</code> prop with <code>&lt;IconButton&gt;</code> component.
+            Use an icon component inside <code>&lt;IconButton&gt;</code>{' '}
+            component. For different colors, use <code>color</code> prop with{' '}
+            <code>&lt;IconButton&gt;</code> component.
           </Typography>
           <ButtonsIcons />
         </CardSnippet>
@@ -100,14 +105,16 @@ const Buttons = () => {
           title='Button Sizes'
           code={{
             tsx: source.ButtonsSizesTSXCode,
-            jsx: source.ButtonsSizesJSXCode
+            jsx: source.ButtonsSizesJSXCode,
           }}
         >
           <Typography>
-            Use <code>size={`{'small' | 'medium' | 'large'}`}</code> prop with <code>&lt;Button&gt;</code> component for
-            different sized buttons. To use icon buttons, you need to use <code>size={`{small | large}`}</code> prop
-            with <code>&lt;IconButton&gt;</code> component or you can also use <code>fontSize</code> prop with the
-            icons.
+            Use <code>size={`{'small' | 'medium' | 'large'}`}</code> prop with{' '}
+            <code>&lt;Button&gt;</code> component for different sized buttons.
+            To use icon buttons, you need to use{' '}
+            <code>size={`{small | large}`}</code> prop with{' '}
+            <code>&lt;IconButton&gt;</code> component or you can also use{' '}
+            <code>fontSize</code> prop with the icons.
           </Typography>
           <ButtonsSizes />
         </CardSnippet>
@@ -117,11 +124,12 @@ const Buttons = () => {
           title='Button Colors'
           code={{
             tsx: source.ButtonsColorsTSXCode,
-            jsx: source.ButtonsColorsJSXCode
+            jsx: source.ButtonsColorsJSXCode,
           }}
         >
           <Typography>
-            Use <code>color</code> prop with <code>&lt;Button&gt;</code> component for different colored buttons.
+            Use <code>color</code> prop with <code>&lt;Button&gt;</code>{' '}
+            component for different colored buttons.
           </Typography>
           <ButtonsColors />
         </CardSnippet>
@@ -131,7 +139,7 @@ const Buttons = () => {
           title='Customized Buttons'
           code={{
             tsx: source.ButtonsCustomizedTSXCode,
-            jsx: source.ButtonsCustomizedJSXCode
+            jsx: source.ButtonsCustomizedJSXCode,
           }}
         >
           <ButtonsCustomized />
@@ -142,12 +150,14 @@ const Buttons = () => {
           title='Floating Action Button'
           code={{
             tsx: source.ButtonsFabTSXCode,
-            jsx: source.ButtonsFabJSXCode
+            jsx: source.ButtonsFabJSXCode,
           }}
         >
           <Typography sx={{ mb: 4 }}>
-            Use <code>color</code> prop with <code>&lt;Fab&gt;</code> component for different colored Floating Action
-            Button and <code>variant='extended'</code> prop for extended (not round) Floating Action Button.
+            Use <code>color</code> prop with <code>&lt;Fab&gt;</code> component
+            for different colored Floating Action Button and{' '}
+            <code>variant='extended'</code> prop for extended (not round)
+            Floating Action Button.
           </Typography>
           <ButtonsFab />
         </CardSnippet>
@@ -157,12 +167,12 @@ const Buttons = () => {
           title='Floating Action Button Sizes'
           code={{
             tsx: source.ButtonsFabSizesTSXCode,
-            jsx: source.ButtonsFabSizesJSXCode
+            jsx: source.ButtonsFabSizesJSXCode,
           }}
         >
           <Typography>
-            Use <code>size={`{'small' | 'medium' | 'large'}`}</code> prop for different sizes of Floating Action
-            Buttons.
+            Use <code>size={`{'small' | 'medium' | 'large'}`}</code> prop for
+            different sizes of Floating Action Buttons.
           </Typography>
           <ButtonsFabSizes />
         </CardSnippet>

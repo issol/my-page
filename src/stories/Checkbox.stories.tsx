@@ -1,46 +1,62 @@
 import React from 'react'
-import styled from '@emotion/styled'
-
 import { ComponentStory, ComponentMeta } from '@storybook/react'
-import { CustomCheckBox } from './Checkbox'
+import { Checkbox, FormControlLabel } from '@mui/material'
 
 export default {
   title: 'Components/Button/Checkbox',
-  component: CustomCheckBox,
+  component: Checkbox,
+  argTypes: {
+    checked: {
+      description: 'boolean',
+    },
+    defaultChecked: {
+      description: 'boolean',
+    },
+    checkedIcon: {
+      description: 'ReactNode타입으로 전달',
+    },
+    color: {
+      options: [
+        'primary',
+        'secondary',
+        'error',
+        'info',
+        'success',
+        'warning',
+        'default',
+      ],
+      control: { type: 'select' },
+    },
+    disabled: {
+      control: { type: 'boolean' },
+    },
+    indeterminate: {
+      description: '불확실한 값에 대해 - 표시 할 수 있음',
+      control: { type: 'boolean' },
+    },
+    required: {
+      control: { type: 'boolean' },
+    },
+    size: {
+      options: ['small', 'medium'],
+      control: { type: 'select' },
+    },
+    value: {
+      description: 'value',
+    },
+  },
+} as ComponentMeta<typeof Checkbox>
 
-  // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof CustomCheckBox>
-const Template: ComponentStory<typeof CustomCheckBox> = args => (
-  <CustomCheckBox {...args} />
-)
+const Template: ComponentStory<typeof Checkbox> = args => <Checkbox {...args} />
 
 export const Default = Template.bind({})
 Default.args = {
-  id: '1',
+  color: 'primary',
+  checked: true,
 }
 
-export const CheckboxExamples = (args: typeof CustomCheckBox) => (
-  <div>
-    <Box>
-      <CustomCheckBox {...args} id='1' />
-      <label htmlFor='1'>Default</label>
-    </Box>
-    <Box>
-      <CustomCheckBox {...args} id='2' disabled={true} />
-      <label htmlFor='2'>Disabled</label>
-    </Box>
-    <Box>
-      <CustomCheckBox {...args} id='3' checked={true} />
-      <label htmlFor='3'>Checked</label>
-    </Box>
-    <Box>
-      <CustomCheckBox {...args} id='4' reverse={true} />
-      <label htmlFor='4'>Reverse</label>
-    </Box>
-  </div>
-)
-
-const Box = styled.div`
-  display: flex;
-  gap: 4px;
-`
+export const WithLabel = (args: typeof Checkbox) => {
+  return (
+    <FormControlLabel label='With Label' control={<Checkbox {...args} />} />
+  )
+}

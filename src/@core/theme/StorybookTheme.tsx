@@ -1,4 +1,3 @@
-// ** React Imports
 import { ReactNode } from 'react'
 
 // ** MUI Imports
@@ -37,7 +36,7 @@ interface Props {
   children: ReactNode
 }
 
-const ThemeComponent = (props: Props) => {
+const StorybookTheme = (props: Props) => {
   // ** Props
   const { settings, children } = props
 
@@ -68,13 +67,13 @@ const ThemeComponent = (props: Props) => {
 
   return (
     <ThemeProvider theme={theme}>
-      <Direction direction={settings.direction}>
-        <CssBaseline />
-        <GlobalStyles styles={() => GlobalStyling(theme) as any} />
-        {children}
-      </Direction>
+      {/* <Direction direction={settings.direction}> */}
+      <CssBaseline />
+      <GlobalStyles styles={() => GlobalStyling(theme) as any} />
+      {children}
+      {/* </Direction> */}
     </ThemeProvider>
   )
 }
 
-export default ThemeComponent
+export default StorybookTheme

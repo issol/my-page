@@ -1,35 +1,15 @@
 import React from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
+import Buttons from 'src/pages/components/buttons'
 
-import { CtaButton } from './Button'
-
+//Buttons
 export default {
   title: 'Components/Button',
-  component: CtaButton
+  component: Buttons,
 
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof CtaButton>
-const Template: ComponentStory<typeof CtaButton> = args => <CtaButton {...args} />
+} as ComponentMeta<typeof Buttons>
+const Template: ComponentStory<typeof Buttons> = args => <Buttons />
 
 export const Primary = Template.bind({})
-Primary.args = {
-  children: 'Button',
-  color: 'primary'
-}
-export const Secondary = Template.bind({})
-Secondary.args = {
-  children: 'Button',
-  color: 'secondary'
-}
-export const Round = Template.bind({})
-Round.args = {
-  children: 'Button',
-  color: 'primary',
-  shape: 'round'
-}
-export const Disabled = Template.bind({})
-Disabled.args = {
-  children: 'Button',
-  color: 'primary',
-  disabled: true
-}
+Primary.args = {}
