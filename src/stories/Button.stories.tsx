@@ -11,5 +11,5 @@ export default {
 } as ComponentMeta<typeof Buttons>
 const Template: ComponentStory<typeof Buttons> = args => <Buttons />
 
-export const Primary = Template.bind({})
-Primary.args = {}
+export const AllBasicButtons = Template.bind({})
+AllBasicButtons.args = {}

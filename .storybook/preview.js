@@ -43,7 +43,7 @@ export const parameters = {
   controls: {
     expanded: true, // Adds the description and default columns
     matchers: {
-      // color: /(background|color)$/i,
+      // color: /(background|color)$/i, => color라는 이름의 prop이 있으면 자동으로 color picker를 보여주는 옵션인데, invalid한 코드가 들어가면 에러가 나므로 주석처리
       date: /Date$/,
     },
   },
