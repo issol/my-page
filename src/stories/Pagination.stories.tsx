@@ -1,9 +1,9 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
-import Pagination from 'src/pages/components/badges'
+import Pagination from 'src/pages/components/pagination'
 
 export default {
-  title: 'Icons/Badge',
+  title: 'Pagination/Pagination',
   component: Pagination,
 } as ComponentMeta<typeof Pagination>
 
