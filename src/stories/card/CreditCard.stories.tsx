@@ -48,7 +48,7 @@ export const Default = () => {
   }
   return (
     <form onSubmit={e => e.preventDefault()}>
-      <Alert severity='error'>
+      <Alert severity='info'>
         멋진 카드 디자인을 위해서는{' '}
         <code>import 'react-credit-cards/es/styles-compiled.css'</code>를
         import해주세요.

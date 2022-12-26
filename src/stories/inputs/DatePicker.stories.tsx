@@ -2,6 +2,7 @@ import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
 import ReactDatePicker from 'src/pages/forms/form-elements/pickers'
+import { Alert, Divider } from '@mui/material'
 
 export default {
   title: 'Input Fields/DatePicker',
@@ -39,5 +40,18 @@ export default {
 } as ComponentMeta<typeof ReactDatePicker>
 
 export const Examples = () => {
-  return <ReactDatePicker />
+  return (
+    <div>
+      <Alert severity='info'>
+        DatePicker를 사용할 때 반드시{' '}
+        <code>
+          import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+        </code>
+        를 해준 뒤 해당 컴포넌트로 DatePicker를 감싸주세요. 그래야 템플릿
+        스타일이 오버라이딩 됩니다.
+      </Alert>
+      <Divider />
+      <ReactDatePicker />
+    </div>
+  )
 }
