@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "baseUrl": ".",
-    "rootDir": "src",
+    "baseUrl": ".", //ts컴파일러가 build명령어를 실행하는 주소. 즉, '.'로 되어있다면 전체 dir를 빌드하는데, exclude에 들어있는 애들은 안 함
+    "rootDir": "src", //어디를 Root로 인식할건지 지정.
     "target": "es6",
     "lib": [
       "dom",
@@ -27,6 +27,9 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
+      "./src/*": [
+        "src/*"
+      ]
     }
   },
   "include": [

@@ -1,5 +1,5 @@
 declare module '@mui/material/styles' {
-  interface Palette {
+  export interface Palette {
     customColors: {
       dark: string
       main: string

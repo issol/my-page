@@ -65,7 +65,7 @@ const RolesCards = () => {
   const [isIndeterminateCheckbox, setIsIndeterminateCheckbox] = useState<boolean>(false)
 
   const handleClickOpen = () => setOpen(true)
-
+  console.log(selectedCheckbox)
   const handleClose = () => {
     setOpen(false)
     setSelectedCheckbox([])
