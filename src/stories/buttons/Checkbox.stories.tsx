@@ -3,7 +3,7 @@ import { ComponentStory, ComponentMeta } from '@storybook/react'
 import { Checkbox, FormControlLabel } from '@mui/material'
 
 export default {
-  title: 'Components/Button/Checkbox',
+  title: 'Button/Checkbox',
   component: Checkbox,
   argTypes: {
     checked: {

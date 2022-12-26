@@ -3,7 +3,7 @@ import { ComponentMeta, ComponentStory } from '@storybook/react'
 import { Radio } from '@mui/material'
 
 export default {
-  title: 'Components/Button/Radio',
+  title: 'Button/Radio',
   component: Radio,
   argTypes: {
     name: {

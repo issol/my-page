@@ -25,7 +25,7 @@ const data: CustomRadioBasicData[] = [
 ]
 
 export default {
-  title: 'Components/Button/RadioWithContainer',
+  title: 'Button/RadioWithContainer',
   component: CustomRadioBasic,
   argTypes: {
     name: {

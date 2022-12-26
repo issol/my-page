@@ -4,7 +4,7 @@ import { ComponentMeta } from '@storybook/react'
 import CustomInputs from 'src/pages/forms/form-elements/custom-inputs'
 
 export default {
-  title: 'Components/Button/Custom Radio & CheckBox',
+  title: 'Button/Custom Radio & CheckBox',
   component: CustomInputs,
   parameters: {
     // More on Story layout: https://storybook.js.org/docs/react/configure/story-layout

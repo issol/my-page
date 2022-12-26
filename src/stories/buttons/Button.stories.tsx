@@ -4,7 +4,7 @@ import Buttons from 'src/pages/components/buttons'
 
 //Buttons
 export default {
-  title: 'Components/Button',
+  title: 'Button',
   component: Buttons,
 
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
