@@ -1,12 +1,11 @@
 import React, { useState } from 'react'
 import { ComponentStory, ComponentMeta } from '@storybook/react'
 
-import { DatePicker } from './DatePicker'
-import { addDays, getDay, setHours, setMinutes, subDays } from 'date-fns'
+import ReactDatePicker from 'src/pages/forms/form-elements/pickers'
 
 export default {
   title: 'Input Fields/DatePicker',
-  component: DatePicker,
+  component: ReactDatePicker,
   argTypes: {
     customInput: {
       description:
@@ -37,148 +36,8 @@ export default {
     },
   },
   // More on argTypes: https://storybook.js.org/docs/react/api/argtypes
-} as ComponentMeta<typeof DatePicker>
-const Template: ComponentStory<typeof DatePicker> = args => {
-  const [date, setDate] = useState<null | Date>(null)
-  return (
-    <DatePicker {...args} onChange={date => setDate(date)} selected={date} />
-  )
-}
+} as ComponentMeta<typeof ReactDatePicker>
 
-export const Default = Template.bind({})
-Default.args = {}
-
-export const Clearable = (args: typeof DatePicker) => {
-  const [date, setDate] = useState<null | Date>(null)
-  return (
-    <DatePicker
-      {...args}
-      selected={date}
-      onChange={date => setDate(date)}
-      isClearable
-      placeholderText='I have been cleared!'
-    />
-  )
-}
-export const WithCustomInput = (args: typeof DatePicker) => {
-  const [date, setDate] = useState<null | Date>(null)
-  return (
-    <DatePicker
-      {...args}
-      selected={date}
-      onChange={date => setDate(date)}
-      customInput={
-        <input
-          value={date?.toString()}
-          style={{
-            border: '1px solid #eeeeee',
-            padding: '8px',
-            borderRadius: '8px',
-            fontSize: '1rem',
-            color: '#444444',
-          }}
-        />
-      }
-      placeholderText='Pass me a customInput!'
-    />
-  )
-}
-
-export const RangePicker = (args: typeof DatePicker) => {
-  const [startDate, setStartDate] = useState<null | Date>(
-    new Date('2022/02/08'),
-  )
-  const [endDate, setEndDate] = useState<null | Date>(new Date('2022/02/10'))
-  return (
-    <>
-      <DatePicker
-        {...args}
-        selected={startDate}
-        onChange={date => setStartDate(date)}
-        selectsStart
-        dateFormat='yyyy/MM/dd'
-        startDate={startDate}
-        endDate={endDate}
-      />
-      <DatePicker
-        {...args}
-        selected={endDate}
-        onChange={date => setEndDate(date)}
-        selectsEnd
-        dateFormat='yyyy/MM/dd'
-        startDate={startDate}
-        endDate={endDate}
-        minDate={startDate}
-      />
-    </>
-  )
-}
-
-export const ShowWeekDayOnly = (args: typeof DatePicker) => {
-  const [startDate, setStartDate] = useState<null | Date>(null)
-  const isWeekday = (date: Date) => {
-    const day = getDay(date)
-    return day !== 0 && day !== 6
-  }
-  return (
-    <DatePicker
-      {...args}
-      selected={startDate}
-      onChange={date => setStartDate(date)}
-      filterDate={isWeekday}
-      placeholderText='Select a weekday'
-    />
-  )
-}
-
-export const DisablePassedTimes = (args: typeof DatePicker) => {
-  const [startDate, setStartDate] = useState<null | Date>(
-    setHours(setMinutes(new Date(), 0), 9),
-  )
-  const filterPassedTime = (time: Date) => {
-    const currentDate = new Date()
-    const selectedDate = new Date(time)
-
-    return currentDate.getTime() < selectedDate.getTime()
-  }
-  return (
-    <DatePicker
-      {...args}
-      selected={startDate}
-      onChange={date => setStartDate(date)}
-      showTimeSelect
-      filterTime={filterPassedTime}
-      dateFormat='MMMM d, yyyy h:mm aa'
-    />
-  )
-}
-
-export const YearPicker = Template.bind({})
-YearPicker.args = {
-  showYearPicker: true,
-  dateFormat: 'yyyy',
-}
-
-export const PickToday = Template.bind({})
-PickToday.args = {
-  todayButton: 'Pick Today',
-}
-export const PickerPosition = Template.bind({})
-PickerPosition.args = {
-  popperPlacement: 'auto-end',
-}
-export const DisableSomeDates = Template.bind({})
-DisableSomeDates.args = {
-  excludeDates: [addDays(new Date(), 1), addDays(new Date(), 5)],
-}
-export const WithPortal = Template.bind({})
-WithPortal.args = {
-  withPortal: true,
-}
-
-export const IncludeDateIntervals = Template.bind({})
-IncludeDateIntervals.args = {
-  includeDateIntervals: [
-    { start: subDays(new Date(), 5), end: addDays(new Date(), 5) },
-  ],
+export const Examples = () => {
+  return <ReactDatePicker />
 }
