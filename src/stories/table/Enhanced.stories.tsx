@@ -1,3 +1,45 @@
+import React from 'react'
+import { ComponentMeta } from '@storybook/react'
+
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+
+// ** Custom Components Imports
+import CardSnippet from 'src/@core/components/card-snippet'
+
+import { Alert } from '@mui/material'
+import EnhancedTable from 'src/views/table/mui/TableSortSelect'
+
+export default {
+  title: 'Table/SortSelect',
+  component: EnhancedTable,
+} as ComponentMeta<typeof EnhancedTable>
+
+export const Default = () => {
+  return (
+    <div>
+      <Grid item xs={12}>
+        <CardSnippet
+          title='Table Enhanced'
+          code={{
+            tsx: source,
+            jsx: source,
+          }}
+        >
+          <Alert severity='info'>
+            하단의 코드는 예시입니다. 컴포넌트 명과 데이터, 컬럼의 값은 필요한
+            값으로 대체하여 사용해주세요.
+          </Alert>
+          <EnhancedTable />
+        </CardSnippet>
+      </Grid>
+    </div>
+  )
+}
+
+const source = (
+  <pre className='language-jsx'>
+    <code className='language-jsx'>{`
 // ** React Imports
 import { useState } from 'react'
 
@@ -214,7 +256,7 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
   return (
     <Toolbar
       sx={{
-        px: theme => `${theme.spacing(5)} !important`,
+        px: theme => 20px !important,
         ...(numSelected > 0 && {
           bgcolor: theme =>
             alpha(
@@ -332,12 +374,11 @@ const EnhancedTable = () => {
             onSelectAllClick={handleSelectAllClick}
           />
           <TableBody>
-            {/* if you don't need to support IE11, you can replace the `stableSort` call with: rows.slice().sort(getComparator(order, orderBy)) */}
             {stableSort(rows, getComparator(order, orderBy))
               .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
               .map((row, index) => {
                 const isItemSelected = isSelected(row.name)
-                const labelId = `enhanced-table-checkbox-${index}`
+                const labelId = "enhanced-table-checkbox-" + index
 
                 return (
                   <TableRow
@@ -396,3 +437,6 @@ const EnhancedTable = () => {
 }
 
 export default EnhancedTable
+`}</code>
+  </pre>
+)
