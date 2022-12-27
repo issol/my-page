@@ -182,11 +182,11 @@ const AuthProvider = ({ children }: Props) => {
             },
           })
           .then(async response => {
-            const data = await axios.get('/api/policy/data', {
-              params: { role: response.data.userData.role },
-            })
             setLoading(false)
-            setUser({ ...response.data.userData, policy: data.data })
+            setUser({
+              ...response.data.userData,
+              policy: JSON.parse(window.localStorage.getItem('policy') || ''),
+            })
           })
           .catch(() => {
             localStorage.removeItem('userData')
@@ -227,11 +227,19 @@ const AuthProvider = ({ children }: Props) => {
           : null
         const returnUrl = router.query.returnUrl
 
-        const data = await axios.get('/api/policy/data', {
-          params: { role: response.data.userData.role },
-        })
+        // const data = await axios.get('/api/policy/data', {
+        //   params: {
+        //     role: response.data.userData.role,
+        //     id: response.data.userData.id,
+        //   },
+        // })
 
-        setUser({ ...response.data.userData, policy: data.data })
+        // window.localStorage.setItem('policy', JSON.stringify(data.data))
+
+        setUser({
+          ...response.data.userData,
+          policy: response.data.userData.policy,
+        })
         params.rememberMe
           ? window.localStorage.setItem(
               'userData',
@@ -253,6 +261,7 @@ const AuthProvider = ({ children }: Props) => {
     setUser(null)
     window.localStorage.removeItem('userData')
     window.localStorage.removeItem(authConfig.storageTokenKeyName)
+    window.localStorage.removeItem('policy')
     router.push('/login')
   }
 

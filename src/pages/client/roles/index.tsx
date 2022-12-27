@@ -1,13 +1,22 @@
-// ** React Imports
-import { SyntheticEvent, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+import Button from '@mui/material/Button'
 
-// ** MUI Imports
+import { DataGrid, GridRowId } from '@mui/x-data-grid'
 import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+import { UserDataType } from 'src/context/types'
+import { fetchTestUser, updatePolicy } from 'src/store/apps/test-user'
+
+import { useDispatch, useSelector } from 'react-redux'
+import { RootState, AppDispatch } from 'src/store'
+import { AuthContext } from 'src/context/AuthContext'
+
 import Grid from '@mui/material/Grid'
 import Card from '@mui/material/Card'
 import Link from '@mui/material/Link'
 import Table from '@mui/material/Table'
-import Button from '@mui/material/Button'
+
 import Avatar from '@mui/material/Avatar'
 import Dialog from '@mui/material/Dialog'
 import Tooltip from '@mui/material/Tooltip'
@@ -18,7 +27,6 @@ import TableCell from '@mui/material/TableCell'
 import TableHead from '@mui/material/TableHead'
 import TextField from '@mui/material/TextField'
 import IconButton from '@mui/material/IconButton'
-import Typography from '@mui/material/Typography'
 import FormControl from '@mui/material/FormControl'
 import DialogTitle from '@mui/material/DialogTitle'
 import AvatarGroup from '@mui/material/AvatarGroup'
@@ -27,63 +35,71 @@ import DialogActions from '@mui/material/DialogActions'
 import DialogContent from '@mui/material/DialogContent'
 import TableContainer from '@mui/material/TableContainer'
 import FormControlLabel from '@mui/material/FormControlLabel'
-
-// ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import { PolicyType } from 'src/configs/acl'
 
-interface CardDataType {
-  title: string
-  avatars: string[]
-  totalUsers: number
+interface CellType {
+  row: UserDataType
 }
 
-const cardData: CardDataType[] = [
-  {
-    totalUsers: 4,
-    title: 'Administrator',
-    avatars: ['1.png', '2.png', '3.png', '4.png'],
-  },
-  {
-    totalUsers: 7,
-    title: 'Manager',
-    avatars: ['5.png', '6.png', '7.png', '8.png', '1.png', '2.png', '3.png'],
-  },
-  {
-    totalUsers: 5,
-    title: 'Users',
-    avatars: ['4.png', '5.png', '6.png', '7.png', '8.png'],
-  },
-  { totalUsers: 3, title: 'Support', avatars: ['1.png', '2.png', '3.png'] },
-  { totalUsers: 2, title: 'Restricted User', avatars: ['4.png', '5.png'] },
-]
-
 const rolesArr: string[] = [
-  'User Management',
-  'Content Management',
-  'Disputes Management',
-  'Database Management',
-  'Financial Management',
-  'Reporting',
-  'API Control',
-  'Repository Management',
-  'Payroll',
+  'dashboard',
+  'account',
+  'email',
+  'quotes',
+  'quoteList',
+  'quoteCreate',
+  'orders',
+  'orderList',
+  'invoices',
+  'clientInvoiceList',
+  'roles',
 ]
 
-const RolesCards = () => {
-  // ** States
+const ClientManageRoles = () => {
+  const ability = useContext(AbilityContext)
+
+  const [pageSize, setPageSize] = useState<number>(10)
   const [open, setOpen] = useState<boolean>(false)
   const [dialogTitle, setDialogTitle] = useState<'Add' | 'Edit'>('Add')
   const [selectedCheckbox, setSelectedCheckbox] = useState<string[]>([])
+  const [selectedPolicy, setSelectedPolicy] = useState<PolicyType>({})
+  const [selectedUserId, setSelectedUserId] = useState<number>(0)
   const [isIndeterminateCheckbox, setIsIndeterminateCheckbox] =
     useState<boolean>(false)
 
-  const handleClickOpen = () => setOpen(true)
+  const returnRules = (row: PolicyType) => {
+    const result = Object.entries(row)
+      .map(([key, value]) => {
+        const res = Object.entries(value).map(([permission, data]) => {
+          return data ? `${key}-${permission}` : ''
+        })
+
+        return res
+      })
+      .flat()
+      .filter(value => value)
+
+    return result
+  }
+
+  const handleClickOpen = (policy: PolicyType, id: number) => {
+    setSelectedPolicy(policy)
+    setSelectedUserId(id)
+
+    setOpen(true)
+    setSelectedCheckbox(returnRules(policy))
+  }
 
   const handleClose = () => {
     setOpen(false)
-    setSelectedCheckbox([])
+    // setSelectedCheckbox([])
     setIsIndeterminateCheckbox(false)
   }
+
+  const dispatch = useDispatch<AppDispatch>()
+  const store = useSelector((state: RootState) => state.testUser)
+  const auth = useContext(AuthContext)
 
   const togglePermission = (id: string) => {
     const arr = selectedCheckbox
@@ -101,141 +117,130 @@ const RolesCards = () => {
       setSelectedCheckbox([])
     } else {
       rolesArr.forEach(row => {
-        const id = row.toLowerCase().split(' ').join('-')
-        togglePermission(`${id}-read`)
-        togglePermission(`${id}-write`)
-        togglePermission(`${id}-create`)
+        togglePermission(`${row}-read`)
+        togglePermission(`${row}-update`)
+        togglePermission(`${row}-create`)
+        togglePermission(`${row}-delete`)
       })
     }
+  }
+
+  const handleUpdatePolicy = (policy: string[]) => {
+    const result = policy.reduce((acc: any, value, index) => {
+      if (acc[value.split('-')[0]]) {
+        if (value.split('-')[1] === 'create') {
+          acc[value.split('-')[0]]['create'] = true
+        } else if (value.split('-')[1] === 'read') {
+          acc[value.split('-')[0]]['read'] = true
+        } else if (value.split('-')[1] === 'update') {
+          acc[value.split('-')[0]]['update'] = true
+        } else if (value.split('-')[1] === 'delete') {
+          acc[value.split('-')[0]]['delete'] = true
+        }
+      } else {
+        acc[value.split('-')[0]] = {
+          create: value.split('-')[1] === 'create',
+          read: value.split('-')[1] === 'read',
+          update: value.split('-')[1] === 'update',
+          delete: value.split('-')[1] === 'delete',
+        }
+      }
+
+      return acc
+    }, {})
+
+    dispatch(
+      updatePolicy({
+        id: selectedUserId,
+        policy: Object.assign({}, selectedPolicy, result),
+      }),
+    )
   }
 
   useEffect(() => {
     if (
       selectedCheckbox.length > 0 &&
-      selectedCheckbox.length < rolesArr.length * 3
+      selectedCheckbox.length < rolesArr.length * 4
     ) {
       setIsIndeterminateCheckbox(true)
     } else {
       setIsIndeterminateCheckbox(false)
     }
   }, [selectedCheckbox])
+  useEffect(() => {
+    dispatch(
+      fetchTestUser({
+        role: auth.user ? auth.user.role : '',
+      }),
+    )
+  }, [dispatch])
 
-  const renderCards = () =>
-    cardData.map((item, index: number) => (
-      <Grid item xs={12} sm={6} lg={4} key={index}>
-        <Card>
-          <CardContent>
-            <Box
-              sx={{
-                mb: 3,
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant='body2'>{`Total ${item.totalUsers} users`}</Typography>
-              <AvatarGroup
-                max={4}
-                sx={{
-                  '& .MuiAvatar-root': {
-                    width: 40,
-                    height: 40,
-                    fontSize: '0.875rem',
-                  },
-                }}
-              >
-                {item.avatars.map((img, index: number) => (
-                  <Avatar
-                    key={index}
-                    alt={item.title}
-                    src={`/images/avatars/${img}`}
-                  />
-                ))}
-              </AvatarGroup>
-            </Box>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'flex-end',
-              }}
-            >
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Typography variant='h6'>{item.title}</Typography>
-                <Typography
-                  href='/'
-                  variant='body2'
-                  component={Link}
-                  sx={{ color: 'primary.main' }}
-                  onClick={(e: SyntheticEvent) => {
-                    e.preventDefault()
-                    handleClickOpen()
-                    setDialogTitle('Edit')
-                  }}
-                >
-                  Edit Role
-                </Typography>
-              </Box>
-              <IconButton sx={{ color: 'text.secondary' }}>
-                <Icon icon='mdi:content-copy' fontSize={20} />
-              </IconButton>
-            </Box>
-          </CardContent>
-        </Card>
-      </Grid>
-    ))
+  const columns = [
+    {
+      flex: 0.2,
+      minWidth: 230,
+      field: 'fullName',
+      headerName: 'User',
+      renderCell: ({ row }: CellType) => {
+        const { fullName, username } = row
+
+        return (
+          <Typography variant='body2' noWrap>
+            {row.username}
+          </Typography>
+        )
+      },
+    },
+    {
+      flex: 0.2,
+      minWidth: 250,
+      field: 'email',
+      headerName: 'Email',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography variant='body2' noWrap>
+            {row.email}
+          </Typography>
+        )
+      },
+    },
+    {
+      flex: 0.15,
+      field: 'role',
+      minWidth: 150,
+      headerName: 'Role',
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography
+            noWrap
+            sx={{ color: 'text.secondary', textTransform: 'capitalize' }}
+          >
+            {row.role}
+          </Typography>
+        )
+      },
+    },
+    {
+      flex: 0.1,
+      minWidth: 100,
+      sortable: false,
+      field: 'actions',
+      headerName: 'Actions',
+      renderCell: ({ row }: CellType) => (
+        <IconButton
+          onClick={() => {
+            handleClickOpen(row.policy, row.id)
+          }}
+          disabled={!ability.can('roles-update', 'CLIENT')}
+        >
+          <Icon icon='mdi:eye-outline' />
+        </IconButton>
+      ),
+    },
+  ]
 
   return (
-    <Grid container spacing={6} className='match-height'>
-      {renderCards()}
-      <Grid item xs={12} sm={6} lg={4}>
-        <Card
-          sx={{ cursor: 'pointer' }}
-          onClick={() => {
-            handleClickOpen()
-            setDialogTitle('Add')
-          }}
-        >
-          <Grid container sx={{ height: '100%' }}>
-            <Grid item xs={5}>
-              <Box
-                sx={{
-                  height: '100%',
-                  display: 'flex',
-                  alignItems: 'flex-end',
-                  justifyContent: 'center',
-                }}
-              >
-                <img
-                  width={65}
-                  height={130}
-                  alt='add-role'
-                  src='/images/pages/add-new-role-illustration.png'
-                />
-              </Box>
-            </Grid>
-            <Grid item xs={7}>
-              <CardContent>
-                <Box sx={{ textAlign: 'right' }}>
-                  <Button
-                    variant='contained'
-                    sx={{ mb: 2.5, whiteSpace: 'nowrap' }}
-                    onClick={() => {
-                      handleClickOpen()
-                      setDialogTitle('Add')
-                    }}
-                  >
-                    Add Role
-                  </Button>
-                  <Typography variant='body2'>
-                    Add role, if it doesn't exist.
-                  </Typography>
-                </Box>
-              </CardContent>
-            </Grid>
-          </Grid>
-        </Card>
-      </Grid>
+    <>
       <Dialog
         fullWidth
         maxWidth='md'
@@ -299,7 +304,7 @@ const RolesCards = () => {
                           onChange={handleSelectAllCheckbox}
                           indeterminate={isIndeterminateCheckbox}
                           checked={
-                            selectedCheckbox.length === rolesArr.length * 3
+                            selectedCheckbox.length === rolesArr.length * 4
                           }
                         />
                       }
@@ -309,8 +314,6 @@ const RolesCards = () => {
               </TableHead>
               <TableBody>
                 {rolesArr.map((i: string, index: number) => {
-                  const id = i.toLowerCase().split(' ').join('-')
-
                   return (
                     <TableRow
                       key={index}
@@ -336,9 +339,9 @@ const RolesCards = () => {
                           control={
                             <Checkbox
                               size='small'
-                              id={`${id}-read`}
-                              onChange={() => togglePermission(`${id}-read`)}
-                              checked={selectedCheckbox.includes(`${id}-read`)}
+                              id={`${i}-read`}
+                              onChange={() => togglePermission(`${i}-read`)}
+                              checked={selectedCheckbox.includes(`${i}-read`)}
                             />
                           }
                         />
@@ -349,9 +352,9 @@ const RolesCards = () => {
                           control={
                             <Checkbox
                               size='small'
-                              id={`${id}-write`}
-                              onChange={() => togglePermission(`${id}-write`)}
-                              checked={selectedCheckbox.includes(`${id}-write`)}
+                              id={`${i}-update`}
+                              onChange={() => togglePermission(`${i}-update`)}
+                              checked={selectedCheckbox.includes(`${i}-update`)}
                             />
                           }
                         />
@@ -362,11 +365,22 @@ const RolesCards = () => {
                           control={
                             <Checkbox
                               size='small'
-                              id={`${id}-create`}
-                              onChange={() => togglePermission(`${id}-create`)}
-                              checked={selectedCheckbox.includes(
-                                `${id}-create`,
-                              )}
+                              id={`${i}-create`}
+                              onChange={() => togglePermission(`${i}-create`)}
+                              checked={selectedCheckbox.includes(`${i}-create`)}
+                            />
+                          }
+                        />
+                      </TableCell>
+                      <TableCell>
+                        <FormControlLabel
+                          label='Delete'
+                          control={
+                            <Checkbox
+                              size='small'
+                              id={`${i}-delete`}
+                              onChange={() => togglePermission(`${i}-delete`)}
+                              checked={selectedCheckbox.includes(`${i}-delete`)}
                             />
                           }
                         />
@@ -386,7 +400,10 @@ const RolesCards = () => {
               size='large'
               type='submit'
               variant='contained'
-              onClick={handleClose}
+              onClick={() => {
+                handleUpdatePolicy(selectedCheckbox)
+                handleClose()
+              }}
             >
               Submit
             </Button>
@@ -401,8 +418,54 @@ const RolesCards = () => {
           </Box>
         </DialogActions>
       </Dialog>
-    </Grid>
+      <div>Client Manage Roles</div>
+      <div className='demo-space-x'>
+        <Button
+          variant='contained'
+          disabled={!ability.can('roles-create', 'CLIENT')}
+        >
+          CREATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('roles-read', 'CLIENT')}
+        >
+          READ
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('roles-update', 'CLIENT')}
+        >
+          UPDATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('roles-delete', 'CLIENT')}
+        >
+          DELETE
+        </Button>
+      </div>
+      <>
+        <Box sx={{ height: 600 }}>
+          <DataGrid
+            autoHeight
+            rows={store.users}
+            columns={columns}
+            pageSize={pageSize}
+            disableSelectionOnClick
+            rowsPerPageOptions={[10, 25, 50]}
+            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+            sx={{ '& .MuiDataGrid-columnHeaders': { borderRadius: 0 } }}
+          />
+        </Box>
+      </>
+    </>
   )
 }
 
-export default RolesCards
+export default ClientManageRoles
+
+ClientManageRoles.acl = {
+  action: 'roles-read',
+  subject: 'CLIENT',
+}
