@@ -77,19 +77,19 @@ export const data: { users: UserDataType[] } = {
         },
         clients: {
           create: false,
-          read: true,
+          read: false,
           update: false,
           delete: false,
         },
         clientList: {
           create: false,
-          read: true,
+          read: false,
           update: false,
           delete: false,
         },
         clientCreate: {
           create: false,
-          read: true,
+          read: false,
           update: false,
           delete: false,
         },
@@ -126,8 +126,8 @@ export const data: { users: UserDataType[] } = {
         },
 
         orderCreate: {
-          create: true,
-          read: true,
+          create: false,
+          read: false,
           update: false,
           delete: false,
         },
@@ -7767,10 +7767,10 @@ export const data: { users: UserDataType[] } = {
         },
 
         orderCreate: {
-          create: true,
-          read: true,
-          update: true,
-          delete: true,
+          create: false,
+          read: false,
+          update: false,
+          delete: false,
         },
 
         jobs: {
@@ -7786,10 +7786,10 @@ export const data: { users: UserDataType[] } = {
           deleted: false,
         },
         invoices: {
-          create: false,
+          create: true,
           read: true,
-          update: false,
-          delete: false,
+          update: true,
+          delete: true,
         },
         clientInvoiceList: {
           create: true,

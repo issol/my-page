@@ -173,34 +173,40 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = window.localStorage.getItem(
         authConfig.storageTokenKeyName,
       )!
+      console.log(storedToken)
+
       if (storedToken) {
         setLoading(true)
-        await axios
-          .get(authConfig.meEndpoint, {
-            headers: {
-              Authorization: storedToken,
-            },
-          })
-          .then(async response => {
-            setLoading(false)
-            setUser({
-              ...response.data.userData,
-              policy: JSON.parse(window.localStorage.getItem('policy') || ''),
-            })
-          })
-          .catch(() => {
-            localStorage.removeItem('userData')
-            localStorage.removeItem('refreshToken')
-            localStorage.removeItem('accessToken')
-            setUser(null)
-            setLoading(false)
-            if (
-              authConfig.onTokenExpiration === 'logout' &&
-              !router.pathname.includes('login')
-            ) {
-              router.replace('/login')
-            }
-          })
+        setUser(JSON.parse(window.localStorage.getItem('userData') || ''))
+        setLoading(false)
+        // await axios
+        //   .get(authConfig.meEndpoint, {
+        //     headers: {
+        //       Authorization: storedToken,
+        //     },
+        //   })
+        //   .then(async response => {
+        //     setLoading(false)
+        //     setUser({
+        //       ...response.data.userData,
+        //       policy: JSON.parse(window.localStorage.getItem('policy') || ''),
+        //     })
+        //   })
+        //   .catch(() => {
+        //     console.log('fail')
+
+        //     // localStorage.removeItem('userData')
+        //     // localStorage.removeItem('refreshToken')
+        //     // localStorage.removeItem('accessToken')
+        //     // setUser(null)
+        //     // setLoading(false)
+        //     // if (
+        //     //   authConfig.onTokenExpiration === 'logout' &&
+        //     //   !router.pathname.includes('login')
+        //     // ) {
+        //     //   router.replace('/login')
+        //     // }
+        //   })
       } else {
         setLoading(false)
       }
