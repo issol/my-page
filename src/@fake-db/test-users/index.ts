@@ -7887,11 +7887,8 @@ mock.onPost('/api/test-users/update-policy').reply(config => {
   const user = data.users.map(prev =>
     prev.id === id ? { ...prev, policy: policy } : prev,
   )
-  console.log(user)
 
   data.users = user
-
-  console.log(data.users)
 
   // const { id, policy } = config.params
 

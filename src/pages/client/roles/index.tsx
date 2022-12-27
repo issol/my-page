@@ -56,6 +56,53 @@ const rolesArr: string[] = [
   'roles',
 ]
 
+const AllPermission: string[] = [
+  'dashboard-read',
+  'dashboard-create',
+  'dashboard-update',
+  'dashboard-delete',
+  'account-read',
+  'account-create',
+  'account-update',
+  'account-delete',
+  'email-read',
+  'email-create',
+  'email-update',
+  'email-delete',
+  'quotes-read',
+  'quotes-create',
+  'quotes-update',
+  'quotes-delete',
+  'quoteList-read',
+  'quoteList-create',
+  'quoteList-update',
+  'quoteList-delete',
+  'quoteCreate-read',
+  'quoteCreate-create',
+  'quoteCreate-update',
+  'quoteCreate-delete',
+  'orders-read',
+  'orders-create',
+  'orders-update',
+  'orders-delete',
+  'orderList-read',
+  'orderList-create',
+  'orderList-update',
+  'orderList-delete',
+  'invoices-read',
+  'invoices-create',
+  'invoices-update',
+  'invoices-delete',
+  'clientInvoiceList-read',
+  'clientInvoiceList-create',
+  'clientInvoiceList-update',
+  'clientInvoiceList-delete',
+  'roles-read',
+  'roles-create',
+  'roles-update',
+  'roles-delete',
+]
+
 const ClientManageRoles = () => {
   const ability = useContext(AbilityContext)
 
@@ -126,6 +173,38 @@ const ClientManageRoles = () => {
   }
 
   const handleUpdatePolicy = (policy: string[]) => {
+    console.log(policy)
+
+    console.log(AllPermission)
+
+    const diff = AllPermission.filter(value => !policy.includes(value))
+    console.log(diff)
+
+    const result2 = diff.reduce((acc: any, value, index) => {
+      if (acc[value.split('-')[0]]) {
+        if (value.split('-')[1] === 'create') {
+          acc[value.split('-')[0]]['create'] = false
+        } else if (value.split('-')[1] === 'read') {
+          acc[value.split('-')[0]]['read'] = false
+        } else if (value.split('-')[1] === 'update') {
+          acc[value.split('-')[0]]['update'] = false
+        } else if (value.split('-')[1] === 'delete') {
+          acc[value.split('-')[0]]['delete'] = false
+        }
+      } else {
+        acc[value.split('-')[0]] = {
+          create: !(value.split('-')[1] === 'create'),
+          read: !(value.split('-')[1] === 'read'),
+          update: !(value.split('-')[1] === 'update'),
+          delete: !(value.split('-')[1] === 'delete'),
+        }
+      }
+
+      return acc
+    }, {})
+
+    console.log(result2)
+
     const result = policy.reduce((acc: any, value, index) => {
       if (acc[value.split('-')[0]]) {
         if (value.split('-')[1] === 'create') {
@@ -152,7 +231,7 @@ const ClientManageRoles = () => {
     dispatch(
       updatePolicy({
         id: selectedUserId,
-        policy: Object.assign({}, selectedPolicy, result),
+        policy: Object.assign({}, selectedPolicy, result, result2),
       }),
     )
   }
