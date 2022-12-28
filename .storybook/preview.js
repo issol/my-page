@@ -1,8 +1,12 @@
 import '../styles/globals.css'
 
 import * as NextImage from 'next/image'
-
+import ModalProvider from 'src/context/ModalContext'
 import StorybookTheme from 'src/@core/theme/StorybookTheme'
+
+import ReactHotToast from 'src/@core/styles/libs/react-hot-toast'
+import { Toaster } from 'react-hot-toast'
+
 const theme = {
   themeColor: '#666CFF',
   mode: 'light',
@@ -24,7 +28,16 @@ export const withMuiTheme = Story => (
   <StorybookTheme settings={theme}>
     {/* <ThemeProvider theme={darkTheme}> */}
     {/* <CssBaseline /> */}
-    <Story />
+    <ModalProvider selector='modal'>
+      <div id='modal'></div>
+      <Story />
+    </ModalProvider>
+    <ReactHotToast>
+      <Toaster
+        position={theme.toastPosition}
+        toastOptions={{ className: 'react-hot-toast' }}
+      />
+    </ReactHotToast>
     {/* </ThemeProvider> */}
   </StorybookTheme>
 )
