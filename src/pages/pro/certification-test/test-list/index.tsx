@@ -2,33 +2,33 @@ import { useContext, useEffect } from 'react'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Button from '@mui/material/Button'
 
-const TadRecruitingList = () => {
+const ProCertificationTestList = () => {
   const ability = useContext(AbilityContext)
   return (
     <>
-      <div>TAD Recruiting List</div>
+      <div>Pro Certification List</div>
       <div className='demo-space-x'>
         <Button
           variant='contained'
-          disabled={!ability.can('recruitingList-create', 'TAD')}
+          disabled={!ability.can('certificationTestList-create', 'PRO')}
         >
           CREATE
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('recruitingList-read', 'TAD')}
+          disabled={!ability.can('certificationTestList-read', 'PRO')}
         >
           READ
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('recruitingList-update', 'TAD')}
+          disabled={!ability.can('certificationTestList-update', 'PRO')}
         >
           UPDATE
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('recruitingList-delete', 'TAD')}
+          disabled={!ability.can('certificationTestList-delete', 'PRO')}
         >
           DELETE
         </Button>
@@ -37,9 +37,9 @@ const TadRecruitingList = () => {
   )
 }
 
-export default TadRecruitingList
+export default ProCertificationTestList
 
-TadRecruitingList.acl = {
-  action: 'recruitingList-read',
-  subject: 'TAD',
+ProCertificationTestList.acl = {
+  action: 'certificationTestList-read',
+  subject: 'PRO',
 }

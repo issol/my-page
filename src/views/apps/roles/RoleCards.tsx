@@ -38,11 +38,23 @@ interface CardDataType {
 }
 
 const cardData: CardDataType[] = [
-  { totalUsers: 4, title: 'Administrator', avatars: ['1.png', '2.png', '3.png', '4.png'] },
-  { totalUsers: 7, title: 'Manager', avatars: ['5.png', '6.png', '7.png', '8.png', '1.png', '2.png', '3.png'] },
-  { totalUsers: 5, title: 'Users', avatars: ['4.png', '5.png', '6.png', '7.png', '8.png'] },
+  {
+    totalUsers: 4,
+    title: 'Administrator',
+    avatars: ['1.png', '2.png', '3.png', '4.png'],
+  },
+  {
+    totalUsers: 7,
+    title: 'Manager',
+    avatars: ['5.png', '6.png', '7.png', '8.png', '1.png', '2.png', '3.png'],
+  },
+  {
+    totalUsers: 5,
+    title: 'Users',
+    avatars: ['4.png', '5.png', '6.png', '7.png', '8.png'],
+  },
   { totalUsers: 3, title: 'Support', avatars: ['1.png', '2.png', '3.png'] },
-  { totalUsers: 2, title: 'Restricted User', avatars: ['4.png', '5.png'] }
+  { totalUsers: 2, title: 'Restricted User', avatars: ['4.png', '5.png'] },
 ]
 
 const rolesArr: string[] = [
@@ -54,7 +66,7 @@ const rolesArr: string[] = [
   'Reporting',
   'API Control',
   'Repository Management',
-  'Payroll'
+  'Payroll',
 ]
 
 const RolesCards = () => {
@@ -62,10 +74,11 @@ const RolesCards = () => {
   const [open, setOpen] = useState<boolean>(false)
   const [dialogTitle, setDialogTitle] = useState<'Add' | 'Edit'>('Add')
   const [selectedCheckbox, setSelectedCheckbox] = useState<string[]>([])
-  const [isIndeterminateCheckbox, setIsIndeterminateCheckbox] = useState<boolean>(false)
+  const [isIndeterminateCheckbox, setIsIndeterminateCheckbox] =
+    useState<boolean>(false)
 
   const handleClickOpen = () => setOpen(true)
-  console.log(selectedCheckbox)
+
   const handleClose = () => {
     setOpen(false)
     setSelectedCheckbox([])
@@ -97,7 +110,10 @@ const RolesCards = () => {
   }
 
   useEffect(() => {
-    if (selectedCheckbox.length > 0 && selectedCheckbox.length < rolesArr.length * 3) {
+    if (
+      selectedCheckbox.length > 0 &&
+      selectedCheckbox.length < rolesArr.length * 3
+    ) {
       setIsIndeterminateCheckbox(true)
     } else {
       setIsIndeterminateCheckbox(false)
@@ -109,15 +125,41 @@ const RolesCards = () => {
       <Grid item xs={12} sm={6} lg={4} key={index}>
         <Card>
           <CardContent>
-            <Box sx={{ mb: 3, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <Box
+              sx={{
+                mb: 3,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
               <Typography variant='body2'>{`Total ${item.totalUsers} users`}</Typography>
-              <AvatarGroup max={4} sx={{ '& .MuiAvatar-root': { width: 40, height: 40, fontSize: '0.875rem' } }}>
+              <AvatarGroup
+                max={4}
+                sx={{
+                  '& .MuiAvatar-root': {
+                    width: 40,
+                    height: 40,
+                    fontSize: '0.875rem',
+                  },
+                }}
+              >
                 {item.avatars.map((img, index: number) => (
-                  <Avatar key={index} alt={item.title} src={`/images/avatars/${img}`} />
+                  <Avatar
+                    key={index}
+                    alt={item.title}
+                    src={`/images/avatars/${img}`}
+                  />
                 ))}
               </AvatarGroup>
             </Box>
-            <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'flex-end',
+              }}
+            >
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Typography variant='h6'>{item.title}</Typography>
                 <Typography
@@ -156,8 +198,20 @@ const RolesCards = () => {
         >
           <Grid container sx={{ height: '100%' }}>
             <Grid item xs={5}>
-              <Box sx={{ height: '100%', display: 'flex', alignItems: 'flex-end', justifyContent: 'center' }}>
-                <img width={65} height={130} alt='add-role' src='/images/pages/add-new-role-illustration.png' />
+              <Box
+                sx={{
+                  height: '100%',
+                  display: 'flex',
+                  alignItems: 'flex-end',
+                  justifyContent: 'center',
+                }}
+              >
+                <img
+                  width={65}
+                  height={130}
+                  alt='add-role'
+                  src='/images/pages/add-new-role-illustration.png'
+                />
               </Box>
             </Grid>
             <Grid item xs={7}>
@@ -173,14 +227,22 @@ const RolesCards = () => {
                   >
                     Add Role
                   </Button>
-                  <Typography variant='body2'>Add role, if it doesn't exist.</Typography>
+                  <Typography variant='body2'>
+                    Add role, if it doesn't exist.
+                  </Typography>
                 </Box>
               </CardContent>
             </Grid>
           </Grid>
         </Card>
       </Grid>
-      <Dialog fullWidth maxWidth='md' scroll='body' onClose={handleClose} open={open}>
+      <Dialog
+        fullWidth
+        maxWidth='md'
+        scroll='body'
+        onClose={handleClose}
+        open={open}
+      >
         <DialogTitle sx={{ textAlign: 'center' }}>
           <Typography variant='h5' component='span'>
             {`${dialogTitle} Role`}
@@ -206,13 +268,19 @@ const RolesCards = () => {
                         whiteSpace: 'nowrap',
                         alignItems: 'center',
                         textTransform: 'capitalize',
-                        '& svg': { ml: 1, cursor: 'pointer' }
+                        '& svg': { ml: 1, cursor: 'pointer' },
                       }}
                     >
                       Administrator Access
-                      <Tooltip placement='top' title='Allows a full access to the system'>
+                      <Tooltip
+                        placement='top'
+                        title='Allows a full access to the system'
+                      >
                         <Box sx={{ display: 'flex' }}>
-                          <Icon icon='mdi:information-outline' fontSize='1rem' />
+                          <Icon
+                            icon='mdi:information-outline'
+                            fontSize='1rem'
+                          />
                         </Box>
                       </Tooltip>
                     </Box>
@@ -220,13 +288,19 @@ const RolesCards = () => {
                   <TableCell colSpan={3}>
                     <FormControlLabel
                       label='Select All'
-                      sx={{ '& .MuiTypography-root': { textTransform: 'capitalize' } }}
+                      sx={{
+                        '& .MuiTypography-root': {
+                          textTransform: 'capitalize',
+                        },
+                      }}
                       control={
                         <Checkbox
                           size='small'
                           onChange={handleSelectAllCheckbox}
                           indeterminate={isIndeterminateCheckbox}
-                          checked={selectedCheckbox.length === rolesArr.length * 3}
+                          checked={
+                            selectedCheckbox.length === rolesArr.length * 3
+                          }
                         />
                       }
                     />
@@ -238,12 +312,20 @@ const RolesCards = () => {
                   const id = i.toLowerCase().split(' ').join('-')
 
                   return (
-                    <TableRow key={index} sx={{ '& .MuiTableCell-root:first-of-type': { pl: '0 !important' } }}>
+                    <TableRow
+                      key={index}
+                      sx={{
+                        '& .MuiTableCell-root:first-of-type': {
+                          pl: '0 !important',
+                        },
+                      }}
+                    >
                       <TableCell
                         sx={{
                           fontWeight: 600,
                           whiteSpace: 'nowrap',
-                          color: theme => `${theme.palette.text.primary} !important`
+                          color: theme =>
+                            `${theme.palette.text.primary} !important`,
                         }}
                       >
                         {i}
@@ -282,7 +364,9 @@ const RolesCards = () => {
                               size='small'
                               id={`${id}-create`}
                               onChange={() => togglePermission(`${id}-create`)}
-                              checked={selectedCheckbox.includes(`${id}-create`)}
+                              checked={selectedCheckbox.includes(
+                                `${id}-create`,
+                              )}
                             />
                           }
                         />
@@ -294,12 +378,24 @@ const RolesCards = () => {
             </Table>
           </TableContainer>
         </DialogContent>
-        <DialogActions sx={{ pt: 0, display: 'flex', justifyContent: 'center' }}>
+        <DialogActions
+          sx={{ pt: 0, display: 'flex', justifyContent: 'center' }}
+        >
           <Box className='demo-space-x'>
-            <Button size='large' type='submit' variant='contained' onClick={handleClose}>
+            <Button
+              size='large'
+              type='submit'
+              variant='contained'
+              onClick={handleClose}
+            >
               Submit
             </Button>
-            <Button size='large' color='secondary' variant='outlined' onClick={handleClose}>
+            <Button
+              size='large'
+              color='secondary'
+              variant='outlined'
+              onClick={handleClose}
+            >
               Cancel
             </Button>
           </Box>

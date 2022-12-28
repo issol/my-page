@@ -222,6 +222,14 @@ const navigation = (role: string): VerticalNavItemsType => {
     },
 
     {
+      title: 'Roles & Permission',
+      icon: 'mdi:home-outline',
+      action: 'roles-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/roles`,
+    },
+
+    {
       sectionTitle: 'Apps & Pages',
     },
     {
