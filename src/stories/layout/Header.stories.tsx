@@ -6,7 +6,7 @@ import PageHeader from 'src/@core/components/page-header'
 import { Typography } from '@mui/material'
 
 export default {
-  title: 'Pages/Header',
+  title: 'Layout/Header',
   component: PageHeader,
   argTypes: {
     title: {
