@@ -114,14 +114,22 @@ import StackAlt from './assets/stackalt.svg'
   `}
 </style>
 
-# Welcome to Storybook
+# Enough에 적용된 Storybook 설정
 
-Storybook helps you build UI components in isolation from your app's business logic, data, and context.
-That makes it easy to develop hard-to-reach states. Save these UI states as **stories** to revisit during development, testing, or QA.
+---
 
-Browse example stories now by navigating to them in the sidebar.
-View their code in the `stories` directory to learn how they work.
-We recommend building UIs with a [**component-driven**](https://componentdriven.org) process starting with atomic components and ending with pages.
+### 스타일 전역 설정
+
+스토리북 전역에 공통으로 적용되어야 할 view용 설정은 <code>.storybook/preview.js</code>에서 합니다.<br/>
+현재는 이 템플릿에서 mui컴포넌트를 overriding하고 있는 provider, gloabl.css, ModalPrivodier, ReactHotToast가 추가되었습니다.
+그리고 next/image 옵티마이징 기능을 해제해두었습니다. (스토리북에서는 이 기능이 불필요하기 때문.)<br/>
+스토리북의 control패널에 대한 설정 (parameters)도 추가된 상태입니다.
+
+### 스토리북 모듈 설정
+
+view에 관한 설정을 제외한 모든 설정은 <code>.storybook/main.js</code>에서 합니다.<br/>
+스토리북은 기본적으로 절대경로 import가 안 되기 때문에, 절대 경로 설정을 이 파일에 해두었습니다.<br/>
+tsConfig를 수정한 후, tsConfig 설정 내역을 스토리북에 적용시키려면 <code>TsconfigPathsPlugin</code>을 사용해야 합니다.<br/>
 
 <div className='subheading'>Configure</div>
 
