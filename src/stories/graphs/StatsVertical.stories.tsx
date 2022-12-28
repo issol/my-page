@@ -9,9 +9,25 @@ import Icon from 'src/@core/components/icon'
 import CardStatsVertical from 'src/@core/components/card-statistics/card-stats-vertical'
 
 export default {
-  title: 'Graphs/Dashboard/Stats',
+  title: 'Graphs/Dashboard/VerticalStats',
   component: CardStatsVertical,
   argTypes: {
+    title: {
+      control: { type: 'text' },
+      defaultValue: 'Total Orders',
+    },
+    stats: {
+      control: { type: 'text' },
+      defaultValue: '155k',
+    },
+    trendNumber: {
+      control: { type: 'text' },
+      defaultValue: '+22%',
+    },
+    chipText: {
+      control: { type: 'text' },
+      defaultValue: 'Last 4 Month',
+    },
     icon: {
       defaultValue: <Icon icon='mdi:cart-plus' />,
     },

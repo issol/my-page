@@ -3,7 +3,7 @@ import { ComponentMeta } from '@storybook/react'
 import TreeView from 'src/pages/components/timeline'
 
 export default {
-  title: 'Box/TreeView',
+  title: 'Box/Timeline',
   component: TreeView,
 } as ComponentMeta<typeof TreeView>
 

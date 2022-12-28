@@ -1,7 +1,6 @@
 import React from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 
-import AnalyticsTotalTransactions from 'src/views/dashboards/analytics/AnalyticsTotalTransactions'
 import { Alert, Grid } from '@mui/material'
 import CardSnippet from 'src/@core/components/card-snippet'
 
@@ -11,56 +10,39 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
+import AnalyticsSalesCountry from 'src/views/dashboards/analytics/AnalyticsSalesCountry'
 
 const palette = DefaultPalette('light', 'default')
 const series = [
   {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
-  },
-  {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
+    name: 'Sales',
+    data: [17165, 13850, 12375, 9567, 7880],
   },
 ]
+
 const options: ApexOptions = {
   chart: {
-    stacked: true,
     parentHeightOffset: 0,
     toolbar: { show: false },
   },
   plotOptions: {
     bar: {
-      borderRadius: 5,
-      barHeight: '30%',
+      borderRadius: 8,
+      barHeight: '60%',
       horizontal: true,
-      endingShape: 'flat',
+      distributed: true,
       startingShape: 'rounded',
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => `${Math.abs(val)}`,
+  dataLabels: {
+    offsetY: 8,
+    style: {
+      fontWeight: 500,
+      fontSize: '0.875rem',
     },
   },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => `${Math.abs(Number(val))}`,
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
-  },
-  colors: [
-    hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
-  ],
   grid: {
+    strokeDashArray: 8,
     borderColor: palette.divider,
     xaxis: {
       lines: { show: true },
@@ -69,12 +51,20 @@ const options: ApexOptions = {
       lines: { show: false },
     },
     padding: {
-      top: 5,
-      bottom: -25,
+      top: -18,
+      left: 21,
+      right: 33,
+      bottom: 10,
     },
   },
+  colors: [
+    hexToRGBA(palette.primary.light, 1),
+    hexToRGBA(palette.success.light, 1),
+    hexToRGBA(palette.warning.light, 1),
+    hexToRGBA(palette.info.light, 1),
+    hexToRGBA(palette.error.light, 1),
+  ],
   legend: { show: false },
-  dataLabels: { enabled: false },
   states: {
     hover: {
       filter: { type: 'none' },
@@ -83,10 +73,32 @@ const options: ApexOptions = {
       filter: { type: 'none' },
     },
   },
+  xaxis: {
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+    categories: ['US', 'IN', 'JA', 'CA', 'AU'],
+    labels: {
+      formatter: val => `${Number(val) / 1000}k`,
+      style: {
+        fontSize: '0.875rem',
+        colors: palette.text.disabled,
+      },
+    },
+  },
+  yaxis: {
+    labels: {
+      align: 'right',
+      style: {
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        colors: palette.text.primary,
+      },
+    },
+  },
 }
 
 export default {
-  title: 'Graphs/Bar',
+  title: 'Graphs/Bar2',
   component: ReactApexcharts,
   parameters: {
     layout: 'centered',
@@ -129,7 +141,7 @@ export default {
     height: {
       description: 'width와 동일.',
       control: { type: 'text' },
-      defaultValue: '278',
+      defaultValue: '332',
     },
     options: {
       description: '차트 설정을 위한 값으로 ApexOptions타입. default는 {}',
@@ -138,10 +150,6 @@ export default {
     },
   },
 } as ComponentMeta<typeof ReactApexcharts>
-
-// const Template: ComponentStory<typeof ReactApexcharts> = args => (
-//   <ReactApexcharts {...args} type='bar' height={278} />
-// )
 
 export const Default = (args: typeof ReactApexcharts) => {
   return (
@@ -166,12 +174,13 @@ export const Default = (args: typeof ReactApexcharts) => {
 }
 
 export const Example = () => {
-  return <AnalyticsTotalTransactions />
+  return <AnalyticsSalesCountry />
 }
 
 const source = (
   <pre className='language-jsx'>
     <code className='language-jsx'>{`
+// ** Custom Components Imports
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
@@ -182,52 +191,34 @@ import DefaultPalette from 'src/@core/theme/palette'
 const palette = DefaultPalette('light', 'default')
 const series = [
   {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
-  },
-  {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
+    name: 'Sales',
+    data: [17165, 13850, 12375, 9567, 7880],
   },
 ]
+
 const options: ApexOptions = {
   chart: {
-    stacked: true,
     parentHeightOffset: 0,
     toolbar: { show: false },
   },
   plotOptions: {
     bar: {
-      borderRadius: 5,
-      barHeight: '30%',
+      borderRadius: 8,
+      barHeight: '60%',
       horizontal: true,
-      endingShape: 'flat',
+      distributed: true,
       startingShape: 'rounded',
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => {Math.abs(val)},
+  dataLabels: {
+    offsetY: 8,
+    style: {
+      fontWeight: 500,
+      fontSize: '0.875rem',
     },
   },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => {Math.abs(Number(val))},
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
-  },
-  colors: [
-    hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
-  ],
   grid: {
+    strokeDashArray: 8,
     borderColor: palette.divider,
     xaxis: {
       lines: { show: true },
@@ -236,12 +227,20 @@ const options: ApexOptions = {
       lines: { show: false },
     },
     padding: {
-      top: 5,
-      bottom: -25,
+      top: -18,
+      left: 21,
+      right: 33,
+      bottom: 10,
     },
   },
+  colors: [
+    hexToRGBA(palette.primary.light, 1),
+    hexToRGBA(palette.success.light, 1),
+    hexToRGBA(palette.warning.light, 1),
+    hexToRGBA(palette.info.light, 1),
+    hexToRGBA(palette.error.light, 1),
+  ],
   legend: { show: false },
-  dataLabels: { enabled: false },
   states: {
     hover: {
       filter: { type: 'none' },
@@ -250,10 +249,33 @@ const options: ApexOptions = {
       filter: { type: 'none' },
     },
   },
+  xaxis: {
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+    categories: ['US', 'IN', 'JA', 'CA', 'AU'],
+    labels: {
+      formatter: val => {Number(val) / 1000}k,
+      style: {
+        fontSize: '0.875rem',
+        colors: palette.text.disabled,
+      },
+    },
+  },
+  yaxis: {
+    labels: {
+      align: 'right',
+      style: {
+        fontWeight: 600,
+        fontSize: '0.875rem',
+        colors: palette.text.primary,
+      },
+    },
+  },
 }
 
+
 const BarExample = () => {
-  return <ReactApexcharts options={options} series={series} type='bar' height={278} />
+  return <ReactApexcharts type='bar' height={332} series={series} options={options} />
 }
 
 export default BarExample;

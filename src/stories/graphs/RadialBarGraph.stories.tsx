@@ -11,70 +11,38 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
+import AnalyticsOverview from 'src/views/dashboards/analytics/AnalyticsOverview'
 
 const palette = DefaultPalette('light', 'default')
-const series = [
-  {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
-  },
-  {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
-  },
-]
+
 const options: ApexOptions = {
   chart: {
-    stacked: true,
-    parentHeightOffset: 0,
-    toolbar: { show: false },
+    sparkline: { enabled: true },
   },
+  stroke: { lineCap: 'round' },
+  colors: [hexToRGBA(palette.primary.main, 1)],
   plotOptions: {
-    bar: {
-      borderRadius: 5,
-      barHeight: '30%',
-      horizontal: true,
-      endingShape: 'flat',
-      startingShape: 'rounded',
+    radialBar: {
+      hollow: { size: '55%' },
+      track: {
+        background: palette.customColors.trackBg,
+      },
+      dataLabels: {
+        name: { show: false },
+        value: {
+          offsetY: 5,
+          fontWeight: 600,
+          fontSize: '1rem',
+          color: palette.text.primary,
+        },
+      },
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => `${Math.abs(val)}`,
-    },
-  },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => `${Math.abs(Number(val))}`,
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
-  },
-  colors: [
-    hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
-  ],
   grid: {
-    borderColor: palette.divider,
-    xaxis: {
-      lines: { show: true },
-    },
-    yaxis: {
-      lines: { show: false },
-    },
     padding: {
-      top: 5,
-      bottom: -25,
+      bottom: -12,
     },
   },
-  legend: { show: false },
-  dataLabels: { enabled: false },
   states: {
     hover: {
       filter: { type: 'none' },
@@ -86,7 +54,7 @@ const options: ApexOptions = {
 }
 
 export default {
-  title: 'Graphs/Bar',
+  title: 'Graphs/RadialBar',
   component: ReactApexcharts,
   parameters: {
     layout: 'centered',
@@ -114,22 +82,22 @@ export default {
       ],
       control: { type: 'select' },
       type: { name: 'string', required: true },
-      defaultValue: 'bar',
-    },
-    series: {
-      description: `display할 데이터를 전달. <code>Array<{name:string, data:Array<any>}></code>`,
-      defaultValue: series,
-      control: { type: 'object' },
+      defaultValue: 'radialBar',
     },
     width: {
-      description: '차트의 너비. string|number 타입. default는 100%',
+      description: '차트의 너비. string|number 타입.',
       control: { type: 'text' },
       defaultValue: '100%',
     },
     height: {
       description: 'width와 동일.',
       control: { type: 'text' },
-      defaultValue: '278',
+      defaultValue: '119',
+    },
+    series: {
+      description: `display할 데이터를 전달. <code>number[]</code>`,
+      defaultValue: [64],
+      control: { type: 'object' },
     },
     options: {
       description: '차트 설정을 위한 값으로 ApexOptions타입. default는 {}',
@@ -139,15 +107,11 @@ export default {
   },
 } as ComponentMeta<typeof ReactApexcharts>
 
-// const Template: ComponentStory<typeof ReactApexcharts> = args => (
-//   <ReactApexcharts {...args} type='bar' height={278} />
-// )
-
 export const Default = (args: typeof ReactApexcharts) => {
   return (
     <Grid item xs={12}>
       <CardSnippet
-        title='Bar Graph'
+        title='RadialBar Graph'
         code={{
           tsx: source,
           jsx: source,
@@ -166,7 +130,7 @@ export const Default = (args: typeof ReactApexcharts) => {
 }
 
 export const Example = () => {
-  return <AnalyticsTotalTransactions />
+  return <AnalyticsOverview />
 }
 
 const source = (
@@ -180,68 +144,34 @@ import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
 
 const palette = DefaultPalette('light', 'default')
-const series = [
-  {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
-  },
-  {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
-  },
-]
 const options: ApexOptions = {
   chart: {
-    stacked: true,
-    parentHeightOffset: 0,
-    toolbar: { show: false },
+    sparkline: { enabled: true },
   },
+  stroke: { lineCap: 'round' },
+  colors: [hexToRGBA(palette.primary.main, 1)],
   plotOptions: {
-    bar: {
-      borderRadius: 5,
-      barHeight: '30%',
-      horizontal: true,
-      endingShape: 'flat',
-      startingShape: 'rounded',
+    radialBar: {
+      hollow: { size: '55%' },
+      track: {
+        background: palette.customColors.trackBg,
+      },
+      dataLabels: {
+        name: { show: false },
+        value: {
+          offsetY: 5,
+          fontWeight: 600,
+          fontSize: '1rem',
+          color: palette.text.primary,
+        },
+      },
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => {Math.abs(val)},
-    },
-  },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => {Math.abs(Number(val))},
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
-  },
-  colors: [
-    hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
-  ],
   grid: {
-    borderColor: palette.divider,
-    xaxis: {
-      lines: { show: true },
-    },
-    yaxis: {
-      lines: { show: false },
-    },
     padding: {
-      top: 5,
-      bottom: -25,
+      bottom: -12,
     },
   },
-  legend: { show: false },
-  dataLabels: { enabled: false },
   states: {
     hover: {
       filter: { type: 'none' },
@@ -252,11 +182,17 @@ const options: ApexOptions = {
   },
 }
 
-const BarExample = () => {
-  return <ReactApexcharts options={options} series={series} type='bar' height={278} />
-}
+export default function RadialBarDefault () {
+    return (
+        <ReactApexcharts
+        type='radialBar'
+        height={119}
+        series={[64]}
+        options={options}
+      />
+    )
+  }
 
-export default BarExample;
 `}</code>
   </pre>
 )

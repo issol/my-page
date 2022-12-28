@@ -10,6 +10,7 @@ import CardSnippet from 'src/@core/components/card-snippet'
 import TableBasic from 'src/views/table/mui/TableBasic'
 import { Alert, Divider } from '@mui/material'
 import TableCustomized from 'src/views/table/mui/TableCustomized'
+import TableSelection from 'src/views/table/data-grid/TableSelection'
 
 export default {
   title: 'Table/Basic',
@@ -18,31 +19,29 @@ export default {
 
 export const Default = () => {
   return (
-    <div>
-      <Grid item xs={12}>
-        <CardSnippet
-          title='Table Basic'
-          code={{
-            tsx: source,
-            jsx: source,
-          }}
-        >
-          <Alert severity='info'>
-            하단의 코드는 예시입니다. 컴포넌트 명과 데이터, 컬럼의 값은 필요한
-            값으로 대체하여 사용해주세요.
-            <br />
-            customized 버전의 table 소스는{' '}
-            <code>src/views/table/mui/TableCustomized</code>에서 확인해주세요.
-          </Alert>
-          <div style={{ marginTop: '14px' }}>
-            <TableBasic />
-            <Divider />
-            <h3>Customized version</h3>
-            <TableCustomized />
-          </div>
-        </CardSnippet>
-      </Grid>
-    </div>
+    <Grid item xs={12}>
+      <CardSnippet
+        title='Table Basic'
+        code={{
+          tsx: source,
+          jsx: source,
+        }}
+      >
+        <Alert severity='info'>
+          하단의 코드는 예시입니다. 컴포넌트 명과 데이터, 컬럼의 값은 필요한
+          값으로 대체하여 사용해주세요.
+          <br />
+          customized 버전의 table 소스는{' '}
+          <code>src/views/table/mui/TableCustomized</code>에서 확인해주세요.
+        </Alert>
+        <div style={{ marginTop: '14px' }}>
+          <TableBasic />
+          <Divider />
+          <h3>Customized version</h3>
+          <TableCustomized />
+        </div>
+      </CardSnippet>
+    </Grid>
   )
 }
 

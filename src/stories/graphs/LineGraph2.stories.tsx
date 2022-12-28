@@ -1,7 +1,6 @@
 import React from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 
-import AnalyticsTotalTransactions from 'src/views/dashboards/analytics/AnalyticsTotalTransactions'
 import { Alert, Grid } from '@mui/material'
 import CardSnippet from 'src/@core/components/card-snippet'
 
@@ -11,16 +10,24 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
+import AnalyticsWeeklySales from 'src/views/dashboards/analytics/AnalyticsWeeklySales'
 
 const palette = DefaultPalette('light', 'default')
 const series = [
   {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
+    type: 'column',
+    name: 'Earning',
+    data: [90, 52, 67, 45, 75, 55, 48],
   },
   {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
+    type: 'column',
+    name: 'Expense',
+    data: [-53, -29, -67, -84, -60, -40, -77],
+  },
+  {
+    type: 'line',
+    name: 'Expense',
+    data: [73, 20, 50, -20, 58, 15, 31],
   },
 ]
 const options: ApexOptions = {
@@ -31,49 +38,29 @@ const options: ApexOptions = {
   },
   plotOptions: {
     bar: {
-      borderRadius: 5,
-      barHeight: '30%',
-      horizontal: true,
+      borderRadius: 8,
+      columnWidth: '57%',
       endingShape: 'flat',
       startingShape: 'rounded',
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => `${Math.abs(val)}`,
-    },
+  markers: {
+    size: 4,
+    strokeWidth: 3,
+    fillOpacity: 1,
+    strokeOpacity: 1,
+    colors: [palette.background.paper],
+    strokeColors: hexToRGBA(palette.warning.main, 1),
   },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => `${Math.abs(Number(val))}`,
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
+  stroke: {
+    curve: 'smooth',
+    width: [0, 0, 3],
+    colors: [hexToRGBA(palette.warning.main, 1)],
   },
   colors: [
     hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
+    hexToRGBA(palette.primary.main, 0.12),
   ],
-  grid: {
-    borderColor: palette.divider,
-    xaxis: {
-      lines: { show: true },
-    },
-    yaxis: {
-      lines: { show: false },
-    },
-    padding: {
-      top: 5,
-      bottom: -25,
-    },
-  },
-  legend: { show: false },
   dataLabels: { enabled: false },
   states: {
     hover: {
@@ -83,10 +70,35 @@ const options: ApexOptions = {
       filter: { type: 'none' },
     },
   },
+  legend: { show: false },
+  grid: {
+    yaxis: {
+      lines: { show: false },
+    },
+    padding: {
+      top: -28,
+      left: -6,
+      right: -8,
+      bottom: -5,
+    },
+  },
+  xaxis: {
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: {
+      style: { colors: palette.text.disabled },
+    },
+  },
+  yaxis: {
+    max: 100,
+    min: -90,
+    show: false,
+  },
 }
 
 export default {
-  title: 'Graphs/Bar',
+  title: 'Graphs/Line2',
   component: ReactApexcharts,
   parameters: {
     layout: 'centered',
@@ -114,10 +126,10 @@ export default {
       ],
       control: { type: 'select' },
       type: { name: 'string', required: true },
-      defaultValue: 'bar',
+      defaultValue: 'line',
     },
     series: {
-      description: `display할 데이터를 전달. <code>Array<{name:string, data:Array<any>}></code>`,
+      description: `display할 데이터를 전달. <code>Array<{type:string, name:string, data:Array<any>}></code>`,
       defaultValue: series,
       control: { type: 'object' },
     },
@@ -129,7 +141,7 @@ export default {
     height: {
       description: 'width와 동일.',
       control: { type: 'text' },
-      defaultValue: '278',
+      defaultValue: '251',
     },
     options: {
       description: '차트 설정을 위한 값으로 ApexOptions타입. default는 {}',
@@ -138,10 +150,6 @@ export default {
     },
   },
 } as ComponentMeta<typeof ReactApexcharts>
-
-// const Template: ComponentStory<typeof ReactApexcharts> = args => (
-//   <ReactApexcharts {...args} type='bar' height={278} />
-// )
 
 export const Default = (args: typeof ReactApexcharts) => {
   return (
@@ -166,12 +174,13 @@ export const Default = (args: typeof ReactApexcharts) => {
 }
 
 export const Example = () => {
-  return <AnalyticsTotalTransactions />
+  return <AnalyticsWeeklySales />
 }
 
 const source = (
   <pre className='language-jsx'>
     <code className='language-jsx'>{`
+// ** Custom Components Imports
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
@@ -182,12 +191,19 @@ import DefaultPalette from 'src/@core/theme/palette'
 const palette = DefaultPalette('light', 'default')
 const series = [
   {
-    name: 'Last Week',
-    data: [83, 153, 213, 279, 213, 153, 83],
+    type: 'column',
+    name: 'Earning',
+    data: [90, 52, 67, 45, 75, 55, 48],
   },
   {
-    name: 'This Week',
-    data: [-84, -156, -216, -282, -216, -156, -84],
+    type: 'column',
+    name: 'Expense',
+    data: [-53, -29, -67, -84, -60, -40, -77],
+  },
+  {
+    type: 'line',
+    name: 'Expense',
+    data: [73, 20, 50, -20, 58, 15, 31],
   },
 ]
 const options: ApexOptions = {
@@ -198,49 +214,29 @@ const options: ApexOptions = {
   },
   plotOptions: {
     bar: {
-      borderRadius: 5,
-      barHeight: '30%',
-      horizontal: true,
+      borderRadius: 8,
+      columnWidth: '57%',
       endingShape: 'flat',
       startingShape: 'rounded',
     },
   },
-  tooltip: {
-    y: {
-      formatter: val => {Math.abs(val)},
-    },
+  markers: {
+    size: 4,
+    strokeWidth: 3,
+    fillOpacity: 1,
+    strokeOpacity: 1,
+    colors: [palette.background.paper],
+    strokeColors: hexToRGBA(palette.warning.main, 1),
   },
-  xaxis: {
-    position: 'top',
-    axisTicks: { show: false },
-    axisBorder: { show: false },
-    categories: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
-    labels: {
-      formatter: val => {Math.abs(Number(val))},
-      style: { colors: palette.text.disabled },
-    },
-  },
-  yaxis: {
-    labels: { show: false },
+  stroke: {
+    curve: 'smooth',
+    width: [0, 0, 3],
+    colors: [hexToRGBA(palette.warning.main, 1)],
   },
   colors: [
     hexToRGBA(palette.primary.main, 1),
-    hexToRGBA(palette.success.main, 1),
+    hexToRGBA(palette.primary.main, 0.12),
   ],
-  grid: {
-    borderColor: palette.divider,
-    xaxis: {
-      lines: { show: true },
-    },
-    yaxis: {
-      lines: { show: false },
-    },
-    padding: {
-      top: 5,
-      bottom: -25,
-    },
-  },
-  legend: { show: false },
   dataLabels: { enabled: false },
   states: {
     hover: {
@@ -250,10 +246,36 @@ const options: ApexOptions = {
       filter: { type: 'none' },
     },
   },
+  legend: { show: false },
+  grid: {
+    yaxis: {
+      lines: { show: false },
+    },
+    padding: {
+      top: -28,
+      left: -6,
+      right: -8,
+      bottom: -5,
+    },
+  },
+  xaxis: {
+    axisTicks: { show: false },
+    axisBorder: { show: false },
+    categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+    labels: {
+      style: { colors: palette.text.disabled },
+    },
+  },
+  yaxis: {
+    max: 100,
+    min: -90,
+    show: false,
+  },
 }
 
-const BarExample = () => {
-  return <ReactApexcharts options={options} series={series} type='bar' height={278} />
+
+const Example = () => {
+  return <ReactApexcharts type='line' height={251} series={series} options={options} />
 }
 
 export default BarExample;

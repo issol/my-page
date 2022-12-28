@@ -1,62 +1,71 @@
 import React from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
-// ** Custom Components Imports
 
 import { Alert, Grid } from '@mui/material'
 import CardSnippet from 'src/@core/components/card-snippet'
 
+// ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
-import { ApexOptions } from 'apexcharts'
-import AnalyticsSessions from 'src/views/dashboards/analytics/AnalyticsSessions'
 
-const series = [{ data: [50, 20, 5, 30, 15, 45] }]
+import { ApexOptions } from 'apexcharts'
+import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import DefaultPalette from 'src/@core/theme/palette'
+import AnalyticsTotalRevenue from 'src/views/dashboards/analytics/AnalyticsTotalRevenue'
+
+const palette = DefaultPalette('light', 'default')
+const series = [
+  {
+    name: 'Earning',
+    data: [120, 200, 150, 120],
+  },
+  {
+    name: 'Expense',
+    data: [72, 120, 50, 65],
+  },
+]
+
 const options: ApexOptions = {
   chart: {
     parentHeightOffset: 0,
-    toolbar: { show: false }, //그래프를 조작할 툴바
+    toolbar: { show: false },
   },
-  tooltip: { enabled: false }, //그래프 클릭 시 Description 보여줄 툴팁 여부
   grid: {
-    strokeDashArray: 6, //배경의 눈금 점선 폭 조절
-    borderColor: '#E0E0E0',
-    xaxis: {
-      lines: { show: true }, //x축 눈금
-    },
-    yaxis: {
-      lines: { show: false }, //y축 눈금
-    },
     padding: {
-      //padding은 그래프 내부 박스의 Padding
       top: -15,
-      left: -7,
-      right: 7,
+      left: -14,
+      right: -4,
       bottom: -15,
     },
+    yaxis: {
+      lines: { show: false },
+    },
   },
-  stroke: { width: 3 }, //Line그래프 두께
-  colors: ['#26C6F9'],
-  markers: {
-    size: 6,
-    offsetY: 2,
-    offsetX: -1,
-    strokeWidth: 3,
-    colors: ['transparent'], //line그래프 꺾임 포인트에 강조를 줄 동그라미의 컬러
-    strokeColors: 'transparent', //line그래프의 꺾임 포인트에 강조를 줄 포인터의 컬러
-    discrete: [
-      {
-        size: 6,
-        seriesIndex: 0,
-        strokeColor: '#26C6F9',
-        fillColor: '#ffffff',
-        dataPointIndex: series[0].data.length - 1,
-      },
-    ],
-    hover: { size: 7 },
+  legend: { show: false },
+  dataLabels: { enabled: false },
+  colors: [
+    hexToRGBA(palette.primary.main, 1),
+    hexToRGBA(palette.warning.main, 1),
+  ],
+  plotOptions: {
+    bar: {
+      borderRadius: 5,
+      columnWidth: '48%',
+      startingShape: 'rounded',
+    },
+  },
+  states: {
+    hover: {
+      filter: { type: 'none' },
+    },
+    active: {
+      filter: { type: 'none' },
+    },
   },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
     axisBorder: { show: false },
+    categories: ['Jan', 'Feb', 'Mar', 'Apr'],
   },
   yaxis: {
     labels: { show: false },
@@ -64,7 +73,7 @@ const options: ApexOptions = {
 }
 
 export default {
-  title: 'Graphs/Line',
+  title: 'Graphs/Bar3',
   component: ReactApexcharts,
   parameters: {
     layout: 'centered',
@@ -92,7 +101,7 @@ export default {
       ],
       control: { type: 'select' },
       type: { name: 'string', required: true },
-      defaultValue: 'line',
+      defaultValue: 'bar',
     },
     series: {
       description: `display할 데이터를 전달. <code>Array<{name:string, data:Array<any>}></code>`,
@@ -105,8 +114,9 @@ export default {
       defaultValue: '100%',
     },
     height: {
-      description: 'width와 동일. default는 auto',
+      description: 'width와 동일.',
       control: { type: 'text' },
+      defaultValue: '108',
     },
     options: {
       description: '차트 설정을 위한 값으로 ApexOptions타입. default는 {}',
@@ -120,7 +130,7 @@ export const Default = (args: typeof ReactApexcharts) => {
   return (
     <Grid item xs={12}>
       <CardSnippet
-        title='Line Graph'
+        title='Bar Graph'
         code={{
           tsx: source,
           jsx: source,
@@ -139,78 +149,86 @@ export const Default = (args: typeof ReactApexcharts) => {
 }
 
 export const Example = () => {
-  return <AnalyticsSessions />
+  return <AnalyticsTotalRevenue />
 }
 
 const source = (
   <pre className='language-jsx'>
     <code className='language-jsx'>{`
 // ** Custom Components Imports
+// ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
 import { ApexOptions } from 'apexcharts'
+import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
+import DefaultPalette from 'src/@core/theme/palette'
 
-const series = [{ data: [50, 20, 5, 30, 15, 45] }]
+const palette = DefaultPalette('light', 'default')
+const series = [
+  {
+    name: 'Earning',
+    data: [120, 200, 150, 120],
+  },
+  {
+    name: 'Expense',
+    data: [72, 120, 50, 65],
+  },
+]
+
 const options: ApexOptions = {
   chart: {
     parentHeightOffset: 0,
-    toolbar: { show: false }, //그래프를 조작할 툴바
+    toolbar: { show: false },
   },
-  tooltip: { enabled: false }, //그래프 클릭 시 Description 보여줄 툴팁 여부
   grid: {
-    strokeDashArray: 6, //배경의 눈금 점선 폭 조절
-    borderColor: '#E0E0E0',
-    xaxis: {
-      lines: { show: true }, //x축 눈금
-    },
-    yaxis: {
-      lines: { show: false }, //y축 눈금
-    },
     padding: {
-      //padding은 그래프 내부 박스의 Padding
       top: -15,
-      left: -7,
-      right: 7,
+      left: -14,
+      right: -4,
       bottom: -15,
     },
+    yaxis: {
+      lines: { show: false },
+    },
   },
-  stroke: { width: 3 }, //Line그래프 두께
-  colors: ['#26C6F9'],
-  markers: {
-    size: 6,
-    offsetY: 2,
-    offsetX: -1,
-    strokeWidth: 3,
-    colors: ['transparent'], //line그래프 꺾임 포인트에 강조를 줄 동그라미의 컬러
-    strokeColors: 'transparent', //line그래프의 꺾임 포인트에 강조를 줄 포인터의 컬러
-    discrete: [
-      {
-        size: 6,
-        seriesIndex: 0,
-        strokeColor: '#26C6F9',
-        fillColor: '#ffffff',
-        dataPointIndex: series[0].data.length - 1,
-      },
-    ],
-    hover: { size: 7 },
+  legend: { show: false },
+  dataLabels: { enabled: false },
+  colors: [
+    hexToRGBA(palette.primary.main, 1),
+    hexToRGBA(palette.warning.main, 1),
+  ],
+  plotOptions: {
+    bar: {
+      borderRadius: 5,
+      columnWidth: '48%',
+      startingShape: 'rounded',
+    },
+  },
+  states: {
+    hover: {
+      filter: { type: 'none' },
+    },
+    active: {
+      filter: { type: 'none' },
+    },
   },
   xaxis: {
     labels: { show: false },
     axisTicks: { show: false },
     axisBorder: { show: false },
+    categories: ['Jan', 'Feb', 'Mar', 'Apr'],
   },
   yaxis: {
     labels: { show: false },
   },
 }
 
-export default function LineGraph(){
-  return (<ReactApexcharts
-    type='line'
-    series={series}
-    options={options}
-  />)
+
+const BarExample = () => {
+  return <ReactApexcharts type='bar' height={108} options={options} series={series} />
 }
+
+export default BarExample;
 `}</code>
   </pre>
 )
