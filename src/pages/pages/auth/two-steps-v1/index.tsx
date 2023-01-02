@@ -37,13 +37,13 @@ import 'cleave.js/dist/addons/cleave-phone.us'
 
 // ** Styled Components
 const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
-  [theme.breakpoints.up('sm')]: { width: 450 }
+  [theme.breakpoints.up('sm')]: { width: 450 },
 }))
 
 const LinkStyled = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   marginLeft: theme.spacing(1),
-  color: theme.palette.primary.main
+  color: theme.palette.primary.main,
 }))
 
 const CleaveInput = styled(Cleave)(({ theme }) => ({
@@ -54,12 +54,12 @@ const CleaveInput = styled(Cleave)(({ theme }) => ({
   marginTop: theme.spacing(2),
   marginBottom: theme.spacing(2),
   '&:not(:last-child)': {
-    marginRight: theme.spacing(2)
+    marginRight: theme.spacing(2),
   },
   '&::-webkit-outer-spin-button, &::-webkit-inner-spin-button': {
     margin: 0,
-    WebkitAppearance: 'none'
-  }
+    WebkitAppearance: 'none',
+  },
 }))
 
 const defaultValues: { [key: string]: string } = {
@@ -68,7 +68,7 @@ const defaultValues: { [key: string]: string } = {
   val3: '',
   val4: '',
   val5: '',
-  val6: ''
+  val6: '',
 }
 
 const TwoStepsV1 = () => {
@@ -80,19 +80,24 @@ const TwoStepsV1 = () => {
   const {
     control,
     handleSubmit,
-    formState: { errors }
+    formState: { errors },
   } = useForm({ defaultValues })
 
   // ** Vars
   const errorsArray = Object.keys(errors)
 
-  const handleChange = (event: ChangeEvent, onChange: (...event: any[]) => void) => {
+  const handleChange = (
+    event: ChangeEvent,
+    onChange: (...event: any[]) => void,
+  ) => {
     if (!isBackspace) {
       onChange(event)
-
       // @ts-ignore
       const form = event.target.form
       const index = [...form].indexOf(event.target)
+      console.log('form : ', form)
+      console.log('index : ', index)
+      console.log('form[index].value : ', form[index].value)
       if (form[index].value && form[index].value.length) {
         form.elements[index + 1].focus()
       }
@@ -134,7 +139,11 @@ const TwoStepsV1 = () => {
             onKeyDown={handleKeyDown}
             onChange={(event: ChangeEvent) => handleChange(event, onChange)}
             options={{ blocks: [1], numeral: true, numeralPositiveOnly: true }}
-            sx={{ [theme.breakpoints.down('sm')]: { px: `${theme.spacing(2)} !important` } }}
+            sx={{
+              [theme.breakpoints.down('sm')]: {
+                px: `${theme.spacing(2)} !important`,
+              },
+            }}
           />
         )}
       />
@@ -144,9 +153,24 @@ const TwoStepsV1 = () => {
   return (
     <Box className='content-center'>
       <Card sx={{ zIndex: 1 }}>
-        <CardContent sx={{ p: theme => `${theme.spacing(15.5, 7, 9)} !important` }}>
-          <Box sx={{ mb: 8, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg width={47} fill='none' height={26} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
+        <CardContent
+          sx={{ p: theme => `${theme.spacing(15.5, 7, 9)} !important` }}
+        >
+          <Box
+            sx={{
+              mb: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <svg
+              width={47}
+              fill='none'
+              height={26}
+              viewBox='0 0 268 150'
+              xmlns='http://www.w3.org/2000/svg'
+            >
               <rect
                 rx='25.1443'
                 width='50.2886'
@@ -216,7 +240,15 @@ const TwoStepsV1 = () => {
                 </linearGradient>
               </defs>
             </svg>
-            <Typography variant='h6' sx={{ ml: 2, lineHeight: 1, fontWeight: 700, fontSize: '1.5rem !important' }}>
+            <Typography
+              variant='h6'
+              sx={{
+                ml: 2,
+                lineHeight: 1,
+                fontWeight: 700,
+                fontSize: '1.5rem !important',
+              }}
+            >
               {themeConfig.templateName}
             </Typography>
           </Box>
@@ -225,11 +257,14 @@ const TwoStepsV1 = () => {
               Two Step Verification 💬
             </Typography>
             <Typography sx={{ color: 'text.secondary' }}>
-              We sent a verification code to your mobile. Enter the code from the mobile in the field below.
+              We sent a verification code to your mobile. Enter the code from
+              the mobile in the field below.
             </Typography>
             <Typography sx={{ mt: 2, fontWeight: 700 }}>******1234</Typography>
           </Box>
-          <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>Type your 6 digit security code</Typography>
+          <Typography sx={{ fontWeight: 600, color: 'text.secondary' }}>
+            Type your 6 digit security code
+          </Typography>
           <form onSubmit={handleSubmit(() => true)}>
             <CleaveWrapper
               sx={{
@@ -238,30 +273,45 @@ const TwoStepsV1 = () => {
                 justifyContent: 'space-between',
                 ...(errorsArray.length && {
                   '& .invalid:focus': {
-                    borderColor: theme => `${theme.palette.error.main} !important`,
-                    boxShadow: theme => `0 1px 3px 0 ${hexToRGBA(theme.palette.error.main, 0.4)}`
-                  }
-                })
+                    borderColor: theme =>
+                      `${theme.palette.error.main} !important`,
+                    boxShadow: theme =>
+                      `0 1px 3px 0 ${hexToRGBA(theme.palette.error.main, 0.4)}`,
+                  },
+                }),
               }}
             >
               {renderInputs()}
             </CleaveWrapper>
             {errorsArray.length ? (
-              <FormHelperText sx={{ color: 'error.main' }}>Please enter a valid OTP</FormHelperText>
+              <FormHelperText sx={{ color: 'error.main' }}>
+                Please enter a valid OTP
+              </FormHelperText>
             ) : null}
             <Button fullWidth type='submit' variant='contained' sx={{ mt: 4 }}>
               Verify My Account
             </Button>
           </form>
-          <Box sx={{ mt: 4, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <Typography sx={{ color: 'text.secondary' }}>Didn't get the code?</Typography>
+          <Box
+            sx={{
+              mt: 4,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+            }}
+          >
+            <Typography sx={{ color: 'text.secondary' }}>
+              Didn't get the code?
+            </Typography>
             <LinkStyled href='/' onClick={e => e.preventDefault()}>
               Resend
             </LinkStyled>
           </Box>
         </CardContent>
       </Card>
-      <FooterIllustrationsV1 image={`/images/pages/auth-v1-register-mask-${theme.palette.mode}.png`} />
+      <FooterIllustrationsV1
+        image={`/images/pages/auth-v1-register-mask-${theme.palette.mode}.png`}
+      />
     </Box>
   )
 }

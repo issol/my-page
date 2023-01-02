@@ -1,9 +1,9 @@
 import React, { ReactNode } from 'react'
 import { ComponentMeta } from '@storybook/react'
-import { Link, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 
 export default {
-  title: 'Typography',
+  title: 'Typography/Typography',
   component: Typography,
   argTypes: {
     align: {
@@ -55,14 +55,4 @@ export default {
 export const Default = (args: typeof Typography) => {
   /* @ts-ignore */
   return <Typography {...args}>{args?.children}</Typography>
-}
-
-export const LinkTypo = () => {
-  return (
-    <Link href='/'>
-      import Link component from{' '}
-      <code>{`import { Link } from '@mui/material`}</code>
-      mui의 Link 컴포넌트를 사용하면 링크의 컬러로 theme이 사용됨
-    </Link>
-  )
 }
