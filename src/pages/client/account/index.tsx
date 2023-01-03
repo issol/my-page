@@ -1,5 +1,40 @@
+import { useContext, useEffect } from 'react'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+import Button from '@mui/material/Button'
+
 const ClientAccount = () => {
-  return <div>Client Account</div>
+  const ability = useContext(AbilityContext)
+  return (
+    <>
+      <div>Client Account</div>
+      <div className='demo-space-x'>
+        <Button
+          variant='contained'
+          disabled={!ability.can('account-create', 'CLIENT')}
+        >
+          CREATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('account-read', 'CLIENT')}
+        >
+          READ
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('account-update', 'CLIENT')}
+        >
+          UPDATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('account-delete', 'CLIENT')}
+        >
+          DELETE
+        </Button>
+      </div>
+    </>
+  )
 }
 
 export default ClientAccount

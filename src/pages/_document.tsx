@@ -21,10 +21,15 @@ class CustomDocument extends Document {
             rel='stylesheet'
             href='https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap'
           />
-          <link rel='apple-touch-icon' sizes='180x180' href='/images/apple-touch-icon.png' />
+          <link
+            rel='apple-touch-icon'
+            sizes='180x180'
+            href='/images/apple-touch-icon.png'
+          />
           <link rel='shortcut icon' href='/images/favicon.png' />
         </Head>
         <body>
+          <div id='modal' />
           <Main />
           <NextScript />
         </body>
@@ -46,7 +51,7 @@ CustomDocument.getInitialProps = async ctx => {
             {...props} // @ts-ignore
             emotionCache={cache}
           />
-        )
+        ),
     })
 
   const initialProps = await Document.getInitialProps(ctx)
@@ -63,7 +68,7 @@ CustomDocument.getInitialProps = async ctx => {
 
   return {
     ...initialProps,
-    styles: [...Children.toArray(initialProps.styles), ...emotionStyleTags]
+    styles: [...Children.toArray(initialProps.styles), ...emotionStyleTags],
   }
 }
 

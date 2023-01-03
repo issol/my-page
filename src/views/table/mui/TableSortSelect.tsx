@@ -42,7 +42,10 @@ interface HeadCell {
 
 interface EnhancedTableProps {
   numSelected: number
-  onRequestSort: (event: React.MouseEvent<unknown>, property: keyof Data) => void
+  onRequestSort: (
+    event: React.MouseEvent<unknown>,
+    property: keyof Data,
+  ) => void
   onSelectAllClick: (event: React.ChangeEvent<HTMLInputElement>) => void
   order: Order
   orderBy: string
@@ -53,7 +56,13 @@ interface EnhancedTableToolbarProps {
   numSelected: number
 }
 
-const createData = (name: string, calories: number, fat: number, carbs: number, protein: number): Data => {
+const createData = (
+  name: string,
+  calories: number,
+  fat: number,
+  carbs: number,
+  protein: number,
+): Data => {
   return { name, calories, fat, carbs, protein }
 }
 
@@ -70,7 +79,7 @@ const rows = [
   createData('Lollipop', 392, 0.2, 98, 0.0),
   createData('Marshmallow', 318, 0, 81, 2.0),
   createData('Nougat', 360, 19.0, 9, 37.0),
-  createData('Oreo', 437, 18.0, 63, 4.0)
+  createData('Oreo', 437, 18.0, 63, 4.0),
 ]
 
 function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
@@ -86,8 +95,11 @@ function descendingComparator<T>(a: T, b: T, orderBy: keyof T) {
 
 function getComparator<Key extends keyof any>(
   order: Order,
-  orderBy: Key
-): (a: { [key in Key]: number | string }, b: { [key in Key]: number | string }) => number {
+  orderBy: Key,
+): (
+  a: { [key in Key]: number | string },
+  b: { [key in Key]: number | string },
+) => number {
   return order === 'desc'
     ? (a, b) => descendingComparator(a, b, orderBy)
     : (a, b) => -descendingComparator(a, b, orderBy)
@@ -95,7 +107,10 @@ function getComparator<Key extends keyof any>(
 
 // This method is created for cross-browser compatibility, if you don't
 // need to support IE11, you can use Array.prototype.sort() directly
-function stableSort<T>(array: readonly T[], comparator: (a: T, b: T) => number) {
+function stableSort<T>(
+  array: readonly T[],
+  comparator: (a: T, b: T) => number,
+) {
   const stabilizedThis = array.map((el, index) => [el, index] as [T, number])
   stabilizedThis.sort((a, b) => {
     const order = comparator(a[0], b[0])
@@ -112,40 +127,48 @@ const headCells: readonly HeadCell[] = [
     id: 'name',
     numeric: false,
     disablePadding: true,
-    label: 'Dessert (100g serving)'
+    label: 'Dessert (100g serving)',
   },
   {
     id: 'calories',
     numeric: true,
     disablePadding: false,
-    label: 'Calories'
+    label: 'Calories',
   },
   {
     id: 'fat',
     numeric: true,
     disablePadding: false,
-    label: 'Fat (g)'
+    label: 'Fat (g)',
   },
   {
     id: 'carbs',
     numeric: true,
     disablePadding: false,
-    label: 'Carbs (g)'
+    label: 'Carbs (g)',
   },
   {
     id: 'protein',
     numeric: true,
     disablePadding: false,
-    label: 'Protein (g)'
-  }
+    label: 'Protein (g)',
+  },
 ]
 
 function EnhancedTableHead(props: EnhancedTableProps) {
   // ** Props
-  const { onSelectAllClick, order, orderBy, numSelected, rowCount, onRequestSort } = props
-  const createSortHandler = (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
-    onRequestSort(event, property)
-  }
+  const {
+    onSelectAllClick,
+    order,
+    orderBy,
+    numSelected,
+    rowCount,
+    onRequestSort,
+  } = props
+  const createSortHandler =
+    (property: keyof Data) => (event: React.MouseEvent<unknown>) => {
+      onRequestSort(event, property)
+    }
 
   return (
     <TableHead>
@@ -193,16 +216,30 @@ const EnhancedTableToolbar = (props: EnhancedTableToolbarProps) => {
       sx={{
         px: theme => `${theme.spacing(5)} !important`,
         ...(numSelected > 0 && {
-          bgcolor: theme => alpha(theme.palette.primary.main, theme.palette.action.activatedOpacity)
-        })
+          bgcolor: theme =>
+            alpha(
+              theme.palette.primary.main,
+              theme.palette.action.activatedOpacity,
+            ),
+        }),
       }}
     >
       {numSelected > 0 ? (
-        <Typography sx={{ flex: '1 1 100%' }} color='inherit' variant='subtitle1' component='div'>
+        <Typography
+          sx={{ flex: '1 1 100%' }}
+          color='inherit'
+          variant='subtitle1'
+          component='div'
+        >
           {numSelected} selected
         </Typography>
       ) : (
-        <Typography sx={{ flex: '1 1 100%' }} variant='h6' id='tableTitle' component='div'>
+        <Typography
+          sx={{ flex: '1 1 100%' }}
+          variant='h6'
+          id='tableTitle'
+          component='div'
+        >
           Sorting & Selecting
         </Typography>
       )}
@@ -225,7 +262,10 @@ const EnhancedTable = () => {
   const [orderBy, setOrderBy] = useState<keyof Data>('calories')
   const [selected, setSelected] = useState<readonly string[]>([])
 
-  const handleRequestSort = (event: React.MouseEvent<unknown>, property: keyof Data) => {
+  const handleRequestSort = (
+    event: React.MouseEvent<unknown>,
+    property: keyof Data,
+  ) => {
     const isAsc = orderBy === property && order === 'asc'
     setOrder(isAsc ? 'desc' : 'asc')
     setOrderBy(property)
@@ -252,7 +292,10 @@ const EnhancedTable = () => {
     } else if (selectedIndex === selected.length - 1) {
       newSelected = newSelected.concat(selected.slice(0, -1))
     } else if (selectedIndex > 0) {
-      newSelected = newSelected.concat(selected.slice(0, selectedIndex), selected.slice(selectedIndex + 1))
+      newSelected = newSelected.concat(
+        selected.slice(0, selectedIndex),
+        selected.slice(selectedIndex + 1),
+      )
     }
 
     setSelected(newSelected)
@@ -262,7 +305,9 @@ const EnhancedTable = () => {
     setPage(newPage)
   }
 
-  const handleChangeRowsPerPage = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
     setRowsPerPage(parseInt(event.target.value, 10))
     setPage(0)
   }
@@ -270,7 +315,8 @@ const EnhancedTable = () => {
   const isSelected = (name: string) => selected.indexOf(name) !== -1
 
   // Avoid a layout jump when reaching the last page with empty rows.
-  const emptyRows = page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
+  const emptyRows =
+    page > 0 ? Math.max(0, (1 + page) * rowsPerPage - rows.length) : 0
 
   return (
     <>
@@ -304,9 +350,17 @@ const EnhancedTable = () => {
                     onClick={event => handleClick(event, row.name)}
                   >
                     <TableCell padding='checkbox'>
-                      <Checkbox checked={isItemSelected} inputProps={{ 'aria-labelledby': labelId }} />
+                      <Checkbox
+                        checked={isItemSelected}
+                        inputProps={{ 'aria-labelledby': labelId }}
+                      />
                     </TableCell>
-                    <TableCell component='th' id={labelId} scope='row' padding='none'>
+                    <TableCell
+                      component='th'
+                      id={labelId}
+                      scope='row'
+                      padding='none'
+                    >
                       {row.name}
                     </TableCell>
                     <TableCell align='right'>{row.calories}</TableCell>
@@ -319,7 +373,7 @@ const EnhancedTable = () => {
             {emptyRows > 0 && (
               <TableRow
                 sx={{
-                  height: 53 * emptyRows
+                  height: 53 * emptyRows,
                 }}
               >
                 <TableCell colSpan={6} />

@@ -15,10 +15,16 @@ const FallbackSpinner = ({ sx }: { sx?: BoxProps['sx'] }) => {
         alignItems: 'center',
         flexDirection: 'column',
         justifyContent: 'center',
-        ...sx
+        ...sx,
       }}
     >
-      <svg width={80} fill='none' height={44} viewBox='0 0 268 150' xmlns='http://www.w3.org/2000/svg'>
+      <svg
+        width={80}
+        fill='none'
+        height={44}
+        viewBox='0 0 268 150'
+        xmlns='http://www.w3.org/2000/svg'
+      >
         <rect
           rx='25.1443'
           width='50.2886'

@@ -8,6 +8,7 @@ import email from 'src/store/apps/email'
 import invoice from 'src/store/apps/invoice'
 import calendar from 'src/store/apps/calendar'
 import permissions from 'src/store/apps/permissions'
+import testUser from './apps/test-user'
 
 export const store = configureStore({
   reducer: {
@@ -16,12 +17,13 @@ export const store = configureStore({
     email,
     invoice,
     calendar,
-    permissions
+    permissions,
+    testUser,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({
-      serializableCheck: false
-    })
+      serializableCheck: false,
+    }),
 })
 
 export type AppDispatch = typeof store.dispatch

@@ -26,45 +26,24 @@ export type PolicyType = {
  * admin can manage everything and client can just visit ACL page
  */
 const defineRulesFor = (role: string, subject: string, policy: PolicyType) => {
-  const { can, cannot, rules } = new AbilityBuilder(AppAbility)
-  // console.log(Object.entries(policy))
+  const { can, rules } = new AbilityBuilder(AppAbility)
 
-  const result = Object.entries(policy)
-    .map(([key, value], index: number) => {
-      const res = Object.entries(value).map(([permission, data]) => {
-        return data && `${key}-${permission}`
+  if (role === 'ADMIN') {
+    can('manage', 'all')
+  } else {
+    const result = Object.entries(policy)
+      .map(([key, value]) => {
+        const res = Object.entries(value).map(([permission, data]) => {
+          return data && `${key}-${permission}`
+        })
+
+        return res
       })
+      .flat()
+      .filter(value => value)
 
-      return res
-    })
-    .flat()
-    .filter(value => value)
-  console.log(result.flat().filter(value => value))
-
-  can(result, role)
-
-  console.log(rules)
-
-  // console.log(
-  //   policy &&
-  //     policy.map((data: any) => {
-  //       Object.entries(data).map(([key, value]) => {
-  //         return value
-  //       })
-  //     }),
-  // )
-
-  // console.log(policy.map((value: any) => value))
-
-  // can('read', [
-  //   `Dashboard - ${role}`,
-  //   `My Page - ${role}`,
-  //   `Certification Test - ${role}`,
-  //   `Jobs - ${role}`,
-  //   `Job List - ${role}`,
-  //   `Invoices - ${role}`,
-  //   `Email - ${role}`,
-  // ])
+    can(result, role)
+  }
 
   return rules
 }

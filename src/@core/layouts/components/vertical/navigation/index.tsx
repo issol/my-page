@@ -67,7 +67,6 @@ const Navigation = (props: Props) => {
     beforeNavMenuContent,
     navMenuContent: userNavMenuContent,
   } = props
-  console.log(props)
 
   // ** States
   const [navHover, setNavHover] = useState<boolean>(false)

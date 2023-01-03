@@ -1,5 +1,40 @@
+import { useContext, useEffect } from 'react'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+import Button from '@mui/material/Button'
+
 const LpmOrderCreate = () => {
-  return <div>LPM Order Create</div>
+  const ability = useContext(AbilityContext)
+  return (
+    <>
+      <div>LPM Order Create</div>
+      <div className='demo-space-x'>
+        <Button
+          variant='contained'
+          disabled={!ability.can('orderCreate-create', 'LPM')}
+        >
+          CREATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('orderCreate-read', 'LPM')}
+        >
+          READ
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('orderCreate-update', 'LPM')}
+        >
+          UPDATE
+        </Button>
+        <Button
+          variant='contained'
+          disabled={!ability.can('orderCreate-delete', 'LPM')}
+        >
+          DELETE
+        </Button>
+      </div>
+    </>
+  )
 }
 
 export default LpmOrderCreate

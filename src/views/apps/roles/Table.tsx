@@ -55,26 +55,26 @@ const userRoleObj: UserRoleType = {
   author: { icon: 'mdi:cog-outline', color: 'warning.main' },
   editor: { icon: 'mdi:pencil-outline', color: 'info.main' },
   maintainer: { icon: 'mdi:chart-donut', color: 'success.main' },
-  subscriber: { icon: 'mdi:account-outline', color: 'primary.main' }
+  subscriber: { icon: 'mdi:account-outline', color: 'primary.main' },
 }
 
 const userStatusObj: UserStatusType = {
   active: 'success',
   pending: 'warning',
-  inactive: 'secondary'
+  inactive: 'secondary',
 }
 
 // ** renders client column
 const renderClient = (row: UsersType) => {
-  if (row.avatar.length) {
-    return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
-  } else {
-    return (
-      <CustomAvatar skin='light' color={row.avatarColor} sx={{ mr: 3, width: 34, height: 34, fontSize: '1rem' }}>
-        {getInitials(row.fullName ? row.fullName : 'John Doe')}
-      </CustomAvatar>
-    )
-  }
+  // if (row.avatar.length) {
+  //   return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
+  // } else {
+  //   return (
+  //     <CustomAvatar skin='light' color={row.avatarColor} sx={{ mr: 3, width: 34, height: 34, fontSize: '1rem' }}>
+  //       {getInitials(row.fullName ? row.fullName : 'John Doe')}
+  //     </CustomAvatar>
+  //   )
+  // }
 }
 
 const columns = [
@@ -88,29 +88,37 @@ const columns = [
 
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
-          {renderClient(row)}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
-            <Typography
-              noWrap
-              component={Link}
-              variant='subtitle2'
-              href='/apps/user/view/overview/'
+          <>
+            {renderClient(row)}
+            <Box
               sx={{
-                fontWeight: 600,
-                color: 'text.primary',
-                textDecoration: 'none',
-                '&:hover': { color: 'primary.main' }
+                display: 'flex',
+                alignItems: 'flex-start',
+                flexDirection: 'column',
               }}
             >
-              {fullName}
-            </Typography>
-            <Typography noWrap variant='caption'>
-              {`@${username}`}
-            </Typography>
-          </Box>
+              <Typography
+                noWrap
+                component={Link}
+                variant='subtitle2'
+                href='/apps/user/view/overview/'
+                sx={{
+                  fontWeight: 600,
+                  color: 'text.primary',
+                  textDecoration: 'none',
+                  '&:hover': { color: 'primary.main' },
+                }}
+              >
+                {fullName}
+              </Typography>
+              <Typography noWrap variant='caption'>
+                {`@${username}`}
+              </Typography>
+            </Box>
+          </>
         </Box>
       )
-    }
+    },
   },
   {
     flex: 0.2,
@@ -123,7 +131,7 @@ const columns = [
           {row.email}
         </Typography>
       )
-    }
+    },
   },
   {
     flex: 0.15,
@@ -132,14 +140,23 @@ const columns = [
     headerName: 'Role',
     renderCell: ({ row }: CellType) => {
       return (
-        <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: userRoleObj[row.role].color } }}>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            '& svg': { mr: 3, color: userRoleObj[row.role].color },
+          }}
+        >
           <Icon icon={userRoleObj[row.role].icon} fontSize={20} />
-          <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+          <Typography
+            noWrap
+            sx={{ color: 'text.secondary', textTransform: 'capitalize' }}
+          >
             {row.role}
           </Typography>
         </Box>
       )
-    }
+    },
   },
   {
     flex: 0.15,
@@ -148,11 +165,15 @@ const columns = [
     field: 'currentPlan',
     renderCell: ({ row }: CellType) => {
       return (
-        <Typography noWrap variant='subtitle1' sx={{ textTransform: 'capitalize' }}>
+        <Typography
+          noWrap
+          variant='subtitle1'
+          sx={{ textTransform: 'capitalize' }}
+        >
           {row.currentPlan}
         </Typography>
       )
-    }
+    },
   },
   {
     flex: 0.1,
@@ -169,7 +190,7 @@ const columns = [
           sx={{ textTransform: 'capitalize' }}
         />
       )
-    }
+    },
   },
   {
     flex: 0.1,
@@ -181,8 +202,8 @@ const columns = [
       <IconButton component={Link} href='/apps/user/view/overview/'>
         <Icon icon='mdi:eye-outline' />
       </IconButton>
-    )
-  }
+    ),
+  },
 ]
 
 const UserList = () => {
@@ -201,8 +222,8 @@ const UserList = () => {
         role: '',
         q: value,
         status: '',
-        currentPlan: plan
-      })
+        currentPlan: plan,
+      }),
     )
   }, [dispatch, plan, value])
 
@@ -218,7 +239,12 @@ const UserList = () => {
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Card>
-          <TableHeader plan={plan} value={value} handleFilter={handleFilter} handlePlanChange={handlePlanChange} />
+          <TableHeader
+            plan={plan}
+            value={value}
+            handleFilter={handleFilter}
+            handlePlanChange={handlePlanChange}
+          />
           <DataGrid
             autoHeight
             rows={store.data}

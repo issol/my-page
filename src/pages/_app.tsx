@@ -75,6 +75,7 @@ import FallbackSpinner from 'src/@core/components/spinner'
 
 /* push notification for demo */
 import usePushNotification from '../hooks/pushNotification'
+import ModalProvider from 'src/context/ModalContext'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -186,20 +187,22 @@ const App = (props: ExtendedAppProps) => {
                   return (
                     <ThemeComponent settings={settings}>
                       <WindowWrapper>
-                        <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                          <AclGuard
-                            aclAbilities={aclAbilities}
-                            guestGuard={guestGuard}
-                          >
-                            <Suspense fallback={<FallbackSpinner />}>
-                              <ErrorBoundary
-                                FallbackComponent={<ErrorFallback />}
-                              >
-                                {getLayout(<Component {...pageProps} />)}
-                              </ErrorBoundary>
-                            </Suspense>
-                          </AclGuard>
-                        </Guard>
+                        <ModalProvider selector='modal'>
+                          <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                            <AclGuard
+                              aclAbilities={aclAbilities}
+                              guestGuard={guestGuard}
+                            >
+                              <Suspense fallback={<FallbackSpinner />}>
+                                <ErrorBoundary
+                                  FallbackComponent={<ErrorFallback />}
+                                >
+                                  {getLayout(<Component {...pageProps} />)}
+                                </ErrorBoundary>
+                              </Suspense>
+                            </AclGuard>
+                          </Guard>
+                        </ModalProvider>
                       </WindowWrapper>
                       <ReactHotToast>
                         <Toaster
