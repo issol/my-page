@@ -94,7 +94,7 @@ export const Default = () => {
     <>
       <Grid item xs={12}>
         <CardSnippet
-          title='Bar Graph'
+          title='Verification Code'
           code={{
             tsx: source,
             jsx: source,
