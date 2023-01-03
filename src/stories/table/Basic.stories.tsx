@@ -11,6 +11,7 @@ import TableBasic from 'src/views/table/mui/TableBasic'
 import { Alert, Divider } from '@mui/material'
 import TableCustomized from 'src/views/table/mui/TableCustomized'
 import TableSelection from 'src/views/table/data-grid/TableSelection'
+import Lists from 'src/pages/components/list'
 
 export default {
   title: 'Table/Basic',
@@ -45,6 +46,9 @@ export const Default = () => {
   )
 }
 
+export const Combination = () => {
+  return <Lists />
+}
 const source = (
   <pre className='language-jsx'>
     <code className='language-jsx'>{`
