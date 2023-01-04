@@ -29,48 +29,48 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin) => {
       bodyBg: mode === 'light' ? '#F7F7F9' : '#282A42', // Same as palette.background.default but doesn't consider bordered skin
       trackBg: mode === 'light' ? '#F2F2F4' : '#41435C',
       tooltipBg: mode === 'light' ? '#262732' : '#464A65',
-      tableHeaderBg: mode === 'light' ? '#F5F5F7' : '#3A3E5B'
+      tableHeaderBg: mode === 'light' ? '#F5F5F7' : '#3A3E5B',
     },
     mode: mode,
     common: {
       black: '#000',
-      white: whiteColor
+      white: whiteColor,
     },
     primary: {
       light: '#787EFF',
       main: '#666CFF',
       dark: '#5A5FE0',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     secondary: {
       light: '#7F889B',
       main: '#6D788D',
       dark: '#606A7C',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     error: {
       light: '#FF625F',
       main: '#FF4D49',
       dark: '#E04440',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     warning: {
       light: '#FDBE42',
       main: '#FDB528',
       dark: '#DF9F23',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     info: {
       light: '#40CDFA',
       main: '#26C6F9',
       dark: '#21AEDB',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     success: {
       light: '#83E542',
       main: '#72E128',
       dark: '#64C623',
-      contrastText: whiteColor
+      contrastText: whiteColor,
     },
     grey: {
       50: '#FAFAFA',
@@ -86,17 +86,17 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin) => {
       A100: '#F5F5F5',
       A200: '#EEEEEE',
       A400: '#BDBDBD',
-      A700: '#616161'
+      A700: '#616161',
     },
     text: {
       primary: `rgba(${mainColor}, 0.87)`,
       secondary: `rgba(${mainColor}, 0.6)`,
-      disabled: `rgba(${mainColor}, 0.38)`
+      disabled: `rgba(${mainColor}, 0.38)`,
     },
     divider: `rgba(${mainColor}, 0.12)`,
     background: {
       paper: mode === 'light' ? whiteColor : '#30334E',
-      default: defaultBgColor()
+      default: defaultBgColor(),
     },
     action: {
       active: `rgba(${mainColor}, 0.54)`,
@@ -105,8 +105,8 @@ const DefaultPalette = (mode: PaletteMode, skin: Skin) => {
       selected: `rgba(${mainColor}, 0.08)`,
       disabled: `rgba(${mainColor}, 0.26)`,
       disabledBackground: `rgba(${mainColor}, 0.12)`,
-      focus: `rgba(${mainColor}, 0.12)`
-    }
+      focus: `rgba(${mainColor}, 0.12)`,
+    },
   }
 }
 

@@ -1,28 +1,20 @@
 // ** React Imports
 import { useState, ReactNode, MouseEvent } from 'react'
 
-// ** Next Imports
-import Link from 'next/link'
-
 // ** MUI Components
-import Alert from '@mui/material/Alert'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
-import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
-import useMediaQuery from '@mui/material/useMediaQuery'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import { styled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import MuiFormControlLabel, {
-  FormControlLabelProps,
-} from '@mui/material/FormControlLabel'
+import { Link } from '@mui/material'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -34,7 +26,6 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
-import useBgColor from 'src/@core/hooks/useBgColor'
 import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Configs
@@ -42,28 +33,7 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-
-// ** Demo Imports
-import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
-
-// ** Styled Components
-const LoginIllustrationWrapper = styled(Box)<BoxProps>(({ theme }) => ({
-  padding: theme.spacing(20),
-  paddingRight: '0 !important',
-  [theme.breakpoints.down('lg')]: {
-    padding: theme.spacing(10),
-  },
-}))
-
-const LoginIllustration = styled('img')(({ theme }) => ({
-  maxWidth: '48rem',
-  [theme.breakpoints.down('xl')]: {
-    maxWidth: '38rem',
-  },
-  [theme.breakpoints.down('lg')]: {
-    maxWidth: '30rem',
-  },
-}))
+import { Checkbox, FormControlLabel } from '@mui/material'
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -89,23 +59,14 @@ const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
 }))
 
-const FormControlLabel = styled(MuiFormControlLabel)<FormControlLabelProps>(
-  ({ theme }) => ({
-    '& .MuiFormControlLabel-label': {
-      fontSize: '0.875rem',
-      color: theme.palette.text.secondary,
-    },
-  }),
-)
-
 const schema = yup.object().shape({
-  email: yup.string().email().required(),
-  password: yup.string().min(5).required(),
+  email: yup.string().email().required('This field is required'),
+  password: yup.string().min(8).required('This field is required'),
 })
 
 const defaultValues = {
-  password: 'admin',
-  email: 'admin@materialize.com',
+  password: '',
+  email: '',
 }
 
 interface FormData {
@@ -119,11 +80,6 @@ const LoginPage = () => {
 
   // ** Hooks
   const auth = useAuth()
-  const theme = useTheme()
-  const { settings } = useSettings()
-
-  // ** Vars
-  const { skin } = settings
 
   const {
     control,
@@ -147,8 +103,8 @@ const LoginPage = () => {
   }
 
   return (
-    <Box className='content-right'>
-      <RightWrapper sx={{ borderLeft: `1px solid ${theme.palette.divider}` }}>
+    <Box className='content-center'>
+      <RightWrapper>
         <Box
           sx={{
             p: 7,
@@ -156,7 +112,7 @@ const LoginPage = () => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'center',
-            backgroundColor: 'background.paper',
+            background: '#F7F7F9',
           }}
         >
           <BoxWrapper>
@@ -206,22 +162,76 @@ const LoginPage = () => {
                   fill='#FFE700'
                 />
               </svg>
-
-              <Typography
-                variant='h6'
-                sx={{
-                  ml: 2,
-                  lineHeight: 1,
-                  fontWeight: 700,
-                  fontSize: '1.5rem !important',
-                }}
-              >
-                {themeConfig.templateName}
-              </Typography>
             </Box>
             <Box sx={{ mb: 6 }}>
               <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
             </Box>
+            <Box
+              mb={4}
+              sx={{
+                width: '100%',
+                display: 'flex',
+                borderRadius: 1,
+                cursor: 'pointer',
+                overflow: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                border: theme => `1px solid ${theme.palette.divider}`,
+                '& img': {
+                  width: '30px',
+                  height: '30px',
+                  objectFit: 'cover',
+                },
+              }}
+            >
+              <IconButton
+                href='/'
+                component={Link}
+                sx={{ color: '#db4437' }}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              >
+                <img src='/images/logos/google.png' alt='google sign in' />
+              </IconButton>
+              <Link href='/signup/google'>Sign in with Google</Link>
+            </Box>
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                borderRadius: 1,
+                cursor: 'pointer',
+                overflow: 'hidden',
+                alignItems: 'center',
+                justifyContent: 'center',
+                padding: '4px',
+                border: theme => `1px solid ${theme.palette.divider}`,
+                '& img': {
+                  width: '30px',
+                  height: '30px',
+                  objectFit: 'cover',
+                },
+              }}
+            >
+              <IconButton
+                href='/'
+                component={Link}
+                sx={{ color: '#db4437' }}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              >
+                <img src='/images/logos/linkedin.png' alt='google sign in' />
+              </IconButton>
+              <Link href='/signup/linkedIn'>Sign in with LinkedIn</Link>
+            </Box>
+            <Divider
+              sx={{
+                '& .MuiDivider-wrapper': { px: 4 },
+                mt: theme => `${theme.spacing(5)} !important`,
+                mb: theme => `${theme.spacing(7.5)} !important`,
+              }}
+            >
+              or
+            </Divider>
             <form
               noValidate
               autoComplete='off'
@@ -240,7 +250,7 @@ const LoginPage = () => {
                       onBlur={onBlur}
                       onChange={onChange}
                       error={Boolean(errors.email)}
-                      placeholder='admin@materialize.com'
+                      placeholder='username@example.com'
                     />
                   )}
                 />
@@ -269,6 +279,7 @@ const LoginPage = () => {
                       onChange={onChange}
                       id='auth-login-v2-password'
                       error={Boolean(errors.password)}
+                      placeholder='Password'
                       type={showPassword ? 'text' : 'password'}
                       endAdornment={
                         <InputAdornment position='end'>
@@ -296,29 +307,20 @@ const LoginPage = () => {
                     {errors.password.message}
                   </FormHelperText>
                 )}
-              </FormControl>
-              <Box
-                sx={{
-                  mb: 4,
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  justifyContent: 'space-between',
-                }}
-              >
-                {/* <FormControlLabel
-                  label='Remember Me'
-                  control={<Checkbox checked={rememberMe} onChange={e => setRememberMe(e.target.checked)} />}
-                />
-                <Typography
-                  variant='body2'
-                  component={Link}
-                  href='/forgot-password'
-                  sx={{ color: 'primary.main', textDecoration: 'none' }}
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
                 >
-                  Forgot Password?
-                </Typography> */}
-              </Box>
+                  <FormControlLabel
+                    control={<Checkbox />}
+                    label='Remember Me'
+                  />
+                  {/* TODO : 추후 href 변경하기 */}
+                  <Link href='/forgot-password'>Forgot Password?</Link>
+                </Box>
+              </FormControl>
+
               <Button
                 fullWidth
                 size='large'
@@ -326,69 +328,18 @@ const LoginPage = () => {
                 variant='contained'
                 sx={{ mb: 7 }}
               >
-                Login
+                Sign in
               </Button>
               <Box
                 sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  flexWrap: 'wrap',
-                  justifyContent: 'center',
+                  mb: 4,
+                  textAlign: 'center',
                 }}
               >
-                {/* <Typography sx={{ mr: 2, color: 'text.secondary' }}>New on our platform?</Typography>
-                <Typography href='/register' component={Link} sx={{ color: 'primary.main', textDecoration: 'none' }}>
-                  Create an account
-                </Typography> */}
-              </Box>
-              <Divider
-                sx={{
-                  '& .MuiDivider-wrapper': { px: 4 },
-                  mt: theme => `${theme.spacing(5)} !important`,
-                  mb: theme => `${theme.spacing(7.5)} !important`,
-                }}
-              >
-                or
-              </Divider>
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                {/* <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#497ce2' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:facebook' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#1da1f2' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:twitter' />
-                </IconButton>
-                <IconButton
-                  href='/'
-                  component={Link}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                  sx={{ color: theme => (theme.palette.mode === 'light' ? '#272727' : 'grey.300') }}
-                >
-                  <Icon icon='mdi:github' />
-                </IconButton> */}
-                <IconButton
-                  href='/'
-                  component={Link}
-                  sx={{ color: '#db4437' }}
-                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-                >
-                  <Icon icon='mdi:google' />
-                </IconButton>
+                <Typography>
+                  New on our platform?{' '}
+                  <Link href='/signup'>Create an account</Link>
+                </Typography>
               </Box>
             </form>
           </BoxWrapper>
