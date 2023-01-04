@@ -1,10 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-const { NODE_ENV } = process.env
-
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
-
+console.log('BaseUrl : ', BASEURL)
 let isTokenRefreshing = false
 let refreshSubscribers: any = []
 
@@ -58,23 +56,9 @@ instance.interceptors.request.use(
     return config
   },
   error => {
-    // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     return Promise.reject(error)
   },
 )
-
-// instance.interceptors.response.use(
-//   (response: AxiosResponse) => {
-//     return response
-//   },
-//   async (error) => {
-//     const originalRequest = error.config
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       // 인증 실패시 토큰 재요청 여기서 할건지 정하기
-//     }
-//     return Promise.reject(error)
-//   },
-// )
 
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -85,23 +69,15 @@ instance.interceptors.response.use(
     const originalRequest = error.config
     const originalRequestHeader = error.config.headers ?? {}
 
-    // if (window.location.host.includes('localhost')) {
-    // } else{
-
-    // }
-
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
         window.localStorage.removeItem('userData')
-        // const { data } = useGetRefreshToken(isTokenRefreshing)
         const { data } = await axios.get(
           `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`,
         )
 
         const { accessToken: newAccessToken } = data
-
-        // console.log(newAccessToken)
 
         if (newAccessToken === null) {
           isTokenRefreshing = false
@@ -114,13 +90,12 @@ instance.interceptors.response.use(
           return Promise.reject(error)
         } else {
           setHeaderToken(newAccessToken)
-          // invalidateQuery()
 
           isTokenRefreshing = false
           axios.defaults.headers.common['Authorization'] =
             'Bearer ' + newAccessToken
           onTokenRefreshed(newAccessToken)
-          window.location.reload()
+          // window.location.reload()
         }
       }
       const retryOriginalRequest = new Promise(resolve => {
