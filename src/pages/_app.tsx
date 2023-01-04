@@ -153,10 +153,10 @@ const App = (props: ExtendedAppProps) => {
 
   const aclAbilities = Component.acl ?? defaultACLObj
 
-  const pushNotification = usePushNotification()
-  pushNotification?.fireNotificationWithTimeout('Welcome to TAD DEMO', 50000, {
-    body: `Welcome to TAD DEMO`,
-  })
+  // const pushNotification = usePushNotification()
+  // pushNotification?.fireNotificationWithTimeout('Welcome to TAD DEMO', 50000, {
+  //   body: `Welcome to TAD DEMO`,
+  // })
 
   return (
     <QueryClientProvider client={queryClient}>
