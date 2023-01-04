@@ -2,7 +2,6 @@ import React, { ReactNode } from 'react'
 import { ComponentMeta } from '@storybook/react'
 import { Card, CardContent, CardHeader } from '@mui/material'
 import OptionsMenu from 'src/@core/components/option-menu'
-import TypographyPage from 'src/pages/ui/typography'
 
 export default {
   title: 'Layout/Card',
@@ -50,13 +49,5 @@ export const Default = (args: Args) => {
       />
       <CardContent>{args.content}</CardContent>
     </Card>
-  )
-}
-
-export const test = () => {
-  return (
-    <>
-      <TypographyPage />
-    </>
   )
 }
