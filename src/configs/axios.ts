@@ -1,6 +1,9 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 
-export const BASEURL = process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-dev.gloground.com'
+const { NODE_ENV } = process.env
+
+export const BASEURL =
+  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 
 let isTokenRefreshing = false
 let refreshSubscribers: any = []
@@ -18,10 +21,13 @@ const instance = axios.create({
   baseURL: BASEURL,
   headers: {
     Accept: 'application/json',
-    Authorization: 'Bearer ' + typeof window === 'object' ? localStorage.getItem('accessToken') : null
+    Authorization:
+      'Bearer ' + typeof window === 'object'
+        ? localStorage.getItem('accessToken')
+        : null,
   },
   timeout: 10000,
-  withCredentials: true
+  withCredentials: true,
 })
 
 export const setHeaderToken = (token: string) => {
@@ -49,13 +55,12 @@ instance.interceptors.request.use(
       config.headers = config.headers ?? {}
       config.headers.Authorization = `Bearer ${token}`
     }
-
     return config
   },
   error => {
     // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     return Promise.reject(error)
-  }
+  },
 )
 
 // instance.interceptors.response.use(
@@ -88,10 +93,10 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
-
+        window.localStorage.removeItem('userData')
         // const { data } = useGetRefreshToken(isTokenRefreshing)
         const { data } = await axios.get(
-          `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`
+          `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`,
         )
 
         const { accessToken: newAccessToken } = data
@@ -109,11 +114,11 @@ instance.interceptors.response.use(
           return Promise.reject(error)
         } else {
           setHeaderToken(newAccessToken)
-
           // invalidateQuery()
 
           isTokenRefreshing = false
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken
+          axios.defaults.headers.common['Authorization'] =
+            'Bearer ' + newAccessToken
           onTokenRefreshed(newAccessToken)
           window.location.reload()
         }
@@ -129,9 +134,8 @@ instance.interceptors.response.use(
     } else {
       // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     }
-
     return Promise.reject(error)
-  }
+  },
 )
 
 export default instance

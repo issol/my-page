@@ -1,4 +1,4 @@
-import axios from 'src/configs/axios-client'
+import axios from 'src/configs/axios'
 
 export const login = async (email: string, password: string) => {
   const { data } = await axios.post(`/api/pichu/auth/login`, {

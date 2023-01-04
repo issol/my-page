@@ -60,7 +60,10 @@ const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
 }))
 
 const schema = yup.object().shape({
-  email: yup.string().email().required('This field is required'),
+  email: yup
+    .string()
+    .email('Invalid email address')
+    .required('This field is required'),
   password: yup.string().min(8).required('This field is required'),
 })
 
@@ -75,7 +78,7 @@ interface FormData {
 }
 
 const LoginPage = () => {
-  const [rememberMe, setRememberMe] = useState<boolean>(true)
+  const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   // ** Hooks
@@ -88,7 +91,7 @@ const LoginPage = () => {
     formState: { errors },
   } = useForm({
     defaultValues,
-    mode: 'onBlur',
+    mode: 'onChange',
     resolver: yupResolver(schema),
   })
 
@@ -313,7 +316,11 @@ const LoginPage = () => {
                   justifyContent='space-between'
                 >
                   <FormControlLabel
-                    control={<Checkbox />}
+                    control={
+                      <Checkbox
+                        onChange={e => setRememberMe(e.target.checked)}
+                      />
+                    }
                     label='Remember Me'
                   />
                   {/* TODO : 추후 href 변경하기 */}
