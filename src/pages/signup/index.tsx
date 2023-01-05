@@ -172,7 +172,9 @@ const LoginPage = () => {
               </svg>
             </Box>
             <Box sx={{ mb: 6 }}>
-              <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
+              <TypographyStyled variant='h5'>
+                Adventure starts here 🚀
+              </TypographyStyled>
             </Box>
             <Box
               mb={4}
@@ -203,7 +205,7 @@ const LoginPage = () => {
               </IconButton>
 
               <Link href='' onClick={redirectGoogleAuth}>
-                Sign in with Google
+                Sign up with Google
               </Link>
             </Box>
             <Box
@@ -233,7 +235,7 @@ const LoginPage = () => {
                 <img src='/images/logos/linkedin.png' alt='google sign in' />
               </IconButton>
               <Link href='' onClick={redirectLinkedInAuth}>
-                Sign in with LinkedIn
+                Sign up with LinkedIn
               </Link>
             </Box>
             <Divider
@@ -321,20 +323,17 @@ const LoginPage = () => {
                   </FormHelperText>
                 )}
                 <Box
+                  margin='10px 0'
                   display='flex'
                   alignItems='center'
-                  justifyContent='space-between'
+                  //   justifyContent='space-between'
                 >
-                  <FormControlLabel
-                    control={
-                      <Checkbox
-                        onChange={e => setRememberMe(e.target.checked)}
-                      />
-                    }
-                    label='Remember Me'
-                  />
-                  {/* TODO : 추후 href 변경하기 */}
-                  <Link href='/forgot-password'>Forgot Password?</Link>
+                  <Checkbox checked color='primary' />
+                  <Typography>
+                    I agree to <Link href=''>GDPR</Link> &{' '}
+                    <Link href=''>Privacy policy</Link> &{' '}
+                    <Link href=''>Terms of use</Link>*
+                  </Typography>
                 </Box>
               </FormControl>
 
@@ -345,7 +344,7 @@ const LoginPage = () => {
                 variant='contained'
                 sx={{ mb: 7 }}
               >
-                Sign in
+                Sign Up
               </Button>
               <Box
                 sx={{
@@ -354,8 +353,7 @@ const LoginPage = () => {
                 }}
               >
                 <Typography>
-                  New on our platform?{' '}
-                  <Link href='/signup'>Create an account</Link>
+                  Already have an account? <Link href='/login'>Sign in</Link>
                 </Typography>
               </Box>
             </form>
