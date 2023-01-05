@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -15,6 +15,8 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import { Link } from '@mui/material'
+
+import cloneDeep from 'lodash/cloneDeep'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -34,7 +36,11 @@ import themeConfig from 'src/configs/themeConfig'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
-import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
+import {
+  checkEmailDuplication,
+  redirectGoogleAuth,
+  redirectLinkedInAuth,
+} from 'src/apis/sign.api'
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -64,8 +70,36 @@ const schema = yup.object().shape({
   email: yup
     .string()
     .email('Invalid email address')
+    .test(
+      'email-duplication',
+      'This email is already registered',
+      (val: any) => {
+        return new Promise((resolve, reject) => {
+          checkEmailDuplication(val)
+            .then(() => {
+              resolve(true)
+            })
+            .catch((e: any) => {
+              reject(true)
+            })
+        })
+      },
+    )
     .required('This field is required'),
-  password: yup.string().min(8).required('This field is required'),
+  //   password: yup.string().max(20).required(''),
+  password: yup
+    .string()
+    .test('password-validation', '', (val: any) => {
+      return (
+        val.length >= 9 &&
+        val.length <= 20 &&
+        /[a-z]/g.test(val) &&
+        /[A-Z]/g.test(val) &&
+        /[0-9]/g.test(val) &&
+        /[$@$!%*#?&]/g.test(val)
+      )
+    })
+    .required('This field is required'),
 })
 
 const defaultValues = {
@@ -78,9 +112,26 @@ interface FormData {
   password: string
 }
 
-const LoginPage = () => {
-  const [rememberMe, setRememberMe] = useState<boolean>(false)
+const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
+
+  const [validationNewPassword, setValidationNewPassword] = useState([
+    {
+      id: 1,
+      text: '9-20 characters',
+      checked: false,
+    },
+    {
+      id: 2,
+      text: 'Uppercase and lowercase characters',
+      checked: false,
+    },
+    {
+      id: 3,
+      text: 'At least one number and special character',
+      checked: false,
+    },
+  ])
 
   // ** Hooks
   const auth = useAuth()
@@ -89,27 +140,54 @@ const LoginPage = () => {
     control,
     setError,
     handleSubmit,
-    formState: { errors },
+    clearErrors,
+    getValues,
+    setValue,
+    watch,
+    formState: { errors, dirtyFields },
   } = useForm({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(schema),
   })
 
-  const onSubmit = (data: FormData) => {
-    const { email, password } = data
-    auth.login({ email, password, rememberMe }, () => {
-      setError('email', {
-        type: 'manual',
-        message: '',
-      })
-      setError('password', {
-        type: 'manual',
-        message: 'Email or Password is invalid',
-      })
-    })
-  }
+  useEffect(() => {
+    // validation
+    const beforeState = cloneDeep(validationNewPassword)
 
+    // 9 ~ 20자 대소문자
+    beforeState[0].checked =
+      getValues('password').length >= 9 && getValues('password').length <= 20
+
+    // 영문 대소문자 포함
+    beforeState[1].checked =
+      /[a-z]/g.test(getValues('password')) &&
+      /[A-Z]/g.test(getValues('password'))
+
+    // 최소 1개 이상의 숫자, 특수문자
+    beforeState[2].checked =
+      /[0-9]/g.test(getValues('password')) &&
+      /[$@$!%*#?&]/g.test(getValues('password'))
+
+    setValidationNewPassword(beforeState)
+  }, [watch('password')])
+
+  /* TODO : Sign up api연결하기 */
+  const onSubmit = (data: FormData) => {
+    console.log(data)
+    const { email, password } = data
+    // auth.login({ email, password, rememberMe }, () => {
+    //   setError('email', {
+    //     type: 'manual',
+    //     message: '',
+    //   })
+    //   setError('password', {
+    //     type: 'manual',
+    //     message: 'Email or Password is invalid',
+    //   })
+    // })
+  }
+  console.log(validationNewPassword)
   return (
     <Box className='content-center'>
       <RightWrapper>
@@ -322,13 +400,31 @@ const LoginPage = () => {
                     {errors.password.message}
                   </FormHelperText>
                 )}
-                <Box
-                  margin='10px 0'
-                  display='flex'
-                  alignItems='center'
-                  //   justifyContent='space-between'
-                >
+                <div className='input-validations'>
+                  {validationNewPassword.map(validation => {
+                    const validationIcon = validation.checked
+                      ? `/images/icons/validation/verify-green.svg`
+                      : `/images/icons/validation/verify-gray.svg`
+                    return (
+                      <div
+                        key={validation.id}
+                        className='validation-desc'
+                        style={{
+                          color: validation.checked ? '#2EAE4E' : '#888',
+                          fontWeight: 500,
+                          fontSize: `0.75rem`,
+                          lineHeight: '0.875rem',
+                        }}
+                      >
+                        <img width='14px' height='14px' src={validationIcon} />
+                        {validation.text}
+                      </div>
+                    )
+                  })}
+                </div>
+                <Box margin='10px 0' display='flex' alignItems='center'>
                   <Checkbox checked color='primary' />
+                  {/* TODO: 약관 링크하기 */}
                   <Typography>
                     I agree to <Link href=''>GDPR</Link> &{' '}
                     <Link href=''>Privacy policy</Link> &{' '}
@@ -364,8 +460,8 @@ const LoginPage = () => {
   )
 }
 
-LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
+SignUpPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 
-LoginPage.guestGuard = true
+SignUpPage.guestGuard = true
 
-export default LoginPage
+export default SignUpPage

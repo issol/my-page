@@ -48,3 +48,13 @@ export const redirectLinkedInAuth = (e: any) => {
     window.location.href = `/api/pichu/auth/linkedin`
   }
 }
+
+/* TODO : endpoint 수정 */
+export const checkEmailDuplication = async (email: string) => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/pu/r-check?email=${email}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
