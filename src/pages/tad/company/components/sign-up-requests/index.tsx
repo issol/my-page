@@ -4,30 +4,36 @@ import Card from '@mui/material/Card'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
-import RenderChips from 'src/pages/tad/company/render-chips'
+import RenderChips from 'src/pages/tad/company/components/sign-up-requests/render-chips'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   data: SignUpRequestsType[]
-  page: number
-  pageSize: number
-  setPage: Dispatch<SetStateAction<number>>
-  setPageSize: Dispatch<SetStateAction<number>>
-  handleRoleDelete: (role: string, user: SignUpRequestsType) => void
+  requestsPage: number
+  requestsPageSize: number
+  setRequestsPage: Dispatch<SetStateAction<number>>
+  setRequestsPageSize: Dispatch<SetStateAction<number>>
+  handleDeleteRole: (role: string, user: SignUpRequestsType) => void
+  handleAddRole: (role: string, user: SignUpRequestsType) => void
+  handleDeclineSignUpRequest: (user: SignUpRequestsType) => void
+  handleApproveSignUpRequest: (user: SignUpRequestsType) => void
 }
 
 interface CellType {
   row: SignUpRequestsType
 }
 
-const Company = ({
+const SignUpRequests = ({
   data,
-  page,
-  pageSize,
-  setPage,
-  setPageSize,
-  handleRoleDelete,
+  requestsPage,
+  requestsPageSize,
+  setRequestsPage,
+  setRequestsPageSize,
+  handleDeleteRole,
+  handleAddRole,
+  handleDeclineSignUpRequest,
+  handleApproveSignUpRequest,
 }: Props) => {
   const columns: GridColDef[] = [
     {
@@ -69,8 +75,12 @@ const Company = ({
             {/* {row.role.map(value => {
               return <div>{value}</div>
             })} */}
-            <RenderChips user={row} handleRoleDelete={handleRoleDelete} />
-            {/* {RenderChips(row.role, handleRoleDelete)} */}
+            <RenderChips
+              user={row}
+              handleDeleteRole={handleDeleteRole}
+              handleAddRole={handleAddRole}
+            />
+            {/* {RenderChips(row.role, handleDeleteRole)} */}
           </Typography>
         )
       },
@@ -108,12 +118,14 @@ const Company = ({
               variant='outlined'
               size='medium'
               sx={{ textTransform: 'none' }}
+              onClick={() => handleDeclineSignUpRequest(row)}
             >
               Decline
             </Button>
             <Button
               variant='contained'
               size='medium'
+              onClick={() => handleApproveSignUpRequest(row)}
               sx={{ textTransform: 'none' }}
             >
               Approve
@@ -136,16 +148,18 @@ const Company = ({
             rows={data ?? []}
             disableSelectionOnClick
             // autoPageSize
-            pageSize={pageSize}
+            pageSize={requestsPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
-            page={page}
+            page={requestsPage}
             // pagination
             // paginationMode={'server'}
             rowCount={data.length}
             onPageChange={(newPage: number) => {
-              setPage(newPage)
+              setRequestsPage(newPage)
             }}
-            onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
+            onPageSizeChange={(newPageSize: number) =>
+              setRequestsPageSize(newPageSize)
+            }
           />
         </Box>
 
@@ -193,4 +207,4 @@ const Company = ({
   )
 }
 
-export default Company
+export default SignUpRequests
