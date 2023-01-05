@@ -1,4 +1,5 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import authConfig from 'src/configs/auth'
 
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
@@ -72,7 +73,6 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
-        window.localStorage.removeItem('userData')
         const { data } = await axios.get(
           `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`,
         )
@@ -83,7 +83,7 @@ instance.interceptors.response.use(
           isTokenRefreshing = false
           window.location.href = '/login'
 
-          localStorage.removeItem('accessToken')
+          localStorage.removeItem(authConfig.storageTokenKeyName)
           localStorage.removeItem('email')
           localStorage.removeItem('role')
 

@@ -15,13 +15,13 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: 'ADMIN' | 'GLOHUB_ADMIN' | 'PRO' | 'CLIENT' | 'TAD' | 'LPM'
+  role: Array<'ADMIN' | 'GLOHUB_ADMIN' | 'PRO' | 'CLIENT' | 'TAD' | 'LPM'>
   email: string
   fullName: string
   username: string
   password?: string
   avatar?: string | null
-  policy?: any
+  permission?: any
 }
 
 export type LoginSuccessResponse = {

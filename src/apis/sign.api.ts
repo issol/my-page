@@ -1,11 +1,19 @@
 import axios from 'src/configs/axios'
+import { loginResType } from 'src/types/sign/signInTypes'
 
-export const login = async (email: string, password: string) => {
-  const { data } = await axios.post(`/api/pichu/auth/login`, {
-    email,
-    password,
-  })
-  return data
+export const login = async (
+  email: string,
+  password: string,
+): Promise<loginResType> => {
+  try {
+    const { data } = await axios.post(`/api/enough/a/login`, {
+      email,
+      password,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
 
 export const getRefreshToken = async () => {
