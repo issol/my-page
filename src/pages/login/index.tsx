@@ -34,6 +34,7 @@ import themeConfig from 'src/configs/themeConfig'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
+import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -96,8 +97,6 @@ const LoginPage = () => {
   })
 
   const onSubmit = (data: FormData) => {
-    console.log(data)
-    console.log(rememberMe)
     const { email, password } = data
     auth.login({ email, password, rememberMe }, () => {
       setError('email', {
@@ -202,7 +201,10 @@ const LoginPage = () => {
               >
                 <img src='/images/logos/google.png' alt='google sign in' />
               </IconButton>
-              <Link href='/signup/google'>Sign in with Google</Link>
+
+              <Link href='' onClick={redirectGoogleAuth}>
+                Sign in with Google
+              </Link>
             </Box>
             <Box
               sx={{
@@ -230,7 +232,9 @@ const LoginPage = () => {
               >
                 <img src='/images/logos/linkedin.png' alt='google sign in' />
               </IconButton>
-              <Link href='/signup/linkedIn'>Sign in with LinkedIn</Link>
+              <Link href='' onClick={redirectLinkedInAuth}>
+                Sign in with LinkedIn
+              </Link>
             </Box>
             <Divider
               sx={{

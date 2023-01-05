@@ -85,10 +85,18 @@ const AuthProvider = ({ children }: Props) => {
           ? window.localStorage.setItem(
               authConfig.storageTokenKeyName,
               JSON.stringify(userData),
-              // response.data.accessToken,
             )
           : null
         const returnUrl = router.query.returnUrl
+
+        /* TODO
+        1. getProfile을 해서 role이 없다면 
+        2. selectRole 페이지로 이동
+        3. role이 있는 경우 legal name이 있는지 체크
+        4. legal name이 없으면 personal info 작성 페이지로 이동
+        5. 있을 경우 role / permission이 manager인 경우
+        6. role management 페이지로 이동
+        7. 아닐 경우 빈 랜딩페이지로 이동 */
 
         /* TODO: getProfile api 나오면 수정 */
         // setUser({
