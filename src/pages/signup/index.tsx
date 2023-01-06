@@ -471,7 +471,8 @@ const SignUpPage = () => {
               </form>
             </BoxWrapper>
           </Box>
-        ) : step === 2 ? (
+        ) : /* TODO : role card의 이미지 교체 필요 */
+        step === 2 ? (
           <Box>
             <Typography variant='h4' align='center' mb={12}>
               Select your role
