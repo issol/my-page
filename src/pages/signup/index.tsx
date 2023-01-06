@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
@@ -25,6 +25,8 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+import PinInput from 'react-pin-input'
+import styled from '@emotion/styled'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
@@ -38,7 +40,7 @@ import {
   redirectLinkedInAuth,
 } from 'src/apis/sign.api'
 
-const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   //   [theme.breakpoints.up('md')]: {
   //     maxWidth: 500,
@@ -48,21 +50,23 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   //   },
 }))
 
-const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   //   [theme.breakpoints.down('md')]: {
   //     maxWidth: 500,
   //   },
 }))
 
-const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
-  fontWeight: 600,
-  letterSpacing: '0.18px',
-  marginBottom: theme.spacing(1.5),
-  [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
-}))
+const TypographyStyled = muiStyled(Typography)<TypographyProps>(
+  ({ theme }) => ({
+    fontWeight: 600,
+    letterSpacing: '0.18px',
+    marginBottom: theme.spacing(1.5),
+    [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
+  }),
+)
 
-const DisabledCard = styled(Card)(() => ({
+const DisabledCard = muiStyled(Card)(() => ({
   position: 'relative',
   '&::after': {
     content: '"In preparation"',
@@ -192,7 +196,10 @@ const SignUpPage = () => {
     const { email, password } = data
     setStep(2)
   }
-  console.log(validationNewPassword)
+
+  const onRoleSubmit = () => {
+    setStep(3)
+  }
   return (
     <Box className='content-center'>
       <RightWrapper>
@@ -543,11 +550,69 @@ const SignUpPage = () => {
               </Card>
             </Box>
             <Box sx={{ textAlign: 'center', margin: '50px' }}>
-              <Button variant='contained'>Confirm</Button>
+              <Button variant='contained' onClick={onRoleSubmit}>
+                Confirm
+              </Button>
             </Box>
           </Box>
         ) : (
-          <div></div>
+          <Box
+            maxWidth={'450px'}
+            sx={{
+              p: 7,
+              margin: '0 auto',
+              height: '100%',
+              background: '#F7F7F9',
+            }}
+          >
+            <Box sx={{ mb: 6 }}>
+              <TypographyStyled variant='h5'>
+                Verify email address 💬
+              </TypographyStyled>
+              <TypographyStyled variant='body2'>
+                Please enter the verification code we've sent to
+              </TypographyStyled>
+              <TypographyStyled variant='body1'>email@.com</TypographyStyled>
+              <Box mt={8}>
+                <PinInput
+                  length={6}
+                  focus
+                  // onChange={(value) => {
+                  //   setPins(value, 'new');
+                  // }}
+
+                  type='numeric'
+                  inputMode='number'
+                  style={{
+                    display: 'flex',
+                    gap: '8px',
+                    justifyContent: 'space-between',
+                  }}
+                  inputStyle={{
+                    width: 53,
+                    height: 53,
+                    fontSize: '1rem',
+                    borderRadius: '4px',
+                    border: '1px solid #aaa',
+                  }}
+                  autoSelect={true}
+                />
+              </Box>
+              <Box sx={{ margin: '30px 0 20px' }}>
+                <Button fullWidth variant='contained'>
+                  Confirm
+                </Button>
+              </Box>
+              <Box
+                sx={{ display: 'flex', justifyContent: 'center', gap: '6px' }}
+              >
+                <Typography variant='body2'>Didn't get the email? </Typography>
+                <Typography variant='body2' color='primary'>
+                  Resend
+                </Typography>
+              </Box>
+            </Box>
+          </Box>
         )}
       </RightWrapper>
     </Box>
