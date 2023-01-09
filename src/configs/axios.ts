@@ -3,7 +3,6 @@ import authConfig from 'src/configs/auth'
 
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
-console.log('BaseUrl : ', BASEURL)
 let isTokenRefreshing = false
 let refreshSubscribers: any = []
 
@@ -73,9 +72,7 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
-        const { data } = await axios.get(
-          `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`,
-        )
+        const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
 
         const { accessToken: newAccessToken } = data
 
