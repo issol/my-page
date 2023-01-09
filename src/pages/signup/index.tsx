@@ -505,11 +505,20 @@ const SignUpPage = () => {
                   </Box>
                   <Box margin='10px 0' display='flex' alignItems='center'>
                     <Checkbox checked color='primary' />
-                    {/* TODO: 약관 링크하기 */}
                     <Typography>
-                      I agree to <Link href=''>GDPR</Link> &{' '}
-                      <Link href=''>Privacy policy</Link> &{' '}
-                      <Link href=''>Terms of use</Link>*
+                      I agree to{' '}
+                      <Link href='/terms/GDPR.pdf' target='_blank'>
+                        GDPR
+                      </Link>{' '}
+                      &{' '}
+                      <Link href='/terms/Privacy.pdf' target='_blank'>
+                        Privacy policy
+                      </Link>{' '}
+                      &{' '}
+                      <Link href='/terms/Terms of Use.pdf' target='_blank'>
+                        Terms of use
+                      </Link>
+                      *
                     </Typography>
                   </Box>
                 </FormControl>
