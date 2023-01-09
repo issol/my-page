@@ -1895,6 +1895,11 @@
   resolved "https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz"
   integrity sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw==
 
+"@glocalize-inc/glo-languages@1.0.1":
+  version "1.0.1"
+  resolved "https://npm.pkg.github.com/download/@glocalize-inc/glo-languages/1.0.1/ec5097e65d489da85e550bdcc90b5cc5173801ac#ec5097e65d489da85e550bdcc90b5cc5173801ac"
+  integrity sha512-/2w5UL1pzclLcHdtzxoqJEY8iXeCxW1gb95IBA4QtfZLP4XUEIevKDCsnKLsukm5FAbtjSCeoJ0EV3R6WZ7+vA==
+
 "@grpc/grpc-js@~1.7.0":
   version "1.7.3"
   resolved "https://registry.npmjs.org/@grpc/grpc-js/-/grpc-js-1.7.3.tgz"

@@ -14,6 +14,7 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
+    "@glocalize-inc/glo-languages": "1.0.1",
     "@casl/ability": "6.3.2",
     "@casl/react": "3.1.0",
     "@emotion/cache": "11.10.5",
