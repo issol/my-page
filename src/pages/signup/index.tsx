@@ -35,9 +35,11 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
+  postRole,
   redirectGoogleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
+  signUp,
   verifyPinCode,
 } from 'src/apis/sign.api'
 import { RoleType } from 'src/types/apps/userTypes'
@@ -45,6 +47,7 @@ import { useMutation } from 'react-query'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
+import { useRouter } from 'next/router'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -128,6 +131,7 @@ interface FormData {
 }
 
 const SignUpPage = () => {
+  const router = useRouter()
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
@@ -177,6 +181,37 @@ const SignUpPage = () => {
         toast.success('Your code has been sent!')
         setStep(3)
       },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.')
+      },
+    },
+  )
+
+  const postRoleMutation = useMutation(
+    (userId: number) => postRole(userId, role),
+    {
+      onSuccess: () => {
+        if (role.includes('PRO') || role.includes('CLIENT'))
+          router.push('/signup/finish/consumer')
+        else router.push('/signup/finish/manager')
+      },
+      onError: (e: any) => {
+        toast.error('Something went wrong. Try logging in.')
+      },
+    },
+  )
+
+  const signUpMutation = useMutation(
+    () => signUp(getValues('email'), getValues('password')),
+    {
+      onSuccess: data => postRoleMutation.mutate(data.userId),
+      onError: (e: any) => {
+        if (e?.statusCode === 409) {
+          toast.error('This account is already registered.')
+        } else {
+          toast.error('Something went wrong. Please try again.')
+        }
+      },
     },
   )
 
@@ -185,8 +220,10 @@ const SignUpPage = () => {
    * onError : 에러 메세지 저장 및 pin input 디자인 에러 버전으로 보여주기
    * */
   const verifyPin = useMutation(() => verifyPinCode(getValues('email'), pin), {
-    // onSuccess: data=>{
-    // }
+    onSuccess: data => {
+      return signUpMutation.mutate()
+    },
+    // onError:()=>()
   })
   useEffect(() => {
     // validation

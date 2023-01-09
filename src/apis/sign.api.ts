@@ -1,5 +1,6 @@
 import axios from 'src/configs/axios'
 import { loginResType } from 'src/types/sign/signInTypes'
+import { RoleType } from 'src/types/apps/userTypes'
 
 export const login = async (
   email: string,
@@ -72,6 +73,29 @@ export const verifyPinCode = async (
 ) => {
   try {
     await axios.post(`/api/enough/a/email/verify`, { email, verificationCode })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const signUp = async (
+  email: string,
+  password: string,
+): Promise<{ userId: number; email: string }> => {
+  try {
+    const { data } = await axios.put(`/api/enough/a/signup`, {
+      email,
+      password,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const postRole = async (userId: number, roles: Array<RoleType>) => {
+  try {
+    await axios.put(`/api/enough/a/role/grant`, { userId, roles })
   } catch (e: any) {
     throw new Error(e)
   }
