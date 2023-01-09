@@ -1,9 +1,10 @@
 // ** Types
 import { ThemeColor } from 'src/@core/layouts/types'
 
+export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 export type UsersType = {
   id: number
-  role: string
+  role: Array<RoleType>
   email: string
   status: string
   avatar: string

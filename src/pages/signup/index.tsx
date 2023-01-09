@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled as muiStyled, useTheme } from '@mui/material/styles'
+import { styled as muiStyled } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
@@ -26,35 +26,31 @@ import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import PinInput from 'react-pin-input'
-import styled from '@emotion/styled'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Checkbox, FormControlLabel } from '@mui/material'
+import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
   redirectGoogleAuth,
   redirectLinkedInAuth,
+  sendEmailVerificationCode,
 } from 'src/apis/sign.api'
+import { RoleType } from 'src/types/apps/userTypes'
+import { useMutation } from 'react-query'
+
+// ** Third Party Components
+import toast from 'react-hot-toast'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
-  //   [theme.breakpoints.up('md')]: {
-  //     maxWidth: 500,
-  //   },
-  //   [theme.breakpoints.up('lg')]: {
-  //     maxWidth: 500,
-  //   },
 }))
 
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
-  //   [theme.breakpoints.down('md')]: {
-  //     maxWidth: 500,
-  //   },
 }))
 
 const TypographyStyled = muiStyled(Typography)<TypographyProps>(
@@ -133,6 +129,9 @@ interface FormData {
 const SignUpPage = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const [role, setRole] = useState<Array<RoleType>>([])
+  const isPro = role.includes('PRO')
+  const isNotPro = role.some(item => item === 'LPM' || item === 'TAD')
   const [validationNewPassword, setValidationNewPassword] = useState([
     {
       id: 1,
@@ -169,6 +168,16 @@ const SignUpPage = () => {
     resolver: yupResolver(schema),
   })
 
+  const verifyEmail = useMutation(
+    (email: string) => sendEmailVerificationCode(email),
+    {
+      onSuccess: data => {
+        toast.success('Your code has been sent!')
+        setStep(3)
+      },
+    },
+  )
+
   useEffect(() => {
     // validation
     const beforeState = cloneDeep(validationNewPassword)
@@ -192,14 +201,24 @@ const SignUpPage = () => {
 
   /* TODO : Sign up api연결하기 */
   const onSubmit = (data: FormData) => {
-    console.log(data)
     const { email, password } = data
     setStep(2)
   }
 
-  const onRoleSubmit = () => {
-    setStep(3)
+  const onRoleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value as RoleType
+    const filtered = role.filter(item => item !== value)
+    if (e.target.checked) {
+      setRole([...filtered, value])
+    } else {
+      setRole([...filtered])
+    }
   }
+
+  const onRoleSubmit = () => {
+    verifyEmail.mutate(getValues('email'))
+  }
+
   return (
     <Box className='content-center'>
       <RightWrapper>
@@ -412,7 +431,7 @@ const SignUpPage = () => {
                       {errors.password.message}
                     </FormHelperText>
                   )}
-                  <div className='input-validations'>
+                  <Box mt={3}>
                     {validationNewPassword.map(validation => {
                       const validationIcon = validation.checked
                         ? `/images/icons/validation/verify-green.svg`
@@ -437,7 +456,7 @@ const SignUpPage = () => {
                         </div>
                       )
                     })}
-                  </div>
+                  </Box>
                   <Box margin='10px 0' display='flex' alignItems='center'>
                     <Checkbox checked color='primary' />
                     {/* TODO: 약관 링크하기 */}
@@ -494,7 +513,12 @@ const SignUpPage = () => {
                   <Typography align='center'>
                     I order localization projects
                   </Typography>
-                  <Checkbox disabled />
+                  <Checkbox
+                    value='CLIENT'
+                    checked={role.some(item => item === 'CLIENT') || false}
+                    onChange={onRoleSelect}
+                    disabled
+                  />
                 </CardContent>
               </DisabledCard>
               <Card>
@@ -511,7 +535,14 @@ const SignUpPage = () => {
                   <Typography align='center'>
                     I perform localization projects
                   </Typography>
-                  <Checkbox />
+
+                  <Checkbox
+                    value='PRO'
+                    name='PRO'
+                    checked={role.includes('PRO')}
+                    disabled={isNotPro}
+                    onChange={onRoleSelect}
+                  />
                 </CardContent>
               </Card>
               <Card>
@@ -528,7 +559,12 @@ const SignUpPage = () => {
                   <Typography align='center'>
                     I recruit and train Pros
                   </Typography>
-                  <Checkbox />
+                  <Checkbox
+                    value='TAD'
+                    disabled={isPro}
+                    checked={role.includes('TAD')}
+                    onChange={onRoleSelect}
+                  />
                 </CardContent>
               </Card>
 
@@ -546,12 +582,21 @@ const SignUpPage = () => {
                   <Typography align='center'>
                     I manage localization projects
                   </Typography>
-                  <Checkbox />
+                  <Checkbox
+                    value='LPM'
+                    checked={role.includes('LPM')}
+                    disabled={isPro}
+                    onChange={onRoleSelect}
+                  />
                 </CardContent>
               </Card>
             </Box>
             <Box sx={{ textAlign: 'center', margin: '50px' }}>
-              <Button variant='contained' onClick={onRoleSubmit}>
+              <Button
+                variant='contained'
+                onClick={onRoleSubmit}
+                disabled={!role.length}
+              >
                 Confirm
               </Button>
             </Box>
@@ -573,7 +618,9 @@ const SignUpPage = () => {
               <TypographyStyled variant='body2'>
                 Please enter the verification code we've sent to
               </TypographyStyled>
-              <TypographyStyled variant='body1'>email@.com</TypographyStyled>
+              <TypographyStyled variant='body1'>
+                {getValues('email')}
+              </TypographyStyled>
               <Box mt={8}>
                 <PinInput
                   length={6}
