@@ -136,6 +136,7 @@ const SignUpPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
   const [pin, setPin] = useState('')
+  const [pinError, setPinError] = useState('')
   const isPro = role.includes('PRO')
   const isNotPro = role.some(item => item === 'LPM' || item === 'TAD')
   const [validationNewPassword, setValidationNewPassword] = useState([
@@ -155,7 +156,7 @@ const SignUpPage = () => {
       checked: false,
     },
   ])
-  console.log(pin)
+
   // ** Hooks
   const auth = useAuth()
 
@@ -215,15 +216,14 @@ const SignUpPage = () => {
     },
   )
 
-  /** TODO :
-   * onSuccess : sign up api호출, 에러 메시지 초기화
-   * onError : 에러 메세지 저장 및 pin input 디자인 에러 버전으로 보여주기
-   * */
   const verifyPin = useMutation(() => verifyPinCode(getValues('email'), pin), {
     onSuccess: data => {
+      setPinError('')
       return signUpMutation.mutate()
     },
-    // onError:()=>()
+    onError: () => {
+      setPinError('Invalid verification code.')
+    },
   })
   useEffect(() => {
     // validation
@@ -246,9 +246,8 @@ const SignUpPage = () => {
     setValidationNewPassword(beforeState)
   }, [watch('password')])
 
-  /* TODO : Sign up api연결하기 */
   const onSubmit = (data: FormData) => {
-    const { email, password } = data
+    // const { email, password } = data
     setStep(2)
   }
 
@@ -555,12 +554,16 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' />
-                  <Typography color='primary'>Client</Typography>
-                  <Typography align='center'>
+                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <InputLabel htmlFor='client' sx={{ textAlign: 'center' }}>
+                    <Typography color='primary'>Client</Typography>
+                  </InputLabel>
+                  <Typography sx={{ textAlign: 'center' }}>
                     I order localization projects
                   </Typography>
+
                   <Checkbox
+                    id='client'
                     value='CLIENT'
                     checked={role.some(item => item === 'CLIENT') || false}
                     onChange={onRoleSelect}
@@ -577,15 +580,17 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' />
-                  <Typography color='primary'>Pro</Typography>
+                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <InputLabel htmlFor='pro' sx={{ textAlign: 'center' }}>
+                    <Typography color='primary'>Pro</Typography>
+                  </InputLabel>
                   <Typography align='center'>
                     I perform localization projects
                   </Typography>
 
                   <Checkbox
                     value='PRO'
-                    name='PRO'
+                    id='pro'
                     checked={role.includes('PRO')}
                     disabled={isNotPro}
                     onChange={onRoleSelect}
@@ -601,13 +606,16 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' />
-                  <Typography color='primary'>TAD</Typography>
+                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <InputLabel htmlFor='tad' sx={{ textAlign: 'center' }}>
+                    <Typography color='primary'>TAD</Typography>
+                  </InputLabel>
                   <Typography align='center'>
                     I recruit and train Pros
                   </Typography>
                   <Checkbox
                     value='TAD'
+                    id='tad'
                     disabled={isPro}
                     checked={role.includes('TAD')}
                     onChange={onRoleSelect}
@@ -624,13 +632,16 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' />
-                  <Typography color='primary'>LPM</Typography>
+                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <InputLabel htmlFor='lpm' sx={{ textAlign: 'center' }}>
+                    <Typography color='primary'>LPM</Typography>
+                  </InputLabel>
                   <Typography align='center'>
                     I manage localization projects
                   </Typography>
                   <Checkbox
                     value='LPM'
+                    id='lpm'
                     checked={role.includes('LPM')}
                     disabled={isPro}
                     onChange={onRoleSelect}
@@ -670,34 +681,40 @@ const SignUpPage = () => {
               </TypographyStyled>
               <Box mt={8}>
                 <PinInput
-                  length={6}
+                  length={7}
                   focus
                   onChange={value => {
+                    setPinError('')
                     setPin(value)
                   }}
                   type='numeric'
                   inputMode='number'
                   style={{
                     display: 'flex',
-                    gap: '8px',
+                    gap: '4px',
                     justifyContent: 'space-between',
                   }}
                   inputStyle={{
-                    width: 53,
-                    height: 53,
+                    width: 45,
+                    height: 45,
                     fontSize: '1rem',
                     borderRadius: '4px',
-                    border: '1px solid #aaa',
+                    border: `1px solid ${pinError ? '#FF625F' : '#aaa'} `,
                   }}
                   autoSelect={true}
                 />
+                {pinError && (
+                  <FormHelperText sx={{ color: 'error.main' }}>
+                    {pinError}
+                  </FormHelperText>
+                )}
               </Box>
               <Box sx={{ margin: '30px 0 20px' }}>
                 <Button
                   fullWidth
                   variant='contained'
                   onClick={() => verifyPin.mutate()}
-                  disabled={pin.length < 6}
+                  disabled={pin.length < 7}
                 >
                   Confirm
                 </Button>
