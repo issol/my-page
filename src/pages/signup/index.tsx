@@ -171,7 +171,7 @@ const SignUpPage = () => {
     formState: { errors, dirtyFields },
   } = useForm({
     defaultValues,
-    mode: 'onChange',
+    mode: 'onBlur',
     resolver: yupResolver(schema),
   })
 
