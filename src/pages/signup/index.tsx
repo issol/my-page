@@ -38,6 +38,7 @@ import {
   redirectGoogleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
+  verifyPinCode,
 } from 'src/apis/sign.api'
 import { RoleType } from 'src/types/apps/userTypes'
 import { useMutation } from 'react-query'
@@ -130,6 +131,7 @@ const SignUpPage = () => {
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
+  const [pin, setPin] = useState('')
   const isPro = role.includes('PRO')
   const isNotPro = role.some(item => item === 'LPM' || item === 'TAD')
   const [validationNewPassword, setValidationNewPassword] = useState([
@@ -149,7 +151,7 @@ const SignUpPage = () => {
       checked: false,
     },
   ])
-
+  console.log(pin)
   // ** Hooks
   const auth = useAuth()
 
@@ -169,7 +171,7 @@ const SignUpPage = () => {
   })
 
   const verifyEmail = useMutation(
-    (email: string) => sendEmailVerificationCode(email),
+    () => sendEmailVerificationCode(getValues('email')),
     {
       onSuccess: data => {
         toast.success('Your code has been sent!')
@@ -178,6 +180,14 @@ const SignUpPage = () => {
     },
   )
 
+  /** TODO :
+   * onSuccess : sign up api호출, 에러 메시지 초기화
+   * onError : 에러 메세지 저장 및 pin input 디자인 에러 버전으로 보여주기
+   * */
+  const verifyPin = useMutation(() => verifyPinCode(getValues('email'), pin), {
+    // onSuccess: data=>{
+    // }
+  })
   useEffect(() => {
     // validation
     const beforeState = cloneDeep(validationNewPassword)
@@ -216,7 +226,7 @@ const SignUpPage = () => {
   }
 
   const onRoleSubmit = () => {
-    verifyEmail.mutate(getValues('email'))
+    verifyEmail.mutate()
   }
 
   return (
@@ -625,10 +635,9 @@ const SignUpPage = () => {
                 <PinInput
                   length={6}
                   focus
-                  // onChange={(value) => {
-                  //   setPins(value, 'new');
-                  // }}
-
+                  onChange={value => {
+                    setPin(value)
+                  }}
                   type='numeric'
                   inputMode='number'
                   style={{
@@ -647,7 +656,12 @@ const SignUpPage = () => {
                 />
               </Box>
               <Box sx={{ margin: '30px 0 20px' }}>
-                <Button fullWidth variant='contained'>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  onClick={() => verifyPin.mutate()}
+                  disabled={pin.length < 6}
+                >
                   Confirm
                 </Button>
               </Box>
@@ -655,9 +669,14 @@ const SignUpPage = () => {
                 sx={{ display: 'flex', justifyContent: 'center', gap: '6px' }}
               >
                 <Typography variant='body2'>Didn't get the email? </Typography>
-                <Typography variant='body2' color='primary'>
+                <Button
+                  variant='text'
+                  onClick={() => verifyEmail.mutate()}
+                  sx={{ padding: 0 }}
+                  size='small'
+                >
                   Resend
-                </Typography>
+                </Button>
               </Box>
             </Box>
           </Box>

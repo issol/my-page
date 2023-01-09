@@ -58,11 +58,20 @@ export const checkEmailDuplication = async (email: string) => {
   }
 }
 
-/* TODO : endpoint 변경하기 */
 export const sendEmailVerificationCode = async (email: string) => {
   try {
-    const { data } = await axios.get(`/api/enough/u/pu/r-check?email=${email}`)
-    return data
+    await axios.post(`/api/enough/a/email/code`, { email })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const verifyPinCode = async (
+  email: string,
+  verificationCode: string,
+) => {
+  try {
+    await axios.post(`/api/enough/a/email/verify`, { email, verificationCode })
   } catch (e: any) {
     throw new Error(e)
   }
