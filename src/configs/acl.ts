@@ -1,23 +1,16 @@
 import { AbilityBuilder, Ability } from '@casl/ability'
+import { forEach } from 'lodash'
+import { RoleType } from 'src/types/apps/userTypes'
 
-export type Subjects = string
-export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects = Array<string> //permission
+export type Actions = Array<RoleType>
 
-export type AppAbility = Ability<[Actions, Subjects]> | undefined
+export type AppAbility = Ability<[string, Subjects]> | undefined
 
 export const AppAbility = Ability as any
 export type ACLObj = {
-  action: Actions
-  subject: string
-}
-
-export type PolicyType = {
-  [key: string]: {
-    create: boolean
-    read: boolean
-    write: boolean
-    delete: boolean
-  }
+  action: Subjects
+  subject: Actions
 }
 
 /**
@@ -25,35 +18,33 @@ export type PolicyType = {
  * We have just shown Admin and Client rules for demo purpose where
  * admin can manage everything and client can just visit ACL page
  */
-const defineRulesFor = (role: string, subject: string, policy: PolicyType) => {
+const defineRulesFor = (role: Array<RoleType>, permission: Array<string>) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
 
-  if (role === 'ADMIN') {
-    can('manage', 'all')
-  } else {
-    const result = Object.entries(policy)
-      .map(([key, value]) => {
-        const res = Object.entries(value).map(([permission, data]) => {
-          return data && `${key}-${permission}`
-        })
-
-        return res
+  const result = Object.entries(permission)
+    .map(([key, value]) => {
+      const res = Object.entries(value).map(([permission, data]) => {
+        return data && `${key}-${permission}`
       })
-      .flat()
-      .filter(value => value)
 
-    can(result, role)
-  }
+      return res
+    })
+    .flat()
+    .filter(value => value)
+
+  role.forEach((item: RoleType) => {
+    can(result, item)
+  })
 
   return rules
 }
 
 export const buildAbilityFor = (
-  role: string,
-  subject: string,
-  policy: any,
+  role: Array<RoleType>,
+  // subject: string[],
+  permission: string[],
 ): AppAbility => {
-  return new AppAbility(defineRulesFor(role, subject, policy), {
+  return new AppAbility(defineRulesFor(role, permission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
     detectSubjectType: object => object!.type,
@@ -61,8 +52,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: 'manage',
-  subject: 'all',
+  action: [''],
+  subject: ['PRO'],
 }
 
 export default defineRulesFor
