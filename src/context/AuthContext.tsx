@@ -82,6 +82,68 @@ const AuthProvider = ({ children }: Props) => {
         //       JSON.stringify(userData),
         //     )
         //   : null
+        window.localStorage.setItem(
+          'userData',
+          JSON.stringify({
+            id: response.userId,
+            role: ['TAD', 'LPM'],
+            email: response.email,
+            fullName: 'John Doe',
+            username: 'John',
+            permission: [
+              'dashboard-create',
+              'dashboard-read',
+              'dashboard-update',
+              'dashboard-delete',
+              'account-create',
+              'account-read',
+              'account-update',
+              'account-delete',
+              'email-create',
+              'email-read',
+              'email-update',
+              'email-delete',
+              'recruitingCreate-update',
+              'proList-update',
+              'quotes-create',
+              'quotes-read',
+              'quotes-update',
+              'quotes-delete',
+              'quoteList-create',
+              'quoteList-read',
+              'quoteList-update',
+              'quoteList-delete',
+              'quoteCreate-create',
+              'quoteCreate-read',
+              'quoteCreate-update',
+              'quoteCreate-delete',
+              'orders-create',
+              'orders-read',
+              'orders-update',
+              'orders-delete',
+              'orderList-create',
+              'orderList-read',
+              'orderList-update',
+              'orderList-delete',
+              'invoices-create',
+              'invoices-read',
+              'invoices-update',
+              'invoices-delete',
+              'clientInvoiceList-create',
+              'clientInvoiceList-read',
+              'clientInvoiceList-update',
+              'clientInvoiceList-delete',
+              'roles-create',
+              'roles-read',
+              'roles-update',
+              'roles-delete',
+              'company-create',
+              'company-read',
+              'company-update',
+              'company-delete',
+            ],
+          }),
+        )
         setUser({
           id: response.userId,
           role: ['TAD', 'LPM'],
@@ -170,6 +232,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const handleLogout = () => {
     setUser(null)
+    window.localStorage.removeItem('userData')
     window.localStorage.removeItem(authConfig.storageTokenKeyName)
     window.localStorage.removeItem('policy')
     router.push('/login')

@@ -156,8 +156,8 @@ const UserDropdown = (props: Props) => {
                   gap: '4px',
                 }}
               >
-                {auth?.user?.role.map(value => {
-                  return <Box>{value}</Box>
+                {auth?.user?.role.map((value, index) => {
+                  return <Box key={index}>{value}</Box>
                 })}
               </Typography>
             </Box>
@@ -227,6 +227,7 @@ const UserDropdown = (props: Props) => {
                 const result = auth.user.role.find(value => value !== role)!
                 handleSwitchRole(result)
               }
+              handleDropdownClose()
             }
             // handleSwitchRole(
             //   auth.user &&

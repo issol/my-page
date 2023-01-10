@@ -12,6 +12,14 @@ export type ACLObj = {
   action: Subjects_Permission
   subject: Actions_Roles
 }
+export type PolicyType = {
+  [key: string]: {
+    create: boolean
+    read: boolean
+    write: boolean
+    delete: boolean
+  }
+}
 
 /**
  * Please define your own Ability rules according to your app requirements.

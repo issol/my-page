@@ -249,7 +249,7 @@ const ClientManageRoles = () => {
   useEffect(() => {
     dispatch(
       fetchTestUser({
-        role: auth.user ? auth.user.role : '',
+        role: auth.user ? auth.user.role[0] : '',
       }),
     )
   }, [dispatch])
@@ -307,9 +307,9 @@ const ClientManageRoles = () => {
       headerName: 'Actions',
       renderCell: ({ row }: CellType) => (
         <IconButton
-          onClick={() => {
-            handleClickOpen(row.policy, row.id)
-          }}
+          // onClick={() => {
+          //   handleClickOpen(row.policy, row.id)
+          // }}
           disabled={!ability.can('roles-update', 'CLIENT')}
         >
           <Icon icon='mdi:eye-outline' />
