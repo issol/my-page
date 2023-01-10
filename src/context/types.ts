@@ -1,3 +1,5 @@
+import { RoleType } from 'src/types/apps/userTypes'
+
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any
 
@@ -15,7 +17,7 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: Array<'ADMIN' | 'GLOHUB_ADMIN' | 'PRO' | 'CLIENT' | 'TAD' | 'LPM'>
+  role: Array<RoleType>
   email: string
   fullName: string
   username: string

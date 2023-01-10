@@ -41,10 +41,6 @@ type Props = {
   children: ReactNode
 }
 
-type RoleType = {
-  role: string
-}
-
 const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
@@ -79,17 +75,138 @@ const AuthProvider = ({ children }: Props) => {
     login(params.email, params.password)
       .then(async response => {
         console.log(response)
-        const userData = { token: response.accessToken, email: params.email }
-        params.rememberMe
-          ? window.localStorage.setItem(
-              authConfig.storageTokenKeyName,
-              JSON.stringify(userData),
-            )
-          : null
+        // const userData = { token: response.accessToken, email: params.email }
+        // params.rememberMe
+        //   ? window.localStorage.setItem(
+        //       authConfig.storageTokenKeyName,
+        //       JSON.stringify(userData),
+        //     )
+        //   : null
+        window.localStorage.setItem(
+          'userData',
+          JSON.stringify({
+            id: response.userId,
+            role: ['TAD', 'LPM'],
+            email: response.email,
+            fullName: 'John Doe',
+            username: 'John',
+            permission: [
+              'dashboard-create',
+              'dashboard-read',
+              'dashboard-update',
+              'dashboard-delete',
+              'account-create',
+              'account-read',
+              'account-update',
+              'account-delete',
+              'email-create',
+              'email-read',
+              'email-update',
+              'email-delete',
+              'recruitingCreate-update',
+              'proList-update',
+              'quotes-create',
+              'quotes-read',
+              'quotes-update',
+              'quotes-delete',
+              'quoteList-create',
+              'quoteList-read',
+              'quoteList-update',
+              'quoteList-delete',
+              'quoteCreate-create',
+              'quoteCreate-read',
+              'quoteCreate-update',
+              'quoteCreate-delete',
+              'orders-create',
+              'orders-read',
+              'orders-update',
+              'orders-delete',
+              'orderList-create',
+              'orderList-read',
+              'orderList-update',
+              'orderList-delete',
+              'invoices-create',
+              'invoices-read',
+              'invoices-update',
+              'invoices-delete',
+              'clientInvoiceList-create',
+              'clientInvoiceList-read',
+              'clientInvoiceList-update',
+              'clientInvoiceList-delete',
+              'roles-create',
+              'roles-read',
+              'roles-update',
+              'roles-delete',
+              'company-create',
+              'company-read',
+              'company-update',
+              'company-delete',
+            ],
+          }),
+        )
+        setUser({
+          id: response.userId,
+          role: ['TAD', 'LPM'],
+          email: response.email,
+          fullName: 'John Doe',
+          username: 'John',
+          permission: [
+            'dashboard-create',
+            'dashboard-read',
+            'dashboard-update',
+            'dashboard-delete',
+            'account-create',
+            'account-read',
+            'account-update',
+            'account-delete',
+            'email-create',
+            'email-read',
+            'email-update',
+            'email-delete',
+            'recruitingCreate-update',
+            'proList-update',
+            'quotes-create',
+            'quotes-read',
+            'quotes-update',
+            'quotes-delete',
+            'quoteList-create',
+            'quoteList-read',
+            'quoteList-update',
+            'quoteList-delete',
+            'quoteCreate-create',
+            'quoteCreate-read',
+            'quoteCreate-update',
+            'quoteCreate-delete',
+            'orders-create',
+            'orders-read',
+            'orders-update',
+            'orders-delete',
+            'orderList-create',
+            'orderList-read',
+            'orderList-update',
+            'orderList-delete',
+            'invoices-create',
+            'invoices-read',
+            'invoices-update',
+            'invoices-delete',
+            'clientInvoiceList-create',
+            'clientInvoiceList-read',
+            'clientInvoiceList-update',
+            'clientInvoiceList-delete',
+            'roles-create',
+            'roles-read',
+            'roles-update',
+            'roles-delete',
+            'company-create',
+            'company-read',
+            'company-update',
+            'company-delete',
+          ],
+        })
         const returnUrl = router.query.returnUrl
 
         /* TODO
-        1. getProfile을 해서 role이 없다면 
+        1. getProfile을 해서 role이 없다면
         2. selectRole 페이지로 이동
         3. role이 있는 경우 legal name이 있는지 체크
         4. legal name이 없으면 personal info 작성 페이지로 이동
@@ -115,6 +232,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const handleLogout = () => {
     setUser(null)
+    window.localStorage.removeItem('userData')
     window.localStorage.removeItem(authConfig.storageTokenKeyName)
     window.localStorage.removeItem('policy')
     router.push('/login')

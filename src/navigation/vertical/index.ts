@@ -1,7 +1,7 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
 
-const navigation = (role: string): VerticalNavItemsType => {
+const navigation = (role: string | null): VerticalNavItemsType => {
   return [
     // ** Dashboard - Client, LPM, TAD, Pro
     {
@@ -9,7 +9,7 @@ const navigation = (role: string): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       action: 'dashboard-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/dashboard`,
+      path: `/${role?.toLowerCase()}/dashboard`,
     },
 
     {
@@ -17,7 +17,7 @@ const navigation = (role: string): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       action: 'company-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/company`,
+      path: `/${role?.toLowerCase()}/company`,
     },
     // ** Account - Client, LPM, TAD
     {
@@ -25,7 +25,7 @@ const navigation = (role: string): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       action: 'account-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/account`,
+      path: `/${role?.toLowerCase()}/account`,
     },
     // ** My Page - Pro
     {
@@ -33,14 +33,14 @@ const navigation = (role: string): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       action: 'myPage-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/my-page`,
+      path: `/${role?.toLowerCase()}/my-page`,
     },
     {
       title: 'Email',
       icon: 'mdi:home-outline',
       action: 'email-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/email`,
+      path: `/${role?.toLowerCase()}/email`,
     },
     {
       title: 'Onboarding',
@@ -50,7 +50,7 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Onboarding List',
-          path: `/${role.toLowerCase()}/onboarding/onboarding-list`,
+          path: `/${role?.toLowerCase()}/onboarding/onboarding-list`,
           action: 'onboardingList-read',
           subject: `${role}`,
         },
@@ -64,19 +64,19 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Recruiting List',
-          path: `/${role.toLowerCase()}/recruiting/recruiting-list`,
+          path: `/${role?.toLowerCase()}/recruiting/recruiting-list`,
           action: 'recruitingList-read',
           subject: `${role}`,
         },
         {
           title: 'Create Recruiting',
-          path: `/${role.toLowerCase()}/recruiting/recruiting-create`,
+          path: `/${role?.toLowerCase()}/recruiting/recruiting-create`,
           action: 'recruitingCreate-read',
           subject: `${role}`,
         },
         {
           title: 'Job Posting',
-          path: `/${role.toLowerCase()}/recruiting/job-posting`,
+          path: `/${role?.toLowerCase()}/recruiting/job-posting`,
           action: 'recruitingJobPosting-read',
           subject: `${role}`,
         },
@@ -90,13 +90,13 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Pro List',
-          path: `/${role.toLowerCase()}/pros/pro-list`,
+          path: `/${role?.toLowerCase()}/pros/pro-list`,
           action: 'proList-read',
           subject: `${role}`,
         },
         {
           title: 'Create Pro',
-          path: `/${role.toLowerCase()}/pros/pro-create`,
+          path: `/${role?.toLowerCase()}/pros/pro-create`,
           action: 'proCreate-read',
           subject: `${role}`,
         },
@@ -110,13 +110,13 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Client List',
-          path: `/${role.toLowerCase()}/clients/client-list`,
+          path: `/${role?.toLowerCase()}/clients/client-list`,
           action: 'clientList-read',
           subject: `${role}`,
         },
         {
           title: 'Create Client',
-          path: `/${role.toLowerCase()}/clients/client-create`,
+          path: `/${role?.toLowerCase()}/clients/client-create`,
           action: 'clientCreate-read',
           subject: `${role}`,
         },
@@ -130,13 +130,13 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Quote List',
-          path: `/${role.toLowerCase()}/quotes/quote-list`,
+          path: `/${role?.toLowerCase()}/quotes/quote-list`,
           action: 'quoteList-read',
           subject: `${role}`,
         },
         {
           title: 'Create Quote',
-          path: `/${role.toLowerCase()}/quotes/quote-create`,
+          path: `/${role?.toLowerCase()}/quotes/quote-create`,
           action: 'quoteCreate-read',
           subject: `${role}`,
         },
@@ -150,13 +150,13 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: 'Order List',
-          path: `/${role.toLowerCase()}/orders/order-list`,
+          path: `/${role?.toLowerCase()}/orders/order-list`,
           action: 'orderList-read',
           subject: `${role}`,
         },
         {
           title: 'Create Order',
-          path: `/${role.toLowerCase()}/orders/order-create`,
+          path: `/${role?.toLowerCase()}/orders/order-create`,
           action: 'orderCreate-read',
           subject: `${role}`,
         },
@@ -172,7 +172,7 @@ const navigation = (role: string): VerticalNavItemsType => {
           title: 'Job List',
           action: 'jobList-read',
           subject: `${role}`,
-          path: `/${role.toLowerCase()}/jobs/job-list`,
+          path: `/${role?.toLowerCase()}/jobs/job-list`,
         },
       ],
     },
@@ -184,25 +184,25 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: `Client's invoice list`,
-          path: `/${role.toLowerCase()}/invoices/client-invoice-list`,
+          path: `/${role?.toLowerCase()}/invoices/client-invoice-list`,
           action: 'clientInvoiceList-read',
           subject: `${role}`,
         },
         {
           title: `Create client's invoice`,
-          path: `/${role.toLowerCase()}/invoices/client-invoice-create`,
+          path: `/${role?.toLowerCase()}/invoices/client-invoice-create`,
           action: 'clientInvoiceCreate-read',
           subject: `${role}`,
         },
         {
           title: `Pros' invoice list`,
-          path: `/${role.toLowerCase()}/invoices/pro-invoice-list`,
+          path: `/${role?.toLowerCase()}/invoices/pro-invoice-list`,
           action: 'proInvoiceList-read',
           subject: `${role}`,
         },
         {
           title: `Create pro’s invoice`,
-          path: `/${role.toLowerCase()}/invoices/pro-invoice-create`,
+          path: `/${role?.toLowerCase()}/invoices/pro-invoice-create`,
           action: 'proInvoiceCreate-read',
           subject: `${role}`,
         },
@@ -216,13 +216,13 @@ const navigation = (role: string): VerticalNavItemsType => {
       children: [
         {
           title: `Test List`,
-          path: `/${role.toLowerCase()}/certification-test/test-list`,
+          path: `/${role?.toLowerCase()}/certification-test/test-list`,
           action: 'certificationTestList-read',
           subject: `${role}`,
         },
         {
           title: `Test Materials`,
-          path: `/${role.toLowerCase()}/certification-test/test-materials`,
+          path: `/${role?.toLowerCase()}/certification-test/test-materials`,
           action: 'certificationTestMaterials-read',
           subject: `${role}`,
         },
@@ -234,7 +234,7 @@ const navigation = (role: string): VerticalNavItemsType => {
       icon: 'mdi:home-outline',
       action: 'roles-read',
       subject: `${role}`,
-      path: `/${role.toLowerCase()}/roles`,
+      path: `/${role?.toLowerCase()}/roles`,
     },
 
     {

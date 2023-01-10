@@ -9,13 +9,15 @@ import Spinner from 'src/@core/components/spinner'
 
 // ** Hook Imports
 import { useAuth } from 'src/hooks/useAuth'
+import { RoleType } from 'src/types/apps/userTypes'
 
 /**
  *  Set Home URL based on User Roles
  */
-export const getHomeRoute = (role: string) => {
-  if (role === 'client') return '/acl'
-  else return `/${role.toLowerCase()}/dashboard`
+export const getHomeRoute = (role: Array<RoleType>) => {
+  // if (role === 'client') return '/acl'
+  // else return `/${role.toLowerCase()}/dashboard`
+  return `/${role[0]?.toLowerCase()}/company`
 }
 
 const Home = () => {

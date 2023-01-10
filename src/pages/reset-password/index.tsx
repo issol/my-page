@@ -39,8 +39,8 @@ const MaskImg = styled('img')(({ theme }) => ({
 }))
 
 interface ResetPasswordProps {
-  password: string
-  confirmPassword: string
+  password: string | null
+  confirmPassword: string | null
 }
 
 const ResetPassword = () => {
@@ -77,11 +77,15 @@ const ResetPassword = () => {
     control,
     reset,
     setError,
-    formState: { errors, isValid, dirtyFields },
+    formState: { errors, dirtyFields },
   } = useForm<ResetPasswordProps>({
     mode: 'onChange',
     resolver: yupResolver(resetPasswordSchema),
+    defaultValues: { password: null, confirmPassword: null },
   })
+
+  const isValid = !watch(['password', 'confirmPassword']).includes(null)
+  console.log(errors)
 
   const onSubmitResetPassword = useCallback((info: ResetPasswordProps) => {
     // ** TODO : Reset API 연동
@@ -89,8 +93,6 @@ const ResetPassword = () => {
       pathname: '/reset-password/complete',
     })
   }, [])
-
-  console.log(errors.confirmPassword)
 
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
@@ -261,7 +263,9 @@ const ResetPassword = () => {
                     name='password'
                     control={control}
                     rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
+                    render={({
+                      field: { onChange, onBlur, value, name, ref },
+                    }) => (
                       <OutlinedInput
                         value={value}
                         inputProps={{ maxLength: 20 }}
@@ -336,7 +340,7 @@ const ResetPassword = () => {
                 </Box>
                 <FormControl fullWidth>
                   <InputLabel
-                    htmlFor='reset-password'
+                    htmlFor='confirm-password'
                     error={Boolean(errors.confirmPassword)}
                   >
                     Confirm password
@@ -352,7 +356,7 @@ const ResetPassword = () => {
                         inputProps={{ maxLength: 20 }}
                         label='Confirm password'
                         onChange={onChange}
-                        id='reset-password'
+                        id='confirm-password'
                         error={Boolean(errors.confirmPassword)}
                         type={showConfirmPassword ? 'text' : 'password'}
                         endAdornment={
@@ -390,7 +394,7 @@ const ResetPassword = () => {
                   size='large'
                   type='submit'
                   variant='contained'
-                  disabled={Object.keys(errors).length !== 0}
+                  disabled={Object.keys(errors).length !== 0 || !isValid}
                   sx={{ mt: 2, textTransform: 'none' }}
                 >
                   Reset Password

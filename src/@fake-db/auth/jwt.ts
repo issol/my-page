@@ -14,7 +14,7 @@ import { data } from '../test-users'
 const users: UserDataType[] = [
   {
     id: 1,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'j3EJA3JpBMxU',
     fullName: 'Stanwood Mil',
     username: 'smil0',
@@ -22,7 +22,7 @@ const users: UserDataType[] = [
   },
   {
     id: 2,
-    role: 'LPM',
+    role: ['LPM'],
     password: '5YTSLw',
     fullName: 'Konstantin Slixby',
     username: 'kslixby1',
@@ -30,7 +30,7 @@ const users: UserDataType[] = [
   },
   {
     id: 3,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'tZYmiOhUdSBH',
     fullName: 'Andrej Fend',
     username: 'afend2',
@@ -38,7 +38,7 @@ const users: UserDataType[] = [
   },
   {
     id: 4,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'bKNpR3yCF7q2',
     fullName: 'Kittie Skettles',
     username: 'kskettles3',
@@ -46,7 +46,7 @@ const users: UserDataType[] = [
   },
   {
     id: 5,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'CcCWiSJ9Z',
     fullName: 'Ad Thurston',
     username: 'athurston4',
@@ -54,7 +54,7 @@ const users: UserDataType[] = [
   },
   {
     id: 6,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'WNXmvsWWCtbp',
     fullName: 'Jordan Aindriu',
     username: 'jaindriu5',
@@ -62,7 +62,7 @@ const users: UserDataType[] = [
   },
   {
     id: 7,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'yaMSYD2eV',
     fullName: 'Jimmie Delany',
     username: 'jdelany6',
@@ -70,7 +70,7 @@ const users: UserDataType[] = [
   },
   {
     id: 8,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'FnksuZN',
     fullName: 'Danell Stoggles',
     username: 'dstoggles7',
@@ -78,7 +78,7 @@ const users: UserDataType[] = [
   },
   {
     id: 9,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: '5W1TPKHI',
     fullName: 'Marnia Reuben',
     username: 'mreuben8',
@@ -86,7 +86,7 @@ const users: UserDataType[] = [
   },
   {
     id: 10,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'WIFcJRKP',
     fullName: 'Teodor Yegorev',
     username: 'tyegorev9',
@@ -94,7 +94,7 @@ const users: UserDataType[] = [
   },
   {
     id: 11,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'KHV3pWY',
     fullName: 'Godard Stainton - Skinn',
     username: 'gstaintona',
@@ -102,7 +102,7 @@ const users: UserDataType[] = [
   },
   {
     id: 12,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'XFtdCMPZ',
     fullName: 'Meg Cozby',
     username: 'mcozbyb',
@@ -110,7 +110,7 @@ const users: UserDataType[] = [
   },
   {
     id: 13,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: '145kB6',
     fullName: 'Olga Goodsall',
     username: 'ogoodsallc',
@@ -118,7 +118,7 @@ const users: UserDataType[] = [
   },
   {
     id: 14,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'GjLVte2D',
     fullName: 'Egon Barnson',
     username: 'ebarnsond',
@@ -126,7 +126,7 @@ const users: UserDataType[] = [
   },
   {
     id: 15,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'MbEyAth',
     fullName: 'Emogene Vanin',
     username: 'evanine',
@@ -134,7 +134,7 @@ const users: UserDataType[] = [
   },
   {
     id: 16,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'vfEF1X',
     fullName: 'Kirsteni Bannell',
     username: 'kbannellf',
@@ -142,7 +142,7 @@ const users: UserDataType[] = [
   },
   {
     id: 17,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'faejUTENaE',
     fullName: 'Hasty Wellwood',
     username: 'hwellwoodg',
@@ -150,7 +150,7 @@ const users: UserDataType[] = [
   },
   {
     id: 18,
-    role: 'PRO',
+    role: ['PRO'],
     password: '6kokzw7Z',
     fullName: 'Christoper Warnes',
     username: 'cwarnesh',
@@ -158,7 +158,7 @@ const users: UserDataType[] = [
   },
   {
     id: 19,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'bgHHooCM48m',
     fullName: 'Helenelizabeth Hoggan',
     username: 'hhoggani',
@@ -166,7 +166,7 @@ const users: UserDataType[] = [
   },
   {
     id: 20,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'hKjZFg3Bq',
     fullName: 'Brittan Staresmeare',
     username: 'bstaresmearej',
@@ -174,7 +174,7 @@ const users: UserDataType[] = [
   },
   {
     id: 21,
-    role: 'LPM',
+    role: ['LPM'],
     password: '4oIRc8XszRj',
     fullName: 'Cristine Ghest',
     username: 'cghestk',
@@ -182,7 +182,7 @@ const users: UserDataType[] = [
   },
   {
     id: 22,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'DTEHL3V2MH',
     fullName: "Danna O'Siaghail",
     username: 'dosiaghaill',
@@ -190,7 +190,7 @@ const users: UserDataType[] = [
   },
   {
     id: 23,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: '4OQFER',
     fullName: 'Meggi Wardale',
     username: 'mwardalem',
@@ -198,7 +198,7 @@ const users: UserDataType[] = [
   },
   {
     id: 24,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'WNSQ1YcScNyG',
     fullName: 'Fey Budgeon',
     username: 'fbudgeonn',
@@ -206,7 +206,7 @@ const users: UserDataType[] = [
   },
   {
     id: 25,
-    role: 'TAD',
+    role: ['TAD'],
     password: '3RrTGQ4SHV79',
     fullName: 'Perl Wildey',
     username: 'pwildeyo',
@@ -214,7 +214,7 @@ const users: UserDataType[] = [
   },
   {
     id: 26,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'ckhQmRuNP',
     fullName: 'Elsey Collete',
     username: 'ecolletep',
@@ -222,7 +222,7 @@ const users: UserDataType[] = [
   },
   {
     id: 27,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'f4yu7e',
     fullName: 'Della Wythe',
     username: 'dwytheq',
@@ -230,7 +230,7 @@ const users: UserDataType[] = [
   },
   {
     id: 28,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: '0RJXJkDas5sz',
     fullName: 'Elisabet Pautard',
     username: 'epautardr',
@@ -238,7 +238,7 @@ const users: UserDataType[] = [
   },
   {
     id: 29,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'LaoMlAvrEpJI',
     fullName: 'Elliott Quixley',
     username: 'equixleys',
@@ -246,7 +246,7 @@ const users: UserDataType[] = [
   },
   {
     id: 30,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'CHBw3oNRt',
     fullName: 'Kori Rosenboim',
     username: 'krosenboimt',
@@ -254,7 +254,7 @@ const users: UserDataType[] = [
   },
   {
     id: 31,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'jw1HJC',
     fullName: 'Roma Pococke',
     username: 'rpocockeu',
@@ -262,7 +262,7 @@ const users: UserDataType[] = [
   },
   {
     id: 32,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'Q90rSsglH',
     fullName: 'Yvette Jendricke',
     username: 'yjendrickev',
@@ -270,7 +270,7 @@ const users: UserDataType[] = [
   },
   {
     id: 33,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'qgQejw60o',
     fullName: 'Montgomery Kleinmann',
     username: 'mkleinmannw',
@@ -278,7 +278,7 @@ const users: UserDataType[] = [
   },
   {
     id: 34,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'O0wejRgvxOJZ',
     fullName: 'Belvia Toghill',
     username: 'btoghillx',
@@ -286,7 +286,7 @@ const users: UserDataType[] = [
   },
   {
     id: 35,
-    role: 'LPM',
+    role: ['LPM'],
     password: 'x37ZvfHP6gYi',
     fullName: 'Gabriellia De Simone',
     username: 'gdey',
@@ -294,7 +294,7 @@ const users: UserDataType[] = [
   },
   {
     id: 36,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'KMWTuk',
     fullName: 'Teena Brisland',
     username: 'tbrislandz',
@@ -302,7 +302,7 @@ const users: UserDataType[] = [
   },
   {
     id: 37,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'LsW7fflVqGsv',
     fullName: 'Barrie Eley',
     username: 'beley10',
@@ -310,7 +310,7 @@ const users: UserDataType[] = [
   },
   {
     id: 38,
-    role: 'PRO',
+    role: ['PRO'],
     password: 'd8vjsH7Mj',
     fullName: 'Ephraim Darwin',
     username: 'edarwin11',
@@ -318,7 +318,7 @@ const users: UserDataType[] = [
   },
   {
     id: 39,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'P6n9lo',
     fullName: 'Napoleon Le Brum',
     username: 'nle12',
@@ -326,7 +326,7 @@ const users: UserDataType[] = [
   },
   {
     id: 40,
-    role: 'CLIENT',
+    role: ['PRO'],
     password: 'Mhhpln705dtl',
     fullName: 'Orly Gomersall',
     username: 'ogomersall13',
@@ -335,7 +335,7 @@ const users: UserDataType[] = [
 
   {
     id: 41,
-    role: 'TAD',
+    role: ['TAD'],
     password: 'admin',
     fullName: 'Leriel Kim',
     username: 'Leriel',
@@ -410,7 +410,7 @@ mock.onPost('/jwt/register').reply(request => {
         username,
         avatar: null,
         fullName: '',
-        role: 'ADMIN',
+        role: ['LPM'],
       }
 
       users.push(userData)

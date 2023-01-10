@@ -67,7 +67,7 @@ const userRoleObj: UserRoleType = {
   author: { icon: 'mdi:cog-outline', color: 'warning.main' },
   editor: { icon: 'mdi:pencil-outline', color: 'info.main' },
   maintainer: { icon: 'mdi:chart-donut', color: 'success.main' },
-  subscriber: { icon: 'mdi:account-outline', color: 'primary.main' }
+  subscriber: { icon: 'mdi:account-outline', color: 'primary.main' },
 }
 
 interface CellType {
@@ -77,7 +77,7 @@ interface CellType {
 const userStatusObj: UserStatusType = {
   active: 'success',
   pending: 'warning',
-  inactive: 'secondary'
+  inactive: 'secondary',
 }
 
 const StyledLink = styled(Link)(({ theme }) => ({
@@ -87,14 +87,16 @@ const StyledLink = styled(Link)(({ theme }) => ({
   textDecoration: 'none',
   color: theme.palette.text.secondary,
   '&:hover': {
-    color: theme.palette.primary.main
-  }
+    color: theme.palette.primary.main,
+  },
 }))
 
 // ** renders client column
 const renderClient = (row: UsersType) => {
   if (row.avatar.length) {
-    return <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
+    return (
+      <CustomAvatar src={row.avatar} sx={{ mr: 3, width: 34, height: 34 }} />
+    )
   } else {
     return (
       <CustomAvatar
@@ -141,11 +143,11 @@ const RowOptions = ({ id }: { id: number | string }) => {
         onClose={handleRowOptionsClose}
         anchorOrigin={{
           vertical: 'bottom',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         transformOrigin={{
           vertical: 'top',
-          horizontal: 'right'
+          horizontal: 'right',
         }}
         PaperProps={{ style: { minWidth: '8rem' } }}
       >
@@ -183,7 +185,13 @@ const columns = [
       return (
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           {renderClient(row)}
-          <Box sx={{ display: 'flex', alignItems: 'flex-start', flexDirection: 'column' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'flex-start',
+              flexDirection: 'column',
+            }}
+          >
             <StyledLink href='/apps/user/view/overview/'>{fullName}</StyledLink>
             <Typography noWrap variant='caption'>
               {`@${username}`}
@@ -191,7 +199,7 @@ const columns = [
           </Box>
         </Box>
       )
-    }
+    },
   },
   {
     flex: 0.2,
@@ -204,23 +212,23 @@ const columns = [
           {row.email}
         </Typography>
       )
-    }
+    },
   },
   {
     flex: 0.15,
     field: 'role',
     minWidth: 150,
     headerName: 'Role',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: userRoleObj[row.role].color } }}>
-          <Icon icon={userRoleObj[row.role].icon} fontSize={20} />
-          <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
-            {row.role}
-          </Typography>
-        </Box>
-      )
-    }
+    // renderCell: ({ row }: CellType) => {
+    //   return (
+    //     <Box sx={{ display: 'flex', alignItems: 'center', '& svg': { mr: 3, color: userRoleObj[row.role].color } }}>
+    //       <Icon icon={userRoleObj[row.role].icon} fontSize={20} />
+    //       <Typography noWrap sx={{ color: 'text.secondary', textTransform: 'capitalize' }}>
+    //         {row.role}
+    //       </Typography>
+    //     </Box>
+    //   )
+    // }
   },
   {
     flex: 0.15,
@@ -229,11 +237,15 @@ const columns = [
     field: 'currentPlan',
     renderCell: ({ row }: CellType) => {
       return (
-        <Typography variant='subtitle1' noWrap sx={{ textTransform: 'capitalize' }}>
+        <Typography
+          variant='subtitle1'
+          noWrap
+          sx={{ textTransform: 'capitalize' }}
+        >
           {row.currentPlan}
         </Typography>
       )
-    }
+    },
   },
   {
     flex: 0.1,
@@ -247,10 +259,13 @@ const columns = [
           size='small'
           label={row.status}
           color={userStatusObj[row.status]}
-          sx={{ textTransform: 'capitalize', '& .MuiChip-label': { lineHeight: '18px' } }}
+          sx={{
+            textTransform: 'capitalize',
+            '& .MuiChip-label': { lineHeight: '18px' },
+          }}
         />
       )
-    }
+    },
   },
   {
     flex: 0.1,
@@ -258,11 +273,13 @@ const columns = [
     sortable: false,
     field: 'actions',
     headerName: 'Actions',
-    renderCell: ({ row }: CellType) => <RowOptions id={row.id} />
-  }
+    renderCell: ({ row }: CellType) => <RowOptions id={row.id} />,
+  },
 ]
 
-const UserList = ({ apiData }: InferGetStaticPropsType<typeof getStaticProps>) => {
+const UserList = ({
+  apiData,
+}: InferGetStaticPropsType<typeof getStaticProps>) => {
   // ** State
   const [role, setRole] = useState<string>('')
   const [plan, setPlan] = useState<string>('')
@@ -281,8 +298,8 @@ const UserList = ({ apiData }: InferGetStaticPropsType<typeof getStaticProps>) =
         role,
         status,
         q: value,
-        currentPlan: plan
-      })
+        currentPlan: plan,
+      }),
     )
   }, [dispatch, plan, role, status, value])
 
@@ -309,19 +326,27 @@ const UserList = ({ apiData }: InferGetStaticPropsType<typeof getStaticProps>) =
       <Grid item xs={12}>
         {apiData && (
           <Grid container spacing={6}>
-            {apiData.statsHorizontal.map((item: CardStatsHorizontalProps, index: number) => {
-              return (
-                <Grid item xs={12} md={3} sm={6} key={index}>
-                  <CardStatisticsHorizontal {...item} icon={<Icon icon={item.icon as string} />} />
-                </Grid>
-              )
-            })}
+            {apiData.statsHorizontal.map(
+              (item: CardStatsHorizontalProps, index: number) => {
+                return (
+                  <Grid item xs={12} md={3} sm={6} key={index}>
+                    <CardStatisticsHorizontal
+                      {...item}
+                      icon={<Icon icon={item.icon as string} />}
+                    />
+                  </Grid>
+                )
+              },
+            )}
           </Grid>
         )}
       </Grid>
       <Grid item xs={12}>
         <Card>
-          <CardHeader title='Search Filters' sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }} />
+          <CardHeader
+            title='Search Filters'
+            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+          />
           <CardContent>
             <Grid container spacing={6}>
               <Grid item sm={4} xs={12}>
@@ -387,7 +412,11 @@ const UserList = ({ apiData }: InferGetStaticPropsType<typeof getStaticProps>) =
             </Grid>
           </CardContent>
           <Divider />
-          <TableHeader value={value} handleFilter={handleFilter} toggle={toggleAddUserDrawer} />
+          <TableHeader
+            value={value}
+            handleFilter={handleFilter}
+            toggle={toggleAddUserDrawer}
+          />
           <DataGrid
             autoHeight
             rows={store.data}
@@ -413,8 +442,8 @@ export const getStaticProps: GetStaticProps = async () => {
 
   return {
     props: {
-      apiData
-    }
+      apiData,
+    },
   }
 }
 

@@ -5,12 +5,12 @@ export const data: { users: UserDataType[] } = {
   users: [
     {
       id: 1,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'j3EJA3JpBMxU',
       fullName: 'Stanwood Mil',
       username: 'smil0',
       email: 'smil0@51.la',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -196,12 +196,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 2,
-      role: 'LPM',
+      role: ['LPM'],
       password: '5YTSLw',
       fullName: 'Konstantin Slixby',
       username: 'kslixby1',
       email: 'kslixby1@prlog.org',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -387,12 +387,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 3,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'tZYmiOhUdSBH',
       fullName: 'Andrej Fend',
       username: 'afend2',
       email: 'afend2@umn.edu',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -578,12 +578,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 4,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'bKNpR3yCF7q2',
       fullName: 'Kittie Skettles',
       username: 'kskettles3',
       email: 'kskettles3@networksolutions.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -769,12 +769,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 5,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'CcCWiSJ9Z',
       fullName: 'Ad Thurston',
       username: 'athurston4',
       email: 'athurston4@webeden.co.uk',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -960,12 +960,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 6,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'WNXmvsWWCtbp',
       fullName: 'Jordan Aindriu',
       username: 'jaindriu5',
       email: 'jaindriu5@jalbum.net',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -1151,12 +1151,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 7,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'yaMSYD2eV',
       fullName: 'Jimmie Delany',
       username: 'jdelany6',
       email: 'jdelany6@taobao.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -1342,12 +1342,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 8,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'FnksuZN',
       fullName: 'Danell Stoggles',
       username: 'dstoggles7',
       email: 'dstoggles7@shareasale.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -1533,12 +1533,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 9,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: '5W1TPKHI',
       fullName: 'Marnia Reuben',
       username: 'mreuben8',
       email: 'mreuben8@nbcnews.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -1724,12 +1724,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 10,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'WIFcJRKP',
       fullName: 'Teodor Yegorev',
       username: 'tyegorev9',
       email: 'tyegorev9@ehow.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -1915,12 +1915,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 11,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'KHV3pWY',
       fullName: 'Godard Stainton - Skinn',
       username: 'gstaintona',
       email: 'gstaintona@google.com.au',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -2106,12 +2106,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 12,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'XFtdCMPZ',
       fullName: 'Meg Cozby',
       username: 'mcozbyb',
       email: 'mcozbyb@creativecommons.org',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -2297,12 +2297,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 13,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: '145kB6',
       fullName: 'Olga Goodsall',
       username: 'ogoodsallc',
       email: 'ogoodsallc@weather.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -2488,12 +2488,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 14,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'GjLVte2D',
       fullName: 'Egon Barnson',
       username: 'ebarnsond',
       email: 'ebarnsond@parallels.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -2679,12 +2679,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 15,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'MbEyAth',
       fullName: 'Emogene Vanin',
       username: 'evanine',
       email: 'evanine@nydailynews.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -2870,12 +2870,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 16,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'vfEF1X',
       fullName: 'Kirsteni Bannell',
       username: 'kbannellf',
       email: 'kbannellf@facebook.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -3061,12 +3061,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 17,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'faejUTENaE',
       fullName: 'Hasty Wellwood',
       username: 'hwellwoodg',
       email: 'hwellwoodg@nasa.gov',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -3252,12 +3252,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 18,
-      role: 'PRO',
+      role: ['PRO'],
       password: '6kokzw7Z',
       fullName: 'Christoper Warnes',
       username: 'cwarnesh',
       email: 'cwarnesh@ed.gov',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -3443,12 +3443,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 19,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'bgHHooCM48m',
       fullName: 'Helenelizabeth Hoggan',
       username: 'hhoggani',
       email: 'hhoggani@google.fr',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -3634,12 +3634,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 20,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'hKjZFg3Bq',
       fullName: 'Brittan Staresmeare',
       username: 'bstaresmearej',
       email: 'bstaresmearej@blog.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -3825,12 +3825,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 21,
-      role: 'LPM',
+      role: ['LPM'],
       password: '4oIRc8XszRj',
       fullName: 'Cristine Ghest',
       username: 'cghestk',
       email: 'cghestk@github.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4016,12 +4016,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 22,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'DTEHL3V2MH',
       fullName: "Danna O'Siaghail",
       username: 'dosiaghaill',
       email: 'dosiaghaill@nasa.gov',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4207,12 +4207,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 23,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: '4OQFER',
       fullName: 'Meggi Wardale',
       username: 'mwardalem',
       email: 'mwardalem@narod.ru',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4398,12 +4398,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 24,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'WNSQ1YcScNyG',
       fullName: 'Fey Budgeon',
       username: 'fbudgeonn',
       email: 'fbudgeonn@wikia.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4589,12 +4589,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 25,
-      role: 'TAD',
+      role: ['TAD'],
       password: '3RrTGQ4SHV79',
       fullName: 'Perl Wildey',
       username: 'pwildeyo',
       email: 'pwildeyo@soup.io',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4780,12 +4780,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 26,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'ckhQmRuNP',
       fullName: 'Elsey Collete',
       username: 'ecolletep',
       email: 'ecolletep@telegraph.co.uk',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -4971,12 +4971,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 27,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'f4yu7e',
       fullName: 'Della Wythe',
       username: 'dwytheq',
       email: 'dwytheq@eepurl.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -5162,12 +5162,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 28,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: '0RJXJkDas5sz',
       fullName: 'Elisabet Pautard',
       username: 'epautardr',
       email: 'epautardr@multiply.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -5353,12 +5353,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 29,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'LaoMlAvrEpJI',
       fullName: 'Elliott Quixley',
       username: 'equixleys',
       email: 'equixleys@skype.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -5544,12 +5544,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 30,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'CHBw3oNRt',
       fullName: 'Kori Rosenboim',
       username: 'krosenboimt',
       email: 'krosenboimt@topsy.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -5735,12 +5735,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 31,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'jw1HJC',
       fullName: 'Roma Pococke',
       username: 'rpocockeu',
       email: 'rpocockeu@pinterest.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -5926,12 +5926,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 32,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'Q90rSsglH',
       fullName: 'Yvette Jendricke',
       username: 'yjendrickev',
       email: 'yjendrickev@privacy.gov.au',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -6117,12 +6117,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 33,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'qgQejw60o',
       fullName: 'Montgomery Kleinmann',
       username: 'mkleinmannw',
       email: 'mkleinmannw@guardian.co.uk',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -6308,12 +6308,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 34,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'O0wejRgvxOJZ',
       fullName: 'Belvia Toghill',
       username: 'btoghillx',
       email: 'btoghillx@dion.ne.jp',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -6499,12 +6499,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 35,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'x37ZvfHP6gYi',
       fullName: 'Gabriellia De Simone',
       username: 'gdey',
       email: 'gdey@w3.org',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -6690,12 +6690,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 36,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'KMWTuk',
       fullName: 'Teena Brisland',
       username: 'tbrislandz',
       email: 'tbrislandz@huffingtonpost.com',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -6881,12 +6881,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 37,
-      role: 'TAD',
+      role: ['TAD'],
       password: 'LsW7fflVqGsv',
       fullName: 'Barrie Eley',
       username: 'beley10',
       email: 'beley10@utexas.edu',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -7072,12 +7072,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 38,
-      role: 'PRO',
+      role: ['PRO'],
       password: 'd8vjsH7Mj',
       fullName: 'Ephraim Darwin',
       username: 'edarwin11',
       email: 'edarwin11@google.co.jp',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -7263,12 +7263,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 39,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'P6n9lo',
       fullName: 'Napoleon Le Brum',
       username: 'nle12',
       email: 'nle12@sina.com.cn',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -7454,12 +7454,12 @@ export const data: { users: UserDataType[] } = {
     },
     {
       id: 40,
-      role: 'CLIENT',
+      role: ['CLIENT'],
       password: 'Mhhpln705dtl',
       fullName: 'Orly Gomersall',
       username: 'ogomersall13',
       email: 'ogomersall13@themeforest.net',
-      policy: {
+      permission: {
         dashboard: {
           create: false,
           read: true,
@@ -7646,12 +7646,12 @@ export const data: { users: UserDataType[] } = {
 
     {
       id: 41,
-      role: 'LPM',
+      role: ['LPM'],
       password: 'admin',
       fullName: 'Leriel Kim',
       username: 'Leriel',
       email: 'leriel@glozinc.com',
-      policy: {
+      permission: {
         dashboard: {
           create: true,
           read: true,
@@ -7886,19 +7886,19 @@ mock.onGet('/api/test-users/data').reply(config => {
   // return [200, data.users]
 })
 
-mock.onPost('/api/test-users/update-policy').reply(config => {
-  const { id, policy } = JSON.parse(config.data).params
-  console.log(id, policy)
+mock.onPost('/api/test-users/update-permission').reply(config => {
+  const { id, permission } = JSON.parse(config.data).params
+  console.log(id, permission)
 
   const user = data.users.map(prev =>
-    prev.id === id ? { ...prev, policy: policy } : prev,
+    prev.id === id ? { ...prev, permission: permission } : prev,
   )
 
   data.users = user
 
-  // const { id, policy } = config.params
+  // const { id, permission } = config.params
 
-  // console.log(id, policy)
+  // console.log(id, permission)
 
   // Get event from post data
   // const user = JSON.parse(config.data).data
