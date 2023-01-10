@@ -9,21 +9,37 @@ const withTM = require('next-transpile-modules')([
   '@fullcalendar/react',
   '@fullcalendar/daygrid',
   '@fullcalendar/list',
-  '@fullcalendar/timegrid'
+  '@fullcalendar/timegrid',
 ])
 
 module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
   experimental: {
-    esmExternals: false
+    esmExternals: false,
+    styledComponents: true,
+    images: {
+      unoptimized: true,
+    },
+  },
+  images: {
+    loader: 'akamai',
+    path: ['profile-dev.gloground.com', 'localhost', '*', 'i.ytimg.com'],
+
+    domains: ['profile-dev.gloground.com', 'localhost', '*', 'i.ytimg.com'],
+    images: {
+      minimumCacheTTL: 3600,
+    },
   },
   webpack: config => {
     config.resolve.alias = {
       ...config.resolve.alias,
-      apexcharts: path.resolve(__dirname, './node_modules/apexcharts-clevision')
+      apexcharts: path.resolve(
+        __dirname,
+        './node_modules/apexcharts-clevision',
+      ),
     }
 
     return config
-  }
+  },
 })

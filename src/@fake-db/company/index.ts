@@ -1,5 +1,5 @@
 import mock from 'src/@fake-db/mock'
-import { MembersType, SignUpRequestsType } from 'src/pages/tad/company/types'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 
 const requests: SignUpRequestsType[] = [
   {

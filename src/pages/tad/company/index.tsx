@@ -11,7 +11,7 @@ import {
   undoMembers,
   undoSignUpRequest,
 } from 'src/apis/company.api'
-import { MembersType, SignUpRequestsType } from './types'
+
 import { ModalContext } from 'src/context/ModalContext'
 import DeclineSignUpRequestModal from './components/modal/decline-signup-request-modal'
 import ApproveSignUpRequestModal from './components/modal/approve-signup-request.modal'
@@ -20,6 +20,7 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 
 const RoleArray = ['TAD', 'LPM']
 const TadCompany = () => {

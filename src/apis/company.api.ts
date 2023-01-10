@@ -1,5 +1,5 @@
 import axios from 'axios'
-import { MembersType, SignUpRequestsType } from 'src/pages/tad/company/types'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 
 export const getSignUpRequests = async () => {
   const { data } = await axios.get('/api/company/signup-requests')

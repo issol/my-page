@@ -1,4 +1,4 @@
-import { MembersType, SignUpRequestsType } from 'src/pages/tad/company/types'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
 import { DataGrid, GridColDef } from '@mui/x-data-grid'
