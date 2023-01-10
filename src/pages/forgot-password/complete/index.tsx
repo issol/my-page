@@ -177,7 +177,7 @@ const ForgotPasswordComplete = () => {
                   textAlign: 'center',
                 }}
               >
-                <MaskImg src='/images/icons/auth-icons/email-sent-icon.png' />
+                <MaskImg src='/images/icons/auth-icons/email-sent-icon.svg' />
                 <Box sx={{ mb: 8 }}>
                   <Typography variant='h5' sx={{ mb: 2 }}>
                     Email has been sent
