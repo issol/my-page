@@ -363,7 +363,13 @@ const LoginPage = () => {
               >
                 <Typography>
                   New on our platform?{' '}
-                  <Link href='/signup'>Create an account</Link>
+                  <Typography
+                    sx={{ color: '#666CFF', cursor: 'pointer' }}
+                    onClick={() => router.push('/signup')}
+                  >
+                    Create an account
+                  </Typography>
+                  {/* <Link href='/signup'>Create an account</Link> */}
                 </Typography>
               </Box>
             </form>
