@@ -27,30 +27,180 @@ import { useAuth } from 'src/hooks/useAuth'
 import { Button } from '@mui/material'
 import { RoleType } from 'src/types/apps/userTypes'
 import { useRouter } from 'next/router'
+import { ACLObj, AppAbility, buildAbilityFor } from 'src/configs/acl'
+import { UserDataType } from 'src/context/types'
 
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
 }
 
+export const TadPermission = [
+  'account-create',
+  'account-read',
+  'account-update',
+  'account-delete',
+  'certificationTest-create',
+  'certificationTest-read',
+  'certificationTest-update',
+  'certificationTest-delete',
+  'certificationTestMaterials-create',
+  'certificationTestMaterials-read',
+  'certificationTestMaterials-update',
+  'certificationTestMaterials-delete',
+  'company-create',
+  'company-read',
+  'company-update',
+  'company-delete',
+  'dashboard-create',
+  'dashboard-read',
+  'dashboard-update',
+  'dashboard-delete',
+  'email-create',
+  'email-read',
+  'email-update',
+  'email-delete',
+  'onboarding-create',
+  'onboarding-read',
+  'onboarding-update',
+  'onboarding-delete',
+  'onboardingList-create',
+  'onboardingList-read',
+  'onboardingList-update',
+  'onboardingList-delete',
+  'recruiting-create',
+  'recruiting-read',
+  'recruiting-update',
+  'recruiting-delete',
+  'jobPosting-create',
+  'jobPosting-read',
+  'jobPosting-update',
+  'jobPosting-delete',
+  'recruitingCreate-create',
+  'recruitingCreate-read',
+  'recruitingCreate-update',
+  'recruitingCreate-delete',
+  'recruitingList-create',
+  'recruitingList-read',
+  'recruitingList-update',
+  'recruitingList-delete',
+]
+
+export const LpmPermission = [
+  'account-create',
+  'account-read',
+  'account-update',
+  'account-delete',
+  'clients-create',
+  'clients-read',
+  'clients-update',
+  'clients-delete',
+  'clientCreate-create',
+  'clientCreate-read',
+  'clientCreate-update',
+  'clientCreate-delete',
+  'clientList-create',
+  'clientList-read',
+  'clientList-update',
+  'clientList-delete',
+  'company-create',
+  'company-read',
+  'company-update',
+  'company-delete',
+  'dashboard-create',
+  'dashboard-read',
+  'dashboard-update',
+  'dashboard-delete',
+  'email-create',
+  'email-read',
+  'email-update',
+  'email-delete',
+  'invoices-create',
+  'invoices-read',
+  'invoices-update',
+  'invoices-delete',
+  'clientInvoiceCreate-create',
+  'clientInvoiceCreate-read',
+  'clientInvoiceCreate-update',
+  'clientInvoiceCreate-delete',
+  'clientInvoiceList-create',
+  'clientInvoiceList-read',
+  'clientInvoiceList-update',
+  'clientInvoiceList-delete',
+  'proInvoiceCreate-create',
+  'proInvoiceCreate-read',
+  'proInvoiceCreate-update',
+  'proInvoiceCreate-delete',
+  'proInvoiceList-create',
+  'proInvoiceList-read',
+  'proInvoiceList-update',
+  'proInvoiceList-delete',
+  'orders-create',
+  'orders-read',
+  'orders-update',
+  'orders-delete',
+  'orderCreate-create',
+  'orderCreate-read',
+  'orderCreate-update',
+  'orderCreate-delete',
+  'orderList-create',
+  'orderList-read',
+  'orderList-update',
+  'orderList-delete',
+  'pros-create',
+  'pros-read',
+  'pros-update',
+  'pros-delete',
+  'proCreate-create',
+  'proCreate-read',
+  'proCreate-update',
+  'proCreate-delete',
+  'proList-create',
+  'proList-read',
+  'proList-update',
+  'proList-delete',
+  'quotes-create',
+  'quotes-read',
+  'quotes-update',
+  'quotes-delete',
+  'quoteCreate-create',
+  'quoteCreate-read',
+  'quoteCreate-update',
+  'quoteCreate-delete',
+  'quoteList-create',
+  'quoteList-read',
+  'quoteList-update',
+  'quoteList-delete',
+]
+
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   const auth = useAuth()
   const router = useRouter()
   // ** Hooks
   const { settings, saveSettings } = useSettings()
+  const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
   const [role, setRole] = useState<RoleType | null>(auth.user?.role[0] || null)
   const [roleBtn, setRoleBtn] = useState<ReactNode>(null)
 
   const handleSwitchRole = (role: RoleType | null) => {
-    setRole(role)
+    if (role !== null) {
+      setRole(role)
+      // if (auth.setUser !== null) {
+      //   auth.setUser((prevState: any) => ({
+      //     ...prevState,
+      //     permission: role === 'TAD' ? TadPermission : LpmPermission,
+      //   }))
+      // }
+
+      // setAbility(
+      //   buildAbilityFor(role === 'TAD' ? TadPermission : LpmPermission, role),
+      // )
+    }
   }
 
   useEffect(() => {
-    console.log(router)
     if (router.pathname !== '/') {
-      router.push(
-        `/${role?.toLowerCase()}/${router.pathname.split('/').splice(2, 1)}`,
-      )
+      router.push(`/${role?.toLowerCase()}/company`)
     }
   }, [role])
 

@@ -1,13 +1,15 @@
 import { useContext, useEffect } from 'react'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Button from '@mui/material/Button'
+import ComingSoon from 'src/pages/pages/misc/coming-soon'
 
 const LpmClientCreate = () => {
   const ability = useContext(AbilityContext)
   return (
     <>
-      <div>LPM Client Create</div>
-      <div className='demo-space-x'>
+      {/* <div>LPM Client Create</div> */}
+      <ComingSoon />
+      {/* <div className='demo-space-x'>
         <Button
           variant='contained'
           disabled={!ability.can('clientCreate-create', 'LPM')}
@@ -32,7 +34,7 @@ const LpmClientCreate = () => {
         >
           DELETE
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }

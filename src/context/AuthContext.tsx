@@ -23,12 +23,13 @@ import {
 } from './types'
 import { useMutation, useQuery } from 'react-query'
 import { getProfile, login } from 'src/apis/sign.api'
+import { TadPermission } from 'src/layouts/UserLayout'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
   loading: true,
-  setUser: () => null,
+  setUser: null,
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
@@ -60,6 +61,8 @@ const AuthProvider = ({ children }: Props) => {
         setUser(JSON.parse(window.localStorage.getItem('userData') || ''))
         setLoading(false)
       } else {
+        window.localStorage.removeItem('userData')
+        router.replace('/login')
         setLoading(false)
       }
     }
@@ -83,6 +86,10 @@ const AuthProvider = ({ children }: Props) => {
         //     )
         //   : null
         window.localStorage.setItem(
+          authConfig.storageTokenKeyName,
+          response.accessToken,
+        )
+        window.localStorage.setItem(
           'userData',
           JSON.stringify({
             id: response.userId,
@@ -90,58 +97,7 @@ const AuthProvider = ({ children }: Props) => {
             email: response.email,
             fullName: 'John Doe',
             username: 'John',
-            permission: [
-              'dashboard-create',
-              'dashboard-read',
-              'dashboard-update',
-              'dashboard-delete',
-              'account-create',
-              'account-read',
-              'account-update',
-              'account-delete',
-              'email-create',
-              'email-read',
-              'email-update',
-              'email-delete',
-              'recruitingCreate-update',
-              'proList-update',
-              'quotes-create',
-              'quotes-read',
-              'quotes-update',
-              'quotes-delete',
-              'quoteList-create',
-              'quoteList-read',
-              'quoteList-update',
-              'quoteList-delete',
-              'quoteCreate-create',
-              'quoteCreate-read',
-              'quoteCreate-update',
-              'quoteCreate-delete',
-              'orders-create',
-              'orders-read',
-              'orders-update',
-              'orders-delete',
-              'orderList-create',
-              'orderList-read',
-              'orderList-update',
-              'orderList-delete',
-              'invoices-create',
-              'invoices-read',
-              'invoices-update',
-              'invoices-delete',
-              'clientInvoiceList-create',
-              'clientInvoiceList-read',
-              'clientInvoiceList-update',
-              'clientInvoiceList-delete',
-              'roles-create',
-              'roles-read',
-              'roles-update',
-              'roles-delete',
-              'company-create',
-              'company-read',
-              'company-update',
-              'company-delete',
-            ],
+            permission: TadPermission,
           }),
         )
         setUser({
@@ -150,60 +106,9 @@ const AuthProvider = ({ children }: Props) => {
           email: response.email,
           fullName: 'John Doe',
           username: 'John',
-          permission: [
-            'dashboard-create',
-            'dashboard-read',
-            'dashboard-update',
-            'dashboard-delete',
-            'account-create',
-            'account-read',
-            'account-update',
-            'account-delete',
-            'email-create',
-            'email-read',
-            'email-update',
-            'email-delete',
-            'recruitingCreate-update',
-            'proList-update',
-            'quotes-create',
-            'quotes-read',
-            'quotes-update',
-            'quotes-delete',
-            'quoteList-create',
-            'quoteList-read',
-            'quoteList-update',
-            'quoteList-delete',
-            'quoteCreate-create',
-            'quoteCreate-read',
-            'quoteCreate-update',
-            'quoteCreate-delete',
-            'orders-create',
-            'orders-read',
-            'orders-update',
-            'orders-delete',
-            'orderList-create',
-            'orderList-read',
-            'orderList-update',
-            'orderList-delete',
-            'invoices-create',
-            'invoices-read',
-            'invoices-update',
-            'invoices-delete',
-            'clientInvoiceList-create',
-            'clientInvoiceList-read',
-            'clientInvoiceList-update',
-            'clientInvoiceList-delete',
-            'roles-create',
-            'roles-read',
-            'roles-update',
-            'roles-delete',
-            'company-create',
-            'company-read',
-            'company-update',
-            'company-delete',
-          ],
+          permission: TadPermission,
         })
-        const returnUrl = router.query.returnUrl
+        // const returnUrl = router.query.returnUrl
 
         /* TODO
         1. getProfile을 해서 role이 없다면
@@ -219,9 +124,9 @@ const AuthProvider = ({ children }: Props) => {
         //   policy: response.data.userData.policy,
         // })
 
-        const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
+        // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
-        router.replace(redirectURL as string)
+        router.replace('/')
       })
 
       .catch(err => {

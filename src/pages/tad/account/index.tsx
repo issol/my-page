@@ -1,12 +1,14 @@
 import { useContext, useEffect } from 'react'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Button from '@mui/material/Button'
+import ComingSoon from 'src/pages/pages/misc/coming-soon'
 
 const TadAccount = () => {
   const ability = useContext(AbilityContext)
   return (
     <>
-      <div>TAD Account</div>
+      <ComingSoon />
+      {/* <div>TAD Account</div>
       <div className='demo-space-x'>
         <Button
           variant='contained'
@@ -32,7 +34,7 @@ const TadAccount = () => {
         >
           DELETE
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }
