@@ -93,7 +93,7 @@ const AuthProvider = ({ children }: Props) => {
         const returnUrl = router.query.returnUrl
 
         /* TODO
-        1. getProfile을 해서 role이 없다면 
+        1. getProfile을 해서 role이 없다면
         2. selectRole 페이지로 이동
         3. role이 있는 경우 legal name이 있는지 체크
         4. legal name이 없으면 personal info 작성 페이지로 이동

@@ -20,12 +20,15 @@ import ShortcutsDropdown, {
   ShortcutsType,
 } from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
 import { UserDataType } from 'src/context/types'
+import { RoleType } from 'src/types/apps/userTypes'
 
 interface Props {
   hidden: boolean
   settings: Settings
   toggleNavVisibility: () => void
   saveSettings: (values: Settings) => void
+  handleSwitchRole: (role: RoleType | null) => void
+  role: RoleType | null
 }
 
 const notifications: NotificationsType[] = [
@@ -126,7 +129,14 @@ const shortcuts: ShortcutsType[] = [
 
 const AppBarContent = (props: Props) => {
   // ** Props
-  const { hidden, settings, saveSettings, toggleNavVisibility } = props
+  const {
+    hidden,
+    settings,
+    saveSettings,
+    toggleNavVisibility,
+    handleSwitchRole,
+    role,
+  } = props
 
   return (
     <Box
@@ -160,7 +170,11 @@ const AppBarContent = (props: Props) => {
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         {/* <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
         {/* <NotificationDropdown settings={settings} notifications={notifications} /> */}
-        <UserDropdown settings={settings} />
+        <UserDropdown
+          settings={settings}
+          handleSwitchRole={handleSwitchRole}
+          role={role}
+        />
       </Box>
     </Box>
   )

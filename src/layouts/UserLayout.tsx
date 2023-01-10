@@ -26,6 +26,7 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import { useAuth } from 'src/hooks/useAuth'
 import { Button } from '@mui/material'
 import { RoleType } from 'src/types/apps/userTypes'
+import { useRouter } from 'next/router'
 
 interface Props {
   children: ReactNode
@@ -34,22 +35,36 @@ interface Props {
 
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
   const auth = useAuth()
+  const router = useRouter()
   // ** Hooks
   const { settings, saveSettings } = useSettings()
   const [role, setRole] = useState<RoleType | null>(auth.user?.role[0] || null)
   const [roleBtn, setRoleBtn] = useState<ReactNode>(null)
 
+  const handleSwitchRole = (role: RoleType | null) => {
+    setRole(role)
+  }
+
   useEffect(() => {
-    setRoleBtn(
-      <div>
-        {auth.user?.role.map((item, idx) => (
-          <Button key={idx} onClick={() => setRole(item)}>
-            {item}
-          </Button>
-        ))}
-      </div>,
-    )
-  }, [auth.user?.role])
+    console.log(router)
+    if (router.pathname !== '/') {
+      router.push(
+        `/${role?.toLowerCase()}/${router.pathname.split('/').splice(2, 1)}`,
+      )
+    }
+  }, [role])
+
+  // useEffect(() => {
+  //   setRoleBtn(
+  //     <div>
+  //       {auth.user?.role.map((item, idx) => (
+  //         <Button key={idx} onClick={() => setRole(item)}>
+  //           {item}
+  //         </Button>
+  //       ))}
+  //     </div>,
+  //   )
+  // }, [auth.user?.role])
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -90,6 +105,8 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               settings={settings}
               saveSettings={saveSettings}
               toggleNavVisibility={props.toggleNavVisibility}
+              handleSwitchRole={handleSwitchRole}
+              role={role}
             />
           ),
         },
@@ -108,6 +125,8 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
                 hidden={hidden}
                 settings={settings}
                 saveSettings={saveSettings}
+                handleSwitchRole={handleSwitchRole}
+                role={role}
               />
             ),
           },
