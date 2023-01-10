@@ -7646,7 +7646,7 @@ export const data: { users: UserDataType[] } = {
 
     {
       id: 41,
-      role: 'TAD',
+      role: 'LPM',
       password: 'admin',
       fullName: 'Leriel Kim',
       username: 'Leriel',
