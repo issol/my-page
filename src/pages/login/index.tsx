@@ -359,9 +359,11 @@ const LoginPage = () => {
                 sx={{
                   mb: 4,
                   textAlign: 'center',
+                  display: 'flex',
+                  justifyContent: 'center',
                 }}
               >
-                <Typography>
+                <Typography sx={{ display: 'flex', gap: '4px' }}>
                   New on our platform?{' '}
                   <Typography
                     sx={{ color: '#666CFF', cursor: 'pointer' }}
