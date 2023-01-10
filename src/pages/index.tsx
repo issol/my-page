@@ -12,7 +12,7 @@ import { useAuth } from 'src/hooks/useAuth'
 import { RoleType } from 'src/types/apps/userTypes'
 
 /**
- *  Set Home URL based on User Roles
+ *  TODO: role 별 homeroute 정하기
  */
 export const getHomeRoute = (role: Array<RoleType>) => {
   // if (role === 'client') return '/acl'

@@ -28,6 +28,7 @@ import {
   Link,
   useMediaQuery,
 } from '@mui/material'
+import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
@@ -54,12 +55,16 @@ import { checkEmailDuplication } from 'src/apis/sign.api'
 import { RoleType } from 'src/types/apps/userTypes'
 import { useMutation } from 'react-query'
 
+// ** Data
+import { countries } from 'src/@fake-db/autocomplete'
+
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { checkName } from 'src/shared/helpers/profile.validator'
 import { Pronunciation } from 'src/shared/const/personalInfo'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
+import { PronounceType } from 'src/types/sign/personalInfoTypes'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -88,6 +93,12 @@ const Illustration = muiStyled('img')(({ theme }) => ({
     maxWidth: '8rem',
   },
 }))
+
+interface CountryType {
+  code: string
+  label: string
+  phone: string
+}
 
 const profileErrorMsg = {
   name_regex: '',
@@ -120,10 +131,12 @@ const defaultValues = {
   firstName: '',
   middleName: '',
   lastName: '',
-  pronunciation: '',
+  legalName_pronunciation: '',
   pronounce: '',
   havePreferred: false,
-  timezone: '',
+  preferredName: '',
+  preferredName_pronunciation: '',
+  timezone: { code: '', label: '', phone: '' },
   mobile: '',
   phone: '',
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -136,18 +149,21 @@ interface FormData {
   firstName: string
   middleName?: string
   lastName: string
-  pronunciation?: ''
-  pronounce?: ''
+  legalName_pronunciation?: string
+  pronounce?: PronounceType
   havePreferred: boolean
-  timezone: ''
-  mobile?: ''
-  phone?: ''
-  jobInfo: [{ jobType: ''; role: ''; source: ''; target: '' }]
-  experience: ''
+  preferredName?: string
+  preferredName_pronunciation?: string
+  timezone: CountryType
+  mobile?: string
+  phone?: string
+  jobInfo: [{ jobType: string; role: string; source: string; target: string }]
+  experience: string
   resume: null
-  specialties?: ''
+  specialties?: string
 }
 
+/* TODO: guestGuard false로 수정하기 */
 const PersonalInfo = () => {
   const theme = useTheme()
   const router = useRouter()
@@ -174,11 +190,49 @@ const PersonalInfo = () => {
     resolver: yupResolver(schema),
   })
 
+  const AutocompleteCountry = () => {
+    return (
+      <Autocomplete
+        autoHighlight
+        sx={{ width: 250 }}
+        id='autocomplete-country-select'
+        options={countries as CountryType[]}
+        getOptionLabel={option => option.label}
+        renderOption={(props, option) => (
+          <Box
+            component='li'
+            sx={{ '& > img': { mr: 4, flexShrink: 0 } }}
+            {...props}
+          >
+            <img
+              alt=''
+              width='20'
+              loading='lazy'
+              src={`https://flagcdn.com/w20/{option.code.toLowerCase()}.png`}
+              srcSet={`https://flagcdn.com/w40/{option.code.toLowerCase()}.png 2x`}
+            />
+            {option.label} ({option.code}) +{option.phone}
+          </Box>
+        )}
+        renderInput={params => (
+          <TextField
+            {...params}
+            label='Choose a country'
+            inputProps={{
+              ...params.inputProps,
+              autoComplete: 'new-password',
+            }}
+          />
+        )}
+      />
+    )
+  }
+
+  console.log(getValues())
   const onSubmit = (data: FormData) => {
     // const { email, password } = data
   }
   console.log(getValues())
-
   return (
     <Box className='content-right'>
       {!hidden ? (
@@ -309,7 +363,7 @@ const PersonalInfo = () => {
               <Box sx={{ display: 'flex', gap: '8px' }}>
                 <FormControl sx={{ mb: 2 }} fullWidth>
                   <Controller
-                    name='pronunciation'
+                    name='legalName_pronunciation'
                     control={control}
                     rules={{ required: true }}
                     render={({ field: { value, onChange, onBlur } }) => (
@@ -319,14 +373,14 @@ const PersonalInfo = () => {
                         onBlur={onBlur}
                         onChange={onChange}
                         inputProps={{ maxLength: 200 }}
-                        error={Boolean(errors.pronunciation)}
+                        error={Boolean(errors.legalName_pronunciation)}
                         placeholder='Pronunciation'
                       />
                     )}
                   />
-                  {errors.pronunciation && (
+                  {errors.legalName_pronunciation && (
                     <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.pronunciation.message}
+                      {errors.legalName_pronunciation.message}
                     </FormHelperText>
                   )}
                 </FormControl>
@@ -337,9 +391,11 @@ const PersonalInfo = () => {
                     rules={{ required: true }}
                     render={({ field: { value, onChange, onBlur } }) => (
                       <>
-                        <InputLabel id='Pronounce'>Pronounce</InputLabel>
+                        <InputLabel id='legalName_pronounce'>
+                          Pronounce
+                        </InputLabel>
                         <Select
-                          label='Pronounce'
+                          label='legalName_pronounce'
                           value={value}
                           placeholder='Pronounce'
                           onBlur={onBlur}
@@ -383,7 +439,7 @@ const PersonalInfo = () => {
                 <Box sx={{ display: 'flex', gap: '8px' }}>
                   <FormControl sx={{ mb: 2 }} fullWidth>
                     <Controller
-                      name='pronunciation'
+                      name='preferredName'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -393,44 +449,37 @@ const PersonalInfo = () => {
                           onBlur={onBlur}
                           onChange={onChange}
                           inputProps={{ maxLength: 200 }}
-                          error={Boolean(errors.pronunciation)}
-                          placeholder='Pronunciation'
+                          error={Boolean(errors.preferredName)}
+                          placeholder='Preferred name'
                         />
                       )}
                     />
-                    {errors.pronunciation && (
+                    {errors.preferredName && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.pronunciation.message}
+                        {errors.preferredName.message}
                       </FormHelperText>
                     )}
                   </FormControl>
                   <FormControl sx={{ mb: 2 }} fullWidth>
                     <Controller
-                      name='pronounce'
+                      name='preferredName_pronunciation'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
-                        <>
-                          <InputLabel id='Pronounce'>Pronounce</InputLabel>
-                          <Select
-                            label='Pronounce'
-                            value={value}
-                            placeholder='Pronounce'
-                            onBlur={onBlur}
-                            onChange={onChange}
-                          >
-                            {Pronunciation.map((item, idx) => (
-                              <MenuItem value={item.value} key={idx}>
-                                {item.label}
-                              </MenuItem>
-                            ))}
-                          </Select>
-                        </>
+                        <TextField
+                          autoFocus
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          inputProps={{ maxLength: 200 }}
+                          error={Boolean(errors.preferredName_pronunciation)}
+                          placeholder='Pronunciation'
+                        />
                       )}
                     />
-                    {errors.pronounce && (
+                    {errors.preferredName_pronunciation && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.pronounce.message}
+                        {errors.preferredName_pronunciation.message}
                       </FormHelperText>
                     )}
                   </FormControl>
@@ -438,29 +487,35 @@ const PersonalInfo = () => {
               )}
 
               <Divider />
+              {/* <Autocompletet /> */}
               <Box>
                 <FormControl sx={{ mb: 2 }} fullWidth>
                   <Controller
-                    name='pronounce'
+                    name='timezone'
                     control={control}
                     rules={{ required: true }}
                     render={({ field: { value, onChange, onBlur } }) => (
-                      <>
-                        <InputLabel id='Pronounce'>Pronounce</InputLabel>
-                        <Select
-                          label='Pronounce'
-                          value={value}
-                          placeholder='Pronounce'
-                          onBlur={onBlur}
-                          onChange={onChange}
-                        >
-                          {Pronunciation.map((item, idx) => (
-                            <MenuItem value={item.value} key={idx}>
-                              {item.label}
-                            </MenuItem>
-                          ))}
-                        </Select>
-                      </>
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        options={countries as CountryType[]}
+                        onChange={(e, v) => onChange(v)}
+                        renderOption={(props, option) => (
+                          <Box component='li' {...props}>
+                            {option.label} ({option.code}) +{option.phone}
+                          </Box>
+                        )}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='Time zone*'
+                            inputProps={{
+                              ...params.inputProps,
+                              autoComplete: 'new-password',
+                            }}
+                          />
+                        )}
+                      />
                     )}
                   />
                   {errors.pronounce && (
@@ -487,9 +542,10 @@ const PersonalInfo = () => {
                         error={Boolean(errors.mobile)}
                         placeholder='Mobile phone'
                         InputProps={{
+                          type: 'number',
                           startAdornment: (
                             <InputAdornment position='start'>
-                              +63
+                              +{getValues('timezone').phone}
                             </InputAdornment>
                           ),
                         }}
@@ -502,9 +558,6 @@ const PersonalInfo = () => {
                     </FormHelperText>
                   )}
                 </FormControl>
-                {/* 1. textfield로 setState하기
-                    2. state를 phone형태로 포매팅하기
-                    3. Input adorment 사용해서 timezone보여주기 */}
 
                 <FormControl sx={{ mb: 2 }} fullWidth>
                   <Controller
@@ -517,20 +570,23 @@ const PersonalInfo = () => {
                         value={value}
                         onBlur={onBlur}
                         onChange={onChange}
-                        inputProps={{ maxLength: 200 }}
+                        inputProps={{ maxLength: 50 }}
                         error={Boolean(errors.phone)}
                         placeholder='Telephone'
                         InputProps={{
+                          type: 'number',
                           startAdornment: (
-                            <InputAdornment position='start'>Kg</InputAdornment>
+                            <InputAdornment position='start'>
+                              +{getValues('timezone').phone}
+                            </InputAdornment>
                           ),
                         }}
                       />
                     )}
                   />
-                  {errors.pronunciation && (
+                  {errors.phone && (
                     <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.pronunciation.message}
+                      {errors.phone.message}
                     </FormHelperText>
                   )}
                 </FormControl>
