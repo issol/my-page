@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, SyntheticEvent, useCallback } from 'react'
+import { ReactNode, useCallback } from 'react'
 
 // ** Next Import
 import Link from 'next/link'
@@ -8,14 +8,14 @@ import Link from 'next/link'
 import Button from '@mui/material/Button'
 import TextField from '@mui/material/TextField'
 import Box, { BoxProps } from '@mui/material/Box'
-import useMediaQuery from '@mui/material/useMediaQuery'
+
 import { styled, useTheme } from '@mui/material/styles'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import { yupResolver } from '@hookform/resolvers/yup'
-
+import { useRouter } from 'next/router'
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 
@@ -23,10 +23,10 @@ import themeConfig from 'src/configs/themeConfig'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useSettings } from 'src/@core/hooks/useSettings'
+
 import MuiCard, { CardProps } from '@mui/material/Card'
 // ** Demo Imports
-import FooterIllustrationsV2 from 'src/views/pages/auth/FooterIllustrationsV2'
+
 import { useForm } from 'react-hook-form'
 import useForgotPasswordSchema from './validation'
 
@@ -50,11 +50,12 @@ interface ForgotPasswordProps {
 const ForgotPassword = () => {
   // ** Hooks
   const theme = useTheme()
-  const { settings } = useSettings()
+
   const forgotPasswordSchema = useForgotPasswordSchema()
 
+  const router = useRouter()
+
   // ** Vars
-  const { skin } = settings
 
   const {
     register,
@@ -72,9 +73,11 @@ const ForgotPassword = () => {
 
   const onSubmitEmail = useCallback((info: ForgotPasswordProps) => {
     console.log(info)
+    router.push({
+      pathname: '/forgot-password/complete',
+      query: { email: info.email },
+    })
   }, [])
-
-  console.log(errors)
 
   return (
     <Box className='content-center'>
