@@ -781,6 +781,10 @@ const SignUpPage = () => {
                     setPinError('')
                     setPin(value)
                   }}
+                  onComplete={value => {
+                    setPinError('')
+                    setPin(value)
+                  }}
                   type='numeric'
                   inputMode='number'
                   style={{

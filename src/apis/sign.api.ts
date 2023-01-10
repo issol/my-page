@@ -83,7 +83,7 @@ export const signUp = async (
   password: string,
 ): Promise<{ userId: number; email: string }> => {
   try {
-    const { data } = await axios.put(`/api/enough/a/signup`, {
+    const { data } = await axios.post(`/api/enough/a/signup`, {
       email,
       password,
     })
