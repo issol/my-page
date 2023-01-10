@@ -14,6 +14,7 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
+    "@glocalize-inc/glo-languages": "1.0.1",
     "@casl/ability": "6.3.2",
     "@casl/react": "3.1.0",
     "@emotion/cache": "11.10.5",
@@ -52,6 +53,7 @@
     "i18next-http-backend": "2.0.0",
     "jsonwebtoken": "8.5.1",
     "keen-slider": "6.8.3",
+    "lodash": "^4.17.21",
     "next": "13.0.0",
     "nprogress": "0.2.0",
     "payment": "2.4.6",
@@ -68,6 +70,7 @@
     "react-hot-toast": "2.4.0",
     "react-i18next": "12.0.0",
     "react-perfect-scrollbar": "1.5.8",
+    "react-pin-input": "^1.3.0",
     "react-popper": "2.3.0",
     "react-query": "^3.39.2",
     "react-redux": "8.0.4",

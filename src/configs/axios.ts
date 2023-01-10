@@ -1,7 +1,8 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
+import authConfig from 'src/configs/auth'
 
-export const BASEURL = process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-dev.gloground.com'
-
+export const BASEURL =
+  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 let isTokenRefreshing = false
 let refreshSubscribers: any = []
 
@@ -18,10 +19,13 @@ const instance = axios.create({
   baseURL: BASEURL,
   headers: {
     Accept: 'application/json',
-    Authorization: 'Bearer ' + typeof window === 'object' ? localStorage.getItem('accessToken') : null
+    Authorization:
+      'Bearer ' + typeof window === 'object'
+        ? localStorage.getItem('accessToken')
+        : null,
   },
   timeout: 10000,
-  withCredentials: true
+  withCredentials: true,
 })
 
 export const setHeaderToken = (token: string) => {
@@ -49,27 +53,12 @@ instance.interceptors.request.use(
       config.headers = config.headers ?? {}
       config.headers.Authorization = `Bearer ${token}`
     }
-
     return config
   },
   error => {
-    // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     return Promise.reject(error)
-  }
+  },
 )
-
-// instance.interceptors.response.use(
-//   (response: AxiosResponse) => {
-//     return response
-//   },
-//   async (error) => {
-//     const originalRequest = error.config
-//     if (error.response?.status === 401 && !originalRequest._retry) {
-//       // 인증 실패시 토큰 재요청 여기서 할건지 정하기
-//     }
-//     return Promise.reject(error)
-//   },
-// )
 
 instance.interceptors.response.use(
   (response: AxiosResponse) => {
@@ -80,29 +69,18 @@ instance.interceptors.response.use(
     const originalRequest = error.config
     const originalRequestHeader = error.config.headers ?? {}
 
-    // if (window.location.host.includes('localhost')) {
-    // } else{
-
-    // }
-
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
-
-        // const { data } = useGetRefreshToken(isTokenRefreshing)
-        const { data } = await axios.get(
-          `${BASEURL}/api/pichu/auth/refresh-access-token?selects=email&selects=originatorCredentials`
-        )
+        const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
 
         const { accessToken: newAccessToken } = data
-
-        // console.log(newAccessToken)
 
         if (newAccessToken === null) {
           isTokenRefreshing = false
           window.location.href = '/login'
 
-          localStorage.removeItem('accessToken')
+          localStorage.removeItem(authConfig.storageTokenKeyName)
           localStorage.removeItem('email')
           localStorage.removeItem('role')
 
@@ -110,12 +88,11 @@ instance.interceptors.response.use(
         } else {
           setHeaderToken(newAccessToken)
 
-          // invalidateQuery()
-
           isTokenRefreshing = false
-          axios.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken
+          axios.defaults.headers.common['Authorization'] =
+            'Bearer ' + newAccessToken
           onTokenRefreshed(newAccessToken)
-          window.location.reload()
+          // window.location.reload()
         }
       }
       const retryOriginalRequest = new Promise(resolve => {
@@ -129,9 +106,8 @@ instance.interceptors.response.use(
     } else {
       // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     }
-
     return Promise.reject(error)
-  }
+  },
 )
 
 export default instance
