@@ -93,6 +93,20 @@ export const signUp = async (
   }
 }
 
+export const validateRole = async (
+  companyName: string,
+  email: string,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/comp/e-chk?companyName=${companyName}&email=${email}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const postRole = async (userId: number, roles: Array<RoleType>) => {
   try {
     await axios.put(`/api/enough/a/role/grant`, { userId, roles })

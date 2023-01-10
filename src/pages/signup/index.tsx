@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect, useContext } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -40,6 +40,7 @@ import {
   redirectLinkedInAuth,
   sendEmailVerificationCode,
   signUp,
+  validateRole,
   verifyPinCode,
 } from 'src/apis/sign.api'
 import { RoleType } from 'src/types/apps/userTypes'
@@ -48,6 +49,7 @@ import { useMutation } from 'react-query'
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
+import { ModalContext } from 'src/context/ModalContext'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -132,6 +134,7 @@ interface FormData {
 
 const SignUpPage = () => {
   const router = useRouter()
+  const { setModal } = useContext(ModalContext)
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
@@ -225,6 +228,7 @@ const SignUpPage = () => {
       setPinError('Invalid verification code.')
     },
   })
+
   useEffect(() => {
     // validation
     const beforeState = cloneDeep(validationNewPassword)
@@ -255,7 +259,65 @@ const SignUpPage = () => {
     const value = e.target.value as RoleType
     const filtered = role.filter(item => item !== value)
     if (e.target.checked) {
-      setRole([...filtered, value])
+      switch (value) {
+        case 'LPM':
+        case 'TAD':
+          validateRole('Gloz', getValues('email')).then(res => {
+            if (res) setRole([...filtered, value])
+            else {
+              setModal(
+                <Box
+                  sx={{
+                    padding: '24px',
+                    textAlign: 'center',
+                    background: '#ffffff',
+                    borderRadius: '14px',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      alignItems: 'center',
+                      gap: '12px',
+                    }}
+                  >
+                    <img
+                      src='/images/icons/project-icons/status-alert-error.png'
+                      width={60}
+                      height={60}
+                      alt='role select error'
+                    />
+                    <Typography variant='body2'>
+                      Please use the company email only.
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '8px' }} mt={4}>
+                    <Button variant='contained' onClick={() => setModal(null)}>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant='outlined'
+                      onClick={() => {
+                        setStep(1)
+                        setModal(null)
+                      }}
+                    >
+                      Move to sign up
+                    </Button>
+                  </Box>
+                </Box>,
+              )
+            }
+          })
+
+          break
+
+        case 'PRO':
+        case 'CLIENT':
+          setRole([...filtered, value])
+          break
+      }
     } else {
       setRole([...filtered])
     }
@@ -545,8 +607,7 @@ const SignUpPage = () => {
               </form>
             </BoxWrapper>
           </Box>
-        ) : /* TODO : role card의 이미지 교체 필요 */
-        step === 2 ? (
+        ) : step === 2 ? (
           <Box>
             <Typography variant='h4' align='center' mb={12}>
               Select your role
@@ -563,7 +624,13 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <img
+                    src='/images/signup/role-client.png'
+                    aria-hidden
+                    alt=''
+                    width={200}
+                    height={200}
+                  />
                   <InputLabel htmlFor='client' sx={{ textAlign: 'center' }}>
                     <Typography color='primary'>Client</Typography>
                   </InputLabel>
@@ -589,7 +656,13 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <img
+                    src='/images/signup/role-pro.png'
+                    aria-hidden
+                    alt=''
+                    width={200}
+                    height={200}
+                  />
                   <InputLabel htmlFor='pro' sx={{ textAlign: 'center' }}>
                     <Typography color='primary'>Pro</Typography>
                   </InputLabel>
@@ -615,7 +688,13 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <img
+                    src='/images/signup/role-tad.png'
+                    aria-hidden
+                    alt=''
+                    width={200}
+                    height={200}
+                  />
                   <InputLabel htmlFor='tad' sx={{ textAlign: 'center' }}>
                     <Typography color='primary'>TAD</Typography>
                   </InputLabel>
@@ -641,7 +720,13 @@ const SignUpPage = () => {
                     gap: '8px',
                   }}
                 >
-                  <img src='/images/avatars/1.png' aria-hidden alt='' />
+                  <img
+                    src='/images/signup/role-lpm.png'
+                    aria-hidden
+                    alt=''
+                    width={200}
+                    height={200}
+                  />
                   <InputLabel htmlFor='lpm' sx={{ textAlign: 'center' }}>
                     <Typography color='primary'>LPM</Typography>
                   </InputLabel>
