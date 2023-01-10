@@ -58,7 +58,6 @@ const AuthProvider = ({ children }: Props) => {
       const storedToken = window.localStorage.getItem(
         authConfig.storageTokenKeyName,
       )!
-      console.log(storedToken)
 
       if (storedToken) {
         setLoading(true)

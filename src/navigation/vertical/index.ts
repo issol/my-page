@@ -11,6 +11,14 @@ const navigation = (role: string): VerticalNavItemsType => {
       subject: `${role}`,
       path: `/${role.toLowerCase()}/dashboard`,
     },
+
+    {
+      title: 'Company',
+      icon: 'mdi:home-outline',
+      action: 'company-read',
+      subject: `${role}`,
+      path: `/${role.toLowerCase()}/company`,
+    },
     // ** Account - Client, LPM, TAD
     {
       title: 'Account',

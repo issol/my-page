@@ -335,7 +335,7 @@ const users: UserDataType[] = [
 
   {
     id: 41,
-    role: 'CLIENT',
+    role: 'TAD',
     password: 'admin',
     fullName: 'Leriel Kim',
     username: 'Leriel',
@@ -362,7 +362,7 @@ mock.onPost('/jwt/login').reply(request => {
   const user = data.users.find(
     u => u.email === email && u.password === password,
   )
-  console.log(data.users)
+
   if (user) {
     const accessToken = jwt.sign({ id: user.id }, jwtConfig.secret as string, {
       expiresIn: jwtConfig.expirationTime,

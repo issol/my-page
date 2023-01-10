@@ -7646,7 +7646,7 @@ export const data: { users: UserDataType[] } = {
 
     {
       id: 41,
-      role: 'CLIENT',
+      role: 'LPM',
       password: 'admin',
       fullName: 'Leriel Kim',
       username: 'Leriel',
@@ -7834,6 +7834,12 @@ export const data: { users: UserDataType[] } = {
           delete: false,
         },
         roles: {
+          create: true,
+          read: true,
+          update: true,
+          delete: true,
+        },
+        company: {
           create: true,
           read: true,
           update: true,
