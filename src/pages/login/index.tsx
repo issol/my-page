@@ -35,6 +35,7 @@ import themeConfig from 'src/configs/themeConfig'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
+import { useRouter } from 'next/router'
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -81,6 +82,7 @@ interface FormData {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const router = useRouter()
 
   // ** Hooks
   const auth = useAuth()
@@ -334,7 +336,13 @@ const LoginPage = () => {
                     label='Remember Me'
                   />
                   {/* TODO : 추후 href 변경하기 */}
-                  <Link href='/forgot-password'>Forgot Password?</Link>
+                  <Typography
+                    sx={{ color: '#666CFF', cursor: 'pointer' }}
+                    onClick={() => router.push('/forgot-password')}
+                  >
+                    Forgot Password?
+                  </Typography>
+                  {/* <Link href='/forgot-password'>Forgot Password?</Link> */}
                 </Box>
               </FormControl>
 
