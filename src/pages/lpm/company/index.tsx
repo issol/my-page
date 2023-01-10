@@ -21,6 +21,7 @@ import Box from '@mui/material/Box'
 import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
 import { MembersType, SignUpRequestsType } from 'src/types/company/members'
+import { faker } from '@faker-js/faker'
 
 const RoleArray = ['TAD', 'LPM']
 const LpmCompany = () => {
@@ -177,13 +178,13 @@ const LpmCompany = () => {
         addMemberAfterApproveMutation.mutate(
           {
             id: index + 1,
-            firstName: 'Minkyu',
-            middleName: 'hi',
-            lastName: 'Kim',
+            firstName: faker.name.firstName(),
+            middleName: faker.name.middleName(),
+            lastName: faker.name.lastName(),
             role: user.role,
             email: user.email,
             permission: user.permission,
-            jobTitle: 'Frontend Developer',
+            jobTitle: faker.name.jobTitle(),
             createdAt: new Date().getTime(),
           },
           {

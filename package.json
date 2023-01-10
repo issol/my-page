@@ -14,7 +14,6 @@
     "build-storybook": "build-storybook -s public"
   },
   "dependencies": {
-    "@glocalize-inc/glo-languages": "1.0.1",
     "@casl/ability": "6.3.2",
     "@casl/react": "3.1.0",
     "@emotion/cache": "11.10.5",
@@ -29,6 +28,7 @@
     "@fullcalendar/list": "5.11.3",
     "@fullcalendar/react": "5.11.2",
     "@fullcalendar/timegrid": "5.11.3",
+    "@glocalize-inc/glo-languages": "1.0.1",
     "@hookform/resolvers": "^2.9.10",
     "@iconify/react": "4.0.0",
     "@mui/lab": "5.0.0-alpha.105",
@@ -47,6 +47,7 @@
     "clsx": "1.2.1",
     "date-fns": "2.29.3",
     "draft-js": "0.11.7",
+    "faker": "^6.6.6",
     "firebase": "^9.13.0",
     "i18next": "22.0.4",
     "i18next-browser-languagedetector": "7.0.0",
@@ -83,6 +84,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.5",
+    "@faker-js/faker": "^7.6.0",
     "@iconify/iconify": "3.0.0",
     "@iconify/json": "2.1.131",
     "@iconify/tools": "2.1.1",
