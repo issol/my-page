@@ -2,15 +2,15 @@ import { AbilityBuilder, Ability } from '@casl/ability'
 import { forEach } from 'lodash'
 import { RoleType } from 'src/types/apps/userTypes'
 
-export type Subjects = Array<string> //permission
-export type Actions = Array<RoleType>
+export type Subjects_Permission = Array<string> //permission
+export type Actions_Roles = Array<RoleType>
 
-export type AppAbility = Ability<[string, Subjects]> | undefined
+export type AppAbility = Ability<[any, any]> | undefined
 
 export const AppAbility = Ability as any
 export type ACLObj = {
-  action: Subjects
-  subject: Actions
+  action: Subjects_Permission
+  subject: Actions_Roles
 }
 
 /**
@@ -18,31 +18,20 @@ export type ACLObj = {
  * We have just shown Admin and Client rules for demo purpose where
  * admin can manage everything and client can just visit ACL page
  */
-const defineRulesFor = (role: Array<RoleType>, permission: Array<string>) => {
+const defineRulesFor = (
+  role: Array<RoleType>,
+  permission: Subjects_Permission,
+) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
-
-  const result = Object.entries(permission)
-    .map(([key, value]) => {
-      const res = Object.entries(value).map(([permission, data]) => {
-        return data && `${key}-${permission}`
-      })
-
-      return res
-    })
-    .flat()
-    .filter(value => value)
-
   role.forEach((item: RoleType) => {
-    can(result, item)
+    can(permission, item)
   })
-
   return rules
 }
 
 export const buildAbilityFor = (
+  permission: Subjects_Permission,
   role: Array<RoleType>,
-  // subject: string[],
-  permission: string[],
 ): AppAbility => {
   return new AppAbility(defineRulesFor(role, permission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
@@ -52,8 +41,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: [''],
-  subject: ['PRO'],
+  action: ['company-read'],
+  subject: ['TAD'],
 }
 
 export default defineRulesFor

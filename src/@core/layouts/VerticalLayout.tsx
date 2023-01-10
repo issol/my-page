@@ -24,7 +24,7 @@ import ScrollToTop from 'src/@core/components/scroll-to-top'
 
 const VerticalLayoutWrapper = styled('div')({
   height: '100%',
-  display: 'flex'
+  display: 'flex',
 })
 
 const MainContentWrapper = styled(Box)<BoxProps>({
@@ -32,7 +32,7 @@ const MainContentWrapper = styled(Box)<BoxProps>({
   minWidth: 0,
   display: 'flex',
   minHeight: '100vh',
-  flexDirection: 'column'
+  flexDirection: 'column',
 })
 
 const ContentWrapper = styled('main')(({ theme }) => ({
@@ -42,17 +42,26 @@ const ContentWrapper = styled('main')(({ theme }) => ({
   transition: 'padding .25s ease-in-out',
   [theme.breakpoints.down('sm')]: {
     paddingLeft: theme.spacing(4),
-    paddingRight: theme.spacing(4)
-  }
+    paddingRight: theme.spacing(4),
+  },
 }))
 
 const VerticalLayout = (props: LayoutProps) => {
   // ** Props
-  const { hidden, settings, children, scrollToTop, footerProps, contentHeightFixed, verticalLayoutProps } = props
+  const {
+    hidden,
+    settings,
+    children,
+    scrollToTop,
+    footerProps,
+    contentHeightFixed,
+    verticalLayoutProps,
+  } = props
 
   // ** Vars
   const { skin, navHidden, contentWidth } = settings
-  const { navigationSize, disableCustomizer, collapsedNavigationSize } = themeConfig
+  const { navigationSize, disableCustomizer, collapsedNavigationSize } =
+    themeConfig
   const navWidth = navigationSize
   const navigationBorderWidth = skin === 'bordered' ? 1 : 0
   const collapsedNavWidth = collapsedNavigationSize
@@ -67,7 +76,9 @@ const VerticalLayout = (props: LayoutProps) => {
     <>
       <VerticalLayoutWrapper className='layout-wrapper'>
         {/* Navigation Menu */}
-        {navHidden && !(navHidden && settings.lastLayout === 'horizontal') ? null : (
+        {props?.roleButton}
+        {navHidden &&
+        !(navHidden && settings.lastLayout === 'horizontal') ? null : (
           <Navigation
             navWidth={navWidth}
             navVisible={navVisible}
@@ -104,20 +115,24 @@ const VerticalLayout = (props: LayoutProps) => {
             sx={{
               ...(contentHeightFixed && {
                 overflow: 'hidden',
-                '& > :first-of-type': { height: '100%' }
+                '& > :first-of-type': { height: '100%' },
               }),
               ...(contentWidth === 'boxed' && {
                 mx: 'auto',
                 '@media (min-width:1440px)': { maxWidth: 1440 },
-                '@media (min-width:1200px)': { maxWidth: '100%' }
-              })
+                '@media (min-width:1200px)': { maxWidth: '100%' },
+              }),
             }}
           >
             {children}
           </ContentWrapper>
 
           {/* Footer Component */}
-          <Footer footerStyles={footerProps?.sx} footerContent={footerProps?.content} {...props} />
+          <Footer
+            footerStyles={footerProps?.sx}
+            footerContent={footerProps?.content}
+            {...props}
+          />
         </MainContentWrapper>
       </VerticalLayoutWrapper>
 

@@ -41,10 +41,6 @@ type Props = {
   children: ReactNode
 }
 
-type RoleType = {
-  role: string
-}
-
 const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
@@ -79,13 +75,21 @@ const AuthProvider = ({ children }: Props) => {
     login(params.email, params.password)
       .then(async response => {
         console.log(response)
-        const userData = { token: response.accessToken, email: params.email }
-        params.rememberMe
-          ? window.localStorage.setItem(
-              authConfig.storageTokenKeyName,
-              JSON.stringify(userData),
-            )
-          : null
+        // const userData = { token: response.accessToken, email: params.email }
+        // params.rememberMe
+        //   ? window.localStorage.setItem(
+        //       authConfig.storageTokenKeyName,
+        //       JSON.stringify(userData),
+        //     )
+        //   : null
+        setUser({
+          id: response.userId,
+          role: ['TAD', 'LPM'],
+          email: response.email,
+          fullName: 'John Doe',
+          username: 'John',
+          permission: ['company-read'],
+        })
         const returnUrl = router.query.returnUrl
 
         /* TODO

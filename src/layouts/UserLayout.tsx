@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import { Theme } from '@mui/material/styles'
@@ -24,6 +24,8 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
 import { useAuth } from 'src/hooks/useAuth'
+import { Button } from '@mui/material'
+import { RoleType } from 'src/types/apps/userTypes'
 
 interface Props {
   children: ReactNode
@@ -31,9 +33,23 @@ interface Props {
 }
 
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
+  const auth = useAuth()
   // ** Hooks
   const { settings, saveSettings } = useSettings()
-  const auth = useAuth()
+  const [role, setRole] = useState<RoleType | null>(auth.user?.role[0] || null)
+  const [roleBtn, setRoleBtn] = useState<ReactNode>(null)
+
+  useEffect(() => {
+    setRoleBtn(
+      <div>
+        {auth.user?.role.map((item, idx) => (
+          <Button key={idx} onClick={() => setRole(item)}>
+            {item}
+          </Button>
+        ))}
+      </div>,
+    )
+  }, [auth.user?.role])
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -59,9 +75,10 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       settings={settings}
       saveSettings={saveSettings}
       contentHeightFixed={contentHeightFixed}
+      roleButton={roleBtn}
       verticalLayoutProps={{
         navMenu: {
-          navItems: VerticalNavItems(auth.user ? auth.user.role : ''),
+          navItems: VerticalNavItems(role),
 
           // Uncomment the below line when using server-side menu in vertical layout and comment the above line
           // navItems: verticalMenuItems
@@ -80,7 +97,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       {...(settings.layout === 'horizontal' && {
         horizontalLayoutProps: {
           navMenu: {
-            navItems: HorizontalNavItems(auth.user ? auth.user.role : ''),
+            navItems: HorizontalNavItems(role),
 
             // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
             // navItems: horizontalMenuItems
