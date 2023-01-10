@@ -1,5 +1,12 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect } from 'react'
+import {
+  useState,
+  ReactNode,
+  MouseEvent,
+  useEffect,
+  useMemo,
+  useCallback,
+} from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -14,7 +21,15 @@ import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Card, CardContent, Link, useMediaQuery } from '@mui/material'
+import {
+  Card,
+  CardContent,
+  FormControlLabel,
+  Link,
+  useMediaQuery,
+} from '@mui/material'
+import Select from '@mui/material/Select'
+import MenuItem from '@mui/material/MenuItem'
 
 import cloneDeep from 'lodash/cloneDeep'
 
@@ -25,6 +40,9 @@ import Icon from 'src/@core/components/icon'
 import * as yup from 'yup'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
+// ** CleaveJS Imports
+import Cleave from 'cleave.js/react'
+import 'cleave.js/dist/addons/cleave-phone.us'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
@@ -40,6 +58,8 @@ import { useMutation } from 'react-query'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { checkName } from 'src/shared/helpers/profile.validator'
+import { Pronunciation } from 'src/shared/const/personalInfo'
+import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -75,38 +95,6 @@ const profileErrorMsg = {
 } as const
 
 const schema = yup.object().shape({
-  // email: yup
-  //   .string()
-  //   .email('Invalid email address')
-  //   .test(
-  //     'email-duplication',
-  //     'This email is already registered',
-  //     (val: any) => {
-  //       return new Promise((resolve, reject) => {
-  //         checkEmailDuplication(val)
-  //           .then(() => {
-  //             resolve(true)
-  //           })
-  //           .catch((e: any) => {
-  //             reject(true)
-  //           })
-  //       })
-  //     },
-  //   )
-  //   .required('This field is required'),
-  // password: yup
-  //   .string()
-  //   .test('password-validation', '', (val: any) => {
-  //     return (
-  //       val.length >= 9 &&
-  //       val.length <= 20 &&
-  //       /[a-z]/g.test(val) &&
-  //       /[A-Z]/g.test(val) &&
-  //       /[0-9]/g.test(val) &&
-  //       /[$@$!%*#?&]/g.test(val)
-  //     )
-  //   })
-  //   .required('This field is required'),
   firstName: yup
     .string()
     .test('name-regex', profileErrorMsg.name_regex, (val: any) =>
@@ -189,6 +177,7 @@ const PersonalInfo = () => {
   const onSubmit = (data: FormData) => {
     // const { email, password } = data
   }
+  console.log(getValues())
 
   return (
     <Box className='content-right'>
@@ -235,34 +224,317 @@ const PersonalInfo = () => {
               </Box>
             </Box>
 
-            {/* <form
+            <form
               noValidate
               autoComplete='off'
-              onSubmit={handleSubmit(onSubmit)}
+              // onSubmit={handleSubmit(onSubmit)}
             >
-              <FormControl fullWidth sx={{ mb: 4 }}>
-                <Controller
-                  name='email'
-                  control={control}
-                  rules={{ required: true }}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <TextField
-                      autoFocus
-                      label='Email'
-                      value={value}
-                      onBlur={onBlur}
-                      onChange={onChange}
-                      error={Boolean(errors.email)}
-                      placeholder='username@example.com'
-                    />
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <FormControl sx={{ mb: 4 }} fullWidth>
+                  <Controller
+                    name='firstName'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 50 }}
+                        error={Boolean(errors.firstName)}
+                        placeholder='First name*'
+                      />
+                    )}
+                  />
+                  {errors.firstName && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.firstName.message}
+                    </FormHelperText>
                   )}
-                />
-                {errors.email && (
-                  <FormHelperText sx={{ color: 'error.main' }}>
-                    {errors.email.message}
-                  </FormHelperText>
+                </FormControl>
+                <FormControl sx={{ mb: 4 }} fullWidth>
+                  <Controller
+                    name='middleName'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 50 }}
+                        error={Boolean(errors.middleName)}
+                        placeholder='Middle name'
+                      />
+                    )}
+                  />
+                  {errors.middleName && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.middleName.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+                <FormControl sx={{ mb: 4 }} fullWidth>
+                  <Controller
+                    name='lastName'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 50 }}
+                        error={Boolean(errors.lastName)}
+                        placeholder='Last name*'
+                      />
+                    )}
+                  />
+                  {errors.lastName && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.lastName.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+              <Box sx={{ display: 'flex', gap: '8px' }}>
+                <FormControl sx={{ mb: 2 }} fullWidth>
+                  <Controller
+                    name='pronunciation'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 200 }}
+                        error={Boolean(errors.pronunciation)}
+                        placeholder='Pronunciation'
+                      />
+                    )}
+                  />
+                  {errors.pronunciation && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.pronunciation.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+                <FormControl sx={{ mb: 2 }} fullWidth>
+                  <Controller
+                    name='pronounce'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <>
+                        <InputLabel id='Pronounce'>Pronounce</InputLabel>
+                        <Select
+                          label='Pronounce'
+                          value={value}
+                          placeholder='Pronounce'
+                          onBlur={onBlur}
+                          onChange={onChange}
+                        >
+                          {Pronunciation.map((item, idx) => (
+                            <MenuItem value={item.value} key={idx}>
+                              {item.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </>
+                    )}
+                  />
+                  {errors.pronounce && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.pronounce.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+              <Controller
+                name='havePreferred'
+                control={control}
+                rules={{ required: true }}
+                render={({ field: { value, onChange, onBlur } }) => (
+                  <FormControlLabel
+                    control={
+                      <Checkbox
+                        value={value || false}
+                        onChange={onChange}
+                        onBlur={onBlur}
+                        checked={value || false}
+                      />
+                    }
+                    label='I have my preferred name.'
+                  />
                 )}
-              </FormControl>
+              />
+              {getValues('havePreferred') && (
+                <Box sx={{ display: 'flex', gap: '8px' }}>
+                  <FormControl sx={{ mb: 2 }} fullWidth>
+                    <Controller
+                      name='pronunciation'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextField
+                          autoFocus
+                          value={value}
+                          onBlur={onBlur}
+                          onChange={onChange}
+                          inputProps={{ maxLength: 200 }}
+                          error={Boolean(errors.pronunciation)}
+                          placeholder='Pronunciation'
+                        />
+                      )}
+                    />
+                    {errors.pronunciation && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.pronunciation.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                  <FormControl sx={{ mb: 2 }} fullWidth>
+                    <Controller
+                      name='pronounce'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <>
+                          <InputLabel id='Pronounce'>Pronounce</InputLabel>
+                          <Select
+                            label='Pronounce'
+                            value={value}
+                            placeholder='Pronounce'
+                            onBlur={onBlur}
+                            onChange={onChange}
+                          >
+                            {Pronunciation.map((item, idx) => (
+                              <MenuItem value={item.value} key={idx}>
+                                {item.label}
+                              </MenuItem>
+                            ))}
+                          </Select>
+                        </>
+                      )}
+                    />
+                    {errors.pronounce && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.pronounce.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
+                </Box>
+              )}
+
+              <Divider />
+              <Box>
+                <FormControl sx={{ mb: 2 }} fullWidth>
+                  <Controller
+                    name='pronounce'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <>
+                        <InputLabel id='Pronounce'>Pronounce</InputLabel>
+                        <Select
+                          label='Pronounce'
+                          value={value}
+                          placeholder='Pronounce'
+                          onBlur={onBlur}
+                          onChange={onChange}
+                        >
+                          {Pronunciation.map((item, idx) => (
+                            <MenuItem value={item.value} key={idx}>
+                              {item.label}
+                            </MenuItem>
+                          ))}
+                        </Select>
+                      </>
+                    )}
+                  />
+                  {errors.pronounce && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.pronounce.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
+              {/* phone  */}
+              <Box sx={{ display: 'flex', gap: '8px' }}>
+                <FormControl sx={{ mb: 2 }} fullWidth>
+                  <Controller
+                    name='mobile'
+                    control={control}
+                    rules={{ required: false }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 50 }}
+                        error={Boolean(errors.mobile)}
+                        placeholder='Mobile phone'
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>
+                              +63
+                            </InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  {errors.mobile && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.mobile.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+                {/* 1. textfield로 setState하기
+                    2. state를 phone형태로 포매팅하기
+                    3. Input adorment 사용해서 timezone보여주기 */}
+
+                <FormControl sx={{ mb: 2 }} fullWidth>
+                  <Controller
+                    name='phone'
+                    control={control}
+                    rules={{ required: true }}
+                    render={({ field: { value, onChange, onBlur } }) => (
+                      <TextField
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 200 }}
+                        error={Boolean(errors.phone)}
+                        placeholder='Telephone'
+                        InputProps={{
+                          startAdornment: (
+                            <InputAdornment position='start'>Kg</InputAdornment>
+                          ),
+                        }}
+                      />
+                    )}
+                  />
+                  {errors.pronunciation && (
+                    <FormHelperText sx={{ color: 'error.main' }}>
+                      {errors.pronunciation.message}
+                    </FormHelperText>
+                  )}
+                </FormControl>
+              </Box>
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                 <Button
                   size='large'
@@ -284,7 +556,7 @@ const PersonalInfo = () => {
                   Next &rarr;
                 </Button>
               </Box>
-            </form> */}
+            </form>
           </BoxWrapper>
         </Box>
       </RightWrapper>
