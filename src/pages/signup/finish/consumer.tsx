@@ -17,8 +17,8 @@ import { useRouter } from 'next/router'
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   display: 'flex',
-  alignItems: 'column',
-  gap: '10px',
+  justifyContent: 'center',
+  alignItems: 'center',
   [theme.breakpoints.down('md')]: {
     maxWidth: 500,
   },
@@ -33,14 +33,36 @@ const FinishSignUpConsumer = () => {
   return (
     <Box className='content-center'>
       <BoxWrapper>
-        <img src='/images/avatars/1.png' aria-disabled alt='' />
-        <Typography variant='h3'>Welcome to Enough!</Typography>
-        <Typography variant='h3'>
-          Let's move to the next step to fill out more information about you!
-        </Typography>
-        <Button variant='contained' onClick={onButtonClick}>
-          Go to fill out info &rarr;
-        </Button>
+        <Box
+          sx={{
+            maxWidth: '340px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '8px',
+            textAlign: 'center',
+          }}
+        >
+          <img
+            src='/images/signup/signup-complete-consumer.png'
+            aria-hidden
+            alt=''
+            width={248}
+            height={189}
+          />
+          <Typography variant='h6'>Welcome to Enough!</Typography>
+          <Typography variant='body2'>
+            Let's move to the next step to fill out more information about you!
+          </Typography>
+          <Button
+            variant='contained'
+            fullWidth
+            sx={{ marginTop: '20px' }}
+            onClick={onButtonClick}
+          >
+            Go to fill out info &rarr;
+          </Button>
+        </Box>
       </BoxWrapper>
     </Box>
   )

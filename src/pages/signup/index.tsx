@@ -216,6 +216,7 @@ const SignUpPage = () => {
           toast.error('Something went wrong. Please try again.')
         }
       },
+      retry: 1,
     },
   )
 
