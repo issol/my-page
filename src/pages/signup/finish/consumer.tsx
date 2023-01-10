@@ -27,7 +27,9 @@ const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
 const FinishSignUpConsumer = () => {
   const router = useRouter()
   function onButtonClick() {
-    router.push('')
+    // router.push('')
+    // ** 레리엘 수정
+    router.push('/login')
   }
 
   return (
