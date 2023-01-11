@@ -46,7 +46,7 @@ export const StatusCode = {
   511: 'Network Authentication Required',
 }
 
-export const ApiErrorHandler = (error: AxiosError, email: string = '') => {
+export const ApiErrorHandler = (error: AxiosError, email = '') => {
   const errorData = error.config!.data
 
   const { method, url, params, headers } = error.config! // axios의 error객체
@@ -73,10 +73,10 @@ export const ApiErrorHandler = (error: AxiosError, email: string = '') => {
       scope.setUser({ email: email })
       scope.setLevel('error')
 
-      let err: any = new Error(`${error.message}`)
+      const err: any = new Error(`${error.message}`)
 
       if (Object.keys(StatusCode).includes(status.toString())) {
-        for (let [key, value] of Object.entries(StatusCode)) {
+        for (const [key, value] of Object.entries(StatusCode)) {
           if (key === status.toString()) err.name = value
         }
       }
