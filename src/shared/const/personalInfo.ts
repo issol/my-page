@@ -56,11 +56,11 @@ export const RolePair = {
 } as const
 
 export const ExperiencedYears = [
-  { label: 'NONE', value: 'No experience' },
-  { label: 'LESS_THAN_TWO', value: '1-2 years' },
-  { label: 'THREE_TO_FIVE', value: '3-5 years' },
-  { label: 'SIX_TO_NINE', value: '6-9 years' },
-  { label: 'MORE_THAN_TEN', value: '10+ years' },
+  { value: 'NONE', label: 'No experience' },
+  { value: 'LESS_THAN_TWO', label: '1-2 years' },
+  { value: 'THREE_TO_FIVE', label: '3-5 years' },
+  { value: 'SIX_TO_NINE', label: '6-9 years' },
+  { value: 'MORE_THAN_TEN', label: '10+ years' },
 ] as const
 
 export const Specialties = [

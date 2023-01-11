@@ -21,25 +21,37 @@ export const profileSchema = yup.object().shape({
   havePreferred: yup.boolean().required(),
   preferredName: yup.string().nullable(),
   preferredName_pronunciation: yup.string().nullable(),
-  timezone: yup
-    .object()
-    .shape({
-      code: yup.string(),
-      label: yup.string(),
-      phone: yup.string(),
-    })
-    .nullable(),
+  timezone: yup.object().shape({
+    code: yup.string().required('This field is required'),
+    label: yup.string().required('This field is required'),
+    phone: yup.string().required('This field is required'),
+  }),
   mobile: yup.string().nullable(),
   phone: yup.string().nullable(),
   jobInfo: yup.array().of(
     yup.object().shape({
       jobType: yup.string().required('This field is required'),
       role: yup.string().required('This field is required'),
-      source: yup.string().required('This field is required'),
-      target: yup.string().required('This field is required'),
+      source: yup
+        .string()
+        .required('This field is required')
+        .when('jobType', (jobType, schema) =>
+          jobType === 'dtp' ? yup.string().nullable() : schema,
+        ),
+      target: yup
+        .string()
+        .required('This field is required')
+        .when('jobType', (jobType, schema) =>
+          jobType === 'dtp' ? yup.string().nullable() : schema,
+        ),
     }),
   ),
-  // experience
+  experience: yup.string().required('This field is required'),
   // resume
-  // specialties
+  specialties: yup.array().of(
+    yup.object().shape({
+      label: yup.string().required('This field is required'),
+      value: yup.string().required('This field is required'),
+    }),
+  ),
 })

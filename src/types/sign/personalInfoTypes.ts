@@ -26,5 +26,5 @@ export interface PersonalInfo {
   }>
   experience: string
   resume: File | null
-  specialties?: string
+  specialties: Array<{ label: string; value: string }>
 }
