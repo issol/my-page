@@ -64,7 +64,7 @@ const AuthProvider = ({ children }: Props) => {
         setLoading(false)
       } else {
         window.localStorage.removeItem('userData')
-        router.replace('/login')
+        // router.replace('/login')
         setLoading(false)
       }
     }

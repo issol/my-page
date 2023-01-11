@@ -53,4 +53,51 @@ export const RolePair = {
     { label: 'Subtitle author', value: 'Subtitle author' },
     { label: 'Translator', value: 'Translator' },
   ],
-}
+} as const
+
+export const ExperiencedYears = [
+  { label: 'NONE', value: 'No experience' },
+  { label: 'LESS_THAN_TWO', value: '1-2 years' },
+  { label: 'THREE_TO_FIVE', value: '3-5 years' },
+  { label: 'SIX_TO_NINE', value: '6-9 years' },
+  { label: 'MORE_THAN_TEN', value: '10+ years' },
+] as const
+
+export const Specialties = [
+  { label: 'Cooking/Food&Drink', value: 'Cooking/Food&Drink' },
+  {
+    label: 'Health(Mental and physical)',
+    value: 'Health(Mental and physical)',
+  },
+  { label: 'Sports', value: 'Sports' },
+  { label: 'Beauty/Fashion', value: 'Beauty/Fashion' },
+  { label: 'Movies', value: 'Movies' },
+  { label: 'Drama', value: 'Drama' },
+  { label: 'Documents', value: 'Documents' },
+  { label: 'Finance', value: 'Finance' },
+  { label: 'Education/Teaching', value: 'Education/Teaching' },
+  { label: 'Music/Entertainment', value: 'Music/Entertainment' },
+  { label: 'Animals/Pets', value: 'Animals/Pets' },
+  { label: 'Nature', value: 'Nature' },
+  { label: 'Travel', value: 'Travel' },
+  {
+    label: 'Vehicles(Planes, Trains and Automobiles)',
+    value: 'Vehicles(Planes, Trains and Automobiles)',
+  },
+  { label: 'Science/Engineering', value: 'Science/Engineering' },
+  { label: 'Computers/Tech', value: 'Computers/Tech' },
+  { label: 'Legal', value: 'Legal' },
+  { label: 'Medical', value: 'Medical' },
+  { label: 'Political', value: 'Political' },
+  { label: 'Police/Military', value: 'Police/Military' },
+  { label: 'Non-profit/Activism', value: 'Non-profit/Activism' },
+  { label: 'Gaming', value: 'Gaming' },
+  { label: 'Webcomics', value: 'Webcomics' },
+  { label: 'Webnovel/Books/E-books', value: 'Webnovel/Books/E-books' },
+  { label: 'Subtitling', value: 'Subtitling' },
+  { label: 'Interpreting', value: 'Interpreting' },
+  { label: 'Dubbing script translating', value: 'Dubbing script translating' },
+  { label: 'YouTube', value: 'YouTube' },
+  { label: 'Transcription', value: 'Transcription' },
+  { label: 'Proofreading', value: 'Proofreading' },
+]
