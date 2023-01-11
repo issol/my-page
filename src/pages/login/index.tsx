@@ -15,6 +15,7 @@ import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import { Link } from '@mui/material'
+import Linkk from 'next/link'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -174,6 +175,11 @@ const LoginPage = () => {
               </svg>
             </Box>
             <Box sx={{ mb: 6 }}>
+              {/* for test */}
+              <Link href='/signup/'>머터리얼 링크</Link>
+              <br />
+              <Linkk href='/signup/'>넥스트 링크</Linkk>
+
               <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
             </Box>
             <Box
