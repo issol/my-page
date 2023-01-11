@@ -25,6 +25,6 @@ export interface PersonalInfo {
     target: string
   }>
   experience: string
-  resume: null
+  resume: File | null
   specialties?: string
 }

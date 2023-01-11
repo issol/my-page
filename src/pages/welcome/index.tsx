@@ -6,6 +6,7 @@ import {
   useEffect,
   useMemo,
   useCallback,
+  useContext,
 } from 'react'
 
 // ** MUI Components
@@ -63,7 +64,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
-import { JobList, Pronunciation } from 'src/shared/const/personalInfo'
+import { JobList, Pronunciation, RolePair } from 'src/shared/const/personalInfo'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 import {
   CountryType,
@@ -71,6 +72,7 @@ import {
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
 import { profileSchema } from 'src/types/schema/profile.schema'
+import { ModalContext } from 'src/context/ModalContext'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -119,6 +121,8 @@ const defaultValues = {
 
 /* TODO: guestGuard false로 수정하기 */
 const PersonalInfoPro = () => {
+  const { setModal } = useContext(ModalContext)
+
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -161,6 +165,52 @@ const PersonalInfoPro = () => {
   }
   console.log(getValues())
 
+  function addJobInfo() {
+    if (jobInfoFields.length >= 10) {
+      setModal(
+        <Box
+          sx={{
+            padding: '24px',
+            textAlign: 'center',
+            background: '#ffffff',
+            borderRadius: '14px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='role select error'
+            />
+            <Typography variant='body2'>
+              You can select up to 10 at maximum.
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
+            <Button variant='contained' onClick={() => setModal(null)}>
+              Okay
+            </Button>
+          </Box>
+        </Box>,
+      )
+      return
+    }
+    append({ jobType: '', role: '', source: '', target: '' })
+  }
+
+  function removeJobInfo(item: { id: string }) {
+    const idx = jobInfoFields.map(item => item.id).indexOf(item.id)
+    idx !== -1 && remove(idx)
+  }
+
   function onChangeLanguage(
     id: string,
     value: any,
@@ -169,9 +219,14 @@ const PersonalInfoPro = () => {
     console.log(id, value)
     const filtered = jobInfoFields.filter(f => f.id! === id)[0]
     const index = jobInfoFields.findIndex(f => f.id! === id)
-    const newVal = { ...filtered, [item]: value }
+    let newVal = { ...filtered, [item]: value }
+    if (item === 'jobType' && value === 'dtp') {
+      newVal = { ...filtered, [item]: value, source: '', target: '' }
+    }
     update(index, newVal)
   }
+
+  console.log(errors?.jobInfo)
   return (
     <Box className='content-right'>
       {!hidden ? (
@@ -430,7 +485,6 @@ const PersonalInfoPro = () => {
                   )}
 
                   <Divider />
-                  {/* <Autocompletet /> */}
                   <Box>
                     <FormControl sx={{ mb: 2 }} fullWidth>
                       <Controller
@@ -542,156 +596,167 @@ const PersonalInfoPro = () => {
                   {/* JobInfos */}
                   {jobInfoFields?.map((item, idx) => {
                     return (
-                      <Box key={item.id}>
+                      <Box key={item.id} mb={4}>
                         {/* job type & role */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                          }}
+                        >
+                          <Typography mb={3}>{idx + 1}.</Typography>
+                          {jobInfoFields.length > 1 && (
+                            <IconButton onClick={() => removeJobInfo(item)}>
+                              <img
+                                src='/images/signup/delete-info.png'
+                                alt='delete job information'
+                                width={25}
+                              />
+                            </IconButton>
+                          )}
+                        </Box>
+
                         <Box sx={{ display: 'flex', gap: '16px' }}>
                           <FormControl sx={{ mb: 2 }} fullWidth>
-                            <>
-                              <InputLabel id='jobType'>Job type*</InputLabel>
-                              <Select
-                                label='Job type*'
-                                value={item.jobType}
-                                placeholder='Job type *'
-                                onChange={e =>
-                                  onChangeLanguage(
-                                    item.id,
-                                    e.target.value,
-                                    'jobType',
-                                  )
-                                }
-                              >
-                                {JobList.map((item, idx) => (
-                                  <MenuItem value={item.value} key={idx}>
-                                    {item.label}
-                                  </MenuItem>
-                                ))}
-                              </Select>
-                            </>
-                            {/* @ts-ignore */}
-                            {errors?.jobInfo[idx]?.jobType && (
+                            <InputLabel id='jobType'>Job type*</InputLabel>
+                            <Select
+                              label='Job type*'
+                              value={item.jobType}
+                              placeholder='Job type *'
+                              onChange={e =>
+                                onChangeLanguage(
+                                  item.id,
+                                  e.target.value,
+                                  'jobType',
+                                )
+                              }
+                            >
+                              {JobList.map((item, idx) => (
+                                <MenuItem value={item.value} key={idx}>
+                                  {item.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+
+                            {/* {errors?.jobInfo[idx]?.jobType && (
                               <FormHelperText sx={{ color: 'error.main' }}>
                                 {errors?.jobInfo[idx]?.jobType?.message}
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                           <FormControl sx={{ mb: 4 }} fullWidth>
-                            <Controller
-                              name='pronounce'
-                              control={control}
-                              rules={{ required: true }}
-                              render={({
-                                field: { value, onChange, onBlur },
-                              }) => (
-                                <>
-                                  <InputLabel id='legalName_pronounce'>
-                                    Pronounce
-                                  </InputLabel>
-                                  <Select
-                                    label='legalName_pronounce'
-                                    value={value}
-                                    placeholder='Pronounce'
-                                    onBlur={onBlur}
-                                    onChange={onChange}
-                                  >
-                                    {Pronunciation.map((item, idx) => (
-                                      <MenuItem value={item.value} key={idx}>
-                                        {item.label}
-                                      </MenuItem>
-                                    ))}
-                                  </Select>
-                                </>
-                              )}
-                            />
-                            {errors.pronounce && (
+                            <InputLabel id='role'>Role*</InputLabel>
+                            <Select
+                              label='Role*'
+                              value={item.role}
+                              placeholder='Role *'
+                              onChange={e =>
+                                onChangeLanguage(
+                                  item.id,
+                                  e.target.value,
+                                  'role',
+                                )
+                              }
+                            >
+                              {/* @ts-ignore */}
+                              {RolePair[item.jobType]?.map((item, idx) => (
+                                <MenuItem value={item.value} key={idx}>
+                                  {item.label}
+                                </MenuItem>
+                              ))}
+                            </Select>
+                            {/* {errors.pronounce && (
                               <FormHelperText sx={{ color: 'error.main' }}>
                                 {errors.pronounce.message}
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                         </Box>
                         {/* languages */}
                         <Box sx={{ display: 'flex', gap: '16px' }}>
                           <FormControl sx={{ mb: 2 }} fullWidth>
-                            <Controller
-                              name='timezone'
-                              control={control}
-                              rules={{ required: true }}
-                              render={({
-                                field: { value, onChange, onBlur },
-                              }) => (
-                                <Autocomplete
-                                  autoHighlight
-                                  fullWidth
-                                  options={countries as CountryType[]}
-                                  onChange={(e, v) => onChange(v)}
-                                  renderOption={(props, option) => (
-                                    <Box component='li' {...props}>
-                                      {option.label} ({option.code}) +
-                                      {option.phone}
-                                    </Box>
-                                  )}
-                                  renderInput={params => (
-                                    <TextField
-                                      {...params}
-                                      label='Time zone*'
-                                      inputProps={{
-                                        ...params.inputProps,
-                                        autoComplete: 'new-password',
-                                      }}
-                                    />
-                                  )}
+                            <Autocomplete
+                              autoHighlight
+                              fullWidth
+                              disabled={item.jobType === 'dtp'}
+                              value={
+                                languageList.filter(
+                                  l => l.value === item.source,
+                                )[0]
+                              }
+                              options={languageList}
+                              onChange={(e, v) =>
+                                onChangeLanguage(item.id, v?.value, 'source')
+                              }
+                              renderOption={(props, option) => (
+                                <Box component='li' {...props}>
+                                  {option.label}
+                                </Box>
+                              )}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  label='Source*'
+                                  inputProps={{
+                                    ...params.inputProps,
+                                    autoComplete: 'new-password',
+                                  }}
                                 />
                               )}
                             />
-                            {errors.pronounce && (
+                            {/* {errors.pronounce && (
                               <FormHelperText sx={{ color: 'error.main' }}>
                                 {errors.pronounce.message}
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                           <FormControl sx={{ mb: 2 }} fullWidth>
-                            <Controller
-                              name='timezone'
-                              control={control}
-                              rules={{ required: true }}
-                              render={({
-                                field: { value, onChange, onBlur },
-                              }) => (
-                                <Autocomplete
-                                  autoHighlight
-                                  fullWidth
-                                  options={countries as CountryType[]}
-                                  onChange={(e, v) => onChange(v)}
-                                  renderOption={(props, option) => (
-                                    <Box component='li' {...props}>
-                                      {option.label} ({option.code}) +
-                                      {option.phone}
-                                    </Box>
-                                  )}
-                                  renderInput={params => (
-                                    <TextField
-                                      {...params}
-                                      label='Time zone*'
-                                      inputProps={{
-                                        ...params.inputProps,
-                                        autoComplete: 'new-password',
-                                      }}
-                                    />
-                                  )}
+                            <Autocomplete
+                              autoHighlight
+                              fullWidth
+                              disabled={item.jobType === 'dtp'}
+                              value={
+                                languageList.filter(
+                                  l => l.value === item.target,
+                                )[0]
+                              }
+                              options={languageList}
+                              onChange={(e, v) =>
+                                onChangeLanguage(item.id, v?.value, 'target')
+                              }
+                              renderOption={(props, option) => (
+                                <Box component='li' {...props}>
+                                  {option.label}
+                                </Box>
+                              )}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  label='Target*'
+                                  inputProps={{
+                                    ...params.inputProps,
+                                    autoComplete: 'new-password',
+                                  }}
                                 />
                               )}
                             />
-                            {errors.pronounce && (
+                            {/* {errors.pronounce && (
                               <FormHelperText sx={{ color: 'error.main' }}>
                                 {errors.pronounce.message}
                               </FormHelperText>
-                            )}
+                            )} */}
                           </FormControl>
                         </Box>
                       </Box>
                     )
                   })}
-
+                  <IconButton onClick={addJobInfo}>
+                    <img
+                      src='/images/signup/add-info.png'
+                      width={20}
+                      alt='add job information'
+                    />
+                  </IconButton>
                   <Divider />
                 </Box>
               )}
