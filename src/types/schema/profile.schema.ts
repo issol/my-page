@@ -47,11 +47,18 @@ export const profileSchema = yup.object().shape({
     }),
   ),
   experience: yup.string().required('This field is required'),
-  // resume
-  specialties: yup.array().of(
-    yup.object().shape({
-      label: yup.string().required('This field is required'),
-      value: yup.string().required('This field is required'),
-    }),
-  ),
+  resume: yup.array().min(1, 'This field is required'),
+  specialties: yup
+    .array()
+    .of(
+      yup
+        .object()
+        .nullable()
+        .shape({
+          label: yup.string().required('This field is required').nullable(),
+          value: yup.string().required('This field is required').nullable(),
+        })
+        .nullable(),
+    )
+    .nullable(),
 })

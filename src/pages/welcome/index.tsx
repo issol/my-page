@@ -27,6 +27,7 @@ import {
   CardContent,
   FormControlLabel,
   Link,
+  List,
   ListItem,
   useMediaQuery,
 } from '@mui/material'
@@ -123,7 +124,7 @@ const defaultValues = {
   phone: '',
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
   experience: '',
-  resume: null,
+  resume: [],
   specialties: [{ label: '', value: '' }],
 }
 
@@ -182,6 +183,10 @@ const PersonalInfoPro = () => {
     }
   }
 
+  useEffect(() => {
+    setValue('resume', files, { shouldDirty: true, shouldValidate: true })
+  }, [files])
+
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
     const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
@@ -206,10 +211,6 @@ const PersonalInfoPro = () => {
       </IconButton>
     </ListItem>
   ))
-
-  const handleLinkClick = (event: SyntheticEvent) => {
-    event.preventDefault()
-  }
 
   const handleRemoveAllFiles = () => {
     setFiles([])
@@ -243,8 +244,7 @@ const PersonalInfoPro = () => {
   const onSubmit = (data: PersonalInfo) => {
     console.log(data)
   }
-  // console.log(getValues())
-  console.log('specialties:', watch('specialties'))
+  console.log(getValues())
   console.log('errors : ', errors)
   function addJobInfo() {
     if (jobInfoFields.length >= 10) {
@@ -1052,72 +1052,60 @@ const PersonalInfoPro = () => {
                     </FormControl>
                   </Box>
 
-                  <FormControl fullWidth>
-                    <InputLabel error={Boolean(errors.resume)}>
-                      Resume*
-                    </InputLabel>
+                  <Box mb={8}>
+                    <FormControl fullWidth>
+                      <InputLabel error={Boolean(errors.resume)}>
+                        Resume*
+                      </InputLabel>
 
-                    <div {...getRootProps({ className: 'dropzone' })}>
-                      <Controller
-                        name='resume'
-                        control={control}
-                        rules={{ required: true }}
-                        render={({ field: { value, onChange, onBlur } }) => (
-                          <Box
-                            sx={{
-                              display: 'flex',
-                              justifyContent: 'flex-end',
-                              width: '100%',
-                              border: '1px solid #ccc',
-                              borderRadius: '6px',
-                              padding: '12px 12px 14px',
-                              cursor: 'pointer',
+                      <div {...getRootProps({ className: 'dropzone' })}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-end',
+                            width: '100%',
+                            border: `1px solid ${
+                              Boolean(errors.resume) ? '#FF4D49' : '#ccc'
+                            }`,
+                            borderRadius: '6px',
+                            padding: '12px 12px 14px',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <input {...getInputProps()} />
+                          <img
+                            style={{
+                              display: 'block',
+                              alignSelf: 'flex-end',
                             }}
-                            mb={8}
+                            src='/images/signup/add-file.png'
+                            alt='add resume file'
+                            width={25}
+                          />
+                        </Box>
+                      </div>
+                      {errors.resume && (
+                        <FormHelperText sx={{ color: 'error.main' }} id=''>
+                          {errors.resume.message}
+                        </FormHelperText>
+                      )}
+                    </FormControl>
+                    {files.length ? (
+                      <>
+                        <List>{fileList}</List>
+                        <div className='buttons'>
+                          <Button
+                            color='error'
+                            variant='outlined'
+                            onClick={handleRemoveAllFiles}
                           >
-                            <input {...getInputProps()} onChange={onChange} />
-                            <img
-                              style={{
-                                display: 'block',
-                                alignSelf: 'flex-end',
-                              }}
-                              src='/images/signup/add-file.png'
-                              alt='add resume file'
-                              width={25}
-                            />
-                          </Box>
-                          // <OutlinedInput
-                          //   value={value}
-                          //   onBlur={onBlur}
-                          //   label='resume'
-                          //   onChange={onChange}
-                          //   error={Boolean(errors.resume)}
-                          //   placeholder='Password'
-                          //   type='file'
-                          //   endAdornment={
-                          //     <InputAdornment position='end'>
-                          //       <IconButton
-                          //         edge='end'
-                          //         onMouseDown={e => e.preventDefault()}
-                          //       >
-                          //         <img
-                          //           src='/images/signup/add-file.png'
-                          //           alt='add resume file'
-                          //           width={25}
-                          //         />
-                          //       </IconButton>
-                          //     </InputAdornment>
-                          //   }
-                          // />
-                        )}
-                      />
-                    </div>
-                    {errors.resume && (
-                      <FormHelperText sx={{ color: 'error.main' }} id=''>
-                        {errors.resume.message}
-                      </FormHelperText>
-                    )}
-                  </FormControl>
+                            Remove All
+                          </Button>
+                          <Button variant='contained'>Upload Files</Button>
+                        </div>
+                      </>
+                    ) : null}
+                  </Box>
                 </Box>
               )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
