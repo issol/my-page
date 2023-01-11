@@ -24,6 +24,8 @@ import {
 import { useMutation, useQuery } from 'react-query'
 import { getProfile, login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
+import { getUserInfo } from 'src/apis/user.api'
+import { getUserRoleNPermission } from 'src/apis/user.api'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -78,13 +80,20 @@ const AuthProvider = ({ children }: Props) => {
     login(params.email, params.password)
       .then(async response => {
         console.log(response)
-        // const userData = { token: response.accessToken, email: params.email }
-        // params.rememberMe
-        //   ? window.localStorage.setItem(
-        //       authConfig.storageTokenKeyName,
-        //       JSON.stringify(userData),
-        //     )
-        //   : null
+        Promise.all([
+          getUserInfo(response.email),
+          getUserRoleNPermission(response.userId),
+        ])
+          .then(values => {
+            console.log(values)
+          })
+          .catch(e => {
+            console.log(e)
+          })
+
+        params.rememberMe
+          ? window.localStorage.setItem(authConfig.rememberId, params.email)
+          : window.localStorage.removeItem(authConfig.rememberId)
         window.localStorage.setItem(
           authConfig.storageTokenKeyName,
           response.accessToken,

@@ -17,7 +17,7 @@ export const getUserInfo = async (email: string) => {
 }
 
 export const getUserRoleNPermission = async (
-  userId: string,
+  userId: number,
 ): Promise<{ roles: Array<RoleType>; permissions: [] }> => {
   try {
     const { data } = await axios.get(`/api/enough/a/role/rels?userId=${userId}`)

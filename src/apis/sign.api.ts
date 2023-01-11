@@ -119,6 +119,6 @@ export const logout = async () => {
   try {
     await axios.post(`/api/enough/a/logout`)
   } catch (e: any) {
-    throw new Error(e)
+    console.log(e)
   }
 }

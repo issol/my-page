@@ -101,7 +101,7 @@ const schema = yup.object().shape({
               resolve(true)
             })
             .catch((e: any) => {
-              reject(true)
+              resolve(false)
             })
         })
       },

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -30,6 +30,7 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import authConfig from 'src/configs/auth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -90,6 +91,7 @@ const LoginPage = () => {
   const {
     control,
     setError,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -97,6 +99,16 @@ const LoginPage = () => {
     mode: 'onChange',
     resolver: yupResolver(schema),
   })
+
+  useEffect(() => {
+    if (typeof window === 'object') {
+      const storedId = window.localStorage.getItem(authConfig.rememberId)
+      if (storedId) {
+        setRememberMe(true)
+        setValue('email', storedId, { shouldDirty: true, shouldValidate: true })
+      }
+    }
+  }, [])
 
   const onSubmit = (data: FormData) => {
     const { email, password } = data
@@ -339,6 +351,8 @@ const LoginPage = () => {
                   <FormControlLabel
                     control={
                       <Checkbox
+                        name='rememberMe'
+                        checked={rememberMe}
                         onChange={e => setRememberMe(e.target.checked)}
                       />
                     }

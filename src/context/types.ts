@@ -20,11 +20,18 @@ export type UserDataType = {
   id: number
   role: Array<RoleType>
   email: string
-  fullName: string
-  username: string
+  permission: Array<string>
+  company?: string
+  country?: string
+  firstName?: string
+  lastName?: string
+  middleName?: string
+  extraData?: any
+  /* TODO: 하단의 값들은 불필요 또는 수정 필요 */
+  fullName?: string
+  username?: string
   password?: string
   avatar?: string | null
-  permission?: any
 }
 
 export type LoginSuccessResponse = {
