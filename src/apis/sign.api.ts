@@ -114,3 +114,11 @@ export const postRole = async (userId: number, roles: Array<RoleType>) => {
     throw new Error(e)
   }
 }
+
+export const logout = async () => {
+  try {
+    await axios.post(`/api/enough/a/logout`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

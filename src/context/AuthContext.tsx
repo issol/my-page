@@ -22,7 +22,7 @@ import {
   LoginSuccessResponse,
 } from './types'
 import { useMutation, useQuery } from 'react-query'
-import { getProfile, login } from 'src/apis/sign.api'
+import { getProfile, login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 
 // ** Defaults
@@ -140,6 +140,7 @@ const AuthProvider = ({ children }: Props) => {
     window.localStorage.removeItem('userData')
     window.localStorage.removeItem(authConfig.storageTokenKeyName)
     window.localStorage.removeItem('policy')
+    logout()
     router.push('/login')
   }
 

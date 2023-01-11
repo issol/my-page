@@ -14,8 +14,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Link } from '@mui/material'
-import Linkk from 'next/link'
+import Link from 'next/link'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -175,11 +174,6 @@ const LoginPage = () => {
               </svg>
             </Box>
             <Box sx={{ mb: 6 }}>
-              {/* for test */}
-              <Link href='/signup/'>머터리얼 링크</Link>
-              <br />
-              <Linkk href='/signup/'>넥스트 링크</Linkk>
-
               <TypographyStyled variant='h5'>{`Welcome to ${themeConfig.templateName}! 👋🏻`}</TypographyStyled>
             </Box>
             <Box
@@ -210,8 +204,12 @@ const LoginPage = () => {
                 <img src='/images/logos/google.png' alt='google sign in' />
               </IconButton>
 
-              <Link href='' onClick={redirectGoogleAuth}>
-                Sign in with Google
+              <Link
+                href=''
+                onClick={redirectGoogleAuth}
+                style={{ textDecoration: 'none' }}
+              >
+                <Typography color='primary'>Sign in with Google</Typography>
               </Link>
             </Box>
             <Box
@@ -240,8 +238,13 @@ const LoginPage = () => {
               >
                 <img src='/images/logos/linkedin.png' alt='google sign in' />
               </IconButton>
-              <Link href='' onClick={redirectLinkedInAuth}>
-                Sign in with LinkedIn
+
+              <Link
+                href=''
+                onClick={redirectLinkedInAuth}
+                style={{ textDecoration: 'none' }}
+              >
+                <Typography color='primary'>Sign in with LinkedIn</Typography>
               </Link>
             </Box>
             <Divider
@@ -341,14 +344,12 @@ const LoginPage = () => {
                     }
                     label='Remember Me'
                   />
-                  {/* TODO : 추후 href 변경하기 */}
-                  <Typography
-                    sx={{ color: '#666CFF', cursor: 'pointer' }}
-                    onClick={() => router.push('/forgot-password')}
+                  <Link
+                    href='/forgot-password'
+                    style={{ textDecoration: 'none' }}
                   >
-                    Forgot Password?
-                  </Typography>
-                  {/* <Link href='/forgot-password'>Forgot Password?</Link> */}
+                    <Typography color='primary'>Forgot Password?</Typography>
+                  </Link>
                 </Box>
               </FormControl>
 
@@ -366,19 +367,15 @@ const LoginPage = () => {
                   mb: 4,
                   textAlign: 'center',
                   display: 'flex',
-                  justifyContent: 'center',
+                  justifyContent: 'space-between',
                 }}
               >
                 <Typography sx={{ display: 'flex', gap: '4px' }}>
                   New on our platform?{' '}
-                  <Typography
-                    sx={{ color: '#666CFF', cursor: 'pointer' }}
-                    onClick={() => router.push('/signup')}
-                  >
-                    Create an account
-                  </Typography>
-                  {/* <Link href='/signup'>Create an account</Link> */}
                 </Typography>
+                <Link href='/signup' style={{ textDecoration: 'none' }}>
+                  <Typography color='primary'>Create an account</Typography>
+                </Link>
               </Box>
             </form>
           </BoxWrapper>
