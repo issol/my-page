@@ -1,12 +1,14 @@
 import { useContext, useEffect } from 'react'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Button from '@mui/material/Button'
+import ComingSoon from 'src/pages/pages/misc/coming-soon'
 
 const LpmClientInvoiceList = () => {
   const ability = useContext(AbilityContext)
   return (
     <>
-      <div>LPM Client Invoice List</div>
+      <ComingSoon />
+      {/* <div>LPM Client Invoice List</div>
       <div className='demo-space-x'>
         <Button
           variant='contained'
@@ -32,7 +34,7 @@ const LpmClientInvoiceList = () => {
         >
           DELETE
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }

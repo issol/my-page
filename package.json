@@ -47,6 +47,7 @@
     "clsx": "1.2.1",
     "date-fns": "2.29.3",
     "draft-js": "0.11.7",
+    "faker": "^6.6.6",
     "firebase": "^9.13.0",
     "i18next": "22.0.4",
     "i18next-browser-languagedetector": "7.0.0",
@@ -84,6 +85,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.20.5",
+    "@faker-js/faker": "^7.6.0",
     "@iconify/iconify": "3.0.0",
     "@iconify/json": "2.1.131",
     "@iconify/tools": "2.1.1",

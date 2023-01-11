@@ -34,7 +34,8 @@
   },
   "include": [
     "src",
-    "declaration.d.ts"
+    "declaration.d.ts",
+    "global.d.ts"
   ],
   "exclude": [
     "node_modules"
