@@ -22,7 +22,7 @@ import {
   LoginSuccessResponse,
 } from './types'
 import { useMutation, useQuery } from 'react-query'
-import { getProfile, login, logout } from 'src/apis/sign.api'
+import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
 import { getUserRoleNPermission } from 'src/apis/user.api'
@@ -80,6 +80,14 @@ const AuthProvider = ({ children }: Props) => {
     login(params.email, params.password)
       .then(async response => {
         console.log(response)
+        /* TODO
+        1. getProfile을 해서 role이 없다면
+        2. selectRole 페이지로 이동
+        3. role이 있는 경우 legal name이 있는지 체크
+        4. legal name이 없으면 personal info 작성 페이지로 이동
+        5. 있을 경우 role / permission이 manager인 경우
+        6. role management 페이지로 이동
+        7. 아닐 경우 빈 랜딩페이지로 이동 */
         Promise.all([
           getUserInfo(response.email),
           getUserRoleNPermission(response.userId),
@@ -98,6 +106,8 @@ const AuthProvider = ({ children }: Props) => {
           authConfig.storageTokenKeyName,
           response.accessToken,
         )
+
+        /* TODO: 아래 로직도 promise all성공 이후로 옮기기 */
         window.localStorage.setItem(
           'userData',
           JSON.stringify({
@@ -118,20 +128,6 @@ const AuthProvider = ({ children }: Props) => {
           permission: TadPermission,
         })
         // const returnUrl = router.query.returnUrl
-
-        /* TODO
-        1. getProfile을 해서 role이 없다면
-        2. selectRole 페이지로 이동
-        3. role이 있는 경우 legal name이 있는지 체크
-        4. legal name이 없으면 personal info 작성 페이지로 이동
-        5. 있을 경우 role / permission이 manager인 경우
-        6. role management 페이지로 이동
-        7. 아닐 경우 빈 랜딩페이지로 이동 */
-
-        /* TODO: getProfile api 나오면 수정 */
-        // setUser({
-        //   policy: response.data.userData.policy,
-        // })
 
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 

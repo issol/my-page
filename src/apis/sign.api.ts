@@ -25,15 +25,6 @@ export const getRefreshToken = async () => {
   return data
 }
 
-export const getProfile = async () => {
-  try {
-    const { data } = await axios.get(`/api/pika/user/profile`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 /* TODO : url 수정 */
 export const redirectGoogleAuth = (e: any) => {
   e.preventDefault()
