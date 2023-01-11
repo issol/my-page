@@ -5,7 +5,7 @@ import {
   MouseEvent,
   useEffect,
   useMemo,
-  useCallback,
+  SyntheticEvent,
   useContext,
 } from 'react'
 
@@ -27,6 +27,7 @@ import {
   CardContent,
   FormControlLabel,
   Link,
+  ListItem,
   useMediaQuery,
 } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -79,6 +80,7 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
+import { useDropzone } from 'react-dropzone'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -125,6 +127,12 @@ const defaultValues = {
   specialties: [{ label: '', value: '' }],
 }
 
+interface FileProp {
+  name: string
+  type: string
+  size: number
+}
+
 /* TODO: guestGuard false로 수정하기 */
 const PersonalInfoPro = () => {
   const { setModal } = useContext(ModalContext)
@@ -140,6 +148,72 @@ const PersonalInfoPro = () => {
 
   // ** Hooks
   const auth = useAuth()
+
+  // ** State
+  const [files, setFiles] = useState<File[]>([])
+
+  // ** Hooks
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg'],
+      'text/csv': ['.cvs'],
+      'application/pdf': ['.pdf'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        ['.docx'],
+    },
+    onDrop: (acceptedFiles: File[]) => {
+      setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+    },
+  })
+
+  const renderFilePreview = (file: FileProp) => {
+    if (file.type.startsWith('image')) {
+      return (
+        <img
+          width={38}
+          height={38}
+          alt={file.name}
+          src={URL.createObjectURL(file as any)}
+        />
+      )
+    } else {
+      return <Icon icon='mdi:file-document-outline' />
+    }
+  }
+
+  const handleRemoveFile = (file: FileProp) => {
+    const uploadedFiles = files
+    const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
+    setFiles([...filtered])
+  }
+
+  const fileList = files.map((file: FileProp) => (
+    <ListItem key={file.name}>
+      <div className='file-details'>
+        <div className='file-preview'>{renderFilePreview(file)}</div>
+        <div>
+          <Typography className='file-name'>{file.name}</Typography>
+          <Typography className='file-size' variant='body2'>
+            {Math.round(file.size / 100) / 10 > 1000
+              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
+              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb}`}
+          </Typography>
+        </div>
+      </div>
+      <IconButton onClick={() => handleRemoveFile(file)}>
+        <Icon icon='mdi:close' fontSize={20} />
+      </IconButton>
+    </ListItem>
+  ))
+
+  const handleLinkClick = (event: SyntheticEvent) => {
+    event.preventDefault()
+  }
+
+  const handleRemoveAllFiles = () => {
+    setFiles([])
+  }
 
   const {
     control,
@@ -977,6 +1051,73 @@ const PersonalInfoPro = () => {
                       )}
                     </FormControl>
                   </Box>
+
+                  <FormControl fullWidth>
+                    <InputLabel error={Boolean(errors.resume)}>
+                      Resume*
+                    </InputLabel>
+
+                    <div {...getRootProps({ className: 'dropzone' })}>
+                      <Controller
+                        name='resume'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange, onBlur } }) => (
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              justifyContent: 'flex-end',
+                              width: '100%',
+                              border: '1px solid #ccc',
+                              borderRadius: '6px',
+                              padding: '12px 12px 14px',
+                              cursor: 'pointer',
+                            }}
+                            mb={8}
+                          >
+                            <input {...getInputProps()} onChange={onChange} />
+                            <img
+                              style={{
+                                display: 'block',
+                                alignSelf: 'flex-end',
+                              }}
+                              src='/images/signup/add-file.png'
+                              alt='add resume file'
+                              width={25}
+                            />
+                          </Box>
+                          // <OutlinedInput
+                          //   value={value}
+                          //   onBlur={onBlur}
+                          //   label='resume'
+                          //   onChange={onChange}
+                          //   error={Boolean(errors.resume)}
+                          //   placeholder='Password'
+                          //   type='file'
+                          //   endAdornment={
+                          //     <InputAdornment position='end'>
+                          //       <IconButton
+                          //         edge='end'
+                          //         onMouseDown={e => e.preventDefault()}
+                          //       >
+                          //         <img
+                          //           src='/images/signup/add-file.png'
+                          //           alt='add resume file'
+                          //           width={25}
+                          //         />
+                          //       </IconButton>
+                          //     </InputAdornment>
+                          //   }
+                          // />
+                        )}
+                      />
+                    </div>
+                    {errors.resume && (
+                      <FormHelperText sx={{ color: 'error.main' }} id=''>
+                        {errors.resume.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
                 </Box>
               )}
               <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
