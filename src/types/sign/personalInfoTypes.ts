@@ -51,3 +51,27 @@ export type ConsumerUserInfoType = {
     timezone: CountryType
   }
 }
+
+export type ManagerUserInfoType = {
+  firstName: string
+  lastName: string
+  country: string
+  extraData: {
+    timezone?: CountryType
+    jobTitle?: string
+    mobilePhone?: string
+    telephone?: string
+    fax?: string
+  }
+}
+
+export type ManagerInfo = {
+  firstName: string
+  middleName?: string
+  lastName: string
+  jobTitle?: string
+  timezone: CountryType
+  mobile?: string
+  phone?: string
+  fax?: string
+}

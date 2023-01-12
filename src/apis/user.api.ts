@@ -4,6 +4,7 @@ import {
   ConsumerUserInfoType,
   CountryType,
   JobInfoType,
+  ManagerUserInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
 
@@ -44,9 +45,8 @@ export const updateConsumerUserInfo = async (
   }
 }
 
-/* TODO: userType정하기 */
 /* TAD, LPM 전용 프로필 업데이트 */
-export const updateManagerUserInfo = async (userInfo: ConsumerUserInfoType) => {
+export const updateManagerUserInfo = async (userInfo: ManagerUserInfoType) => {
   try {
     await axios.put(`/api/enough/u/pu/edit`, userInfo)
   } catch (e: any) {

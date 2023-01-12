@@ -244,7 +244,6 @@ const PersonalInfoPro = () => {
 
   /**
    * TODO :
-   * Guest guard :false로 수정
    * onSuccess시 랜딩페이지로 이동
    */
   const updateUserInfoMutation = useMutation(
@@ -362,7 +361,7 @@ const PersonalInfoPro = () => {
     idx !== -1 && remove(idx)
   }
 
-  function onChangeLanguage(
+  function onChangeJobInfo(
     id: string,
     value: any,
     item: 'jobType' | 'role' | 'source' | 'target',
@@ -666,9 +665,9 @@ const PersonalInfoPro = () => {
                           />
                         )}
                       />
-                      {errors.pronounce && (
+                      {errors.timezone && (
                         <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.pronounce.message}
+                          {errors.timezone.message}
                         </FormHelperText>
                       )}
                     </FormControl>
@@ -795,7 +794,7 @@ const PersonalInfoPro = () => {
                                     value={item.jobType}
                                     placeholder='Job type *'
                                     onChange={e =>
-                                      onChangeLanguage(
+                                      onChangeJobInfo(
                                         item.id,
                                         e.target.value,
                                         'jobType',
@@ -846,7 +845,7 @@ const PersonalInfoPro = () => {
                                     value={item.role}
                                     placeholder='Role *'
                                     onChange={e =>
-                                      onChangeLanguage(
+                                      onChangeJobInfo(
                                         item.id,
                                         e.target.value,
                                         'role',
@@ -895,11 +894,7 @@ const PersonalInfoPro = () => {
                                   }
                                   options={languageList}
                                   onChange={(e, v) =>
-                                    onChangeLanguage(
-                                      item.id,
-                                      v?.value,
-                                      'source',
-                                    )
+                                    onChangeJobInfo(item.id, v?.value, 'source')
                                   }
                                   renderOption={(props, option) => (
                                     <Box
@@ -955,11 +950,7 @@ const PersonalInfoPro = () => {
                                   }
                                   options={languageList}
                                   onChange={(e, v) =>
-                                    onChangeLanguage(
-                                      item.id,
-                                      v?.value,
-                                      'target',
-                                    )
+                                    onChangeJobInfo(item.id, v?.value, 'target')
                                   }
                                   renderOption={(props, option) => (
                                     <Box
@@ -1244,7 +1235,7 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-PersonalInfoPro.guestGuard = true
+PersonalInfoPro.guestGuard = false
 
 export default PersonalInfoPro
 
