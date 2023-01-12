@@ -138,25 +138,25 @@ const columns = [
     field: 'role',
     minWidth: 150,
     headerName: 'Role',
-    renderCell: ({ row }: CellType) => {
-      return (
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            '& svg': { mr: 3, color: userRoleObj[row.role].color },
-          }}
-        >
-          <Icon icon={userRoleObj[row.role].icon} fontSize={20} />
-          <Typography
-            noWrap
-            sx={{ color: 'text.secondary', textTransform: 'capitalize' }}
-          >
-            {row.role}
-          </Typography>
-        </Box>
-      )
-    },
+    // renderCell: ({ row }: CellType) => {
+    //   return (
+    //     <Box
+    //       sx={{
+    //         display: 'flex',
+    //         alignItems: 'center',
+    //         '& svg': { mr: 3, color: userRoleObj[row.role].color },
+    //       }}
+    //     >
+    //       <Icon icon={userRoleObj[row.role].icon} fontSize={20} />
+    //       <Typography
+    //         noWrap
+    //         sx={{ color: 'text.secondary', textTransform: 'capitalize' }}
+    //       >
+    //         {row.role}
+    //       </Typography>
+    //     </Box>
+    //   )
+    // },
   },
   {
     flex: 0.15,

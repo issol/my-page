@@ -23,9 +23,12 @@ import { useAuth } from 'src/hooks/useAuth'
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
 import { UserDataType } from 'src/context/types'
+import { RoleType } from 'src/types/apps/userTypes'
 
 interface Props {
   settings: Settings
+  handleSwitchRole: (role: RoleType | null) => void
+  role: RoleType | null
 }
 
 // ** Styled Components
@@ -39,7 +42,7 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 
 const UserDropdown = (props: Props) => {
   // ** Props
-  const { settings } = props
+  const { settings, handleSwitchRole, role } = props
 
   const auth = useAuth()
 
@@ -146,9 +149,16 @@ const UserDropdown = (props: Props) => {
               </Typography>
               <Typography
                 variant='body2'
-                sx={{ fontSize: '0.8rem', color: 'text.disabled' }}
+                sx={{
+                  fontSize: '0.8rem',
+                  color: 'text.disabled',
+                  display: 'flex',
+                  gap: '4px',
+                }}
               >
-                {auth?.user?.role}
+                {auth?.user?.role.map((value, index) => {
+                  return <Box key={index}>{value}</Box>
+                })}
               </Typography>
             </Box>
           </Box>
@@ -210,6 +220,29 @@ const UserDropdown = (props: Props) => {
           </Box>
         </MenuItem>
         <Divider /> */}
+        <MenuItem
+          onClick={
+            () => {
+              if (auth.user && auth.user.role) {
+                const result = auth.user.role.find(value => value !== role)!
+                handleSwitchRole(result)
+              }
+              handleDropdownClose()
+            }
+            // handleSwitchRole(
+            //   auth.user &&
+            //     auth.user.role &&
+            //     auth.user?.role.find((value: RoleType) => value !== role),
+            // )
+          }
+          sx={{
+            py: 2,
+            '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' },
+          }}
+        >
+          <Icon icon='mdi:account-convert' />
+          Switch Role
+        </MenuItem>
         <MenuItem
           onClick={handleLogout}
           sx={{

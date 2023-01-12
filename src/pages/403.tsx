@@ -13,6 +13,9 @@ import Box, { BoxProps } from '@mui/material/Box'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
+// ** Config
+import authConfig from 'src/configs/auth'
+
 // ** Demo Imports
 import FooterIllustrations from 'src/views/pages/misc/FooterIllustrations'
 
@@ -69,8 +72,7 @@ const Error403 = () => {
           variant='contained'
           sx={{ px: 5.5 }}
           onClick={() => {
-            window.localStorage.removeItem('accessToken')
-            window.localStorage.removeItem('userData')
+            window.localStorage.removeItem(authConfig.storageTokenKeyName)
             window.location.href = '/'
           }}
         >

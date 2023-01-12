@@ -1384,6 +1384,11 @@
     "minimatch" "^3.1.2"
     "strip-json-comments" "^3.1.1"
 
+"@faker-js/faker@^7.6.0":
+  "integrity" "sha512-XK6BTq1NDMo9Xqw/YkYyGjSsg44fbNwYRx7QK2CuoQgyy+f1rrTDHoExVM5PsyXCtfl2vs2vVJ0MN0yN6LppRw=="
+  "resolved" "https://registry.npmjs.org/@faker-js/faker/-/faker-7.6.0.tgz"
+  "version" "7.6.0"
+
 "@firebase/analytics-compat@0.2.0":
   "integrity" "sha512-brk8IN4ErWiZoB/UdJ0mWZhQOKt90ztv4MUwQjhuYJ4iwnVMz0Mzj9+tplU1hVpSZXdfbKQFfRN9kp/3sTiyWw=="
   "resolved" "https://registry.npmjs.org/@firebase/analytics-compat/-/analytics-compat-0.2.0.tgz"
@@ -1817,6 +1822,11 @@
   "integrity" "sha512-k2Ty1JcVojjJFwrg/ThKi2ujJ7XNLYaFGNB/bWT9wGR+oSMJHMa5w+CUq6p/pVrKeNNgA7pCqEcjSnHVoqJQFw=="
   "resolved" "https://registry.npmjs.org/@gar/promisify/-/promisify-1.1.3.tgz"
   "version" "1.1.3"
+
+"@glocalize-inc/glo-languages@1.0.1":
+  "integrity" "sha512-/2w5UL1pzclLcHdtzxoqJEY8iXeCxW1gb95IBA4QtfZLP4XUEIevKDCsnKLsukm5FAbtjSCeoJ0EV3R6WZ7+vA=="
+  "resolved" "https://npm.pkg.github.com/download/@glocalize-inc/glo-languages/1.0.1/ec5097e65d489da85e550bdcc90b5cc5173801ac"
+  "version" "1.0.1"
 
 "@grpc/grpc-js@~1.7.0":
   "integrity" "sha512-H9l79u4kJ2PVSxUNA08HMYAnUBLj9v6KjYQ7SQ71hOZcEXhShE/y5iQCesP8+6/Ik/7i2O0a10bPquIcYfufog=="
@@ -7138,6 +7148,11 @@
   optionalDependencies:
     "@types/yauzl" "^2.9.1"
 
+"faker@^6.6.6":
+  "integrity" "sha512-9tCqYEDHI5RYFQigXFwF1hnCwcWCOJl/hmll0lr5D2Ljjb0o4wphb69wikeJDz5qCEzXCoPvG6ss5SDP6IfOdg=="
+  "resolved" "https://registry.npmjs.org/faker/-/faker-6.6.6.tgz"
+  "version" "6.6.6"
+
 "fast-deep-equal@^3.1.1", "fast-deep-equal@^3.1.3":
   "integrity" "sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q=="
   "resolved" "https://registry.npmjs.org/fast-deep-equal/-/fast-deep-equal-3.1.3.tgz"
@@ -11303,6 +11318,11 @@
   dependencies:
     "perfect-scrollbar" "^1.5.0"
     "prop-types" "^15.6.1"
+
+"react-pin-input@^1.3.0":
+  "integrity" "sha512-9OEQIF4Wx3yDQzSoGq7HIiun9ViMK5jL5hxOKM7oBz9WSCYB/Q5ceurN4h+xnq05euK7s3bU9FHPaPRbMoOi+w=="
+  "resolved" "https://registry.npmjs.org/react-pin-input/-/react-pin-input-1.3.0.tgz"
+  "version" "1.3.0"
 
 "react-popper@^2.2.5", "react-popper@2.3.0":
   "integrity" "sha512-e1hj8lL3uM+sgSR4Lxzn5h1GxBlpa4CQz0XLF8kx4MDrDRWY0Ena4c97PUeSX9i5W3UAfDP0z0FXCTQkoXUl3Q=="

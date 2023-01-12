@@ -1,16 +1,17 @@
 import { AbilityBuilder, Ability } from '@casl/ability'
+import { forEach } from 'lodash'
+import { RoleType } from 'src/types/apps/userTypes'
 
-export type Subjects = string
-export type Actions = 'manage' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects_Permission = Array<string> //permission
+export type Actions_Roles = Array<RoleType>
 
-export type AppAbility = Ability<[Actions, Subjects]> | undefined
+export type AppAbility = Ability<[any, any]> | undefined
 
 export const AppAbility = Ability as any
 export type ACLObj = {
-  action: Actions
-  subject: string
+  action: Subjects_Permission
+  subject: Actions_Roles
 }
-
 export type PolicyType = {
   [key: string]: {
     create: boolean
@@ -25,35 +26,22 @@ export type PolicyType = {
  * We have just shown Admin and Client rules for demo purpose where
  * admin can manage everything and client can just visit ACL page
  */
-const defineRulesFor = (role: string, subject: string, policy: PolicyType) => {
+const defineRulesFor = (
+  role: Array<RoleType>,
+  permission: Subjects_Permission,
+) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
-
-  if (role === 'ADMIN') {
-    can('manage', 'all')
-  } else {
-    const result = Object.entries(policy)
-      .map(([key, value]) => {
-        const res = Object.entries(value).map(([permission, data]) => {
-          return data && `${key}-${permission}`
-        })
-
-        return res
-      })
-      .flat()
-      .filter(value => value)
-
-    can(result, role)
-  }
-
+  role.forEach((item: RoleType) => {
+    can(permission, item)
+  })
   return rules
 }
 
 export const buildAbilityFor = (
-  role: string,
-  subject: string,
-  policy: any,
+  permission: Subjects_Permission,
+  role: Array<RoleType>,
 ): AppAbility => {
-  return new AppAbility(defineRulesFor(role, subject, policy), {
+  return new AppAbility(defineRulesFor(role, permission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
     detectSubjectType: object => object!.type,
@@ -61,8 +49,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: 'manage',
-  subject: 'all',
+  action: ['company-read'],
+  subject: ['TAD'],
 }
 
 export default defineRulesFor

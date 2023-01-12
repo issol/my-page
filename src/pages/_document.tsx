@@ -26,7 +26,7 @@ class CustomDocument extends Document {
             sizes='180x180'
             href='/images/apple-touch-icon.png'
           />
-          <link rel='shortcut icon' href='/images/favicon.png' />
+          <link rel='shortcut icon' href='/images/favicon-old.png' />
         </Head>
         <body>
           <div id='modal' />

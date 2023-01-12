@@ -14,7 +14,7 @@ import Button from '@mui/material/Button'
 import CardActions from '@mui/material/CardActions'
 import Typography from '@mui/material/Typography'
 import { ModalContext } from 'src/context/ModalContext'
-import { SignUpRequestsType } from '../../types'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 
 type Props = {
   declineSignUpRequest: (user: SignUpRequestsType) => void

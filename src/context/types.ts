@@ -1,3 +1,6 @@
+import { Dispatch, SetStateAction } from 'react'
+import { RoleType } from 'src/types/apps/userTypes'
+
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any
 
@@ -15,13 +18,13 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: 'ADMIN' | 'GLOHUB_ADMIN' | 'PRO' | 'CLIENT' | 'TAD' | 'LPM'
+  role: Array<RoleType>
   email: string
   fullName: string
   username: string
   password?: string
   avatar?: string | null
-  policy?: any
+  permission?: any
 }
 
 export type LoginSuccessResponse = {
@@ -38,7 +41,7 @@ export type AuthValuesType = {
   user: UserDataType | null
 
   setLoading: (value: boolean) => void
-  setUser: (value: UserDataType | null) => void
+  setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void
   register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void
 }

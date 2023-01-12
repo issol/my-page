@@ -1,7 +1,7 @@
 import CustomChip from 'src/@core/components/mui/chip'
 import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
-import { MembersType, SignUpRequestsType } from '../../types'
+import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 import Fab from '@mui/material/Fab'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
