@@ -142,7 +142,15 @@ const SignUpRequests = ({
           title={` Sign up requests : ${data.length}`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
-        <Box sx={{ height: 460, width: '100%' }}>
+        <Box
+          sx={{
+            height: 310,
+            width: '100%',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textTransform: 'none',
+            },
+          }}
+        >
           <DataGrid
             columns={columns}
             rows={data ?? []}
