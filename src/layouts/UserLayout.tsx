@@ -28,7 +28,6 @@ import { Button } from '@mui/material'
 import { RoleType } from 'src/types/apps/userTypes'
 import { useRouter } from 'next/router'
 import { ACLObj, AppAbility, buildAbilityFor } from 'src/configs/acl'
-import { UserDataType } from 'src/context/types'
 
 interface Props {
   children: ReactNode

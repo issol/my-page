@@ -79,7 +79,6 @@ const AuthProvider = ({ children }: Props) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        console.log(response)
         /* TODO
         1. getProfile을 해서 role이 없다면
         2. selectRole 페이지로 이동
@@ -94,9 +93,31 @@ const AuthProvider = ({ children }: Props) => {
         ])
           .then(values => {
             console.log(values)
+            const profile = values[0]
+            const permission = values[1]
+            window.localStorage.setItem(
+              'userData',
+              JSON.stringify({
+                id: response.userId,
+                role: permission.roles,
+                email: response.email,
+                username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
+                extraData: profile.extraData,
+                permission: permission.permissions,
+              }),
+            )
+            setUser({
+              id: response.userId,
+              role: permission.roles,
+              email: response.email,
+              username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
+              extraData: profile.extraData,
+              permission: permission.permissions,
+            })
           })
           .catch(e => {
             console.log(e)
+            router.push('/login')
           })
 
         params.rememberMe
@@ -107,26 +128,6 @@ const AuthProvider = ({ children }: Props) => {
           response.accessToken,
         )
 
-        /* TODO: 아래 로직도 promise all성공 이후로 옮기기 */
-        window.localStorage.setItem(
-          'userData',
-          JSON.stringify({
-            id: response.userId,
-            role: ['TAD', 'LPM'],
-            email: response.email,
-            fullName: 'John Doe',
-            username: 'John',
-            permission: TadPermission,
-          }),
-        )
-        setUser({
-          id: response.userId,
-          role: ['TAD', 'LPM'],
-          email: response.email,
-          fullName: 'John Doe',
-          username: 'John',
-          permission: TadPermission,
-        })
         // const returnUrl = router.query.returnUrl
 
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'

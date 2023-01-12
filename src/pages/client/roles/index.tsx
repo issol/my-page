@@ -261,7 +261,7 @@ const ClientManageRoles = () => {
       field: 'fullName',
       headerName: 'User',
       renderCell: ({ row }: CellType) => {
-        const { fullName, username } = row
+        const { username } = row
 
         return (
           <Typography variant='body2' noWrap>

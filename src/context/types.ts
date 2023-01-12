@@ -28,10 +28,6 @@ export type UserDataType = {
   middleName?: string
   extraData?: any
   username?: string
-  /* TODO: 하단의 값들은 불필요 또는 수정 필요 */
-  fullName?: string
-  password?: string
-  avatar?: string | null
 }
 
 export type LoginSuccessResponse = {
