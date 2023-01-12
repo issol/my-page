@@ -22,7 +22,6 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { UserDataType } from 'src/context/types'
 import { RoleType } from 'src/types/apps/userTypes'
 
 interface Props {

@@ -22,8 +22,10 @@ import {
   LoginSuccessResponse,
 } from './types'
 import { useMutation, useQuery } from 'react-query'
-import { getProfile, login } from 'src/apis/sign.api'
+import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
+import { getUserInfo } from 'src/apis/user.api'
+import { getUserRoleNPermission } from 'src/apis/user.api'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -62,7 +64,7 @@ const AuthProvider = ({ children }: Props) => {
         setLoading(false)
       } else {
         window.localStorage.removeItem('userData')
-        router.replace('/login')
+        // router.replace('/login')
         setLoading(false)
       }
     }
@@ -77,39 +79,6 @@ const AuthProvider = ({ children }: Props) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        console.log(response)
-        // const userData = { token: response.accessToken, email: params.email }
-        // params.rememberMe
-        //   ? window.localStorage.setItem(
-        //       authConfig.storageTokenKeyName,
-        //       JSON.stringify(userData),
-        //     )
-        //   : null
-        window.localStorage.setItem(
-          authConfig.storageTokenKeyName,
-          response.accessToken,
-        )
-        window.localStorage.setItem(
-          'userData',
-          JSON.stringify({
-            id: response.userId,
-            role: ['TAD', 'LPM'],
-            email: response.email,
-            fullName: 'John Doe',
-            username: 'John',
-            permission: TadPermission,
-          }),
-        )
-        setUser({
-          id: response.userId,
-          role: ['TAD', 'LPM'],
-          email: response.email,
-          fullName: 'John Doe',
-          username: 'John',
-          permission: TadPermission,
-        })
-        // const returnUrl = router.query.returnUrl
-
         /* TODO
         1. getProfile을 해서 role이 없다면
         2. selectRole 페이지로 이동
@@ -118,11 +87,48 @@ const AuthProvider = ({ children }: Props) => {
         5. 있을 경우 role / permission이 manager인 경우
         6. role management 페이지로 이동
         7. 아닐 경우 빈 랜딩페이지로 이동 */
+        Promise.all([
+          getUserInfo(response.email),
+          getUserRoleNPermission(response.userId),
+        ])
+          .then(values => {
+            console.log(values)
+            const profile = values[0]
+            const permission = values[1]
+            window.localStorage.setItem(
+              'userData',
+              JSON.stringify({
+                id: response.userId,
+                role: permission.roles,
+                email: response.email,
+                username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
+                extraData: profile.extraData,
+                permission: permission.permissions,
+              }),
+            )
+            setUser({
+              id: response.userId,
+              role: permission.roles,
+              email: response.email,
+              username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
+              extraData: profile.extraData,
+              permission: permission.permissions,
+            })
+          })
+          .catch(e => {
+            console.log(e)
+            router.push('/login')
+          })
 
-        /* TODO: getProfile api 나오면 수정 */
-        // setUser({
-        //   policy: response.data.userData.policy,
-        // })
+        params.rememberMe
+          ? window.localStorage.setItem(authConfig.rememberId, params.email)
+          : window.localStorage.removeItem(authConfig.rememberId)
+        window.localStorage.setItem(
+          authConfig.storageTokenKeyName,
+          response.accessToken,
+        )
+
+        // const returnUrl = router.query.returnUrl
 
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
@@ -140,6 +146,7 @@ const AuthProvider = ({ children }: Props) => {
     window.localStorage.removeItem('userData')
     window.localStorage.removeItem(authConfig.storageTokenKeyName)
     window.localStorage.removeItem('policy')
+    logout()
     router.push('/login')
   }
 

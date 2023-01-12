@@ -19,7 +19,6 @@ import NotificationDropdown, {
 import ShortcutsDropdown, {
   ShortcutsType,
 } from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
-import { UserDataType } from 'src/context/types'
 import { RoleType } from 'src/types/apps/userTypes'
 
 interface Props {

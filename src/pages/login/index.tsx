@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -14,7 +14,7 @@ import { styled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Link } from '@mui/material'
+import Link from 'next/link'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -30,6 +30,7 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
+import authConfig from 'src/configs/auth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -90,6 +91,7 @@ const LoginPage = () => {
   const {
     control,
     setError,
+    setValue,
     handleSubmit,
     formState: { errors },
   } = useForm({
@@ -97,6 +99,16 @@ const LoginPage = () => {
     mode: 'onChange',
     resolver: yupResolver(schema),
   })
+
+  useEffect(() => {
+    if (typeof window === 'object') {
+      const storedId = window.localStorage.getItem(authConfig.rememberId)
+      if (storedId) {
+        setRememberMe(true)
+        setValue('email', storedId, { shouldDirty: true, shouldValidate: true })
+      }
+    }
+  }, [])
 
   const onSubmit = (data: FormData) => {
     const { email, password } = data
@@ -204,8 +216,12 @@ const LoginPage = () => {
                 <img src='/images/logos/google.png' alt='google sign in' />
               </IconButton>
 
-              <Link href='' onClick={redirectGoogleAuth}>
-                Sign in with Google
+              <Link
+                href=''
+                onClick={redirectGoogleAuth}
+                style={{ textDecoration: 'none' }}
+              >
+                <Typography color='primary'>Sign in with Google</Typography>
               </Link>
             </Box>
             <Box
@@ -234,8 +250,13 @@ const LoginPage = () => {
               >
                 <img src='/images/logos/linkedin.png' alt='google sign in' />
               </IconButton>
-              <Link href='' onClick={redirectLinkedInAuth}>
-                Sign in with LinkedIn
+
+              <Link
+                href=''
+                onClick={redirectLinkedInAuth}
+                style={{ textDecoration: 'none' }}
+              >
+                <Typography color='primary'>Sign in with LinkedIn</Typography>
               </Link>
             </Box>
             <Divider
@@ -330,19 +351,19 @@ const LoginPage = () => {
                   <FormControlLabel
                     control={
                       <Checkbox
+                        name='rememberMe'
+                        checked={rememberMe}
                         onChange={e => setRememberMe(e.target.checked)}
                       />
                     }
                     label='Remember Me'
                   />
-                  {/* TODO : 추후 href 변경하기 */}
-                  <Typography
-                    sx={{ color: '#666CFF', cursor: 'pointer' }}
-                    onClick={() => router.push('/forgot-password')}
+                  <Link
+                    href='/forgot-password'
+                    style={{ textDecoration: 'none' }}
                   >
-                    Forgot Password?
-                  </Typography>
-                  {/* <Link href='/forgot-password'>Forgot Password?</Link> */}
+                    <Typography color='primary'>Forgot Password?</Typography>
+                  </Link>
                 </Box>
               </FormControl>
 
@@ -360,19 +381,15 @@ const LoginPage = () => {
                   mb: 4,
                   textAlign: 'center',
                   display: 'flex',
-                  justifyContent: 'center',
+                  justifyContent: 'space-between',
                 }}
               >
                 <Typography sx={{ display: 'flex', gap: '4px' }}>
                   New on our platform?{' '}
-                  <Typography
-                    sx={{ color: '#666CFF', cursor: 'pointer' }}
-                    onClick={() => router.push('/signup')}
-                  >
-                    Create an account
-                  </Typography>
-                  {/* <Link href='/signup'>Create an account</Link> */}
                 </Typography>
+                <Link href='/signup' style={{ textDecoration: 'none' }}>
+                  <Typography color='primary'>Create an account</Typography>
+                </Link>
               </Box>
             </form>
           </BoxWrapper>

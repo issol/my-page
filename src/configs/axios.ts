@@ -21,7 +21,7 @@ const instance = axios.create({
     Accept: 'application/json',
     Authorization:
       'Bearer ' + typeof window === 'object'
-        ? localStorage.getItem('accessToken')
+        ? localStorage.getItem(authConfig.storageTokenKeyName)
         : null,
   },
   timeout: 10000,
@@ -30,13 +30,13 @@ const instance = axios.create({
 
 export const setHeaderToken = (token: string) => {
   if (typeof window === 'object') {
-    localStorage.setItem('accessToken', token)
+    localStorage.setItem(authConfig.storageTokenKeyName, token)
   }
 }
 
 export const getHeaderToken = () => {
   if (typeof window === 'object') {
-    return localStorage.getItem('accessToken')
+    return localStorage.getItem(authConfig.storageTokenKeyName)
   }
 }
 

@@ -20,11 +20,14 @@ export type UserDataType = {
   id: number
   role: Array<RoleType>
   email: string
-  fullName: string
-  username: string
-  password?: string
-  avatar?: string | null
-  permission?: any
+  permission: Array<string>
+  company?: string
+  country?: string
+  firstName?: string
+  lastName?: string
+  middleName?: string
+  extraData?: any
+  username?: string
 }
 
 export type LoginSuccessResponse = {
