@@ -26,3 +26,12 @@ export const getUserRoleNPermission = async (
     throw new Error(e)
   }
 }
+
+/* TODO: userInfo타입 정의하기 */
+export const updateUserInfo = async (userInfo: any) => {
+  try {
+    await axios.put(`/api/enough/u/pu/edit`, userInfo)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

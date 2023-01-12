@@ -13,7 +13,7 @@ export type UsersType = {
   middleName?: string
   extraData?: any
 
-  /* TODO: 하단의 값들은 불필요 또는 수정 필요 */
+  /* TODO:하단의 값들은 불필요 또는 수정 필요 */
   status: string
   avatar?: string
   contact: string

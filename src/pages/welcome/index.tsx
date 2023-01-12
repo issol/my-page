@@ -7,6 +7,7 @@ import {
   useMemo,
   SyntheticEvent,
   useContext,
+  Fragment,
 } from 'react'
 
 // ** MUI Components
@@ -34,6 +35,7 @@ import {
 import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
+import DropzoneWrapper from 'src/@core/styles/libs/react-dropzone'
 
 import cloneDeep from 'lodash/cloneDeep'
 import isEmpty from 'lodash/isEmpty'
@@ -82,6 +84,7 @@ import {
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 import { useDropzone } from 'react-dropzone'
+import styled from 'styled-components'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -194,7 +197,7 @@ const PersonalInfoPro = () => {
   }
 
   const fileList = files.map((file: FileProp) => (
-    <ListItem key={file.name}>
+    <FileList key={file.name}>
       <div className='file-details'>
         <div className='file-preview'>{renderFilePreview(file)}</div>
         <div>
@@ -202,14 +205,14 @@ const PersonalInfoPro = () => {
           <Typography className='file-size' variant='body2'>
             {Math.round(file.size / 100) / 10 > 1000
               ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb}`}
+              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
           </Typography>
         </div>
       </div>
       <IconButton onClick={() => handleRemoveFile(file)}>
         <Icon icon='mdi:close' fontSize={20} />
       </IconButton>
-    </ListItem>
+    </FileList>
   ))
 
   const handleRemoveAllFiles = () => {
@@ -1090,10 +1093,17 @@ const PersonalInfoPro = () => {
                         </FormHelperText>
                       )}
                     </FormControl>
+                    {/* <DropzoneWrapper> */}
                     {files.length ? (
-                      <>
+                      <Fragment>
                         <List>{fileList}</List>
-                        <div className='buttons'>
+                        <div
+                          style={{
+                            display: 'flex',
+                            gap: '8px',
+                            justifyContent: 'flex-end',
+                          }}
+                        >
                           <Button
                             color='error'
                             variant='outlined'
@@ -1103,8 +1113,9 @@ const PersonalInfoPro = () => {
                           </Button>
                           <Button variant='contained'>Upload Files</Button>
                         </div>
-                      </>
+                      </Fragment>
                     ) : null}
+                    {/* </DropzoneWrapper> */}
                   </Box>
                 </Box>
               )}
@@ -1169,3 +1180,32 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
 PersonalInfoPro.guestGuard = true
 
 export default PersonalInfoPro
+
+const FileList = styled.div`
+  display: flex;
+  margin-bottom: 8px;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 8px;
+  border: 1px solid rgba(93, 89, 98, 0.14);
+  .file-details {
+    display: flex;
+    align-items: center;
+  }
+  .file-preview {
+    display: flex;
+    margin-right: 2px;
+  }
+
+  img {
+    width: 38px;
+    height: 38px;
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(93, 89, 98, 0.14);
+  }
+
+  .file-name {
+    font-weight: 600;
+  }
+`
