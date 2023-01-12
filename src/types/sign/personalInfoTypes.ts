@@ -6,6 +6,13 @@ export interface CountryType {
   phone: string
 }
 
+export interface JobInfoType {
+  jobType: string
+  role: string
+  source: string
+  target: string
+}
+
 export interface PersonalInfo {
   firstName: string
   middleName?: string
@@ -18,13 +25,29 @@ export interface PersonalInfo {
   timezone: CountryType
   mobile?: string
   phone?: string
-  jobInfo: Array<{
-    jobType: string
-    role: string
-    source: string
-    target: string
-  }>
+  jobInfo: Array<JobInfoType>
   experience: string
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
+}
+
+export type ConsumerUserInfoType = {
+  firstName: string
+  lastName: string
+  country: string
+  extraData: {
+    havePreferredName: boolean
+    jobInfo: Array<JobInfoType>
+    middleName?: string
+    experience?: string
+    legalName_pronunciation?: string
+    mobilePhone?: string
+    telephone?: string
+    preferredName?: string
+    preferredName_pronunciation?: string
+    pronounce?: PronounceType
+    resume: Array<File> | null
+    specialties: Array<{ label: string; value: string }>
+    timezone: CountryType
+  }
 }
