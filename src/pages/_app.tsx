@@ -1,5 +1,5 @@
 // ** React Imports
-import React, { ReactNode, Suspense, useState } from 'react'
+import React, { ReactNode, Suspense, useEffect, useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { Integrations } from '@sentry/tracing'
 
@@ -84,6 +84,7 @@ import {
   StatusCode,
 } from 'src/shared/sentry-provider'
 import { googleAuth } from 'src/apis/sign.api'
+import Script from 'next/script'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -203,14 +204,20 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
+  /**
+   * TODO:
+   * 401에러 발생 시 signup페이지로 이동
+   * 201 응답 시 token저장 -> authContext에서 로그인 처리 되도록
+   */
   function handleCredentialResponse(response: {
-    credential: string
-    g_csrf_token: string
+    credential: string | undefined
+    g_csrf_token: string | undefined
   }) {
-    console.log(response)
-    console.log('Encoded JWT ID token: ' + response.credential)
-    if (response?.credential && response.g_csrf_token) {
-      googleAuth(response.credential, response.g_csrf_token)
+    console.log('google: ', response)
+    const { credential, g_csrf_token } = response
+
+    if (credential && g_csrf_token) {
+      googleAuth(credential, g_csrf_token)
         .then((e: any) => {
           console.log('google auth api res : ', e)
           // router.push(
@@ -231,20 +238,26 @@ const App = (props: ExtendedAppProps) => {
         })
     }
   }
+
   if (typeof window === 'object') {
-    window.onload = function () {
-      /* @ts-ignore */
-      google.accounts.id.initialize({
-        client_id: process.env.GOOGLE_CLIENT_ID,
+    const script = document.createElement('script')
+    script.setAttribute('src', 'https://accounts.google.com/gsi/client')
+    document.body.appendChild(script)
+
+    script.onload = () => {
+      window?.google?.accounts?.id?.initialize({
+        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
       })
-      /* @ts-ignore */
-      google.accounts.id.renderButton(
+      window?.google?.accounts?.id.renderButton(
         document.getElementById('buttonDiv'),
-        { theme: 'outline', size: 'large' }, // customization attributes
+        {
+          theme: 'outline',
+          width: 450,
+          background: 'transparent',
+          longtitle: false,
+        }, // customization attributes
       )
-      /* @ts-ignore */
-      google.accounts.id.prompt() // also display the One Tap dialog
     }
   }
 

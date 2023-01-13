@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect, useRef } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -10,11 +10,12 @@ import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import Link from 'next/link'
+import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -37,9 +38,8 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
-import Script from 'next/script'
 
-const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.up('md')]: {
     maxWidth: 500,
@@ -49,19 +49,21 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   },
 }))
 
-const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.down('md')]: {
     maxWidth: 500,
   },
 }))
 
-const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
-  fontWeight: 600,
-  letterSpacing: '0.18px',
-  marginBottom: theme.spacing(1.5),
-  [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
-}))
+const TypographyStyled = muiStyled(Typography)<TypographyProps>(
+  ({ theme }) => ({
+    fontWeight: 600,
+    letterSpacing: '0.18px',
+    marginBottom: theme.spacing(1.5),
+    [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
+  }),
+)
 
 const schema = yup.object().shape({
   email: yup
@@ -85,26 +87,6 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const router = useRouter()
-
-  // function handleCredentialResponse(response: any) {
-  //   console.log(response)
-  //   console.log('Encoded JWT ID token: ' + response.credential)
-  // }
-  // window.onload = function () {
-  //   /* @ts-ignore */
-  //   google.accounts.id.initialize({
-  //     client_id:
-  //       '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
-  //     callback: handleCredentialResponse,
-  //   })
-  //   /* @ts-ignore */
-  //   google.accounts.id.renderButton(
-  //     document.getElementById('buttonDiv'),
-  //     { theme: 'outline', size: 'large' }, // customization attributes
-  //   )
-  //   /* @ts-ignore */
-  //   google.accounts.id.prompt() // also display the One Tap dialog
-  // }
 
   // ** Hooks
   const auth = useAuth()
@@ -144,10 +126,8 @@ const LoginPage = () => {
       })
     })
   }
-
   return (
     <Box className='content-center'>
-      <Script src='https://accounts.google.com/gsi/client' async defer />
       <RightWrapper>
         <Box
           sx={{
@@ -229,23 +209,6 @@ const LoginPage = () => {
                 },
               }}
             >
-              {/* for test */}
-              <div id='buttonDiv'></div>
-              <div
-                id='g_id_onload'
-                data-client_id='644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com'
-                data-login_uri='/request-g-grant'
-                data-auto_prompt='false'
-              ></div>
-              <div
-                className='g_id_signin'
-                data-type='standard'
-                data-size='large'
-                data-theme='outline'
-                data-text='sign_in_with'
-                data-shape='rectangular'
-                data-logo_alignment='left'
-              ></div>
               <IconButton
                 href='/'
                 component={Link}
@@ -257,11 +220,15 @@ const LoginPage = () => {
 
               <Link
                 href=''
-                onClick={redirectGoogleAuth}
+                // onClick={redirectGoogleAuth}
                 style={{ textDecoration: 'none' }}
               >
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
+              {/* for test */}
+              <BtnTest>
+                <div id='buttonDiv'></div>
+              </BtnTest>
             </Box>
             <Box
               sx={{
@@ -443,3 +410,7 @@ LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 LoginPage.guestGuard = true
 
 export default LoginPage
+
+const BtnTest = styled.div`
+  /* opacity: 0.0001 !important; */
+`
