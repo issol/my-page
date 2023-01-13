@@ -18,7 +18,7 @@ const TadAccount = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('account-read', 'TAD')}
+          disabled={!ability.can('AC0010', 'TAD')}
         >
           READ
         </Button>
@@ -42,6 +42,6 @@ const TadAccount = () => {
 export default TadAccount
 
 TadAccount.acl = {
-  action: 'account-read',
+  action: 'AC0010',
   subject: 'TAD',
 }

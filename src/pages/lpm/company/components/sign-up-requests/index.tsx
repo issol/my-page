@@ -94,6 +94,7 @@ const SignUpRequests = ({
       filterable: false,
       sortable: false,
       disableColumnMenu: true,
+
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
@@ -105,7 +106,7 @@ const SignUpRequests = ({
     {
       flex: 0.15,
       field: 'action',
-      minWidth: 150,
+      minWidth: 240,
       headerName: 'Action',
       hideSortIcons: true,
       filterable: false,
@@ -142,7 +143,15 @@ const SignUpRequests = ({
           title={` Sign up requests : ${data.length}`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
-        <Box sx={{ height: 460, width: '100%' }}>
+        <Box
+          sx={{
+            height: 310,
+            width: '100%',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textTransform: 'none',
+            },
+          }}
+        >
           <DataGrid
             columns={columns}
             rows={data ?? []}

@@ -66,7 +66,7 @@ const AuthProvider = ({ children }: Props) => {
         setLoading(false)
       } else {
         window.localStorage.removeItem('userData')
-        // router.replace('/login')
+        router.replace('/login')
         setLoading(false)
       }
     }
@@ -106,7 +106,7 @@ const AuthProvider = ({ children }: Props) => {
                 email: response.email,
                 username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
                 extraData: profile.extraData,
-                permission: permission.permissions,
+                permission: [...permission.permissions, 'IK9400'],
               }),
             )
             setUser({
@@ -115,7 +115,7 @@ const AuthProvider = ({ children }: Props) => {
               email: response.email,
               username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
               extraData: profile.extraData,
-              permission: permission.permissions,
+              permission: [...permission.permissions, 'IK9400'],
             })
 
             if (

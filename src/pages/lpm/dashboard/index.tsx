@@ -19,7 +19,7 @@ const LpmDashboard = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('dashboard-read', 'LPM')}
+          disabled={!ability.can('B1072', 'LPM')}
         >
           READ
         </Button>
@@ -43,6 +43,6 @@ const LpmDashboard = () => {
 export default LpmDashboard
 
 LpmDashboard.acl = {
-  action: 'dashboard-read',
+  action: 'B1072',
   subject: 'LPM',
 }

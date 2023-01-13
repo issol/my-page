@@ -14,10 +14,7 @@ const ClientEmail = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('email-read', 'CLIENT')}
-        >
+        <Button variant='contained' disabled={!ability.can('MB0333', 'CLIENT')}>
           READ
         </Button>
         <Button
@@ -40,6 +37,6 @@ const ClientEmail = () => {
 export default ClientEmail
 
 ClientEmail.acl = {
-  action: 'email-read',
+  action: 'MB0333',
   subject: 'CLIENT',
 }

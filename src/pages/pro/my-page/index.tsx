@@ -14,10 +14,7 @@ const ProMyPage = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('myPage-read', 'PRO')}
-        >
+        <Button variant='contained' disabled={!ability.can('BP9001', 'PRO')}>
           READ
         </Button>
         <Button
@@ -39,6 +36,6 @@ const ProMyPage = () => {
 export default ProMyPage
 
 ProMyPage.acl = {
-  action: 'myPage-read',
+  action: 'BP9001',
   subject: 'PRO',
 }

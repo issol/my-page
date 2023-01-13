@@ -14,10 +14,7 @@ const ProEmail = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('email-read', 'PRO')}
-        >
+        <Button variant='contained' disabled={!ability.can('MB0333', 'PRO')}>
           READ
         </Button>
         <Button
@@ -40,6 +37,6 @@ const ProEmail = () => {
 export default ProEmail
 
 ProEmail.acl = {
-  action: 'email-read',
+  action: 'MB0333',
   subject: 'PRO',
 }

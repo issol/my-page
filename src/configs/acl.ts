@@ -49,7 +49,7 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: ['company-read'],
+  action: ['L8870'],
   subject: ['TAD'],
 }
 
