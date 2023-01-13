@@ -37,6 +37,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
+import Script from 'next/script'
 
 const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -84,6 +85,23 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const router = useRouter()
+  /* global google */
+
+  function handleCredentialResponse(response: any) {
+    console.log('Encoded JWT ID token: ' + response.credential)
+  }
+  window.onload = function () {
+    console.log(google)
+    google.accounts.id.initialize({
+      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      callback: handleCredentialResponse,
+    })
+    google.accounts.id.renderButton(
+      document.getElementById('buttonDiv'),
+      { theme: 'outline', size: 'large' }, // customization attributes
+    )
+    google.accounts.id.prompt() // also display the One Tap dialog
+  }
 
   // ** Hooks
   const auth = useAuth()
@@ -207,6 +225,25 @@ const LoginPage = () => {
                 },
               }}
             >
+              {/* for test */}
+              <div id='buttonDiv'></div>
+              <div
+                id='g_id_onload'
+                data-client_id='644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com'
+                data-login_uri='/request-g-grant'
+                data-auto_prompt='false'
+              >
+                여기
+              </div>
+              <div
+                className='g_id_signin'
+                data-type='standard'
+                data-size='large'
+                data-theme='outline'
+                data-text='sign_in_with'
+                data-shape='rectangular'
+                data-logo_alignment='left'
+              ></div>
               <IconButton
                 href='/'
                 component={Link}

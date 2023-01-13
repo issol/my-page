@@ -24,10 +24,6 @@ const RequestGGrant = () => {
       ? new URL(window.location.href).searchParams.get('code')
       : null
   console.log(window)
-  const { setModal } = useContext(ModalContext)
-
-  const theme = useTheme()
-  const router = useRouter()
 
   // ** Hooks
   const auth = useAuth()

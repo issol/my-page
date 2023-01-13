@@ -83,8 +83,8 @@ import {
   ApiErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
-import { EventHint } from '@sentry/nextjs'
-import { AxiosError } from 'axios'
+
+import Script from 'next/script'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -242,6 +242,12 @@ const App = (props: ExtendedAppProps) => {
                                 <ErrorBoundary
                                   FallbackComponent={<ErrorFallback />}
                                 >
+                                  <Script
+                                    src='https://accounts.google.com/gsi/client'
+                                    async
+                                    defer
+                                  />
+
                                   {getLayout(<Component {...pageProps} />)}
                                 </ErrorBoundary>
                               </Suspense>
