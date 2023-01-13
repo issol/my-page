@@ -17,7 +17,7 @@ const LpmEmail = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('email-read', 'LPM')}
+          disabled={!ability.can('MB0333', 'LPM')}
         >
           READ
         </Button>
@@ -41,6 +41,6 @@ const LpmEmail = () => {
 export default LpmEmail
 
 LpmEmail.acl = {
-  action: 'email-read',
+  action: 'MB0333',
   subject: 'LPM',
 }

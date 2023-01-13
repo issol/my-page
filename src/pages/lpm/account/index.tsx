@@ -18,7 +18,7 @@ const LpmAccount = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('account-read', 'LPM')}
+          disabled={!ability.can('AC0010', 'LPM')}
         >
           READ
         </Button>
@@ -42,6 +42,6 @@ const LpmAccount = () => {
 export default LpmAccount
 
 LpmAccount.acl = {
-  action: 'account-read',
+  action: 'AC0010',
   subject: 'LPM',
 }

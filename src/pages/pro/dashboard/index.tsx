@@ -15,10 +15,7 @@ const ProDashboard = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('dashboard-read', 'PRO')}
-        >
+        <Button variant='contained' disabled={!ability.can('B1072', 'PRO')}>
           READ
         </Button>
         <Button
@@ -41,6 +38,6 @@ const ProDashboard = () => {
 export default ProDashboard
 
 ProDashboard.acl = {
-  action: 'dashboard-read',
+  action: 'B1072',
   subject: 'PRO',
 }

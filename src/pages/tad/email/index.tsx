@@ -17,7 +17,7 @@ const TadEmail = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('email-read', 'TAD')}
+          disabled={!ability.can('MB0333', 'TAD')}
         >
           READ
         </Button>
@@ -41,6 +41,6 @@ const TadEmail = () => {
 export default TadEmail
 
 TadEmail.acl = {
-  action: 'email-read',
+  action: 'MB0333',
   subject: 'TAD',
 }

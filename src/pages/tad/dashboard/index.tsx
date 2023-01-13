@@ -18,7 +18,7 @@ const TadDashboard = () => {
         </Button>
         <Button
           variant='contained'
-          disabled={!ability.can('dashboard-read', 'TAD')}
+          disabled={!ability.can('B1072', 'TAD')}
         >
           READ
         </Button>
@@ -42,6 +42,6 @@ const TadDashboard = () => {
 export default TadDashboard
 
 TadDashboard.acl = {
-  action: 'dashboard-read',
+  action: 'B1072',
   subject: 'TAD',
 }

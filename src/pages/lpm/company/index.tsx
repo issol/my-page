@@ -256,6 +256,6 @@ const LpmCompany = () => {
 export default LpmCompany
 
 LpmCompany.acl = {
-  action: 'company-read',
+  action: 'L8870',
   subject: 'LPM',
 }

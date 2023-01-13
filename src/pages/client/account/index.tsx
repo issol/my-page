@@ -14,10 +14,7 @@ const ClientAccount = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('account-read', 'CLIENT')}
-        >
+        <Button variant='contained' disabled={!ability.can('AC0010', 'CLIENT')}>
           READ
         </Button>
         <Button
@@ -40,6 +37,6 @@ const ClientAccount = () => {
 export default ClientAccount
 
 ClientAccount.acl = {
-  action: 'account-read',
+  action: 'AC0010',
   subject: 'CLIENT',
 }

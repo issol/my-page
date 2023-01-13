@@ -16,10 +16,7 @@ const ClientDashboard = () => {
         >
           CREATE
         </Button>
-        <Button
-          variant='contained'
-          disabled={!ability.can('dashboard-read', 'CLIENT')}
-        >
+        <Button variant='contained' disabled={!ability.can('B1072', 'CLIENT')}>
           READ
         </Button>
         <Button
@@ -42,6 +39,6 @@ const ClientDashboard = () => {
 export default ClientDashboard
 
 ClientDashboard.acl = {
-  action: 'dashboard-read',
-  subject: 'CLIENT',
+  action: 'B1072',
+  subject: ['CLIENT'],
 }

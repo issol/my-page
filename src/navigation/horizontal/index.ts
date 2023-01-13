@@ -7,7 +7,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Dashboard',
       icon: 'mdi:home-outline',
-      action: 'dashboard-read',
+      action: 'B1072',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/dashboard`,
     },
@@ -15,7 +15,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Company',
       icon: 'mdi:home-outline',
-      action: 'company-read',
+      action: 'L8870',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/company`,
     },
@@ -23,7 +23,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Account',
       icon: 'mdi:home-outline',
-      action: 'account-read',
+      action: 'AC0010',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/account`,
     },
@@ -31,21 +31,21 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'My Page',
       icon: 'mdi:home-outline',
-      action: 'myPage-read',
+      action: 'BP9001',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/my-page`,
     },
     {
       title: 'Email',
       icon: 'mdi:home-outline',
-      action: 'email-read',
+      action: 'MB0333',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/email`,
     },
     {
       title: 'Onboarding',
       icon: 'mdi:home-outline',
-      action: 'onboarding-read',
+      action: 'LH4465',
       subject: `${role}`,
       children: [
         {
@@ -59,7 +59,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Recruiting',
       icon: 'mdi:home-outline',
-      action: 'recruiting-read',
+      action: 'PH2323',
       subject: `${role}`,
       children: [
         {
@@ -85,7 +85,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Pros',
       icon: 'mdi:home-outline',
-      action: 'pros-read',
+      action: 'BU5945',
       subject: `${role}`,
       children: [
         {
@@ -105,7 +105,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Clients',
       icon: 'mdi:home-outline',
-      action: 'clients-read',
+      action: 'BU7644',
       subject: `${role}`,
       children: [
         {
@@ -125,7 +125,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Quotes',
       icon: 'mdi:home-outline',
-      action: 'quotes-read',
+      action: 'PO5800',
       subject: `${role}`,
       children: [
         {
@@ -145,7 +145,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Orders',
       icon: 'mdi:home-outline',
-      action: 'orders-read',
+      action: 'NO2001',
       subject: `${role}`,
       children: [
         {
@@ -165,7 +165,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Jobs',
       icon: 'mdi:home-outline',
-      action: 'jobs-read',
+      action: 'JK7777',
       subject: `${role}`,
       children: [
         {
@@ -179,7 +179,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Invoices',
       icon: 'mdi:home-outline',
-      action: 'invoices-read',
+      action: 'EV6630',
       subject: `${role}`,
       children: [
         {
@@ -211,7 +211,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     {
       title: 'Certification Test',
       icon: 'mdi:home-outline',
-      action: 'certificationTest-read',
+      action: 'TE0650',
       subject: `${role}`,
       children: [
         {

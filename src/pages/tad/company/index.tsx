@@ -22,10 +22,14 @@ import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
 import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 import { faker } from '@faker-js/faker'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 const RoleArray = ['TAD', 'LPM']
 const TadCompany = () => {
-  const { data: signUpRequests } = useGetSignUpRequests()
+  const ability = useContext(AbilityContext)
+  const { data: signUpRequests } = useGetSignUpRequests(
+    ability.can('IK9400', 'TAD'),
+  )
   const { data: members } = useGetMembers()
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
@@ -37,6 +41,8 @@ const TadCompany = () => {
   const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
+
+  console.log(members)
 
   const declineSignUpRequestMutation = useMutation(
     (id: number) => deleteSignUpRequests(id),
@@ -230,17 +236,20 @@ const TadCompany = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Suspense>
-        <SignUpRequests
-          data={user}
-          requestsPage={requestsPage}
-          requestsPageSize={requestsPageSize}
-          setRequestsPage={setRequestsPage}
-          setRequestsPageSize={setRequestsPageSize}
-          handleDeleteRole={handleDeleteRole}
-          handleAddRole={handleAddRole}
-          handleDeclineSignUpRequest={handleDeclineSignUpRequest}
-          handleApproveSignUpRequest={handleApproveSignUpRequest}
-        />
+        {user && (
+          <SignUpRequests
+            data={user}
+            requestsPage={requestsPage}
+            requestsPageSize={requestsPageSize}
+            setRequestsPage={setRequestsPage}
+            setRequestsPageSize={setRequestsPageSize}
+            handleDeleteRole={handleDeleteRole}
+            handleAddRole={handleAddRole}
+            handleDeclineSignUpRequest={handleDeclineSignUpRequest}
+            handleApproveSignUpRequest={handleApproveSignUpRequest}
+          />
+        )}
+
         <MemberList
           membersPage={membersPage}
           setMembersPage={setMembersPage}
@@ -256,6 +265,6 @@ const TadCompany = () => {
 export default TadCompany
 
 TadCompany.acl = {
-  action: 'company-read',
+  action: 'L8870',
   subject: 'TAD',
 }
