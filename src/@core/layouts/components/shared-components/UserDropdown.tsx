@@ -99,10 +99,10 @@ const UserDropdown = (props: Props) => {
         }}
       >
         <Avatar
-          alt={auth?.user?.fullName}
+          alt={''}
           onClick={handleDropdownOpen}
           sx={{ width: 40, height: 40 }}
-          src={auth?.user?.avatar ?? '/images/avatars/1.png'}
+          src={'/images/avatars/1.png'}
         />
       </Badge>
       <Menu
@@ -144,7 +144,7 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {auth?.user?.fullName}
+                {/* {auth?.user?.fullName} */}
               </Typography>
               <Typography
                 variant='body2'
