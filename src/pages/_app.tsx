@@ -1,5 +1,7 @@
 // ** React Imports
 import React, { ReactNode, Suspense, useState } from 'react'
+import * as Sentry from '@sentry/nextjs'
+import { Integrations } from '@sentry/tracing'
 
 // ** Next Imports
 import Head from 'next/head'
@@ -76,6 +78,13 @@ import FallbackSpinner from 'src/@core/components/spinner'
 /* push notification for demo */
 import usePushNotification from '../hooks/pushNotification'
 import ModalProvider from 'src/context/ModalContext'
+import {
+  ClientErrorHandler,
+  ApiErrorHandler,
+  StatusCode,
+} from 'src/shared/sentry-provider'
+import { EventHint } from '@sentry/nextjs'
+import { AxiosError } from 'axios'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -88,6 +97,39 @@ type GuardProps = {
   guestGuard: boolean
   children: ReactNode
 }
+
+Sentry.init({
+  dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
+  integrations: [
+    new Integrations.BrowserTracing(),
+    // new Sentry.Integrations.Breadcrumbs({
+    //   console: true,
+    //   history: true,
+    //   dom: true,
+    //   fetch: true,
+    //   sentry: true,
+    //   xhr: true,
+    // }),
+  ],
+  normalizeDepth: 6,
+  environment: process.env.NEXT_PUBLIC_BUILD_MODE,
+  autoSessionTracking: true,
+  tracesSampleRate: 1.0,
+  release: process.env.NEXT_PUBLIC_APP_VERSION,
+  beforeSend(event, hint) {
+    const errorName: Error = hint.originalException as Error
+    const errorType = Object.values(StatusCode).includes(errorName?.name)
+      ? 'API'
+      : 'CLIENT'
+    if (errorType === 'API' && event) {
+      return event
+    } else if (errorType === 'CLIENT') {
+      return ClientErrorHandler(event, hint)
+    } else {
+      return event
+    }
+  },
+})
 
 const clientSideEmotionCache = createEmotionCache()
 const PushAlarm = dynamic<any>(
@@ -132,6 +174,9 @@ const App = (props: ExtendedAppProps) => {
             refetchOnWindowFocus: false,
             suspense: false,
             retry: false,
+            onError: (error: any) => {
+              ApiErrorHandler(error)
+            },
           },
         },
       }),
