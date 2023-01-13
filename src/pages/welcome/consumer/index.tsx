@@ -247,9 +247,15 @@ const PersonalInfoPro = () => {
    * onSuccess시 랜딩페이지로 이동
    */
   const updateUserInfoMutation = useMutation(
-    (data: ConsumerUserInfoType) => updateConsumerUserInfo(data),
+    (data: ConsumerUserInfoType & { userId: number }) =>
+      updateConsumerUserInfo(data),
     {
       onSuccess: () => {
+        if (auth.user?.role.includes('PRO')) {
+          router.push('/pro/dashboard')
+        } else {
+          router.push('/client/dashboard')
+        }
         return
       },
       onError: () => {
@@ -292,7 +298,8 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const finalData: ConsumerUserInfoType = {
+    const finalData: ConsumerUserInfoType & { userId: number } = {
+      userId: auth.user?.id || 0,
       firstName: data.firstName,
       lastName: data.lastName,
       country: data.timezone.label,
@@ -1236,6 +1243,15 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
 )
 
 PersonalInfoPro.guestGuard = false
+
+PersonalInfoPro.acl = {
+  action: 'RE0008',
+  subject: 'PRO',
+}
+// PersonalInfoPro.acl = {
+//   action: 'RE0008',
+//   subject: 'CLIENT',
+// }
 
 export default PersonalInfoPro
 

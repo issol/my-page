@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode } from 'react'
+import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -29,9 +29,11 @@ import { getUserRoleNPermission } from 'src/apis/user.api'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
-  user: null,
+  user: { id: 0, role: ['PRO'], email: '', permission: [] },
   loading: true,
-  setUser: null,
+  setUser: (n: any) => {
+    return null
+  },
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
   logout: () => Promise.resolve(),
@@ -95,6 +97,7 @@ const AuthProvider = ({ children }: Props) => {
             console.log(values)
             const profile = values[0]
             const permission = values[1]
+
             window.localStorage.setItem(
               'userData',
               JSON.stringify({
@@ -114,6 +117,20 @@ const AuthProvider = ({ children }: Props) => {
               extraData: profile.extraData,
               permission: [...permission.permissions, 'IK9400'],
             })
+
+            if (
+              !profile.firstName ||
+              (!profile.lastName && permission.roles.includes('PRO'))
+            ) {
+              if (permission.roles.includes('PRO')) {
+                router.push('/welcome/consumer')
+              } else if (
+                permission.roles.includes('TAD') ||
+                permission.roles.includes('LPM')
+              ) {
+                router.push('/welcome/manager')
+              }
+            }
           })
           .catch(e => {
             console.log(e)

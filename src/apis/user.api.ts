@@ -36,7 +36,7 @@ export const getUserRoleNPermission = async (
 
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: ConsumerUserInfoType,
+  userInfo: ConsumerUserInfoType & { userId: number },
 ) => {
   try {
     await axios.put(`/api/enough/u/pu/edit`, userInfo)
@@ -46,7 +46,9 @@ export const updateConsumerUserInfo = async (
 }
 
 /* TAD, LPM 전용 프로필 업데이트 */
-export const updateManagerUserInfo = async (userInfo: ManagerUserInfoType) => {
+export const updateManagerUserInfo = async (
+  userInfo: ManagerUserInfoType & { userId: number },
+) => {
   try {
     await axios.put(`/api/enough/u/pu/edit`, userInfo)
   } catch (e: any) {
