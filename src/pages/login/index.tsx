@@ -86,25 +86,25 @@ const LoginPage = () => {
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const router = useRouter()
 
-  function handleCredentialResponse(response: any) {
-    console.log(response)
-    console.log('Encoded JWT ID token: ' + response.credential)
-  }
-  window.onload = function () {
-    /* @ts-ignore */
-    google.accounts.id.initialize({
-      client_id:
-        '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
-      callback: handleCredentialResponse,
-    })
-    /* @ts-ignore */
-    google.accounts.id.renderButton(
-      document.getElementById('buttonDiv'),
-      { theme: 'outline', size: 'large' }, // customization attributes
-    )
-    /* @ts-ignore */
-    google.accounts.id.prompt() // also display the One Tap dialog
-  }
+  // function handleCredentialResponse(response: any) {
+  //   console.log(response)
+  //   console.log('Encoded JWT ID token: ' + response.credential)
+  // }
+  // window.onload = function () {
+  //   /* @ts-ignore */
+  //   google.accounts.id.initialize({
+  //     client_id:
+  //       '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
+  //     callback: handleCredentialResponse,
+  //   })
+  //   /* @ts-ignore */
+  //   google.accounts.id.renderButton(
+  //     document.getElementById('buttonDiv'),
+  //     { theme: 'outline', size: 'large' }, // customization attributes
+  //   )
+  //   /* @ts-ignore */
+  //   google.accounts.id.prompt() // also display the One Tap dialog
+  // }
 
   // ** Hooks
   const auth = useAuth()

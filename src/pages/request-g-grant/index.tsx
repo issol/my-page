@@ -23,7 +23,7 @@ const RequestGGrant = () => {
     typeof window === 'object'
       ? new URL(window.location.href).searchParams.get('code')
       : null
-  console.log(window)
+  console.log('google login page')
 
   // ** Hooks
   const auth = useAuth()
