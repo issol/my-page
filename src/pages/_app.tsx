@@ -5,7 +5,7 @@ import { Integrations } from '@sentry/tracing'
 
 // ** Next Imports
 import Head from 'next/head'
-import { Router } from 'next/router'
+import { Router, useRouter } from 'next/router'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
@@ -83,6 +83,7 @@ import {
   ApiErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
+import { googleAuth } from 'src/apis/sign.api'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -160,6 +161,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
 
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
+  const router = useRouter()
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
   const [queryClient] = useState(
     () =>
@@ -201,16 +203,39 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
-  function handleCredentialResponse(response: any) {
+  function handleCredentialResponse(response: {
+    credential: string
+    g_csrf_token: string
+  }) {
     console.log(response)
     console.log('Encoded JWT ID token: ' + response.credential)
+    if (response?.credential && response.g_csrf_token) {
+      googleAuth(response.credential, response.g_csrf_token)
+        .then((e: any) => {
+          console.log('google auth api res : ', e)
+          // router.push(
+          //   {
+          //     pathname: '/signup/',
+          //     query: {
+          //       // email: response.data.email,
+          //       credential: response.credential,
+          //       g_csrf_token:response.g_csrf_token,
+          //       type: 'google',
+          //     },
+          //   },
+          //   '/signup',
+          // )
+        })
+        .catch((error: any) => {
+          console.log('google auth error: ', error)
+        })
+    }
   }
   if (typeof window === 'object') {
     window.onload = function () {
       /* @ts-ignore */
       google.accounts.id.initialize({
-        client_id:
-          '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
+        client_id: process.env.GOOGLE_CLIENT_ID,
         callback: handleCredentialResponse,
       })
       /* @ts-ignore */

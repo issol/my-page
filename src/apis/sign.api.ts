@@ -33,6 +33,17 @@ export const redirectGoogleAuth = (e: any) => {
   }
 }
 
+export const googleAuth = async (credential: string, g_csrf_token: string) => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/a/google/x-gu-grant?credential=${credential}&g_csrf_token=${g_csrf_token}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 /* TODO : url 수정 */
 export const redirectLinkedInAuth = (e: any) => {
   e.preventDefault()
