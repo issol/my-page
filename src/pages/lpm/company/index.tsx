@@ -22,10 +22,14 @@ import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
 import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 import { faker } from '@faker-js/faker'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 const RoleArray = ['TAD', 'LPM']
 const LpmCompany = () => {
-  const { data: signUpRequests } = useGetSignUpRequests()
+  const ability = useContext(AbilityContext)
+  const { data: signUpRequests } = useGetSignUpRequests(
+    ability.can('IK9400', 'LPM'),
+  )
   const { data: members } = useGetMembers()
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
