@@ -29,7 +29,7 @@ export const getRefreshToken = async () => {
 export const redirectGoogleAuth = (e: any) => {
   e.preventDefault()
   if (typeof window === 'object') {
-    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&response_type=code&redirect_uri=${window.location.protocol}%2F%2F${window.location.host}%2Fsign%2Frequest-g-grant&scope=email%20profile%20openid&client_id=19780090882-pcmto03bt0r8ok64bcjig5tovpt67vvk.apps.googleusercontent.com&flowName=GeneralOAuthFlow`
+    window.location.href = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&response_type=code&redirect_uri=${window.location.protocol}%2F%2F${window.location.host}%2Fsign%2Frequest-g-grant&scope=email%20profile%20openid&client_id=644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com&flowName=GeneralOAuthFlow`
   }
 }
 
