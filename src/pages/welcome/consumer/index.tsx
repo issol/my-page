@@ -242,10 +242,6 @@ const PersonalInfoPro = () => {
     name: 'jobInfo',
   })
 
-  /**
-   * TODO :
-   * onSuccess시 랜딩페이지로 이동
-   */
   const updateUserInfoMutation = useMutation(
     (data: ConsumerUserInfoType & { userId: number }) =>
       updateConsumerUserInfo(data),

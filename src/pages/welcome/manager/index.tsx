@@ -89,7 +89,6 @@ const defaultValues = {
   fax: '',
 }
 
-/* TODO: guestGuard false로 수정하기 */
 const PersonalInfoManager = () => {
   const { setModal } = useContext(ModalContext)
 
@@ -111,10 +110,6 @@ const PersonalInfoManager = () => {
     resolver: yupResolver(managerProfileSchema),
   })
 
-  /**
-   * TODO :
-   * onSuccess시 랜딩페이지로 이동
-   */
   const updateUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
       updateManagerUserInfo(data),

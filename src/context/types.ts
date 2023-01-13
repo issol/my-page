@@ -25,7 +25,6 @@ export type UserDataType = {
   country?: string
   firstName?: string
   lastName?: string
-  middleName?: string
   extraData?: any
   username?: string
 }
