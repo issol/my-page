@@ -88,12 +88,16 @@ const LoginPage = () => {
   /* global google */
 
   function handleCredentialResponse(response: any) {
+    console.log(response)
     console.log('Encoded JWT ID token: ' + response.credential)
   }
   window.onload = function () {
     console.log(google)
+    // data-client_id='644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com'
+    //             data-login_uri='/request-g-grant'
     google.accounts.id.initialize({
-      client_id: 'YOUR_GOOGLE_CLIENT_ID',
+      client_id:
+        '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
       callback: handleCredentialResponse,
     })
     google.accounts.id.renderButton(
@@ -144,6 +148,7 @@ const LoginPage = () => {
 
   return (
     <Box className='content-center'>
+      <Script src='https://accounts.google.com/gsi/client' async defer />
       <RightWrapper>
         <Box
           sx={{
@@ -232,9 +237,7 @@ const LoginPage = () => {
                 data-client_id='644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com'
                 data-login_uri='/request-g-grant'
                 data-auto_prompt='false'
-              >
-                여기
-              </div>
+              ></div>
               <div
                 className='g_id_signin'
                 data-type='standard'
