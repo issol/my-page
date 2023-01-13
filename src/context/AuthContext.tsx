@@ -29,7 +29,7 @@ import { getUserRoleNPermission } from 'src/apis/user.api'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
-  user: { id: 0, role: ['PRO'], email: '', permission: [] },
+  user: null,
   loading: true,
   setUser: (n: any) => {
     return null
