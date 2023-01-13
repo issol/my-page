@@ -116,9 +116,15 @@ const PersonalInfoManager = () => {
    * onSuccess시 랜딩페이지로 이동
    */
   const updateUserInfoMutation = useMutation(
-    (data: ManagerUserInfoType) => updateManagerUserInfo(data),
+    (data: ManagerUserInfoType & { userId: number }) =>
+      updateManagerUserInfo(data),
     {
       onSuccess: () => {
+        if (auth.user?.role.includes('TAD')) {
+          router.push('/tad/dashboard')
+        } else {
+          router.push('/lpm/dashboard')
+        }
         return
       },
       onError: () => {
@@ -162,7 +168,8 @@ const PersonalInfoManager = () => {
 
   const onSubmit = (data: ManagerInfo) => {
     console.log(data)
-    const finalData: ManagerUserInfoType = {
+    const finalData: ManagerUserInfoType & { userId: number } = {
+      userId: auth.user?.id || 0,
       firstName: data.firstName,
       lastName: data.lastName,
       country: data.timezone.label,
@@ -487,6 +494,15 @@ const PersonalInfoManager = () => {
 PersonalInfoManager.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
+
+PersonalInfoManager.acl = {
+  action: 'RE0008',
+  subject: 'LPM',
+}
+PersonalInfoManager.acl = {
+  action: 'RE0008',
+  subject: 'TAD',
+}
 
 PersonalInfoManager.guestGuard = false
 
