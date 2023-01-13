@@ -85,25 +85,24 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const router = useRouter()
-  /* global google */
 
   function handleCredentialResponse(response: any) {
     console.log(response)
     console.log('Encoded JWT ID token: ' + response.credential)
   }
   window.onload = function () {
-    console.log(google)
-    // data-client_id='644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com'
-    //             data-login_uri='/request-g-grant'
+    /* @ts-ignore */
     google.accounts.id.initialize({
       client_id:
         '644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com',
       callback: handleCredentialResponse,
     })
+    /* @ts-ignore */
     google.accounts.id.renderButton(
       document.getElementById('buttonDiv'),
       { theme: 'outline', size: 'large' }, // customization attributes
     )
+    /* @ts-ignore */
     google.accounts.id.prompt() // also display the One Tap dialog
   }
 
