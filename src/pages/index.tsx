@@ -17,7 +17,7 @@ import { RoleType } from 'src/types/apps/userTypes'
 export const getHomeRoute = (role: Array<RoleType>) => {
   // if (role === 'client') return '/acl'
   // else return `/${role.toLowerCase()}/dashboard`
-  return `/${role[0]?.toLowerCase()}/company`
+  return `/${role[0]?.toLowerCase()}/dashboard`
 }
 
 const Home = () => {
@@ -28,10 +28,8 @@ const Home = () => {
   useEffect(() => {
     if (auth.user && auth.user.role) {
       const homeRoute = getHomeRoute(auth.user.role)
-      // const homeRoute = getHomeRoute('TAD')
-
       // Redirect user to Home URL
-      router.replace(homeRoute)
+      router.push(homeRoute)
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])

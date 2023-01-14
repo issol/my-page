@@ -197,11 +197,12 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
     }
   }
 
-  useEffect(() => {
-    if (router.pathname !== '/') {
-      router.push(`/${role?.toLowerCase()}/company`)
-    }
-  }, [role])
+  //** TODO: 주석해제 (bon)
+  // useEffect(() => {
+  //   if (router.pathname !== '/') {
+  //     router.push(`/${role?.toLowerCase()}/company`)
+  //   }
+  // }, [role])
 
   // useEffect(() => {
   //   setRoleBtn(
