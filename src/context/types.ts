@@ -1,5 +1,11 @@
 import { Dispatch, SetStateAction } from 'react'
 import { RoleType } from 'src/types/apps/userTypes'
+import { loginResType } from 'src/types/sign/signInTypes'
+import {
+  CountryType,
+  JobInfoType,
+  PronounceType,
+} from 'src/types/sign/personalInfoTypes'
 
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any
@@ -25,8 +31,23 @@ export type UserDataType = {
   country?: string
   firstName?: string
   lastName?: string
-  extraData?: any
   username?: string
+  //⬇️ extraData
+  middleName?: string
+  legalName_pronunciation?: string
+  pronounce?: PronounceType
+  havePreferred?: boolean
+  preferredName?: string
+  preferredName_pronunciation?: string
+  timezone: CountryType
+  mobile?: string
+  phone?: string
+  jobInfo?: Array<JobInfoType>
+  experience?: string
+  resume?: Array<File> | null
+  specialties?: Array<string>
+  jobTitle?: string
+  fax?: string
 }
 
 export type LoginSuccessResponse = {
@@ -41,7 +62,7 @@ export type AuthValuesType = {
   loading: boolean
   logout: () => void
   user: UserDataType | null
-
+  updateUserInfo: (response: loginResType) => void
   setLoading: (value: boolean) => void
   setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void

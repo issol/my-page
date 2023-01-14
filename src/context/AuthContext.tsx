@@ -26,12 +26,16 @@ import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
 import { getUserRoleNPermission } from 'src/apis/user.api'
+import { loginResType } from 'src/types/sign/signInTypes'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
   loading: true,
   setUser: (n: any) => {
+    return null
+  },
+  updateUserInfo: (_: any) => {
     return null
   },
   setLoading: () => Boolean,
@@ -62,11 +66,12 @@ const AuthProvider = ({ children }: Props) => {
 
       if (storedToken) {
         setLoading(true)
-        setUser(JSON.parse(window.localStorage.getItem('userData') || ''))
+        window.localStorage.getItem('userData') &&
+          setUser(JSON?.parse(window.localStorage.getItem('userData') || ''))
         setLoading(false)
       } else {
         window.localStorage.removeItem('userData')
-        // router.replace('/login')
+        router.replace('/login')
         setLoading(false)
       }
     }
@@ -74,6 +79,46 @@ const AuthProvider = ({ children }: Props) => {
     initAuth()
   }, [])
 
+  useEffect(() => {
+    if (user === null) return
+    if (!user.firstName) {
+      if (user.role.includes('PRO')) {
+        router.replace('/welcome/consumer')
+      } else if (user.role.includes('TAD') || user.role.includes('LPM')) {
+        router.replace('/welcome/manager')
+      }
+    }
+  }, [user])
+
+  function updateUserInfo(response: loginResType) {
+    Promise.all([
+      getUserInfo(response.email),
+      getUserRoleNPermission(response.userId),
+    ])
+      .then(values => {
+        const profile = values[0]
+        const permission = values[1]
+        console.log(profile)
+        const userInfo = {
+          id: response.userId,
+          role: permission.roles,
+          email: response.email,
+          username: `${profile.firstName} ${profile?.middleName ?? null} ${
+            profile.lastName
+          }`,
+          firstName: profile.firstName,
+          timezone: profile.timezone,
+          permission: [...permission.permissions, 'IK9400'],
+        }
+
+        window.localStorage.setItem('userData', JSON.stringify(userInfo))
+        setUser(userInfo)
+      })
+      .catch(e => {
+        console.log(e)
+        router.push('/login')
+      })
+  }
   const handleLogin = (
     params: LoginParams,
     errorCallback?: ErrCallbackType,
@@ -81,53 +126,7 @@ const AuthProvider = ({ children }: Props) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        Promise.all([
-          getUserInfo(response.email),
-          getUserRoleNPermission(response.userId),
-        ])
-          .then(values => {
-            console.log(values)
-            const profile = values[0]
-            const permission = values[1]
-
-            window.localStorage.setItem(
-              'userData',
-              JSON.stringify({
-                id: response.userId,
-                role: permission.roles,
-                email: response.email,
-                username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
-                extraData: profile.extraData,
-                permission: [...permission.permissions, 'IK9400'],
-              }),
-            )
-            setUser({
-              id: response.userId,
-              role: permission.roles,
-              email: response.email,
-              username: `${profile.firstName} ${profile.extraData?.middleName} ${profile.lastName}`,
-              extraData: profile.extraData,
-              permission: [...permission.permissions, 'IK9400'],
-            })
-
-            if (
-              !profile.firstName ||
-              (!profile.lastName && permission.roles.includes('PRO'))
-            ) {
-              if (permission.roles.includes('PRO')) {
-                router.push('/welcome/consumer')
-              } else if (
-                permission.roles.includes('TAD') ||
-                permission.roles.includes('LPM')
-              ) {
-                router.push('/welcome/manager')
-              }
-            }
-          })
-          .catch(e => {
-            console.log(e)
-            router.push('/login')
-          })
+        updateUserInfo(response)
 
         params.rememberMe
           ? window.localStorage.setItem(authConfig.rememberId, params.email)
@@ -138,7 +137,6 @@ const AuthProvider = ({ children }: Props) => {
         )
 
         // const returnUrl = router.query.returnUrl
-
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
 
         router.replace('/')
@@ -185,6 +183,7 @@ const AuthProvider = ({ children }: Props) => {
     login: handleLogin,
     logout: handleLogout,
     register: handleRegister,
+    updateUserInfo: updateUserInfo,
   }
 
   return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
