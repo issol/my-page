@@ -99,6 +99,13 @@ const PersonalInfoManager = () => {
   // ** Hooks
   const auth = useAuth()
 
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
+
   const {
     control,
     handleSubmit,

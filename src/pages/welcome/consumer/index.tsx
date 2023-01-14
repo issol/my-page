@@ -1,14 +1,5 @@
 // ** React Imports
-import {
-  useState,
-  ReactNode,
-  MouseEvent,
-  useEffect,
-  useMemo,
-  SyntheticEvent,
-  useContext,
-  Fragment,
-} from 'react'
+import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -18,27 +9,14 @@ import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
-import OutlinedInput from '@mui/material/OutlinedInput'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import {
-  Card,
-  CardContent,
-  FormControlLabel,
-  Link,
-  List,
-  ListItem,
-  useMediaQuery,
-} from '@mui/material'
+import { FormControlLabel, List, useMediaQuery } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
-import DropzoneWrapper from 'src/@core/styles/libs/react-dropzone'
-
-import cloneDeep from 'lodash/cloneDeep'
-import isEmpty from 'lodash/isEmpty'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -80,13 +58,12 @@ import {
   ConsumerUserInfoType,
   CountryType,
   PersonalInfo,
-  PronounceType,
 } from 'src/types/sign/personalInfoTypes'
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
-import { updateConsumerUserInfo } from 'src/apis/user.api'
+import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -100,8 +77,6 @@ const TypographyStyled = muiStyled(Typography)<TypographyProps>(
   ({ theme }) => ({
     fontWeight: 600,
     letterSpacing: '0.18px',
-    marginBottom: theme.spacing(1.5),
-    [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
   }),
 )
 
@@ -146,10 +121,13 @@ const PersonalInfoPro = () => {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
+  const MAXIMUM_FILE_SIZE = 50000000
+
   const languageList = getGloLanguage()
 
   // ** states
   const [step, setStep] = useState<1 | 2>(1)
+  const [fileSize, setFileSize] = useState(0)
 
   // ** Hooks
   const auth = useAuth()
@@ -172,24 +150,12 @@ const PersonalInfoPro = () => {
     },
   })
 
-  const renderFilePreview = (file: FileProp) => {
-    if (file.type.startsWith('image')) {
-      return (
-        <img
-          width={38}
-          height={38}
-          alt={file.name}
-          src={URL.createObjectURL(file as any)}
-        />
-      )
-    } else {
-      return <Icon icon='mdi:file-document-outline' />
-    }
-  }
-
   useEffect(() => {
-    setValue('resume', files, { shouldDirty: true, shouldValidate: true })
-  }, [files])
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -200,7 +166,9 @@ const PersonalInfoPro = () => {
   const fileList = files.map((file: FileProp) => (
     <FileList key={file.name}>
       <div className='file-details'>
-        <div className='file-preview'>{renderFilePreview(file)}</div>
+        <div className='file-preview'>
+          <Icon icon='mdi:file-document-outline' />
+        </div>
         <div>
           <Typography className='file-name'>{file.name}</Typography>
           <Typography className='file-size' variant='body2'>
@@ -216,15 +184,13 @@ const PersonalInfoPro = () => {
     </FileList>
   ))
 
-  const handleRemoveAllFiles = () => {
-    setFiles([])
-  }
-
   const {
     control,
     handleSubmit,
     getValues,
     setValue,
+    setError,
+    clearErrors,
     formState: { errors, dirtyFields },
   } = useForm<PersonalInfo>({
     defaultValues,
@@ -242,17 +208,41 @@ const PersonalInfoPro = () => {
     name: 'jobInfo',
   })
 
+  useEffect(() => {
+    setValue('resume', files, { shouldDirty: true, shouldValidate: true })
+
+    let result = 0
+    files.forEach((file: FileProp) => (result += file.size))
+
+    setFileSize(result)
+  }, [files])
+
+  useEffect(() => {
+    if (fileSize > MAXIMUM_FILE_SIZE) {
+      setError('resume', { message: 'File size too large' })
+    } else {
+      clearErrors('resume')
+    }
+  }, [fileSize])
+
   const updateUserInfoMutation = useMutation(
     (data: ConsumerUserInfoType & { userId: number }) =>
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        if (auth.user?.role.includes('PRO')) {
-          router.push('/pro/dashboard')
-        } else {
-          router.push('/client/dashboard')
-        }
-        return
+        getUserInfo(auth.user?.email as string).then(res => {
+          if (auth.user?.role.includes('PRO')) {
+            /* @ts-ignore */
+            auth.updateUserInfo({
+              userId: auth.user.id,
+              email: auth.user.email,
+            })
+            console.log('???')
+            router.push('/pro/dashboard')
+          } else {
+            router.push('/client/dashboard')
+          }
+        })
       },
       onError: () => {
         setModal(
@@ -294,6 +284,35 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
+    const formData = new FormData()
+    // data?.resume &&
+    //   data?.resume.forEach(file => {
+    //     formData.append('file', file)
+    //   })
+    // formData.append(
+    //   'json',
+    //   JSON.stringify({
+    //     userId: auth.user?.id || 0,
+    //     firstName: data.firstName,
+    //     lastName: data.lastName,
+    //     country: data.timezone.label,
+    //     extraData: {
+    //       havePreferredName: data.havePreferred,
+    //       jobInfo: data.jobInfo,
+    //       middleName: data.middleName,
+    //       experience: data.experience,
+    //       legalName_pronunciation: data.legalName_pronunciation,
+    //       mobilePhone: data.mobile,
+    //       telephone: data.phone,
+    //       preferredName: data.preferredName,
+    //       preferredName_pronunciation: data.preferredName_pronunciation,
+    //       pronounce: data.pronounce,
+    //       // resume: formData,
+    //       specialties: data.specialties?.map(item => item.value),
+    //       timezone: data.timezone,
+    //     },
+    //   }),
+    // )
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
       firstName: data.firstName,
@@ -310,8 +329,8 @@ const PersonalInfoPro = () => {
         preferredName: data.preferredName,
         preferredName_pronunciation: data.preferredName_pronunciation,
         pronounce: data.pronounce,
-        resume: data.resume,
-        specialties: data.specialties,
+        resume: data?.resume,
+        specialties: data.specialties?.map(item => item.value),
         timezone: data.timezone,
       },
     }
@@ -414,10 +433,34 @@ const PersonalInfoPro = () => {
               sx={{ mb: 6, display: 'flex', alignItems: 'center', gap: '16px' }}
             >
               <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <img
+                  src={`${
+                    step === 1
+                      ? '/images/signup/stepper-empty.png'
+                      : '/images/signup/stepper-complete.png'
+                  }`}
+                  width={14}
+                  height={14}
+                  alt=''
+                  aria-hidden
+                />
                 <TypographyStyled variant='h2'>01</TypographyStyled>
                 <Typography>Personal Information</Typography>
               </Box>
+              <StepperImgWrapper step={step} style={{ marginBottom: '6px' }}>
+                <img src='/images/signup/stepper-line.png' alt='' aria-hidden />
+              </StepperImgWrapper>
               <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+                <StepperImgWrapper step={step}>
+                  <img
+                    src='/images/signup/stepper-empty.png'
+                    width={14}
+                    height={14}
+                    alt=''
+                    aria-hidden
+                  />
+                </StepperImgWrapper>
+
                 <TypographyStyled variant='h2'>02</TypographyStyled>
                 <Typography>Application</Typography>
               </Box>
@@ -757,7 +800,10 @@ const PersonalInfoPro = () => {
                             justifyContent: 'space-between',
                           }}
                         >
-                          <Typography mb={3}>{idx + 1}.</Typography>
+                          <Typography mb={3}>
+                            {idx < 9 ? 0 : null}
+                            {idx + 1}.
+                          </Typography>
                           {jobInfoFields.length > 1 && (
                             <IconButton onClick={() => removeJobInfo(item)}>
                               <img
@@ -1019,6 +1065,7 @@ const PersonalInfoPro = () => {
                   <Divider />
                   <Box
                     sx={{
+                      marginTop: '16px',
                       display: 'flex',
                       gap: '16px',
                       justifyContent: 'space-between',
@@ -1088,20 +1135,23 @@ const PersonalInfoPro = () => {
                               field.onChange(v)
                             }}
                             disableClearable
-                            renderOption={(props, option: any) => (
-                              <Box component='li' {...props}>
+                            limitTags={1}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox
+                                  style={{ marginRight: 8 }}
+                                  checked={selected}
+                                />
                                 {option.label}
-                              </Box>
+                              </li>
                             )}
+                            id='multiple-limit-tags'
                             renderInput={params => (
                               <TextField
                                 {...params}
-                                label='Specialties*'
                                 error={Boolean(errors.specialties)}
-                                inputProps={{
-                                  ...params.inputProps,
-                                  autoComplete: 'new-password',
-                                }}
+                                label='Specialties'
+                                placeholder='Specialties'
                               />
                             )}
                           />
@@ -1115,68 +1165,54 @@ const PersonalInfoPro = () => {
                       )}
                     </FormControl>
                   </Box>
-
+                  <Divider />
                   <Box mb={8}>
                     <FormControl fullWidth>
-                      <InputLabel error={Boolean(errors.resume)}>
-                        Resume*
-                      </InputLabel>
-
                       <div {...getRootProps({ className: 'dropzone' })}>
+                        <input {...getInputProps()} />
                         <Box
                           sx={{
+                            margin: '18px 0 6px',
                             display: 'flex',
-                            justifyContent: 'flex-end',
-                            width: '100%',
-                            border: `1px solid ${
-                              Boolean(errors.resume) ? '#FF4D49' : '#ccc'
-                            }`,
-                            borderRadius: '6px',
-                            padding: '12px 12px 14px',
-                            cursor: 'pointer',
+                            alignItems: 'center',
+                            gap: '10px',
                           }}
                         >
-                          <input {...getInputProps()} />
-                          <img
-                            style={{
-                              display: 'block',
-                              alignSelf: 'flex-end',
+                          <Typography
+                            sx={{
+                              color: `${
+                                Boolean(errors.resume) ? '#FF4D49' : '#6D788D'
+                              }`,
+                              fontWeight: 'bold',
                             }}
-                            src='/images/signup/add-file.png'
-                            alt='add resume file'
-                            width={25}
-                          />
+                          >
+                            Resume*
+                          </Typography>
+                          <Button variant='outlined'>Upload Files</Button>
                         </Box>
                       </div>
-                      {errors.resume && (
-                        <FormHelperText sx={{ color: 'error.main' }} id=''>
-                          {errors.resume.message}
-                        </FormHelperText>
-                      )}
                     </FormControl>
-                    {/* <DropzoneWrapper> */}
+                    {errors.resume && (
+                      <FormHelperText sx={{ color: 'error.main' }} id=''>
+                        {errors.resume.message}
+                      </FormHelperText>
+                    )}
                     {files.length ? (
                       <Fragment>
                         <List>{fileList}</List>
-                        <div
-                          style={{
-                            display: 'flex',
-                            gap: '8px',
-                            justifyContent: 'flex-end',
-                          }}
-                        >
-                          <Button
-                            color='error'
-                            variant='outlined'
-                            onClick={handleRemoveAllFiles}
-                          >
-                            Remove All
-                          </Button>
-                          <Button variant='contained'>Upload Files</Button>
-                        </div>
                       </Fragment>
                     ) : null}
-                    {/* </DropzoneWrapper> */}
+
+                    <Typography variant='body2'>
+                      {Math.round(fileSize / 100) / 10 > 1000
+                        ? `${(Math.round(fileSize / 100) / 10000).toFixed(
+                            1,
+                          )} mb`
+                        : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
+                      /50mb
+                    </Typography>
+
+                    <Divider />
                   </Box>
                 </Box>
               )}
@@ -1185,6 +1221,7 @@ const PersonalInfoPro = () => {
                   size='large'
                   type='button'
                   variant='contained'
+                  color='secondary'
                   disabled={step === 1}
                   onClick={() => setStep(1)}
                   sx={{ mb: 7 }}
@@ -1257,19 +1294,21 @@ const FileList = styled.div`
   justify-content: space-between;
   border-radius: 8px;
   padding: 8px;
-  border: 1px solid rgba(93, 89, 98, 0.14);
+  border: 1px solid rgba(76, 78, 100, 0.22);
+  background: #f9f8f9;
   .file-details {
     display: flex;
     align-items: center;
   }
   .file-preview {
+    margin-right: 8px;
     display: flex;
-    margin-right: 2px;
   }
 
   img {
     width: 38px;
     height: 38px;
+
     padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid rgba(93, 89, 98, 0.14);
@@ -1277,5 +1316,11 @@ const FileList = styled.div`
 
   .file-name {
     font-weight: 600;
+  }
+`
+
+const StepperImgWrapper = styled.div<{ step: number }>`
+  img {
+    opacity: ${({ step }) => (step === 1 ? 0.3 : 1)};
   }
 `

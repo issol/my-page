@@ -47,7 +47,8 @@ export const profileSchema = yup.object().shape({
     }),
   ),
   experience: yup.string().required('This field is required'),
-  resume: yup.array().min(1, 'This field is required'),
+  resume: yup.array().min(1, 'This field is required').required(),
+
   specialties: yup
     .array()
     .of(
