@@ -98,7 +98,6 @@ const AuthProvider = ({ children }: Props) => {
       .then(values => {
         const profile = values[0]
         const permission = values[1]
-        console.log(profile)
         const userInfo = {
           id: response.userId,
           role: permission.roles,

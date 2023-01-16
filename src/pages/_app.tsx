@@ -204,65 +204,32 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
-  /**
-   * TODO:
-   * 401에러 발생 시 signup페이지로 이동
-   * 201 응답 시 token저장 -> authContext에서 로그인 처리 되도록
-   */
-  function handleCredentialResponse(response: {
-    credential: string | undefined
-    g_csrf_token: string | undefined
-  }) {
-    console.log('google: ', response)
-    const { credential, g_csrf_token } = response
+  useEffect(() => {
+    generateGoogleLoginButton()
+  }, [router])
 
-    if (credential && g_csrf_token) {
-      googleAuth(credential, g_csrf_token)
-        .then((e: any) => {
-          console.log('google auth api res : ', e)
-          // router.push(
-          //   {
-          //     pathname: '/signup/',
-          //     query: {
-          //       // email: response.data.email,
-          //       credential: response.credential,
-          //       g_csrf_token:response.g_csrf_token,
-          //       type: 'google',
-          //     },
-          //   },
-          //   '/signup',
-          // )
-        })
-        .catch((error: any) => {
-          console.log('google auth error: ', error)
-        })
-    }
-  }
-
-  if (typeof window === 'object') {
-    const script = document.createElement('script')
-    script.setAttribute('src', 'https://accounts.google.com/gsi/client')
-    document.body.appendChild(script)
-
-    script.onload = () => {
-      window?.google?.accounts?.id?.initialize({
-        client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-        callback: handleCredentialResponse,
-      })
-      window?.google?.accounts?.id.renderButton(
-        document.getElementById('buttonDiv'),
-        {
-          theme: 'outline',
-          width: 450,
-          background: 'transparent',
-          longtitle: false,
-        }, // customization attributes
-      )
-    }
+  function generateGoogleLoginButton() {
+    window?.google?.accounts?.id?.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    })
+    window?.google?.accounts?.id.renderButton(
+      document.getElementById('buttonDiv'),
+      {
+        theme: 'outline',
+        width: 450,
+        background: 'transparent',
+      },
+    )
   }
 
   return (
     <QueryClientProvider client={queryClient}>
+      <Script
+        src='https://accounts.google.com/gsi/client'
+        strategy='afterInteractive'
+        onLoad={generateGoogleLoginButton}
+        onReady={generateGoogleLoginButton}
+      />
       <Provider store={store}>
         <CacheProvider value={emotionCache}>
           <Head>
