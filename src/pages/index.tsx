@@ -11,28 +11,22 @@ import Spinner from 'src/@core/components/spinner'
 import { useAuth } from 'src/hooks/useAuth'
 import { RoleType } from 'src/types/apps/userTypes'
 
-/**
- *  TODO: role 별 homeroute 정하기
- */
-export const getHomeRoute = (role: Array<RoleType>) => {
-  // if (role === 'client') return '/acl'
-  // else return `/${role.toLowerCase()}/dashboard`
-  return `/${role[0]?.toLowerCase()}/dashboard`
-}
+// export const getHomeRoute = (role: Array<RoleType>) => {
+//   return `/${role[0]?.toLowerCase()}/dashboard`
+// }
 
 const Home = () => {
   // ** Hooks
   const auth = useAuth()
   const router = useRouter()
 
-  useEffect(() => {
-    if (auth.user && auth.user.role) {
-      const homeRoute = getHomeRoute(auth.user.role)
-      // Redirect user to Home URL
-      router.push(homeRoute)
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  // useEffect(() => {
+  //   if (auth.user && auth.user.role) {
+  //     const homeRoute = getHomeRoute(auth.user.role)
+  //     router.push(homeRoute)
+  //   }
+  //   // eslint-disable-next-line react-hooks/exhaustive-deps
+  // }, [])
 
   return <Spinner sx={{ height: '100%' }} />
 }
