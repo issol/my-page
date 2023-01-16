@@ -84,11 +84,13 @@ export const verifyPinCode = async (
 export const signUp = async (
   email: string,
   password: string,
+  roles: Array<RoleType>,
 ): Promise<{ userId: number; email: string }> => {
   try {
     const { data } = await axios.post(`/api/enough/a/signup`, {
       email,
       password,
+      roles,
     })
     return data
   } catch (e: any) {
@@ -105,14 +107,6 @@ export const validateRole = async (
       `/api/enough/u/comp/e-chk?companyName=${companyName}&email=${email}`,
     )
     return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-export const postRole = async (userId: number, roles: Array<RoleType>) => {
-  try {
-    await axios.put(`/api/enough/a/role/grant`, { userId, roles })
   } catch (e: any) {
     throw new Error(e)
   }
