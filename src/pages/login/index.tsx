@@ -226,9 +226,9 @@ const LoginPage = () => {
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
               {/* for test */}
-              <BtnTest>
+              <GoogleButtonWrapper>
                 <div id='buttonDiv'></div>
-              </BtnTest>
+              </GoogleButtonWrapper>
             </Box>
             <Box
               sx={{
@@ -411,6 +411,8 @@ LoginPage.guestGuard = true
 
 export default LoginPage
 
-const BtnTest = styled.div`
-  /* opacity: 0.0001 !important; */
+const GoogleButtonWrapper = styled.div`
+  position: absolute;
+  /* opacity: 0.7; */
+  opacity: 0.0001 !important;
 `
