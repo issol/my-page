@@ -152,6 +152,11 @@ const MemberList = ({
         }}
       >
         <DataGrid
+          components={{
+            NoRowsOverlay: () => {
+              return <div>dd</div>
+            },
+          }}
           columns={columns}
           rows={memberList ?? []}
           disableSelectionOnClick

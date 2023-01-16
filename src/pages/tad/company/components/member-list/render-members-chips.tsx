@@ -16,6 +16,8 @@ const RenderMembersChips = ({
 }: // handleDeleteRole,
 // handleAddRole,
 Props) => {
+  console.log(member)
+
   const chips = member.role.map((value: any) => {
     return (
       <CustomChip

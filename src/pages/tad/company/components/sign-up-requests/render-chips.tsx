@@ -12,6 +12,8 @@ type Props = {
 }
 
 const RenderChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
+  console.log(user)
+
   const chips = user.role.map((value: any) => {
     if (user.role.length === 1) {
       return (
