@@ -6,9 +6,8 @@ import Button from '@mui/material/Button'
 
 import Box, { BoxProps } from '@mui/material/Box'
 
-import { styled as muiStyled, useTheme } from '@mui/material/styles'
-import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Card, CardContent, Link } from '@mui/material'
+import { styled as muiStyled } from '@mui/material/styles'
+import Typography from '@mui/material/Typography'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -27,8 +26,6 @@ const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
 const FinishSignUpConsumer = () => {
   const router = useRouter()
   function onButtonClick() {
-    // router.push('')
-    // ** 레리엘 수정
     router.push('/login')
   }
 

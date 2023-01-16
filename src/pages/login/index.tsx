@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect, useRef } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -10,11 +10,12 @@ import IconButton from '@mui/material/IconButton'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import OutlinedInput from '@mui/material/OutlinedInput'
-import { styled, useTheme } from '@mui/material/styles'
+import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
 import Link from 'next/link'
+import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -38,7 +39,7 @@ import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
 
-const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.up('md')]: {
     maxWidth: 500,
@@ -48,19 +49,21 @@ const RightWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   },
 }))
 
-const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
+const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.down('md')]: {
     maxWidth: 500,
   },
 }))
 
-const TypographyStyled = styled(Typography)<TypographyProps>(({ theme }) => ({
-  fontWeight: 600,
-  letterSpacing: '0.18px',
-  marginBottom: theme.spacing(1.5),
-  [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
-}))
+const TypographyStyled = muiStyled(Typography)<TypographyProps>(
+  ({ theme }) => ({
+    fontWeight: 600,
+    letterSpacing: '0.18px',
+    marginBottom: theme.spacing(1.5),
+    [theme.breakpoints.down('md')]: { marginTop: theme.spacing(8) },
+  }),
+)
 
 const schema = yup.object().shape({
   email: yup
@@ -123,7 +126,6 @@ const LoginPage = () => {
       })
     })
   }
-
   return (
     <Box className='content-center'>
       <RightWrapper>
@@ -218,11 +220,15 @@ const LoginPage = () => {
 
               <Link
                 href=''
-                onClick={redirectGoogleAuth}
+                // onClick={redirectGoogleAuth}
                 style={{ textDecoration: 'none' }}
               >
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
+              {/* for test */}
+              <GoogleButtonWrapper>
+                <div id='buttonDiv'></div>
+              </GoogleButtonWrapper>
             </Box>
             <Box
               sx={{
@@ -404,3 +410,9 @@ LoginPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 LoginPage.guestGuard = true
 
 export default LoginPage
+
+const GoogleButtonWrapper = styled.div`
+  position: absolute;
+  /* opacity: 0.7; */
+  opacity: 0.0001 !important;
+`

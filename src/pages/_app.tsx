@@ -1,11 +1,11 @@
 // ** React Imports
-import React, { ReactNode, Suspense, useState } from 'react'
+import React, { ReactNode, Suspense, useEffect, useState } from 'react'
 import * as Sentry from '@sentry/nextjs'
 import { Integrations } from '@sentry/tracing'
 
 // ** Next Imports
 import Head from 'next/head'
-import { Router } from 'next/router'
+import { Router, useRouter } from 'next/router'
 import type { NextPage } from 'next'
 import type { AppProps } from 'next/app'
 import dynamic from 'next/dynamic'
@@ -83,8 +83,8 @@ import {
   ApiErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
-import { EventHint } from '@sentry/nextjs'
-import { AxiosError } from 'axios'
+import { googleAuth } from 'src/apis/sign.api'
+import Script from 'next/script'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -162,6 +162,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
 
 // ** Configure JSS & ClassName
 const App = (props: ExtendedAppProps) => {
+  const router = useRouter()
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
   const [queryClient] = useState(
     () =>
@@ -203,8 +204,32 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
+  useEffect(() => {
+    generateGoogleLoginButton()
+  }, [router])
+
+  function generateGoogleLoginButton() {
+    window?.google?.accounts?.id?.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+    })
+    window?.google?.accounts?.id.renderButton(
+      document.getElementById('buttonDiv'),
+      {
+        theme: 'outline',
+        width: 450,
+        background: 'transparent',
+      },
+    )
+  }
+
   return (
     <QueryClientProvider client={queryClient}>
+      <Script
+        src='https://accounts.google.com/gsi/client'
+        strategy='afterInteractive'
+        onLoad={generateGoogleLoginButton}
+        onReady={generateGoogleLoginButton}
+      />
       <Provider store={store}>
         <CacheProvider value={emotionCache}>
           <Head>
