@@ -52,12 +52,15 @@ const FinishSignUpManager = () => {
             width={248}
             height={189}
           />
+          <Typography variant='h6'>Your request for signing up to </Typography>
           <Typography
             variant='h6'
-            sx={{ display: 'flex', textAlign: 'center' }}
+            sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            Your request for signing up to{' '}
-            <Typography color='primary'>GloZ</Typography> has been sent.
+            <Typography color='primary' variant='h6' fontWeight={'bold'}>
+              GloZ
+            </Typography>{' '}
+            has been sent.
           </Typography>
           <Typography variant='body2'>
             We'll send you an email when the approval is completed.

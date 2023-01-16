@@ -89,7 +89,6 @@ const defaultValues = {
   fax: '',
 }
 
-/* TODO: guestGuard false로 수정하기 */
 const PersonalInfoManager = () => {
   const { setModal } = useContext(ModalContext)
 
@@ -99,6 +98,13 @@ const PersonalInfoManager = () => {
 
   // ** Hooks
   const auth = useAuth()
+
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const {
     control,
@@ -111,10 +117,6 @@ const PersonalInfoManager = () => {
     resolver: yupResolver(managerProfileSchema),
   })
 
-  /**
-   * TODO :
-   * onSuccess시 랜딩페이지로 이동
-   */
   const updateUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
       updateManagerUserInfo(data),

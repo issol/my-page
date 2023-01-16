@@ -198,8 +198,8 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   }
 
   useEffect(() => {
-    if (router.pathname !== '/') {
-      router.push(`/${role?.toLowerCase()}/company`)
+    if (router.pathname === '/') {
+      router.push(`/${role?.toLowerCase()}/dashboard`)
     }
   }, [role])
 

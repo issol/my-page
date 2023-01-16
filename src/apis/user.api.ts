@@ -2,22 +2,18 @@ import axios from 'src/configs/axios'
 import { RoleType } from 'src/types/apps/userTypes'
 import {
   ConsumerUserInfoType,
-  CountryType,
-  JobInfoType,
   ManagerUserInfoType,
-  PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+import { UserDataType } from 'src/context/types'
 
-export const getUserInfo = async (email: string) => {
+type UserInfoResType = Omit<
+  UserDataType,
+  'id' | 'role' | 'permission' | 'company' | 'username'
+>
+export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pu?email=${email}`)
-    return {
-      email: data.userEmail,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      country: data?.country,
-      extraData: data?.extraData,
-    }
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
@@ -35,11 +31,20 @@ export const getUserRoleNPermission = async (
 }
 
 /* client, pro 프로필 업데이트용 */
+//ConsumerUserInfoType & { userId: number }
 export const updateConsumerUserInfo = async (
   userInfo: ConsumerUserInfoType & { userId: number },
 ) => {
   try {
-    await axios.put(`/api/enough/u/pu/edit`, userInfo)
+    await axios.put(
+      `/api/enough/u/pu/edit`,
+      userInfo,
+      /* {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    } */
+    )
   } catch (e: any) {
     throw new Error(e)
   }
