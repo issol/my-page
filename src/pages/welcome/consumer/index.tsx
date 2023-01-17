@@ -155,6 +155,7 @@ const PersonalInfoPro = () => {
     },
   })
 
+  //**TODO: 테스트 끝나면 주석 해제하기 */
   // useEffect(() => {
   //   if (auth.user?.firstName) {
   //     const role = auth.user.role.length ? auth.user.role[0] : null
