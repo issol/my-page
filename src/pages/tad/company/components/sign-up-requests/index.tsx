@@ -143,12 +143,12 @@ const SignUpRequests = ({
     <>
       <Card>
         <CardHeader
-          title={` Sign up requests : ${data.length}`}
+          title={` Sign up requests (${data.length})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
           sx={{
-            height: 310,
+            maxHeight: 310,
             width: '100%',
             '& .MuiDataGrid-columnHeaderTitle': {
               textTransform: 'none',
@@ -159,6 +159,7 @@ const SignUpRequests = ({
             columns={columns}
             rows={data ?? []}
             disableSelectionOnClick
+            autoHeight
             // autoPageSize
             pageSize={requestsPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}

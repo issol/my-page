@@ -144,7 +144,7 @@ const MemberList = ({
       ></CardHeader>
       <Box
         sx={{
-          height: 610,
+          maxHeight: 610,
           width: '100%',
           '& .MuiDataGrid-columnHeaderTitle': {
             textTransform: 'none',
@@ -154,11 +154,43 @@ const MemberList = ({
         <DataGrid
           components={{
             NoRowsOverlay: () => {
-              return <div>dd</div>
+              return (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='subtitle1'>
+                    There are no members
+                  </Typography>
+                </Box>
+              )
+            },
+            NoResultsOverlay: () => {
+              return (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='subtitle1'>
+                    There are no members
+                  </Typography>
+                </Box>
+              )
             },
           }}
           columns={columns}
           rows={memberList ?? []}
+          autoHeight
           disableSelectionOnClick
           // autoPageSize
           pageSize={membersPageSize}

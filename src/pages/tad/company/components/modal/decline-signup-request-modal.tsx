@@ -39,7 +39,7 @@ export default function DeclineSignUpRequestModal({
     >
       <DialogContent
         sx={{
-          padding: 10,
+          padding: 3,
           display: 'flex',
           flexDirection: 'column',
           gap: 1,
@@ -112,6 +112,7 @@ export default function DeclineSignUpRequestModal({
             size='medium'
             type='button'
             variant='outlined'
+            sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               setModal(null)
             }}
@@ -122,6 +123,7 @@ export default function DeclineSignUpRequestModal({
             size='medium'
             type='button'
             variant='contained'
+            sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               setModal(null)
               declineSignUpRequest(user)
