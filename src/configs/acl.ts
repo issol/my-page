@@ -34,6 +34,9 @@ const defineRulesFor = (
   role.forEach((item: RoleType) => {
     can(permission, item)
   })
+
+  console.log(rules)
+
   return rules
 }
 

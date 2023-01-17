@@ -27,16 +27,15 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 const RoleArray = ['TAD', 'LPM']
 const LpmCompany = () => {
   const ability = useContext(AbilityContext)
-  const { data: signUpRequests } = useGetSignUpRequests(
-    ability.can('IK9400', 'LPM'),
-  )
+  const { data: signUpRequests, isFetched: requestFetched } =
+    useGetSignUpRequests(ability.can('IK9400', 'LPM'))
   const { data: members } = useGetMembers()
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
   const [requestsPageSize, setRequestsPageSize] = useState<number>(10)
   const [membersPageSize, setMembersPageSize] = useState<number>(10)
-  const [user, setUser] = useState<SignUpRequestsType[]>(signUpRequests)
-  const [memberList, setMemberList] = useState<MembersType[]>(members)
+  const [user, setUser] = useState<SignUpRequestsType[]>([])
+  const [memberList, setMemberList] = useState<MembersType[]>([])
 
   const { setModal } = useContext(ModalContext)
 
@@ -173,35 +172,33 @@ const LpmCompany = () => {
   }
 
   const approveSignUpRequest = (user: SignUpRequestsType) => {
-    const index = members.length
-    console.log(index)
-
-    declineSignUpRequestMutation.mutate(user.id, {
-      onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
-        addMemberAfterApproveMutation.mutate(
-          {
-            id: index + 1,
-            firstName: faker.name.firstName(),
-            middleName: faker.name.middleName(),
-            lastName: faker.name.lastName(),
-            role: user.role,
-            email: user.email,
-            permission: user.permission,
-            jobTitle: faker.name.jobTitle(),
-            createdAt: new Date().getTime(),
-          },
-          {
-            onSuccess: (data, variables) => {
-              console.log(variables)
-
-              queryClient.invalidateQueries('members')
-              displayUndoToast(user, 'approve', variables)
-            },
-          },
-        )
-      },
-    })
+    // const index = members.length
+    // console.log(index)
+    // declineSignUpRequestMutation.mutate(user.id, {
+    //   onSuccess: () => {
+    //     queryClient.invalidateQueries('signup-requests')
+    //     addMemberAfterApproveMutation.mutate(
+    //       {
+    //         id: index + 1,
+    //         firstName: faker.name.firstName(),
+    //         middleName: faker.name.middleName(),
+    //         lastName: faker.name.lastName(),
+    //         role: user.role,
+    //         email: user.email,
+    //         permission: user.permission,
+    //         jobTitle: faker.name.jobTitle(),
+    //         createdAt: new Date().getTime(),
+    //       },
+    //       {
+    //         onSuccess: (data, variables) => {
+    //           console.log(variables)
+    //           queryClient.invalidateQueries('members')
+    //           displayUndoToast(user, 'approve', variables)
+    //         },
+    //       },
+    //     )
+    //   },
+    // })
   }
 
   const handleApproveSignUpRequest = (user: SignUpRequestsType) => {
@@ -224,11 +221,11 @@ const LpmCompany = () => {
   }
 
   useEffect(() => {
-    setUser(signUpRequests)
+    signUpRequests && setUser(signUpRequests)
   }, [signUpRequests])
 
   useEffect(() => {
-    setMemberList(members)
+    members && setMemberList(members)
   }, [members])
 
   return (

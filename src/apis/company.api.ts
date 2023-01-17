@@ -5,6 +5,7 @@ import {
   SignUpRequestsType,
   RequestActionType,
 } from 'src/types/company/members'
+import { makeQuery } from 'src/shared/transformer/query.transformer'
 
 export const getSignUpRequests = async () => {
   // const { data } = await axios.get('/api/company/signup-requests')
@@ -59,9 +60,19 @@ export const undoMembers = async (user: MembersType) => {
 }
 
 export const requestAction = async (params: RequestActionType) => {
-  const { data } = await axios.patch('api/enough/a/r-req/reply', {
-    ...params,
-  })
+  console.log(makeQuery(params))
+
+  const { data } = await axiosDefault.get(
+    `/api/enough/a/r-req/reply?${makeQuery(params)}`,
+  )
+
+  return data
+}
+
+export const undoRequest = async (params: { rId: number; reply: string }) => {
+  const { data } = await axiosDefault.get(
+    `/api/enough/a/r-req/rb?${makeQuery(params)}`,
+  )
 
   return data
 }

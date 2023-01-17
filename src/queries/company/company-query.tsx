@@ -22,9 +22,10 @@ export const useGetSignUpRequests = (ability: boolean) => {
       select: (data: ResponseRequestsType[]) => {
         return data.map((value: ResponseRequestsType) => ({
           id: value.userId,
-          email: value.email,
-          role: value.roles,
+          email: value.userEmail,
+          roles: value.roles,
           permission: 'General',
+          rId: value.id,
         }))
       },
       // onSuccess: () => {

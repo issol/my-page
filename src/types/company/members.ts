@@ -1,7 +1,8 @@
 export type SignUpRequestsType = {
   id: number
+  rId: number
   email: string
-  role: string[]
+  roles: string[]
   permission: string
 }
 
@@ -19,17 +20,19 @@ export type MembersType = {
 }
 
 export type RequestActionType = {
-  userId: number
+  rId: number
   reply: string
-  roles: string[]
-  email: string
+  roles?: string[]
+}
 
-  type: string
+export type RequestPayloadType = {
+  payload: RequestActionType
+  user: SignUpRequestsType
 }
 
 export type ResponseRequestsType = {
   id: number
-  email: string
+  userEmail: string
   userId: number
   masterId: number | null
   reply: string
