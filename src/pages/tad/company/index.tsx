@@ -89,7 +89,7 @@ const TadCompany = () => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
-        role:
+        roles:
           value.id === user.id
             ? value.roles.filter(char => char !== role)
             : value.roles,
