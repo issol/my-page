@@ -70,7 +70,7 @@ const schema = yup.object().shape({
     .string()
     .email('Invalid email address')
     .required('This field is required'),
-  password: yup.string().min(8).required('This field is required'),
+  password: yup.string().required('This field is required'),
 })
 
 const defaultValues = {
@@ -96,7 +96,7 @@ const LoginPage = () => {
     setError,
     setValue,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -122,7 +122,7 @@ const LoginPage = () => {
       })
       setError('password', {
         type: 'manual',
-        message: 'Email or Password is invalid',
+        message: 'Your email or password was entered incorrectly',
       })
     })
   }
@@ -323,6 +323,7 @@ const LoginPage = () => {
                       error={Boolean(errors.password)}
                       placeholder='Password'
                       type={showPassword ? 'text' : 'password'}
+                      inputProps={{ maxLength: 20 }}
                       endAdornment={
                         <InputAdornment position='end'>
                           <IconButton
@@ -359,7 +360,13 @@ const LoginPage = () => {
                       <Checkbox
                         name='rememberMe'
                         checked={rememberMe}
-                        onChange={e => setRememberMe(e.target.checked)}
+                        onChange={e => {
+                          if (!e.target.checked)
+                            window.localStorage.removeItem(
+                              authConfig.rememberId,
+                            )
+                          setRememberMe(e.target.checked)
+                        }}
                       />
                     }
                     label='Remember Me'
@@ -379,6 +386,7 @@ const LoginPage = () => {
                 type='submit'
                 variant='contained'
                 sx={{ mb: 7 }}
+                disabled={!isValid}
               >
                 Sign in
               </Button>

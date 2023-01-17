@@ -383,7 +383,12 @@ const PersonalInfoManager = () => {
                           autoFocus
                           value={value}
                           onBlur={onBlur}
-                          onChange={onChange}
+                          onChange={e => {
+                            if (e.target.value.length > 50) {
+                              return
+                            }
+                            onChange(e)
+                          }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.mobile)}
                           placeholder='Mobile phone'
@@ -418,7 +423,12 @@ const PersonalInfoManager = () => {
                           autoFocus
                           value={value}
                           onBlur={onBlur}
-                          onChange={onChange}
+                          onChange={e => {
+                            if (e.target.value.length > 50) {
+                              return
+                            }
+                            onChange(e)
+                          }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.phone)}
                           placeholder='Telephone'
@@ -450,7 +460,12 @@ const PersonalInfoManager = () => {
                           autoFocus
                           value={value}
                           onBlur={onBlur}
-                          onChange={onChange}
+                          onChange={e => {
+                            if (e.target.value.length > 50) {
+                              return
+                            }
+                            onChange(e)
+                          }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.fax)}
                           placeholder='Fax'

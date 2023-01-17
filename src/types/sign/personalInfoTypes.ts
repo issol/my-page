@@ -46,7 +46,7 @@ export type ConsumerUserInfoType = {
     preferredName?: string
     preferredName_pronunciation?: string
     pronounce?: PronounceType
-    resume: Array<File> | null | FormData
+    // resume: Array<File> | null | FormData
     specialties: Array<string>
     timezone: CountryType
   }

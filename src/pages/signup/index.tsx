@@ -119,16 +119,19 @@ const schema = yup.object().shape({
       )
     })
     .required('This field is required'),
+  terms: yup.bool().oneOf([true], 'Field must be checked'),
 })
 
 const defaultValues = {
   password: '',
   email: '',
+  terms: true,
 }
 
 interface FormData {
   email: string
   password: string
+  terms: boolean
 }
 
 const SignUpPage = () => {
@@ -178,7 +181,7 @@ const SignUpPage = () => {
     () => sendEmailVerificationCode(getValues('email')),
     {
       onSuccess: data => {
-        toast.success('Email has been sent', {
+        toast('Email has been sent', {
           position: 'bottom-left',
           style: {
             background: '#212121',
@@ -564,7 +567,19 @@ const SignUpPage = () => {
                     })}
                   </Box>
                   <Box margin='10px 0' display='flex' alignItems='center'>
-                    <Checkbox checked color='primary' />
+                    <Controller
+                      name='terms'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Checkbox
+                          checked={value}
+                          color='primary'
+                          onChange={onChange}
+                        />
+                      )}
+                    />
+
                     <Typography>
                       I agree to{' '}
                       <Link href='/terms/GDPR.pdf' target='_blank'>

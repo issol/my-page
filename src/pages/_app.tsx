@@ -247,16 +247,16 @@ const App = (props: ExtendedAppProps) => {
               content='initial-scale=1, width=device-width'
             />
           </Head>
-          <ModalProvider selector='modal'>
-            <AuthProvider>
-              <SettingsProvider
-                {...(setConfig ? { pageSettings: setConfig() } : {})}
-              >
-                <SettingsConsumer>
-                  {({ settings }) => {
-                    return (
-                      <ThemeComponent settings={settings}>
-                        <WindowWrapper>
+          <AuthProvider>
+            <SettingsProvider
+              {...(setConfig ? { pageSettings: setConfig() } : {})}
+            >
+              <SettingsConsumer>
+                {({ settings }) => {
+                  return (
+                    <ThemeComponent settings={settings}>
+                      <WindowWrapper>
+                        <ModalProvider selector='modal'>
                           <Guard authGuard={authGuard} guestGuard={guestGuard}>
                             <AclGuard
                               aclAbilities={aclAbilities}
@@ -271,20 +271,20 @@ const App = (props: ExtendedAppProps) => {
                               </Suspense>
                             </AclGuard>
                           </Guard>
-                        </WindowWrapper>
-                        <ReactHotToast>
-                          <Toaster
-                            position={settings.toastPosition}
-                            toastOptions={{ className: 'react-hot-toast' }}
-                          />
-                        </ReactHotToast>
-                      </ThemeComponent>
-                    )
-                  }}
-                </SettingsConsumer>
-              </SettingsProvider>
-            </AuthProvider>
-          </ModalProvider>
+                        </ModalProvider>
+                      </WindowWrapper>
+                      <ReactHotToast>
+                        <Toaster
+                          position={settings.toastPosition}
+                          toastOptions={{ className: 'react-hot-toast' }}
+                        />
+                      </ReactHotToast>
+                    </ThemeComponent>
+                  )
+                }}
+              </SettingsConsumer>
+            </SettingsProvider>
+          </AuthProvider>
         </CacheProvider>
       </Provider>
     </QueryClientProvider>

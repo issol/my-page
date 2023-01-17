@@ -64,6 +64,7 @@ import { ModalContext } from 'src/context/ModalContext'
 import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
 import {
+  getPresignedUrl,
   getUserInfo,
   updateConsumerUserInfo,
   updateResumeFile,
@@ -154,6 +155,7 @@ const PersonalInfoPro = () => {
     },
   })
 
+  //**TODO: 테스트 끝나면 주석 해제하기 */
   // useEffect(() => {
   //   if (auth.user?.firstName) {
   //     const role = auth.user.role.length ? auth.user.role[0] : null
@@ -241,7 +243,6 @@ const PersonalInfoPro = () => {
               userId: auth.user.id,
               email: auth.user.email,
             })
-            console.log('???')
             router.push('/pro/dashboard')
           } else {
             router.push('/client/dashboard')
@@ -288,18 +289,19 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const formDataArray: FormData[] = []
+    const formDataArray: Array<{ file: FormData; url: string }> = []
 
     data.resume?.length &&
       data.resume.forEach(file => {
-        const formData = new FormData()
-        formData.append('resume', file)
-        formDataArray.push(formData)
-        // updateResumeFile(formData)
+        getPresignedUrl(auth.user?.id as number, file.name).then(res => {
+          const formData = new FormData()
+          formData.append('files', file)
+          formDataArray.push({ file: formData, url: res })
+        })
       })
 
     const fileRequests = formDataArray.map(formData =>
-      updateResumeFile(formData),
+      updateResumeFile(formData.url, formData.file),
     )
 
     Promise.all(fileRequests)
@@ -322,12 +324,11 @@ const PersonalInfoPro = () => {
         preferredName: data.preferredName,
         preferredName_pronunciation: data.preferredName_pronunciation,
         pronounce: data.pronounce,
-        resume: data?.resume,
         specialties: data.specialties?.map(item => item.value),
         timezone: data.timezone,
       },
     }
-    // updateUserInfoMutation.mutate(finalData)
+    updateUserInfoMutation.mutate(finalData)
   }
 
   function addJobInfo() {
@@ -723,7 +724,12 @@ const PersonalInfoPro = () => {
                             autoFocus
                             value={value}
                             onBlur={onBlur}
-                            onChange={onChange}
+                            onChange={e => {
+                              if (e.target.value.length > 50) {
+                                return
+                              }
+                              onChange(e)
+                            }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.mobile)}
                             placeholder='Mobile phone'
@@ -756,7 +762,12 @@ const PersonalInfoPro = () => {
                             autoFocus
                             value={value}
                             onBlur={onBlur}
-                            onChange={onChange}
+                            onChange={e => {
+                              if (e.target.value.length > 50) {
+                                return
+                              }
+                              onChange(e)
+                            }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.phone)}
                             placeholder='Telephone'
@@ -1127,7 +1138,6 @@ const PersonalInfoPro = () => {
                               }
                               field.onChange(v)
                             }}
-                            disableClearable
                             limitTags={1}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
