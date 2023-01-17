@@ -13,7 +13,7 @@ export const login = async (
     })
     return data
   } catch (e: any) {
-    throw new Error(e)
+    throw new Error(e.response.status)
   }
 }
 

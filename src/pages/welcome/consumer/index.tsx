@@ -63,7 +63,11 @@ import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
-import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
+import {
+  getUserInfo,
+  updateConsumerUserInfo,
+  updateResumeFile,
+} from 'src/apis/user.api'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -150,12 +154,12 @@ const PersonalInfoPro = () => {
     },
   })
 
-  useEffect(() => {
-    if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
-    }
-  }, [auth])
+  // useEffect(() => {
+  //   if (auth.user?.firstName) {
+  //     const role = auth.user.role.length ? auth.user.role[0] : null
+  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
+  //   }
+  // }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files

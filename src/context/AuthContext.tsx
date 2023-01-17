@@ -1,5 +1,12 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
+import {
+  createContext,
+  useEffect,
+  useState,
+  ReactNode,
+  Dispatch,
+  useContext,
+} from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -27,6 +34,9 @@ import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
 import { getUserRoleNPermission } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
+import { ModalContext } from './ModalContext'
+import { Box } from '@mui/system'
+import { Button, Typography } from '@mui/material'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -51,6 +61,7 @@ type Props = {
 }
 
 const AuthProvider = ({ children }: Props) => {
+  const { setModal } = useContext(ModalContext)
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
@@ -114,7 +125,6 @@ const AuthProvider = ({ children }: Props) => {
         setUser(userInfo)
       })
       .catch(e => {
-        console.log(e)
         router.push('/login')
       })
   }
@@ -142,7 +152,52 @@ const AuthProvider = ({ children }: Props) => {
       })
 
       .catch(err => {
-        if (errorCallback) errorCallback(err)
+        if (err.message === '406' || err.message === 406) {
+          setModal(
+            <Box
+              sx={{
+                padding: '24px',
+                textAlign: 'center',
+                background: '#ffffff',
+                borderRadius: '14px',
+              }}
+            >
+              <Box
+                sx={{
+                  display: 'flex',
+                  flexDirection: 'column',
+                  alignItems: 'center',
+                  gap: '12px',
+                }}
+              >
+                <img
+                  src='/images/icons/project-icons/status-progress.png'
+                  width={60}
+                  height={60}
+                  alt='role select error'
+                />
+                <Typography variant='h6'>
+                  Sign up approval for{' '}
+                  <span style={{ color: '#666CFF' }}>GloZ</span> is
+                  <br />
+                  in progress.
+                </Typography>
+                <Typography variant='body2'>
+                  You can sign in once approved.
+                </Typography>
+              </Box>
+              <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
+                <Button
+                  variant='contained'
+                  onClick={() => setModal(null)}
+                  sx={{ background: '#666CFF', textTransform: 'none' }}
+                >
+                  Okay
+                </Button>
+              </Box>
+            </Box>,
+          )
+        } else if (errorCallback) errorCallback(err)
         else return err
       })
   }

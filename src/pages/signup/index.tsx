@@ -177,15 +177,47 @@ const SignUpPage = () => {
     resolver: yupResolver(schema),
   })
 
+  // const ToastCustom = () => {
+  //   const handleClick = () => {
+  //     return toast(
+  //       t => (
+  //         <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+  //           <Box sx={{ display: 'flex', alignItems: 'center' }}>
+  //             <div>
+  //               <Typography sx={{ fontWeight: 500 }}>John Doe</Typography>
+  //               <Typography variant='caption'>Sure! 8:30pm works great!</Typography>
+  //             </div>
+  //           </Box>
+  //           <IconButton onClick={() => toast.dismiss(t.id)}>
+  //             <Icon icon='mdi:close' fontSize={20} />
+  //           </IconButton>
+  //         </Box>
+  //       ),
+  //       {
+  //         style: {
+  //           minWidth: '300px'
+  //         }
+  //       }
+  //     )
+  //   }
   const verifyEmail = useMutation(
     () => sendEmailVerificationCode(getValues('email')),
     {
       onSuccess: data => {
-        toast.success('Your code has been sent!')
+        toast.success('Email has been sent', {
+          position: 'bottom-left',
+          style: {
+            background: '#212121',
+            color: '#ffffff',
+          },
+        })
+
         setStep(3)
       },
       onError: () => {
-        toast.error('Something went wrong. Please try again.')
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
       },
     },
   )
