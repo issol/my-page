@@ -44,7 +44,7 @@ const Card = styled(MuiCard)<CardProps>(({ theme }) => ({
 }))
 
 interface ForgotPasswordProps {
-  email: string
+  email: string | null
 }
 
 const ForgotPassword = () => {
@@ -65,11 +65,15 @@ const ForgotPassword = () => {
     watch,
     control,
     reset,
-    formState: { errors, isValid },
+    formState: { errors },
   } = useForm<ForgotPasswordProps>({
     mode: 'onChange',
     resolver: yupResolver(forgotPasswordSchema),
+    defaultValues: { email: null },
   })
+
+  const isValid = !watch(['email']).includes(null)
+  console.log(isValid)
 
   const onSubmitEmail = useCallback((info: ForgotPasswordProps) => {
     console.log(info)
@@ -223,6 +227,7 @@ const ForgotPassword = () => {
                   {...register('email')}
                   sx={{ display: 'flex', mb: 4 }}
                   error={!!errors.email}
+                  placeholder='username@example.com'
                   helperText={errors.email?.message}
                 />
                 <Button
@@ -230,6 +235,7 @@ const ForgotPassword = () => {
                   size='large'
                   type='submit'
                   variant='contained'
+                  disabled={Object.keys(errors).length !== 0 || !isValid}
                   sx={{ mb: 5.25, textTransform: 'none' }}
                 >
                   Send email
