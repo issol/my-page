@@ -39,7 +39,8 @@ const ForgotPasswordComplete = () => {
 
   const resendEmail = () => {
     //** TODO : email 재전송 api 붙이기
-    toast.success('Email has been sent', {
+    toast('Email has been sent', {
+      icon: undefined,
       style: {
         borderRadius: '8px',
         marginTop: '24px',
