@@ -70,7 +70,7 @@ const schema = yup.object().shape({
     .string()
     .email('Invalid email address')
     .required('This field is required'),
-  password: yup.string().min(8).required('This field is required'),
+  password: yup.string().required('This field is required'),
 })
 
 const defaultValues = {
@@ -122,7 +122,7 @@ const LoginPage = () => {
       })
       setError('password', {
         type: 'manual',
-        message: 'Email or Password is invalid',
+        message: 'Your email or password was entered incorrectly',
       })
     })
   }
@@ -323,6 +323,7 @@ const LoginPage = () => {
                       error={Boolean(errors.password)}
                       placeholder='Password'
                       type={showPassword ? 'text' : 'password'}
+                      inputProps={{ maxLength: 20 }}
                       endAdornment={
                         <InputAdornment position='end'>
                           <IconButton

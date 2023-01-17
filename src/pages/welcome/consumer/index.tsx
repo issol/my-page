@@ -64,6 +64,7 @@ import { ModalContext } from 'src/context/ModalContext'
 import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
 import {
+  getPresignedUrl,
   getUserInfo,
   updateConsumerUserInfo,
   updateResumeFile,
@@ -195,6 +196,7 @@ const PersonalInfoPro = () => {
     setValue,
     setError,
     clearErrors,
+    trigger,
     formState: { errors, dirtyFields },
   } = useForm<PersonalInfo>({
     defaultValues,
@@ -241,7 +243,6 @@ const PersonalInfoPro = () => {
               userId: auth.user.id,
               email: auth.user.email,
             })
-            console.log('???')
             router.push('/pro/dashboard')
           } else {
             router.push('/client/dashboard')
@@ -288,23 +289,30 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
+    const fileNames: string[] = []
     const formDataArray: FormData[] = []
 
     data.resume?.length &&
       data.resume.forEach(file => {
+        fileNames.push(file.name)
+
         const formData = new FormData()
-        formData.append('resume', file)
+        formData.append('files', file)
         formDataArray.push(formData)
-        // updateResumeFile(formData)
       })
 
-    const fileRequests = formDataArray.map(formData =>
-      updateResumeFile(formData),
+    const preSinedUrls = fileNames.map(name =>
+      getPresignedUrl(auth.user?.id as number, name),
     )
 
-    Promise.all(fileRequests)
-      .then(data => console.log('file upload success : ', data))
-      .catch(err => console.log('failed to upload', err))
+    console.log(preSinedUrls)
+    // const fileRequests = formDataArray.map(formData =>
+    //   // updateResumeFile(formData),
+    // )
+
+    // Promise.all(fileRequests)
+    //   .then(data => console.log('file upload success : ', data))
+    //   .catch(err => console.log('failed to upload', err))
 
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
@@ -328,6 +336,21 @@ const PersonalInfoPro = () => {
       },
     }
     // updateUserInfoMutation.mutate(finalData)
+  }
+
+  function validateStepOne() {
+    if (
+      !(
+        dirtyFields.firstName &&
+        dirtyFields.lastName &&
+        dirtyFields.timezone &&
+        (!errors.firstName || !errors.lastName || !errors.timezone)
+      )
+    ) {
+      trigger(['firstName', 'lastName', 'timezone'])
+    } else {
+      setStep(2)
+    }
   }
 
   function addJobInfo() {
@@ -723,7 +746,12 @@ const PersonalInfoPro = () => {
                             autoFocus
                             value={value}
                             onBlur={onBlur}
-                            onChange={onChange}
+                            onChange={e => {
+                              if (e.target.value.length > 50) {
+                                return
+                              }
+                              onChange(e)
+                            }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.mobile)}
                             placeholder='Mobile phone'
@@ -756,7 +784,12 @@ const PersonalInfoPro = () => {
                             autoFocus
                             value={value}
                             onBlur={onBlur}
-                            onChange={onChange}
+                            onChange={e => {
+                              if (e.target.value.length > 50) {
+                                return
+                              }
+                              onChange(e)
+                            }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.phone)}
                             placeholder='Telephone'
@@ -1237,19 +1270,20 @@ const PersonalInfoPro = () => {
                     type='button'
                     variant='contained'
                     sx={{ mb: 7 }}
-                    disabled={
-                      !(
-                        dirtyFields.firstName &&
-                        dirtyFields.lastName &&
-                        dirtyFields.timezone &&
-                        (!errors.firstName ||
-                          !errors.lastName ||
-                          !errors.timezone)
-                      )
-                    }
+                    // disabled={
+                    //   !(
+                    //     dirtyFields.firstName &&
+                    //     dirtyFields.lastName &&
+                    //     dirtyFields.timezone &&
+                    //     (!errors.firstName ||
+                    //       !errors.lastName ||
+                    //       !errors.timezone)
+                    //   )
+                    // }
                     onClick={e => {
                       e.preventDefault()
-                      setStep(2)
+                      validateStepOne()
+                      // setStep(2)
                     }}
                   >
                     Next &rarr;

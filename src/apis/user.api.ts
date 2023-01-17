@@ -31,28 +31,30 @@ export const getUserRoleNPermission = async (
 }
 
 /* client, pro 프로필 업데이트용 */
-//ConsumerUserInfoType & { userId: number }
 export const updateConsumerUserInfo = async (
   userInfo: ConsumerUserInfoType & { userId: number },
 ) => {
   try {
-    await axios.put(
-      `/api/enough/u/pu/edit`,
-      userInfo,
-      /* {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    } */
-    )
+    await axios.put(`/api/enough/u/pu/edit`, userInfo)
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const updateResumeFile = async (file: FormData) => {
+export const getPresignedUrl = async (userId: number, fileName: string) => {
   try {
-    await axios.post(`/api/enough/u/pu/attach`, file, {
+    const { data } = await axios.get(
+      `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateResumeFile = async (url: string, file: FormData) => {
+  try {
+    await axios.post(url, file, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
