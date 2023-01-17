@@ -117,9 +117,10 @@ const PersonalInfoManager = () => {
     resolver: yupResolver(managerProfileSchema),
   })
 
+  /* TODO: 추후 company에 들어갈 값은 동적으로 사용자가 입력 가능하게 기획 수정되어야 함 */
   const updateUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>
-      updateManagerUserInfo(data),
+      updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
         if (auth.user?.role.includes('TAD')) {

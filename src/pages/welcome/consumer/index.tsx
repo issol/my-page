@@ -288,35 +288,24 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const formData = new FormData()
-    // data?.resume &&
-    //   data?.resume.forEach(file => {
-    //     formData.append('file', file)
-    //   })
-    // formData.append(
-    //   'json',
-    //   JSON.stringify({
-    //     userId: auth.user?.id || 0,
-    //     firstName: data.firstName,
-    //     lastName: data.lastName,
-    //     country: data.timezone.label,
-    //     extraData: {
-    //       havePreferredName: data.havePreferred,
-    //       jobInfo: data.jobInfo,
-    //       middleName: data.middleName,
-    //       experience: data.experience,
-    //       legalName_pronunciation: data.legalName_pronunciation,
-    //       mobilePhone: data.mobile,
-    //       telephone: data.phone,
-    //       preferredName: data.preferredName,
-    //       preferredName_pronunciation: data.preferredName_pronunciation,
-    //       pronounce: data.pronounce,
-    //       // resume: formData,
-    //       specialties: data.specialties?.map(item => item.value),
-    //       timezone: data.timezone,
-    //     },
-    //   }),
-    // )
+    const formDataArray: FormData[] = []
+
+    data.resume?.length &&
+      data.resume.forEach(file => {
+        const formData = new FormData()
+        formData.append('resume', file)
+        formDataArray.push(formData)
+        // updateResumeFile(formData)
+      })
+
+    const fileRequests = formDataArray.map(formData =>
+      updateResumeFile(formData),
+    )
+
+    Promise.all(fileRequests)
+      .then(data => console.log('file upload success : ', data))
+      .catch(err => console.log('failed to upload', err))
+
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
       firstName: data.firstName,
@@ -338,7 +327,7 @@ const PersonalInfoPro = () => {
         timezone: data.timezone,
       },
     }
-    updateUserInfoMutation.mutate(finalData)
+    // updateUserInfoMutation.mutate(finalData)
   }
 
   function addJobInfo() {
