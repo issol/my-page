@@ -170,7 +170,7 @@ const SignUpPage = () => {
     handleSubmit,
     getValues,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     defaultValues,
     mode: 'onBlur',
@@ -576,6 +576,7 @@ const SignUpPage = () => {
                           checked={value}
                           color='primary'
                           onChange={onChange}
+                          onBlur={onBlur}
                         />
                       )}
                     />
@@ -604,6 +605,7 @@ const SignUpPage = () => {
                   type='submit'
                   variant='contained'
                   sx={{ mb: 7 }}
+                  disabled={!isValid}
                 >
                   Sign Up
                 </Button>
