@@ -196,7 +196,6 @@ const PersonalInfoPro = () => {
     setValue,
     setError,
     clearErrors,
-    trigger,
     formState: { errors, dirtyFields },
   } = useForm<PersonalInfo>({
     defaultValues,
@@ -336,21 +335,6 @@ const PersonalInfoPro = () => {
       },
     }
     // updateUserInfoMutation.mutate(finalData)
-  }
-
-  function validateStepOne() {
-    if (
-      !(
-        dirtyFields.firstName &&
-        dirtyFields.lastName &&
-        dirtyFields.timezone &&
-        (!errors.firstName || !errors.lastName || !errors.timezone)
-      )
-    ) {
-      trigger(['firstName', 'lastName', 'timezone'])
-    } else {
-      setStep(2)
-    }
   }
 
   function addJobInfo() {
@@ -1160,7 +1144,6 @@ const PersonalInfoPro = () => {
                               }
                               field.onChange(v)
                             }}
-                            disableClearable
                             limitTags={1}
                             renderOption={(props, option, { selected }) => (
                               <li {...props}>
@@ -1270,20 +1253,19 @@ const PersonalInfoPro = () => {
                     type='button'
                     variant='contained'
                     sx={{ mb: 7 }}
-                    // disabled={
-                    //   !(
-                    //     dirtyFields.firstName &&
-                    //     dirtyFields.lastName &&
-                    //     dirtyFields.timezone &&
-                    //     (!errors.firstName ||
-                    //       !errors.lastName ||
-                    //       !errors.timezone)
-                    //   )
-                    // }
+                    disabled={
+                      !(
+                        dirtyFields.firstName &&
+                        dirtyFields.lastName &&
+                        dirtyFields.timezone &&
+                        (!errors.firstName ||
+                          !errors.lastName ||
+                          !errors.timezone)
+                      )
+                    }
                     onClick={e => {
                       e.preventDefault()
-                      validateStepOne()
-                      // setStep(2)
+                      setStep(2)
                     }}
                   >
                     Next &rarr;
