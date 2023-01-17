@@ -47,6 +47,9 @@ const ResetPassword = () => {
   const theme = useTheme()
   const router = useRouter()
   const resetPasswordSchema = useResetPasswordSchema()
+  const code =
+    typeof window === 'object' &&
+    new URL(window.location.href).searchParams.get('token')
 
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [showConfirmPassword, setShowConfirmPassword] = useState<boolean>(false)
@@ -85,7 +88,6 @@ const ResetPassword = () => {
   })
 
   const isValid = !watch(['password', 'confirmPassword']).includes(null)
-  console.log(errors)
 
   const onSubmitResetPassword = useCallback((info: ResetPasswordProps) => {
     // ** TODO : Reset API 연동

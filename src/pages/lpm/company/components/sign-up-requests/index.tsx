@@ -140,12 +140,12 @@ const SignUpRequests = ({
     <>
       <Card>
         <CardHeader
-          title={` Sign up requests : ${data.length}`}
+          title={` Sign up requests (${data.length})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
           sx={{
-            height: 310,
+            maxHeight: 310,
             width: '100%',
             '& .MuiDataGrid-columnHeaderTitle': {
               textTransform: 'none',
@@ -156,6 +156,7 @@ const SignUpRequests = ({
             columns={columns}
             rows={data ?? []}
             disableSelectionOnClick
+            autoHeight
             // autoPageSize
             pageSize={requestsPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
@@ -171,46 +172,6 @@ const SignUpRequests = ({
             }
           />
         </Box>
-
-        {/* <Box sx={{ height: 600 }}>
-        <DataGrid
-          loading={isFetching}
-          rows={members?.data ?? []}
-          columns={columns}
-          checkboxSelection
-          pageSize={pageSize}
-          disableSelectionOnClick
-          selectionModel={selectionModel}
-          hideFooterSelectedRowCount
-          page={page}
-          sx={{
-            '& .MuiDataGrid-columnHeaders': { borderRadius: 0 },
-            '& .MuiDataGrid-columnHeaderCheckbox': {
-              visibility: 'hidden',
-            },
-          }}
-          onPageChange={(newPage: number) => {
-            setPage(newPage)
-            setSearch(true)
-          }}
-          // onPageSizeChange={(newPageSize: number) => setPageSize(newPageSize)}
-          rowCount={members?.count}
-          paginationMode={'server'}
-          pagination
-          onCellClick={() => router.push('/admin/member/pro/detail')}
-          onSelectionModelChange={selection => {
-            if (selection.length > 1) {
-              const selectionSet = new Set(selectionModel)
-              const result = selection.filter(s => !selectionSet.has(s))
-              onRowsSelectionHandler(result)
-              setSelectionModel(result)
-            } else {
-              onRowsSelectionHandler(selection)
-              setSelectionModel(selection)
-            }
-          }}
-        />
-      </Box> */}
       </Card>
     </>
   )
