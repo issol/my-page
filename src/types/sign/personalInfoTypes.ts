@@ -56,6 +56,7 @@ export type ManagerUserInfoType = {
   firstName: string
   lastName: string
   country: string
+  company?: string
   extraData: {
     timezone?: CountryType
     jobTitle?: string

@@ -50,6 +50,18 @@ export const updateConsumerUserInfo = async (
   }
 }
 
+export const updateResumeFile = async (file: FormData) => {
+  try {
+    await axios.post(`/api/enough/u/pu/attach`, file, {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (
   userInfo: ManagerUserInfoType & { userId: number },

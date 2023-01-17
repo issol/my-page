@@ -35,7 +35,6 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
-  postRole,
   redirectGoogleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
@@ -165,13 +164,10 @@ const SignUpPage = () => {
 
   const {
     control,
-    setError,
     handleSubmit,
-    clearErrors,
     getValues,
-    setValue,
     watch,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm({
     defaultValues,
     mode: 'onBlur',
@@ -182,33 +178,34 @@ const SignUpPage = () => {
     () => sendEmailVerificationCode(getValues('email')),
     {
       onSuccess: data => {
-        toast.success('Your code has been sent!')
+        toast.success('Email has been sent', {
+          position: 'bottom-left',
+          style: {
+            background: '#212121',
+            color: '#ffffff',
+          },
+        })
+
         setStep(3)
       },
       onError: () => {
-        toast.error('Something went wrong. Please try again.')
-      },
-    },
-  )
-
-  const postRoleMutation = useMutation(
-    (userId: number) => postRole(userId, role),
-    {
-      onSuccess: () => {
-        if (role.includes('PRO') || role.includes('CLIENT'))
-          router.push('/signup/finish/consumer')
-        else router.push('/signup/finish/manager')
-      },
-      onError: (e: any) => {
-        toast.error('Something went wrong. Try logging in.')
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
       },
     },
   )
 
   const signUpMutation = useMutation(
-    () => signUp(getValues('email'), getValues('password')),
+    () => signUp(getValues('email'), getValues('password'), role),
     {
-      onSuccess: data => postRoleMutation.mutate(data.userId),
+      onSuccess: data => {
+        if (role.includes('PRO') || role.includes('CLIENT')) {
+          router.push('/signup/finish/consumer')
+        } else {
+          router.push('/signup/finish/manager')
+        }
+      },
       onError: (e: any) => {
         if (e?.statusCode === 409) {
           toast.error('This account is already registered.')
