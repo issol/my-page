@@ -8,7 +8,9 @@ import {
 import {
   approveMembers,
   deleteSignUpRequests,
+  requestAction,
   undoMembers,
+  undoRequest,
   undoSignUpRequest,
 } from 'src/apis/company.api'
 
@@ -20,7 +22,12 @@ import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
 import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
-import { MembersType, SignUpRequestsType } from 'src/types/company/members'
+import {
+  MembersType,
+  RequestActionType,
+  RequestPayloadType,
+  SignUpRequestsType,
+} from 'src/types/company/members'
 import { faker } from '@faker-js/faker'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
@@ -35,14 +42,23 @@ const TadCompany = () => {
   const [membersPage, setMembersPage] = useState<number>(0)
   const [requestsPageSize, setRequestsPageSize] = useState<number>(10)
   const [membersPageSize, setMembersPageSize] = useState<number>(10)
-  const [user, setUser] = useState<SignUpRequestsType[]>(signUpRequests)
-  const [memberList, setMemberList] = useState<MembersType[]>(members)
+  const [user, setUser] = useState<SignUpRequestsType[]>([])
+  const [memberList, setMemberList] = useState<MembersType[]>([])
 
   const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
 
-  console.log(members)
+  console.log(signUpRequests)
+
+  const requestActionMutation = useMutation(
+    (value: RequestPayloadType) => requestAction(value.payload),
+    {
+      onSuccess: (data, variables) => {
+        displayUndoToast(variables.user, variables.payload.reply)
+      },
+    },
+  )
 
   const declineSignUpRequestMutation = useMutation(
     (id: number) => deleteSignUpRequests(id),
@@ -54,7 +70,7 @@ const TadCompany = () => {
   )
 
   const undoRequestActionMutation = useMutation((user: SignUpRequestsType) =>
-    undoSignUpRequest(user),
+    undoRequest({ rId: user.rId, reply: 'no_reply' }),
   )
 
   const undoMemberActionMutation = useMutation(
@@ -75,8 +91,8 @@ const TadCompany = () => {
         ...value,
         role:
           value.id === user.id
-            ? value.role.filter(char => char !== role)
-            : value.role,
+            ? value.roles.filter(char => char !== role)
+            : value.roles,
       })),
     )
   }
@@ -85,9 +101,19 @@ const TadCompany = () => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
-        role: value.id === user.id ? RoleArray : value.role,
+        roles: value.id === user.id ? RoleArray : value.roles,
       })),
     )
+  }
+
+  const undoAction = (user: SignUpRequestsType, reply: string) => {
+    undoRequestActionMutation.mutate(user, {
+      onSuccess: () => {
+        queryClient.invalidateQueries('signup-requests')
+        queryClient.invalidateQueries('members')
+        toast.dismiss()
+      },
+    })
   }
 
   const undoDecline = (user: SignUpRequestsType) => {
@@ -99,11 +125,12 @@ const TadCompany = () => {
     })
   }
 
-  const undoApprove = (user: MembersType) => {
+  const undoApprove = (user: SignUpRequestsType) => {
     console.log(user)
 
-    undoMemberActionMutation.mutate(user, {
+    undoRequestActionMutation.mutate(user, {
       onSuccess: () => {
+        queryClient.invalidateQueries('signup-requests')
         queryClient.invalidateQueries('members')
         toast.dismiss()
       },
@@ -127,13 +154,12 @@ const TadCompany = () => {
       {
         loading: (
           <div>
-            {action === 'decline'
+            {action === 'reject'
               ? `Declined successfully`
               : `Approve successfully`}
             <Button
               onClick={() => {
-                undoDecline(user)
-                action === 'approve' && member && undoApprove(member)
+                undoAction(user, action)
               }}
             >
               Undo
@@ -166,44 +192,68 @@ const TadCompany = () => {
   }
 
   const declineSignUpRequest = (user: SignUpRequestsType) => {
-    declineSignUpRequestMutation.mutate(user.id, {
-      onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
-        displayUndoToast(user, 'decline', undefined)
+    requestActionMutation.mutate(
+      {
+        payload: {
+          rId: user.rId,
+          reply: 'reject',
+          roles: user.roles,
+        },
+        user: user,
       },
-    })
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('signup-requests')
+          queryClient.invalidateQueries('members')
+        },
+      },
+    )
   }
 
   const approveSignUpRequest = (user: SignUpRequestsType) => {
-    const index = members.length
-    console.log(index)
-
-    declineSignUpRequestMutation.mutate(user.id, {
-      onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
-        addMemberAfterApproveMutation.mutate(
-          {
-            id: index + 1,
-            firstName: faker.name.firstName(),
-            middleName: faker.name.middleName(),
-            lastName: faker.name.lastName(),
-            role: user.role,
-            email: user.email,
-            permission: user.permission,
-            jobTitle: faker.name.jobTitle(),
-            createdAt: new Date().getTime(),
-          },
-          {
-            onSuccess: (data, variables) => {
-              console.log(variables)
-
-              queryClient.invalidateQueries('members')
-              displayUndoToast(user, 'approve', variables)
-            },
-          },
-        )
+    requestActionMutation.mutate(
+      {
+        payload: {
+          rId: user.rId,
+          reply: 'accept',
+          roles: user.roles,
+        },
+        user: user,
       },
-    })
+      {
+        onSuccess: () => {
+          queryClient.invalidateQueries('signup-requests')
+          queryClient.invalidateQueries('members')
+        },
+      },
+    )
+    // const index = members.length
+    // console.log(index)
+    // declineSignUpRequestMutation.mutate(user.id, {
+    //   onSuccess: () => {
+    //     queryClient.invalidateQueries('signup-requests')
+    //     addMemberAfterApproveMutation.mutate(
+    //       {
+    //         id: index + 1,
+    //         firstName: faker.name.firstName(),
+    //         middleName: faker.name.middleName(),
+    //         lastName: faker.name.lastName(),
+    //         role: user.role,
+    //         email: user.email,
+    //         permission: user.permission,
+    //         jobTitle: faker.name.jobTitle(),
+    //         createdAt: new Date().getTime(),
+    //       },
+    //       {
+    //         onSuccess: (data, variables) => {
+    //           console.log(variables)
+    //           queryClient.invalidateQueries('members')
+    //           displayUndoToast(user, 'approve', variables)
+    //         },
+    //       },
+    //     )
+    //   },
+    // })
   }
 
   const handleApproveSignUpRequest = (user: SignUpRequestsType) => {
@@ -225,18 +275,22 @@ const TadCompany = () => {
     )
   }
 
+  const checkPermission = () => {
+    return ability.can('IK0006', 'TAD')
+  }
+
   useEffect(() => {
-    setUser(signUpRequests)
+    signUpRequests && setUser(signUpRequests)
   }, [signUpRequests])
 
   useEffect(() => {
-    setMemberList(members)
+    members && setMemberList(members)
   }, [members])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Suspense>
-        {user && (
+        {user && user.length ? (
           <SignUpRequests
             data={user}
             requestsPage={requestsPage}
@@ -247,8 +301,9 @@ const TadCompany = () => {
             handleAddRole={handleAddRole}
             handleDeclineSignUpRequest={handleDeclineSignUpRequest}
             handleApproveSignUpRequest={handleApproveSignUpRequest}
+            checkPermission={checkPermission}
           />
-        )}
+        ) : null}
 
         <MemberList
           membersPage={membersPage}

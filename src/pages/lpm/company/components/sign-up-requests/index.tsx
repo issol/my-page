@@ -18,6 +18,7 @@ type Props = {
   handleAddRole: (role: string, user: SignUpRequestsType) => void
   handleDeclineSignUpRequest: (user: SignUpRequestsType) => void
   handleApproveSignUpRequest: (user: SignUpRequestsType) => void
+  checkPermission: () => boolean
 }
 
 interface CellType {
@@ -34,6 +35,7 @@ const SignUpRequests = ({
   handleAddRole,
   handleDeclineSignUpRequest,
   handleApproveSignUpRequest,
+  checkPermission,
 }: Props) => {
   const columns: GridColDef[] = [
     {
@@ -94,7 +96,6 @@ const SignUpRequests = ({
       filterable: false,
       sortable: false,
       disableColumnMenu: true,
-
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
@@ -106,7 +107,7 @@ const SignUpRequests = ({
     {
       flex: 0.15,
       field: 'action',
-      minWidth: 240,
+      minWidth: 150,
       headerName: 'Action',
       hideSortIcons: true,
       filterable: false,
@@ -120,6 +121,7 @@ const SignUpRequests = ({
               size='medium'
               sx={{ textTransform: 'none' }}
               onClick={() => handleDeclineSignUpRequest(row)}
+              disabled={!checkPermission()}
             >
               Decline
             </Button>
@@ -128,6 +130,7 @@ const SignUpRequests = ({
               size='medium'
               onClick={() => handleApproveSignUpRequest(row)}
               sx={{ textTransform: 'none' }}
+              disabled={!checkPermission()}
             >
               Approve
             </Button>
