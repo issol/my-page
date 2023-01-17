@@ -71,6 +71,8 @@ const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
+      router.pathname === '/' && router.replace('/login')
+
       const storedToken = window.localStorage.getItem(
         authConfig.storageTokenKeyName,
       )!
@@ -82,7 +84,7 @@ const AuthProvider = ({ children }: Props) => {
         setLoading(false)
       } else {
         window.localStorage.removeItem('userData')
-        router.replace('/login')
+        // router.replace('/login')
         setLoading(false)
       }
     }
