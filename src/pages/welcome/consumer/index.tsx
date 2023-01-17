@@ -288,30 +288,24 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const fileNames: string[] = []
-    const formDataArray: FormData[] = []
+    const formDataArray: Array<{ file: FormData; url: string }> = []
 
     data.resume?.length &&
       data.resume.forEach(file => {
-        fileNames.push(file.name)
-
-        const formData = new FormData()
-        formData.append('files', file)
-        formDataArray.push(formData)
+        getPresignedUrl(auth.user?.id as number, file.name).then(res => {
+          const formData = new FormData()
+          formData.append('files', file)
+          formDataArray.push({ file: formData, url: res })
+        })
       })
 
-    const preSinedUrls = fileNames.map(name =>
-      getPresignedUrl(auth.user?.id as number, name),
+    const fileRequests = formDataArray.map(formData =>
+      updateResumeFile(formData.url, formData.file),
     )
 
-    console.log(preSinedUrls)
-    // const fileRequests = formDataArray.map(formData =>
-    //   // updateResumeFile(formData),
-    // )
-
-    // Promise.all(fileRequests)
-    //   .then(data => console.log('file upload success : ', data))
-    //   .catch(err => console.log('failed to upload', err))
+    Promise.all(fileRequests)
+      .then(data => console.log('file upload success : ', data))
+      .catch(err => console.log('failed to upload', err))
 
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
@@ -329,12 +323,11 @@ const PersonalInfoPro = () => {
         preferredName: data.preferredName,
         preferredName_pronunciation: data.preferredName_pronunciation,
         pronounce: data.pronounce,
-        resume: data?.resume,
         specialties: data.specialties?.map(item => item.value),
         timezone: data.timezone,
       },
     }
-    // updateUserInfoMutation.mutate(finalData)
+    updateUserInfoMutation.mutate(finalData)
   }
 
   function addJobInfo() {
