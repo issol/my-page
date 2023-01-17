@@ -1,12 +1,5 @@
 // ** React Imports
-import {
-  createContext,
-  useEffect,
-  useState,
-  ReactNode,
-  Dispatch,
-  useContext,
-} from 'react'
+import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -26,9 +19,7 @@ import {
   LoginParams,
   ErrCallbackType,
   UserDataType,
-  LoginSuccessResponse,
 } from './types'
-import { useMutation, useQuery } from 'react-query'
 import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
@@ -36,7 +27,7 @@ import { getUserRoleNPermission } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
 import { ModalContext } from './ModalContext'
 import { Box } from '@mui/system'
-import { Button, Typography } from '@mui/material'
+import { Button, Dialog, Typography } from '@mui/material'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -61,7 +52,8 @@ type Props = {
 }
 
 const AuthProvider = ({ children }: Props) => {
-  const { setModal } = useContext(ModalContext)
+  const [openModal, setOpenModal] = useState(false)
+
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
@@ -153,50 +145,7 @@ const AuthProvider = ({ children }: Props) => {
 
       .catch(err => {
         if (err.message === '406' || err.message === 406) {
-          setModal(
-            <Box
-              sx={{
-                padding: '24px',
-                textAlign: 'center',
-                background: '#ffffff',
-                borderRadius: '14px',
-              }}
-            >
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  alignItems: 'center',
-                  gap: '12px',
-                }}
-              >
-                <img
-                  src='/images/icons/project-icons/status-progress.png'
-                  width={60}
-                  height={60}
-                  alt='role select error'
-                />
-                <Typography variant='h6'>
-                  Sign up approval for{' '}
-                  <span style={{ color: '#666CFF' }}>GloZ</span> is
-                  <br />
-                  in progress.
-                </Typography>
-                <Typography variant='body2'>
-                  You can sign in once approved.
-                </Typography>
-              </Box>
-              <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-                <Button
-                  variant='contained'
-                  onClick={() => setModal(null)}
-                  sx={{ background: '#666CFF', textTransform: 'none' }}
-                >
-                  Okay
-                </Button>
-              </Box>
-            </Box>,
-          )
+          setOpenModal(true)
         } else if (errorCallback) errorCallback(err)
         else return err
       })
@@ -240,7 +189,61 @@ const AuthProvider = ({ children }: Props) => {
     updateUserInfo: updateUserInfo,
   }
 
-  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
+  return (
+    <AuthContext.Provider value={values}>
+      <AlertModal open={openModal} onClose={() => setOpenModal(false)} />
+      {children}
+    </AuthContext.Provider>
+  )
 }
 
 export { AuthContext, AuthProvider }
+
+function AlertModal({ open, onClose }: { open: boolean; onClose: () => void }) {
+  return (
+    <Dialog open={open}>
+      <Box
+        sx={{
+          padding: '24px',
+          textAlign: 'center',
+          background: '#ffffff',
+          borderRadius: '14px',
+        }}
+      >
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <img
+            src='/images/icons/project-icons/status-progress.png'
+            width={60}
+            height={60}
+            alt='role select error'
+          />
+          <Typography variant='h6'>
+            Sign up approval for <span style={{ color: '#666CFF' }}>GloZ</span>{' '}
+            is
+            <br />
+            in progress.
+          </Typography>
+          <Typography variant='body2'>
+            You can sign in once approved.
+          </Typography>
+        </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
+          <Button
+            variant='contained'
+            onClick={onClose}
+            sx={{ background: '#666CFF', textTransform: 'none' }}
+          >
+            Okay
+          </Button>
+        </Box>
+      </Box>
+    </Dialog>
+  )
+}
