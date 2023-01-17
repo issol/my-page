@@ -164,42 +164,16 @@ const SignUpPage = () => {
 
   const {
     control,
-    setError,
     handleSubmit,
-    clearErrors,
     getValues,
-    setValue,
     watch,
-    formState: { errors, dirtyFields },
+    formState: { errors },
   } = useForm({
     defaultValues,
     mode: 'onBlur',
     resolver: yupResolver(schema),
   })
 
-  // const ToastCustom = () => {
-  //   const handleClick = () => {
-  //     return toast(
-  //       t => (
-  //         <Box sx={{ width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-  //           <Box sx={{ display: 'flex', alignItems: 'center' }}>
-  //             <div>
-  //               <Typography sx={{ fontWeight: 500 }}>John Doe</Typography>
-  //               <Typography variant='caption'>Sure! 8:30pm works great!</Typography>
-  //             </div>
-  //           </Box>
-  //           <IconButton onClick={() => toast.dismiss(t.id)}>
-  //             <Icon icon='mdi:close' fontSize={20} />
-  //           </IconButton>
-  //         </Box>
-  //       ),
-  //       {
-  //         style: {
-  //           minWidth: '300px'
-  //         }
-  //       }
-  //     )
-  //   }
   const verifyEmail = useMutation(
     () => sendEmailVerificationCode(getValues('email')),
     {
