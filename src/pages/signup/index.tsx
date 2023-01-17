@@ -181,7 +181,7 @@ const SignUpPage = () => {
     () => sendEmailVerificationCode(getValues('email')),
     {
       onSuccess: data => {
-        toast.success('Email has been sent', {
+        toast('Email has been sent', {
           position: 'bottom-left',
           style: {
             background: '#212121',

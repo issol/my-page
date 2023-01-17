@@ -96,7 +96,7 @@ const LoginPage = () => {
     setError,
     setValue,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm({
     defaultValues,
     mode: 'onChange',
@@ -360,7 +360,13 @@ const LoginPage = () => {
                       <Checkbox
                         name='rememberMe'
                         checked={rememberMe}
-                        onChange={e => setRememberMe(e.target.checked)}
+                        onChange={e => {
+                          if (!e.target.checked)
+                            window.localStorage.removeItem(
+                              authConfig.rememberId,
+                            )
+                          setRememberMe(e.target.checked)
+                        }}
                       />
                     }
                     label='Remember Me'
@@ -380,6 +386,7 @@ const LoginPage = () => {
                 type='submit'
                 variant='contained'
                 sx={{ mb: 7 }}
+                disabled={!isValid}
               >
                 Sign in
               </Button>
