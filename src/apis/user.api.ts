@@ -60,3 +60,18 @@ export const updateManagerUserInfo = async (
     throw new Error(e)
   }
 }
+
+export const sendResetEmail = async (email: string) => {
+  const { data } = await axios.post(`/api/enough/u/pw/reset`, { email })
+
+  return data
+}
+
+export const resetPassword = async (params: {
+  newPW: string
+  token: string
+}) => {
+  const { data } = await axios.put('/api/enough/u/pw/reset/save', params)
+
+  return data
+}

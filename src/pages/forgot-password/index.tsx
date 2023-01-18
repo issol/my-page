@@ -29,6 +29,8 @@ import MuiCard, { CardProps } from '@mui/material/Card'
 
 import { useForm } from 'react-hook-form'
 import useForgotPasswordSchema from './validation'
+import { useMutation } from 'react-query'
+import { sendResetEmail } from 'src/apis/user.api'
 
 // Styled Components
 
@@ -73,14 +75,22 @@ const ForgotPassword = () => {
   })
 
   const isValid = !watch(['email']).includes(null)
-  console.log(isValid)
+
+  const sendEmailMutation = useMutation(
+    (email: string) => sendResetEmail(email),
+    {
+      onSuccess: (data, variables) => {
+        router.push({
+          pathname: '/forgot-password/complete',
+          query: { email: variables },
+        })
+      },
+    },
+  )
 
   const onSubmitEmail = useCallback((info: ForgotPasswordProps) => {
-    console.log(info)
-    router.push({
-      pathname: '/forgot-password/complete',
-      query: { email: info.email },
-    })
+    //api
+    info.email && sendEmailMutation.mutate(info.email)
   }, [])
 
   return (

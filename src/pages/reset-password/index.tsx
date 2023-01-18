@@ -21,6 +21,8 @@ import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
 import cloneDeep from 'lodash/cloneDeep'
 import { useRouter } from 'next/router'
+import { useMutation } from 'react-query'
+import { resetPassword } from 'src/apis/user.api'
 
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -89,11 +91,24 @@ const ResetPassword = () => {
 
   const isValid = !watch(['password', 'confirmPassword']).includes(null)
 
+  const resetPasswordMutation = useMutation(
+    (params: { token: string; newPW: string }) => resetPassword(params),
+    {
+      onSuccess: () => {
+        router.push({
+          pathname: '/reset-password/complete',
+        })
+      },
+    },
+  )
+
   const onSubmitResetPassword = useCallback((info: ResetPasswordProps) => {
-    // ** TODO : Reset API 연동
-    router.push({
-      pathname: '/reset-password/complete',
-    })
+    code &&
+      info.password &&
+      resetPasswordMutation.mutate({
+        token: code,
+        newPW: info.password,
+      })
   }, [])
 
   useEffect(() => {
