@@ -54,7 +54,7 @@ export const getPresignedUrl = async (userId: number, fileName: string) => {
 
 export const updateResumeFile = async (url: string, file: FormData) => {
   try {
-    const res = await axios.post(url, file, {
+    const res = await axios.put(url, file, {
       headers: {
         'Content-Type': 'multipart/form-data',
       },
