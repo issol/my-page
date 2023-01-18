@@ -93,6 +93,10 @@ const ForgotPassword = () => {
     info.email && sendEmailMutation.mutate(info.email)
   }, [])
 
+  useEffect(() => {
+    window.localStorage.removeItem('userData')
+  }, [])
+
   return (
     <Box className='content-center'>
       <Box

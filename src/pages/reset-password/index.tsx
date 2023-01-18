@@ -129,6 +129,10 @@ const ResetPassword = () => {
     return () => subscription.unsubscribe()
   }, [watch])
 
+  useEffect(() => {
+    window.localStorage.removeItem('userData')
+  }, [])
+
   return (
     <Box className='content-center'>
       <Box
