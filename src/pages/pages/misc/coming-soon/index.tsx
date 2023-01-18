@@ -20,7 +20,6 @@ const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
     // width: '90vw',
     width: '100%',
-    border: '1px solid',
   },
 }))
 

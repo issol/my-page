@@ -144,7 +144,9 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {/* {auth?.user?.fullName} */}
+                {auth?.user?.username?.includes('undefined')
+                  ? 'anonymous'
+                  : auth?.user?.username}
               </Typography>
               <Typography
                 variant='body2'
@@ -219,7 +221,7 @@ const UserDropdown = (props: Props) => {
           </Box>
         </MenuItem>
         <Divider /> */}
-        <MenuItem
+        {/* <MenuItem
           onClick={
             () => {
               if (auth.user && auth.user.role) {
@@ -241,7 +243,7 @@ const UserDropdown = (props: Props) => {
         >
           <Icon icon='mdi:account-convert' />
           Switch Role
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           onClick={handleLogout}
           sx={{
