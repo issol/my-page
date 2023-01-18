@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
+import authConfig from 'src/configs/auth'
 
 // ** MUI Components
 import Button from '@mui/material/Button'

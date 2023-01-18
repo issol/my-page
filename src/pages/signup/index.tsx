@@ -200,7 +200,16 @@ const SignUpPage = () => {
     {
       onSuccess: data => {
         if (role.includes('PRO') || role.includes('CLIENT')) {
-          router.push('/signup/finish/consumer')
+          router.push(
+            {
+              pathname: '/signup/finish/consumer',
+              query: {
+                email: getValues('email'),
+                password: getValues('password'),
+              },
+            },
+            '/signup/finish/consumer',
+          )
         } else {
           router.push('/signup/finish/manager')
         }
