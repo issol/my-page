@@ -36,3 +36,4 @@
 ## docs
 
 - [Materialize Guide](https://pixinvent.com/demo/materialize-mui-react-nextjs-admin-template/documentation/guide/)
+- [Access Control](https://pixinvent.com/demo/materialize-mui-react-nextjs-admin-template/documentation/guide/development/access-control.html)

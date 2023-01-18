@@ -54,17 +54,11 @@ const AclGuard = (props: AclGuardProps) => {
   // Check the access of current user and render pages
   //can(permission[], role[])
   if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
-    // const noPermission = aclAbilities.action?.some(
-    //   item => !ability.can(item, aclAbilities.subject),
-    // )
-
-    // if (!noPermission) {
     return (
       <AbilityContext.Provider value={ability}>
         {children}
       </AbilityContext.Provider>
     )
-    // }
   }
 
   // Render Not Authorized component if the current user has limited access
