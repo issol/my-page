@@ -156,13 +156,12 @@ const PersonalInfoPro = () => {
     },
   })
 
-  //**TODO: 테스트 끝나면 주석 해제하기 */
-  // useEffect(() => {
-  //   if (auth.user?.firstName) {
-  //     const role = auth.user.role.length ? auth.user.role[0] : null
-  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
-  //   }
-  // }, [auth])
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -324,6 +323,7 @@ const PersonalInfoPro = () => {
         mobilePhone: data.mobile,
         telephone: data.phone,
         preferredName: data.preferredName,
+        resume: data.resume?.length ? data.resume.map(file => file.name) : [],
         preferredName_pronunciation: data.preferredName_pronunciation,
         pronounce: data.pronounce,
         specialties: data.specialties?.map(item => item.value),
