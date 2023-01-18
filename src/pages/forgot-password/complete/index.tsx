@@ -14,6 +14,8 @@ import themeConfig from 'src/configs/themeConfig'
 
 import RightIllustration from './right-illustration'
 import toast from 'react-hot-toast'
+import { useMutation } from 'react-query'
+import { sendResetEmail } from 'src/apis/user.api'
 
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -34,22 +36,42 @@ const MaskImg = styled('img')(({ theme }) => ({
 
 const ForgotPasswordComplete = () => {
   const router = useRouter()
+  const email =
+    typeof window === 'object' &&
+    new URL(window.location.href).searchParams.get('email')
 
   const theme = useTheme()
 
+  const sendEmailMutation = useMutation(
+    (email: string) => sendResetEmail(email),
+    {
+      onSuccess: (data, variables) => {
+        router.push({
+          pathname: '/forgot-password/complete',
+          query: { email: variables },
+        })
+      },
+    },
+  )
+
   const resendEmail = () => {
     //** TODO : email 재전송 api 붙이기
-    toast('Email has been sent', {
-      icon: undefined,
-      style: {
-        borderRadius: '8px',
-        marginTop: '24px',
-        height: '49px',
-        background: '#333',
-        color: '#fff',
-      },
-      position: 'bottom-left',
-    })
+    email &&
+      sendEmailMutation.mutate(email, {
+        onSuccess: () => {
+          toast('Email has been sent', {
+            icon: undefined,
+            style: {
+              borderRadius: '8px',
+              marginTop: '24px',
+              height: '49px',
+              background: '#333',
+              color: '#fff',
+            },
+            position: 'bottom-left',
+          })
+        },
+      })
   }
   return (
     <>
@@ -178,7 +200,7 @@ const ForgotPasswordComplete = () => {
                   textAlign: 'center',
                 }}
               >
-                <MaskImg src='/images/icons/auth-icons/email-sent-icon.svg' />
+                <MaskImg src='/images/icons/auth-icons/email-sent-icon.png' />
                 <Box sx={{ mb: 8 }}>
                   <Typography variant='h5' sx={{ mb: 2 }}>
                     Email has been sent
