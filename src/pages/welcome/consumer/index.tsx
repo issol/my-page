@@ -289,24 +289,16 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const formDataArray: Array<{ file: FormData; url: string }> = []
-
     data.resume?.length &&
       data.resume.forEach(file => {
         getPresignedUrl(auth.user?.id as number, file.name).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          formDataArray.push({ file: formData, url: res })
+          updateResumeFile(res, formData)
+            .then(res => console.log('upload resume success :', res))
+            .catch(err => console.log('upload resume failed : ', err))
         })
       })
-
-    const fileRequests = formDataArray.map(formData =>
-      updateResumeFile(formData.url, formData.file),
-    )
-
-    Promise.all(fileRequests)
-      .then(data => console.log('file upload success : ', data))
-      .catch(err => console.log('failed to upload', err))
 
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
@@ -420,6 +412,8 @@ const PersonalInfoPro = () => {
             alignItems: 'center',
             padding: '50px 50px',
             height: '100%',
+            maxWidth: '850px',
+            margin: 'auto',
           }}
         >
           <BoxWrapper>

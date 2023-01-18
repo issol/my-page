@@ -215,6 +215,8 @@ const PersonalInfoManager = () => {
             alignItems: 'center',
             padding: '50px 50px',
             height: '100%',
+            maxWidth: '850px',
+            margin: 'auto',
           }}
         >
           <BoxWrapper>
