@@ -103,7 +103,7 @@ const AuthProvider = ({ children }: Props) => {
     }
   }, [user])
 
-  function updateUserInfo(response: loginResType) {
+  async function updateUserInfo(response: loginResType) {
     Promise.all([
       getUserInfo(response.email),
       getUserRoleNPermission(response.userId),
@@ -133,11 +133,18 @@ const AuthProvider = ({ children }: Props) => {
   const handleLogin = (
     params: LoginParams,
     errorCallback?: ErrCallbackType,
+    successCallback?: any,
   ) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        updateUserInfo(response)
+        updateUserInfo(response).then(() => {
+          if (successCallback) {
+            successCallback()
+          } else {
+            router.replace('/')
+          }
+        })
 
         params.rememberMe
           ? window.localStorage.setItem(authConfig.rememberId, params.email)
@@ -149,8 +156,6 @@ const AuthProvider = ({ children }: Props) => {
 
         // const returnUrl = router.query.returnUrl
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
-
-        router.replace('/')
       })
 
       .catch(err => {
