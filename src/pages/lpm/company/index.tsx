@@ -37,7 +37,7 @@ const LpmCompany = () => {
   const { data: signUpRequests } = useGetSignUpRequests(
     ability.can('IK9400', 'TAD'),
   )
-  const { data: members } = useGetMembers()
+  const { data: members } = useGetMembers(ability.can('C8788', 'LPM'))
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
   const [requestsPageSize, setRequestsPageSize] = useState<number>(10)

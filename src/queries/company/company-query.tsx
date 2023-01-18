@@ -18,6 +18,7 @@ export const useGetSignUpRequests = (ability: boolean) => {
       keepPreviousData: true,
       suspense: true,
       enabled: ability,
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
 
       select: (data: ResponseRequestsType[]) => {
         return data.map((value: ResponseRequestsType) => ({
@@ -28,18 +29,16 @@ export const useGetSignUpRequests = (ability: boolean) => {
           rId: value.id,
         }))
       },
-      // onSuccess: () => {
-      //   setSearch(false)
-      // },
     },
   )
 }
 
-export const useGetMembers = () => {
+export const useGetMembers = (ability: boolean) => {
   return useQuery('members', () => getMembers(), {
     staleTime: 60 * 1000, // 1
     keepPreviousData: true,
     suspense: true,
+    enabled: ability,
 
     select: (data: ResponseMembersType[]) => {
       return data.map((value: ResponseMembersType) => ({
