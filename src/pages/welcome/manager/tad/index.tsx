@@ -514,10 +514,6 @@ PersonalInfoManager.getLayout = (page: ReactNode) => (
 
 PersonalInfoManager.acl = {
   action: 'RE0008',
-  subject: 'LPM',
-}
-PersonalInfoManager.acl = {
-  action: 'RE0008',
   subject: 'TAD',
 }
 
