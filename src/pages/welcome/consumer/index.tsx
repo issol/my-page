@@ -67,8 +67,8 @@ import {
   getPresignedUrl,
   getUserInfo,
   updateConsumerUserInfo,
-  updateResumeFile,
 } from 'src/apis/user.api'
+import axios from 'axios'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -294,7 +294,13 @@ const PersonalInfoPro = () => {
         getPresignedUrl(auth.user?.id as number, file.name).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          updateResumeFile(res, formData)
+          // updateResumeFile(res, formData)
+          axios
+            .put(res, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+              },
+            })
             .then(res => console.log('upload resume success :', res))
             .catch(err => console.log('upload resume failed : ', err))
         })
