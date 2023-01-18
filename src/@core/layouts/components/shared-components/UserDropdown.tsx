@@ -144,7 +144,9 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {/* {auth?.user?.fullName} */}
+                {auth?.user?.username?.includes('undefined')
+                  ? 'anonymous'
+                  : auth?.user?.username}
               </Typography>
               <Typography
                 variant='body2'
