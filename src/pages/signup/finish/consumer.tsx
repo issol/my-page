@@ -29,7 +29,6 @@ const FinishSignUpConsumer = () => {
   const router = useRouter()
   const { email, password } = router.query
 
-  console.log(email, password)
   function onButtonClick() {
     if (email && password) {
       auth.login(

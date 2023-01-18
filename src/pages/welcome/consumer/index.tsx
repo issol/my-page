@@ -295,11 +295,14 @@ const PersonalInfoPro = () => {
         getPresignedUrl(auth.user?.id as number, file.name).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          // updateResumeFile(res, formData)
           axios
             .put(res, formData, {
               headers: {
                 'Content-Type': 'multipart/form-data',
+                Authorization:
+                  'Bearer ' + typeof window === 'object'
+                    ? localStorage.getItem(authConfig.storageTokenKeyName)
+                    : null,
               },
             })
             .then(res => console.log('upload resume success :', res))
