@@ -227,33 +227,6 @@ const TadCompany = () => {
         },
       },
     )
-    // const index = members.length
-    // console.log(index)
-    // declineSignUpRequestMutation.mutate(user.id, {
-    //   onSuccess: () => {
-    //     queryClient.invalidateQueries('signup-requests')
-    //     addMemberAfterApproveMutation.mutate(
-    //       {
-    //         id: index + 1,
-    //         firstName: faker.name.firstName(),
-    //         middleName: faker.name.middleName(),
-    //         lastName: faker.name.lastName(),
-    //         role: user.role,
-    //         email: user.email,
-    //         permission: user.permission,
-    //         jobTitle: faker.name.jobTitle(),
-    //         createdAt: new Date().getTime(),
-    //       },
-    //       {
-    //         onSuccess: (data, variables) => {
-    //           console.log(variables)
-    //           queryClient.invalidateQueries('members')
-    //           displayUndoToast(user, 'approve', variables)
-    //         },
-    //       },
-    //     )
-    //   },
-    // })
   }
 
   const handleApproveSignUpRequest = (user: SignUpRequestsType) => {
