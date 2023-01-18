@@ -177,7 +177,7 @@ const ResetPasswordComplete = () => {
                   textAlign: 'center',
                 }}
               >
-                <MaskImg src='/images/icons/auth-icons/reset-complete-icon.svg' />
+                <MaskImg src='/images/icons/auth-icons/reset-complete-icon.png' />
                 <Box sx={{ mb: 8 }}>
                   <Typography variant='h5' sx={{ mb: 2 }}>
                     Your password was reset successfully
