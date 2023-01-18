@@ -59,15 +59,7 @@ const ForgotPasswordComplete = () => {
     email &&
       sendEmailMutation.mutate(email, {
         onSuccess: () => {
-          toast('Email has been sent', {
-            icon: undefined,
-            style: {
-              borderRadius: '8px',
-              marginTop: '24px',
-              height: '49px',
-              background: '#333',
-              color: '#fff',
-            },
+          toast.success('Email has been sent', {
             position: 'bottom-left',
           })
         },

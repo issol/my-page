@@ -40,13 +40,6 @@ const ResetPasswordComplete = () => {
   const resendEmail = () => {
     //** TODO : email 재전송 api 붙이기
     toast.success('Email has been sent', {
-      style: {
-        borderRadius: '8px',
-        marginTop: '24px',
-        height: '49px',
-        background: '#333',
-        color: '#fff',
-      },
       position: 'bottom-left',
     })
   }
