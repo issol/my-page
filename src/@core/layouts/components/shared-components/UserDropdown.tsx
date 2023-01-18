@@ -219,7 +219,7 @@ const UserDropdown = (props: Props) => {
           </Box>
         </MenuItem>
         <Divider /> */}
-        <MenuItem
+        {/* <MenuItem
           onClick={
             () => {
               if (auth.user && auth.user.role) {
@@ -241,7 +241,7 @@ const UserDropdown = (props: Props) => {
         >
           <Icon icon='mdi:account-convert' />
           Switch Role
-        </MenuItem>
+        </MenuItem> */}
         <MenuItem
           onClick={handleLogout}
           sx={{
