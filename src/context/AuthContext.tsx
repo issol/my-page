@@ -120,7 +120,7 @@ const AuthProvider = ({ children }: Props) => {
           }`,
           firstName: profile.firstName,
           timezone: profile.timezone,
-          permission: [...permission.permissions, 'IK9400'],
+          permission: [...permission.permissions],
         }
 
         window.localStorage.setItem('userData', JSON.stringify(userInfo))
