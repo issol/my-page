@@ -514,6 +514,7 @@ const SignUpPage = () => {
                         value={value}
                         onBlur={onBlur}
                         label='Password'
+                        inputProps={{ maxLength: 20 }}
                         onChange={onChange}
                         id='auth-login-v2-password'
                         error={Boolean(errors.password)}
