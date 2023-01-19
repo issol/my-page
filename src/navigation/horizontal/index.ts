@@ -5,7 +5,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
   return [
     // ** Dashboard - Client, LPM, TAD, Pro
     {
-      title: 'Dashboard',
+      title: 'Dashboards',
       icon: 'mdi:home-outline',
       action: 'B1072',
       subject: `${role}`,
