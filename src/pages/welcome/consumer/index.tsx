@@ -155,13 +155,13 @@ const PersonalInfoPro = () => {
       setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
     },
   })
-
-  useEffect(() => {
-    if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
-    }
-  }, [auth])
+  /* TODO: 주석해제 */
+  // useEffect(() => {
+  //   if (auth.user?.firstName) {
+  //     const role = auth.user.role.length ? auth.user.role[0] : null
+  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
+  //   }
+  // }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -198,6 +198,7 @@ const PersonalInfoPro = () => {
     setError,
     clearErrors,
     watch,
+    trigger,
     formState: { errors, dirtyFields },
   } = useForm<PersonalInfo>({
     defaultValues,
@@ -397,6 +398,7 @@ const PersonalInfoPro = () => {
       newVal = { ...filtered, [item]: value, source: '', target: '' }
     }
     update(index, newVal)
+    trigger('jobInfo')
   }
 
   return (
