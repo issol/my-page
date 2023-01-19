@@ -38,7 +38,7 @@ export default function ApproveSignUpRequestModal({
     >
       <DialogContent
         sx={{
-          padding: 3,
+          padding: 10,
           display: 'flex',
           flexDirection: 'column',
           gap: 1,

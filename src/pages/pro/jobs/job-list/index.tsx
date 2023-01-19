@@ -1,12 +1,13 @@
 import { useContext, useEffect } from 'react'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Button from '@mui/material/Button'
-
+import ComingSoon from 'src/pages/pages/misc/coming-soon'
 const ProJobList = () => {
   const ability = useContext(AbilityContext)
   return (
     <>
-      <div>Pro Job List</div>
+      <ComingSoon />
+      {/* <div>Pro Job List</div>
       <div className='demo-space-x'>
         <Button
           variant='contained'
@@ -32,7 +33,7 @@ const ProJobList = () => {
         >
           DELETE
         </Button>
-      </div>
+      </div> */}
     </>
   )
 }

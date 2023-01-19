@@ -12,6 +12,7 @@ import Typography from '@mui/material/Typography'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { useRouter } from 'next/router'
+import { useAuth } from 'src/hooks/useAuth'
 
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -24,9 +25,19 @@ const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const FinishSignUpConsumer = () => {
+  const auth = useAuth()
   const router = useRouter()
+  const { email, password } = router.query
+
   function onButtonClick() {
-    router.push('/login')
+    if (email && password) {
+      auth.login(
+        { email: email as string, password: password as string },
+        router.push('/welcome/consumer'),
+      )
+    } else {
+      router.push('/login')
+    }
   }
 
   return (

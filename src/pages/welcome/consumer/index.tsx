@@ -1,5 +1,6 @@
 // ** React Imports
 import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
+import authConfig from 'src/configs/auth'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -67,8 +68,8 @@ import {
   getPresignedUrl,
   getUserInfo,
   updateConsumerUserInfo,
-  updateResumeFile,
 } from 'src/apis/user.api'
+import axios from 'axios'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -155,13 +156,12 @@ const PersonalInfoPro = () => {
     },
   })
 
-  //**TODO: 테스트 끝나면 주석 해제하기 */
-  // useEffect(() => {
-  //   if (auth.user?.firstName) {
-  //     const role = auth.user.role.length ? auth.user.role[0] : null
-  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
-  //   }
-  // }, [auth])
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -289,24 +289,25 @@ const PersonalInfoPro = () => {
   )
 
   const onSubmit = (data: PersonalInfo) => {
-    const formDataArray: Array<{ file: FormData; url: string }> = []
-
     data.resume?.length &&
       data.resume.forEach(file => {
         getPresignedUrl(auth.user?.id as number, file.name).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          formDataArray.push({ file: formData, url: res })
+          axios
+            .put(res, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization:
+                  'Bearer ' + typeof window === 'object'
+                    ? localStorage.getItem(authConfig.storageTokenKeyName)
+                    : null,
+              },
+            })
+            .then(res => console.log('upload resume success :', res))
+            .catch(err => console.log('upload resume failed : ', err))
         })
       })
-
-    const fileRequests = formDataArray.map(formData =>
-      updateResumeFile(formData.url, formData.file),
-    )
-
-    Promise.all(fileRequests)
-      .then(data => console.log('file upload success : ', data))
-      .catch(err => console.log('failed to upload', err))
 
     const finalData: ConsumerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
@@ -322,6 +323,7 @@ const PersonalInfoPro = () => {
         mobilePhone: data.mobile,
         telephone: data.phone,
         preferredName: data.preferredName,
+        resume: data.resume?.length ? data.resume.map(file => file.name) : [],
         preferredName_pronunciation: data.preferredName_pronunciation,
         pronounce: data.pronounce,
         specialties: data.specialties?.map(item => item.value),
@@ -420,6 +422,8 @@ const PersonalInfoPro = () => {
             alignItems: 'center',
             padding: '50px 50px',
             height: '100%',
+            maxWidth: '850px',
+            margin: 'auto',
           }}
         >
           <BoxWrapper>
