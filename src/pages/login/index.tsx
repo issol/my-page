@@ -321,7 +321,7 @@ const LoginPage = () => {
                       onChange={onChange}
                       id='auth-login-v2-password'
                       error={Boolean(errors.password)}
-                      placeholder='Password'
+                      // placeholder='Password'
                       type={showPassword ? 'text' : 'password'}
                       inputProps={{ maxLength: 20 }}
                       endAdornment={

@@ -88,8 +88,8 @@ const AuthProvider = ({ children }: Props) => {
     if (!user.firstName) {
       if (user.role.includes('PRO')) {
         router.replace('/welcome/consumer')
-        /** TODO: 
-         acl에서 role을 체크하는 부분 때문에 부득이하게 같은 페이지를 두개 만들어 routing. 
+        /** TODO:
+         acl에서 role을 체크하는 부분 때문에 부득이하게 같은 페이지를 두개 만들어 routing.
          추후 acl에서 role은 체크하지 않도록 수정이 필요함
          1. 수정되면 조건문 수정
             else if(user.role.includes('TAD') || user.role.includes('LPM')) router.replace('/welcome/manager')
@@ -115,12 +115,12 @@ const AuthProvider = ({ children }: Props) => {
           id: response.userId,
           role: permission.roles,
           email: response.email,
-          username: `${profile.firstName} ${profile?.middleName ?? null} ${
+          username: `${profile.firstName} ${profile?.middleName ?? ''} ${
             profile.lastName
           }`,
           firstName: profile.firstName,
           timezone: profile.timezone,
-          permission: [...permission.permissions, 'IK9400'],
+          permission: [...permission.permissions],
         }
 
         window.localStorage.setItem('userData', JSON.stringify(userInfo))

@@ -514,10 +514,11 @@ const SignUpPage = () => {
                         value={value}
                         onBlur={onBlur}
                         label='Password'
+                        inputProps={{ maxLength: 20 }}
                         onChange={onChange}
                         id='auth-login-v2-password'
                         error={Boolean(errors.password)}
-                        placeholder='Password'
+                        // placeholder='Password'
                         type={showPassword ? 'text' : 'password'}
                         endAdornment={
                           <InputAdornment position='end'>

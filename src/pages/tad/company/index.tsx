@@ -34,10 +34,10 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 const RoleArray = ['TAD', 'LPM']
 const TadCompany = () => {
   const ability = useContext(AbilityContext)
-  const { data: signUpRequests } = useGetSignUpRequests(
+  const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('IK9400', 'TAD'),
   )
-  const { data: members } = useGetMembers()
+  const { data: members } = useGetMembers(ability.can('C8788', 'TAD'))
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
   const [requestsPageSize, setRequestsPageSize] = useState<number>(10)
@@ -48,8 +48,6 @@ const TadCompany = () => {
   const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
-
-  console.log(signUpRequests)
 
   const requestActionMutation = useMutation(
     (value: RequestPayloadType) => requestAction(value.payload),
@@ -253,8 +251,10 @@ const TadCompany = () => {
   }
 
   useEffect(() => {
-    signUpRequests && setUser(signUpRequests)
-  }, [signUpRequests])
+    if (signUpRequests && !isError) {
+      setUser(signUpRequests)
+    }
+  }, [signUpRequests, isError])
 
   useEffect(() => {
     members && setMemberList(members)

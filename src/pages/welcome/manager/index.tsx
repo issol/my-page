@@ -5,7 +5,6 @@ import { useState, ReactNode, useEffect, useContext } from 'react'
 import Button from '@mui/material/Button'
 import Divider from '@mui/material/Divider'
 import TextField from '@mui/material/TextField'
-import InputLabel from '@mui/material/InputLabel'
 import Box, { BoxProps } from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
@@ -36,7 +35,6 @@ import { useMutation } from 'react-query'
 import { countries } from 'src/@fake-db/autocomplete'
 
 // ** Third Party Components
-import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 import {
@@ -46,7 +44,6 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 import { managerProfileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
-import styled from 'styled-components'
 
 import { updateManagerUserInfo } from 'src/apis/user.api'
 
@@ -99,6 +96,11 @@ const PersonalInfoManager = () => {
   // ** Hooks
   const auth = useAuth()
 
+  function isInvalidPhoneNumber(str: string) {
+    const regex = /^[0-9+) ]+$/
+    return str && !regex.test(str)
+  }
+
   useEffect(() => {
     if (auth.user?.firstName) {
       const role = auth.user.role.length ? auth.user.role[0] : null
@@ -110,6 +112,7 @@ const PersonalInfoManager = () => {
     control,
     handleSubmit,
     getValues,
+    watch,
     formState: { errors },
   } = useForm<ManagerInfo>({
     defaultValues,
@@ -422,26 +425,20 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          id='outlined-basic'
+                          label='Telephone'
+                          variant='outlined'
                           value={value}
                           onBlur={onBlur}
                           onChange={e => {
-                            if (e.target.value.length > 50) {
-                              return
-                            }
+                            if (isInvalidPhoneNumber(e.target.value)) return
                             onChange(e)
                           }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.phone)}
-                          placeholder='Telephone'
-                          InputProps={{
-                            type: 'number',
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                {getValues('timezone').phone &&
-                                  '+' + getValues('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          }}
+                          placeholder={`+${
+                            watch('timezone').phone
+                          }) 012 345 6789`}
                         />
                       )}
                     />
@@ -459,26 +456,20 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          id='outlined-basic'
+                          label='Fax'
+                          variant='outlined'
                           value={value}
                           onBlur={onBlur}
                           onChange={e => {
-                            if (e.target.value.length > 50) {
-                              return
-                            }
+                            if (isInvalidPhoneNumber(e.target.value)) return
                             onChange(e)
                           }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.fax)}
-                          placeholder='Fax'
-                          InputProps={{
-                            type: 'number',
-                            startAdornment: (
-                              <InputAdornment position='start'>
-                                {getValues('timezone').phone &&
-                                  '+' + getValues('timezone').phone}
-                              </InputAdornment>
-                            ),
-                          }}
+                          placeholder={`+${
+                            watch('timezone').phone
+                          }) 012 345 6789`}
                         />
                       )}
                     />

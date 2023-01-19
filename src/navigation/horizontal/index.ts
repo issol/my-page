@@ -5,8 +5,9 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
   return [
     // ** Dashboard - Client, LPM, TAD, Pro
     {
-      title: 'Dashboard',
+      title: 'Dashboards',
       icon: 'mdi:home-outline',
+      // icon: '/images/icons/gnb-icons/gnb-company.png',
       action: 'B1072',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/dashboard`,
@@ -14,7 +15,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
 
     {
       title: 'Company',
-      icon: 'mdi:home-outline',
+      icon: 'mdi:briefcase-outline',
       action: 'L8870',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/company`,
@@ -22,7 +23,7 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     // ** Account - Client, LPM, TAD
     {
       title: 'Account',
-      icon: 'mdi:home-outline',
+      icon: 'mdi:account-outline',
       action: 'AC0010',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/account`,
@@ -37,14 +38,14 @@ const navigation = (role: string | null): HorizontalNavItemsType => {
     },
     {
       title: 'Email',
-      icon: 'mdi:home-outline',
+      icon: 'mdi:airplane-landing',
       action: 'MB0333',
       subject: `${role}`,
       path: `/${role?.toLowerCase()}/email`,
     },
     {
       title: 'Onboarding',
-      icon: 'mdi:home-outline',
+      icon: 'mdi:airplane-landing',
       action: 'LH4465',
       subject: `${role}`,
       children: [
