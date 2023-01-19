@@ -197,6 +197,7 @@ const PersonalInfoPro = () => {
     setValue,
     setError,
     clearErrors,
+    watch,
     formState: { errors, dirtyFields },
   } = useForm<PersonalInfo>({
     defaultValues,
@@ -287,6 +288,11 @@ const PersonalInfoPro = () => {
       },
     },
   )
+
+  function isInvalidPhoneNumber(str: string) {
+    const regex = /^[0-9+) ]+$/
+    return str && !regex.test(str)
+  }
 
   const onSubmit = (data: PersonalInfo) => {
     data.resume?.length &&
@@ -677,7 +683,7 @@ const PersonalInfoPro = () => {
                   )}
 
                   <Divider />
-                  <Box>
+                  <Box mt={4}>
                     <FormControl sx={{ mb: 2 }} fullWidth>
                       <Controller
                         name='timezone'
@@ -717,7 +723,7 @@ const PersonalInfoPro = () => {
                     </FormControl>
                   </Box>
                   {/* phone  */}
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                  <Box sx={{ display: 'flex', gap: '8px' }} mt={2}>
                     <FormControl sx={{ mb: 2 }} fullWidth>
                       <Controller
                         name='mobile'
@@ -726,26 +732,20 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            id='outlined-basic'
+                            label='Mobile phone'
+                            variant='outlined'
                             value={value}
                             onBlur={onBlur}
                             onChange={e => {
-                              if (e.target.value.length > 50) {
-                                return
-                              }
+                              if (isInvalidPhoneNumber(e.target.value)) return
                               onChange(e)
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.mobile)}
-                            placeholder='Mobile phone'
-                            InputProps={{
-                              type: 'number',
-                              startAdornment: (
-                                <InputAdornment position='start'>
-                                  {getValues('timezone').phone &&
-                                    '+' + getValues('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                            placeholder={`+${
+                              watch('timezone').phone
+                            }) 012 345 6789`}
                           />
                         )}
                       />
@@ -764,26 +764,20 @@ const PersonalInfoPro = () => {
                         render={({ field: { value, onChange, onBlur } }) => (
                           <TextField
                             autoFocus
+                            id='outlined-basic'
+                            label='Telephone'
+                            variant='outlined'
                             value={value}
                             onBlur={onBlur}
                             onChange={e => {
-                              if (e.target.value.length > 50) {
-                                return
-                              }
+                              if (isInvalidPhoneNumber(e.target.value)) return
                               onChange(e)
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.phone)}
-                            placeholder='Telephone'
-                            InputProps={{
-                              type: 'number',
-                              startAdornment: (
-                                <InputAdornment position='start'>
-                                  {getValues('timezone').phone &&
-                                    '+' + getValues('timezone').phone}
-                                </InputAdornment>
-                              ),
-                            }}
+                            placeholder={`+${
+                              watch('timezone').phone
+                            }) 012 345 6789`}
                           />
                         )}
                       />
