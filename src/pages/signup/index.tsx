@@ -108,6 +108,7 @@ const schema = yup.object().shape({
     .required('This field is required'),
   password: yup
     .string()
+    .required('This field is required')
     .test('password-validation', '', (val: any) => {
       return (
         val.length >= 9 &&
@@ -117,8 +118,8 @@ const schema = yup.object().shape({
         /[0-9]/g.test(val) &&
         /[$@$!%*#?&]/g.test(val)
       )
-    })
-    .required('This field is required'),
+    }),
+
   terms: yup.bool().oneOf([true], 'Field must be checked'),
 })
 
@@ -260,7 +261,7 @@ const SignUpPage = () => {
     // const { email, password } = data
     setStep(2)
   }
-
+  console.log(errors)
   const onRoleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RoleType
     const filtered = role.filter(item => item !== value)
