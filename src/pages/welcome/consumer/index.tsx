@@ -155,13 +155,13 @@ const PersonalInfoPro = () => {
       setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
     },
   })
-  /* TODO: 주석해제 */
-  // useEffect(() => {
-  //   if (auth.user?.firstName) {
-  //     const role = auth.user.role.length ? auth.user.role[0] : null
-  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
-  //   }
-  // }, [auth])
+
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files

@@ -97,16 +97,16 @@ const PersonalInfoManager = () => {
   const auth = useAuth()
 
   function isInvalidPhoneNumber(str: string) {
-    const regex = /^[0-9+) ]+$/
+    const regex = /^[0-9]+$/
     return str && !regex.test(str)
   }
 
-  useEffect(() => {
-    if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
-    }
-  }, [auth])
+  // useEffect(() => {
+  //   if (auth.user?.firstName) {
+  //     const role = auth.user.role.length ? auth.user.role[0] : null
+  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
+  //   }
+  // }, [auth])
 
   const {
     control,
@@ -339,7 +339,7 @@ const PersonalInfoManager = () => {
                   )}
                 </FormControl>
                 <Divider />
-                <Box sx={{ display: 'flex', gap: '8px' }}>
+                <Box sx={{ display: 'flex', gap: '8px' }} mt={4}>
                   <FormControl sx={{ mb: 2 }} fullWidth>
                     <Controller
                       name='timezone'
@@ -377,7 +377,7 @@ const PersonalInfoManager = () => {
                       </FormHelperText>
                     )}
                   </FormControl>
-                  <FormControl sx={{ mb: 2 }} fullWidth>
+                  <FormControl sx={{ mb: 4 }} fullWidth>
                     <Controller
                       name='mobile'
                       control={control}
@@ -385,6 +385,9 @@ const PersonalInfoManager = () => {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           autoFocus
+                          id='outlined-basic'
+                          label='Mobile phone'
+                          variant='outlined'
                           value={value}
                           onBlur={onBlur}
                           onChange={e => {
@@ -395,13 +398,15 @@ const PersonalInfoManager = () => {
                           }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.mobile)}
-                          placeholder='Mobile phone'
+                          placeholder={
+                            !watch('timezone').phone
+                              ? `+ 1) 012 345 6789`
+                              : `012 345 6789`
+                          }
                           InputProps={{
-                            type: 'number',
-                            startAdornment: (
+                            startAdornment: watch('timezone').phone && (
                               <InputAdornment position='start'>
-                                {getValues('timezone').phone &&
-                                  '+' + getValues('timezone').phone}
+                                {'+' + watch('timezone').phone}
                               </InputAdornment>
                             ),
                           }}
@@ -436,9 +441,18 @@ const PersonalInfoManager = () => {
                           }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.phone)}
-                          placeholder={`+${
-                            watch('timezone').phone
-                          }) 012 345 6789`}
+                          placeholder={
+                            !watch('timezone').phone
+                              ? `+ 1) 012 345 6789`
+                              : `012 345 6789`
+                          }
+                          InputProps={{
+                            startAdornment: watch('timezone').phone && (
+                              <InputAdornment position='start'>
+                                {'+' + watch('timezone').phone}
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       )}
                     />
@@ -467,9 +481,18 @@ const PersonalInfoManager = () => {
                           }}
                           inputProps={{ maxLength: 50 }}
                           error={Boolean(errors.fax)}
-                          placeholder={`+${
-                            watch('timezone').phone
-                          }) 012 345 6789`}
+                          placeholder={
+                            !watch('timezone').phone
+                              ? `+ 1) 012 345 6789`
+                              : `012 345 6789`
+                          }
+                          InputProps={{
+                            startAdornment: watch('timezone').phone && (
+                              <InputAdornment position='start'>
+                                {'+' + watch('timezone').phone}
+                              </InputAdornment>
+                            ),
+                          }}
                         />
                       )}
                     />
@@ -505,13 +528,17 @@ PersonalInfoManager.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
+// PersonalInfoManager.acl = {
+//   action: 'RE0008',
+//   subject: 'LPM',
+// }
+// PersonalInfoManager.acl = {
+//   action: 'RE0008',
+//   subject: 'TAD',
+// }
 PersonalInfoManager.acl = {
   action: 'RE0008',
-  subject: 'LPM',
-}
-PersonalInfoManager.acl = {
-  action: 'RE0008',
-  subject: 'TAD',
+  subject: 'PRO',
 }
 
 PersonalInfoManager.guestGuard = false
