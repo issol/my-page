@@ -56,8 +56,8 @@ export const profileSchema = yup.object().shape({
         .object()
         .nullable()
         .shape({
-          label: yup.string().required('This field is required').nullable(),
-          value: yup.string().required('This field is required').nullable(),
+          label: yup.string().nullable(),
+          value: yup.string().nullable(),
         })
         .nullable(),
     )
