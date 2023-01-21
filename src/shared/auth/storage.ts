@@ -1,8 +1,14 @@
 // ** Config
 import authConfig from 'src/configs/auth'
 import { UserDataType } from 'src/context/types'
-
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
+
+export function removeAllStorage() {
+  if (typeof window === 'object') {
+    window.localStorage.clear()
+  }
+}
+
 /* UserData */
 export function getUserDataFromBrowser() {
   if (typeof window === 'object') {
