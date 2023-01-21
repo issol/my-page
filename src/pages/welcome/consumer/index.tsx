@@ -291,7 +291,7 @@ const PersonalInfoPro = () => {
   )
 
   function isInvalidPhoneNumber(str: string) {
-    const regex = /^[0-9+) ]+$/
+    const regex = /^[0-9]+$/
     return str && !regex.test(str)
   }
 
@@ -745,9 +745,18 @@ const PersonalInfoPro = () => {
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.mobile)}
-                            placeholder={`+${
-                              watch('timezone').phone
-                            }) 012 345 6789`}
+                            placeholder={
+                              !watch('timezone').phone
+                                ? `+ 1) 012 345 6789`
+                                : `012 345 6789`
+                            }
+                            InputProps={{
+                              startAdornment: watch('timezone').phone && (
+                                <InputAdornment position='start'>
+                                  {'+' + watch('timezone').phone}
+                                </InputAdornment>
+                              ),
+                            }}
                           />
                         )}
                       />
@@ -777,9 +786,18 @@ const PersonalInfoPro = () => {
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.phone)}
-                            placeholder={`+${
-                              watch('timezone').phone
-                            }) 012 345 6789`}
+                            placeholder={
+                              !watch('timezone').phone
+                                ? `+ 1) 012 345 6789`
+                                : `012 345 6789`
+                            }
+                            InputProps={{
+                              startAdornment: watch('timezone').phone && (
+                                <InputAdornment position='start'>
+                                  {'+' + watch('timezone').phone}
+                                </InputAdornment>
+                              ),
+                            }}
                           />
                         )}
                       />
