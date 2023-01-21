@@ -1,6 +1,5 @@
 // ** React Imports
 import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
-import authConfig from 'src/configs/auth'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -70,6 +69,7 @@ import {
   updateConsumerUserInfo,
 } from 'src/apis/user.api'
 import axios from 'axios'
+import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -307,7 +307,7 @@ const PersonalInfoPro = () => {
                 'Content-Type': 'multipart/form-data',
                 Authorization:
                   'Bearer ' + typeof window === 'object'
-                    ? localStorage.getItem(authConfig.storageTokenKeyName)
+                    ? getUserTokenFromBrowser()
                     : null,
               },
             })
