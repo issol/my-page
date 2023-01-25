@@ -1,6 +1,5 @@
 // ** React Imports
 import { useState, ReactNode, useEffect, useContext, Fragment } from 'react'
-import authConfig from 'src/configs/auth'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -70,6 +69,7 @@ import {
   updateConsumerUserInfo,
 } from 'src/apis/user.api'
 import axios from 'axios'
+import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -155,13 +155,13 @@ const PersonalInfoPro = () => {
       setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
     },
   })
-  /* TODO: 주석해제 */
-  // useEffect(() => {
-  //   if (auth.user?.firstName) {
-  //     const role = auth.user.role.length ? auth.user.role[0] : null
-  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
-  //   }
-  // }, [auth])
+
+  useEffect(() => {
+    if (auth.user?.firstName) {
+      const role = auth.user.role.length ? auth.user.role[0] : null
+      router.replace(`/${role?.toLowerCase()}/dashboard`)
+    }
+  }, [auth])
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -291,7 +291,7 @@ const PersonalInfoPro = () => {
   )
 
   function isInvalidPhoneNumber(str: string) {
-    const regex = /^[0-9+) ]+$/
+    const regex = /^[0-9]+$/
     return str && !regex.test(str)
   }
 
@@ -307,7 +307,7 @@ const PersonalInfoPro = () => {
                 'Content-Type': 'multipart/form-data',
                 Authorization:
                   'Bearer ' + typeof window === 'object'
-                    ? localStorage.getItem(authConfig.storageTokenKeyName)
+                    ? getUserTokenFromBrowser()
                     : null,
               },
             })
@@ -745,9 +745,18 @@ const PersonalInfoPro = () => {
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.mobile)}
-                            placeholder={`+${
-                              watch('timezone').phone
-                            }) 012 345 6789`}
+                            placeholder={
+                              !watch('timezone').phone
+                                ? `+ 1) 012 345 6789`
+                                : `012 345 6789`
+                            }
+                            InputProps={{
+                              startAdornment: watch('timezone').phone && (
+                                <InputAdornment position='start'>
+                                  {'+' + watch('timezone').phone}
+                                </InputAdornment>
+                              ),
+                            }}
                           />
                         )}
                       />
@@ -777,9 +786,18 @@ const PersonalInfoPro = () => {
                             }}
                             inputProps={{ maxLength: 50 }}
                             error={Boolean(errors.phone)}
-                            placeholder={`+${
-                              watch('timezone').phone
-                            }) 012 345 6789`}
+                            placeholder={
+                              !watch('timezone').phone
+                                ? `+ 1) 012 345 6789`
+                                : `012 345 6789`
+                            }
+                            InputProps={{
+                              startAdornment: watch('timezone').phone && (
+                                <InputAdornment position='start'>
+                                  {'+' + watch('timezone').phone}
+                                </InputAdornment>
+                              ),
+                            }}
                           />
                         )}
                       />

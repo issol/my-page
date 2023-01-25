@@ -13,11 +13,9 @@ import Box, { BoxProps } from '@mui/material/Box'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
-// ** Config
-import authConfig from 'src/configs/auth'
-
 // ** Demo Imports
 import FooterIllustrations from 'src/views/pages/misc/FooterIllustrations'
+import { removeUserTokenFromBrowser } from 'src/shared/auth/storage'
 
 // ** Styled Components
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
@@ -72,7 +70,7 @@ const Error401 = () => {
           variant='contained'
           sx={{ px: 5.5 }}
           onClick={() => {
-            window.localStorage.removeItem(authConfig.storageTokenKeyName)
+            removeUserTokenFromBrowser()
             window.location.href = '/'
           }}
         >

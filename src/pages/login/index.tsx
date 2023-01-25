@@ -27,17 +27,15 @@ import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
-import { useSettings } from 'src/@core/hooks/useSettings'
-
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
-import authConfig from 'src/configs/auth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
+import { gerRememberMe, removeRememberMe } from 'src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -105,7 +103,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (typeof window === 'object') {
-      const storedId = window.localStorage.getItem(authConfig.rememberId)
+      const storedId = gerRememberMe()
       if (storedId) {
         setRememberMe(true)
         setValue('email', storedId, { shouldDirty: true, shouldValidate: true })
@@ -361,10 +359,7 @@ const LoginPage = () => {
                         name='rememberMe'
                         checked={rememberMe}
                         onChange={e => {
-                          if (!e.target.checked)
-                            window.localStorage.removeItem(
-                              authConfig.rememberId,
-                            )
+                          if (!e.target.checked) removeRememberMe()
                           setRememberMe(e.target.checked)
                         }}
                       />

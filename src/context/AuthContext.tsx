@@ -28,6 +28,16 @@ import { loginResType } from 'src/types/sign/signInTypes'
 import { ModalContext } from './ModalContext'
 import { Box } from '@mui/system'
 import { Button, Dialog, Typography } from '@mui/material'
+import {
+  getUserDataFromBrowser,
+  getUserTokenFromBrowser,
+  removeRememberMe,
+  removeUserDataFromBrowser,
+  removeUserTokenFromBrowser,
+  saveRememberMe,
+  saveUserDataToBrowser,
+  saveUserTokenToBrowser,
+} from 'src/shared/auth/storage'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -65,17 +75,15 @@ const AuthProvider = ({ children }: Props) => {
     const initAuth = async (): Promise<void> => {
       router.pathname === '/' && router.replace('/login')
 
-      const storedToken = window.localStorage.getItem(
-        authConfig.storageTokenKeyName,
-      )!
+      const storedToken = getUserTokenFromBrowser()!
 
       if (storedToken) {
         setLoading(true)
-        window.localStorage.getItem('userData') &&
-          setUser(JSON?.parse(window.localStorage.getItem('userData') || ''))
+        getUserDataFromBrowser() &&
+          setUser(JSON?.parse(getUserDataFromBrowser() || ''))
         setLoading(false)
       } else {
-        window.localStorage.removeItem('userData')
+        removeUserDataFromBrowser()
         setLoading(false)
       }
     }
@@ -122,8 +130,7 @@ const AuthProvider = ({ children }: Props) => {
           timezone: profile.timezone,
           permission: [...permission.permissions],
         }
-
-        window.localStorage.setItem('userData', JSON.stringify(userInfo))
+        saveUserDataToBrowser(userInfo)
         setUser(userInfo)
       })
       .catch(e => {
@@ -146,13 +153,9 @@ const AuthProvider = ({ children }: Props) => {
           }
         })
 
-        params.rememberMe
-          ? window.localStorage.setItem(authConfig.rememberId, params.email)
-          : window.localStorage.removeItem(authConfig.rememberId)
-        window.localStorage.setItem(
-          authConfig.storageTokenKeyName,
-          response.accessToken,
-        )
+        params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
+
+        saveUserTokenToBrowser(response.accessToken)
 
         // const returnUrl = router.query.returnUrl
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
@@ -168,9 +171,8 @@ const AuthProvider = ({ children }: Props) => {
 
   const handleLogout = () => {
     setUser(null)
-    window.localStorage.removeItem('userData')
-    window.localStorage.removeItem(authConfig.storageTokenKeyName)
-    window.localStorage.removeItem('policy')
+    removeUserDataFromBrowser()
+    removeUserTokenFromBrowser()
     logout()
     router.push('/login')
   }
