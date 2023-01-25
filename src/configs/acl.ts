@@ -1,9 +1,6 @@
 import { AbilityBuilder, Ability } from '@casl/ability'
 import { RoleType } from 'src/types/apps/userTypes'
 
-export type Subjects_Permission = Array<string> //permission
-export type Actions_Roles = Array<RoleType>
-
 /* TODO :
 서버에서 받는 값
   - user permission에 대한 값
@@ -39,37 +36,27 @@ interface PerObjType {
 /* for test start */
 const perObj: PerObjType = {
   RE0008: { subject: 'User', can: ['read', 'update'] },
-  M4639: { subject: 'User', can: ['read', 'update'] },
-  C0723: { subject: 'User', can: ['read', 'update'] },
-  C6534: { subject: 'User', can: ['read', 'update'] },
-  C9111: { subject: 'User', can: ['read', 'update'] },
   BU1152: { subject: 'Manager-Profile', can: ['read', 'update'] },
   BU1777: {
     subject: 'Pro-Profile',
     can: ['read', 'update'],
     option: { update: { authorOnly: true } },
   }, //profile update
-  B1072: { subject: 'User', can: ['read', 'update'] },
-  BP9001: { subject: 'User', can: ['read', 'update'] },
-  TE0650: { subject: 'User', can: ['read', 'update'] },
-  JK7777: { subject: 'User', can: ['read', 'update'] },
-  EV6630: { subject: 'User', can: ['read', 'update'] },
-  MB0333: { subject: 'User', can: ['read', 'update'] },
-  IK9400: { subject: 'User', can: ['read', 'update'] },
 }
 
-export type Action = Array<'create' | 'read' | 'update' | 'delete'>
-export type Subject = string
+export type Action = 'all' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects = Array<string>
 
 /* for test end */
 
-export type AppAbility = Ability<[any, any]> | undefined
-
+export type AppAbility = Ability<[string, Subjects]> | undefined
 export const AppAbility = Ability as any
+
 export type ACLObj = {
-  action: Subjects_Permission
-  subject: Actions_Roles
+  action: Action
+  subject: Subjects
 }
+
 export type PolicyType = {
   [key: string]: {
     create: boolean
@@ -79,28 +66,16 @@ export type PolicyType = {
   }
 }
 
-/**
- * Please define your own Ability rules according to your app requirements.
- * We have just shown Admin and Client rules for demo purpose where
- * admin can manage everything and client can just visit ACL page
- */
-const defineRulesFor = (
-  perObj: PerObjType,
-  permission: Subjects_Permission,
-) => {
+const defineRulesFor = (perObj: PerObjType, permission: Subjects) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
+
   permission.forEach(per => {
     can(perObj[per].can, perObj[per].subject)
   })
-  console.log(rules)
-
   return rules
 }
 
-export const buildAbilityFor = (
-  permission: Subjects_Permission,
-  role: Array<RoleType>,
-): AppAbility => {
+export const buildAbilityFor = (permission: Subjects): AppAbility => {
   return new AppAbility(defineRulesFor(perObj, permission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
@@ -109,8 +84,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: ['L8870'],
-  subject: ['TAD'],
+  action: 'create',
+  subject: ['User'],
 }
 
 export default defineRulesFor
