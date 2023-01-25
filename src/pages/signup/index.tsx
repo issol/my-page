@@ -108,6 +108,7 @@ const schema = yup.object().shape({
     .required('This field is required'),
   password: yup
     .string()
+    .required('This field is required')
     .test('password-validation', '', (val: any) => {
       return (
         val.length >= 9 &&
@@ -117,8 +118,8 @@ const schema = yup.object().shape({
         /[0-9]/g.test(val) &&
         /[$@$!%*#?&]/g.test(val)
       )
-    })
-    .required('This field is required'),
+    }),
+
   terms: yup.bool().oneOf([true], 'Field must be checked'),
 })
 
@@ -235,6 +236,11 @@ const SignUpPage = () => {
     },
   })
 
+  function validatePinLength() {
+    if (pin.length < 7) setPinError('This field is required')
+    else setPinError('')
+  }
+
   useEffect(() => {
     // validation
     const beforeState = cloneDeep(validationNewPassword)
@@ -260,7 +266,7 @@ const SignUpPage = () => {
     // const { email, password } = data
     setStep(2)
   }
-
+  console.log(errors)
   const onRoleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RoleType
     const filtered = role.filter(item => item !== value)
@@ -794,12 +800,12 @@ const SignUpPage = () => {
               <TypographyStyled variant='body1'>
                 {getValues('email')}
               </TypographyStyled>
-              <Box mt={8}>
+              <Box mt={8} onBlur={validatePinLength}>
                 <PinInput
                   length={7}
                   focus
                   onChange={value => {
-                    setPinError('')
+                    validatePinLength()
                     setPin(value)
                   }}
                   onComplete={value => {

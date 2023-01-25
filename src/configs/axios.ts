@@ -1,5 +1,10 @@
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import authConfig from 'src/configs/auth'
+import {
+  getUserTokenFromBrowser,
+  removeUserTokenFromBrowser,
+  saveUserTokenToBrowser,
+} from 'src/shared/auth/storage'
 
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
@@ -20,30 +25,18 @@ const instance = axios.create({
   headers: {
     Accept: 'application/json',
     Authorization:
-      'Bearer ' + typeof window === 'object'
-        ? localStorage.getItem(authConfig.storageTokenKeyName)
-        : null,
+      'Bearer ' + typeof window === 'object' ? getUserTokenFromBrowser() : null,
   },
   timeout: 10000,
   withCredentials: true,
 })
 
 export const setHeaderToken = (token: string) => {
-  if (typeof window === 'object') {
-    localStorage.setItem(authConfig.storageTokenKeyName, token)
-  }
+  saveUserTokenToBrowser(token)
 }
 
 export const getHeaderToken = () => {
-  if (typeof window === 'object') {
-    return localStorage.getItem(authConfig.storageTokenKeyName)
-  }
-}
-
-export const getEmail = () => {
-  if (typeof window === 'object') {
-    return localStorage.getItem('email') ?? ''
-  }
+  return getUserTokenFromBrowser()
 }
 
 instance.interceptors.request.use(
@@ -80,9 +73,7 @@ instance.interceptors.response.use(
           isTokenRefreshing = false
           window.location.href = '/login'
 
-          localStorage.removeItem(authConfig.storageTokenKeyName)
-          localStorage.removeItem('email')
-          localStorage.removeItem('role')
+          removeUserTokenFromBrowser()
 
           return Promise.reject(error)
         } else {

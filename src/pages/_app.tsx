@@ -85,6 +85,7 @@ import {
 } from 'src/shared/sentry-provider'
 import { googleAuth } from 'src/apis/sign.api'
 import Script from 'next/script'
+import { removeAllStorage } from 'src/shared/auth/storage'
 
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
@@ -203,6 +204,11 @@ const App = (props: ExtendedAppProps) => {
   // pushNotification?.fireNotificationWithTimeout('Welcome to TAD DEMO', 50000, {
   //   body: `Welcome to TAD DEMO`,
   // })
+
+  //** TODO: QA동안 유지하고 삭제하기 */
+  useEffect(() => {
+    removeAllStorage()
+  }, [])
 
   useEffect(() => {
     generateGoogleLoginButton()
