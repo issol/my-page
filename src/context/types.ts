@@ -1,11 +1,12 @@
 import { Dispatch, SetStateAction } from 'react'
-import { RoleType } from 'src/types/apps/userTypes'
 import { loginResType } from 'src/types/sign/signInTypes'
 import {
   CountryType,
   JobInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+
+export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any

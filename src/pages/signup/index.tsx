@@ -42,7 +42,7 @@ import {
   validateRole,
   verifyPinCode,
 } from 'src/apis/sign.api'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 import { useMutation } from 'react-query'
 
 // ** Third Party Components

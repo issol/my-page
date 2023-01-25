@@ -22,7 +22,7 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 
 interface Props {
   settings: Settings

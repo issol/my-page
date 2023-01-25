@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { loginResType } from 'src/types/sign/signInTypes'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 
 export const login = async (
   email: string,

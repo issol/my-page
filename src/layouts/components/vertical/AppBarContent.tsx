@@ -19,7 +19,7 @@ import NotificationDropdown, {
 import ShortcutsDropdown, {
   ShortcutsType,
 } from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 
 interface Props {
   hidden: boolean

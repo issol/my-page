@@ -35,8 +35,7 @@ import { useAuth } from 'src/hooks/useAuth'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
-import { checkEmailDuplication } from 'src/apis/sign.api'
-import { RoleType } from 'src/types/apps/userTypes'
+
 import { useMutation } from 'react-query'
 
 // ** Data
