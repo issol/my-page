@@ -25,7 +25,6 @@ import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
 import { getUserRoleNPermission } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
-import { ModalContext } from './ModalContext'
 import { Box } from '@mui/system'
 import { Button, Dialog, Typography } from '@mui/material'
 import {

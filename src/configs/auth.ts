@@ -5,4 +5,6 @@ export default {
   storageTokenKeyName: 'accessToken',
   onTokenExpiration: 'refreshToken', // logout | refreshToken
   rememberId: 'rememberId',
+  userInfo: 'userData',
+  permission: 'enough_permission',
 }

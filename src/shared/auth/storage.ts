@@ -12,19 +12,19 @@ export function removeAllStorage() {
 /* UserData */
 export function getUserDataFromBrowser() {
   if (typeof window === 'object') {
-    return window.sessionStorage.getItem('userData')
+    return window.sessionStorage.getItem(authConfig.userInfo)
   }
 }
 
 export function saveUserDataToBrowser(userData: UserDataType) {
   if (typeof window === 'object') {
-    window.sessionStorage.setItem('userData', JSON.stringify(userData))
+    window.sessionStorage.setItem(authConfig.userInfo, JSON.stringify(userData))
   }
 }
 
 export function removeUserDataFromBrowser() {
   if (typeof window === 'object') {
-    window.sessionStorage.removeItem('userData')
+    window.sessionStorage.removeItem(authConfig.userInfo)
   }
 }
 
@@ -63,5 +63,24 @@ export function saveRememberMe(email: string) {
 export function removeRememberMe() {
   if (typeof window === 'object') {
     window.localStorage.removeItem(authConfig.rememberId)
+  }
+}
+
+/* Enough 전체 permission 정보 */
+export function getAllPermission() {
+  if (typeof window === 'object') {
+    return window.localStorage.getItem(authConfig.permission)
+  }
+}
+
+export function saveAllPermission(permission: any) {
+  if (typeof window === 'object') {
+    window.localStorage.setItem(authConfig.permission, permission)
+  }
+}
+
+export function removeAllPermission() {
+  if (typeof window === 'object') {
+    window.localStorage.removeItem(authConfig.permission)
   }
 }
