@@ -1,5 +1,5 @@
 import { AbilityBuilder, Ability } from '@casl/ability'
-import { RoleType } from 'src/types/apps/userTypes'
+import { PermissionObjectType } from 'src/context/types'
 
 /* TODO :
 서버에서 받는 값
@@ -25,29 +25,8 @@ import { RoleType } from 'src/types/apps/userTypes'
   
 */
 
-interface PerObjType {
-  [key: string]: {
-    subject: string
-    can: string[]
-    option?: any
-  }
-}
-
-/* for test start */
-const perObj: PerObjType = {
-  RE0008: { subject: 'User', can: ['read', 'update'] },
-  BU1152: { subject: 'Manager-Profile', can: ['read', 'update'] },
-  BU1777: {
-    subject: 'Pro-Profile',
-    can: ['read', 'update'],
-    option: { update: { authorOnly: true } },
-  }, //profile update
-}
-
 export type Action = 'all' | 'create' | 'read' | 'update' | 'delete'
 export type Subjects = Array<string>
-
-/* for test end */
 
 export type AppAbility = Ability<[string, Subjects]> | undefined
 export const AppAbility = Ability as any
@@ -66,16 +45,19 @@ export type PolicyType = {
   }
 }
 
-const defineRulesFor = (perObj: PerObjType, permission: Subjects) => {
+const defineRulesFor = (perObj: PermissionObjectType, permission: Subjects) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
 
   permission.forEach(per => {
-    can(perObj[per].can, perObj[per].subject)
+    if (perObj[per]) can(perObj[per]?.can, perObj[per]?.subject)
   })
   return rules
 }
 
-export const buildAbilityFor = (permission: Subjects): AppAbility => {
+export const buildAbilityFor = (
+  perObj: PermissionObjectType,
+  permission: Subjects,
+): AppAbility => {
   return new AppAbility(defineRulesFor(perObj, permission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore

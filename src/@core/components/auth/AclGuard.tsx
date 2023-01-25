@@ -20,6 +20,10 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
 
+/* redux */
+import { useSelector } from 'react-redux'
+import { RootState } from 'src/store'
+
 interface AclGuardProps {
   children: ReactNode
   guestGuard: boolean
@@ -31,6 +35,8 @@ const AclGuard = (props: AclGuardProps) => {
   const { aclAbilities, children, guestGuard } = props
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
+
+  const permission = useSelector((state: RootState) => state.permission)
 
   // ** Hooks
   const auth = useAuth()
@@ -48,7 +54,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   // User is logged in, build ability for the user based on his role
   if (auth.user && auth.user.permission && !ability) {
-    setAbility(buildAbilityFor(auth.user.permission))
+    setAbility(buildAbilityFor(permission.data, auth.user.permission))
   }
 
   // Check the access of current user and render pages

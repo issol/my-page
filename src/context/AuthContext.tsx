@@ -38,6 +38,11 @@ import {
   saveUserTokenToBrowser,
 } from 'src/shared/auth/storage'
 
+/* redux */
+import { useDispatch } from 'react-redux'
+import { AppDispatch, RootState } from 'src/store'
+import { gerPermission } from 'src/store/permission'
+
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
@@ -67,6 +72,8 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
+  const dispatch = useDispatch<AppDispatch>()
+
   // ** Hooks
   const router = useRouter()
 
@@ -81,6 +88,7 @@ const AuthProvider = ({ children }: Props) => {
         getUserDataFromBrowser() &&
           setUser(JSON?.parse(getUserDataFromBrowser() || ''))
         setLoading(false)
+        dispatch(gerPermission())
       } else {
         removeUserDataFromBrowser()
         setLoading(false)

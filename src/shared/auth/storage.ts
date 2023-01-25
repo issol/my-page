@@ -65,22 +65,3 @@ export function removeRememberMe() {
     window.localStorage.removeItem(authConfig.rememberId)
   }
 }
-
-/* Enough 전체 permission 정보 */
-export function getAllPermission() {
-  if (typeof window === 'object') {
-    return window.localStorage.getItem(authConfig.permission)
-  }
-}
-
-export function saveAllPermission(permission: any) {
-  if (typeof window === 'object') {
-    window.localStorage.setItem(authConfig.permission, permission)
-  }
-}
-
-export function removeAllPermission() {
-  if (typeof window === 'object') {
-    window.localStorage.removeItem(authConfig.permission)
-  }
-}

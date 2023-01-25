@@ -68,3 +68,11 @@ export type AuthValuesType = {
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void
   register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void
 }
+
+export interface PermissionObjectType {
+  [key: string]: {
+    subject: string
+    can: string[]
+    option?: any
+  }
+}

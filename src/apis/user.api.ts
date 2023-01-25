@@ -30,24 +30,6 @@ export const getUserRoleNPermission = async (
   }
 }
 
-/* TODO : 백엔드와 논의하여 데이터 타입 정의한 후 수정하기. */
-export const getAllPermissionOfEnough = async () => {
-  try {
-    const { data } = await axios.get(`/api/enough/a/per/al`)
-    return {
-      RE0008: { subject: 'User', can: ['read', 'update'] },
-      BU1152: { subject: 'Manager-Profile', can: ['read', 'update'] },
-      BU1777: {
-        subject: 'Pro-Profile',
-        can: ['read', 'update'],
-        option: { update: { authorOnly: true } },
-      },
-    }
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
   userInfo: ConsumerUserInfoType & { userId: number },
