@@ -40,7 +40,8 @@ const TadRecruitingList = () => {
 
 export default TadRecruitingList
 
+// ** TODO : 렐과 상의 후 변경
 TadRecruitingList.acl = {
-  action: 'recruitingList-read',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

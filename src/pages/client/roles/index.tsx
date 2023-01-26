@@ -247,11 +247,12 @@ const ClientManageRoles = () => {
     }
   }, [selectedCheckbox])
   useEffect(() => {
-    dispatch(
-      fetchTestUser({
-        role: auth.user ? auth.user.role[0] : '',
-      }),
-    )
+    // ** TODO : 해당 페이지 사용하지 않는 거면 삭제하기
+    // dispatch(
+    //   fetchTestUser({
+    //     role: auth.user ? auth.user.role[0] : '',
+    //   }),
+    // )
   }, [dispatch])
 
   const columns = [
@@ -294,7 +295,7 @@ const ClientManageRoles = () => {
             noWrap
             sx={{ color: 'text.secondary', textTransform: 'capitalize' }}
           >
-            {row.role}
+            {/* {row.role} */}
           </Typography>
         )
       },

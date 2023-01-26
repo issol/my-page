@@ -40,7 +40,8 @@ const TadEmail = () => {
 
 export default TadEmail
 
+// ** TODO : 렐과 상의 후 변경
 TadEmail.acl = {
-  action: 'MB0333',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

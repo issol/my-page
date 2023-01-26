@@ -46,6 +46,7 @@ import { managerProfileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -89,6 +90,9 @@ const defaultValues = {
 const PersonalInfoManager = () => {
   const { setModal } = useContext(ModalContext)
 
+  // ** redux
+  const userAccess = useAppSelector(state => state.userAccess)
+
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -103,7 +107,7 @@ const PersonalInfoManager = () => {
 
   useEffect(() => {
     if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
+      const role = userAccess.role.length ? userAccess.role[0] : null
       router.replace(`/${role?.toLowerCase()}/dashboard`)
     }
   }, [auth])
@@ -132,7 +136,7 @@ const PersonalInfoManager = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          if (auth.user?.role.includes('TAD')) {
+          if (userAccess.role?.includes('TAD')) {
             router.push('/tad/dashboard')
           } else {
             router.push('/lpm/dashboard')
@@ -535,8 +539,8 @@ PersonalInfoManager.getLayout = (page: ReactNode) => (
 )
 
 PersonalInfoManager.acl = {
-  action: 'RE0008',
-  subject: 'LPM',
+  subject: 'personalInfo_manager',
+  action: 'read',
 }
 
 PersonalInfoManager.guestGuard = false

@@ -69,6 +69,7 @@ import {
 } from 'src/apis/user.api'
 import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -122,6 +123,9 @@ interface FileProp {
 const PersonalInfoPro = () => {
   const { setModal } = useContext(ModalContext)
 
+  // ** redux
+  const userAccess = useAppSelector(state => state.userAccess)
+
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -157,7 +161,7 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
+      const role = userAccess.role.length ? userAccess.role[0] : null
       router.replace(`/${role?.toLowerCase()}/dashboard`)
     }
   }, [auth])
@@ -243,7 +247,7 @@ const PersonalInfoPro = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          if (auth.user?.role.includes('PRO')) {
+          if (userAccess.role?.includes('PRO')) {
             router.push('/pro/dashboard')
           } else {
             router.push('/client/dashboard')
@@ -1298,13 +1302,9 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
 PersonalInfoPro.guestGuard = false
 
 PersonalInfoPro.acl = {
-  action: 'RE0008',
-  subject: 'PRO',
+  action: 'read',
+  subject: 'personalInfo_pro',
 }
-// PersonalInfoPro.acl = {
-//   action: 'RE0008',
-//   subject: 'CLIENT',
-// }
 
 export default PersonalInfoPro
 

@@ -292,7 +292,8 @@ const TadCompany = () => {
 
 export default TadCompany
 
+// ** TODO : 렐과 상의 후 변경
 TadCompany.acl = {
-  action: 'L8870',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

@@ -36,7 +36,8 @@ const ProMyPage = () => {
 }
 export default ProMyPage
 
+// ** TODO : 렐과 상의 후 변경
 ProMyPage.acl = {
-  action: 'BP9001',
-  subject: 'PRO',
+  action: 'read',
+  subject: 'members',
 }

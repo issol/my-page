@@ -41,7 +41,8 @@ const TadDashboard = () => {
 
 export default TadDashboard
 
+// ** TODO : 렐과 문의 후 수정하기
 TadDashboard.acl = {
-  action: 'B1072',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

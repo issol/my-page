@@ -40,7 +40,8 @@ const TadJobPosting = () => {
 
 export default TadJobPosting
 
+// ** TODO : 렐과 상의 후 변경
 TadJobPosting.acl = {
-  action: 'jobPosting-read',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }
