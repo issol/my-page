@@ -45,7 +45,7 @@ import {
 import { managerProfileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 
-import { updateManagerUserInfo } from 'src/apis/user.api'
+import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -101,12 +101,12 @@ const PersonalInfoManager = () => {
     return str && !regex.test(str)
   }
 
-  useEffect(() => {
-    if (auth.user?.firstName) {
-      const role = auth.user.role.length ? auth.user.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
-    }
-  }, [auth])
+  // useEffect(() => {
+  //   if (auth.user?.firstName) {
+  //     const role = auth.user.role.length ? auth.user.role[0] : null
+  //     router.replace(`/${role?.toLowerCase()}/dashboard`)
+  //   }
+  // }, [auth])
 
   const {
     control,
@@ -126,12 +126,13 @@ const PersonalInfoManager = () => {
       updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
-        if (auth.user?.role.includes('TAD')) {
-          router.push('/tad/dashboard')
-        } else {
-          router.push('/lpm/dashboard')
-        }
-        return
+        getUserInfo(auth.user?.email as string).then(res => {
+          if (auth.user?.role.includes('TAD')) {
+            router.push('/tad/dashboard')
+          } else {
+            router.push('/lpm/dashboard')
+          }
+        })
       },
       onError: () => {
         setModal(
