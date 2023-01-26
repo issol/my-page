@@ -127,6 +127,7 @@ const PersonalInfoManager = () => {
     {
       onSuccess: () => {
         getUserInfo(auth.user?.email as string).then(res => {
+          console.log(auth)
           if (auth.user?.role.includes('TAD')) {
             router.push('/tad/dashboard')
           } else {
