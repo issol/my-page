@@ -91,26 +91,6 @@ const AuthProvider = ({ children }: Props) => {
     initAuth()
   }, [])
 
-  useEffect(() => {
-    if (user === null) return
-    if (!user.firstName) {
-      if (user.role.includes('PRO')) {
-        router.replace('/welcome/consumer')
-        /** TODO:
-         acl에서 role을 체크하는 부분 때문에 부득이하게 같은 페이지를 두개 만들어 routing.
-         추후 acl에서 role은 체크하지 않도록 수정이 필요함
-         1. 수정되면 조건문 수정
-            else if(user.role.includes('TAD') || user.role.includes('LPM')) router.replace('/welcome/manager')
-         2. 불필요해진 페이지 삭제
-       */
-      } else if (user.role.includes('TAD')) {
-        router.replace('/welcome/manager/tad')
-      } else if (user.role.includes('LPM')) {
-        router.replace('/welcome/manager/lpm')
-      }
-    }
-  }, [user])
-
   async function updateUserInfo(response: loginResType) {
     Promise.all([
       getUserInfo(response.email),
@@ -128,6 +108,7 @@ const AuthProvider = ({ children }: Props) => {
           }`,
           firstName: profile.firstName,
           timezone: profile.timezone,
+
           permission: [...permission.permissions],
         }
         saveUserDataToBrowser(userInfo)
