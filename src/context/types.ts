@@ -25,9 +25,9 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: Array<RoleType>
+  // role: Array<RoleType>
   email: string
-  permission: Array<string>
+  // permission: Array<string>
   company?: string
   country?: string
   firstName?: string
@@ -70,10 +70,7 @@ export type AuthValuesType = {
   register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void
 }
 
-export interface PermissionObjectType {
-  [key: string]: {
-    subject: string
-    can: string[]
-    option?: any
-  }
-}
+export type PermissionObjectType = Array<{
+  subject: string
+  can: Array<'all' | 'create' | 'read' | 'update' | 'delete'>
+}>

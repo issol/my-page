@@ -26,7 +26,7 @@ import { PermissionObjectType } from 'src/context/types'
 */
 
 export type Action = 'all' | 'create' | 'read' | 'update' | 'delete'
-export type Subjects = Array<string>
+export type Subjects = string
 
 export type AppAbility = Ability<[string, Subjects]> | undefined
 export const AppAbility = Ability as any
@@ -45,20 +45,20 @@ export type PolicyType = {
   }
 }
 
-const defineRulesFor = (perObj: PermissionObjectType, permission: Subjects) => {
+const defineRulesFor = (userPermission: PermissionObjectType) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
-
-  permission.forEach(per => {
-    if (perObj[per]) can(perObj[per]?.can, perObj[per]?.subject)
-  })
+  if (userPermission.length) {
+    userPermission.forEach(permission => {
+      can(permission.can, permission.subject)
+    })
+  }
   return rules
 }
 
 export const buildAbilityFor = (
-  perObj: PermissionObjectType,
-  permission: Subjects,
+  userPermission: PermissionObjectType,
 ): AppAbility => {
-  return new AppAbility(defineRulesFor(perObj, permission), {
+  return new AppAbility(defineRulesFor(userPermission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
     detectSubjectType: object => object!.type,
@@ -66,8 +66,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: 'create',
-  subject: ['User'],
+  action: 'read',
+  subject: '',
 }
 
 export default defineRulesFor

@@ -36,7 +36,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
-  const permission = useSelector((state: RootState) => state.permission)
+  const userAccess = useSelector((state: RootState) => state.userAccess)
 
   // ** Hooks
   const auth = useAuth()
@@ -53,8 +53,8 @@ const AclGuard = (props: AclGuardProps) => {
   }
 
   // User is logged in, build ability for the user based on his role
-  if (auth.user && auth.user.permission && !ability) {
-    setAbility(buildAbilityFor(permission.data, auth.user.permission))
+  if (auth.user && userAccess.permission.length && !ability) {
+    setAbility(buildAbilityFor(userAccess.permission))
   }
 
   // Check the access of current user and render pages
