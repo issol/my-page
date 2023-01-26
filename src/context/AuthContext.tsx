@@ -23,7 +23,6 @@ import {
 import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
-import { getUserRoleNPermission } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
 import { Box } from '@mui/system'
 import { Button, Dialog, Typography } from '@mui/material'
@@ -39,9 +38,8 @@ import {
 } from 'src/shared/auth/storage'
 
 /* redux */
-import { useDispatch } from 'react-redux'
-import { AppDispatch } from 'src/store'
 import { getPermission, getRole } from 'src/store/permission'
+import { useAppDispatch } from 'src/hooks/useRedux'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -72,7 +70,7 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
-  const dispatch = useDispatch<AppDispatch>()
+  const dispatch = useAppDispatch()
 
   // ** Hooks
   const router = useRouter()

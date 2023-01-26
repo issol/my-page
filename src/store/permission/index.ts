@@ -21,11 +21,19 @@ export const getPermission = createAsyncThunk(
       return [
         {
           subject: 'members',
-          can: ['read', 'create', 'delete'],
+          can: ['read', 'create', 'update', 'delete'],
         },
         {
           subject: 'permission_request',
-          can: ['read', 'update'],
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'personalInfo_pro',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'personalInfo_manager',
+          can: ['read', 'create', 'update', 'delete'],
         },
       ]
     } catch (e: any) {
@@ -35,7 +43,7 @@ export const getPermission = createAsyncThunk(
 )
 
 export const getRole = createAsyncThunk(
-  'permissions/gerPermissions',
+  'permissions/getRoles',
   async (userId: number) => {
     try {
       const { data } = await axios.get(
@@ -50,7 +58,7 @@ export const getRole = createAsyncThunk(
 
 const initialState: {
   permission: PermissionObjectType
-  role: Array<RoleType> | []
+  role: Array<RoleType>
 } = {
   permission: [{ subject: '', can: ['read'] }],
   role: [],
@@ -68,7 +76,7 @@ export const permissionSlice = createSlice({
       state.permission = initialState.permission
     })
     builder.addCase(getRole.fulfilled, (state, action) => {
-      state.role = action.payload
+      state.role = action.payload.roles
     })
     builder.addCase(getRole.rejected, (state, action) => {
       state.role = initialState.role

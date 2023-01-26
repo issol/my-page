@@ -67,7 +67,7 @@ export const buildAbilityFor = (
 
 export const defaultACLObj: ACLObj = {
   action: 'read',
-  subject: '',
+  subject: 'acl-page',
 }
 
 export default defineRulesFor

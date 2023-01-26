@@ -28,6 +28,7 @@ import { Button } from '@mui/material'
 import { RoleType } from 'src/context/types'
 import { useRouter } from 'next/router'
 import { ACLObj, AppAbility, buildAbilityFor } from 'src/configs/acl'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 interface Props {
   children: ReactNode
@@ -176,9 +177,10 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   const auth = useAuth()
   const router = useRouter()
   // ** Hooks
+  const userAccess = useAppSelector(state => state.userAccess)
   const { settings, saveSettings } = useSettings()
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
-  const [role, setRole] = useState<RoleType | null>(auth.user?.role[0] || null)
+  const [role, setRole] = useState<RoleType | null>(null)
   const [roleBtn, setRoleBtn] = useState<ReactNode>(null)
 
   const handleSwitchRole = (role: RoleType | null) => {
@@ -198,27 +200,31 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   }
 
   useEffect(() => {
-    if (!auth.user?.firstName) {
-      if (auth.user?.role.includes('PRO')) {
-        router.replace('/welcome/consumer')
-        /** TODO:
-         acl에서 role을 체크하는 부분 때문에 부득이하게 같은 페이지를 두개 만들어 routing.
-         추후 acl에서 role은 체크하지 않도록 수정이 필요함
-         1. 수정되면 조건문 수정
-            else if(user.role.includes('TAD') || user.role.includes('LPM')) router.replace('/welcome/manager')
-         2. 불필요해진 페이지 삭제
-       */
-      } else if (auth.user?.role.includes('TAD')) {
-        router.replace('/welcome/manager/tad')
-      } else if (auth.user?.role.includes('LPM')) {
-        router.replace('/welcome/manager/lpm')
+    if (userAccess.role.length) {
+      setRole(userAccess?.role[0])
+
+      if (!auth.user?.firstName) {
+        if (userAccess.role?.includes('PRO')) {
+          router.replace('/welcome/consumer')
+          /** TODO:
+           acl에서 role을 체크하는 부분 때문에 부득이하게 같은 페이지를 두개 만들어 routing.
+           추후 acl에서 role은 체크하지 않도록 수정이 필요함
+           1. 수정되면 조건문 수정
+              else if(user.role.includes('TAD') || user.role.includes('LPM')) router.replace('/welcome/manager')
+           2. 불필요해진 페이지 삭제
+         */
+        } else if (userAccess.role?.includes('TAD')) {
+          router.replace('/welcome/manager/tad')
+        } else if (userAccess.role?.includes('LPM')) {
+          router.replace('/welcome/manager/lpm')
+        }
+        return
       }
-      return
+      if (router.pathname === '/') {
+        router.push(`/${role?.toLowerCase()}/dashboard`)
+      }
     }
-    if (router.pathname === '/') {
-      router.push(`/${role?.toLowerCase()}/dashboard`)
-    }
-  }, [auth.user, role])
+  }, [userAccess])
 
   // useEffect(() => {
   //   setRoleBtn(
@@ -272,7 +278,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               saveSettings={saveSettings}
               toggleNavVisibility={props.toggleNavVisibility}
               handleSwitchRole={handleSwitchRole}
-              role={role}
             />
           ),
         },
@@ -292,7 +297,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
                 settings={settings}
                 saveSettings={saveSettings}
                 handleSwitchRole={handleSwitchRole}
-                role={role}
               />
             ),
           },
