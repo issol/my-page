@@ -213,7 +213,9 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       } else if (auth.user?.role.includes('LPM')) {
         router.replace('/welcome/manager/lpm')
       }
-    } else if (router.pathname === '/') {
+      return
+    }
+    if (router.pathname === '/') {
       router.push(`/${role?.toLowerCase()}/dashboard`)
     }
   }, [auth.user, role])
