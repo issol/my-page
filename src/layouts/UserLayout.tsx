@@ -221,7 +221,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
         return
       }
       if (router.pathname === '/') {
-        router.push(`/${role?.toLowerCase()}/dashboard`)
+        router.push(`/${userAccess?.role[0]?.toLowerCase()}/dashboard`)
       }
     }
   }, [userAccess])
