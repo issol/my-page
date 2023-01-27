@@ -266,7 +266,7 @@ const SignUpPage = () => {
     // const { email, password } = data
     setStep(2)
   }
-  console.log(errors)
+
   const onRoleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RoleType
     const filtered = role.filter(item => item !== value)

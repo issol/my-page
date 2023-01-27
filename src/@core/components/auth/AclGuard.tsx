@@ -39,9 +39,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   // User is logged in, build ability for the user based on his role
   useEffect(() => {
-    if (permission.length && !ability) {
-      setAbility(buildAbilityFor(permission))
-    }
+    setAbility(buildAbilityFor(permission))
   }, [permission])
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access

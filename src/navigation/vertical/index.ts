@@ -20,8 +20,8 @@ const navigation = (role: RoleType | null): VerticalNavItemsType => {
         {
           title: 'Company',
           icon: 'mdi:briefcase-outline',
-          action: 'read',
-          subject: 'members',
+          action: 'update',
+          subject: 'permission_request',
           path: `/${role?.toLowerCase()}/company`,
         },
         {
@@ -44,8 +44,8 @@ const navigation = (role: RoleType | null): VerticalNavItemsType => {
         {
           title: 'Company',
           icon: 'mdi:briefcase-outline',
-          action: 'read',
-          subject: 'members',
+          action: 'update',
+          subject: 'permission_request',
           path: `/${role?.toLowerCase()}/company`,
         },
         {
