@@ -48,7 +48,7 @@ export function removeUserTokenFromBrowser() {
 }
 
 /* rememberMe */
-export function gerRememberMe() {
+export function getRememberMe() {
   if (typeof window === 'object') {
     return window.localStorage.getItem(authConfig.rememberId)
   }
