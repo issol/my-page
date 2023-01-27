@@ -9,9 +9,13 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 
 export const getSignUpRequests = async () => {
   // const { data } = await axios.get('/api/company/signup-requests')
-  const { data } = await axiosDefault.get('/api/enough/a/r-req/al')
+  try {
+    const { data } = await axiosDefault.get('/api/enough/a/r-req/al')
 
-  return data
+    return data
+  } catch (e: any) {
+    return []
+  }
 }
 
 export const deleteSignUpRequests = async (id: number) => {
@@ -32,10 +36,13 @@ export const undoSignUpRequest = async (user: SignUpRequestsType) => {
 
 export const getMembers = async () => {
   // const { data } = await axiosDefault.get('/api/company/members')
+  try {
+    const { data } = await axiosDefault.get('/api/enough/a/role/us')
 
-  const { data } = await axiosDefault.get('/api/enough/a/role/us')
-
-  return data
+    return data
+  } catch (e: any) {
+    return []
+  }
 }
 
 export const approveMembers = async (user: MembersType) => {
