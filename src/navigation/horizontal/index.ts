@@ -1,251 +1,112 @@
 // ** Type import
 import { HorizontalNavItemsType } from 'src/@core/layouts/types'
+import { RoleType } from 'src/context/types'
 
 // ** TODO : 렐과 상의 후 action, subject 수정하기
 //role별 메뉴를 만드는게 좋을 것 같음. 그래야 action, subject를 정확히 줄 수 있음
-const navigation = (role: string | null): HorizontalNavItemsType => {
-  return [
-    // ** Dashboard - Client, LPM, TAD, Pro
-    {
-      title: 'Dashboards',
-      icon: 'mdi:home-outline',
-      // icon: '/images/icons/gnb-icons/gnb-company.png',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/dashboard`,
-    },
+const navigation = (role: RoleType | null): HorizontalNavItemsType => {
+  switch (role) {
+    case 'TAD':
+      return [
+        {
+          title: 'Dashboards',
+          icon: 'mdi:home-outline',
+          action: 'read',
+          subject: 'members',
+          path: `/${role?.toLowerCase()}/dashboard`,
+        },
 
-    {
-      title: 'Company',
-      icon: 'mdi:briefcase-outline',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/company`,
-    },
-    // ** Account - Client, LPM, TAD
-    {
-      title: 'Account',
-      icon: 'mdi:account-outline',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/account`,
-    },
-    // ** My Page - Pro
-    {
-      title: 'My Page',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/my-page`,
-    },
-    {
-      title: 'Email',
-      icon: 'mdi:airplane-landing',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/email`,
-    },
-    {
-      title: 'Onboarding',
-      icon: 'mdi:airplane-landing',
-      action: 'read',
-      subject: 'members',
-      children: [
         {
-          title: 'Onboarding List',
-          path: `/${role?.toLowerCase()}/onboarding/onboarding-list`,
-          action: 'onboardingList-read',
-          subject: `${role}`,
+          title: 'Company',
+          icon: 'mdi:briefcase-outline',
+          action: 'read',
+          subject: 'permission_request',
+          path: `/${role?.toLowerCase()}/company`,
         },
-      ],
-    },
-    {
-      title: 'Recruiting',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
         {
-          title: 'Recruiting List',
-          path: `/${role?.toLowerCase()}/recruiting/recruiting-list`,
+          title: 'Account',
+          icon: 'mdi:account-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/account`,
         },
+      ]
+    case 'LPM':
+      return [
         {
-          title: 'Create Recruiting',
-          path: `/${role?.toLowerCase()}/recruiting/recruiting-create`,
+          title: 'Dashboards',
+          icon: 'mdi:home-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/dashboard`,
         },
         {
-          title: 'Job Posting',
-          path: `/${role?.toLowerCase()}/recruiting/job-posting`,
+          title: 'Company',
+          icon: 'mdi:briefcase-outline',
           action: 'read',
           subject: 'members',
-        },
-      ],
-    },
-    {
-      title: 'Pros',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
-        {
-          title: 'Pro List',
-          path: `/${role?.toLowerCase()}/pros/pro-list`,
-          action: 'read',
-          subject: 'members',
+          path: `/${role?.toLowerCase()}/company`,
         },
         {
-          title: 'Create Pro',
-          path: `/${role?.toLowerCase()}/pros/pro-create`,
+          title: 'Account',
+          icon: 'mdi:account-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/account`,
         },
-      ],
-    },
-    {
-      title: 'Clients',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
+      ]
+    case 'CLIENT':
+      return [
         {
-          title: 'Client List',
-          path: `/${role?.toLowerCase()}/clients/client-list`,
+          title: 'Dashboards',
+          icon: 'mdi:home-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/dashboard`,
         },
         {
-          title: 'Create Client',
-          path: `/${role?.toLowerCase()}/clients/client-create`,
+          title: 'Company',
+          icon: 'mdi:briefcase-outline',
           action: 'read',
           subject: 'members',
-        },
-      ],
-    },
-    {
-      title: 'Quotes',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
-        {
-          title: 'Quote List',
-          path: `/${role?.toLowerCase()}/quotes/quote-list`,
-          action: 'read',
-          subject: 'members',
+          path: `/${role?.toLowerCase()}/company`,
         },
         {
-          title: 'Create Quote',
-          path: `/${role?.toLowerCase()}/quotes/quote-create`,
+          title: 'Account',
+          icon: 'mdi:account-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/account`,
         },
-      ],
-    },
-    {
-      title: 'Orders',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
+      ]
+    case 'PRO':
+      return [
         {
-          title: 'Order List',
-          path: `/${role?.toLowerCase()}/orders/order-list`,
+          title: 'Dashboards',
+          icon: 'mdi:home-outline',
           action: 'read',
           subject: 'members',
+          path: `/${role?.toLowerCase()}/dashboard`,
         },
-        {
-          title: 'Create Order',
-          path: `/${role?.toLowerCase()}/orders/order-create`,
-          action: 'read',
-          subject: 'members',
-        },
-      ],
-    },
-    {
-      title: 'Jobs',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
-        {
-          title: 'Job List',
-          action: 'read',
-          subject: 'members',
-          path: `/${role?.toLowerCase()}/jobs/job-list`,
-        },
-      ],
-    },
-    {
-      title: 'Invoices',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
-        {
-          title: `Client's invoice list`,
-          path: `/${role?.toLowerCase()}/invoices/client-invoice-list`,
-          action: 'read',
-          subject: 'members',
-        },
-        {
-          title: `Create client's invoice`,
-          path: `/${role?.toLowerCase()}/invoices/client-invoice-create`,
-          action: 'read',
-          subject: 'members',
-        },
-        {
-          title: `Pros' invoice list`,
-          path: `/${role?.toLowerCase()}/invoices/pro-invoice-list`,
-          action: 'read',
-          subject: 'members',
-        },
-        {
-          title: `Create pro’s invoice`,
-          path: `/${role?.toLowerCase()}/invoices/pro-invoice-create`,
-          action: 'read',
-          subject: 'members',
-        },
-      ],
-    },
-    {
-      title: 'Certification Test',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      children: [
-        {
-          title: `Test List`,
-          path: `/${role?.toLowerCase()}/certification-test/test-list`,
-          action: 'read',
-          subject: 'members',
-        },
-        {
-          title: `Test Materials`,
-          path: `/${role?.toLowerCase()}/certification-test/test-materials`,
-          action: 'read',
-          subject: 'members',
-        },
-      ],
-    },
 
-    {
-      title: 'Roles & Permission',
-      icon: 'mdi:home-outline',
-      action: 'read',
-      subject: 'members',
-      path: `/${role?.toLowerCase()}/roles`,
-    },
-
-    {
-      title: 'Editor',
-      icon: 'mdi:library-edit-outline',
-      path: '/apps/editor',
-    },
-  ]
+        {
+          title: 'Company',
+          icon: 'mdi:briefcase-outline',
+          action: 'read',
+          subject: 'members',
+          path: `/${role?.toLowerCase()}/company`,
+        },
+        {
+          title: 'My Page',
+          icon: 'mdi:home-outline',
+          action: 'read',
+          subject: 'members',
+          path: `/${role?.toLowerCase()}/my-page`,
+        },
+      ]
+    default:
+      return []
+  }
 }
 
 // const navigation = (role: string | null): HorizontalNavItemsType => {
