@@ -38,7 +38,8 @@ const ProDashboard = () => {
 
 export default ProDashboard
 
+//** TODO : 렐과 협의 후 수정하기 */
 ProDashboard.acl = {
-  action: 'B1072',
-  subject: 'PRO',
+  action: 'read',
+  subject: 'personalInfo_pro',
 }

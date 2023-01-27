@@ -85,7 +85,7 @@ const navigation = (role: RoleType | null): HorizontalNavItemsType => {
           title: 'Dashboards',
           icon: 'mdi:home-outline',
           action: 'read',
-          subject: 'members',
+          subject: 'personalInfo_pro',
           path: `/${role?.toLowerCase()}/dashboard`,
         },
 

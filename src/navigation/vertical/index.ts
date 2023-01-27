@@ -86,7 +86,7 @@ const navigation = (role: RoleType | null): VerticalNavItemsType => {
           title: 'Dashboards',
           icon: 'mdi:home-outline',
           action: 'read',
-          subject: 'members',
+          subject: 'personalInfo_pro',
           path: `/${role?.toLowerCase()}/dashboard`,
         },
 
