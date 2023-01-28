@@ -1,10 +1,8 @@
-import { Card, CardContent, Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-import Link from 'next/link'
+import { Grid, Typography } from '@mui/material'
 import PageHeader from 'src/@core/components/page-header'
-import styled from 'styled-components'
 import OnboardingDashboard from './components/list/dashboard'
 import Filters from './components/list/filters'
+import OnboardingList from './components/list/list'
 
 export default function Onboarding() {
   return (
@@ -14,6 +12,7 @@ export default function Onboarding() {
       />
       <OnboardingDashboard />
       <Filters />
+      <OnboardingList />
     </Grid>
   )
 }

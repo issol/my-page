@@ -1,4 +1,4 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, CardHeader, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import Link from 'next/link'
 import PageHeader from 'src/@core/components/page-header'
@@ -6,7 +6,7 @@ import styled from 'styled-components'
 
 export default function OnboardingDashboard() {
   return (
-    <Grid item xs={12} sx={{ mb: 5 }}>
+    <Grid item xs={12}>
       <Grid container spacing={6}>
         <Grid item xs={2.5}>
           <Card>
@@ -98,12 +98,9 @@ export default function OnboardingDashboard() {
         </Grid>
         <Grid item xs={5.5}>
           <Card>
-            <Grid container sx={{ padding: '20px' }}>
-              <Grid item xs={12}>
-                <Typography variant='h6'>Onboarding status</Typography>
-              </Grid>
-
-              <Grid container xs={12} mt='20px'>
+            <CardHeader title='Onboarding status' />
+            <Grid container sx={{ padding: '0 20px 20px' }}>
+              <Grid container xs={12}>
                 <Grid item xs={4}>
                   <Box
                     sx={{

@@ -1,4 +1,4 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Button, Card, CardHeader, Grid, Typography } from '@mui/material'
 
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
@@ -8,12 +8,16 @@ import { Box } from '@mui/system'
 
 export default function Filters() {
   return (
-    <Grid item xs={12} sx={{ mb: 5 }}>
-      <Card sx={{ padding: '20px 0 20px 20px' }}>
-        <Typography variant='h6' mb='15px'>
-          Search Filters
-        </Typography>
-        <Grid container xs={12} spacing={6} rowSpacing={4}>
+    <Grid item xs={12}>
+      <Card>
+        <CardHeader title='Search Filters' />
+        <Grid
+          container
+          xs={12}
+          spacing={6}
+          rowSpacing={4}
+          sx={{ padding: '0 20px 20px' }}
+        >
           <Grid item xs={3}>
             <FormControl fullWidth>
               <InputLabel id='demo-simple-select-outlined-label'>
