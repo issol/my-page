@@ -30,6 +30,29 @@ const navigation = (role: RoleType | null): HorizontalNavItemsType => {
           subject: 'members',
           path: `/${role?.toLowerCase()}/account`,
         },
+        {
+          //**TODO : action, subject 수정하기 */
+          title: 'Onboarding',
+          icon: 'mdi:account-outline',
+          action: 'read',
+          subject: 'onboarding',
+          children: [
+            {
+              title: 'Onboarding List',
+              path: `/onboarding`,
+              action: 'read',
+              icon: 'mdi:list-box-outline',
+              subject: 'onboarding',
+            },
+            {
+              title: 'Client Guidelines',
+              path: `/client-guide`,
+              icon: 'mdi:playlist-check',
+              action: 'read',
+              subject: 'onboarding',
+            },
+          ],
+        },
       ]
     case 'LPM':
       return [
@@ -171,26 +194,26 @@ const navigation = (role: RoleType | null): HorizontalNavItemsType => {
 //       icon: 'mdi:home-outline',
 //       action: 'PH2323',
 //       subject: `${role}`,
-//       children: [
-//         {
-//           title: 'Recruiting List',
-//           path: `/${role?.toLowerCase()}/recruiting/recruiting-list`,
-//           action: 'recruitingList-read',
-//           subject: `${role}`,
-//         },
-//         {
-//           title: 'Create Recruiting',
-//           path: `/${role?.toLowerCase()}/recruiting/recruiting-create`,
-//           action: 'recruitingCreate-read',
-//           subject: `${role}`,
-//         },
-//         {
-//           title: 'Job Posting',
-//           path: `/${role?.toLowerCase()}/recruiting/job-posting`,
-//           action: 'recruitingJobPosting-read',
-//           subject: `${role}`,
-//         },
-//       ],
+// children: [
+//   {
+//     title: 'Recruiting List',
+//     path: `/${role?.toLowerCase()}/recruiting/recruiting-list`,
+//     action: 'recruitingList-read',
+//     subject: `${role}`,
+//   },
+//   {
+//     title: 'Create Recruiting',
+//     path: `/${role?.toLowerCase()}/recruiting/recruiting-create`,
+//     action: 'recruitingCreate-read',
+//     subject: `${role}`,
+//   },
+//   {
+//     title: 'Job Posting',
+//     path: `/${role?.toLowerCase()}/recruiting/job-posting`,
+//     action: 'recruitingJobPosting-read',
+//     subject: `${role}`,
+//   },
+// ],
 //     },
 //     {
 //       title: 'Pros',

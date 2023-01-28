@@ -16,25 +16,30 @@ export const getPermission = createAsyncThunk(
   async (): Promise<PermissionObjectType> => {
     try {
       const { data } = await axios.get(`/api/enough/a/role/map`)
-      console.log('permission : ', data)
-      // return [
-      //   {
-      //     subject: 'members',
-      //     can: ['read', 'create', 'update', 'delete'],
-      //   },
-      //   {
-      //     subject: 'permission_request',
-      //     can: ['read', 'create', 'update', 'delete'],
-      //   },
-      //   {
-      //     subject: 'personalInfo_pro',
-      //     can: ['read', 'create', 'update', 'delete'],
-      //   },
-      //   {
-      //     subject: 'personalInfo_manager',
-      //     can: ['read', 'create', 'update', 'delete'],
-      //   },
-      // ]
+      // console.log('permission : ', data)
+      return [
+        {
+          subject: 'members',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'permission_request',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'personalInfo_pro',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'personalInfo_manager',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        /* TODO: 임시 permission */
+        {
+          subject: 'onboarding',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+      ]
       return data
     } catch (e: any) {
       throw new Error('getPermission error : ', e)
