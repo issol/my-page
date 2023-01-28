@@ -4,6 +4,7 @@ import Link from 'next/link'
 import PageHeader from 'src/@core/components/page-header'
 import styled from 'styled-components'
 import OnboardingDashboard from './components/list/dashboard'
+import Filters from './components/list/filters'
 
 export default function Onboarding() {
   return (
@@ -12,6 +13,7 @@ export default function Onboarding() {
         title={<Typography variant='h5'>Onboarding list</Typography>}
       />
       <OnboardingDashboard />
+      <Filters />
     </Grid>
   )
 }
