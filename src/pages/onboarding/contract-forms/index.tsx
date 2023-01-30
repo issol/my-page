@@ -5,6 +5,7 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import { useContext } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
+import Link from 'next/link'
 
 //** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
 export default function ContractForm() {
@@ -92,17 +93,15 @@ export default function ContractForm() {
                 Pros will sign the NDA before taking the certification test.
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
-                <Button
-                  variant='outlined'
-                  href='/onboarding/contract-forms/nda/kor'
-                >
-                  KOR
+                <Button variant='outlined'>
+                  <StyledLink href='/onboarding/contract-forms/nda/kor'>
+                    KOR
+                  </StyledLink>
                 </Button>
-                <Button
-                  variant='outlined'
-                  href='/onboarding/contract-forms/nda/eng'
-                >
-                  ENG
+                <Button variant='outlined'>
+                  <StyledLink href='/onboarding/contract-forms/nda/eng'>
+                    ENG
+                  </StyledLink>
                 </Button>
               </Box>
             </StyledBox>
@@ -124,8 +123,12 @@ export default function ContractForm() {
                 Pros will sign the Privacy contract after being onboarded.
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
-                <Button variant='outlined'>KOR</Button>
-                <Button variant='outlined'>ENG</Button>
+                <Button variant='outlined'>
+                  <StyledLink href=''>KOR</StyledLink>
+                </Button>
+                <Button variant='outlined'>
+                  <StyledLink href=''>ENG</StyledLink>
+                </Button>
               </Box>
             </StyledBox>
             {/* Freelancer */}
@@ -146,8 +149,12 @@ export default function ContractForm() {
                 Pros will sign the Freelancer contract after being onboarded.
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
-                <Button variant='outlined'>KOR</Button>
-                <Button variant='outlined'>ENG</Button>
+                <Button variant='outlined'>
+                  <StyledLink href=''>KOR</StyledLink>
+                </Button>
+                <Button variant='outlined'>
+                  <StyledLink href=''>ENG</StyledLink>
+                </Button>
               </Box>
             </StyledBox>
           </Box>
@@ -176,7 +183,10 @@ const Ul = styled.ul`
   padding-left: 24px;
   text-align: left;
 `
-
+const StyledLink = styled(Link)`
+  text-decoration: none;
+  color: #666cff;
+`
 const ModalContainer = styled(Box)`
   max-width: 350px;
   position: relative;

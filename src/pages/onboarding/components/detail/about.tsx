@@ -12,6 +12,9 @@ type Props = {
 }
 
 export default function About({ userInfo }: Props) {
+  if (!userInfo) {
+    return null
+  }
   return (
     <Card sx={{ padding: '20px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
