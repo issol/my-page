@@ -4,6 +4,7 @@ import Typography from '@mui/material/Typography'
 import { Button, Card, CardHeader } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
+import Dialog from '@mui/material/Dialog'
 
 // ** React Imports
 import { useContext, useState } from 'react'
@@ -67,6 +68,7 @@ const mock = [
 const NdaKor = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
+  const [openDetail, setOpenDetail] = useState(false)
 
   const contentState = convertFromRaw(text)
   const editorState = EditorState.createWithContent(contentState)
@@ -143,6 +145,38 @@ const NdaKor = () => {
     )
   }
 
+  function onRestore() {
+    setOpenDetail(false)
+    setModal(
+      <ModalContainer>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <img
+            src='/images/icons/project-icons/status-alert-error.png'
+            width={60}
+            height={60}
+            alt='role select error'
+          />
+          <Typography variant='body2'>
+            Are you sure to restore this version?
+          </Typography>
+        </Box>
+        <ModalButtonGroup>
+          <Button variant='contained' onClick={() => setModal(null)}>
+            Cancel
+          </Button>
+          <Button variant='outlined'>Restore</Button>
+        </ModalButtonGroup>
+      </ModalContainer>,
+    )
+  }
+
   function noHistory() {
     return (
       <Box
@@ -168,7 +202,7 @@ const NdaKor = () => {
         <Grid container xs={9} mt='24px'>
           <Card sx={{ padding: '30px 20px 20px' }}>
             <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography variant='h6'>[KOR] NDA</Typography>
+              <Typography variant='h6'>[ENG] NDA</Typography>
 
               <Box display='flex' flexDirection='column' gap='8px'>
                 <Box display='flex' alignItems='center' gap='8px'>
@@ -213,6 +247,7 @@ const NdaKor = () => {
                   NoRowsOverlay: () => noHistory(),
                   NoResultsOverlay: () => noHistory(),
                 }}
+                onRowClick={() => setOpenDetail(true)}
                 columns={columns}
                 autoHeight
                 rows={mock.slice(0, 10)}
@@ -249,6 +284,55 @@ const NdaKor = () => {
           </Card>
         </Grid>
       </Grid>
+      <Dialog
+        open={openDetail}
+        onClose={() => setOpenDetail(false)}
+        maxWidth='md'
+      >
+        <StyledEditor>
+          <Box sx={{ padding: '50px 60px 50px' }}>
+            <Card sx={{ padding: '20px' }}>
+              <Box display='flex' justifyContent='space-between' mb='26px'>
+                <Typography variant='h6'>[ENG] NDA</Typography>
+
+                <Box display='flex' flexDirection='column' gap='8px'>
+                  <Box display='flex' alignItems='center' gap='8px'>
+                    <Chip>Writer</Chip>
+                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                      Ellie (Minji) Park
+                    </Typography>
+                    <Divider orientation='vertical' variant='middle' flexItem />
+                    <Typography variant='body2'>ellie@glozinc.com</Typography>
+                  </Box>
+                  <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                    {FullDateTimezoneHelper(new Date())}
+                  </Typography>
+                </Box>
+              </Box>
+              <ReactDraftWysiwyg
+                editorState={editorState}
+                readOnly={true}
+                onEditorStateChange={data => {
+                  setShowError(true)
+                  setValue(data)
+                }}
+              />
+            </Card>
+            <ModalButtonGroup style={{ marginTop: '24px' }}>
+              <Button
+                onClick={() => setOpenDetail(false)}
+                variant='outlined'
+                color='secondary'
+              >
+                Close
+              </Button>
+              <Button variant='contained' onClick={onRestore}>
+                Restore this version
+              </Button>
+            </ModalButtonGroup>
+          </Box>
+        </StyledEditor>
+      </Dialog>
     </StyledEditor>
   )
 }
@@ -275,7 +359,7 @@ const Chip = styled.span`
   color: #ff4d49;
 `
 
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
+const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`
   .rdw-editor-main {
     border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
   }
