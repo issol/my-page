@@ -5,6 +5,8 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import { useContext } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
+
+//** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
 export default function ContractForm() {
   const { setModal } = useContext(ModalContext)
 
@@ -51,7 +53,7 @@ export default function ContractForm() {
   }
   return (
     <Grid xs={12} container>
-      <Card sx={{ width: '100%', margin: '0 96px', padding: '22px' }}>
+      <Card sx={{ width: '100%', margin: '0 70px', padding: '22px' }}>
         <Box sx={{ textAlign: 'right' }}>
           <Icon
             icon='mdi:information-outline'
@@ -90,8 +92,18 @@ export default function ContractForm() {
                 Pros will sign the NDA before taking the certification test.
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
-                <Button variant='outlined'>KOR</Button>
-                <Button variant='outlined'>ENG</Button>
+                <Button
+                  variant='outlined'
+                  href='/onboarding/contract-forms/nda/kor'
+                >
+                  KOR
+                </Button>
+                <Button
+                  variant='outlined'
+                  href='/onboarding/contract-forms/nda/eng'
+                >
+                  ENG
+                </Button>
               </Box>
             </StyledBox>
             {/* Privacy */}
