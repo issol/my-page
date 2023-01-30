@@ -19,6 +19,17 @@ export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
   }
 }
 
+export const getUserInfoWithResumeFile = async (
+  userId: number,
+): Promise<UserInfoResType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const getUserRoleNPermission = async (
   userId: number,
 ): Promise<{ roles: Array<RoleType>; permissions: [] }> => {
