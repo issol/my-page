@@ -76,7 +76,7 @@ export default function OnboardingDetail() {
       </Grid>
       <Grid item xs={5}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <About />
+          <About userInfo={userInfo} />
           <Tax />
         </Box>
       </Grid>
