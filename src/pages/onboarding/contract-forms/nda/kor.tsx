@@ -1,9 +1,12 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
+import { Button, Card } from '@mui/material'
+import { Box } from '@mui/system'
+import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 
 // ** Third Party Imports
 import { EditorState } from 'draft-js'
@@ -16,15 +19,99 @@ import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
-import { Button, Card } from '@mui/material'
-import { Box } from '@mui/system'
+import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import styled from 'styled-components'
-import Divider from '@mui/material/Divider'
+
+// ** contexts
+import { ModalContext } from 'src/context/ModalContext'
 
 const NdaKor = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
+  const [showError, setShowError] = useState(false)
+
+  const { setModal } = useContext(ModalContext)
+
+  function onDiscard() {
+    setModal(
+      <ModalContainer>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <img
+            src='/images/icons/project-icons/status-alert-error.png'
+            width={60}
+            height={60}
+            alt='role select error'
+          />
+          <Typography variant='body2'>
+            Are you sure to discard this contract?
+          </Typography>
+        </Box>
+        <ModalButtonGroup>
+          <Button variant='contained' onClick={() => setModal(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              setModal(null)
+              setValue(EditorState.createEmpty())
+            }}
+          >
+            Discard
+          </Button>
+        </ModalButtonGroup>
+      </ModalContainer>,
+    )
+  }
+
+  function onUpload() {
+    setModal(
+      <ModalContainer>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <img
+            src='/images/icons/project-icons/status-successful.png'
+            width={60}
+            height={60}
+            alt='role select error'
+          />
+          <Typography variant='body2'>
+            Are you sure to upload this contract?
+          </Typography>
+        </Box>
+        <ModalButtonGroup>
+          <Button variant='contained' onClick={() => setModal(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              setModal(null)
+            }}
+          >
+            Upload
+          </Button>
+        </ModalButtonGroup>
+      </ModalContainer>,
+    )
+  }
   return (
-    <EditorWrapper style={{ margin: '0 70px' }}>
+    <StyledEditor
+      style={{ margin: '0 70px' }}
+      error={!value.getCurrentContent().getPlainText('\u0001') && showError}
+    >
       <Grid container spacing={6} className='match-height'>
         <Grid item xs={9}>
           <Card sx={{ padding: '30px 20px 20px' }}>
@@ -44,8 +131,22 @@ const NdaKor = () => {
             <ReactDraftWysiwyg
               editorState={value}
               placeholder='Create a contact form'
-              onEditorStateChange={data => setValue(data)}
+              onEditorStateChange={data => {
+                setShowError(true)
+                setValue(data)
+              }}
             />
+            {!value.getCurrentContent().getPlainText('\u0001') && showError ? (
+              <Typography
+                color='error'
+                sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
+                mt='8px'
+              >
+                This field is required
+              </Typography>
+            ) : (
+              ''
+            )}
           </Card>
         </Grid>
         <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
@@ -58,17 +159,21 @@ const NdaKor = () => {
                 gap: '12px',
               }}
             >
-              <Button variant='outlined' color='secondary'>
+              <Button variant='outlined' color='secondary' onClick={onDiscard}>
                 Discard
               </Button>
-              <Button variant='contained' color='secondary'>
+              <Button
+                variant='contained'
+                onClick={onUpload}
+                disabled={!value.getCurrentContent().getPlainText('\u0001')}
+              >
                 Upload
               </Button>
             </Box>
           </Card>
         </Grid>
       </Grid>
-    </EditorWrapper>
+    </StyledEditor>
   )
 }
 
@@ -92,4 +197,10 @@ const Chip = styled.span`
   font-weight: 500;
   font-size: 0.813rem;
   color: #ff4d49;
+`
+
+const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
+  .rdw-editor-main {
+    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
+  }
 `
