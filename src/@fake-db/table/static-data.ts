@@ -664,6 +664,7 @@ export const rows = [
 export const rows2 = [
   {
     id: 'P-0010',
+    userId: 2340938434,
     email: 'bon@glozinc.com',
     firstName: 'Kim',
     middleName: 'middle',
@@ -688,6 +689,7 @@ export const rows2 = [
   },
   {
     id: 'P-0012',
+    userId: 2340938434,
     email: 'bon@glozinc.com',
     firstName: 'Kim',
     middleName: 'middle',

@@ -6,7 +6,7 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 
-type UserInfoResType = Omit<
+export type UserInfoResType = Omit<
   UserDataType,
   'id' | 'role' | 'permission' | 'company' | 'username'
 >

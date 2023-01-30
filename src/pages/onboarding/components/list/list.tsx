@@ -17,6 +17,7 @@ import styled from 'styled-components'
 type CellType = {
   row: {
     id: string
+    userId: number
     full_name: string
     email: string
     firstName: string
@@ -32,6 +33,7 @@ type CellType = {
 export default function OnboardingList() {
   function getLegalName(row: {
     id: string
+    userId: number
     full_name: string
     email: string
     firstName: string
@@ -45,8 +47,8 @@ export default function OnboardingList() {
     return !row.firstName || !row.lastName
       ? '-'
       : row.firstName +
-          (row.middleName ? '(' + row.middleName + ')' : null) +
-          row.lastName
+          (row.middleName ? ' (' + row.middleName + ')' : '') +
+          ` ${row.lastName}`
   }
   const columns = [
     {
@@ -78,7 +80,7 @@ export default function OnboardingList() {
             />
             <Box>
               <Link
-                href={`/apps/invoice/preview/${row.id}`}
+                href={`/onboarding/detail/${row.userId}`}
                 style={{ textDecoration: 'none' }}
               >
                 <Typography sx={{ fontWeight: '600', fontSize: '1rem' }}>
@@ -169,6 +171,7 @@ export default function OnboardingList() {
   )
 }
 
+// ** TODO : chip style 컬러 추가해야 함
 const Chip = styled.p`
   padding: 3px 4px;
   background: #beefae;
