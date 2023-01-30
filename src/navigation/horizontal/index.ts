@@ -46,7 +46,7 @@ const navigation = (role: RoleType | null): HorizontalNavItemsType => {
             },
             {
               title: 'Client Guidelines',
-              path: `/client-guide`,
+              path: `/onboarding/client-guideline`,
               icon: 'mdi:playlist-check',
               action: 'read',
               subject: 'onboarding',

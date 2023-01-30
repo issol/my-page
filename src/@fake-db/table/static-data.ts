@@ -713,3 +713,38 @@ export const rows2 = [
     isOnboarded: false,
   },
 ]
+
+export const clientGuide = [
+  {
+    id: 1,
+    title: 'Naver webtoon guideline Ver.3',
+    client: 'Naver',
+    category: 'Webcomics',
+    serviceType: ['Translation'],
+    dueAt: 'Tue Jan 31 2023 00:40:09',
+  },
+  {
+    id: 2,
+    title: 'Tappytoon style guide',
+    client: 'Tappytoon',
+    category: 'Webnovel',
+    serviceType: ['Translation', 'Proofreading', 'QC', 'DTP'],
+    dueAt: 'Tue Jan 31 2023 00:40:09',
+  },
+  {
+    id: 3,
+    title: 'Naver webtoon guideline Ver.3',
+    client: 'Naver',
+    category: 'YouTube',
+    serviceType: ['QC'],
+    dueAt: 'Tue Jan 31 2023 00:40:09',
+  },
+  {
+    id: 4,
+    title: 'Naver webtoon guideline Ver.3',
+    client: 'Naver',
+    category: 'Webcomics',
+    serviceType: ['Translation'],
+    dueAt: 'Tue Jan 31 2023 00:40:09',
+  },
+]
