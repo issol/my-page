@@ -188,7 +188,10 @@ export default function OnboardingDashboard() {
                 alt=''
                 aria-hidden
               />
-              <Link href='' style={{ fontSize: '0.813rem', color: '#6D788D' }}>
+              <Link
+                href='/onboarding/contract-forms'
+                style={{ fontSize: '0.813rem', color: '#6D788D' }}
+              >
                 Contract forms
               </Link>
             </Box>
