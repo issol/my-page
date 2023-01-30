@@ -18,7 +18,7 @@ type CellType = {
   row: {
     id: string
     userId: number
-    full_name: string
+    full_name?: string
     email: string
     firstName: string
     middleName?: string
@@ -34,7 +34,7 @@ export default function OnboardingList() {
   function getLegalName(row: {
     id: string
     userId: number
-    full_name: string
+    full_name?: string
     email: string
     firstName: string
     middleName?: string
@@ -147,13 +147,13 @@ export default function OnboardingList() {
       ),
     },
     {
-      flex: 0.1,
+      flex: 0.17,
       field: 'age',
       minWidth: 80,
       headerName: 'testStatus',
       renderHeader: () => <Box>Test status</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box>
+        <Box sx={{ overflow: 'scroll' }}>
           {!row.testStatus ? '-' : <StatusChip>{row.testStatus}</StatusChip>}
         </Box>
       ),
@@ -164,7 +164,11 @@ export default function OnboardingList() {
       <Card>
         <CardHeader title='Pros (1,032)' />
         <Box sx={{ height: 500 }}>
-          <DataGrid columns={columns} rows={rows2.slice(0, 10)} />
+          <DataGrid
+            columns={columns}
+            rowHeight={70}
+            rows={rows2.slice(0, 10)}
+          />
         </Box>
       </Card>
     </Grid>
@@ -198,7 +202,7 @@ const CountChip = styled.p`
 `
 
 const StatusChip = styled.p`
-  padding: 3px 4px;
+  padding: 4px 8px;
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.88),
@@ -206,7 +210,7 @@ const StatusChip = styled.p`
     ),
     #d18a00;
   border-radius: 16px;
-
+  text-align: center;
   font-weight: 500;
   font-size: 13px;
   color: #d18a00;

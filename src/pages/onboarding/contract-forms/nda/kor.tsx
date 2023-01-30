@@ -9,7 +9,7 @@ import Divider from '@mui/material/Divider'
 import { useContext, useState } from 'react'
 
 // ** Third Party Imports
-import { EditorState } from 'draft-js'
+import { convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -28,7 +28,7 @@ import { ModalContext } from 'src/context/ModalContext'
 const NdaKor = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
-
+  console.log(value)
   const { setModal } = useContext(ModalContext)
 
   function onDiscard() {
@@ -107,6 +107,13 @@ const NdaKor = () => {
       </ModalContainer>,
     )
   }
+
+  function onContentChange(value: EditorState) {
+    const contentState = value.getCurrentContent()
+    console.log('content state', convertToRaw(contentState))
+    setShowError(true)
+    setValue(value)
+  }
   return (
     <StyledEditor
       style={{ margin: '0 70px' }}
@@ -131,10 +138,7 @@ const NdaKor = () => {
             <ReactDraftWysiwyg
               editorState={value}
               placeholder='Create a contact form'
-              onEditorStateChange={data => {
-                setShowError(true)
-                setValue(data)
-              }}
+              onEditorStateChange={onContentChange}
             />
             {!value.getCurrentContent().getPlainText('\u0001') && showError ? (
               <Typography
