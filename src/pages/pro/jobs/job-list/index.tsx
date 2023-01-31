@@ -40,7 +40,8 @@ const ProJobList = () => {
 
 export default ProJobList
 
+// ** TODO : 렐과 상의 후 변경
 ProJobList.acl = {
-  action: 'jobList-read',
-  subject: 'PRO',
+  action: 'read',
+  subject: 'members',
 }

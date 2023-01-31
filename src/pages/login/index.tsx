@@ -35,7 +35,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
-import { gerRememberMe, removeRememberMe } from 'src/shared/auth/storage'
+import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -103,7 +103,7 @@ const LoginPage = () => {
 
   useEffect(() => {
     if (typeof window === 'object') {
-      const storedId = gerRememberMe()
+      const storedId = getRememberMe()
       if (storedId) {
         setRememberMe(true)
         setValue('email', storedId, { shouldDirty: true, shouldValidate: true })

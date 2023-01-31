@@ -4,6 +4,7 @@ import {
   getUserTokenFromBrowser,
   removeUserTokenFromBrowser,
   saveUserTokenToBrowser,
+  removeUserDataFromBrowser,
 } from 'src/shared/auth/storage'
 
 export const BASEURL =
@@ -65,25 +66,29 @@ instance.interceptors.response.use(
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
-        const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
+        try {
+          const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
 
-        const { accessToken: newAccessToken } = data
+          const { accessToken: newAccessToken } = data
 
-        if (newAccessToken === null) {
-          isTokenRefreshing = false
-          window.location.href = '/login'
+          if (newAccessToken === null) {
+            isTokenRefreshing = false
+            window.location.href = '/login'
 
-          removeUserTokenFromBrowser()
+            removeUserTokenFromBrowser()
 
-          return Promise.reject(error)
-        } else {
-          setHeaderToken(newAccessToken)
+            return Promise.reject(error)
+          } else {
+            setHeaderToken(newAccessToken)
 
-          isTokenRefreshing = false
-          axios.defaults.headers.common['Authorization'] =
-            'Bearer ' + newAccessToken
-          onTokenRefreshed(newAccessToken)
-          // window.location.reload()
+            isTokenRefreshing = false
+            axios.defaults.headers.common['Authorization'] =
+              'Bearer ' + newAccessToken
+            onTokenRefreshed(newAccessToken)
+            // window.location.reload()
+          }
+        } catch (e: any) {
+          removeUserDataFromBrowser()
         }
       }
       const retryOriginalRequest = new Promise(resolve => {

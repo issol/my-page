@@ -22,12 +22,14 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
+
+// ** hooks
+import { useAppSelector } from 'src/hooks/useRedux'
 
 interface Props {
   settings: Settings
   handleSwitchRole: (role: RoleType | null) => void
-  role: RoleType | null
 }
 
 // ** Styled Components
@@ -41,7 +43,10 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 
 const UserDropdown = (props: Props) => {
   // ** Props
-  const { settings, handleSwitchRole, role } = props
+  const { settings, handleSwitchRole } = props
+
+  // ** redux
+  const { role } = useAppSelector(state => state.userAccess)
 
   const auth = useAuth()
 
@@ -157,7 +162,7 @@ const UserDropdown = (props: Props) => {
                   gap: '4px',
                 }}
               >
-                {auth?.user?.role.map((value, index) => {
+                {role?.map((value, index) => {
                   return <Box key={index}>{value}</Box>
                 })}
               </Typography>

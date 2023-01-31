@@ -57,9 +57,7 @@ const FinishSignUpManager = () => {
             variant='h6'
             sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
           >
-            <Typography color='primary' variant='h6' fontWeight={'bold'}>
-              GloZ
-            </Typography>{' '}
+            <span style={{ color: '#666CFF' }}>GloZ</span>
             has been sent.
           </Typography>
           <Typography variant='body2'>

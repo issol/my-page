@@ -40,7 +40,8 @@ const TadCertificationTestMaterials = () => {
 
 export default TadCertificationTestMaterials
 
+// ** TODO : 렐과 상의 후 변경
 TadCertificationTestMaterials.acl = {
-  action: 'certificationTestMaterials-read',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

@@ -40,7 +40,8 @@ const TadOnboardingList = () => {
 
 export default TadOnboardingList
 
+// ** TODO : 렐과 상의 후 변경
 TadOnboardingList.acl = {
-  action: 'onboardingList-read',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

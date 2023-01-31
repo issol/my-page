@@ -12,19 +12,19 @@ export function removeAllStorage() {
 /* UserData */
 export function getUserDataFromBrowser() {
   if (typeof window === 'object') {
-    return window.sessionStorage.getItem('userData')
+    return window.sessionStorage.getItem(authConfig.userInfo)
   }
 }
 
 export function saveUserDataToBrowser(userData: UserDataType) {
   if (typeof window === 'object') {
-    window.sessionStorage.setItem('userData', JSON.stringify(userData))
+    window.sessionStorage.setItem(authConfig.userInfo, JSON.stringify(userData))
   }
 }
 
 export function removeUserDataFromBrowser() {
   if (typeof window === 'object') {
-    window.sessionStorage.removeItem('userData')
+    window.sessionStorage.removeItem(authConfig.userInfo)
   }
 }
 
@@ -48,7 +48,7 @@ export function removeUserTokenFromBrowser() {
 }
 
 /* rememberMe */
-export function gerRememberMe() {
+export function getRememberMe() {
   if (typeof window === 'object') {
     return window.localStorage.getItem(authConfig.rememberId)
   }

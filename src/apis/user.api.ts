@@ -1,5 +1,5 @@
 import axios from 'src/configs/axios'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 import {
   ConsumerUserInfoType,
   ManagerUserInfoType,

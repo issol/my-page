@@ -41,7 +41,8 @@ const TadAccount = () => {
 
 export default TadAccount
 
+// ** TODO : 렐과 상의 후 변경
 TadAccount.acl = {
-  action: 'AC0010',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

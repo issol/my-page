@@ -1,11 +1,12 @@
 import { Dispatch, SetStateAction } from 'react'
-import { RoleType } from 'src/types/apps/userTypes'
 import { loginResType } from 'src/types/sign/signInTypes'
 import {
   CountryType,
   JobInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+
+export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any
@@ -24,9 +25,9 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  role: Array<RoleType>
+  // role: Array<RoleType>
   email: string
-  permission: Array<string>
+  // permission: Array<string>
   company?: string
   country?: string
   firstName?: string
@@ -68,3 +69,8 @@ export type AuthValuesType = {
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void
   register: (params: RegisterParams, errorCallback?: ErrCallbackType) => void
 }
+
+export type PermissionObjectType = Array<{
+  subject: string
+  can: Array<'all' | 'create' | 'read' | 'update' | 'delete'>
+}>

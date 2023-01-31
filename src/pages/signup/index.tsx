@@ -42,7 +42,7 @@ import {
   validateRole,
   verifyPinCode,
 } from 'src/apis/sign.api'
-import { RoleType } from 'src/types/apps/userTypes'
+import { RoleType } from 'src/context/types'
 import { useMutation } from 'react-query'
 
 // ** Third Party Components
@@ -266,7 +266,7 @@ const SignUpPage = () => {
     // const { email, password } = data
     setStep(2)
   }
-  console.log(errors)
+
   const onRoleSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value as RoleType
     const filtered = role.filter(item => item !== value)

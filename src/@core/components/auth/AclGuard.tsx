@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, useState } from 'react'
+import { ReactNode, useEffect, useState } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -17,8 +17,8 @@ import { buildAbilityFor } from 'src/configs/acl'
 import NotAuthorized from 'src/pages/401'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
-// ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+/* redux */
+import { useAppSelector } from 'src/hooks/useRedux'
 
 interface AclGuardProps {
   children: ReactNode
@@ -32,9 +32,15 @@ const AclGuard = (props: AclGuardProps) => {
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
+  const { permission } = useAppSelector(state => state.userAccess)
+
   // ** Hooks
-  const auth = useAuth()
   const router = useRouter()
+
+  // User is logged in, build ability for the user based on his role
+  useEffect(() => {
+    setAbility(buildAbilityFor(permission))
+  }, [permission])
 
   // If guestGuard is true and user is not logged in or its an error page, render the page without checking access
   if (
@@ -46,25 +52,13 @@ const AclGuard = (props: AclGuardProps) => {
     return <>{children}</>
   }
 
-  // User is logged in, build ability for the user based on his role
-  if (auth.user && auth.user.role && !ability) {
-    setAbility(buildAbilityFor(auth.user.permission, auth.user.role))
-  }
-
   // Check the access of current user and render pages
-  //can(permission[], role[])
   if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
-    // const noPermission = aclAbilities.action?.some(
-    //   item => !ability.can(item, aclAbilities.subject),
-    // )
-
-    // if (!noPermission) {
     return (
       <AbilityContext.Provider value={ability}>
         {children}
       </AbilityContext.Provider>
     )
-    // }
   }
 
   // Render Not Authorized component if the current user has limited access

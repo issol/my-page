@@ -35,9 +35,12 @@ const RoleArray = ['TAD', 'LPM']
 const TadCompany = () => {
   const ability = useContext(AbilityContext)
   const { data: signUpRequests, isError } = useGetSignUpRequests(
-    ability.can('IK9400', 'TAD'),
+    ability.can('update', 'permission_request'),
   )
-  const { data: members } = useGetMembers(ability.can('C8788', 'TAD'))
+  const { data: members } = useGetMembers(
+    ability.can('update', 'permission_request'),
+  )
+
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
   const [requestsPageSize, setRequestsPageSize] = useState<number>(10)
@@ -247,7 +250,7 @@ const TadCompany = () => {
   }
 
   const checkPermission = () => {
-    return ability.can('IK0006', 'TAD')
+    return ability.can('update', 'permission_request')
   }
 
   useEffect(() => {
@@ -292,7 +295,8 @@ const TadCompany = () => {
 
 export default TadCompany
 
+// ** TODO : 렐과 상의 후 변경
 TadCompany.acl = {
-  action: 'L8870',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

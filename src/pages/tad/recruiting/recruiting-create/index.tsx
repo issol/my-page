@@ -40,7 +40,8 @@ const TadRecruitingCreate = () => {
 
 export default TadRecruitingCreate
 
+// ** TODO : 렐과 상의 후 변경
 TadRecruitingCreate.acl = {
-  action: 'recruitingCreate-read',
-  subject: 'TAD',
+  action: 'read',
+  subject: 'members',
 }

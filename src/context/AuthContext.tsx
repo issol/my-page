@@ -23,9 +23,7 @@ import {
 import { login, logout } from 'src/apis/sign.api'
 import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
-import { getUserRoleNPermission } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
-import { ModalContext } from './ModalContext'
 import { Box } from '@mui/system'
 import { Button, Dialog, Typography } from '@mui/material'
 import {
@@ -38,6 +36,10 @@ import {
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
 } from 'src/shared/auth/storage'
+
+/* redux */
+import { getPermission, getRole } from 'src/store/permission'
+import { useAppDispatch } from 'src/hooks/useRedux'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -68,8 +70,17 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
+  const dispatch = useAppDispatch()
+
   // ** Hooks
   const router = useRouter()
+
+  useEffect(() => {
+    if (user) {
+      dispatch(getRole(user.id))
+      dispatch(getPermission())
+    }
+  }, [user])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
@@ -92,24 +103,17 @@ const AuthProvider = ({ children }: Props) => {
   }, [])
 
   async function updateUserInfo(response: loginResType) {
-    Promise.all([
-      getUserInfo(response.email),
-      getUserRoleNPermission(response.userId),
-    ])
-      .then(values => {
-        const profile = values[0]
-        const permission = values[1]
+    getUserInfo(response.email)
+      .then(value => {
+        const profile = value
         const userInfo = {
           id: response.userId,
-          role: permission.roles,
           email: response.email,
           username: `${profile.firstName} ${profile?.middleName ?? ''} ${
             profile.lastName
           }`,
           firstName: profile.firstName,
           timezone: profile.timezone,
-
-          permission: [...permission.permissions],
         }
         saveUserDataToBrowser(userInfo)
         setUser(userInfo)
@@ -118,6 +122,7 @@ const AuthProvider = ({ children }: Props) => {
         router.push('/login')
       })
   }
+
   const handleLogin = (
     params: LoginParams,
     errorCallback?: ErrCallbackType,

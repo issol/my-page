@@ -1,17 +1,17 @@
 import { AbilityBuilder, Ability } from '@casl/ability'
-import { forEach } from 'lodash'
-import { RoleType } from 'src/types/apps/userTypes'
+import { PermissionObjectType } from 'src/context/types'
 
-export type Subjects_Permission = Array<string> //permission
-export type Actions_Roles = Array<RoleType>
+export type Action = 'all' | 'create' | 'read' | 'update' | 'delete'
+export type Subjects = string
 
-export type AppAbility = Ability<[any, any]> | undefined
-
+export type AppAbility = Ability<[string, Subjects]> | undefined
 export const AppAbility = Ability as any
+
 export type ACLObj = {
-  action: Subjects_Permission
-  subject: Actions_Roles
+  action: Action
+  subject: Subjects
 }
+
 export type PolicyType = {
   [key: string]: {
     create: boolean
@@ -21,30 +21,21 @@ export type PolicyType = {
   }
 }
 
-/**
- * Please define your own Ability rules according to your app requirements.
- * We have just shown Admin and Client rules for demo purpose where
- * admin can manage everything and client can just visit ACL page
- */
-const defineRulesFor = (
-  role: Array<RoleType>,
-  permission: Subjects_Permission,
-) => {
+const defineRulesFor = (userPermission: PermissionObjectType) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
-  role.forEach((item: RoleType) => {
-    can(permission, item)
-  })
-
-  console.log(rules)
+  if (userPermission.length) {
+    userPermission.forEach(permission => {
+      can(permission.can, permission.subject)
+    })
+  }
 
   return rules
 }
 
 export const buildAbilityFor = (
-  permission: Subjects_Permission,
-  role: Array<RoleType>,
+  userPermission: PermissionObjectType,
 ): AppAbility => {
-  return new AppAbility(defineRulesFor(role, permission), {
+  return new AppAbility(defineRulesFor(userPermission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
     detectSubjectType: object => object!.type,
@@ -52,8 +43,8 @@ export const buildAbilityFor = (
 }
 
 export const defaultACLObj: ACLObj = {
-  action: ['L8870'],
-  subject: ['TAD'],
+  action: 'read',
+  subject: 'acl-page',
 }
 
 export default defineRulesFor
