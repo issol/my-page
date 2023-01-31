@@ -5,7 +5,7 @@ import { DataGrid, GridColDef } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 import RenderMembersChips from './render-members-chips'
-import Button from '@mui/material/Button'
+
 import { Dispatch, SetStateAction } from 'react'
 
 interface CellType {
@@ -190,8 +190,8 @@ const MemberList = ({
           }}
           columns={columns}
           rows={memberList ?? []}
-          disableSelectionOnClick
           autoHeight
+          disableSelectionOnClick
           // autoPageSize
           pageSize={membersPageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}

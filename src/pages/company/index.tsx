@@ -7,11 +7,9 @@ import {
 } from 'src/queries/company/company-query'
 import {
   approveMembers,
-  deleteSignUpRequests,
   requestAction,
   undoMembers,
   undoRequest,
-  undoSignUpRequest,
 } from 'src/apis/company.api'
 
 import { ModalContext } from 'src/context/ModalContext'
@@ -24,15 +22,14 @@ import SignUpRequests from './components/sign-up-requests'
 import MemberList from './components/member-list'
 import {
   MembersType,
-  RequestActionType,
   RequestPayloadType,
   SignUpRequestsType,
 } from 'src/types/company/members'
-import { faker } from '@faker-js/faker'
+
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 const RoleArray = ['TAD', 'LPM']
-const TadCompany = () => {
+const Company = () => {
   const ability = useContext(AbilityContext)
   const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('update', 'permission_request'),
@@ -57,15 +54,6 @@ const TadCompany = () => {
     {
       onSuccess: (data, variables) => {
         displayUndoToast(variables.user, variables.payload.reply)
-      },
-    },
-  )
-
-  const declineSignUpRequestMutation = useMutation(
-    (id: number) => deleteSignUpRequests(id),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries('signup-requests')
       },
     },
   )
@@ -293,10 +281,10 @@ const TadCompany = () => {
   )
 }
 
-export default TadCompany
+export default Company
 
 // ** TODO : 렐과 상의 후 변경
-TadCompany.acl = {
+Company.acl = {
   action: 'read',
   subject: 'members',
 }
