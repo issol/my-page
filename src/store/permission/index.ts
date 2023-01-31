@@ -35,6 +35,10 @@ export const getPermission = createAsyncThunk(
           subject: 'personalInfo_manager',
           can: ['read', 'create', 'update', 'delete'],
         },
+        {
+          subject: 'dashboards',
+          can: ['read', 'create', 'update', 'delete'],
+        },
       ]
     } catch (e: any) {
       throw new Error('getPermission error : ', e)
