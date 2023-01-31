@@ -247,11 +247,12 @@ const PersonalInfoPro = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          if (userAccess.role?.includes('PRO')) {
-            router.push('/pro/dashboard')
-          } else {
-            router.push('/client/dashboard')
-          }
+          router.push('/dashboards')
+          // if (userAccess.role?.includes('PRO')) {
+          //   router.push('/pro/dashboard')
+          // } else {
+          //   router.push('/client/dashboard')
+          // }
         })
       },
       onError: () => {

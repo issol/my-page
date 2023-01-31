@@ -40,6 +40,10 @@ export const getPermission = createAsyncThunk(
           subject: 'onboarding',
           can: ['read', 'create', 'update', 'delete'],
         },
+        {
+          subject: 'dashboards',
+          can: ['read', 'create', 'update', 'delete'],
+        },
       ]
       return data
     } catch (e: any) {

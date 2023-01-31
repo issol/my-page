@@ -136,11 +136,12 @@ const PersonalInfoManager = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          if (userAccess.role?.includes('TAD')) {
-            router.push('/tad/dashboard')
-          } else {
-            router.push('/lpm/dashboard')
-          }
+          router.push('/dashboard')
+          // if (userAccess.role?.includes('TAD')) {
+          //   router.push('/tad/dashboard')
+          // } else {
+          //   router.push('/lpm/dashboard')
+          // }
         })
       },
       onError: () => {
