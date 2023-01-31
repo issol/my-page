@@ -49,6 +49,42 @@ const text = {
       entityRanges: [],
       data: {},
     },
+    {
+      key: 'b751mm',
+      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
+      type: 'unstyled',
+      depth: 0,
+      inlineStyleRanges: [],
+      entityRanges: [],
+      data: {},
+    },
+    {
+      key: 'b76mm',
+      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
+      type: 'unstyled',
+      depth: 0,
+      inlineStyleRanges: [],
+      entityRanges: [],
+      data: {},
+    },
+    {
+      key: 'b76mm1',
+      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
+      type: 'unstyled',
+      depth: 0,
+      inlineStyleRanges: [],
+      entityRanges: [],
+      data: {},
+    },
+    {
+      key: 'b76mm2',
+      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
+      type: 'unstyled',
+      depth: 0,
+      inlineStyleRanges: [],
+      entityRanges: [],
+      data: {},
+    },
   ],
   entityMap: {},
 }
@@ -289,7 +325,7 @@ const NdaKor = () => {
         onClose={() => setOpenDetail(false)}
         maxWidth='md'
       >
-        <StyledEditor>
+        <StyledEditor maxHeight={true}>
           <Box sx={{ padding: '50px 60px 50px' }}>
             <Card sx={{ padding: '20px' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
@@ -359,9 +395,13 @@ const Chip = styled.span`
   color: #ff4d49;
 `
 
-const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`
+const StyledEditor = styled(EditorWrapper)<{
+  error?: boolean
+  maxHeight?: boolean
+}>`
   .rdw-editor-main {
     border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
+    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
   }
   .rdw-editor-toolbar {
     display: none;
