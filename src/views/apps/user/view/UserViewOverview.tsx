@@ -19,7 +19,6 @@ import { InvoiceType } from 'src/types/apps/invoiceTypes'
 
 // ** Demo Component Imports
 import UsersInvoiceListTable from 'src/views/apps/user/view/UsersInvoiceListTable'
-import UsersProjectListTable from 'src/views/apps/user/view/UsersProjectListTable'
 
 interface Props {
   invoiceData: InvoiceType[]
@@ -32,20 +31,17 @@ const Timeline = styled(MuiTimeline)<TimelineProps>(({ theme }) => ({
   marginLeft: theme.spacing(0.75),
   '& .MuiTimelineItem-root': {
     '&:before': {
-      display: 'none'
+      display: 'none',
     },
     '&:last-child': {
-      minHeight: 60
-    }
-  }
+      minHeight: 60,
+    },
+  },
 }))
 
 const UserViewOverview = ({ invoiceData }: Props) => {
   return (
     <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <UsersProjectListTable />
-      </Grid>
       <Grid item xs={12}>
         <Card>
           <CardHeader title='User Activity Timeline' />
@@ -63,10 +59,13 @@ const UserViewOverview = ({ invoiceData }: Props) => {
                       display: 'flex',
                       flexWrap: 'wrap',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Typography variant='body2' sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                    <Typography
+                      variant='body2'
+                      sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}
+                    >
                       User login
                     </Typography>
                     <Typography variant='caption'>12 min ago</Typography>
@@ -87,10 +86,13 @@ const UserViewOverview = ({ invoiceData }: Props) => {
                       display: 'flex',
                       flexWrap: 'wrap',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Typography variant='body2' sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                    <Typography
+                      variant='body2'
+                      sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}
+                    >
                       Meeting with John
                     </Typography>
                     <Typography variant='caption'>45 min ago</Typography>
@@ -99,12 +101,21 @@ const UserViewOverview = ({ invoiceData }: Props) => {
                     React Project meeting with John @10:15am
                   </Typography>
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Avatar alt='Avatar' src='/images/avatars/2.png' sx={{ width: 40, height: 40, mr: 2 }} />
+                    <Avatar
+                      alt='Avatar'
+                      src='/images/avatars/2.png'
+                      sx={{ width: 40, height: 40, mr: 2 }}
+                    />
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Typography variant='body2' sx={{ fontWeight: 600, color: 'text.primary' }}>
+                      <Typography
+                        variant='body2'
+                        sx={{ fontWeight: 600, color: 'text.primary' }}
+                      >
                         Leona Watkins (Client)
                       </Typography>
-                      <Typography variant='body2'>CEO of Watkins Group</Typography>
+                      <Typography variant='body2'>
+                        CEO of Watkins Group
+                      </Typography>
                     </Box>
                   </Box>
                 </TimelineContent>
@@ -122,15 +133,20 @@ const UserViewOverview = ({ invoiceData }: Props) => {
                       display: 'flex',
                       flexWrap: 'wrap',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Typography variant='body2' sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                    <Typography
+                      variant='body2'
+                      sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}
+                    >
                       Create a new react project for client
                     </Typography>
                     <Typography variant='caption'>2 day ago</Typography>
                   </Box>
-                  <Typography variant='body2'>Add files to new design folder</Typography>
+                  <Typography variant='body2'>
+                    Add files to new design folder
+                  </Typography>
                 </TimelineContent>
               </TimelineItem>
 
@@ -146,20 +162,33 @@ const UserViewOverview = ({ invoiceData }: Props) => {
                       display: 'flex',
                       flexWrap: 'wrap',
                       alignItems: 'center',
-                      justifyContent: 'space-between'
+                      justifyContent: 'space-between',
                     }}
                   >
-                    <Typography variant='body2' sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}>
+                    <Typography
+                      variant='body2'
+                      sx={{ mr: 2, fontWeight: 600, color: 'text.primary' }}
+                    >
                       Create invoices for client
                     </Typography>
                     <Typography variant='caption'>12 min ago</Typography>
                   </Box>
-                  <Typography variant='body2'>Create new invoices and send to Leona Watkins</Typography>
+                  <Typography variant='body2'>
+                    Create new invoices and send to Leona Watkins
+                  </Typography>
                   <Box sx={{ mt: 2, display: 'flex', alignItems: 'center' }}>
                     <Box sx={{ width: 28, height: 'auto' }}>
-                      <img width={28} height={28} alt='invoice.pdf' src='/images/icons/file-icons/pdf.png' />
+                      <img
+                        width={28}
+                        height={28}
+                        alt='invoice.pdf'
+                        src='/images/icons/file-icons/pdf.png'
+                      />
                     </Box>
-                    <Typography variant='subtitle2' sx={{ ml: 2, fontWeight: 600 }}>
+                    <Typography
+                      variant='subtitle2'
+                      sx={{ ml: 2, fontWeight: 600 }}
+                    >
                       invoice.pdf
                     </Typography>
                   </Box>
