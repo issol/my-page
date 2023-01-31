@@ -259,7 +259,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       roleButton={roleBtn}
       verticalLayoutProps={{
         navMenu: {
-          navItems: VerticalNavItems(role),
+          navItems: VerticalNavItems(),
 
           // Uncomment the below line when using server-side menu in vertical layout and comment the above line
           // navItems: verticalMenuItems
@@ -279,7 +279,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       {...(settings.layout === 'horizontal' && {
         horizontalLayoutProps: {
           navMenu: {
-            navItems: HorizontalNavItems(role),
+            navItems: HorizontalNavItems()),
 
             // Uncomment the below line when using server-side menu in horizontal layout and comment the above line
             // navItems: horizontalMenuItems
