@@ -11,6 +11,7 @@ interface Redux {
   dispatch: Dispatch<any>
 }
 
+/* TODO : 개발 후 Test data 지우기 */
 export const getPermission = createAsyncThunk(
   'permissions/gerPermissions',
   async (): Promise<PermissionObjectType> => {
@@ -47,6 +48,7 @@ export const getPermission = createAsyncThunk(
   },
 )
 
+/* TODO : 개발 후 Test data 지우기 */
 export const getRole = createAsyncThunk(
   'permissions/getRoles',
   async (userId: number) => {
@@ -54,6 +56,7 @@ export const getRole = createAsyncThunk(
       const { data } = await axios.get(
         `/api/enough/a/role/rels?userId=${userId}`,
       )
+      return { roles: ['TAD', 'MASTER'] }
       return data
     } catch (e: any) {
       throw new Error('getRole error : ', e)

@@ -127,8 +127,55 @@ const navigation = (role: RoleType | null): HorizontalNavItemsType => {
           path: `/${role?.toLowerCase()}/my-page`,
         },
       ]
+    //** TODO: 임시로 넣어둔 메뉴. 메뉴 정리 되면 지우기 */
     default:
-      return []
+      return [
+        {
+          title: 'Dashboards',
+          icon: 'mdi:home-outline',
+          action: 'read',
+          subject: 'members',
+          path: `/tad/dashboard`,
+        },
+
+        {
+          title: 'Company',
+          icon: 'mdi:briefcase-outline',
+          action: 'update',
+          subject: 'permission_request',
+          path: `/tad/company`,
+        },
+        {
+          title: 'Account',
+          icon: 'mdi:account-outline',
+          action: 'read',
+          subject: 'members',
+          path: `/account`,
+        },
+        {
+          //**TODO : action, subject 수정하기 */
+          title: 'Onboarding',
+          icon: 'mdi:account-outline',
+          action: 'read',
+          subject: 'onboarding',
+          children: [
+            {
+              title: 'Onboarding List',
+              path: `/onboarding`,
+              action: 'read',
+              icon: 'mdi:list-box-outline',
+              subject: 'onboarding',
+            },
+            {
+              title: 'Client Guidelines',
+              path: `/onboarding/client-guideline`,
+              icon: 'mdi:playlist-check',
+              action: 'read',
+              subject: 'onboarding',
+            },
+          ],
+        },
+      ]
   }
 }
 
