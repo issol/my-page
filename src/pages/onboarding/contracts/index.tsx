@@ -95,9 +95,7 @@ export default function ContractForm() {
               <Box display='flex' gap='8px' mt='12px'>
                 {/* TODO : 등록된 문서가 있을 경우 & 없을 경우 routing 다르게 해주기 */}
                 <Button variant='outlined'>
-                  <StyledLink href='/onboarding/contract-forms/nda/kor'>
-                    KOR
-                  </StyledLink>
+                  <StyledLink href='/onboarding/contracts/form'>KOR</StyledLink>
                 </Button>
                 <Button variant='outlined'>
                   <StyledLink href='/onboarding/contracts/nda/eng'>

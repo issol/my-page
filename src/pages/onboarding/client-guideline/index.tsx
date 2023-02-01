@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material'
 import PageHeader from 'src/@core/components/page-header'
-import Filters from '../components/client-guidline/filter'
-import ClientGuideLineList from '../components/client-guidline/list'
+import Filters from '../components/client-guideline/filter'
+import ClientGuideLineList from '../components/client-guideline/list'
 
 export default function ClientGuidLines() {
   return (

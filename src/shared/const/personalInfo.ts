@@ -6,14 +6,14 @@ export const Pronunciation = [
 ] as const
 
 export const JobList = [
-  { label: 'Documents/Text', value: 'document_text' },
-  { label: 'DTP', value: 'dtp' },
-  { label: 'Dubbing', value: 'dubbing' },
-  { label: 'OTT/Subtitle', value: 'ott_subtitle' },
-  { label: 'Webcomics', value: 'webcomics' },
-  { label: 'Webnovel', value: 'webnovel' },
-  { label: 'YouTube', value: 'youtube' },
-]
+  { label: 'Documents/Text', value: 'Documents/Text' },
+  { label: 'DTP', value: 'DTP' },
+  { label: 'Dubbing', value: 'Dubbing' },
+  { label: 'OTT/Subtitle', value: 'OTT/Subtitle' },
+  { label: 'Webcomics', value: 'Webcomics' },
+  { label: 'Webnovel', value: 'Webnovel' },
+  { label: 'YouTube', value: 'YouTube' },
+].sort((a, b) => a.label.localeCompare(b.label))
 
 export const RolePair = {
   document_text: [
@@ -56,11 +56,11 @@ export const RolePair = {
 } as const
 
 export const ExperiencedYears = [
-  { value: 'NONE', label: 'No experience' },
-  { value: 'LESS_THAN_TWO', label: '1-2 years' },
-  { value: 'THREE_TO_FIVE', label: '3-5 years' },
-  { value: 'SIX_TO_NINE', label: '6-9 years' },
-  { value: 'MORE_THAN_TEN', label: '10+ years' },
+  { value: 'No experience', label: 'No experience' },
+  { value: '1-2 years', label: '1-2 years' },
+  { value: '3-5 years', label: '3-5 years' },
+  { value: '6-9 years', label: '6-9 years' },
+  { value: '10+ years', label: '10+ years' },
 ] as const
 
 export const Specialties = [

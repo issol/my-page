@@ -28,7 +28,35 @@ type CellType = {
   }
 }
 
+type ChipColorType =
+  | 'orange'
+  | 'yellow'
+  | 'blue'
+  | 'green'
+  | 'pink'
+  | 'purple'
+  | 'black'
+
 export default function ClientGuideLineList() {
+  function getChipColor(type: string): ChipColorType {
+    switch (type) {
+      case 'Documents/Text':
+        return 'orange'
+      case 'Dubbing':
+        return 'yellow'
+      case 'OTT/Subtitle':
+        return 'blue'
+      case 'Webcomics':
+        return 'green'
+      case 'Webnovel':
+        return 'pink'
+      case 'YouTube':
+        return 'purple'
+      default:
+        return 'black'
+    }
+  }
+
   const columns = [
     {
       flex: 0.28,
@@ -57,7 +85,9 @@ export default function ClientGuideLineList() {
       headerName: 'Category',
       renderHeader: () => <Box>Category</Box>,
       renderCell: ({ row }: CellType) => (
-        <CategoryChip>{row.client}</CategoryChip>
+        <CategoryChip color={getChipColor(row.category)}>
+          {row.client}
+        </CategoryChip>
       ),
     },
     {
@@ -140,9 +170,24 @@ export default function ClientGuideLineList() {
 }
 
 // ** TODO : chip style 컬러 추가해야 함
-const CategoryChip = styled.p`
+const CategoryChip = styled.p<{
+  color: ChipColorType
+}>`
   padding: 2px 6px;
-  background: #ff9e91;
+  background: ${({ color }) =>
+    color === 'orange'
+      ? '#FF9E90'
+      : color === 'yellow'
+      ? '#FFF387'
+      : color === 'blue'
+      ? '#A9E0FF'
+      : color === 'green'
+      ? '#BEEFAE'
+      : color === 'pink'
+      ? '#FFBFE9'
+      : color === 'purple'
+      ? '#CCBFFF'
+      : 'rgba(76, 78, 100, 0.26)'};
   border-radius: 16px;
 
   color: #111111;
