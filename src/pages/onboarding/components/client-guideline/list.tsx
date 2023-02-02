@@ -17,6 +17,7 @@ import styled from 'styled-components'
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { StyledNextLink } from 'src/@core/components/customLink'
+import { useRouter } from 'next/router'
 
 type CellType = {
   row: {
@@ -39,6 +40,7 @@ type ChipColorType =
   | 'black'
 
 export default function ClientGuideLineList() {
+  const router = useRouter()
   function getChipColor(type: string): ChipColorType {
     switch (type) {
       case 'Documents/Text':
@@ -58,6 +60,10 @@ export default function ClientGuideLineList() {
     }
   }
 
+  function moveToDetail(id: number) {
+    router.push(`/onboarding/client-guideline/detail/${id}`)
+  }
+
   const columns = [
     {
       flex: 0.28,
@@ -66,7 +72,13 @@ export default function ClientGuideLineList() {
       headerName: 'Title',
       renderHeader: () => <Box>Title.</Box>,
       renderCell: ({ row }: CellType) => (
-        <Title title={row.title}>{row.title}</Title>
+        <Title
+          title={row.title}
+          sx={{ cursor: 'pointer' }}
+          onClick={() => moveToDetail(row.id)}
+        >
+          {row.title}
+        </Title>
       ),
     },
     {

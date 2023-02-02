@@ -100,7 +100,7 @@ export default function ContractForm() {
                   </StyledNextLink>
                 </Button>
                 <Button variant='outlined'>
-                  <StyledNextLink href='/onboarding/contracts/nda/eng'>
+                  <StyledNextLink href='/onboarding/contracts/detail'>
                     ENG
                   </StyledNextLink>
                 </Button>

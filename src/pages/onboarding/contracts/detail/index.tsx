@@ -101,7 +101,7 @@ type CellType = {
 const mock = [
   { id: 0, version: 'Ver.2', email: 'chloe@glozinc.com', date: Date() },
 ]
-const NdaKor = () => {
+const ContractDetail = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [openDetail, setOpenDetail] = useState(false)
@@ -373,9 +373,9 @@ const NdaKor = () => {
   )
 }
 
-export default NdaKor
+export default ContractDetail
 
-NdaKor.acl = {
+ContractDetail.acl = {
   action: 'read',
   subject: 'onboarding',
 }
