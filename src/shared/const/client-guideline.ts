@@ -8,6 +8,25 @@ export const ClientCategory = [
   { label: 'RIDI', value: 'RIDI' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
+export const ClientCategoryIncludeGloz = [
+  { label: 'Naver', value: 'Naver' },
+  { label: 'Tapytoon', value: 'Tapytoon' },
+  { label: 'Netflix', value: 'Netflix' },
+  { label: 'Disney', value: 'Disney' },
+  { label: 'Sandbox', value: 'Sandbox' },
+  { label: 'RIDI', value: 'RIDI' },
+  { label: 'GloZ', value: 'GloZ' },
+].sort((a, b) => a.label.localeCompare(b.label))
+
+export const Category = [
+  { label: 'No category', value: 'No category' },
+  { label: 'Documents/Text', value: 'Documents/Text' },
+  { label: 'Dubbing', value: 'Dubbing' },
+  { label: 'OTT/Subtitle', value: 'OTT/Subtitle' },
+  { label: 'Webnovel', value: 'Webnovel' },
+  { label: 'YouTube', value: 'YouTube' },
+]
+
 export const ServiceType = [
   { label: 'Admin task(Internal task)', value: 'Admin task(Internal task)' },
   { label: 'Copywriting', value: 'Copywriting' },
@@ -32,4 +51,4 @@ export const ServiceType = [
   { label: 'Translation and DTP', value: 'Translation and DTP' },
   { label: 'Translation Revision', value: 'Translation Revision' },
   { label: 'Video editing', value: 'Video editing' },
-]
+].sort((a, b) => a.label.localeCompare(b.label))

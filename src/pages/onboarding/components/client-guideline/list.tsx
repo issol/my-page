@@ -16,6 +16,7 @@ import styled from 'styled-components'
 
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { StyledNextLink } from 'src/@core/components/customLink'
 
 type CellType = {
   row: {
@@ -149,7 +150,14 @@ export default function ClientGuideLineList() {
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>Guidelines (0)</Typography>{' '}
-              <Button variant='contained'>Add client guideline</Button>
+              <Button variant='contained'>
+                <StyledNextLink
+                  href='/onboarding/client-guideline/form'
+                  color='white'
+                >
+                  Add client guideline
+                </StyledNextLink>
+              </Button>
             </Box>
           }
         />

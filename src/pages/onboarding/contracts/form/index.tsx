@@ -25,7 +25,7 @@ import styled from 'styled-components'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 
-const NdaEng = () => {
+const ContractForm = () => {
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
 
@@ -177,9 +177,9 @@ const NdaEng = () => {
   )
 }
 
-export default NdaEng
+export default ContractForm
 
-NdaEng.acl = {
+ContractForm.acl = {
   action: 'read',
   subject: 'onboarding',
 }

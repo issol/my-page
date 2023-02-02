@@ -5,7 +5,7 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import { useContext } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
-import Link from 'next/link'
+import { StyledNextLink } from 'src/@core/components/customLink'
 
 //** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
 export default function ContractForm() {
@@ -95,12 +95,14 @@ export default function ContractForm() {
               <Box display='flex' gap='8px' mt='12px'>
                 {/* TODO : 등록된 문서가 있을 경우 & 없을 경우 routing 다르게 해주기 */}
                 <Button variant='outlined'>
-                  <StyledLink href='/onboarding/contracts/form'>KOR</StyledLink>
+                  <StyledNextLink href='/onboarding/contracts/form'>
+                    KOR
+                  </StyledNextLink>
                 </Button>
                 <Button variant='outlined'>
-                  <StyledLink href='/onboarding/contracts/nda/eng'>
+                  <StyledNextLink href='/onboarding/contracts/nda/eng'>
                     ENG
-                  </StyledLink>
+                  </StyledNextLink>
                 </Button>
               </Box>
             </StyledBox>
@@ -123,10 +125,10 @@ export default function ContractForm() {
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
                 <Button variant='outlined'>
-                  <StyledLink href=''>KOR</StyledLink>
+                  <StyledNextLink href=''>KOR</StyledNextLink>
                 </Button>
                 <Button variant='outlined'>
-                  <StyledLink href=''>ENG</StyledLink>
+                  <StyledNextLink href=''>ENG</StyledNextLink>
                 </Button>
               </Box>
             </StyledBox>
@@ -149,10 +151,10 @@ export default function ContractForm() {
               </Typography>
               <Box display='flex' gap='8px' mt='12px'>
                 <Button variant='outlined'>
-                  <StyledLink href=''>KOR</StyledLink>
+                  <StyledNextLink href=''>KOR</StyledNextLink>
                 </Button>
                 <Button variant='outlined'>
-                  <StyledLink href=''>ENG</StyledLink>
+                  <StyledNextLink href=''>ENG</StyledNextLink>
                 </Button>
               </Box>
             </StyledBox>
@@ -182,10 +184,7 @@ const Ul = styled.ul`
   padding-left: 24px;
   text-align: left;
 `
-const StyledLink = styled(Link)`
-  text-decoration: none;
-  color: #666cff;
-`
+
 const ModalContainer = styled(Box)`
   max-width: 350px;
   position: relative;

@@ -1,4 +1,11 @@
-import { Button, Card, CardHeader, Grid, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Checkbox,
+  Grid,
+  Typography,
+} from '@mui/material'
 
 // ** MUI Imports
 import IconButton from '@mui/material/IconButton'
@@ -46,6 +53,12 @@ export default function Filters() {
                 renderInput={params => (
                   <TextField {...params} label='Client' placeholder='Client' />
                 )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
+                )}
               />
             </FormControl>
           </Grid>
@@ -66,6 +79,12 @@ export default function Filters() {
                       label='Category'
                       placeholder='Category'
                     />
+                  )}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox checked={selected} sx={{ mr: 2 }} />
+                      {option.label}
+                    </li>
                   )}
                 />
               </FormControl>
@@ -88,6 +107,12 @@ export default function Filters() {
                     placeholder='Service type'
                   />
                 )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
+                )}
               />
             </FormControl>
           </Grid>
@@ -96,7 +121,6 @@ export default function Filters() {
             <FormControl fullWidth>
               <TextField
                 id='search'
-                // label='With normal TextField'
                 placeholder='Search the title and content'
                 InputProps={{
                   startAdornment: (
