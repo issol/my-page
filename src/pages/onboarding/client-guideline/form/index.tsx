@@ -418,7 +418,7 @@ const ClientGuidelineForm = () => {
           </Grid>
 
           <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-            <Card>
+            <Card style={{ height: '565px', overflow: 'scroll' }}>
               <Box
                 sx={{
                   padding: '20px',
