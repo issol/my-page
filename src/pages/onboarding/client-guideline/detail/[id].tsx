@@ -465,8 +465,6 @@ const StyledEditor = styled(EditorWrapper)<{
   maxHeight?: boolean
 }>`
   .rdw-editor-main {
-    /* border: ${({ error }) =>
-      error ? '1px solid #FF4D49 !important' : ''}; */
     border: none !important;
     max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
   }
