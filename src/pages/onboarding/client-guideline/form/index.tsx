@@ -6,6 +6,7 @@ import {
   Button,
   Card,
   FormHelperText,
+  List,
   TextField,
 } from '@mui/material'
 import { Box } from '@mui/system'
@@ -16,7 +17,7 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { Fragment, useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { EditorState } from 'draft-js'
@@ -355,6 +356,7 @@ const ClientGuidelineForm = () => {
                   )}
                 </Grid>
               </Box>
+              {/* service type */}
               <Grid item xs={12} mb='20px'>
                 <Controller
                   name='serviceType'
@@ -414,8 +416,32 @@ const ClientGuidelineForm = () => {
               )}
             </Card>
           </Grid>
+
           <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
             <Card>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
+              >
+                <Box display='flex' justifyContent='space-between'>
+                  <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                    Attached file
+                  </Typography>
+                  <Typography variant='body2'>254.0 kb/50 mb</Typography>
+                </Box>
+                <Button variant='outlined'>Upload files</Button>
+                {files.length ? (
+                  <Fragment>
+                    <List>{fileList}</List>
+                  </Fragment>
+                ) : null}
+              </Box>
+            </Card>
+            <Card style={{ marginTop: '24px' }}>
               <Box
                 sx={{
                   padding: '20px',
