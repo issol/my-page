@@ -3,13 +3,32 @@ import { Box } from '@mui/system'
 
 import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
-import { useContext } from 'react'
+import { Fragment, Suspense, useContext, useState } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
 import { StyledNextLink } from 'src/@core/components/customLink'
+import { useRouter } from 'next/router'
+import { ContractParam } from 'src/apis/contract.api'
+import { useGetContract } from 'src/queries/contract/contract.query'
+import FallbackSpinner from 'src/@core/components/spinner'
 
 //** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
 export default function ContractForm() {
   const { setModal } = useContext(ModalContext)
+  const router = useRouter()
+  const [info, setInfo] = useState<ContractParam>({ type: '', language: '' })
+  const { data: contract, isLoading } = useGetContract({
+    type: info.type,
+    language: info.language,
+    initialize,
+  })
+
+  function initialize() {
+    setInfo({ type: '', language: '' })
+  }
+  function onButtonClick({ type, language }: ContractParam) {
+    setInfo({ type, language })
+  }
+  console.log(info)
 
   function onInfoClick() {
     setModal(
@@ -52,116 +71,148 @@ export default function ContractForm() {
       </ModalContainer>,
     )
   }
+
   return (
-    <Grid xs={12} container>
-      <Card sx={{ width: '100%', margin: '0 70px', padding: '22px' }}>
-        <Box sx={{ textAlign: 'right' }}>
-          <Icon
-            icon='mdi:information-outline'
-            style={{ opacity: '0.7' }}
-            cursor='pointer'
-            onClick={onInfoClick}
-          />
-        </Box>
-        <Box sx={{ padding: '58px' }}>
-          <Typography variant='h5' sx={{ textAlign: 'center' }}>
-            Contract forms
-          </Typography>
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: '1fr 1fr 1fr',
-              gap: '24px',
-            }}
-            mt='24px'
-          >
-            {/* NDA */}
-            <StyledBox>
-              <img
-                width={58}
-                height={58}
-                src='/images/icons/etc/icon-keyboad.png'
-                alt='NDA'
+    <Fragment>
+      <Suspense fallback={<FallbackSpinner />}>
+        <Grid xs={12} container>
+          <Card sx={{ width: '100%', margin: '0 70px', padding: '22px' }}>
+            <Box sx={{ textAlign: 'right' }}>
+              <Icon
+                icon='mdi:information-outline'
+                style={{ opacity: '0.7' }}
+                cursor='pointer'
+                onClick={onInfoClick}
               />
-              <Typography
-                variant='h5'
-                sx={{ textAlign: 'center', margin: '12px 0' }}
+            </Box>
+            <Box sx={{ padding: '58px' }}>
+              <Typography variant='h5' sx={{ textAlign: 'center' }}>
+                Contract forms
+              </Typography>
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: '1fr 1fr 1fr',
+                  gap: '24px',
+                }}
+                mt='24px'
               >
-                NDA
-              </Typography>
-              <Typography variant='body2' sx={{ textAlign: 'center' }}>
-                Pros will sign the NDA before taking the certification test.
-              </Typography>
-              <Box display='flex' gap='8px' mt='12px'>
-                {/* TODO : 등록된 문서가 있을 경우 & 없을 경우 routing 다르게 해주기 */}
-                <Button variant='outlined'>
-                  <StyledNextLink href='/onboarding/contracts/form'>
-                    KOR
-                  </StyledNextLink>
-                </Button>
-                <Button variant='outlined'>
-                  <StyledNextLink href='/onboarding/contracts/detail'>
-                    ENG
-                  </StyledNextLink>
-                </Button>
+                {/* NDA */}
+                <StyledBox>
+                  <img
+                    width={58}
+                    height={58}
+                    src='/images/icons/etc/icon-keyboad.png'
+                    alt='NDA'
+                  />
+                  <Typography
+                    variant='h5'
+                    sx={{ textAlign: 'center', margin: '12px 0' }}
+                  >
+                    NDA
+                  </Typography>
+                  <Typography variant='body2' sx={{ textAlign: 'center' }}>
+                    Pros will sign the NDA before taking the certification test.
+                  </Typography>
+                  <Box display='flex' gap='8px' mt='12px'>
+                    {/* TODO : 등록된 문서가 있을 경우 & 없을 경우 routing 다르게 해주기 */}
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'nda', language: 'ko' })
+                      }
+                    >
+                      KOR
+                    </Button>
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'nda', language: 'en' })
+                      }
+                    >
+                      ENG
+                    </Button>
+                  </Box>
+                </StyledBox>
+                {/* Privacy */}
+                <StyledBox>
+                  <img
+                    width={58}
+                    height={58}
+                    src='/images/icons/etc/icon-suitcase.png'
+                    alt='NDA'
+                  />
+                  <Typography
+                    variant='h5'
+                    sx={{ textAlign: 'center', margin: '12px 0' }}
+                  >
+                    Privacy contract
+                  </Typography>
+                  <Typography variant='body2' sx={{ textAlign: 'center' }}>
+                    Pros will sign the Privacy contract after being onboarded.
+                  </Typography>
+                  <Box display='flex' gap='8px' mt='12px'>
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'privacy', language: 'ko' })
+                      }
+                    >
+                      KOR
+                    </Button>
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'privacy', language: 'en' })
+                      }
+                    >
+                      ENG
+                    </Button>
+                  </Box>
+                </StyledBox>
+                {/* Freelancer */}
+                <StyledBox>
+                  <img
+                    width={58}
+                    height={58}
+                    src='/images/icons/etc/icon-user.png'
+                    alt='NDA'
+                  />
+                  <Typography
+                    variant='h5'
+                    sx={{ textAlign: 'center', margin: '12px 0' }}
+                  >
+                    Freelancer contract
+                  </Typography>
+                  <Typography variant='body2' sx={{ textAlign: 'center' }}>
+                    Pros will sign the Freelancer contract after being
+                    onboarded.
+                  </Typography>
+                  <Box display='flex' gap='8px' mt='12px'>
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'freelancer', language: 'ko' })
+                      }
+                    >
+                      KOR
+                    </Button>
+                    <Button
+                      variant='outlined'
+                      onClick={() =>
+                        onButtonClick({ type: 'freelancer', language: 'ko' })
+                      }
+                    >
+                      ENG
+                    </Button>
+                  </Box>
+                </StyledBox>
               </Box>
-            </StyledBox>
-            {/* Privacy */}
-            <StyledBox>
-              <img
-                width={58}
-                height={58}
-                src='/images/icons/etc/icon-suitcase.png'
-                alt='NDA'
-              />
-              <Typography
-                variant='h5'
-                sx={{ textAlign: 'center', margin: '12px 0' }}
-              >
-                Privacy contract
-              </Typography>
-              <Typography variant='body2' sx={{ textAlign: 'center' }}>
-                Pros will sign the Privacy contract after being onboarded.
-              </Typography>
-              <Box display='flex' gap='8px' mt='12px'>
-                <Button variant='outlined'>
-                  <StyledNextLink href=''>KOR</StyledNextLink>
-                </Button>
-                <Button variant='outlined'>
-                  <StyledNextLink href=''>ENG</StyledNextLink>
-                </Button>
-              </Box>
-            </StyledBox>
-            {/* Freelancer */}
-            <StyledBox>
-              <img
-                width={58}
-                height={58}
-                src='/images/icons/etc/icon-user.png'
-                alt='NDA'
-              />
-              <Typography
-                variant='h5'
-                sx={{ textAlign: 'center', margin: '12px 0' }}
-              >
-                Freelancer contract
-              </Typography>
-              <Typography variant='body2' sx={{ textAlign: 'center' }}>
-                Pros will sign the Freelancer contract after being onboarded.
-              </Typography>
-              <Box display='flex' gap='8px' mt='12px'>
-                <Button variant='outlined'>
-                  <StyledNextLink href=''>KOR</StyledNextLink>
-                </Button>
-                <Button variant='outlined'>
-                  <StyledNextLink href=''>ENG</StyledNextLink>
-                </Button>
-              </Box>
-            </StyledBox>
-          </Box>
-        </Box>
-      </Card>
-    </Grid>
+            </Box>
+          </Card>
+        </Grid>
+      </Suspense>
+    </Fragment>
   )
 }
 

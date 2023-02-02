@@ -28,6 +28,7 @@ import Icon from 'src/@core/components/icon'
 import { ModalContext } from 'src/context/ModalContext'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { DataGrid } from '@mui/x-data-grid'
+import { useRouter } from 'next/router'
 
 const text = {
   blocks: [
@@ -102,6 +103,8 @@ const mock = [
   { id: 0, version: 'Ver.2', email: 'chloe@glozinc.com', date: Date() },
 ]
 const ContractDetail = () => {
+  const router = useRouter()
+  const { type, language } = router.query
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [openDetail, setOpenDetail] = useState(false)
@@ -109,6 +112,22 @@ const ContractDetail = () => {
   const contentState = convertFromRaw(text)
   const editorState = EditorState.createWithContent(contentState)
   const { setModal } = useContext(ModalContext)
+
+  function setTitle() {
+    switch (type) {
+      case 'nda':
+        if (language === 'ko') return '[KOR] NDA'
+        else return '[ENG] NDA'
+      case 'privacy':
+        if (language === 'ko') return '[KOR] Privacy Contract'
+        else return '[ENG] Privacy Contract'
+      case 'freelancer':
+        if (language === 'ko') return '[KOR] Freelancer Contract'
+        else return '[ENG] Freelancer Contract'
+      default:
+        return ''
+    }
+  }
 
   const columns = [
     {
@@ -238,7 +257,7 @@ const ContractDetail = () => {
         <Grid container xs={9} mt='24px'>
           <Card sx={{ padding: '30px 20px 20px' }}>
             <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography variant='h6'>[ENG] NDA</Typography>
+              <Typography variant='h6'>{setTitle()}</Typography>
 
               <Box display='flex' flexDirection='column' gap='8px'>
                 <Box display='flex' alignItems='center' gap='8px'>

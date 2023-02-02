@@ -24,12 +24,31 @@ import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
+import { useRouter } from 'next/router'
 
 const ContractForm = () => {
+  const router = useRouter()
+  const { type, language } = router.query
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
 
   const { setModal } = useContext(ModalContext)
+
+  function setTitle() {
+    switch (type) {
+      case 'nda':
+        if (language === 'ko') return '[KOR] NDA'
+        else return '[ENG] NDA'
+      case 'privacy':
+        if (language === 'ko') return '[KOR] Privacy Contract'
+        else return '[ENG] Privacy Contract'
+      case 'freelancer':
+        if (language === 'ko') return '[KOR] Freelancer Contract'
+        else return '[ENG] Freelancer Contract'
+      default:
+        return ''
+    }
+  }
 
   function onDiscard() {
     setModal(
@@ -116,7 +135,7 @@ const ContractForm = () => {
         <Grid item xs={9}>
           <Card sx={{ padding: '30px 20px 20px' }}>
             <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography variant='h6'>[ENG] NDA</Typography>
+              <Typography variant='h6'>{setTitle()}</Typography>
 
               <Box display='flex' alignItems='center' gap='8px'>
                 <Chip>Writer</Chip>
