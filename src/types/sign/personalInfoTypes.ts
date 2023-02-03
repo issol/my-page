@@ -17,11 +17,11 @@ export interface PersonalInfo {
   firstName: string
   middleName?: string
   lastName: string
-  legalName_pronunciation?: string
+  legalNamePronunciation?: string
   pronounce?: PronounceType
   havePreferred: boolean
   preferredName?: string
-  preferredName_pronunciation?: string
+  preferredNamePronunciation?: string
   timezone: CountryType
   mobile?: string
   phone?: string
@@ -40,11 +40,11 @@ export type ConsumerUserInfoType = {
     jobInfo: Array<JobInfoType>
     middleName?: string
     experience?: string
-    legalName_pronunciation?: string
+    legalNamePronunciation?: string
     mobilePhone?: string
     telephone?: string
     preferredName?: string
-    preferredName_pronunciation?: string
+    preferredNamePronunciation?: string
     pronounce?: PronounceType
     resume?: Array<string>
     specialties: Array<string>
