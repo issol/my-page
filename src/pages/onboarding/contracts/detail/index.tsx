@@ -7,16 +7,22 @@ import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
 
 // ** React Imports
-import { useContext, useState } from 'react'
+import { Suspense, useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
-import { convertFromRaw, EditorState } from 'draft-js'
+import {
+  ContentState,
+  convertFromRaw,
+  convertToRaw,
+  EditorState,
+} from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import FallbackSpinner from 'src/@core/components/spinner'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -30,90 +36,58 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { DataGrid } from '@mui/x-data-grid'
 import { useRouter } from 'next/router'
 
-const text = {
-  blocks: [
-    {
-      key: 'd9so6',
-      text: '1. Agreement ____________________________ (also known as “contractor”) will provide Glocalize Inc. US and Glocalize Inc. Korea (“Glocalize” or “Glocalize Inc.”) with as to the specifications detailed in the terms and conditions below.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-    {
-      key: 'b75mm',
-      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-    {
-      key: 'b751mm',
-      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-    {
-      key: 'b76mm',
-      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-    {
-      key: 'b76mm1',
-      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-    {
-      key: 'b76mm2',
-      text: 'DUTIES AND RESPONSIBILITIES OF CONTRACTOR: Contractor shall provide to Glocalize Inc. localization services on an as needed basis at times mutually agreed upon by the parties.',
-      type: 'unstyled',
-      depth: 0,
-      inlineStyleRanges: [],
-      entityRanges: [],
-      data: {},
-    },
-  ],
-  entityMap: {},
-}
+// ** fetcher
+import { useGetContract } from 'src/queries/contract/contract.query'
+
+// ** types
+import { ContractParam } from 'src/apis/contract.api'
 
 type CellType = {
   row: {
     id: number
     version: string
+    writer?: string
     email: string
-    date: string
+    updatedAt: string
+    content?: any
   }
 }
 
-const mock = [
-  { id: 0, version: 'Ver.2', email: 'chloe@glozinc.com', date: Date() },
-]
 const ContractDetail = () => {
   const router = useRouter()
-  const { type, language } = router.query
-  const [value, setValue] = useState(EditorState.createEmpty())
-  const [showError, setShowError] = useState(false)
+
+  const { type, language } = router.query as ContractParam
   const [openDetail, setOpenDetail] = useState(false)
 
-  const contentState = convertFromRaw(text)
-  const editorState = EditorState.createWithContent(contentState)
+  const [mainContent, setMainContent] = useState(EditorState.createEmpty())
+  const [historyContent, setHistoryContent] = useState(
+    EditorState.createEmpty(),
+  )
+  const [currentRow, setCurrentRow] = useState({
+    id: null,
+    version: '',
+    writer: '',
+    email: '',
+    updatedAt: '',
+    content: null,
+  })
+
   const { setModal } = useContext(ModalContext)
 
-  function setTitle() {
+  const { data: contract } = useGetContract({
+    type,
+    language,
+  })
+
+  useEffect(() => {
+    if (contract?.content) {
+      const content = convertFromRaw(contract?.content as any)
+      const editorState = EditorState.createWithContent(content)
+      setMainContent(editorState)
+    }
+  }, [contract])
+
+  function getTitle() {
     switch (type) {
       case 'nda':
         if (language === 'ko') return '[KOR] NDA'
@@ -155,11 +129,21 @@ const ContractDetail = () => {
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.date)}
+          {FullDateTimezoneHelper(row.updatedAt)}
         </Box>
       ),
     },
   ]
+
+  function onRowClick(e: any) {
+    setOpenDetail(true)
+    setCurrentRow(e?.row)
+    if (e.row?.content) {
+      const content = convertFromRaw(e.row.content as any)
+      const editorState = EditorState.createWithContent(content)
+      setHistoryContent(editorState)
+    }
+  }
 
   function onDelete() {
     setModal(
@@ -190,7 +174,6 @@ const ContractDetail = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              setValue(EditorState.createEmpty())
             }}
           >
             Delete
@@ -248,147 +231,138 @@ const ContractDetail = () => {
     )
   }
 
-  return (
-    <StyledEditor
-      style={{ margin: '0 70px' }}
-      error={!value.getCurrentContent().getPlainText('\u0001') && showError}
-    >
-      <Grid container spacing={6}>
-        <Grid container xs={9} mt='24px'>
-          <Card sx={{ padding: '30px 20px 20px' }}>
-            <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography variant='h6'>{setTitle()}</Typography>
+  if (!contract) return null
 
-              <Box display='flex' flexDirection='column' gap='8px'>
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <Chip>Writer</Chip>
-                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                    Ellie (Minji) Park
-                  </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>ellie@glozinc.com</Typography>
-                </Box>
-                <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(new Date())}
-                </Typography>
-              </Box>
-            </Box>
-            <Divider />
-            <ReactDraftWysiwyg
-              editorState={editorState}
-              readOnly={true}
-              onEditorStateChange={data => {
-                setShowError(true)
-                setValue(data)
-              }}
-            />
-            {!value.getCurrentContent().getPlainText('\u0001') && showError ? (
-              <Typography
-                color='error'
-                sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
-                mt='8px'
-              >
-                This field is required
-              </Typography>
-            ) : (
-              ''
-            )}
-          </Card>
-          <Card sx={{ marginTop: '24px', width: '100%' }}>
-            <CardHeader title='Version history' />
-            <Box sx={{ height: 500 }}>
-              <DataGrid
-                components={{
-                  NoRowsOverlay: () => noHistory(),
-                  NoResultsOverlay: () => noHistory(),
-                }}
-                onRowClick={() => setOpenDetail(true)}
-                columns={columns}
-                autoHeight
-                rows={mock.slice(0, 10)}
-              />
-            </Box>
-          </Card>
-        </Grid>
-        <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-          <Card>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Button
-                variant='outlined'
-                color='secondary'
-                startIcon={<Icon icon='mdi:delete-outline' />}
-                onClick={onDelete}
-              >
-                Delete
-              </Button>
-              <Button
-                variant='contained'
-                startIcon={<Icon icon='mdi:pencil-outline' />}
-                // disabled={!value.getCurrentContent().getPlainText('\u0001')}
-              >
-                Edit
-              </Button>
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-      <Dialog
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        maxWidth='md'
-      >
-        <StyledEditor maxHeight={true}>
-          <Box sx={{ padding: '50px 60px 50px' }}>
-            <Card sx={{ padding: '20px' }}>
+  return (
+    <Suspense fallback={<FallbackSpinner />}>
+      <StyledEditor style={{ margin: '0 70px' }}>
+        <Grid container spacing={6}>
+          <Grid container xs={9} mt='24px'>
+            <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
-                <Typography variant='h6'>[ENG] NDA</Typography>
+                <Typography variant='h6'>{getTitle()}</Typography>
 
                 <Box display='flex' flexDirection='column' gap='8px'>
                   <Box display='flex' alignItems='center' gap='8px'>
                     <Chip>Writer</Chip>
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                      Ellie (Minji) Park
+                      {contract?.writer}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>ellie@glozinc.com</Typography>
+                    <Typography variant='body2'>{contract?.email}</Typography>
                   </Box>
                   <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                    {FullDateTimezoneHelper(new Date())}
+                    {FullDateTimezoneHelper(contract?.updatedAt)}
                   </Typography>
                 </Box>
               </Box>
-              <ReactDraftWysiwyg
-                editorState={editorState}
-                readOnly={true}
-                onEditorStateChange={data => {
-                  setShowError(true)
-                  setValue(data)
-                }}
-              />
+              <Divider />
+              <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
             </Card>
-            <ModalButtonGroup style={{ marginTop: '24px' }}>
-              <Button
-                onClick={() => setOpenDetail(false)}
-                variant='outlined'
-                color='secondary'
+            <Card sx={{ marginTop: '24px', width: '100%' }}>
+              <CardHeader title='Version history' />
+              <Box sx={{ height: 500 }}>
+                <DataGrid
+                  components={{
+                    NoRowsOverlay: () => noHistory(),
+                    NoResultsOverlay: () => noHistory(),
+                  }}
+                  onRowClick={onRowClick}
+                  columns={columns}
+                  autoHeight
+                  rows={contract?.versionHistory?.slice(0, 10)}
+                />
+              </Box>
+            </Card>
+          </Grid>
+          <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+            <Card>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
               >
-                Close
-              </Button>
-              <Button variant='contained' onClick={onRestore}>
-                Restore this version
-              </Button>
-            </ModalButtonGroup>
-          </Box>
-        </StyledEditor>
-      </Dialog>
-    </StyledEditor>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={<Icon icon='mdi:delete-outline' />}
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant='contained'
+                  startIcon={<Icon icon='mdi:pencil-outline' />}
+                >
+                  Edit
+                </Button>
+              </Box>
+            </Card>
+          </Grid>
+        </Grid>
+        <Dialog
+          open={openDetail}
+          onClose={() => setOpenDetail(false)}
+          maxWidth='md'
+        >
+          <StyledEditor maxHeight={true}>
+            <Grid
+              container
+              xs={12}
+              sx={{ padding: '50px 60px 50px' }}
+              justifyContent='center'
+            >
+              <Card sx={{ padding: '20px', width: '100%' }}>
+                <Box display='flex' justifyContent='space-between' mb='26px'>
+                  <Typography variant='h6'>[ENG] NDA</Typography>
+
+                  <Box display='flex' flexDirection='column' gap='8px'>
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <Chip>Writer</Chip>
+                      <Typography
+                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                      >
+                        {currentRow?.writer}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>
+                        {currentRow?.email}
+                      </Typography>
+                    </Box>
+                    <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                      {FullDateTimezoneHelper(currentRow?.updatedAt)}
+                    </Typography>
+                  </Box>
+                </Box>
+                <ReactDraftWysiwyg
+                  editorState={historyContent}
+                  readOnly={true}
+                />
+              </Card>
+              <ModalButtonGroup style={{ marginTop: '24px' }}>
+                <Button
+                  onClick={() => setOpenDetail(false)}
+                  variant='outlined'
+                  color='secondary'
+                >
+                  Close
+                </Button>
+                <Button variant='contained' onClick={onRestore}>
+                  Restore this version
+                </Button>
+              </ModalButtonGroup>
+            </Grid>
+          </StyledEditor>
+        </Dialog>
+      </StyledEditor>
+    </Suspense>
   )
 }
 

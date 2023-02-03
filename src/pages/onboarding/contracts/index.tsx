@@ -3,32 +3,42 @@ import { Box } from '@mui/system'
 
 import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
-import { Fragment, Suspense, useContext, useState } from 'react'
+import { Fragment, Suspense, useContext, useEffect, useState } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
 import { StyledNextLink } from 'src/@core/components/customLink'
 import { useRouter } from 'next/router'
-import { ContractParam } from 'src/apis/contract.api'
+import { ContractParam, getContractDetail } from 'src/apis/contract.api'
 import { useGetContract } from 'src/queries/contract/contract.query'
 import FallbackSpinner from 'src/@core/components/spinner'
+import { toast } from 'react-hot-toast'
 
 //** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
 export default function ContractForm() {
   const { setModal } = useContext(ModalContext)
   const router = useRouter()
-  const [info, setInfo] = useState<ContractParam>({ type: '', language: '' })
-  const { data: contract, isLoading } = useGetContract({
-    type: info.type,
-    language: info.language,
-    initialize,
-  })
 
-  function initialize() {
-    setInfo({ type: '', language: '' })
-  }
   function onButtonClick({ type, language }: ContractParam) {
-    setInfo({ type, language })
+    getContractDetail({ type, language })
+      .then(res => {
+        console.log(res)
+        if (res) {
+          router.push({
+            pathname: '/onboarding/contracts/detail',
+            query: { type, language },
+          })
+        } else {
+          router.push({
+            pathname: '/onboarding/contracts/form',
+            query: { type, language },
+          })
+        }
+      })
+      .catch(err => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      })
   }
-  console.log(info)
 
   function onInfoClick() {
     setModal(
@@ -200,7 +210,7 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'freelancer', language: 'ko' })
+                        onButtonClick({ type: 'freelancer', language: 'en' })
                       }
                     >
                       ENG

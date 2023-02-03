@@ -39,7 +39,6 @@ const AclGuard = (props: AclGuardProps) => {
 
   // User is logged in, build ability for the user based on his role
   useEffect(() => {
-    console.log('aclGuard : ', buildAbilityFor(permission))
     setAbility(buildAbilityFor(permission))
   }, [permission])
 

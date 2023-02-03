@@ -6,10 +6,10 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { useContext, useState } from 'react'
+import { FormEvent, useContext, useState } from 'react'
 
 // ** Third Party Imports
-import { EditorState } from 'draft-js'
+import { convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -25,16 +25,18 @@ import styled from 'styled-components'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
+import { AuthContext } from 'src/context/AuthContext'
+import { UserDataType } from 'src/context/types'
 
 const ContractForm = () => {
   const router = useRouter()
   const { type, language } = router.query
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
-
+  const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
-  function setTitle() {
+  function getTitle() {
     switch (type) {
       case 'nda':
         if (language === 'ko') return '[KOR] NDA'
@@ -126,73 +128,90 @@ const ContractForm = () => {
       </ModalContainer>,
     )
   }
-  return (
-    <StyledEditor
-      style={{ margin: '0 70px' }}
-      error={!value.getCurrentContent().getPlainText('\u0001') && showError}
-    >
-      <Grid container spacing={6} className='match-height'>
-        <Grid item xs={9}>
-          <Card sx={{ padding: '30px 20px 20px' }}>
-            <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography variant='h6'>{setTitle()}</Typography>
 
-              <Box display='flex' alignItems='center' gap='8px'>
-                <Chip>Writer</Chip>
-                <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
-                  Ellie (Minji) Park
-                </Typography>
-                <Divider orientation='vertical' variant='middle' flexItem />
-                <Typography variant='body2'>ellie@glozinc.com</Typography>
+  function onSubmit(e: FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    console.log('content state', convertToRaw(value.getCurrentContent()))
+
+    //** data to send to server */
+    const data = convertToRaw(value.getCurrentContent())
+  }
+
+  return (
+    <form onSubmit={onSubmit}>
+      <StyledEditor
+        style={{ margin: '0 70px' }}
+        error={!value.getCurrentContent().getPlainText('\u0001') && showError}
+      >
+        <Grid container spacing={6} className='match-height'>
+          <Grid item xs={9}>
+            <Card sx={{ padding: '30px 20px 20px' }}>
+              <Box display='flex' justifyContent='space-between' mb='26px'>
+                <Typography variant='h6'>{getTitle()}</Typography>
+
+                <Box display='flex' alignItems='center' gap='8px'>
+                  <Chip>Writer</Chip>
+                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    {user?.username}
+                  </Typography>
+                  <Divider orientation='vertical' variant='middle' flexItem />
+                  <Typography variant='body2'>ellie@glozinc.com</Typography>
+                </Box>
               </Box>
-            </Box>
-            <Divider />
-            <ReactDraftWysiwyg
-              editorState={value}
-              placeholder='Create a contact form'
-              onEditorStateChange={data => {
-                setShowError(true)
-                setValue(data)
-              }}
-            />
-            {!value.getCurrentContent().getPlainText('\u0001') && showError ? (
-              <Typography
-                color='error'
-                sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
-                mt='8px'
+              <Divider />
+              <ReactDraftWysiwyg
+                editorState={value}
+                placeholder='Create a contact form'
+                onEditorStateChange={data => {
+                  setShowError(true)
+                  setValue(data)
+                }}
+              />
+              {!value.getCurrentContent().getPlainText('\u0001') &&
+              showError ? (
+                <Typography
+                  color='error'
+                  sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
+                  mt='8px'
+                >
+                  This field is required
+                </Typography>
+              ) : (
+                ''
+              )}
+            </Card>
+          </Grid>
+          <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+            <Card>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
               >
-                This field is required
-              </Typography>
-            ) : (
-              ''
-            )}
-          </Card>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={onDiscard}
+                >
+                  Discard
+                </Button>
+                <Button
+                  variant='contained'
+                  onClick={onUpload}
+                  type='submit'
+                  disabled={!value.getCurrentContent().getPlainText('\u0001')}
+                >
+                  Upload
+                </Button>
+              </Box>
+            </Card>
+          </Grid>
         </Grid>
-        <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-          <Card>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Button variant='outlined' color='secondary' onClick={onDiscard}>
-                Discard
-              </Button>
-              <Button
-                variant='contained'
-                onClick={onUpload}
-                disabled={!value.getCurrentContent().getPlainText('\u0001')}
-              >
-                Upload
-              </Button>
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-    </StyledEditor>
+      </StyledEditor>
+    </form>
   )
 }
 
