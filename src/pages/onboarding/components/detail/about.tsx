@@ -27,7 +27,7 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:emoticon' style={{ opacity: '0.7' }} />
           <LabelTitle>Pronunciation:</LabelTitle>
-          <Label>{userInfo.preferredName_pronunciation || '-'}</Label>
+          <Label>{userInfo.preferredNamePronunciation || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />

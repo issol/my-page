@@ -262,16 +262,19 @@ const ClientGuidelineForm = () => {
                   control={control}
                   rules={{ required: true }}
                   render={({ field: { value, onChange, onBlur } }) => (
-                    <TextField
-                      fullWidth
-                      autoFocus
-                      value={value}
-                      onBlur={onBlur}
-                      onChange={onChange}
-                      inputProps={{ maxLength: 50 }}
-                      error={Boolean(errors.title)}
-                      placeholder='Title*'
-                    />
+                    <>
+                      <TextField
+                        fullWidth
+                        autoFocus
+                        value={value}
+                        onBlur={onBlur}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 50 }}
+                        error={Boolean(errors.title)}
+                        label='Title*'
+                        placeholder='Tappytoon webnovel styleguide #1'
+                      />
+                    </>
                   )}
                 />
                 {errors.title && (

@@ -26,7 +26,6 @@ import styled from 'styled-components'
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
 import { AuthContext } from 'src/context/AuthContext'
-import { UserDataType } from 'src/context/types'
 
 const ContractForm = () => {
   const router = useRouter()

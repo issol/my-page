@@ -65,8 +65,8 @@ export default function OnboardingDetail() {
                     color: 'rgba(76, 78, 100, 0.6)',
                   }}
                 >
-                  {userInfo.legalName_pronunciation
-                    ? userInfo.legalName_pronunciation
+                  {userInfo.legalNamePronunciation
+                    ? userInfo.legalNamePronunciation
                     : '-'}
                 </Typography>
               </Box>
