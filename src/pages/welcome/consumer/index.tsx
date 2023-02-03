@@ -101,10 +101,10 @@ const defaultValues = {
   firstName: '',
   middleName: '',
   lastName: '',
-  legalName_pronunciation: '',
+  legalNamePronunciation: '',
   havePreferred: false,
   preferredName: '',
-  preferredName_pronunciation: '',
+  preferredNamePronunciation: '',
   timezone: { code: '', label: '', phone: '' },
   mobile: '',
   phone: '',
@@ -330,12 +330,12 @@ const PersonalInfoPro = () => {
         jobInfo: data.jobInfo,
         middleName: data.middleName,
         experience: data.experience,
-        legalName_pronunciation: data.legalName_pronunciation,
+        legalNamePronunciation: data.legalNamePronunciation,
         mobilePhone: data.mobile,
         telephone: data.phone,
         preferredName: data.preferredName,
         resume: data.resume?.length ? data.resume.map(file => file.name) : [],
-        preferredName_pronunciation: data.preferredName_pronunciation,
+        preferredNamePronunciation: data.preferredNamePronunciation,
         pronounce: data.pronounce,
         specialties: data.specialties?.map(item => item.value),
         timezone: data.timezone,
@@ -563,7 +563,7 @@ const PersonalInfoPro = () => {
                   <Box sx={{ display: 'flex', gap: '8px' }}>
                     <FormControl sx={{ mb: 2 }} fullWidth>
                       <Controller
-                        name='legalName_pronunciation'
+                        name='legalNamePronunciation'
                         control={control}
                         rules={{ required: true }}
                         render={({ field: { value, onChange, onBlur } }) => (
@@ -573,14 +573,14 @@ const PersonalInfoPro = () => {
                             onBlur={onBlur}
                             onChange={onChange}
                             inputProps={{ maxLength: 200 }}
-                            error={Boolean(errors.legalName_pronunciation)}
+                            error={Boolean(errors.legalNamePronunciation)}
                             placeholder='Pronunciation'
                           />
                         )}
                       />
-                      {errors.legalName_pronunciation && (
+                      {errors.legalNamePronunciation && (
                         <FormHelperText sx={{ color: 'error.main' }}>
-                          {errors.legalName_pronunciation.message}
+                          {errors.legalNamePronunciation.message}
                         </FormHelperText>
                       )}
                     </FormControl>
@@ -662,7 +662,7 @@ const PersonalInfoPro = () => {
                       </FormControl>
                       <FormControl sx={{ mb: 2 }} fullWidth>
                         <Controller
-                          name='preferredName_pronunciation'
+                          name='preferredNamePronunciation'
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange, onBlur } }) => (
@@ -672,16 +672,14 @@ const PersonalInfoPro = () => {
                               onBlur={onBlur}
                               onChange={onChange}
                               inputProps={{ maxLength: 200 }}
-                              error={Boolean(
-                                errors.preferredName_pronunciation,
-                              )}
+                              error={Boolean(errors.preferredNamePronunciation)}
                               placeholder='Pronunciation'
                             />
                           )}
                         />
-                        {errors.preferredName_pronunciation && (
+                        {errors.preferredNamePronunciation && (
                           <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.preferredName_pronunciation.message}
+                            {errors.preferredNamePronunciation.message}
                           </FormHelperText>
                         )}
                       </FormControl>
