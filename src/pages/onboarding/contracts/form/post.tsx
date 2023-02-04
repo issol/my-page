@@ -117,8 +117,10 @@ const ContractForm = () => {
           </Button>
           <Button
             variant='outlined'
+            type='submit'
             onClick={() => {
               setModal(null)
+              onSubmit()
             }}
           >
             Upload
@@ -128,8 +130,7 @@ const ContractForm = () => {
     )
   }
 
-  function onSubmit(e: FormEvent<HTMLFormElement>) {
-    e.preventDefault()
+  function onSubmit(/* e: FormEvent<HTMLFormElement> */) {
     console.log('content state', convertToRaw(value.getCurrentContent()))
 
     //** data to send to server */
@@ -137,7 +138,7 @@ const ContractForm = () => {
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form>
       <StyledEditor
         style={{ margin: '0 70px' }}
         error={!value.getCurrentContent().getPlainText('\u0001') && showError}

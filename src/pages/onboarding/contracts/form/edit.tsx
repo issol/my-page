@@ -144,7 +144,7 @@ const ContractForm = () => {
   }
 
   return (
-    <form onSubmit={onSubmit}>
+    <form>
       <StyledEditor
         style={{ margin: '0 70px' }}
         error={!value.getCurrentContent().getPlainText('\u0001') && showError}
