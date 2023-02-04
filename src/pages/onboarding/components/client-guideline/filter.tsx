@@ -1,22 +1,8 @@
-import {
-  Button,
-  Card,
-  CardHeader,
-  Checkbox,
-  Grid,
-  Typography,
-} from '@mui/material'
+import { Button, Card, CardHeader, Checkbox, Grid } from '@mui/material'
 
 // ** MUI Imports
-import IconButton from '@mui/material/IconButton'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
-import Chip from '@mui/material/Chip'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { Box } from '@mui/system'
@@ -28,14 +14,31 @@ import Icon from 'src/@core/components/icon'
 import { JobList } from 'src/shared/const/personalInfo'
 import { ClientCategory, ServiceType } from 'src/shared/const/client-guideline'
 
-export default function Filters() {
+// ** types
+import { FilterOmitType } from '../../client-guideline'
+
+type Props = {
+  filter: FilterOmitType
+  setFilter: <T extends FilterOmitType>(v: T) => void
+  search: () => void
+  onReset: () => void
+}
+
+export default function Filters({ filter, setFilter, search, onReset }: Props) {
+  function filterValue(option: any, keyName: keyof FilterOmitType) {
+    return !filter[keyName]
+      ? option[0]
+      : option.filter((item: { value: string; label: string }) =>
+          filter[keyName]?.includes(item.value),
+        )
+  }
+
   return (
     <Grid item xs={12}>
       <Card>
         <CardHeader title='Search Filters' />
         <Grid
           container
-          xs={12}
           spacing={6}
           rowSpacing={4}
           sx={{ padding: '0 20px 20px' }}
@@ -46,6 +49,10 @@ export default function Filters() {
                 autoHighlight
                 fullWidth
                 multiple
+                value={filterValue(ClientCategory, 'client')}
+                onChange={(e, v) =>
+                  setFilter({ ...filter, client: v.map(item => item.value) })
+                }
                 options={ClientCategory}
                 filterSelectedOptions
                 id='client'
@@ -70,6 +77,13 @@ export default function Filters() {
                   fullWidth
                   multiple
                   options={JobList}
+                  value={filterValue(JobList, 'category')}
+                  onChange={(e, v) =>
+                    setFilter({
+                      ...filter,
+                      category: v.map(item => item.value),
+                    })
+                  }
                   filterSelectedOptions
                   id='category'
                   getOptionLabel={option => option.label}
@@ -97,6 +111,13 @@ export default function Filters() {
                 fullWidth
                 multiple
                 options={ServiceType}
+                value={filterValue(ServiceType, 'serviceType')}
+                onChange={(e, v) =>
+                  setFilter({
+                    ...filter,
+                    serviceType: v.map(item => item.value),
+                  })
+                }
                 filterSelectedOptions
                 id='serviceType'
                 getOptionLabel={option => option.label}
@@ -121,6 +142,14 @@ export default function Filters() {
             <FormControl fullWidth>
               <TextField
                 id='search'
+                value={filter.content}
+                onChange={e =>
+                  setFilter({
+                    ...filter,
+                    content: e.target.value,
+                    title: e.target.value,
+                  })
+                }
                 placeholder='Search the title and content'
                 InputProps={{
                   startAdornment: (
@@ -134,10 +163,15 @@ export default function Filters() {
           </Grid>
           <Grid item xs={12}>
             <Box display='flex' justifyContent='flex-end' gap='15px'>
-              <Button variant='outlined' size='medium' color='secondary'>
+              <Button
+                variant='outlined'
+                size='medium'
+                color='secondary'
+                onClick={onReset}
+              >
                 Reset
               </Button>
-              <Button variant='contained' size='medium'>
+              <Button variant='contained' size='medium' onClick={search}>
                 Search
               </Button>
             </Box>

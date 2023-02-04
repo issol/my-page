@@ -30,6 +30,13 @@ type CellType = {
   }
 }
 
+type Props = {
+  skip: number
+  pageSize: number
+  setSkip: (num: number) => void
+  setPageSize: (num: number) => void
+}
+
 type ChipColorType =
   | 'orange'
   | 'yellow'
@@ -39,7 +46,12 @@ type ChipColorType =
   | 'purple'
   | 'black'
 
-export default function ClientGuideLineList() {
+export default function ClientGuideLineList({
+  skip,
+  setSkip,
+  pageSize,
+  setPageSize,
+}: Props) {
   const router = useRouter()
   function getChipColor(type: string): ChipColorType {
     switch (type) {
@@ -110,13 +122,12 @@ export default function ClientGuideLineList() {
       headerName: 'Service type',
       renderHeader: () => <Box>Service type</Box>,
       renderCell: ({ row }: CellType) => {
-        console.log(row)
         return (
           <Box sx={{ overflow: 'scroll', display: 'flex', gap: '5px' }}>
             {!row?.serviceType.length
               ? '-'
-              : row?.serviceType?.map(item => (
-                  <Box key={row.id} sx={{ display: 'flex', gap: '8px' }}>
+              : row?.serviceType?.map((item, idx) => (
+                  <Box key={idx} sx={{ display: 'flex', gap: '8px' }}>
                     <ServiceType>{item}</ServiceType>
                   </Box>
                 ))}
@@ -181,6 +192,9 @@ export default function ClientGuideLineList() {
             }}
             columns={columns}
             autoHeight
+            onPageSizeChange={setPageSize}
+            rowsPerPageOptions={[1, 50, 100]}
+            onPageChange={setSkip}
             rows={clientGuide.slice(0, 10)}
           />
         </Box>
