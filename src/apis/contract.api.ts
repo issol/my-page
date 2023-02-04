@@ -14,7 +14,7 @@ export const getContractDetail = async (props: ContractParam) => {
 
     return {
       id: 1111,
-      userId: 123232,
+      userId: 21778705315028,
       title: '[KOR] NDA',
       email: 'bon@glozinc.com',
       content: {

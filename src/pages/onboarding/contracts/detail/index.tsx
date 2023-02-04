@@ -5,9 +5,12 @@ import { Button, Card, CardHeader } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
+import { DataGrid } from '@mui/x-data-grid'
 
 // ** React Imports
 import { Suspense, useContext, useEffect, useState } from 'react'
+
+import { useRouter } from 'next/router'
 
 // ** Third Party Imports
 import {
@@ -32,9 +35,9 @@ import Icon from 'src/@core/components/icon'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
+import { AuthContext } from 'src/context/AuthContext'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
-import { DataGrid } from '@mui/x-data-grid'
-import { useRouter } from 'next/router'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 // ** fetcher
 import { useGetContract } from 'src/queries/contract/contract.query'
@@ -55,6 +58,9 @@ type CellType = {
 
 const ContractDetail = () => {
   const router = useRouter()
+
+  const { user } = useContext(AuthContext)
+  const ability = useContext(AbilityContext)
 
   const { type, language } = router.query as ContractParam
   const [openDetail, setOpenDetail] = useState(false)
@@ -183,6 +189,19 @@ const ContractDetail = () => {
     )
   }
 
+  function onEdit() {
+    router.push({
+      pathname: `/onboarding/contracts/form/edit`,
+      query: { type, language },
+    })
+  }
+
+  function isEditable() {
+    if (contract) {
+      return ability.can('update', 'contract') || contract.userId === user?.id!
+    }
+  }
+
   function onRestore() {
     setOpenDetail(false)
     setModal(
@@ -293,12 +312,15 @@ const ContractDetail = () => {
                 >
                   Delete
                 </Button>
-                <Button
-                  variant='contained'
-                  startIcon={<Icon icon='mdi:pencil-outline' />}
-                >
-                  Edit
-                </Button>
+                {isEditable() && (
+                  <Button
+                    variant='contained'
+                    onClick={onEdit}
+                    startIcon={<Icon icon='mdi:pencil-outline' />}
+                  >
+                    Edit
+                  </Button>
+                )}
               </Box>
             </Card>
           </Grid>

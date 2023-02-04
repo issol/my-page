@@ -28,7 +28,7 @@ export default function ContractForm() {
           })
         } else {
           router.push({
-            pathname: '/onboarding/contracts/form',
+            pathname: '/onboarding/contracts/post',
             query: { type, language },
           })
         }
