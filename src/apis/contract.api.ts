@@ -6,6 +6,7 @@ export type ContractParam = {
   language: 'ko' | 'en' | ''
 }
 // **TODO api완성되면 endpoint, res 수정
+
 export const getContractDetail = async (props: ContractParam) => {
   try {
     // const { data } = await axios.get(
@@ -184,6 +185,22 @@ export const getContractDetail = async (props: ContractParam) => {
         },
       ],
     }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteContract = async (id: number) => {
+  try {
+    return await axios.delete(`/api/enough/a/r-req/al?type=${id}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const restoreContract = async (id: number) => {
+  try {
+    return await axios.patch(`/api/enough/a/r-req/al?type=${id}`)
   } catch (e: any) {
     throw new Error(e)
   }

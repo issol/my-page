@@ -43,11 +43,18 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useGetContract } from 'src/queries/contract/contract.query'
 
 // ** types
-import { ContractParam } from 'src/apis/contract.api'
+import {
+  ContractParam,
+  deleteContract,
+  restoreContract,
+} from 'src/apis/contract.api'
+import { useMutation } from 'react-query'
+import { toast } from 'react-hot-toast'
 
 type CellType = {
   row: {
     id: number
+    userId: number
     version: string
     writer?: string
     email: string
@@ -56,6 +63,7 @@ type CellType = {
   }
 }
 
+// ** TODO : api완료되면 mutation 파라미터 수정, detail 데이터 스키마 변경에 따라 변경해주기
 const ContractDetail = () => {
   const router = useRouter()
 
@@ -71,6 +79,7 @@ const ContractDetail = () => {
   )
   const [currentRow, setCurrentRow] = useState({
     id: null,
+    userId: null,
     version: '',
     writer: '',
     email: '',
@@ -80,9 +89,32 @@ const ContractDetail = () => {
 
   const { setModal } = useContext(ModalContext)
 
-  const { data: contract } = useGetContract({
+  const { data: contract, refetch } = useGetContract({
     type,
     language,
+  })
+
+  const deleteMutation = useMutation(() => deleteContract(contract?.id!), {
+    onSuccess: () => {
+      router.push('/onboarding/contracts')
+      return
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+  const restoreMutation = useMutation(() => restoreContract(contract?.id!), {
+    onSuccess: () => {
+      refetch()
+      return
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
   })
 
   useEffect(() => {
@@ -180,6 +212,7 @@ const ContractDetail = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
+              deleteMutation.mutate()
             }}
           >
             Delete
@@ -225,10 +258,24 @@ const ContractDetail = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button
+            variant='contained'
+            onClick={() => {
+              setModal(null)
+              setOpenDetail(true)
+            }}
+          >
             Cancel
           </Button>
-          <Button variant='outlined'>Restore</Button>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              setModal(null)
+              restoreMutation.mutate()
+            }}
+          >
+            Restore
+          </Button>
         </ModalButtonGroup>
       </ModalContainer>,
     )
@@ -294,25 +341,26 @@ const ContractDetail = () => {
               </Box>
             </Card>
           </Grid>
-          <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-            <Card>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='mdi:delete-outline' />}
-                  onClick={onDelete}
+          {isEditable() && (
+            <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+              <Card>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
                 >
-                  Delete
-                </Button>
-                {isEditable() && (
+                  <Button
+                    variant='outlined'
+                    color='secondary'
+                    startIcon={<Icon icon='mdi:delete-outline' />}
+                    onClick={onDelete}
+                  >
+                    Delete
+                  </Button>
+
                   <Button
                     variant='contained'
                     onClick={onEdit}
@@ -320,10 +368,10 @@ const ContractDetail = () => {
                   >
                     Edit
                   </Button>
-                )}
-              </Box>
-            </Card>
-          </Grid>
+                </Box>
+              </Card>
+            </Grid>
+          )}
         </Grid>
         <Dialog
           open={openDetail}
@@ -376,9 +424,12 @@ const ContractDetail = () => {
                 >
                   Close
                 </Button>
-                <Button variant='contained' onClick={onRestore}>
-                  Restore this version
-                </Button>
+                {ability.can('update', 'contract') ||
+                  (currentRow?.userId === user?.id! && (
+                    <Button variant='contained' onClick={onRestore}>
+                      Restore this version
+                    </Button>
+                  ))}
               </ModalButtonGroup>
             </Grid>
           </StyledEditor>
