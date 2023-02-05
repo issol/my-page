@@ -7,7 +7,7 @@ export default function ErrorFallback() {
 
   return (
     <Container>
-      <h1 className='title'>An error occurred on the server.</h1>
+      <h1 className='title'>Something went wrong.</h1>
       <p className='desc'>Please try again.</p>
     </Container>
   )

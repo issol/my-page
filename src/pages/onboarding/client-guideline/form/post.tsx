@@ -238,7 +238,7 @@ const ClientGuidelineForm = () => {
             alt='role select error'
           />
           <Typography variant='body2'>
-            Are you sure to upload this contract?
+            Are you sure to upload this guideline?
           </Typography>
         </Box>
         <ModalButtonGroup>
