@@ -40,7 +40,7 @@ export default function ClientGuidLines() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 
-  const { data, refetch } = useGetGuideLines(
+  const { data: list, refetch } = useGetGuideLines(
     { ...filter, skip, pageSize },
     search,
     setSearch,
@@ -49,18 +49,6 @@ export default function ClientGuidLines() {
   useEffect(() => {
     refetch()
   }, [skip, pageSize])
-
-  // const handleChangePage = (direction: string) => {
-  //   const changedPage =
-  //     direction === 'prev'
-  //       ? Math.max(skip - 1, 0)
-  //       : direction === 'next'
-  //       ? skip + 1
-  //       : direction === 'first'
-  //       ? 0
-  //       : direction === 'last' && Math.floor(invoice?.count / ROWS_PER_PAGE)
-  //   setSkip(changedPage)
-  // }
 
   function onReset() {
     setFilter({ ...initialFilter })
@@ -78,8 +66,6 @@ export default function ClientGuidLines() {
     }
   }, [filter])
 
-  console.log(search)
-
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -92,10 +78,9 @@ export default function ClientGuidLines() {
         search={() => setSearch(true)}
       />
       <ClientGuideLineList
-        skip={skip}
         setSkip={setSkip}
-        pageSize={pageSize}
         setPageSize={setPageSize}
+        data={list?.data || []}
       />
     </Grid>
   )

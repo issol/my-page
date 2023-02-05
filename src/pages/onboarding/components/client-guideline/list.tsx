@@ -1,22 +1,19 @@
+// ** mui
 import { Button, Card, Grid, Typography } from '@mui/material'
-
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import InputLabel from '@mui/material/InputLabel'
-import FormControl from '@mui/material/FormControl'
 import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
-// ** Data Import
-import { clientGuide } from 'src/@fake-db/table/static-data'
-import Link from 'next/link'
-import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 
+// ** custom component
+import { StyledNextLink } from 'src/@core/components/customLink'
+
+// ** third party
 import styled from 'styled-components'
 
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
-import { StyledNextLink } from 'src/@core/components/customLink'
+
+// ** nextJS
 import { useRouter } from 'next/router'
 
 type CellType = {
@@ -31,10 +28,16 @@ type CellType = {
 }
 
 type Props = {
-  skip: number
-  pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
+  data: Array<{
+    id: number
+    title: string
+    client: string
+    category: string
+    serviceType: Array<string>
+    dueAt: string
+  }>
 }
 
 type ChipColorType =
@@ -47,10 +50,9 @@ type ChipColorType =
   | 'black'
 
 export default function ClientGuideLineList({
-  skip,
   setSkip,
-  pageSize,
   setPageSize,
+  data,
 }: Props) {
   const router = useRouter()
   function getChipColor(type: string): ChipColorType {
@@ -82,7 +84,7 @@ export default function ClientGuideLineList({
       field: 'title',
       minWidth: 80,
       headerName: 'Title',
-      renderHeader: () => <Box>Title.</Box>,
+      renderHeader: () => <Box>Title</Box>,
       renderCell: ({ row }: CellType) => (
         <Title
           title={row.title}
@@ -195,7 +197,7 @@ export default function ClientGuideLineList({
             onPageSizeChange={setPageSize}
             rowsPerPageOptions={[1, 50, 100]}
             onPageChange={setSkip}
-            rows={clientGuide.slice(0, 10)}
+            rows={data.slice(0, 10)}
           />
         </Box>
       </Card>
