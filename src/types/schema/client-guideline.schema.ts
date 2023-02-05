@@ -9,7 +9,7 @@ export type ClientGuidelineType = {
   client: { label: string; value: string }
   category: { label: string; value: string }
   serviceType: { label: string; value: string }
-  content: any
+  // content: any
   file: Array<File>
 }
 export const clientGuidelineSchema = yup.object().shape({
@@ -27,6 +27,6 @@ export const clientGuidelineSchema = yup.object().shape({
     label: yup.string().required(errorMsg.required),
     value: yup.string().required(errorMsg.required),
   }),
-  content: yup.string().required(errorMsg.required),
+  // content: yup.string().required(errorMsg.required),
   resume: yup.array().nullable(),
 })

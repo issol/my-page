@@ -59,7 +59,7 @@ const defaultValues = {
   client: { label: '', value: '' },
   category: { label: '', value: '' },
   serviceType: { label: '', value: '' },
-  content: null,
+  // content: null,
   file: [],
 }
 
@@ -70,6 +70,7 @@ interface FileProp {
 }
 
 const ClientGuidelineForm = () => {
+  const router = useRouter()
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
@@ -95,7 +96,7 @@ const ClientGuidelineForm = () => {
       'application/msword': ['.doc'],
       'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
         ['.docx'],
-      'video/*': ['.avi, .mp4, .mkv, .wmv, .mov'],
+      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
     },
     onDrop: (acceptedFiles: File[]) => {
       const uniqueFiles = files
@@ -149,12 +150,15 @@ const ClientGuidelineForm = () => {
     clearErrors,
     watch,
     trigger,
-    formState: { errors, dirtyFields },
+    formState: { errors, isValid },
   } = useForm<ClientGuidelineType>({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(clientGuidelineSchema),
   })
+  console.log(getValues())
+  console.log('isValid', isValid)
+  console.log('errors: ', errors)
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
@@ -206,7 +210,7 @@ const ClientGuidelineForm = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              setContent(EditorState.createEmpty())
+              router.push('/onboarding/client-guideline/')
             }}
           >
             Discard
@@ -291,7 +295,7 @@ const ClientGuidelineForm = () => {
                         value={value}
                         onBlur={onBlur}
                         onChange={onChange}
-                        inputProps={{ maxLength: 50 }}
+                        inputProps={{ maxLength: 100 }}
                         error={Boolean(errors.title)}
                         label='Title*'
                         placeholder='Tappytoon webnovel styleguide #1'
@@ -421,7 +425,7 @@ const ClientGuidelineForm = () => {
               <Divider />
               <ReactDraftWysiwyg
                 editorState={content}
-                placeholder='Create a contact form'
+                placeholder='Write down a guideline or attach it as a file.'
                 onEditorStateChange={data => {
                   setShowError(true)
                   setContent(data)
@@ -500,7 +504,10 @@ const ClientGuidelineForm = () => {
                 <Button
                   variant='contained'
                   onClick={onUpload}
-                  disabled={!content.getCurrentContent().getPlainText('\u0001')}
+                  disabled={
+                    !isValid ||
+                    !content.getCurrentContent().getPlainText('\u0001')
+                  }
                 >
                   Upload
                 </Button>

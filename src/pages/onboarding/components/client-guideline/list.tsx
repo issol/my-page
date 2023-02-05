@@ -177,7 +177,7 @@ export default function ClientGuideLineList({
               <Typography variant='h6'>Guidelines (0)</Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink
-                  href='/onboarding/client-guideline/post'
+                  href='/onboarding/client-guideline/form/post'
                   color='white'
                 >
                   Add client guideline
