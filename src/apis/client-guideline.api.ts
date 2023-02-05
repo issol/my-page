@@ -235,6 +235,30 @@ export const getGuidelineDetail = async (props: any) => {
   }
 }
 
+export type FormType = {
+  title: string
+  client: string
+  category: string
+  serviceType: string
+  content: any
+}
+
+export const postGuideline = async (form: FormType) => {
+  try {
+    return await axios.post(`/api/enough/a/r-req/al?type=`, form)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const uploadGuidelineFiles = async (id: number) => {
+  try {
+    return await axios.delete(`/api/enough/a/r-req/al?type=${id}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const deleteGuideline = async (id: number) => {
   try {
     return await axios.delete(`/api/enough/a/r-req/al?type=${id}`)

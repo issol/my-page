@@ -23,7 +23,7 @@ import { Fragment, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import { EditorState } from 'draft-js'
+import { convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -53,6 +53,17 @@ import {
   ClientCategoryIncludeGloz,
   ServiceType,
 } from 'src/shared/const/client-guideline'
+
+// ** fetches
+import axios from 'axios'
+import { getPresignedUrl } from 'src/apis/user.api'
+import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { useMutation } from 'react-query'
+import { postGuideline } from 'src/apis/client-guideline.api'
+
+// ** types
+import { FormType } from 'src/apis/client-guideline.api'
+import { toast } from 'react-hot-toast'
 
 const defaultValues = {
   title: '',
@@ -143,7 +154,6 @@ const ClientGuidelineForm = () => {
 
   const {
     control,
-    handleSubmit,
     getValues,
     setValue,
     setError,
@@ -156,9 +166,6 @@ const ClientGuidelineForm = () => {
     mode: 'onChange',
     resolver: yupResolver(clientGuidelineSchema),
   })
-  console.log(getValues())
-  console.log('isValid', isValid)
-  console.log('errors: ', errors)
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
@@ -176,10 +183,6 @@ const ClientGuidelineForm = () => {
       clearErrors('file')
     }
   }, [fileSize])
-
-  const onSubmit = (data: any) => {
-    return null
-  }
 
   function onDiscard() {
     setModal(
@@ -249,6 +252,7 @@ const ClientGuidelineForm = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
+              onSubmit()
             }}
           >
             Upload
@@ -256,6 +260,68 @@ const ClientGuidelineForm = () => {
         </ModalButtonGroup>
       </ModalContainer>,
     )
+  }
+
+  const guidelineMutation = useMutation(
+    (form: FormType) => postGuideline(form),
+    {
+      onSuccess: data => {
+        //** TODO : return data에 오는 id로 client-guideline detail페이지로 이동하기
+        //router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  const onSubmit = () => {
+    const data = getValues()
+
+    data.file?.length &&
+      data.file.forEach(file => {
+        getPresignedUrl(user?.id as number, file.name).then(res => {
+          const formData = new FormData()
+          formData.append('files', file)
+          axios
+            .put(res, formData, {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization:
+                  'Bearer ' + typeof window === 'object'
+                    ? getUserTokenFromBrowser()
+                    : null,
+              },
+            })
+            .then(res =>
+              console.log('upload client guideline file success :', res),
+            )
+            .catch(err =>
+              toast.error(
+                'Something went wrong while uploading files. Please try again.',
+                {
+                  position: 'bottom-left',
+                },
+              ),
+            )
+        })
+      })
+
+    //** data to send to server */
+    const formContent = convertToRaw(content.getCurrentContent())
+    const finalValue = {
+      title: data.title,
+      client: data.client.value,
+      category: data.category.value,
+      serviceType: data.serviceType.value,
+      content: formContent,
+    }
+    guidelineMutation.mutate(finalValue)
   }
 
   return (
