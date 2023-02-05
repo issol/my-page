@@ -28,5 +28,5 @@ export const clientGuidelineSchema = yup.object().shape({
     value: yup.string().required(errorMsg.required),
   }),
   content: yup.string().required(errorMsg.required),
-  file: yup.string().nullable(),
+  resume: yup.array().nullable(),
 })

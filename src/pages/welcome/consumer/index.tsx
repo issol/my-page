@@ -230,7 +230,7 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (fileSize > MAXIMUM_FILE_SIZE) {
-      setError('resume', { message: 'File size too large' })
+      setError('resume', { message: 'The file size is too large' })
     } else {
       clearErrors('resume')
     }
