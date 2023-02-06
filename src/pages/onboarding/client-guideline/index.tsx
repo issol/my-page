@@ -40,11 +40,11 @@ export default function ClientGuidLines() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 
-  const { data: list, refetch } = useGetGuideLines(
-    { ...filter, skip, pageSize },
-    search,
-    setSearch,
-  )
+  const {
+    data: list,
+    refetch,
+    isLoading,
+  } = useGetGuideLines({ ...filter, skip, pageSize }, search, setSearch)
 
   useEffect(() => {
     refetch()
@@ -78,9 +78,11 @@ export default function ClientGuidLines() {
         search={() => setSearch(true)}
       />
       <ClientGuideLineList
+        pageSize={pageSize}
         setSkip={setSkip}
         setPageSize={setPageSize}
-        data={list?.data || []}
+        list={list || { data: [], count: 0 }}
+        isLoading={isLoading}
       />
     </Grid>
   )
