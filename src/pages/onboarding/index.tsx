@@ -3,7 +3,7 @@ import PageHeader from 'src/@core/components/page-header'
 import OnboardingDashboard from './components/list/dashboard'
 import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
-import { useState } from 'react'
+import { SyntheticEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { DefaultRolePair, JobList } from 'src/shared/const/personalInfo'
@@ -34,6 +34,12 @@ export default function Onboarding() {
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
+  const [expanded, setExpanded] = useState<string | false>(false)
+
+  const handleFilterStateChange =
+    (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false)
+    }
 
   const languageList = getGloLanguage()
 
@@ -84,6 +90,8 @@ export default function Onboarding() {
         roleOptions={roleOptions}
         languageList={languageList}
         onClickResetButton={onClickResetButton}
+        handleFilterStateChange={handleFilterStateChange}
+        expanded={expanded}
       />
       <OnboardingList
         onboardingListPage={onboardingListPage}
