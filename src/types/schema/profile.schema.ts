@@ -16,11 +16,11 @@ export const profileSchema = yup.object().shape({
   firstName: yup.string().required(profileErrorMsg.required),
   middleName: yup.string().nullable(),
   lastName: yup.string().required(profileErrorMsg.required),
-  legalName_pronunciation: yup.string().nullable(),
+  legalNamePronunciation: yup.string().nullable(),
   pronounce: yup.string().oneOf(Object.values(PronounceEnum)).nullable(),
   havePreferred: yup.boolean().required(),
   preferredName: yup.string().nullable(),
-  preferredName_pronunciation: yup.string().nullable(),
+  preferredNamePronunciation: yup.string().nullable(),
   timezone: yup.object().shape({
     code: yup.string().required('This field is required'),
     label: yup.string().required('This field is required'),

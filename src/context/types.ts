@@ -35,11 +35,11 @@ export type UserDataType = {
   username?: string
   //⬇️ extraData
   middleName?: string
-  legalName_pronunciation?: string
+  legalNamePronunciation?: string
   pronounce?: PronounceType
   havePreferred?: boolean
   preferredName?: string
-  preferredName_pronunciation?: string
+  preferredNamePronunciation?: string
   timezone: CountryType
   mobile?: string
   phone?: string
