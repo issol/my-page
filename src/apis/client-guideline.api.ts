@@ -257,6 +257,113 @@ export const getGuidelineDetail = async (id: number) => {
             entityMap: {},
           },
         },
+        {
+          id: 1212,
+          userId: 11333,
+          title: 'Client guideline',
+          email: 'bon@glozinc.com',
+          client: 'GloZ',
+          category: 'Dubbing',
+          serviceType: 'DTP',
+          files: [
+            { name: 'add.jpeg', size: 200000 },
+            { name: 'adddd.pdf', size: 3333999 },
+          ],
+          content: {
+            blocks: [
+              {
+                key: 'f5ile',
+                text: 'dd ',
+                type: 'unordered-list-item',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'iikv',
+                text: 'sdfslkj',
+                type: 'unordered-list-item',
+                depth: 0,
+                inlineStyleRanges: [
+                  {
+                    offset: 0,
+                    length: 7,
+                    style: 'SUBSCRIPT',
+                  },
+                  {
+                    offset: 0,
+                    length: 7,
+                    style: 'SUPERSCRIPT',
+                  },
+                  {
+                    offset: 0,
+                    length: 7,
+                    style: 'CODE',
+                  },
+                ],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: '4vn0d',
+                text: 'dfdf',
+                type: 'unordered-list-item',
+                depth: 0,
+                inlineStyleRanges: [
+                  {
+                    offset: 0,
+                    length: 4,
+                    style: 'SUBSCRIPT',
+                  },
+                  {
+                    offset: 0,
+                    length: 4,
+                    style: 'SUPERSCRIPT',
+                  },
+                  {
+                    offset: 0,
+                    length: 4,
+                    style: 'CODE',
+                  },
+                ],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: '23n2g',
+                text: 'color!',
+                type: 'unordered-list-item',
+                depth: 0,
+                inlineStyleRanges: [
+                  {
+                    offset: 0,
+                    length: 6,
+                    style: 'color-rgb(97,189,109)',
+                  },
+                ],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'bd1bf',
+                text: '🤗',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [
+                  {
+                    offset: 0,
+                    length: 1,
+                    style: 'color-rgb(97,189,109)',
+                  },
+                ],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+        },
       ],
     }
   } catch (e: any) {
