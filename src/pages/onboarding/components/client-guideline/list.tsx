@@ -1,5 +1,5 @@
 // ** mui
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Button, Card, Chip, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
@@ -112,9 +112,11 @@ export default function ClientGuideLineList({
       headerName: 'Category',
       renderHeader: () => <Box>Category</Box>,
       renderCell: ({ row }: CellType) => (
-        <CategoryChip color={getChipColor(row.category)}>
-          {row.client}
-        </CategoryChip>
+        <CategoryChip
+          cl={getChipColor(row.category)}
+          size='small'
+          label={row.client}
+        />
       ),
     },
     {
@@ -130,7 +132,7 @@ export default function ClientGuideLineList({
               ? '-'
               : row?.serviceType?.map((item, idx) => (
                   <Box key={idx} sx={{ display: 'flex', gap: '8px' }}>
-                    <ServiceType>{item}</ServiceType>
+                    <ServiceType label={item} size='small' />
                   </Box>
                 ))}
           </Box>
@@ -206,33 +208,25 @@ export default function ClientGuideLineList({
 }
 
 // ** TODO : chip style 컬러 추가해야 함
-const CategoryChip = styled.p<{
-  color: ChipColorType
-}>`
-  padding: 2px 6px;
-  background: ${({ color }) =>
-    color === 'orange'
+const CategoryChip = styled(Chip)<{ cl: ChipColorType }>`
+  background: ${({ cl }) =>
+    cl === 'orange'
       ? '#FF9E90'
-      : color === 'yellow'
+      : cl === 'yellow'
       ? '#FFF387'
-      : color === 'blue'
+      : cl === 'blue'
       ? '#A9E0FF'
-      : color === 'green'
+      : cl === 'green'
       ? '#BEEFAE'
-      : color === 'pink'
+      : cl === 'pink'
       ? '#FFBFE9'
-      : color === 'purple'
+      : cl === 'purple'
       ? '#CCBFFF'
       : 'rgba(76, 78, 100, 0.26)'};
-  border-radius: 16px;
 
   color: #111111;
-  font-weight: 500;
-  font-size: 0.813rem;
 `
-const ServiceType = styled.p`
-  padding: 2px 6px;
-  text-align: center;
+const ServiceType = styled(Chip)`
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.88),
@@ -240,9 +234,6 @@ const ServiceType = styled.p`
     ),
     #666cff;
   border: 1px solid rgba(102, 108, 255, 0.5);
-  border-radius: 16px;
-  font-weight: 500;
-  font-size: 0.813rem;
 `
 
 const Title = styled(Typography)`
