@@ -1,5 +1,5 @@
 import { toast } from 'react-hot-toast'
-import { useQuery } from 'react-query'
+import { QueryFunction, useQuery } from 'react-query'
 import {
   getGuidelineDetail,
   getGuidelines,
