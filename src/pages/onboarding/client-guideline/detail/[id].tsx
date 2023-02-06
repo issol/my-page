@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, CardHeader } from '@mui/material'
+import { Button, Card, CardHeader, Chip } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
@@ -35,6 +35,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
+import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 
 const text = {
   blocks: [
@@ -108,6 +109,7 @@ type CellType = {
 const mock = [
   { id: 0, version: 'Ver.2', email: 'chloe@glozinc.com', date: Date() },
 ]
+
 const ClientGuidelineDetail = () => {
   const router = useRouter()
   const { id } = router.query
@@ -121,6 +123,8 @@ const ClientGuidelineDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+
+  const { data } = useGetGuideLineDetail(Number(id))
 
   const columns = [
     {
@@ -245,12 +249,8 @@ const ClientGuidelineDetail = () => {
     )
   }
 
-  function isEditable() {
-    if (id) {
-      return (
-        ability.can('update', 'client_guideline') || Number(id) === user?.id!
-      )
-    }
+  function isEditable(id: number) {
+    return ability.can('update', 'client_guideline') || id === user?.id!
   }
 
   return (
@@ -276,7 +276,7 @@ const ClientGuidelineDetail = () => {
 
               <Box display='flex' flexDirection='column' gap='8px'>
                 <Box display='flex' alignItems='center' gap='8px'>
-                  <Chip>Writer</Chip>
+                  <Writer label='Writer' size='small' />
                   <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                     Ellie (Minji) Park
                   </Typography>
@@ -379,7 +379,7 @@ const ClientGuidelineDetail = () => {
               </Button>
             </Box>
           </Card>
-          {isEditable() && (
+          {isEditable(Number(id)) && (
             <Card style={{ marginTop: '24px' }}>
               <Box
                 sx={{
@@ -422,7 +422,7 @@ const ClientGuidelineDetail = () => {
 
                 <Box display='flex' flexDirection='column' gap='8px'>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Chip>Writer</Chip>
+                    <Writer label='Writer' size='small' />
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                       Ellie (Minji) Park
                     </Typography>
@@ -471,18 +471,14 @@ ClientGuidelineDetail.acl = {
   subject: 'onboarding',
 }
 
-const Chip = styled.span`
-  padding: 3px 8px;
+const Writer = styled(Chip)`
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.88),
       rgba(255, 255, 255, 0.88)
     ),
     #ff4d49;
-  border-radius: 16px;
-
   font-weight: 500;
-  font-size: 0.813rem;
   color: #ff4d49;
 `
 

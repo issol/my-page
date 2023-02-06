@@ -256,7 +256,7 @@ const ClientGuidelineEdit = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              router.push('/onboarding/client-guideline/')
+              router.back()
             }}
           >
             Discard

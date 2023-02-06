@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, CardHeader } from '@mui/material'
+import { Button, Card, CardHeader, Chip } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
@@ -229,9 +229,9 @@ const ContractDetail = () => {
     })
   }
 
-  function isEditable() {
+  function isEditable(id: number) {
     if (contract) {
-      return ability.can('update', 'contract') || contract.userId === user?.id!
+      return ability.can('update', 'contract') || id === user?.id!
     }
   }
 
@@ -310,7 +310,7 @@ const ContractDetail = () => {
 
                 <Box display='flex' flexDirection='column' gap='8px'>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Chip>Writer</Chip>
+                    <Writer label='Writer' size='small' />
                     <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
                       {contract?.writer}
                     </Typography>
@@ -341,7 +341,7 @@ const ContractDetail = () => {
               </Box>
             </Card>
           </Grid>
-          {isEditable() && (
+          {isEditable(contract?.userId) && (
             <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
               <Card>
                 <Box
@@ -391,7 +391,7 @@ const ContractDetail = () => {
 
                   <Box display='flex' flexDirection='column' gap='8px'>
                     <Box display='flex' alignItems='center' gap='8px'>
-                      <Chip>Writer</Chip>
+                      <Writer label='Writer' size='small' />
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       >
@@ -424,12 +424,11 @@ const ContractDetail = () => {
                 >
                   Close
                 </Button>
-                {ability.can('update', 'contract') ||
-                  (currentRow?.userId === user?.id! && (
-                    <Button variant='contained' onClick={onRestore}>
-                      Restore this version
-                    </Button>
-                  ))}
+                {isEditable(Number(currentRow?.userId)) && (
+                  <Button variant='contained' onClick={onRestore}>
+                    Restore this version
+                  </Button>
+                )}
               </ModalButtonGroup>
             </Grid>
           </StyledEditor>
@@ -446,18 +445,14 @@ ContractDetail.acl = {
   subject: 'onboarding',
 }
 
-const Chip = styled.span`
-  padding: 3px 8px;
+const Writer = styled(Chip)`
   background: linear-gradient(
       0deg,
       rgba(255, 255, 255, 0.88),
       rgba(255, 255, 255, 0.88)
     ),
     #ff4d49;
-  border-radius: 16px;
-
   font-weight: 500;
-  font-size: 0.813rem;
   color: #ff4d49;
 `
 
