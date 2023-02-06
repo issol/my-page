@@ -116,7 +116,7 @@ const ContractDetail = () => {
       })
     },
   })
-
+  console.log('contract : ', contract)
   useEffect(() => {
     if (contract?.content) {
       const content = convertFromRaw(contract?.content as any)

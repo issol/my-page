@@ -5,6 +5,7 @@ import { Button, Card, CardHeader } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
+import { DataGrid } from '@mui/x-data-grid'
 
 // ** React Imports
 import { useContext, useState } from 'react'
@@ -26,8 +27,13 @@ import Icon from 'src/@core/components/icon'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AuthContext } from 'src/context/AuthContext'
+
+// ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
-import { DataGrid } from '@mui/x-data-grid'
+
+// ** NextJS
 import { useRouter } from 'next/router'
 
 const text = {
@@ -104,13 +110,17 @@ const mock = [
 ]
 const ClientGuidelineDetail = () => {
   const router = useRouter()
+  const { id } = router.query
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [openDetail, setOpenDetail] = useState(false)
 
   const contentState = convertFromRaw(text)
   const editorState = EditorState.createWithContent(contentState)
+
   const { setModal } = useContext(ModalContext)
+  const ability = useContext(AbilityContext)
+  const { user } = useContext(AuthContext)
 
   const columns = [
     {
@@ -183,6 +193,10 @@ const ClientGuidelineDetail = () => {
     )
   }
 
+  function onEdit() {
+    router.push(`/onboarding/client-guideline/form/${id}`)
+  }
+
   function onRestore() {
     setOpenDetail(false)
     setModal(
@@ -229,6 +243,14 @@ const ClientGuidelineDetail = () => {
         <Typography variant='subtitle1'>There are no history</Typography>
       </Box>
     )
+  }
+
+  function isEditable() {
+    if (id) {
+      return (
+        ability.can('update', 'client_guideline') || Number(id) === user?.id!
+      )
+    }
   }
 
   return (
@@ -357,32 +379,34 @@ const ClientGuidelineDetail = () => {
               </Button>
             </Box>
           </Card>
-          <Card style={{ marginTop: '24px' }}>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Button
-                variant='outlined'
-                color='secondary'
-                startIcon={<Icon icon='mdi:delete-outline' />}
-                onClick={onDelete}
+          {isEditable() && (
+            <Card style={{ marginTop: '24px' }}>
+              <Box
+                sx={{
+                  padding: '20px',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '12px',
+                }}
               >
-                Delete
-              </Button>
-              <Button
-                variant='contained'
-                startIcon={<Icon icon='mdi:pencil-outline' />}
-                // disabled={!value.getCurrentContent().getPlainText('\u0001')}
-              >
-                Edit
-              </Button>
-            </Box>
-          </Card>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={<Icon icon='mdi:delete-outline' />}
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+                <Button
+                  variant='contained'
+                  startIcon={<Icon icon='mdi:pencil-outline' />}
+                  onClick={onEdit}
+                >
+                  Edit
+                </Button>
+              </Box>
+            </Card>
+          )}
         </Grid>
       </Grid>
       <Dialog
@@ -427,6 +451,8 @@ const ClientGuidelineDetail = () => {
               >
                 Close
               </Button>
+              {/* TODO : 여기 수정하기 */}
+              {ability.can('update', 'client_guideline')}
               <Button variant='contained' onClick={onRestore}>
                 Restore this version
               </Button>

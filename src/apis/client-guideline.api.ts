@@ -13,7 +13,7 @@ export const getGuidelines = async (filters: FilterType) => {
     return {
       data: [
         {
-          id: 1,
+          id: 21778705315028,
           title: 'Naver webtoon guideline Ver.3',
           client: 'Naver',
           category: 'Webcomics',
@@ -52,7 +52,7 @@ export const getGuidelines = async (filters: FilterType) => {
   }
 }
 
-export const getGuidelineDetail = async (props: any) => {
+export const getGuidelineDetail = async (id: number) => {
   try {
     // const { data } = await axios.get(
     //   `/api/enough/a/r-req/al?type=${props.type}&language=${props.language}`,
@@ -61,8 +61,11 @@ export const getGuidelineDetail = async (props: any) => {
     return {
       id: 1111,
       userId: 21778705315028,
-      title: '[KOR] NDA',
+      title: 'Client guideline',
       email: 'bon@glozinc.com',
+      client: 'GloZ',
+      category: 'Dubbing',
+      serviceType: 'DTP',
       content: {
         blocks: [
           {
