@@ -15,6 +15,66 @@ export const JobList = [
   { label: 'YouTube', value: 'youtube' },
 ]
 
+export const DefaultRolePair = [
+  { label: 'QCer', value: 'QCer', jobType: ['document_text'] },
+  {
+    label: 'Translator',
+    value: 'Translator',
+    jobType: ['document_text', 'youtube'],
+  },
+
+  { label: 'DTPer', value: 'DTPer', jobType: ['dtp'] },
+  { label: 'DTP QCer', value: 'DTP QCer', jobType: ['dtp'] },
+
+  {
+    label: 'Audio description QCer',
+    value: 'Audio description QCer',
+    jobType: ['dubbing'],
+  },
+  { label: 'Dubbing QCer', value: 'Dubbing QCer', jobType: ['dubbing'] },
+  {
+    label: 'Dubbing script translator',
+    value: 'Dubbing script translator',
+    jobType: ['dubbing'],
+  },
+
+  { label: 'SDH author', value: 'SDH author', jobType: ['ott_subtitle'] },
+  { label: 'SDH QCer', value: 'SDH QCer', jobType: ['ott_subtitle'] },
+  {
+    label: 'Subtitle author',
+    value: 'Subtitle author',
+    jobType: ['ott_subtitle', 'youtube'],
+  },
+  {
+    label: 'Subtitle QCer',
+    value: 'Subtitle QCer',
+    jobType: ['ott_subtitle', 'youtube'],
+  },
+  {
+    label: 'Template author',
+    value: 'Template author',
+    jobType: ['ott_subtitle'],
+  },
+  { label: 'Template QCer', value: 'Template QCer', jobType: ['ott_subtitle'] },
+  { label: 'Supp author', value: 'Supp author', jobType: ['ott_subtitle'] },
+  { label: 'Supp QCer', value: 'Supp QCer', jobType: ['ott_subtitle'] },
+
+  { label: 'Proofreader', value: 'Proofreader', jobType: ['webcomics'] },
+  { label: 'Webcomics QCer', value: 'Webcomics QCer', jobType: ['webcomics'] },
+  {
+    label: 'Webcomic translator',
+    value: 'Webcomic translator',
+    jobType: ['webcomics'],
+  },
+
+  { label: 'Wenovel QCer', value: 'Wenovel QCer', jobType: ['webnovel'] },
+  {
+    label: 'Webnovel translator',
+    value: 'Webnovel translator',
+    jobType: ['webnovel'],
+  },
+]
+
 export const RolePair = {
   document_text: [
     { label: 'QCer', value: 'QCer' },
@@ -100,4 +160,43 @@ export const Specialties = [
   { label: 'YouTube', value: 'YouTube' },
   { label: 'Transcription', value: 'Transcription' },
   { label: 'Proofreading', value: 'Proofreading' },
+]
+
+export const TestStatus = [
+  {
+    label: 'Awaiting assignment',
+    value: 'Awaiting assignment',
+  },
+  {
+    label: 'General in progress',
+    value: 'General in progress',
+  },
+  {
+    label: 'General failed',
+    value: 'General failed',
+  },
+  {
+    label: 'General passed',
+    value: 'General passed',
+  },
+  {
+    label: 'Test in progress',
+    value: 'Test in progress',
+  },
+  {
+    label: 'Test submitted',
+    value: 'Test submitted',
+  },
+  {
+    label: 'Reviewing',
+    value: 'Reviewing',
+  },
+  {
+    label: 'Review completed',
+    value: 'Review completed',
+  },
+  {
+    label: 'Test failed',
+    value: 'Test failed',
+  },
 ]

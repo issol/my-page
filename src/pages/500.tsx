@@ -19,8 +19,8 @@ import FooterIllustrations from 'src/views/pages/misc/FooterIllustrations'
 // ** Styled Components
 const BoxWrapper = styled(Box)<BoxProps>(({ theme }) => ({
   [theme.breakpoints.down('md')]: {
-    width: '90vw'
-  }
+    width: '90vw',
+  },
 }))
 
 const Img = styled('img')(({ theme }) => ({
@@ -29,22 +29,33 @@ const Img = styled('img')(({ theme }) => ({
   [theme.breakpoints.down('lg')]: {
     height: 450,
     marginTop: theme.spacing(10),
-    marginBottom: theme.spacing(10)
+    marginBottom: theme.spacing(10),
   },
   [theme.breakpoints.down('md')]: {
-    height: 400
-  }
+    height: 400,
+  },
 }))
 
 const Error500 = () => {
   return (
     <Box className='content-center'>
-      <Box sx={{ p: 5, display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center' }}>
+      <Box
+        sx={{
+          p: 5,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          textAlign: 'center',
+        }}
+      >
         <BoxWrapper>
           <Typography variant='h1' sx={{ mb: 2.5 }}>
             500
           </Typography>
-          <Typography variant='h5' sx={{ mb: 2.5, fontSize: '1.5rem !important' }}>
+          <Typography
+            variant='h5'
+            sx={{ mb: 2.5, fontSize: '1.5rem !important' }}
+          >
             Internal server error 👨🏻‍💻
           </Typography>
           <Typography variant='body2'>Oops, something went wrong!</Typography>

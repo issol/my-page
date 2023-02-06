@@ -1,5 +1,5 @@
 import { Button, Card, Grid, Typography } from '@mui/material'
-
+import Chip from 'src/@core/components/mui/chip'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import InputLabel from '@mui/material/InputLabel'
@@ -8,42 +8,34 @@ import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-import { rows2 } from 'src/@fake-db/table/static-data'
+import { onboardingData, rows2 } from 'src/@fake-db/table/static-data'
 import Link from 'next/link'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 
 import styled from 'styled-components'
+import JobTypeRoleChips from 'src/@core/components/jobtype-role-chips'
+import { OnboardingListType } from 'src/types/onboarding/list'
+import { TestStatusColor } from 'src/shared/const/chipColors'
+import { Dispatch, SetStateAction } from 'react'
 
 type CellType = {
-  row: {
-    id: string
-    userId: number
-    full_name?: string
-    email: string
-    firstName: string
-    middleName?: string
-    lastName: string
-    jobInfo: Array<JobInfoType>
-    experience: string
-    testStatus: string
-    isOnboarded: boolean
-  }
+  row: OnboardingListType
 }
 
-export default function OnboardingList() {
-  function getLegalName(row: {
-    id: string
-    userId: number
-    full_name?: string
-    email: string
-    firstName: string
-    middleName?: string
-    lastName: string
-    jobInfo: Array<JobInfoType>
-    experience: string
-    testStatus: string
-    isOnboarded: boolean
-  }) {
+type Props = {
+  onboardingListPage: number
+  setOnboardingListPage: Dispatch<SetStateAction<number>>
+  onboardingListPageSize: number
+  setOnboardingListPageSize: Dispatch<SetStateAction<number>>
+}
+
+export default function OnboardingList({
+  onboardingListPage,
+  setOnboardingListPage,
+  onboardingListPageSize,
+  setOnboardingListPageSize,
+}: Props) {
+  function getLegalName(row: OnboardingListType) {
     return !row.firstName || !row.lastName
       ? '-'
       : row.firstName +
@@ -61,12 +53,22 @@ export default function OnboardingList() {
     {
       flex: 0.25,
       minWidth: 200,
-      field: 'firstName',
+      field: 'name',
       headerName: 'Legal name / Email',
       renderHeader: () => <Box>Legal name / Email</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <Box sx={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             <img
               width={34}
               height={34}
@@ -78,47 +80,70 @@ export default function OnboardingList() {
                   : '/images/icons/project-icons/onboarding-deactivate.png'
               }`}
             />
-            <Box>
+            <Box
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
               <Link
                 href={`/onboarding/detail/${row.userId}`}
                 style={{ textDecoration: 'none' }}
               >
-                <Typography sx={{ fontWeight: '600', fontSize: '1rem' }}>
+                <Typography
+                  sx={{
+                    fontWeight: '600',
+                    fontSize: '1rem',
+                    whiteSpace: 'nowrap',
+                    overflow: 'hidden',
+                    textOverflow: 'ellipsis',
+                  }}
+                >
                   {getLegalName(row)}
                 </Typography>
               </Link>
-              <Typography variant='body2'>{row.email}</Typography>
+              <Typography
+                variant='body2'
+                sx={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {row.email}
+              </Typography>
             </Box>
           </Box>
         )
       },
     },
     {
-      flex: 0.25,
-      minWidth: 230,
+      flex: 0.15,
+      minWidth: 100,
       field: 'experience',
       headerName: 'Experience',
       renderHeader: () => <Box>Experience</Box>,
     },
     {
-      flex: 0.3,
-
-      minWidth: 130,
+      flex: 0.4,
+      minWidth: 180,
       field: 'jobInfo',
       headerName: 'Job type / Role',
       renderHeader: () => <Box>Job type / Role</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflow: 'scroll', display: 'flex', gap: '8px' }}>
+        <Box
+          sx={{
+            overflow: 'scroll',
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+          }}
+        >
           {!row?.jobInfo.length
             ? '-'
             : row?.jobInfo.map(
-                (item, idx) =>
-                  idx === 0 && (
-                    <Box key={row.id} sx={{ display: 'flex', gap: '8px' }}>
-                      <Chip>{item.jobType}</Chip>
-                      <Chip>{item.role}</Chip>
-                    </Box>
-                  ),
+                (item, idx) => idx === 0 && <JobTypeRoleChips jobInfo={item} />,
               )}
           {row?.jobInfo.length > 1 ? (
             <CountChip>+{row.jobInfo.length - 1}</CountChip>
@@ -154,7 +179,22 @@ export default function OnboardingList() {
       renderHeader: () => <Box>Test status</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflow: 'scroll' }}>
-          {!row.testStatus ? '-' : <StatusChip>{row.testStatus}</StatusChip>}
+          {!row.testStatus ? (
+            '-'
+          ) : (
+            <Chip
+              size='medium'
+              type='testStatus'
+              label={row.testStatus}
+              /* @ts-ignore */
+              customColor={TestStatusColor[row.testStatus]}
+              sx={{
+                textTransform: 'capitalize',
+                '& .MuiChip-label': { lineHeight: '18px' },
+                mr: 1,
+              }}
+            />
+          )}
         </Box>
       ),
     },
@@ -162,12 +202,70 @@ export default function OnboardingList() {
   return (
     <Grid item xs={12}>
       <Card>
-        <CardHeader title='Pros (1,032)' />
-        <Box sx={{ height: 500 }}>
+        <CardHeader
+          title={`Pros (${onboardingData.length})`}
+          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+        ></CardHeader>
+        <Box
+          sx={{
+            width: '100%',
+            '& .MuiDataGrid-columnHeaderTitle': {
+              textTransform: 'none',
+            },
+          }}
+        >
           <DataGrid
+            components={{
+              NoRowsOverlay: () => {
+                return (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant='subtitle1'>
+                      There are no Pros
+                    </Typography>
+                  </Box>
+                )
+              },
+              NoResultsOverlay: () => {
+                return (
+                  <Box
+                    sx={{
+                      width: '100%',
+                      height: '100%',
+                      display: 'flex',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant='subtitle1'>
+                      There are no Pros
+                    </Typography>
+                  </Box>
+                )
+              },
+            }}
             columns={columns}
-            rowHeight={70}
-            rows={rows2.slice(0, 10)}
+            // rowHeight={70}
+            rows={onboardingData ?? []}
+            autoHeight
+            disableSelectionOnClick
+            pageSize={onboardingListPageSize}
+            rowsPerPageOptions={[5, 10, 25, 50]}
+            page={onboardingListPage}
+            rowCount={onboardingData.length}
+            onPageChange={(newPage: number) => {
+              setOnboardingListPage(newPage)
+            }}
+            onPageSizeChange={(newPageSize: number) =>
+              setOnboardingListPageSize(newPageSize)
+            }
           />
         </Box>
       </Card>
@@ -176,15 +274,15 @@ export default function OnboardingList() {
 }
 
 // ** TODO : chip style 컬러 추가해야 함
-const Chip = styled.p`
-  padding: 3px 4px;
-  background: #beefae;
-  border-radius: 16px;
+// const Chip = styled.p`
+//   padding: 3px 4px;
+//   background: #beefae;
+//   border-radius: 16px;
 
-  color: rgba(17, 17, 17, 0.87);
-  font-weight: 500;
-  font-size: 0.813rem;
-`
+//   color: rgba(17, 17, 17, 0.87);
+//   font-weight: 500;
+//   font-size: 0.813rem;
+// `
 const CountChip = styled.p`
   padding: 3px 4px;
   text-align: center;

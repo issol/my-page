@@ -192,12 +192,9 @@ const MemberList = ({
           rows={memberList ?? []}
           autoHeight
           disableSelectionOnClick
-          // autoPageSize
           pageSize={membersPageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
           page={membersPage}
-          // pagination
-          // paginationMode={'server'}
           rowCount={memberList.length}
           onPageChange={(newPage: number) => {
             setMembersPage(newPage)
