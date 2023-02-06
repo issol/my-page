@@ -3,7 +3,21 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
 // **TODO api완성되면 endpoint, res 수정
-export const getGuidelines = async (filters: FilterType) => {
+export const getGuidelines = async (
+  filters: FilterType,
+): Promise<{
+  data:
+    | Array<{
+        id: number
+        title: string
+        client: string
+        category: string
+        serviceType: Array<string>
+        dueAt: string
+      }>
+    | []
+  count: number
+}> => {
   console.log(makeQuery(filters))
   try {
     // const { data } = await axios.get(
@@ -48,7 +62,10 @@ export const getGuidelines = async (filters: FilterType) => {
       count: 4,
     }
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      data: [],
+      count: 0,
+    }
   }
 }
 
@@ -127,15 +144,24 @@ export const getGuidelineDetail = async (id: number) => {
       },
       writer: 'Bon (middle) Kim',
       updatedAt: 'Fri Feb 03 2023 10:50:40',
+      files: [
+        { name: 'add.jpeg', size: 200000 },
+        { name: 'adddd.pdf', size: 3333999 },
+      ],
 
       versionHistory: [
         {
           id: 1112,
-          userId: 123232,
-          version: 'version1',
-          writer: 'Bon (middle) Kim',
+          userId: 21778705315028,
+          title: 'Client guideline',
           email: 'bon@glozinc.com',
-          updatedAt: 'Fri Feb 03 2023 10:50:40',
+          client: 'GloZ',
+          category: 'Dubbing',
+          serviceType: 'DTP',
+          files: [
+            { name: 'add.jpeg', size: 200000 },
+            { name: 'adddd.pdf', size: 3333999 },
+          ],
           content: {
             blocks: [
               {
@@ -233,6 +259,17 @@ export const getGuidelineDetail = async (id: number) => {
         },
       ],
     }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getGuidelineFileURl = async (userId: number, fileName: string) => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
+    )
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
