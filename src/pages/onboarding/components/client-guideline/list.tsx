@@ -28,16 +28,23 @@ type CellType = {
 }
 
 type Props = {
+  pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
-  data: Array<{
-    id: number
-    title: string
-    client: string
-    category: string
-    serviceType: Array<string>
-    dueAt: string
-  }>
+  list: {
+    data:
+      | Array<{
+          id: number
+          title: string
+          client: string
+          category: string
+          serviceType: Array<string>
+          dueAt: string
+        }>
+      | []
+    count: number
+  }
+  isLoading: boolean
 }
 
 type ChipColorType =
@@ -50,9 +57,11 @@ type ChipColorType =
   | 'black'
 
 export default function ClientGuideLineList({
+  pageSize,
   setSkip,
   setPageSize,
-  data,
+  list,
+  isLoading,
 }: Props) {
   const router = useRouter()
   function getChipColor(type: string): ChipColorType {
@@ -196,10 +205,13 @@ export default function ClientGuideLineList({
             }}
             columns={columns}
             autoHeight
+            pageSize={pageSize}
             onPageSizeChange={setPageSize}
-            rowsPerPageOptions={[1, 50, 100]}
+            rowsPerPageOptions={[10, 25, 50]}
             onPageChange={setSkip}
-            rows={data.slice(0, 10)}
+            rowCount={list.count | 0}
+            rows={list.data}
+            loading={isLoading}
           />
         </Box>
       </Card>
