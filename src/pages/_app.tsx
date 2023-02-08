@@ -214,10 +214,19 @@ const App = (props: ExtendedAppProps) => {
     generateGoogleLoginButton()
   }, [router])
 
+  function handleCredentialResponse(response: object) {
+    console.log("Encoded JWT ID token: " + JSON.stringify(response));
+    //** TODO: credential이 없는데 콜백이 호출되는 케이스가 있는지 체크 못했음, 확인필요!! */
+    googleAuth(response.credential)
+  }
+
   function generateGoogleLoginButton() {
     window?.google?.accounts?.id?.initialize({
       client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse
     })
+    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
+    // window?.google?.accounts?.id.prompt();
     window?.google?.accounts?.id.renderButton(
       document.getElementById('buttonDiv'),
       {
