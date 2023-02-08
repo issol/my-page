@@ -7,10 +7,12 @@ export interface CountryType {
 }
 
 export interface JobInfoType {
+  id: number
   jobType: string
   role: string
-  source: string
-  target: string
+  source?: string | null
+  target?: string | null
+  status: string
 }
 
 export interface PersonalInfo {

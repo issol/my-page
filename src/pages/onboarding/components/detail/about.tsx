@@ -6,9 +6,10 @@ import Icon from 'src/@core/components/icon'
 
 //** data */
 import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+import { OnboardingUserType } from 'src/types/onboarding/list'
 
 type Props = {
-  userInfo: UserInfoResType
+  userInfo: OnboardingUserType
 }
 
 export default function About({ userInfo }: Props) {
@@ -27,7 +28,7 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:emoticon' style={{ opacity: '0.7' }} />
           <LabelTitle>Pronunciation:</LabelTitle>
-          <Label>{userInfo.preferredName_pronunciation || '-'}</Label>
+          <Label>{userInfo.preferredNamePronunciation || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />
@@ -56,7 +57,7 @@ export default function About({ userInfo }: Props) {
           <Label>
             {!userInfo.mobile
               ? '-'
-              : '+' + userInfo.timezone.phone + ')' + userInfo.mobile}
+              : '+' + userInfo.timezone.phone + ') ' + userInfo.mobile}
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -65,7 +66,7 @@ export default function About({ userInfo }: Props) {
           <Label>
             {!userInfo.phone
               ? '-'
-              : '+' + userInfo.timezone.phone + ')' + userInfo.phone}
+              : '+' + userInfo.timezone.phone + ') ' + userInfo.phone}
           </Label>
         </Box>
       </Box>

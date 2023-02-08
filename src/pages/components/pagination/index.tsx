@@ -1,155 +1,122 @@
-// ** MUI Imports
-import { styled } from '@mui/material/styles'
-import Typography from '@mui/material/Typography'
-import Grid, { GridProps } from '@mui/material/Grid'
+import styled from 'styled-components'
+import Image from 'next/image'
 
-// ** Custom Components Imports
-import CardSnippet from 'src/@core/components/card-snippet'
+type Props = {
+  listCount: number
+  page: number
+  handleChangePage: (direction: string) => void
+  rowsPerPage: number
+  isPreviousData?: boolean
+}
 
-// ** Demo Components Imports
-import PaginationSizes from 'src/views/components/pagination/PaginationSizes'
-import PaginationSimple from 'src/views/components/pagination/PaginationSimple'
-import PaginationRanges from 'src/views/components/pagination/PaginationRanges'
-import PaginationRounded from 'src/views/components/pagination/PaginationRounded'
-import PaginationButtons from 'src/views/components/pagination/PaginationButtons'
-import PaginationOutlined from 'src/views/components/pagination/PaginationOutlined'
-import PaginationDisabled from 'src/views/components/pagination/PaginationDisabled'
-import PaginationControlled from 'src/views/components/pagination/PaginationControlled'
+const Pagination = ({
+  listCount,
+  page,
+  handleChangePage,
+  rowsPerPage,
+  isPreviousData,
+}: Props) => {
+  const isOverPage = (page: number, number: number) => {
+    if (number >= rowsPerPage) {
+      const isInteger = number % 1 === 0
+      const result = isInteger
+        ? number / rowsPerPage - 1
+        : Math.floor(number / rowsPerPage)
 
-// ** Source code imports
-import * as source from 'src/views/components/pagination/PaginationSourceCode'
-
-// Styled component for Grid container
-const GridContainer = styled(Grid)<GridProps>(({ theme }) => ({
-  '& .demo-space-y > *': {
-    marginBottom: theme.spacing(5.2),
-    '&:last-of-type': {
-      marginBottom: 0
+      return page === result
+    } else {
+      return true
     }
   }
-}))
 
-const Pagination = () => {
+  function isEndOfList() {
+    return Math.min(rowsPerPage * (page + 1), listCount) === listCount
+  }
+
   return (
-    <GridContainer container spacing={6} className='match-height'>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Simple Pagination'
-          code={{
-            tsx: source.PaginationSimpleTSXCode,
-            jsx: source.PaginationSimpleJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use the following props with <code>Pagination</code> component: <code>count</code> prop for number of page
-            items and <code>color</code> prop for different colored pagination.
-          </Typography>
-          <PaginationSimple />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Outlined Pagination'
-          code={{
-            tsx: source.PaginationOutlinedTSXCode,
-            jsx: source.PaginationOutlinedJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use <code>variant='outlined'</code> prop for outlined pagination.
-          </Typography>
-          <PaginationOutlined />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Disabled Pagination'
-          code={{
-            tsx: source.PaginationDisabledTSXCode,
-            jsx: source.PaginationDisabledJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use <code>disabled</code> prop with <code>Pagination</code> component to disable the whole pagination.
-          </Typography>
-          <PaginationDisabled />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Rounded Pagination'
-          code={{
-            tsx: source.PaginationRoundedTSXCode,
-            jsx: source.PaginationRoundedJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use <code>shape='rounded'</code> prop for rounded pagination.
-          </Typography>
-          <PaginationRounded />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Sizes'
-          code={{
-            tsx: source.PaginationSizesTSXCode,
-            jsx: source.PaginationSizesJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use <code>size={`{'small' | 'large'}`}</code> prop for different sizes of pagination.
-          </Typography>
-          <PaginationSizes />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12} md={6}>
-        <CardSnippet
-          title='Buttons'
-          code={{
-            tsx: source.PaginationButtonsTSXCode,
-            jsx: source.PaginationButtonsJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Use <code>showFirstButton</code> & <code>showLastButton</code> props to show first-page and last-page
-            buttons and <code>hidePrevButton</code> & <code>hideNextButton</code> props to hide previous-page and
-            next-page buttons.
-          </Typography>
-          <PaginationButtons />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12}>
-        <CardSnippet
-          title='Controlled Pagination'
-          code={{
-            tsx: source.PaginationControlledTSXCode,
-            jsx: source.PaginationControlledJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            Manage <code>page</code> and <code>onChange</code> props with the help of a state.
-          </Typography>
-          <PaginationControlled />
-        </CardSnippet>
-      </Grid>
-      <Grid item xs={12}>
-        <CardSnippet
-          title='Pagination Ranges'
-          code={{
-            tsx: source.PaginationRangesTSXCode,
-            jsx: source.PaginationRangesJSXCode
-          }}
-        >
-          <Typography sx={{ mb: 4 }}>
-            You can specify how many digits to display either side of current page with the <code>siblingRange</code>{' '}
-            prop, and adjacent to the start and end page number with the <code>boundaryRange</code> prop.
-          </Typography>
-          <PaginationRanges />
-        </CardSnippet>
-      </Grid>
-    </GridContainer>
+    <PaginationContainer>
+      {`${page * rowsPerPage + 1} - ${
+        listCount > rowsPerPage
+          ? Math.min(rowsPerPage * (page + 1), listCount)
+          : listCount
+      } of ${listCount}`}
+      {/* <PaginationButton
+        type='button'
+        onClick={() => handleChangePage('first')}
+        disabled={page === 0}
+      >
+        <Image
+          src='/image/icon/icon-first-arrow.png'
+          width={11}
+          height={11}
+          alt='<'
+          quality={100}
+        />
+      </PaginationButton> */}
+      <PaginationButton
+        type='button'
+        onClick={() => handleChangePage('prev')}
+        disabled={page === 0}
+      >
+        <img
+          src='/images/icons/onboarding-icons/icon-prev.png'
+          // width={7}
+          // height={11}
+          // alt='<'
+          // quality={100}
+        />
+      </PaginationButton>
+      <PaginationButton
+        type='button'
+        onClick={() => handleChangePage('next')}
+        // disabled={isPreviousData || isOverPage(page, listCount)}
+        disabled={isEndOfList()}
+      >
+        <img src='/images/icons/onboarding-icons/icon-next.png' />
+      </PaginationButton>
+      {/* <PaginationButton
+        type='button'
+        onClick={() => handleChangePage('last')}
+        // disabled={isPreviousData || isOverPage(page, listCount)}
+        disabled={isEndOfList()}
+      >
+        <Image
+          src='/image/icon/icon-last-arrow.png'
+          width={11}
+          height={11}
+          alt='<'
+          quality={100}
+        />
+      </PaginationButton> */}
+    </PaginationContainer>
   )
 }
+
+const PaginationContainer = styled.div`
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  padding-right: 16px;
+  gap: 10px;
+  font-weight: 400;
+  font-size: 14px;
+`
+
+const PaginationButton = styled.button`
+  width: 30px;
+  height: 30px;
+  cursor: pointer;
+  display: flex;
+  border: none;
+  background-color: white;
+  align-items: center;
+  justify-content: center;
+
+  &:disabled {
+    cursor: default;
+    opacity: 0.4;
+  }
+`
 
 export default Pagination

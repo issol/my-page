@@ -11,6 +11,7 @@ export const JobTypeColor = {
 } as const
 
 export const RoleColor = {
+  QCer: '#FF9E90',
   Translator: '#D33DA0',
   'DTP QCer': '#BC9459',
   DTPer: '#FFBE5E',
@@ -38,6 +39,7 @@ export const RoleColor = {
 
 export const TestStatusColor = {
   'Awaiting assignment': '#6D788D',
+  'Test assigned': '#8232C0',
   'General in progress': '#FDB528',
   'General failed': '#FF4D49',
   'General passed': '#64C623',
@@ -46,4 +48,5 @@ export const TestStatusColor = {
   Reviewing: '#21AEDB',
   'Review completed': '#2B6603',
   'Test failed': '#FF4D49',
+  default: '#6D788D',
 }

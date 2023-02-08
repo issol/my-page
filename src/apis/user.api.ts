@@ -1,4 +1,5 @@
 import axios from 'src/configs/axios'
+import axiosDefault from 'axios'
 import { RoleType } from 'src/context/types'
 import {
   ConsumerUserInfoType,
@@ -13,6 +14,18 @@ export type UserInfoResType = Omit<
 export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pu?email=${email}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getProDetails = async (userId: number) => {
+  try {
+    const { data } = await axiosDefault.get('/api/pro/details', {
+      params: { id: userId },
+    })
+
     return data
   } catch (e: any) {
     throw new Error(e)

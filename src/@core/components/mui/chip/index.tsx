@@ -27,8 +27,6 @@ const Chip = (props: CustomChipProps) => {
     info: { ...bgColors.infoLight },
   }
 
-  console.log(type)
-
   const propsToPass = { ...props }
 
   propsToPass.rounded = undefined
@@ -62,6 +60,7 @@ const Chip = (props: CustomChipProps) => {
               background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customColor}`,
               color: customColor,
               fontSize: '13px',
+              fontWeight: 500,
             }
           : sx
       }

@@ -8,7 +8,7 @@ import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-import { onboardingData, rows2 } from 'src/@fake-db/table/static-data'
+
 import Link from 'next/link'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 
@@ -17,6 +17,7 @@ import JobTypeRoleChips from 'src/@core/components/jobtype-role-chips'
 import { OnboardingListType } from 'src/types/onboarding/list'
 import { TestStatusColor } from 'src/shared/const/chipColors'
 import { Dispatch, SetStateAction } from 'react'
+import { onboardingUser } from 'src/@fake-db/user'
 
 type CellType = {
   row: OnboardingListType
@@ -134,7 +135,6 @@ export default function OnboardingList({
       renderCell: ({ row }: CellType) => (
         <Box
           sx={{
-            overflow: 'scroll',
             display: 'flex',
             gap: '8px',
             alignItems: 'center',
@@ -178,23 +178,26 @@ export default function OnboardingList({
       headerName: 'testStatus',
       renderHeader: () => <Box>Test status</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflow: 'scroll' }}>
-          {!row.testStatus ? (
-            '-'
-          ) : (
-            <Chip
-              size='medium'
-              type='testStatus'
-              label={row.testStatus}
-              /* @ts-ignore */
-              customColor={TestStatusColor[row.testStatus]}
-              sx={{
-                textTransform: 'capitalize',
-                '& .MuiChip-label': { lineHeight: '18px' },
-                mr: 1,
-              }}
-            />
-          )}
+        <Box>
+          {!row?.jobInfo.length
+            ? '-'
+            : row?.jobInfo.map(
+                (item, idx) =>
+                  idx === 0 && (
+                    <Chip
+                      size='medium'
+                      type='testStatus'
+                      label={item.status}
+                      /* @ts-ignore */
+                      customColor={TestStatusColor[item.status]}
+                      sx={{
+                        textTransform: 'capitalize',
+                        '& .MuiChip-label': { lineHeight: '18px' },
+                        mr: 1,
+                      }}
+                    />
+                  ),
+              )}
         </Box>
       ),
     },
@@ -203,7 +206,7 @@ export default function OnboardingList({
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${onboardingData.length})`}
+          title={`Pros (${onboardingUser.length})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
@@ -253,13 +256,13 @@ export default function OnboardingList({
             }}
             columns={columns}
             // rowHeight={70}
-            rows={onboardingData ?? []}
+            rows={onboardingUser ?? []}
             autoHeight
             disableSelectionOnClick
             pageSize={onboardingListPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
             page={onboardingListPage}
-            rowCount={onboardingData.length}
+            rowCount={onboardingUser.length}
             onPageChange={(newPage: number) => {
               setOnboardingListPage(newPage)
             }}

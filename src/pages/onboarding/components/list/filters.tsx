@@ -163,7 +163,7 @@ export default function Filters({
                         }}
                         onChange={(event, item) => {
                           onChange(item)
-                          console.log(item)
+
                           if (item.length) {
                             const arr: {
                               label: string
