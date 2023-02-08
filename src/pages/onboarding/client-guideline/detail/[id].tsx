@@ -331,7 +331,7 @@ const ClientGuidelineDetail = () => {
           alignItems: 'center',
         }}
       >
-        <Typography variant='subtitle1'>There are no history</Typography>
+        <Typography variant='subtitle1'>There is no version history</Typography>
       </Box>
     )
   }
