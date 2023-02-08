@@ -224,7 +224,7 @@ export default ContractForm
 
 ContractForm.acl = {
   action: 'read',
-  subject: 'onboarding',
+  subject: 'contract',
 }
 
 const Chip = styled.span`

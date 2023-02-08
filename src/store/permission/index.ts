@@ -41,7 +41,11 @@ export const getPermission = createAsyncThunk(
           can: ['read', 'create', 'update', 'delete'],
         },
         {
-          subject: 'dashboards',
+          subject: 'client_guideline',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'contract',
           can: ['read', 'create', 'update', 'delete'],
         },
       ]

@@ -442,7 +442,7 @@ export default ContractDetail
 
 ContractDetail.acl = {
   action: 'read',
-  subject: 'onboarding',
+  subject: 'contract',
 }
 
 const Writer = styled(Chip)`

@@ -90,5 +90,5 @@ export default function ClientGuidLines() {
 
 ClientGuidLines.acl = {
   action: 'read',
-  subject: 'onboarding',
+  subject: 'client_guideline',
 }

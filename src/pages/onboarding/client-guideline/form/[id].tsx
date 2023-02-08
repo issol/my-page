@@ -641,7 +641,7 @@ export default ClientGuidelineEdit
 
 ClientGuidelineEdit.acl = {
   action: 'read',
-  subject: 'onboarding',
+  subject: 'client_guideline',
 }
 
 const Chip = styled.span`

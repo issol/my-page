@@ -218,8 +218,8 @@ const ContractForm = () => {
 export default ContractForm
 
 ContractForm.acl = {
-  action: 'read',
-  subject: 'onboarding',
+  action: 'create',
+  subject: 'contract',
 }
 
 const Chip = styled.span`

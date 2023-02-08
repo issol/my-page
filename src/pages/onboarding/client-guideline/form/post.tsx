@@ -589,8 +589,8 @@ const ClientGuidelineForm = () => {
 export default ClientGuidelineForm
 
 ClientGuidelineForm.acl = {
-  action: 'read',
-  subject: 'onboarding',
+  action: 'create',
+  subject: 'client_guideline',
 }
 
 const Chip = styled.span`

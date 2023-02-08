@@ -669,7 +669,7 @@ export default ClientGuidelineDetail
 
 ClientGuidelineDetail.acl = {
   action: 'read',
-  subject: 'onboarding',
+  subject: 'client_guideline',
 }
 
 const Writer = styled(Chip)`

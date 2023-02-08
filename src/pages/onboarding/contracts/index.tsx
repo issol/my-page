@@ -228,7 +228,7 @@ export default function ContractForm() {
 
 ContractForm.acl = {
   action: 'update',
-  subject: 'onboarding',
+  subject: 'contract',
 }
 
 const StyledBox = styled(Box)`
