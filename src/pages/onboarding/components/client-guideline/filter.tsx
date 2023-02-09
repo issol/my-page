@@ -150,10 +150,10 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
           <Grid item xs={6}>
             <FormControl fullWidth>
               <InputLabel htmlFor='icons-adornment-password'>
-                Search the title and content
+                Search client guidelines
               </InputLabel>
               <OutlinedInput
-                label='Search the title and content'
+                label='Search client guidelines'
                 value={filter.content}
                 onChange={e =>
                   setFilter({
