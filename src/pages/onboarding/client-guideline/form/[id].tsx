@@ -388,7 +388,10 @@ const ClientGuidelineEdit = () => {
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
                     <Chip>Writer</Chip>
-                    <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                    <Typography
+                      sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                      color='primary'
+                    >
                       {user?.username}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />

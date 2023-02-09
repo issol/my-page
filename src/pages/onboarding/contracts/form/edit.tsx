@@ -157,7 +157,10 @@ const ContractForm = () => {
 
                 <Box display='flex' alignItems='center' gap='8px'>
                   <Chip>Writer</Chip>
-                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                  <Typography
+                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                    color='primary'
+                  >
                     {contract?.writer}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />

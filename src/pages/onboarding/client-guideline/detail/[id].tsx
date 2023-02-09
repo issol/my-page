@@ -371,7 +371,10 @@ const ClientGuidelineDetail = () => {
               <Box display='flex' flexDirection='column' gap='8px'>
                 <Box display='flex' alignItems='center' gap='8px'>
                   <Writer label='Writer' size='small' />
-                  <Typography sx={{ fontSize: '0.875rem', fontWeight: 500 }}>
+                  <Typography
+                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                    color={`${user?.id === data?.userId ? 'primary' : ''}`}
+                  >
                     {data?.writer}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />
