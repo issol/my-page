@@ -1,4 +1,13 @@
-import { Button, Card, CardHeader, Checkbox, Grid } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Checkbox,
+  Grid,
+  IconButton,
+  InputLabel,
+  OutlinedInput,
+} from '@mui/material'
 
 // ** MUI Imports
 import InputAdornment from '@mui/material/InputAdornment'
@@ -140,8 +149,11 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
 
           <Grid item xs={6}>
             <FormControl fullWidth>
-              <TextField
-                id='search'
+              <InputLabel htmlFor='icons-adornment-password'>
+                Search the title and content
+              </InputLabel>
+              <OutlinedInput
+                label='Search the title and content'
                 value={filter.content}
                 onChange={e =>
                   setFilter({
@@ -150,14 +162,16 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                     title: e.target.value,
                   })
                 }
-                placeholder='Search the title and content'
-                InputProps={{
-                  startAdornment: (
-                    <InputAdornment position='start'>
+                endAdornment={
+                  <InputAdornment position='end'>
+                    <IconButton
+                      edge='end'
+                      aria-label='toggle password visibility'
+                    >
                       <Icon icon='mdi:magnify' />
-                    </InputAdornment>
-                  ),
-                }}
+                    </IconButton>
+                  </InputAdornment>
+                }
               />
             </FormControl>
           </Grid>

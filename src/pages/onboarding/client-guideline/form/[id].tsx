@@ -60,7 +60,7 @@ import axios from 'axios'
 import { getPresignedUrl } from 'src/apis/user.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
-import { postGuideline } from 'src/apis/client-guideline.api'
+import { postGuideline, deleteGuideline } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 
 // ** types
@@ -81,13 +81,6 @@ interface FileProp {
   size: number
 }
 
-/** TODO
- * file delete api 추가
- * file upload로직 추가
- * uploaded된 파일 읽어오기 -> 현재 파일사이즈 표기하기
- * 새로 추가된 files, uploaded된 파일 데이터 분리
- * 전체 폼 UPload
- */
 const ClientGuidelineEdit = () => {
   const router = useRouter()
   const { id } = router.query
@@ -104,6 +97,10 @@ const ClientGuidelineEdit = () => {
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
+  const [savedFiles, setSavedFiles] = useState<
+    Array<{ name: string; size: number }> | []
+  >([])
+  const [deletedFiles, setDeletedFiles] = useState<string[] | []>([])
 
   const { data, isSuccess } = useGetGuideLineDetail(Number(id))
   console.log(data)
@@ -131,12 +128,16 @@ const ClientGuidelineEdit = () => {
       setFiles(uniqueFiles)
     },
   })
-  console.log(files)
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
     const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
     setFiles([...filtered])
+  }
+
+  const handleRemoveSavedFile = (fileName: string) => {
+    setSavedFiles(savedFiles.filter(item => item.name !== fileName))
+    setDeletedFiles([...deletedFiles, fileName])
   }
 
   const fileList = files.map((file: FileProp) => (
@@ -158,6 +159,30 @@ const ClientGuidelineEdit = () => {
         </div>
       </div>
       <IconButton onClick={() => handleRemoveFile(file)}>
+        <Icon icon='mdi:close' fontSize={20} />
+      </IconButton>
+    </FileList>
+  ))
+
+  const savedFileList = savedFiles?.map((file: any) => (
+    <FileList key={file.name}>
+      <div className='file-details'>
+        <div className='file-preview'>
+          <Icon
+            icon='material-symbols:file-present-outline'
+            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+          />
+        </div>
+        <div>
+          <Typography className='file-name'>{file.name}</Typography>
+          <Typography className='file-size' variant='body2'>
+            {Math.round(file.size / 100) / 10 > 1000
+              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
+              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+          </Typography>
+        </div>
+      </div>
+      <IconButton onClick={() => handleRemoveSavedFile(file.name)}>
         <Icon icon='mdi:close' fontSize={20} />
       </IconButton>
     </FileList>
@@ -207,6 +232,7 @@ const ClientGuidelineEdit = () => {
         )
         setContent(editorState)
       }
+      if (data?.files.length) setSavedFiles(data.files)
     }
   }, [isSuccess])
 
@@ -216,8 +242,12 @@ const ClientGuidelineEdit = () => {
     let result = 0
     files.forEach((file: FileProp) => (result += file.size))
 
+    savedFiles.forEach(
+      (file: { name: string; size: number }) => (result += file.size),
+    )
+    console.log(result)
     setFileSize(result)
-  }, [files])
+  }, [files, savedFiles])
 
   useEffect(() => {
     if (fileSize > MAXIMUM_FILE_SIZE) {
@@ -354,6 +384,19 @@ const ClientGuidelineEdit = () => {
             )
         })
       })
+
+    if (deletedFiles.length) {
+      deletedFiles.forEach(item =>
+        deleteGuideline(user?.id as number, item).catch(err =>
+          toast.error(
+            'Something went wrong while deleting files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        ),
+      )
+    }
 
     //** data to send to server */
     const formContent = convertToRaw(content.getCurrentContent())
@@ -592,11 +635,14 @@ const ClientGuidelineEdit = () => {
                       Upload files
                     </Button>
                   </div>
-                  {files.length ? (
-                    <Fragment>
-                      <List>{fileList}</List>
-                    </Fragment>
-                  ) : null}
+                  <div>
+                    {data?.files?.length ? (
+                      <List sx={{ paddingBottom: 0 }}>{savedFileList}</List>
+                    ) : null}
+                    {files.length ? (
+                      <List sx={{ paddingTop: 0 }}>{fileList}</List>
+                    ) : null}
+                  </div>
                 </Box>
               </Card>
               {errors.file && (

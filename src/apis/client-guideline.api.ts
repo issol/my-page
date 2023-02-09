@@ -406,9 +406,11 @@ export const uploadGuidelineFiles = async (id: number) => {
   }
 }
 
-export const deleteGuideline = async (id: number) => {
+export const deleteGuideline = async (userId: number, fileName: string) => {
   try {
-    return await axios.delete(`/api/enough/a/r-req/al?type=${id}`)
+    return await axios.delete(
+      `/api/enough/a/r-req/al?type=${userId}&fileName=${fileName}`,
+    )
   } catch (e: any) {
     throw new Error(e)
   }
