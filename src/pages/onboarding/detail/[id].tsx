@@ -7,7 +7,6 @@ import { Box } from '@mui/system'
 import styled from 'styled-components'
 import { UserInfoResType } from 'src/apis/user.api'
 import About from '../components/detail/about'
-import Tax from '../components/detail/note-pro'
 import AppliedRole from '../components/detail/applied-role'
 import CertificationTest from '../components/detail/certification-test'
 import NoteFromPro from '../components/detail/note-pro'
@@ -16,12 +15,19 @@ import Contracts from '../components/detail/contracts'
 import CommentsAboutPro from '../components/detail/comments-pro'
 import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 import _ from 'lodash'
-import { SelectedJobInfoType } from 'src/types/onboarding/list'
+import { SelectedJobInfoType, TestHistoryType } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 import { certifyRole, testAction } from 'src/apis/onboarding.api'
+import { ModalContext } from 'src/context/ModalContext'
+import TestDetailsModal from '../components/detail/modal/test-details-modal'
+import { useForm } from 'react-hook-form'
+
+const defaultValues = {
+  testStatus: [],
+}
 
 export default function OnboardingDetail() {
   const router = useRouter()
@@ -29,6 +35,7 @@ export default function OnboardingDetail() {
   const { data: userInfo } = useGetUserInfoWithResume(id)
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] = useState(userInfo)
+  const [jobInfo, setJobInfo] = useState(userInfo?.jobInfo)
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<SelectedJobInfoType | null>(null)
 
@@ -42,7 +49,22 @@ export default function OnboardingDetail() {
   const [commentsProRowsPerPage, setCommentProRowsPerPage] = useState(3)
   const commentsProOffset = commentsProPage * commentsProRowsPerPage
 
+  const { setModal, setScrollable } = useContext(ModalContext)
+
   const queryClient = useQueryClient()
+
+  const {
+    control,
+    handleSubmit,
+    watch,
+    trigger,
+    reset,
+    formState: { errors, dirtyFields },
+  } = useForm<{ testStatus: { label: string; value: string }[] }>({
+    defaultValues,
+    mode: 'onChange',
+    // resolver: yupResolver(profileSchema),
+  })
 
   const certifyRoleMutation = useMutation(
     (value: { userId: number; jobInfoId: number }) =>
@@ -112,6 +134,25 @@ export default function OnboardingDetail() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+
+    if (event.target.checked) {
+      let prevState = selectedUserInfo
+
+      const res = prevState.jobInfo.filter(
+        (value: any) =>
+          !(
+            value.status === 'Test failed' || value.status === 'General failed'
+          ),
+      )
+
+      prevState['jobInfo'] = res
+      setSelectedUserInfo(prevState)
+    } else {
+      let prevState = selectedUserInfo
+
+      prevState['jobInfo'] = jobInfo
+      setSelectedUserInfo(prevState)
+    }
   }
 
   const handleClickRoleCard = (jobInfo: SelectedJobInfoType) => {
@@ -142,8 +183,12 @@ export default function OnboardingDetail() {
     })
   }
 
+  const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
+    setModal(<TestDetailsModal jobInfo={jobInfo} control={control} />)
+  }
+
   useEffect(() => {
-    const tempUserInfo = userInfo
+    let tempUserInfo = userInfo
 
     const res = userInfo.jobInfo.map((value: any) => ({
       ...value,
@@ -151,10 +196,12 @@ export default function OnboardingDetail() {
     }))
 
     const selectedResult = res.filter((value: any) => value.id === actionId)
+    console.log(res)
 
     tempUserInfo['jobInfo'] = res
 
     setSelectedUserInfo(tempUserInfo)
+    setJobInfo(res)
     if (actionId) {
       setSelectedJobInfo(selectedResult[0])
     }
@@ -248,6 +295,7 @@ export default function OnboardingDetail() {
             userInfo={userInfo}
             selectedJobInfo={selectedJobInfo}
             onClickAction={onClickAction}
+            onClickTestDetails={onClickTestDetails}
           />
         </Grid>
         <Grid item xs={12}>

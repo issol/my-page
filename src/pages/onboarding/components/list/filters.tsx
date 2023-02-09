@@ -42,7 +42,7 @@ import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import AccordionDetails from '@mui/material/AccordionDetails'
 
-type CardProps = {
+export type CardProps = {
   dropdownClose: boolean
 }
 
@@ -132,7 +132,7 @@ export default function Filters({
           </AccordionSummary>
           <AutoCompleteComponent
             dropdownClose={inputStyle}
-            sx={{ boxShadow: 'none' }}
+            sx={{ boxShadow: 'none', paddingTop: 3 }}
           >
             <form onSubmit={handleSubmit(onSubmit)}>
               {/* <CardHeader title='Search Filters' /> */}
@@ -488,7 +488,7 @@ export default function Filters({
   )
 }
 
-const AutoCompleteComponent = styled(Card)<CardProps>(
+export const AutoCompleteComponent = styled(Card)<CardProps>(
   ({ theme, dropdownClose }) => ({
     '& .MuiAutocomplete-inputRoot': {
       height: !dropdownClose && '56px;',

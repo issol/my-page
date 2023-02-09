@@ -5,6 +5,7 @@ import CardContent from '@mui/material/CardContent'
 import {
   OnboardingUserType,
   SelectedJobInfoType,
+  TestHistoryType,
 } from 'src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
@@ -169,7 +170,12 @@ export default function AppliedRole({
           General test in progress
         </Button>
       )
-    } else if (status === 'Test in progress') {
+    } else if (
+      status === 'Test in progress' ||
+      status === 'Test submitted' ||
+      status === 'Reviewing' ||
+      status === 'Review completed'
+    ) {
       return (
         <Button
           fullWidth
@@ -287,13 +293,6 @@ export default function AppliedRole({
         <Grid container spacing={6} xs={12}>
           {userInfo &&
             userInfo.slice(offset, offset + rowsPerPage).map(value => {
-              if (
-                hideFailedTest &&
-                (value.status === 'Test failed' ||
-                  value.status === 'General failed')
-              ) {
-                return null
-              }
               return (
                 <Grid item lg={6} md={12} sm={12} xs={12}>
                   <Card
@@ -337,10 +336,6 @@ export default function AppliedRole({
                         ) : (
                           ''
                         )}
-
-                        {/* {value.source && value.target
-                          ? ``
-                          : '-'} */}
                       </Typography>
 
                       <Grid item display='flex' gap='16px' mt={'17px'}>

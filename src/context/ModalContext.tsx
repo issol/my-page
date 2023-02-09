@@ -38,7 +38,7 @@ export default function ModalProvider({ children, selector }: Props) {
   const [mounted, setMounted] = useState(false)
   const [modal, setModal] = useState<ReactNode>(null)
   const [clickable, setClickable] = useState<boolean>(true)
-  const [scrollable, setScrollable] = useState<boolean>(true)
+  const [scrollable, setScrollable] = useState<boolean>(false)
 
   useEffect(() => {
     ref.current = document.getElementById(selector)

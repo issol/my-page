@@ -42,6 +42,18 @@ export type CommentsOnProType = {
   comment: string
 }
 
+export type TestHistoryType = {
+  status: string
+  date: string
+  id: number
+  reviewer: {
+    firstName: string
+    middleName?: string | null
+    lastName: string
+    email: string
+  }
+}
+
 export type OnboardingUserType = {
   id: string
   userId: number

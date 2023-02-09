@@ -21,6 +21,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: null,
         target: null,
         status: 'Awaiting Assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-15T10:12:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
 
       {
@@ -30,6 +98,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'KO',
         target: 'EN',
         status: 'Awaiting Assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 3,
@@ -38,6 +174,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'ID',
         target: 'PL',
         status: 'Test assigned',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 4,
@@ -46,6 +250,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'MK',
         target: 'CN',
         status: 'Reviewing',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 5,
@@ -54,6 +326,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'BA',
         target: 'PL',
         status: 'Test in progress',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 6,
@@ -62,6 +402,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'RU',
         target: 'ID',
         status: 'General in progress',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 7,
@@ -70,6 +478,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'ID',
         target: 'PH',
         status: 'Test failed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -195,6 +671,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'PH',
         target: 'HR',
         status: 'General failed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -203,6 +747,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'PL',
         target: 'ID',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 3,
@@ -211,6 +823,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'BR',
         target: 'PT',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -329,6 +1009,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'EG',
         target: 'CN',
         status: 'Test submitted',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -447,6 +1195,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'ID',
         target: 'PH',
         status: 'Reviewing',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -492,6 +1308,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'RU',
         target: 'NG',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -500,6 +1384,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'CN',
         target: 'PH',
         status: 'Review completed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 3,
@@ -508,6 +1460,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'MK',
         target: 'CN',
         status: 'General passed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 4,
@@ -516,6 +1536,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'BA',
         target: 'PL',
         status: 'Test in progress',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -634,6 +1722,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'ID',
         target: 'PL',
         status: 'General failed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -752,6 +1908,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'PS',
         target: 'PT',
         status: 'General passed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -760,6 +1984,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'ID',
         target: 'RU',
         status: 'General passed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -878,6 +2170,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'MN',
         target: 'RU',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -886,6 +2246,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'PH',
         target: 'US',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -1004,6 +2432,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'CD',
         target: 'ZW',
         status: 'Reviewing',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -1012,6 +2508,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'NO',
         target: 'RU',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 3,
@@ -1020,6 +2584,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'CN',
         target: 'PH',
         status: 'Awaiting assignment',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 
@@ -1138,6 +2770,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'AR',
         target: 'CN',
         status: 'General in progress',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
       {
         id: 2,
@@ -1146,6 +2846,74 @@ export const onboardingUser: OnboardingUserType[] = [
         source: 'RU',
         target: 'ID',
         status: 'General in progress',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
       },
     ],
 

@@ -18,15 +18,18 @@ import Box from '@mui/material/Box'
 import {
   OnboardingUserType,
   SelectedJobInfoType,
+  TestHistoryType,
 } from 'src/types/onboarding/list'
 import languageHelper from 'src/shared/helpers/language.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
+import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   userInfo: OnboardingUserType
   selectedJobInfo: SelectedJobInfoType | null
   onClickAction: (jobInfoId: number, status: string) => void
+  onClickTestDetails: (history: SelectedJobInfoType) => void
 }
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -43,6 +46,7 @@ export default function CertificationTest({
   userInfo,
   selectedJobInfo,
   onClickAction,
+  onClickTestDetails,
 }: Props) {
   return (
     <Card sx={{ padding: '20px' }}>
@@ -214,6 +218,7 @@ export default function CertificationTest({
                         textDecoration: 'underline',
                         cursor: 'pointer',
                       }}
+                      onClick={() => onClickTestDetails(selectedJobInfo)}
                     >
                       Details
                     </Typography>
