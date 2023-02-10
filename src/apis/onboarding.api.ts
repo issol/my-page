@@ -21,3 +21,10 @@ export const testAction = async (
     return data
   } catch (e) {}
 }
+
+export const getReviewer = async () => {
+  const data = await axios.get('/api/pro/details/reviewer')
+  console.log(data.data)
+
+  return data.data
+}

@@ -3,6 +3,7 @@ import {
   SetStateAction,
   SyntheticEvent,
   useContext,
+  useEffect,
   useState,
 } from 'react'
 import Box from '@mui/material/Box'
@@ -13,7 +14,11 @@ import DialogContent from '@mui/material/DialogContent'
 import { DataGrid } from '@mui/x-data-grid'
 import IconButton from '@mui/material/IconButton'
 import { ModalContext } from 'src/context/ModalContext'
-import { SelectedJobInfoType, TestHistoryType } from 'src/types/onboarding/list'
+import {
+  AssignReviewerType,
+  SelectedJobInfoType,
+  TestHistoryType,
+} from 'src/types/onboarding/list'
 import Button from '@mui/material/Button'
 
 import Tab from '@mui/material/Tab'
@@ -45,23 +50,35 @@ import {
 import { TestStatus } from 'src/shared/const/personalInfo'
 import { CardProps } from '../../list/filters'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
+
+// type AssignReviewerType = {
+//   jobType: { label: string; value: string }
+//   role: { label: string; value: string }
+//   source: { label: string; value: string }
+//   target: { label: string; value: string }
+// }
 
 type CellType = {
   row: TestHistoryType
 }
 
+type ReviewerCellType = {
+  row: AssignReviewerType
+}
+
 type Props = {
   jobInfo: SelectedJobInfoType
-  control: Control<
-    {
-      testStatus: {
-        label: string
-        value: string
-      }[]
-    },
-    any
-  >
+  reviewerList: AssignReviewerType[]
 }
+
+const defaultValues = {
+  jobType: '',
+  role: '',
+  source: '',
+  target: '',
+}
+
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
     display: 'none',
@@ -78,24 +95,57 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     paddingBottom: theme.spacing(2),
   },
 }))
-export default function TestDetailsModal({ jobInfo, control }: Props) {
+export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
   const { setModal } = useContext(ModalContext)
+  const [info, setInfo] = useState<SelectedJobInfoType>(jobInfo)
   const [value, setValue] = useState<string>('1')
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [testHistoryPage, setTestHistoryPage] = useState<number>(0)
   const [testHistoryPageSize, setTestHistoryPageSize] = useState<number>(10)
+
+  const [testStatus, setTestStatus] = useState<{
+    value: string
+    label: string
+  } | null>(null)
+
+  // const {
+  //   control,
+  //   handleSubmit,
+  //   watch,
+  //   trigger,
+  //   reset,
+  //   formState: { errors, dirtyFields },
+  // } = useForm<AssignReviewerType>({
+  //   // defaultValues,
+  //   mode: 'onChange',
+  //   // resolver: yupResolver(profileSchema),
+  // })
+
+  const onChangeTestStatus = (
+    event: SyntheticEvent,
+    newValue: { value: string; label: string } | null,
+  ) => {
+    setTestStatus(newValue)
+  }
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  function getLegalName(row: TestHistoryType) {
-    return !row.reviewer.firstName || !row.reviewer.lastName
+  function getLegalName(row: any) {
+    return !row.firstName || !row.lastName
       ? '-'
-      : row.reviewer.firstName +
-          (row.reviewer.middleName
-            ? ' (' + row.reviewer.middleName + ')'
-            : '') +
-          ` ${row.reviewer.lastName}`
+      : row.firstName +
+          (row.middleName ? ' (' + row.middleName + ')' : '') +
+          ` ${row.lastName}`
   }
+
+  const onClickAssignTest = () => {}
+
+  useEffect(() => {
+    setInfo(jobInfo)
+    setTestStatus({ value: jobInfo.status, label: jobInfo.status })
+  }, [jobInfo])
+
   const columns = [
     {
       flex: 0.15,
@@ -138,6 +188,80 @@ export default function TestDetailsModal({ jobInfo, control }: Props) {
               textOverflow: 'ellipsis',
             }}
           >
+            <Box
+              sx={{
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              <Typography
+                sx={{
+                  fontWeight: '600',
+                  fontSize: '1rem',
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {getLegalName(row.reviewer)}
+              </Typography>
+
+              <Typography
+                variant='body2'
+                sx={{
+                  whiteSpace: 'nowrap',
+                  overflow: 'hidden',
+                  textOverflow: 'ellipsis',
+                }}
+              >
+                {row.reviewer.email}
+              </Typography>
+            </Box>
+          </Box>
+        )
+      },
+    },
+    {
+      flex: 0.15,
+      minWidth: 100,
+      field: 'date',
+      headerName: 'Date&Time',
+
+      renderCell: ({ row }: CellType) => (
+        <Box
+          sx={{
+            display: 'flex',
+            gap: '8px',
+            alignItems: 'center',
+          }}
+        >
+          {FullDateTimezoneHelper(row.date)}
+        </Box>
+      ),
+    },
+  ]
+
+  const reviewerColumns = [
+    {
+      flex: 0.17,
+      minWidth: 200,
+      field: 'reviewer',
+      headerName: 'Test reviewer / TAD',
+
+      renderCell: ({ row }: ReviewerCellType) => {
+        return (
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '12px',
+
+              whiteSpace: 'nowrap',
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+            }}
+          >
             {' '}
             <Box
               sx={{
@@ -166,7 +290,7 @@ export default function TestDetailsModal({ jobInfo, control }: Props) {
                   textOverflow: 'ellipsis',
                 }}
               >
-                {row.reviewer.email}
+                {row.email}
               </Typography>
             </Box>
           </Box>
@@ -175,11 +299,44 @@ export default function TestDetailsModal({ jobInfo, control }: Props) {
     },
     {
       flex: 0.15,
+      field: 'action',
+      minWidth: 120,
+      headerName: 'Action',
+      renderCell: ({ row }: ReviewerCellType) => {
+        if (row.status === 'Not requested') {
+          return <Button variant='contained'></Button>
+        } else if (row.status === 'Requested') {
+          return (
+            <Button
+              fullWidth
+              variant='contained'
+              size='small'
+              disabled
+              sx={{
+                '&.Mui-disabled': {
+                  background:
+                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528;',
+                  border: '1px solid rgba(253, 181, 40, 0.5)',
+                  color: '#FDB528',
+                },
+              }}
+              startIcon={
+                <img src='/images/icons/onboarding-icons/failed.svg' />
+              }
+            >
+              Requested
+            </Button>
+          )
+        }
+      },
+    },
+    {
+      flex: 0.15,
       minWidth: 100,
       field: 'date',
       headerName: 'Date&Time',
 
-      renderCell: ({ row }: CellType) => (
+      renderCell: ({ row }: ReviewerCellType) => (
         <Box
           sx={{
             display: 'flex',
@@ -285,37 +442,22 @@ export default function TestDetailsModal({ jobInfo, control }: Props) {
                           )}
                         </Typography>
                       </Box>
-
-                      <AutoCompleteComponent dropdownClose={inputStyle}>
-                        <Controller
-                          control={control}
-                          name='testStatus'
-                          render={({ field: { onChange, value } }) => (
-                            <Autocomplete
-                              fullWidth
-                              onClose={() => {
-                                setInputStyle(false)
-                              }}
-                              onOpen={() => {
-                                setInputStyle(true)
-                              }}
-                              onChange={(event, item) => {
-                                onChange(item)
-                              }}
-                              isOptionEqualToValue={(option, newValue) => {
-                                return option.value === newValue.value
-                              }}
-                              limitTags={1}
-                              options={TestStatus}
-                              id='testStatus'
-                              getOptionLabel={option => option.label}
-                              renderInput={params => (
-                                <TextField {...params} label='Test status' />
-                              )}
-                            />
+                      <Box sx={{ width: '292px' }}>
+                        <Autocomplete
+                          fullWidth
+                          value={testStatus}
+                          onChange={onChangeTestStatus}
+                          // isOptionEqualToValue={(option, newValue) => {
+                          //   return option.value === newValue.value
+                          // }}
+                          options={TestStatus}
+                          id='testStatus'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Test status' />
                           )}
                         />
-                      </AutoCompleteComponent>
+                      </Box>
                     </Box>
                   </CardContent>
                 </Card>
@@ -390,11 +532,73 @@ export default function TestDetailsModal({ jobInfo, control }: Props) {
               </Box>
             </TabPanel>
             <TabPanel value='2'>
-              <Typography>
-                Chocolate bar carrot cake candy canes sesame snaps. Cupcake pie
-                gummi bears jujubes candy canes. Chupa chups sesame snaps
-                halvah.
-              </Typography>
+              <Grid item xs={12}>
+                <Card>
+                  <CardHeader title='Reviewer List'></CardHeader>
+                  <Box
+                    sx={{
+                      width: '100%',
+                      '& .MuiDataGrid-columnHeaderTitle': {
+                        textTransform: 'none',
+                      },
+                    }}
+                  >
+                    <DataGrid
+                      components={{
+                        NoRowsOverlay: () => {
+                          return (
+                            <Box
+                              sx={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Typography variant='subtitle1'>
+                                There are no Reviewer
+                              </Typography>
+                            </Box>
+                          )
+                        },
+                        NoResultsOverlay: () => {
+                          return (
+                            <Box
+                              sx={{
+                                width: '100%',
+                                height: '100%',
+                                display: 'flex',
+                                justifyContent: 'center',
+                                alignItems: 'center',
+                              }}
+                            >
+                              <Typography variant='subtitle1'>
+                                There are no Reviewer
+                              </Typography>
+                            </Box>
+                          )
+                        },
+                      }}
+                      columns={reviewerColumns}
+                      // rowHeight={70}
+                      rows={reviewerList ?? []}
+                      autoHeight
+                      disableSelectionOnClick
+                      pageSize={testHistoryPageSize}
+                      rowsPerPageOptions={[5, 10, 25, 50]}
+                      page={testHistoryPage}
+                      rowCount={reviewerList?.length}
+                      onPageChange={(newPage: number) => {
+                        setTestHistoryPage(newPage)
+                      }}
+                      onPageSizeChange={(newPageSize: number) =>
+                        setTestHistoryPageSize(newPageSize)
+                      }
+                    />
+                  </Box>
+                </Card>
+              </Grid>
             </TabPanel>
           </TabContext>
         </Box>

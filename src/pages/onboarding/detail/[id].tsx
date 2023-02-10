@@ -15,7 +15,7 @@ import Contracts from '../components/detail/contracts'
 import CommentsAboutPro from '../components/detail/comments-pro'
 import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
-import { useContext, useEffect, useState } from 'react'
+import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 import _ from 'lodash'
 import { SelectedJobInfoType, TestHistoryType } from 'src/types/onboarding/list'
@@ -24,15 +24,13 @@ import { certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/modal/test-details-modal'
 import { useForm } from 'react-hook-form'
-
-const defaultValues = {
-  testStatus: [],
-}
+import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
 
 export default function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const { data: userInfo } = useGetUserInfoWithResume(id)
+  const { data: reviewerList } = useGetReviewerList()
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] = useState(userInfo)
   const [jobInfo, setJobInfo] = useState(userInfo?.jobInfo)
@@ -49,22 +47,14 @@ export default function OnboardingDetail() {
   const [commentsProRowsPerPage, setCommentProRowsPerPage] = useState(3)
   const commentsProOffset = commentsProPage * commentsProRowsPerPage
 
+  const [testStatus, setTestStatus] = useState<{
+    value: string
+    label: string
+  } | null>(null)
+
   const { setModal, setScrollable } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
-
-  const {
-    control,
-    handleSubmit,
-    watch,
-    trigger,
-    reset,
-    formState: { errors, dirtyFields },
-  } = useForm<{ testStatus: { label: string; value: string }[] }>({
-    defaultValues,
-    mode: 'onChange',
-    // resolver: yupResolver(profileSchema),
-  })
 
   const certifyRoleMutation = useMutation(
     (value: { userId: number; jobInfoId: number }) =>
@@ -183,8 +173,15 @@ export default function OnboardingDetail() {
     })
   }
 
+  const onChangeTestStatus = (
+    event: SyntheticEvent,
+    newValue: { value: string; label: string } | null,
+  ) => {
+    setTestStatus(newValue)
+  }
+
   const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
-    setModal(<TestDetailsModal jobInfo={jobInfo} control={control} />)
+    setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={reviewerList} />)
   }
 
   useEffect(() => {

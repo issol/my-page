@@ -24,6 +24,7 @@ import languageHelper from 'src/shared/helpers/language.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
 import { Dispatch, SetStateAction } from 'react'
+import TestDetailsModal from './modal/test-details-modal'
 
 type Props = {
   userInfo: OnboardingUserType

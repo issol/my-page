@@ -1,5 +1,8 @@
 import mock from 'src/@fake-db/mock'
-import { OnboardingUserType } from 'src/types/onboarding/list'
+import {
+  AssignReviewerType,
+  OnboardingUserType,
+} from 'src/types/onboarding/list'
 
 export const onboardingUser: OnboardingUserType[] = [
   {
@@ -3015,6 +3018,54 @@ export const onboardingUser: OnboardingUserType[] = [
   },
 ]
 
+const reviewer: AssignReviewerType[] = [
+  {
+    id: 1,
+    firstName: 'Bon',
+    middleName: 'Youjin',
+    lastName: 'Kim',
+    email: 'bon@naver.com',
+    status: 'Requested',
+    date: '2023-02-05T04:24:48Z',
+  },
+  {
+    id: 2,
+    firstName: 'Winter',
+    middleName: null,
+    lastName: 'Lee',
+    email: 'winter@naver.com',
+    status: 'Not requested',
+    date: '2023-02-05T04:34:48Z',
+  },
+  {
+    id: 3,
+    firstName: 'Chole',
+    middleName: null,
+    lastName: 'Yu',
+    email: 'chloe@glozinc.com',
+    status: 'Request rejected',
+    date: '2023-02-05T04:44:48Z',
+  },
+  {
+    id: 4,
+    firstName: 'Risha',
+    middleName: null,
+    lastName: 'Park',
+    email: 'risha@glozinc.com',
+    status: 'Request accepted',
+    date: '2023-02-05T05:44:48Z',
+  },
+  {
+    id: 5,
+    firstName: 'Luke',
+    middleName: null,
+    lastName: 'Kim',
+    email: 'luke@glozinc.com',
+    status: 'Not requested',
+    date: '2023-02-05T05:44:48Z',
+  },
+]
+
 mock.onGet('/api/pro/details').reply(request => {
   const { id } = request.params
 
@@ -3069,5 +3120,35 @@ mock.onPost('/api/pro/details/jobInfo/item').reply(request => {
   })
 
   onboardingUser[matchedUserIndex].jobInfo = matchedJobInfo
+  return [200]
+})
+
+mock.onGet('/api/pro/details/reviewer').reply(() => {
+  return [200, reviewer]
+})
+
+mock.onPost('/api/pro/details/reviewer/action').reply(request => {
+  const { id, status } = JSON.parse(request.data).data
+
+  const eventId = Number(id)
+
+  const res = reviewer.map(value => {
+    if (value.id === eventId) {
+      return {
+        ...value,
+        status:
+          status === 'Not requested'
+            ? 'Requested'
+            : status === 'Re assign' && value.status === 'Request accepted'
+            ? 'Not requested'
+            : value.status,
+      }
+    } else {
+      return { ...value }
+    }
+  })
+
+  reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
+
   return [200]
 })
