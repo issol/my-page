@@ -8,7 +8,7 @@ import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-
+import { v4 as uuidv4 } from 'uuid'
 import Link from 'next/link'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 
@@ -143,7 +143,10 @@ export default function OnboardingList({
           {!row?.jobInfo.length
             ? '-'
             : row?.jobInfo.map(
-                (item, idx) => idx === 0 && <JobTypeRoleChips jobInfo={item} />,
+                (item, idx) =>
+                  idx === 0 && (
+                    <JobTypeRoleChips jobInfo={item} key={uuidv4()} />
+                  ),
               )}
           {row?.jobInfo.length > 1 ? (
             <CountChip>+{row.jobInfo.length - 1}</CountChip>
@@ -186,6 +189,7 @@ export default function OnboardingList({
                   idx === 0 && (
                     <Chip
                       size='medium'
+                      key={uuidv4()}
                       type='testStatus'
                       label={item.status}
                       /* @ts-ignore */

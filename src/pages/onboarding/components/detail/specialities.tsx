@@ -1,5 +1,5 @@
 import Card from '@mui/material/Card'
-
+import { v4 as uuidv4 } from 'uuid'
 import styled from 'styled-components'
 import Divider from '@mui/material/Divider'
 
@@ -42,6 +42,7 @@ export default function Specialties({ userInfo }: Props) {
             userInfo.specialties.map(value => {
               return (
                 <Chip
+                  key={uuidv4()}
                   size='small'
                   label={value}
                   skin='light'

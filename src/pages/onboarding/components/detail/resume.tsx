@@ -10,7 +10,7 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
-
+import { v4 as uuidv4 } from 'uuid'
 type Props = {
   userInfo: OnboardingUserType
 }
@@ -39,6 +39,7 @@ export default function Resume({ userInfo }: Props) {
             userInfo.resume?.map(value => {
               return (
                 <Box
+                  key={uuidv4()}
                   sx={{
                     width: '53px',
                     display: 'flex',

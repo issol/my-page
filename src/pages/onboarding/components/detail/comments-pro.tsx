@@ -13,7 +13,7 @@ import Typography from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import IconButton from '@mui/material/IconButton'
 import Button from '@mui/material/Button'
-import Pagination from 'src/pages/components/pagination'
+import CustomPagination from 'src/pages/components/custom-pagination'
 import Grid from '@mui/material/Grid'
 
 import Chip from 'src/@core/components/mui/chip'
@@ -123,7 +123,7 @@ export default function CommentsAboutPro({
             )
           })}
         <Grid item xs={12}>
-          <Pagination
+          <CustomPagination
             listCount={userInfo.length}
             page={page}
             handleChangePage={handleChangePage}

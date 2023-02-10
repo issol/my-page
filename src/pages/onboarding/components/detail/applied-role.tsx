@@ -16,8 +16,8 @@ import Grid from '@mui/material/Grid'
 import Button from '@mui/material/Button'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
-
-import Pagination from 'src/pages/components/pagination'
+import { v4 as uuidv4 } from 'uuid'
+import CustomPagination from 'src/pages/components/custom-pagination'
 
 type Props = {
   userInfo: SelectedJobInfoType[]
@@ -297,7 +297,7 @@ export default function AppliedRole({
           {userInfo &&
             userInfo.slice(offset, offset + rowsPerPage).map(value => {
               return (
-                <Grid item lg={6} md={12} sm={12} xs={12}>
+                <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
                   <Card
                     sx={{
                       padding: '20px',
@@ -350,7 +350,7 @@ export default function AppliedRole({
               )
             })}
           <Grid item xs={12}>
-            <Pagination
+            <CustomPagination
               listCount={userInfo.length}
               page={page}
               handleChangePage={handleChangePage}
