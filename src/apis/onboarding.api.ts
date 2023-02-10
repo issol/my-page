@@ -28,3 +28,13 @@ export const getReviewer = async () => {
 
   return data.data
 }
+
+export const assignReviewer = async (id: number, status: string) => {
+  try {
+    const data = await axios.post('/api/pro/details/reviewer/action', {
+      data: { id: id, status: status },
+    })
+
+    return data
+  } catch (e) {}
+}

@@ -3021,6 +3021,7 @@ export const onboardingUser: OnboardingUserType[] = [
 const reviewer: AssignReviewerType[] = [
   {
     id: 1,
+    reviewerId: 1,
     firstName: 'Bon',
     middleName: 'Youjin',
     lastName: 'Kim',
@@ -3030,6 +3031,7 @@ const reviewer: AssignReviewerType[] = [
   },
   {
     id: 2,
+    reviewerId: 2,
     firstName: 'Winter',
     middleName: null,
     lastName: 'Lee',
@@ -3039,6 +3041,7 @@ const reviewer: AssignReviewerType[] = [
   },
   {
     id: 3,
+    reviewerId: 3,
     firstName: 'Chole',
     middleName: null,
     lastName: 'Yu',
@@ -3048,15 +3051,18 @@ const reviewer: AssignReviewerType[] = [
   },
   {
     id: 4,
+    reviewerId: 4,
     firstName: 'Risha',
     middleName: null,
     lastName: 'Park',
     email: 'risha@glozinc.com',
     status: 'Request accepted',
+    // status: 'Not requested',
     date: '2023-02-05T05:44:48Z',
   },
   {
     id: 5,
+    reviewerId: 5,
     firstName: 'Luke',
     middleName: null,
     lastName: 'Kim',
@@ -3132,6 +3138,8 @@ mock.onPost('/api/pro/details/reviewer/action').reply(request => {
 
   const eventId = Number(id)
 
+  const index = reviewer.findIndex(value => value.id === eventId)
+
   const res = reviewer.map(value => {
     if (value.id === eventId) {
       return {
@@ -3140,13 +3148,17 @@ mock.onPost('/api/pro/details/reviewer/action').reply(request => {
           status === 'Not requested'
             ? 'Requested'
             : status === 'Re assign' && value.status === 'Request accepted'
-            ? 'Not requested'
+            ? 'Canceled'
             : value.status,
       }
     } else {
       return { ...value }
     }
   })
+
+  console.log(res)
+
+  reviewer.splice(index, 1, res[index])
 
   reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
 

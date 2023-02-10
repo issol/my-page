@@ -38,6 +38,7 @@ import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
+import RequestReviewerModal from '../modal/request-reviewer-modal'
 
 import {
   useForm,
@@ -51,6 +52,8 @@ import { TestStatus } from 'src/shared/const/personalInfo'
 import { CardProps } from '../../list/filters'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
+import { useMutation, useQueryClient } from 'react-query'
+import { assignReviewer } from 'src/apis/onboarding.api'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -98,15 +101,40 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
 export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<SelectedJobInfoType>(jobInfo)
+  const { data: reviewerList1 } = useGetReviewerList()
+  const [selectedReviewer, setSelectedReviewer] =
+    useState<AssignReviewerType | null>(null)
+  const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
   const [value, setValue] = useState<string>('1')
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [testHistoryPage, setTestHistoryPage] = useState<number>(0)
   const [testHistoryPageSize, setTestHistoryPageSize] = useState<number>(10)
+  const queryClient = useQueryClient()
+
+  const [requestReviewerModalOpen, setRequestReviewerModalOpen] =
+    useState(false)
+
+  const [isAccepted, setIsAccepted] = useState(false)
+  const [acceptedId, setAcceptedId] = useState(0)
+  const [assignReviewerPage, setAssignReviewerPage] = useState<number>(0)
+  const [assignReviewerPageSize, setAssignReviewerPageSize] =
+    useState<number>(10)
 
   const [testStatus, setTestStatus] = useState<{
     value: string
     label: string
   } | null>(null)
+
+  const assignReviewerMutation = useMutation(
+    (value: { id: number; status: string }) =>
+      assignReviewer(value.id, value.status),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries('reviewers')
+        alert('success')
+      },
+    },
+  )
 
   // const {
   //   control,
@@ -139,12 +167,81 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
           ` ${row.lastName}`
   }
 
-  const onClickAssignTest = () => {}
+  const requestReview = (
+    reviewer: AssignReviewerType | null,
+    status: string,
+  ) => {
+    console.log(reviewer)
+    assignReviewerMutation.mutate({
+      id: reviewer?.id!,
+      status: status,
+    })
+  }
+
+  const reassignReviewer = () => {
+    assignReviewerMutation.mutate({
+      id: acceptedId,
+      status: 'Re assign',
+    })
+  }
+
+  const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
+    setSelectedReviewer(reviewer)
+    setRequestReviewerModalOpen(true)
+  }
 
   useEffect(() => {
     setInfo(jobInfo)
     setTestStatus({ value: jobInfo.status, label: jobInfo.status })
   }, [jobInfo])
+
+  useEffect(() => {
+    const accepted = reviewerList1.find(
+      (value: any) => value.status === 'Request accepted',
+    )
+    const acceptedId = reviewerList1.findIndex(
+      (value: any) => value.status === 'Request accepted',
+    )
+    if (accepted) {
+      setAcceptedId(reviewerList1[acceptedId].id)
+      setIsAccepted(true)
+      const res = reviewerList1.map((value: any) => {
+        if (value.status === 'Request accepted') {
+          return { ...value }
+        } else {
+          return { ...value, status: '-' }
+        }
+      })
+      setReviewers(res)
+    } else {
+      setIsAccepted(false)
+      setReviewers(reviewerList1)
+    }
+  }, [reviewerList1])
+
+  useEffect(() => {
+    const accepted = reviewerList.find(
+      value => value.status === 'Request accepted',
+    )
+    const acceptedId = reviewerList.findIndex(
+      (value: any) => value.status === 'Request accepted',
+    )
+    if (accepted) {
+      setIsAccepted(true)
+      setAcceptedId(reviewerList[acceptedId].id)
+      const res = reviewerList.map(value => {
+        if (value.status === 'Request accepted') {
+          return { ...value }
+        } else {
+          return { ...value, status: '-' }
+        }
+      })
+      setReviewers(res)
+    } else {
+      setIsAccepted(false)
+      setReviewers(reviewerList)
+    }
+  }, [reviewerList])
 
   const columns = [
     {
@@ -304,13 +401,20 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
       headerName: 'Action',
       renderCell: ({ row }: ReviewerCellType) => {
         if (row.status === 'Not requested') {
-          return <Button variant='contained'></Button>
+          return (
+            <Button
+              variant='contained'
+              fullWidth
+              onClick={() => onClickRequestReview(row)}
+            >
+              Request review
+            </Button>
+          )
         } else if (row.status === 'Requested') {
           return (
             <Button
               fullWidth
               variant='contained'
-              size='small'
               disabled
               sx={{
                 '&.Mui-disabled': {
@@ -321,12 +425,55 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                 },
               }}
               startIcon={
-                <img src='/images/icons/onboarding-icons/failed.svg' />
+                <img src='/images/icons/onboarding-icons/reviewer-requested.svg' />
               }
             >
               Requested
             </Button>
           )
+        } else if (
+          row.status === 'Request rejected' ||
+          row.status === 'Canceled'
+        ) {
+          return (
+            <Button
+              fullWidth
+              variant='contained'
+              disabled
+              sx={{
+                '&.Mui-disabled': {
+                  background:
+                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+                  border: '1px solid #FF4D49',
+                  color: '#FF4D49',
+                },
+              }}
+              startIcon={<Icon icon='mdi:alert-circle-outline' />}
+            >
+              {row.status}
+            </Button>
+          )
+        } else if (row.status === 'Request accepted') {
+          return (
+            <Button
+              fullWidth
+              variant='contained'
+              disabled
+              sx={{
+                '&.Mui-disabled': {
+                  background:
+                    'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128',
+                  border: '1px solid #72E128',
+                  color: '#64C623',
+                },
+              }}
+              startIcon={<Icon icon='mdi:check-circle-outline' />}
+            >
+              Request accepted
+            </Button>
+          )
+        } else if (row.status === '-') {
+          return <Box>-</Box>
         }
       },
     },
@@ -361,6 +508,13 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
       aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
     >
+      <RequestReviewerModal
+        reviewer={selectedReviewer}
+        requestReview={requestReview}
+        open={requestReviewerModalOpen}
+        onClose={() => setRequestReviewerModalOpen(false)}
+      />
+
       <DialogContent
         sx={{
           padding: '50px',
@@ -534,7 +688,26 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
             <TabPanel value='2'>
               <Grid item xs={12}>
                 <Card>
-                  <CardHeader title='Reviewer List'></CardHeader>
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                    }}
+                  >
+                    <Typography variant='h6' sx={{ fontWeight: 600 }}>
+                      Reviewer list
+                    </Typography>
+                    <Button
+                      variant='outlined'
+                      disabled={!isAccepted}
+                      color={isAccepted ? 'primary' : 'secondary'}
+                      onClick={reassignReviewer}
+                    >
+                      Re-assign
+                    </Button>
+                  </Box>
+
                   <Box
                     sx={{
                       width: '100%',
@@ -582,18 +755,18 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                       }}
                       columns={reviewerColumns}
                       // rowHeight={70}
-                      rows={reviewerList ?? []}
+                      rows={reviewers ?? []}
                       autoHeight
                       disableSelectionOnClick
-                      pageSize={testHistoryPageSize}
+                      pageSize={assignReviewerPageSize}
                       rowsPerPageOptions={[5, 10, 25, 50]}
-                      page={testHistoryPage}
-                      rowCount={reviewerList?.length}
+                      page={assignReviewerPage}
+                      rowCount={reviewers?.length}
                       onPageChange={(newPage: number) => {
-                        setTestHistoryPage(newPage)
+                        setAssignReviewerPage(newPage)
                       }}
                       onPageSizeChange={(newPageSize: number) =>
-                        setTestHistoryPageSize(newPageSize)
+                        setAssignReviewerPageSize(newPageSize)
                       }
                     />
                   </Box>

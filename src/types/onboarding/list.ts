@@ -56,6 +56,7 @@ export type TestHistoryType = {
 
 export type AssignReviewerType = {
   id: number
+  reviewerId: number
   firstName: string
   middleName?: string | null
   lastName: string
