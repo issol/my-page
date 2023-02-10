@@ -9,6 +9,8 @@ export const JobList = [
   { label: 'Documents/Text', value: 'document_text' },
   { label: 'DTP', value: 'dtp' },
   { label: 'Dubbing', value: 'dubbing' },
+  { label: 'Interpretation', value: 'interpretation' },
+  { label: 'Misc.', value: 'misc' },
   { label: 'OTT/Subtitle', value: 'ott_subtitle' },
   { label: 'Webcomics', value: 'webcomics' },
   { label: 'Webnovel', value: 'webnovel' },
@@ -37,6 +39,12 @@ export const DefaultRolePair = [
     value: 'Dubbing script translator',
     jobType: ['dubbing'],
   },
+
+  { label: 'Interpreter', value: 'Interpreter', jobType: ['interpretation'] },
+
+  { label: 'Copywriter', value: 'Copywriter', jobType: ['Misc.'] },
+  { label: 'Editor', value: 'Editor', jobType: ['Misc.'] },
+  { label: 'Video editor', value: 'Video editor', jobType: ['Misc.'] },
 
   { label: 'SDH author', value: 'SDH author', jobType: ['ott_subtitle'] },
   { label: 'SDH QCer', value: 'SDH QCer', jobType: ['ott_subtitle'] },
@@ -89,6 +97,15 @@ export const RolePair = {
     { label: 'Dubbing QCer', value: 'Dubbing QCer' },
     { label: 'Dubbing script translator', value: 'Dubbing script translator' },
   ],
+
+  interpretation: [{ label: 'Interpreter', value: 'Interpreter' }],
+
+  misc: [
+    { label: 'Copywriter', value: 'Copywriter' },
+    { label: 'Editor', value: 'Editor' },
+    { label: 'Video editor', value: 'Video editor' },
+  ],
+
   ott_subtitle: [
     { label: 'SDH author', value: 'SDH author' },
     { label: 'SDH QCer', value: 'SDH QCer' },

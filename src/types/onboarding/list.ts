@@ -30,6 +30,12 @@ export type OnboardingListType = Omit<
   | 'specialties'
 >
 
+export interface OnboardingJobInfoType extends JobInfoType {
+  id: number
+  status: string
+  history: Array<TestHistoryType>
+}
+
 export type CommentsOnProType = {
   id: number
   userId: number
@@ -73,7 +79,7 @@ export type OnboardingUserType = {
   middleName: string | null
   lastName: string
   experience: string
-  jobInfo: Array<JobInfoType>
+  jobInfo: Array<OnboardingJobInfoType>
   isOnboarded: boolean
   notesFromPro?: string | null
   isActive: boolean
@@ -90,7 +96,16 @@ export type OnboardingUserType = {
   commentsOnPro?: Array<CommentsOnProType>
 }
 
-export interface SelectedJobInfoType extends JobInfoType {
+export interface SelectedJobInfoType extends OnboardingJobInfoType {
   id: number
   selected: boolean
+}
+
+export type AddRoleType = {
+  jobInfo: {
+    jobType: string
+    role: string
+    source: string
+    target: string
+  }[]
 }

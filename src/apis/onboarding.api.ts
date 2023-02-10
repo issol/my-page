@@ -24,7 +24,6 @@ export const testAction = async (
 
 export const getReviewer = async () => {
   const data = await axios.get('/api/pro/details/reviewer')
-  console.log(data.data)
 
   return data.data
 }

@@ -33,6 +33,7 @@ type Props = {
   handleChangePage: (direction: string) => void
   onClickCertify: (jobInfoId: number) => void
   onClickAction: (jobInfoId: number, status: string) => void
+  onClickAddRole: () => void
 }
 
 export default function AppliedRole({
@@ -47,6 +48,7 @@ export default function AppliedRole({
   handleChangePage,
   onClickCertify,
   onClickAction,
+  onClickAddRole,
 }: Props) {
   const getStatusButton = (
     jobType: string,
@@ -256,6 +258,7 @@ export default function AppliedRole({
             sx={{
               padding: 0,
             }}
+            onClick={onClickAddRole}
           >
             <img src='/images/icons/onboarding-icons/add-role.svg'></img>
           </IconButton>

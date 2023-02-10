@@ -1,5 +1,5 @@
 import { Card, Grid, Typography } from '@mui/material'
-import { RoleType } from 'src/context/types'
+
 import { useRouter } from 'next/router'
 import { useGetUserInfoWithResume } from 'src/queries/userInfo/userInfo-query'
 import { Box } from '@mui/system'
@@ -18,14 +18,29 @@ import Experience from '../components/detail/experience'
 import { SyntheticEvent, useContext, useEffect, useState } from 'react'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 import _ from 'lodash'
-import { SelectedJobInfoType, TestHistoryType } from 'src/types/onboarding/list'
+import {
+  AddRoleType,
+  SelectedJobInfoType,
+  TestHistoryType,
+} from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 import { certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/modal/test-details-modal'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
+import AppliedRoleModal from '../components/detail/modal/applied-role-modal'
+import { RoleType } from 'src/context/types'
+import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import Button from '@mui/material/Button'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { assignTestSchema } from 'src/types/schema/onboarding.schema'
+import AssignTestModal from '../components/detail/modal/assign-test.modal'
+import CancelTestModal from '../components/detail/modal/cancel-test-modal'
 
+const defaultValues: AddRoleType = {
+  jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
+}
 export default function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
@@ -47,10 +62,43 @@ export default function OnboardingDetail() {
   const [commentsProRowsPerPage, setCommentProRowsPerPage] = useState(3)
   const commentsProOffset = commentsProPage * commentsProRowsPerPage
 
+  const [appliedRoleModalOpen, setAppliedRoleModalOpen] = useState(false)
+  const [assignTestModalOpen, setAssignTestModalOpen] = useState(false)
+  const [cancelTestModalOpen, setCancelTestModalOpen] = useState(false)
+
+  const [assignTestJobInfo, setAssignTestJobInfo] =
+    useState<AddRoleType>(defaultValues)
+
+  const languageList = getGloLanguage()
+
   const [testStatus, setTestStatus] = useState<{
     value: string
     label: string
   } | null>(null)
+
+  const {
+    control,
+    handleSubmit,
+    reset,
+    watch,
+    trigger,
+    getValues,
+    formState: { errors, dirtyFields },
+  } = useForm<AddRoleType>({
+    defaultValues,
+    mode: 'onBlur',
+    resolver: yupResolver(assignTestSchema),
+  })
+
+  const {
+    fields: jobInfoFields,
+    append,
+    remove,
+    update,
+  } = useFieldArray({
+    control,
+    name: 'jobInfo',
+  })
 
   const { setModal, setScrollable } = useContext(ModalContext)
 
@@ -173,6 +221,25 @@ export default function OnboardingDetail() {
     })
   }
 
+  const onClickAddRole = () => {
+    setAppliedRoleModalOpen(true)
+  }
+
+  const onChangeJobInfo = (
+    id: string,
+    value: any,
+    item: 'jobType' | 'role' | 'source' | 'target',
+  ) => {
+    const filtered = jobInfoFields.filter(f => f.id! === id)[0]
+    const index = jobInfoFields.findIndex(f => f.id! === id)
+    let newVal = { ...filtered, [item]: value }
+    if (item === 'jobType' && value === 'dtp') {
+      newVal = { ...filtered, [item]: value, source: '', target: '' }
+    }
+    update(index, newVal)
+    trigger('jobInfo')
+  }
+
   const onChangeTestStatus = (
     event: SyntheticEvent,
     newValue: { value: string; label: string } | null,
@@ -184,6 +251,66 @@ export default function OnboardingDetail() {
     setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={reviewerList} />)
   }
 
+  const onClickAssignTest = (data: AddRoleType) => {
+    setAssignTestJobInfo(data)
+    setAssignTestModalOpen(true)
+  }
+
+  const onClickCancelTest = () => {
+    setCancelTestModalOpen(true)
+  }
+
+  const handleAssignTest = (jobInfo: AddRoleType) => {
+    //** TODO : Assign 연결 */
+    console.log(jobInfo)
+  }
+
+  const addJobInfo = () => {
+    if (jobInfoFields.length >= 10) {
+      setModal(
+        <Box
+          sx={{
+            padding: '24px',
+            textAlign: 'center',
+            background: '#ffffff',
+            borderRadius: '14px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='role select error'
+            />
+            <Typography variant='body2'>
+              You can select up to 10 at maximum.
+            </Typography>
+          </Box>
+          <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
+            <Button variant='contained' onClick={() => setModal(null)}>
+              Okay
+            </Button>
+          </Box>
+        </Box>,
+      )
+      return
+    }
+    append({ jobType: '', role: '', source: '', target: '' })
+  }
+
+  const removeJobInfo = (item: { id: string }) => {
+    const idx = jobInfoFields.map(item => item.id).indexOf(item.id)
+    idx !== -1 && remove(idx)
+  }
+
   useEffect(() => {
     let tempUserInfo = userInfo
 
@@ -193,7 +320,6 @@ export default function OnboardingDetail() {
     }))
 
     const selectedResult = res.filter((value: any) => value.id === actionId)
-    console.log(res)
 
     tempUserInfo['jobInfo'] = res
 
@@ -207,6 +333,43 @@ export default function OnboardingDetail() {
 
   return (
     <Grid container xs={12} spacing={6}>
+      <AppliedRoleModal
+        open={appliedRoleModalOpen}
+        onClose={() => {
+          reset({
+            jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
+          })
+          setAppliedRoleModalOpen(false)
+        }}
+        jobInfoFields={jobInfoFields}
+        control={control}
+        errors={errors}
+        onChangeJobInfo={onChangeJobInfo}
+        languageList={languageList}
+        addJobInfo={addJobInfo}
+        removeJobInfo={removeJobInfo}
+        getValues={getValues}
+        handleSubmit={handleSubmit}
+        onClickAssignTest={onClickAssignTest}
+        onClickCancelTest={onClickCancelTest}
+      />
+
+      <AssignTestModal
+        open={assignTestModalOpen}
+        onClose={() => setAssignTestModalOpen(false)}
+        assignTest={handleAssignTest}
+        jobInfo={assignTestJobInfo}
+      />
+      <CancelTestModal
+        open={cancelTestModalOpen}
+        onClose={() => setCancelTestModalOpen(false)}
+        onCloseAssignTestModal={() => {
+          reset({
+            jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
+          })
+          setAppliedRoleModalOpen(false)
+        }}
+      />
       <Grid item xs={12}>
         <DesignedCard>
           <Card sx={{ padding: '24px' }}>
@@ -284,6 +447,7 @@ export default function OnboardingDetail() {
             offset={roleOffset}
             onClickCertify={onClickCertify}
             onClickAction={onClickAction}
+            onClickAddRole={onClickAddRole}
           />
         </Grid>
 

@@ -1,5 +1,3 @@
-import { TestHistoryType } from '../onboarding/list'
-
 export type PronounceType = 'SHE' | 'HE' | 'THEY' | 'NONE'
 
 export interface CountryType {
@@ -9,13 +7,10 @@ export interface CountryType {
 }
 
 export interface JobInfoType {
-  id: number
   jobType: string
   role: string
   source?: string | null
   target?: string | null
-  status: string
-  history: Array<TestHistoryType>
 }
 
 export interface PersonalInfo {
