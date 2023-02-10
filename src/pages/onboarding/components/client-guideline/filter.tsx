@@ -21,19 +21,31 @@ import Icon from 'src/@core/components/icon'
 
 // **values
 import { JobList } from 'src/shared/const/personalInfo'
-import { ClientCategory, ServiceType } from 'src/shared/const/client-guideline'
+import {
+  ClientCategory,
+  ServiceType,
+  ServiceType2,
+} from 'src/shared/const/client-guideline'
 
 // ** types
-import { FilterOmitType } from '../../client-guideline'
+import { ConstType, FilterOmitType } from '../../client-guideline'
+import { useEffect } from 'react'
 
 type Props = {
   filter: FilterOmitType
   setFilter: <T extends FilterOmitType>(v: T) => void
   search: () => void
   onReset: () => void
+  serviceType: Array<ConstType>
 }
 
-export default function Filters({ filter, setFilter, search, onReset }: Props) {
+export default function Filters({
+  filter,
+  setFilter,
+  search,
+  onReset,
+  serviceType,
+}: Props) {
   function filterValue(option: any, keyName: keyof FilterOmitType) {
     return !filter[keyName]
       ? option[0]
@@ -119,7 +131,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                 autoHighlight
                 fullWidth
                 multiple
-                options={ServiceType}
+                options={serviceType || []}
                 value={filterValue(ServiceType, 'serviceType')}
                 onChange={(e, v) =>
                   setFilter({

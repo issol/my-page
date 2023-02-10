@@ -27,6 +27,7 @@ export const Category = [
   { label: 'YouTube', value: 'YouTube' },
 ]
 
+// ** TODO : 값 확정되면 수정해야 함
 export const ServiceType = [
   { label: 'Admin task(Internal task)', value: 'Admin task(Internal task)' },
   { label: 'Copywriting', value: 'Copywriting' },
@@ -52,3 +53,57 @@ export const ServiceType = [
   { label: 'Translation Revision', value: 'Translation Revision' },
   { label: 'Video editing', value: 'Video editing' },
 ].sort((a, b) => a.label.localeCompare(b.label))
+
+// ** TODO : 값 확정되면 수정해야 함
+export const ServiceType2 = {
+  'Documents/Text': [
+    { label: 'Copywriting', value: 'Copywriting' },
+    { label: 'DTP', value: 'DTP' },
+    { label: 'DTP QC', value: 'DTP QC' },
+    { label: 'DTP file prep', value: 'DTP file prep' },
+    { label: 'Editing', value: 'Editing' },
+    { label: 'File preparation', value: 'File preparation' },
+    { label: 'Final check', value: 'Final check' },
+    { label: 'Proofreading', value: 'Proofreading' },
+    { label: 'QC Review', value: 'QC Review' },
+    { label: 'Revision(Rework)', value: 'Revision(Rework)' },
+    {
+      label: 'TAE(Translator accept edits)',
+      value: 'TAE(Translator accept edits)',
+    },
+    { label: 'Transcription', value: 'Transcription' },
+    { label: 'Translation', value: 'Translation' },
+    { label: 'Translation and DTP', value: 'Translation and DTP' },
+    { label: 'Translation Revision', value: 'Translation Revision' },
+  ],
+  Dubbing: [
+    { label: 'Editing', value: 'Editing' },
+    { label: 'File preparation', value: 'File preparation' },
+    { label: 'Final check', value: 'Final check' },
+    { label: 'Proofreading', value: 'Proofreading' },
+    { label: 'QC Review', value: 'QC Review' },
+    { label: 'Revision(Rework)', value: 'Revision(Rework)' },
+    {
+      label: 'TAE(Translator accept edits)',
+      value: 'TAE(Translator accept edits)',
+    },
+    { label: 'Transcription', value: 'Transcription' },
+    { label: 'Translation', value: 'Translation' },
+    { label: 'Translation Revision', value: 'Translation Revision' },
+  ],
+  'OTT/Subtitle': [
+    { label: 'Editing', value: 'Editing' },
+    { label: 'File preparation', value: 'File preparation' },
+    { label: 'Final check', value: 'Final check' },
+    { label: 'Proofreading', value: 'Proofreading' },
+    { label: 'QC Review', value: 'QC Review' },
+    { label: 'Revision(Rework)', value: 'Revision(Rework)' },
+    {
+      label: 'TAE(Translator accept edits)',
+      value: 'TAE(Translator accept edits)',
+    },
+    { label: 'Transcription', value: 'Transcription' },
+    { label: 'Translation', value: 'Translation' },
+    { label: 'Translation Revision', value: 'Translation Revision' },
+  ],
+}
