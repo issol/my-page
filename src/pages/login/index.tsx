@@ -1,5 +1,12 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect, useRef } from 'react'
+import {
+  useState,
+  ReactNode,
+  MouseEvent,
+  useEffect,
+  useRef,
+  useContext,
+} from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -14,7 +21,14 @@ import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
+import { Checkbox, FormControlLabel } from '@mui/material'
+
+// ** nextJs
 import Link from 'next/link'
+import { useRouter } from 'next/router'
+import Script from 'next/script'
+
+// ** styles
 import styled from 'styled-components'
 
 // ** Icon Imports
@@ -32,10 +46,17 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Checkbox, FormControlLabel } from '@mui/material'
-import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
-import { useRouter } from 'next/router'
-import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
+
+// ** fetches
+import { googleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
+import {
+  getRememberMe,
+  removeRememberMe,
+  saveUserTokenToBrowser,
+} from 'src/shared/auth/storage'
+import { useMutation } from 'react-query'
+
+// ** values
 import { FormErrors } from 'src/shared/const/form-errors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -90,6 +111,50 @@ const LoginPage = () => {
   // ** Hooks
   const auth = useAuth()
 
+  const googleMutation = useMutation(
+    (credential: string) => googleAuth(credential),
+    {
+      onSuccess: res => {
+        console.log(res)
+        saveUserTokenToBrowser(res.accessToken)
+        auth.updateUserInfo(res)
+      },
+      onError: err => {
+        console.log(err)
+        if (err === 'NOT_A_MEMBER') {
+          // ** TODO : sign up 시키기
+        }
+      },
+    },
+  )
+
+  useEffect(() => {
+    generateGoogleLoginButton()
+  }, [router])
+
+  function handleCredentialResponse(response: { credential?: string }) {
+    if (response.credential) {
+      googleMutation.mutate(response.credential)
+    }
+  }
+
+  function generateGoogleLoginButton() {
+    window?.google?.accounts?.id?.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+    })
+    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
+    // window?.google?.accounts?.id.prompt();
+    window?.google?.accounts?.id.renderButton(
+      document.getElementById('buttonDiv'),
+      {
+        theme: 'outline',
+        width: 450,
+        background: 'transparent',
+      },
+    )
+  }
+
   const {
     control,
     setError,
@@ -127,6 +192,12 @@ const LoginPage = () => {
   }
   return (
     <Box className='content-center'>
+      <Script
+        src='https://accounts.google.com/gsi/client'
+        strategy='afterInteractive'
+        onLoad={generateGoogleLoginButton}
+        onReady={generateGoogleLoginButton}
+      />
       <RightWrapper>
         <Box
           sx={{
@@ -182,14 +253,9 @@ const LoginPage = () => {
                 <img src='/images/logos/google.png' alt='google sign in' />
               </IconButton>
 
-              <Link
-                href=''
-                // onClick={redirectGoogleAuth}
-                style={{ textDecoration: 'none' }}
-              >
+              <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              {/* for test */}
               <GoogleButtonWrapper>
                 <div id='buttonDiv'></div>
               </GoogleButtonWrapper>

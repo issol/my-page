@@ -34,15 +34,18 @@ export const redirectGoogleAuth = (e: any) => {
   }
 }
 
-// export const googleAuth = async (credential: string, g_csrf_token: string) => {
-export const googleAuth = async (credential: string) => {
+export const googleAuth = async (credential: string): Promise<loginResType> => {
   try {
     const { data } = await axios.post(
       `/api/enough/a/google/x-gu-grant?credential=${credential}`,
     )
     return data
   } catch (e: any) {
-    throw new Error(e)
+    if (e.response.data.statusCode === 403) {
+      throw 'NOT_A_MEMBER'
+    } else {
+      throw new Error(e)
+    }
   }
 }
 

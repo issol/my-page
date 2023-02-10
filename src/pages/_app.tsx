@@ -83,8 +83,6 @@ import {
   ApiErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
-import { googleAuth } from 'src/apis/sign.api'
-import Script from 'next/script'
 import { removeAllStorage } from 'src/shared/auth/storage'
 
 // ** Extend App Props with Emotion
@@ -210,41 +208,8 @@ const App = (props: ExtendedAppProps) => {
     removeAllStorage()
   }, [])
 
-  useEffect(() => {
-    generateGoogleLoginButton()
-  }, [router])
-
-  function handleCredentialResponse(response: object) {
-    console.log("Encoded JWT ID token: " + JSON.stringify(response));
-    //** TODO: credential이 없는데 콜백이 호출되는 케이스가 있는지 체크 못했음, 확인필요!! */
-    googleAuth(response.credential)
-  }
-
-  function generateGoogleLoginButton() {
-    window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse
-    })
-    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
-    // window?.google?.accounts?.id.prompt();
-    window?.google?.accounts?.id.renderButton(
-      document.getElementById('buttonDiv'),
-      {
-        theme: 'outline',
-        width: 450,
-        background: 'transparent',
-      },
-    )
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Script
-        src='https://accounts.google.com/gsi/client'
-        strategy='afterInteractive'
-        onLoad={generateGoogleLoginButton}
-        onReady={generateGoogleLoginButton}
-      />
       <Provider store={store}>
         <CacheProvider value={emotionCache}>
           <Head>
