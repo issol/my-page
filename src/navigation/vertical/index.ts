@@ -29,6 +29,28 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'members',
       path: `/account`,
     },
+    {
+      title: 'Onboarding',
+      icon: 'mdi:account-outline',
+      action: 'read',
+      subject: 'onboarding',
+      children: [
+        {
+          title: 'Onboarding List',
+          path: `/onboarding`,
+          action: 'read',
+          icon: 'mdi:list-box-outline',
+          subject: 'onboarding',
+        },
+        {
+          title: 'Client Guidelines',
+          path: `/onboarding/client-guideline`,
+          icon: 'mdi:playlist-check',
+          action: 'read',
+          subject: 'onboarding',
+        },
+      ],
+    },
   ]
 }
 

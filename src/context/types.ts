@@ -45,7 +45,7 @@ export type UserDataType = {
   phone?: string
   jobInfo?: Array<JobInfoType>
   experience?: string
-  resume?: Array<File> | null
+  resume?: Array<{ name: string; size: number }> | null
   specialties?: Array<string>
   jobTitle?: string
   fax?: string

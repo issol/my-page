@@ -1,6 +1,5 @@
 import { useRouter } from 'next/router'
 
-import { useContext } from 'react'
 import styled from 'styled-components'
 
 export default function ErrorFallback() {
@@ -8,8 +7,8 @@ export default function ErrorFallback() {
 
   return (
     <Container>
-      <h1 className='title'>err</h1>
-      <p className='desc'>err</p>
+      <h1 className='title'>Something went wrong.</h1>
+      <p className='desc'>Please try again.</p>
     </Container>
   )
 }

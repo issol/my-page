@@ -107,11 +107,12 @@ const AuthProvider = ({ children }: Props) => {
       .then(value => {
         const profile = value
         const userInfo = {
+          ...profile,
           id: response.userId,
           email: response.email,
-          username: `${profile.firstName} ${profile?.middleName ?? ''} ${
-            profile.lastName
-          }`,
+          username: `${profile.firstName} ${
+            profile?.middleName ? '(' + profile?.middleName + ')' : ''
+          } ${profile.lastName}`,
           firstName: profile.firstName,
           timezone: profile.timezone,
         }

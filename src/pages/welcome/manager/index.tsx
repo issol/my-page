@@ -169,7 +169,7 @@ const PersonalInfoManager = () => {
                 alt='role select error'
               />
               <Typography variant='body2'>
-                An error has occurred. Please try again.
+                Something went wrong. Please try again.
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>

@@ -49,6 +49,7 @@ import { useMutation } from 'react-query'
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { ModalContext } from 'src/context/ModalContext'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -105,10 +106,10 @@ const schema = yup.object().shape({
         })
       },
     )
-    .required('This field is required'),
+    .required(FormErrors.required),
   password: yup
     .string()
-    .required('This field is required')
+    .required(FormErrors.required)
     .test('password-validation', '', (val: any) => {
       return (
         val.length >= 9 &&
@@ -217,7 +218,7 @@ const SignUpPage = () => {
       },
       onError: (e: any) => {
         if (e?.statusCode === 409) {
-          toast.error('This account is already registered.')
+          toast.error(FormErrors.alreadyRegistered)
         } else {
           toast.error('Something went wrong. Please try again.')
         }
@@ -232,12 +233,12 @@ const SignUpPage = () => {
       return signUpMutation.mutate()
     },
     onError: () => {
-      setPinError('Invalid verification code.')
+      setPinError(FormErrors.invalidVerificationCode)
     },
   })
 
   function validatePinLength() {
-    if (pin.length < 7) setPinError('This field is required')
+    if (pin.length < 7) setPinError(FormErrors.required)
     else setPinError('')
   }
 
@@ -537,6 +538,8 @@ const SignUpPage = () => {
                             width='14px'
                             height='14px'
                             src={validationIcon}
+                            alt=''
+                            aria-hidden
                           />
                           {validation.text}
                         </div>

@@ -1,5 +1,5 @@
 import styled from '@emotion/styled'
-import { Button } from '@mui/material'
+import { Box, Button } from '@mui/material'
 import { ReactNode, useContext } from 'react'
 import { ModalContext } from 'src/context/ModalContext'
 
@@ -28,12 +28,20 @@ export default function SimpleModal({ msg, btnLabel, onClick }: Props) {
   )
 }
 
-export const ModalContainer = styled.div`
+export const ModalContainer = styled(Box)`
   min-width: 250px;
   margin: 25px;
-  padding: 40px 34px 28px;
-  border-radius: 8px;
-  background: #fff;
+  padding: 24px;
+  text-align: center;
+  background: #ffffff;
+  border-radius: 14px;
+`
+
+export const ModalButtonGroup = styled(Box)`
+  margin-top: 1rem;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
 `
 
 const Message = styled.div`
