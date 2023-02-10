@@ -6,30 +6,38 @@ export const Pronunciation = [
 ] as const
 
 export const JobList = [
-  { label: 'Documents/Text', value: 'document_text' },
-  { label: 'DTP', value: 'dtp' },
-  { label: 'Dubbing', value: 'dubbing' },
-  { label: 'OTT/Subtitle', value: 'ott_subtitle' },
-  { label: 'Webcomics', value: 'webcomics' },
-  { label: 'Webnovel', value: 'webnovel' },
-  { label: 'YouTube', value: 'youtube' },
-]
+  { label: 'Documents/Text', value: 'Documents/Text' },
+  { label: 'DTP', value: 'DTP' },
+  { label: 'Dubbing', value: 'Dubbing' },
+  { label: 'Interpretation', value: 'Interpretation' },
+  { label: 'Misc.', value: 'Misc.' },
+  { label: 'OTT/Subtitle', value: 'OTT/Subtitle' },
+  { label: 'Webcomics', value: 'Webcomics' },
+  { label: 'Webnovel', value: 'Webnovel' },
+  { label: 'YouTube', value: 'YouTube' },
+].sort((a, b) => a.label.localeCompare(b.label))
 
 export const RolePair = {
-  document_text: [
+  'Documents/Text': [
     { label: 'QCer', value: 'QCer' },
     { label: 'Translator', value: 'Translator' },
   ],
-  dtp: [
+  DTP: [
     { label: 'DTPer', value: 'DTPer' },
     { label: 'DTP QCer', value: 'DTP QCer' },
   ],
-  dubbing: [
+  Interpretation: [{ label: 'Interpretation', value: 'Interpretation' }],
+  'Misc.': [
+    { label: 'Copywriter', value: 'Copywriter' },
+    { label: 'Editor', value: 'Editor' },
+    { label: 'Video editor', value: 'Video editor' },
+  ],
+  Dubbing: [
     { label: 'Audio description QCer', value: 'Audio description QCer' },
     { label: 'Dubbing QCer', value: 'Dubbing QCer' },
     { label: 'Dubbing script translator', value: 'Dubbing script translator' },
   ],
-  ott_subtitle: [
+  'OTT/Subtitle': [
     { label: 'SDH author', value: 'SDH author' },
     { label: 'SDH QCer', value: 'SDH QCer' },
     { label: 'Subtitle author', value: 'Subtitle author' },
@@ -39,16 +47,16 @@ export const RolePair = {
     { label: 'Supp author', value: 'Supp author' },
     { label: 'Supp QCer', value: 'Supp QCer' },
   ],
-  webcomics: [
+  Webcomics: [
     { label: 'Proofreader', value: 'Proofreader' },
     { label: 'Webcomics QCer', value: 'Webcomics QCer' },
     { label: 'Webcomic translator', value: 'Webcomic translator' },
   ],
-  webnovel: [
+  Webnovel: [
     { label: 'Wenovel QCer', value: 'Wenovel QCer' },
     { label: 'Webnovel translator', value: 'Webnovel translator' },
   ],
-  youtube: [
+  YouTube: [
     { label: 'Subtitle QCer', value: 'Subtitle QCer' },
     { label: 'Subtitle author', value: 'Subtitle author' },
     { label: 'Translator', value: 'Translator' },
@@ -56,11 +64,11 @@ export const RolePair = {
 } as const
 
 export const ExperiencedYears = [
-  { value: 'NONE', label: 'No experience' },
-  { value: 'LESS_THAN_TWO', label: '1-2 years' },
-  { value: 'THREE_TO_FIVE', label: '3-5 years' },
-  { value: 'SIX_TO_NINE', label: '6-9 years' },
-  { value: 'MORE_THAN_TEN', label: '10+ years' },
+  { value: 'No experience', label: 'No experience' },
+  { value: '1-2 years', label: '1-2 years' },
+  { value: '3-5 years', label: '3-5 years' },
+  { value: '6-9 years', label: '6-9 years' },
+  { value: '10+ years', label: '10+ years' },
 ] as const
 
 export const Specialties = [

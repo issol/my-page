@@ -36,6 +36,7 @@ import { Checkbox, FormControlLabel } from '@mui/material'
 import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
 import { useRouter } from 'next/router'
 import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -66,9 +67,9 @@ const TypographyStyled = muiStyled(Typography)<TypographyProps>(
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email('Invalid email address')
-    .required('This field is required'),
-  password: yup.string().required('This field is required'),
+    .email(FormErrors.invalidEmail)
+    .required(FormErrors.required),
+  password: yup.string().required(FormErrors.required),
 })
 
 const defaultValues = {
@@ -120,7 +121,7 @@ const LoginPage = () => {
       })
       setError('password', {
         type: 'manual',
-        message: 'Your email or password was entered incorrectly',
+        message: FormErrors.loginFailed,
       })
     })
   }

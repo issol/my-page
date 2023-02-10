@@ -70,6 +70,7 @@ import {
 import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useAppSelector } from 'src/hooks/useRedux'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -230,7 +231,7 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (fileSize > MAXIMUM_FILE_SIZE) {
-      setError('resume', { message: 'File size too large' })
+      setError('resume', { message: FormErrors.fileSizeExceed })
     } else {
       clearErrors('resume')
     }
@@ -248,11 +249,6 @@ const PersonalInfoPro = () => {
             email: auth?.user!.email,
           })
           router.push('/dashboards')
-          // if (userAccess.role?.includes('PRO')) {
-          //   router.push('/pro/dashboard')
-          // } else {
-          //   router.push('/client/dashboard')
-          // }
         })
       },
       onError: () => {
@@ -280,7 +276,7 @@ const PersonalInfoPro = () => {
                 alt='role select error'
               />
               <Typography variant='body2'>
-                An error has occurred. Please try again.
+                Something went wrong. Please try again.
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
@@ -1183,7 +1179,7 @@ const PersonalInfoPro = () => {
 
                       {Boolean(errors.specialties) && (
                         <FormHelperText sx={{ color: 'error.main' }}>
-                          This field is required
+                          {FormErrors.required}
                         </FormHelperText>
                       )}
                     </FormControl>

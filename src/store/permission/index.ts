@@ -11,13 +11,13 @@ interface Redux {
   dispatch: Dispatch<any>
 }
 
-/* TODO : api완성 되면 end point 교체 및 리스폰스 수정 */
+/* TODO : 개발 후 Test data 지우기 */
 export const getPermission = createAsyncThunk(
   'permissions/gerPermissions',
   async (): Promise<PermissionObjectType> => {
     try {
-      const { data } = await axios.get(`/api/enough/a/per/al`)
-
+      const { data } = await axios.get(`/api/enough/a/role/map`)
+      // console.log('permission : ', data)
       return [
         {
           subject: 'members',
@@ -35,17 +35,28 @@ export const getPermission = createAsyncThunk(
           subject: 'personalInfo_manager',
           can: ['read', 'create', 'update', 'delete'],
         },
+        /* TODO: 임시 permission */
         {
-          subject: 'dashboards',
+          subject: 'onboarding',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'client_guideline',
+          can: ['read', 'create', 'update', 'delete'],
+        },
+        {
+          subject: 'contract',
           can: ['read', 'create', 'update', 'delete'],
         },
       ]
+      return data
     } catch (e: any) {
       throw new Error('getPermission error : ', e)
     }
   },
 )
 
+/* TODO : 개발 후 Test data 지우기 */
 export const getRole = createAsyncThunk(
   'permissions/getRoles',
   async (userId: number) => {
@@ -53,6 +64,7 @@ export const getRole = createAsyncThunk(
       const { data } = await axios.get(
         `/api/enough/a/role/rels?userId=${userId}`,
       )
+      return { roles: ['TAD', 'MASTER'] }
       return data
     } catch (e: any) {
       throw new Error('getRole error : ', e)

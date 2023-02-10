@@ -6,13 +6,24 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 
-type UserInfoResType = Omit<
+export type UserInfoResType = Omit<
   UserDataType,
   'id' | 'role' | 'permission' | 'company' | 'username'
 >
 export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pu?email=${email}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getUserInfoWithResumeFile = async (
+  userId: number,
+): Promise<UserInfoResType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
     return data
   } catch (e: any) {
     throw new Error(e)
