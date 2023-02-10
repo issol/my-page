@@ -1,9 +1,5 @@
 import * as yup from 'yup'
-
-const profileErrorMsg = {
-  name_regex: '',
-  required: 'This field is required.',
-} as const
+import { FormErrors } from 'src/shared/const/form-errors'
 
 enum PronounceEnum {
   SHE = 'SHE',
@@ -13,41 +9,41 @@ enum PronounceEnum {
 }
 
 export const profileSchema = yup.object().shape({
-  firstName: yup.string().required(profileErrorMsg.required),
+  firstName: yup.string().required(FormErrors.required),
   middleName: yup.string().nullable(),
-  lastName: yup.string().required(profileErrorMsg.required),
+  lastName: yup.string().required(FormErrors.required),
   legalNamePronunciation: yup.string().nullable(),
   pronounce: yup.string().oneOf(Object.values(PronounceEnum)).nullable(),
   havePreferred: yup.boolean().required(),
   preferredName: yup.string().nullable(),
   preferredNamePronunciation: yup.string().nullable(),
   timezone: yup.object().shape({
-    code: yup.string().required('This field is required'),
-    label: yup.string().required('This field is required'),
-    phone: yup.string().required('This field is required'),
+    code: yup.string().required(FormErrors.required),
+    label: yup.string().required(FormErrors.required),
+    phone: yup.string().required(FormErrors.required),
   }),
   mobile: yup.string().nullable(),
   phone: yup.string().nullable(),
   jobInfo: yup.array().of(
     yup.object().shape({
-      jobType: yup.string().required('This field is required'),
-      role: yup.string().required('This field is required'),
+      jobType: yup.string().required(FormErrors.required),
+      role: yup.string().required(FormErrors.required),
       source: yup
         .string()
-        .required('This field is required')
+        .required(FormErrors.required)
         .when('jobType', (jobType, schema) =>
           jobType === 'dtp' ? yup.string().nullable() : schema,
         ),
       target: yup
         .string()
-        .required('This field is required')
+        .required(FormErrors.required)
         .when('jobType', (jobType, schema) =>
           jobType === 'dtp' ? yup.string().nullable() : schema,
         ),
     }),
   ),
-  experience: yup.string().required('This field is required'),
-  resume: yup.array().min(1, 'This field is required').required(),
+  experience: yup.string().required(FormErrors.required),
+  resume: yup.array().min(1, FormErrors.required).required(),
 
   specialties: yup
     .array()
@@ -65,14 +61,14 @@ export const profileSchema = yup.object().shape({
 })
 
 export const managerProfileSchema = yup.object().shape({
-  firstName: yup.string().required(profileErrorMsg.required),
+  firstName: yup.string().required(FormErrors.required),
   middleName: yup.string().nullable(),
-  lastName: yup.string().required(profileErrorMsg.required),
+  lastName: yup.string().required(FormErrors.required),
   jobTitle: yup.string().nullable(),
   timezone: yup.object().shape({
-    code: yup.string().required('This field is required'),
-    label: yup.string().required('This field is required'),
-    phone: yup.string().required('This field is required'),
+    code: yup.string().required(FormErrors.required),
+    label: yup.string().required(FormErrors.required),
+    phone: yup.string().required(FormErrors.required),
   }),
   mobile: yup.string().nullable(),
   phone: yup.string().nullable(),
