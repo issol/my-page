@@ -398,19 +398,29 @@ export const postGuideline = async (form: FormType) => {
   }
 }
 
-export const uploadGuidelineFiles = async (id: number) => {
+export const uploadGuidelineFiles = async (id: number, fileName: string) => {
   try {
-    return await axios.delete(`/api/enough/a/r-req/al?type=${id}`)
+    return await axios.post(
+      `/api/enough/a/r-req/al?type=${id}&fileName=${fileName}`,
+    )
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const deleteGuideline = async (userId: number, fileName: string) => {
+export const deleteGuidelineFile = async (userId: number, fileName: string) => {
   try {
     return await axios.delete(
       `/api/enough/a/r-req/al?type=${userId}&fileName=${fileName}`,
     )
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteGuideline = async (userId: number) => {
+  try {
+    return await axios.delete(`/api/enough/a/r-req/al?type=${userId}`)
   } catch (e: any) {
     throw new Error(e)
   }
