@@ -32,13 +32,13 @@ export const profileSchema = yup.object().shape({
         .string()
         .required(FormErrors.required)
         .when('jobType', (jobType, schema) =>
-          jobType === 'dtp' ? yup.string().nullable() : schema,
+          jobType === 'DTP' ? yup.string().nullable() : schema,
         ),
       target: yup
         .string()
         .required(FormErrors.required)
         .when('jobType', (jobType, schema) =>
-          jobType === 'dtp' ? yup.string().nullable() : schema,
+          jobType === 'DTP' ? yup.string().nullable() : schema,
         ),
     }),
   ),
