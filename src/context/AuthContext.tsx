@@ -21,7 +21,6 @@ import {
   UserDataType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
-import { TadPermission } from 'src/layouts/UserLayout'
 import { getUserInfo } from 'src/apis/user.api'
 import { loginResType } from 'src/types/sign/signInTypes'
 import { Box } from '@mui/system'
