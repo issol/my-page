@@ -1,8 +1,5 @@
 import * as yup from 'yup'
-
-const errorMsg = {
-  required: 'This field is required.',
-} as const
+import { FormErrors } from 'src/shared/const/form-errors'
 
 export type ClientGuidelineType = {
   title: string
@@ -13,19 +10,19 @@ export type ClientGuidelineType = {
   file: Array<File>
 }
 export const clientGuidelineSchema = yup.object().shape({
-  title: yup.string().required(errorMsg.required),
+  title: yup.string().required(FormErrors.required),
   client: yup.object().shape({
-    label: yup.string().required(errorMsg.required),
-    value: yup.string().required(errorMsg.required),
+    label: yup.string().required(FormErrors.required),
+    value: yup.string().required(FormErrors.required),
   }),
 
   category: yup.object().shape({
-    label: yup.string().required(errorMsg.required),
-    value: yup.string().required(errorMsg.required),
+    label: yup.string().required(FormErrors.required),
+    value: yup.string().required(FormErrors.required),
   }),
   serviceType: yup.object().shape({
-    label: yup.string().required(errorMsg.required),
-    value: yup.string().required(errorMsg.required),
+    label: yup.string().required(FormErrors.required),
+    value: yup.string().required(FormErrors.required),
   }),
   // content: yup.string().required(errorMsg.required),
   resume: yup.array().nullable(),

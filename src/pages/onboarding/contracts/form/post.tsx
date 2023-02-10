@@ -6,7 +6,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { FormEvent, useContext, useState } from 'react'
+import { useContext, useState } from 'react'
 
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
@@ -26,6 +26,7 @@ import styled from 'styled-components'
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
 import { AuthContext } from 'src/context/AuthContext'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 const ContractForm = () => {
   const router = useRouter()
@@ -177,7 +178,7 @@ const ContractForm = () => {
                   sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
                   mt='8px'
                 >
-                  This field is required
+                  {FormErrors.required}
                 </Typography>
               ) : (
                 ''

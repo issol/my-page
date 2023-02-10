@@ -66,6 +66,7 @@ import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 const defaultValues = {
   title: '',
@@ -251,7 +252,7 @@ const ClientGuidelineEdit = () => {
 
   useEffect(() => {
     if (fileSize > MAXIMUM_FILE_SIZE) {
-      setError('file', { message: 'The file size is too large' })
+      setError('file', { message: FormErrors.fileSizeExceed })
     } else {
       clearErrors('file')
     }
@@ -598,7 +599,7 @@ const ClientGuidelineEdit = () => {
                     sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
                     mt='8px'
                   >
-                    This field is required
+                    {FormErrors.required}
                   </Typography>
                 ) : (
                   ''

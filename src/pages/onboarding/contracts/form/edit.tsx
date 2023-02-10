@@ -32,6 +32,7 @@ import { useGetContract } from 'src/queries/contract/contract.query'
 
 // ** types
 import { ContractParam } from 'src/apis/contract.api'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 //** TODO : save api 붙이기 */
 const ContractForm = () => {
@@ -183,7 +184,7 @@ const ContractForm = () => {
                   sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
                   mt='8px'
                 >
-                  This field is required
+                  {FormErrors.required}
                 </Typography>
               ) : (
                 ''
