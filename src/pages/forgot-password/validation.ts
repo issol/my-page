@@ -1,5 +1,6 @@
 import * as yup from 'yup'
 import { checkEmailDuplication } from 'src/apis/sign.api'
+import { FormErrors } from 'src/shared/const/form-errors'
 
 export default function useForgotPasswordSchema() {
   const forgotPasswordSchema = yup.object({
@@ -21,7 +22,7 @@ export default function useForgotPasswordSchema() {
           })
         },
       )
-      .required('This field is required'),
+      .required(FormErrors.required),
   })
   return forgotPasswordSchema
 }
