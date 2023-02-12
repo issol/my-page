@@ -18,6 +18,9 @@ import { Card, CardContent, Link } from '@mui/material'
 
 import cloneDeep from 'lodash/cloneDeep'
 
+// ** styles
+import styled from 'styled-components'
+
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -50,6 +53,7 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import { ModalContext } from 'src/context/ModalContext'
 import { FormErrors } from 'src/shared/const/form-errors'
+import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -90,22 +94,18 @@ const DisabledCard = muiStyled(Card)(() => ({
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email('Invalid email address')
-    .test(
-      'email-duplication',
-      'This email is already registered',
-      (val: any) => {
-        return new Promise((resolve, reject) => {
-          checkEmailDuplication(val)
-            .then(() => {
-              resolve(true)
-            })
-            .catch((e: any) => {
-              resolve(false)
-            })
-        })
-      },
-    )
+    .email(FormErrors.invalidEmail)
+    .test('email-duplication', FormErrors.registeredEmail, (val: any) => {
+      return new Promise((resolve, reject) => {
+        checkEmailDuplication(val)
+          .then(() => {
+            resolve(true)
+          })
+          .catch((e: any) => {
+            resolve(false)
+          })
+      })
+    })
     .required(FormErrors.required),
   password: yup
     .string()
@@ -121,7 +121,7 @@ const schema = yup.object().shape({
       )
     }),
 
-  terms: yup.bool().oneOf([true], 'Field must be checked'),
+  terms: yup.bool().oneOf([true], FormErrors.checkbox),
 })
 
 const defaultValues = {
@@ -136,6 +136,13 @@ interface FormData {
   terms: boolean
 }
 
+enum Roles {
+  PRO = 'PRO',
+  LPM = 'LPM',
+  TAD = 'TAD',
+  CLIENT = 'CLIENT',
+}
+
 const SignUpPage = () => {
   const router = useRouter()
   const { setModal } = useContext(ModalContext)
@@ -144,28 +151,72 @@ const SignUpPage = () => {
   const [role, setRole] = useState<Array<RoleType>>([])
   const [pin, setPin] = useState('')
   const [pinError, setPinError] = useState('')
-  const isPro = role.includes('PRO')
-  const isNotPro = role.some(item => item === 'LPM' || item === 'TAD')
+  const isPro = role.includes(Roles.PRO)
+  const isNotPro = role.some(item => item === Roles.LPM || item === Roles.TAD)
   const [validationNewPassword, setValidationNewPassword] = useState([
     {
       id: 1,
-      text: '9-20 characters',
+      text: FormErrors.passwordLength,
       checked: false,
     },
     {
       id: 2,
-      text: 'Uppercase and lowercase characters',
+      text: FormErrors.passwordRegexCase,
       checked: false,
     },
     {
       id: 3,
-      text: 'At least one number and special character',
+      text: FormErrors.passwordRegexSpecialChar,
       checked: false,
     },
   ])
 
   // ** Hooks
   const auth = useAuth()
+
+  const googleMutation = useMutation(
+    (credential: string) => googleAuth(credential),
+    {
+      onSuccess: res => {
+        console.log(res)
+        saveUserTokenToBrowser(res.accessToken)
+        auth.updateUserInfo(res)
+      },
+      onError: err => {
+        console.log(err)
+        if (err === 'NOT_A_MEMBER') {
+          // ** TODO : sign up 시키기
+        }
+      },
+    },
+  )
+
+  useEffect(() => {
+    generateGoogleLoginButton()
+  }, [router])
+
+  function handleCredentialResponse(response: { credential?: string }) {
+    if (response.credential) {
+      googleMutation.mutate(response.credential)
+    }
+  }
+
+  function generateGoogleLoginButton() {
+    window?.google?.accounts?.id?.initialize({
+      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
+      callback: handleCredentialResponse,
+    })
+    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
+    // window?.google?.accounts?.id.prompt();
+    window?.google?.accounts?.id.renderButton(
+      document.getElementById('buttonDiv'),
+      {
+        theme: 'outline',
+        width: 450,
+        background: 'transparent',
+      },
+    )
+  }
 
   const {
     control,
@@ -201,7 +252,7 @@ const SignUpPage = () => {
     () => signUp(getValues('email'), getValues('password'), role),
     {
       onSuccess: data => {
-        if (role.includes('PRO') || role.includes('CLIENT')) {
+        if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
           router.push(
             {
               pathname: '/signup/finish/consumer',
@@ -273,8 +324,8 @@ const SignUpPage = () => {
     const filtered = role.filter(item => item !== value)
     if (e.target.checked) {
       switch (value) {
-        case 'LPM':
-        case 'TAD':
+        case Roles.LPM:
+        case Roles.TAD:
           validateRole('Gloz', getValues('email')).then(res => {
             if (res) setRole([...filtered, value])
             else {
@@ -326,8 +377,8 @@ const SignUpPage = () => {
 
           break
 
-        case 'PRO':
-        case 'CLIENT':
+        case Roles.PRO:
+        case Roles.CLIENT:
           setRole([...filtered, value])
           break
       }
@@ -399,9 +450,12 @@ const SignUpPage = () => {
                   <img src='/images/logos/google.png' alt='google sign in' />
                 </IconButton>
 
-                <Link href='' onClick={redirectGoogleAuth}>
-                  Sign up with Google
+                <Link href='' style={{ textDecoration: 'none' }}>
+                  <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
+                <GoogleButtonWrapper>
+                  <div id='buttonDiv'></div>
+                </GoogleButtonWrapper>
               </Box>
               <Box
                 sx={{
@@ -635,8 +689,8 @@ const SignUpPage = () => {
 
                   <Checkbox
                     id='client'
-                    value='CLIENT'
-                    checked={role.some(item => item === 'CLIENT') || false}
+                    value={Roles.CLIENT}
+                    checked={role.some(item => item === Roles.CLIENT) || false}
                     onChange={onRoleSelect}
                     disabled
                   />
@@ -666,9 +720,9 @@ const SignUpPage = () => {
                   </Typography>
 
                   <Checkbox
-                    value='PRO'
+                    value={Roles.PRO}
                     id='pro'
-                    checked={role.includes('PRO')}
+                    checked={role.includes(Roles.PRO)}
                     disabled={isNotPro}
                     onChange={onRoleSelect}
                   />
@@ -697,10 +751,10 @@ const SignUpPage = () => {
                     I recruit and train Pros
                   </Typography>
                   <Checkbox
-                    value='TAD'
+                    value={Roles.TAD}
                     id='tad'
                     disabled={isPro}
-                    checked={role.includes('TAD')}
+                    checked={role.includes(Roles.TAD)}
                     onChange={onRoleSelect}
                   />
                 </CardContent>
@@ -729,9 +783,9 @@ const SignUpPage = () => {
                     I manage localization projects
                   </Typography>
                   <Checkbox
-                    value='LPM'
+                    value={Roles.LPM}
                     id='lpm'
-                    checked={role.includes('LPM')}
+                    checked={role.includes(Roles.LPM)}
                     disabled={isPro}
                     onChange={onRoleSelect}
                   />
@@ -838,3 +892,9 @@ SignUpPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 SignUpPage.guestGuard = true
 
 export default SignUpPage
+
+const GoogleButtonWrapper = styled.div`
+  position: absolute;
+  /* opacity: 0.7; */
+  opacity: 0.0001 !important;
+`
