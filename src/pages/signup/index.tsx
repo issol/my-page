@@ -35,7 +35,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
-  redirectGoogleAuth,
+  googleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
   signUp,

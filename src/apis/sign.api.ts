@@ -25,15 +25,6 @@ export const getRefreshToken = async () => {
   return data
 }
 
-/* TODO : url 수정 */
-export const redirectGoogleAuth = (e: any) => {
-  e.preventDefault()
-  if (typeof window === 'object') {
-    // window.location.href = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&response_type=code&redirect_uri=${window.location.protocol}%2F%2F${window.location.host}%2Fsign%2Frequest-g-grant&scope=email%20profile%20openid&client_id=644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com&flowName=GeneralOAuthFlow`
-    // window.location.href = `https://accounts.google.com/gsi/select?client_id=644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com&ux_mode=popup&ui_mode=card&as=ifN6k6z5Hyusc2hYPiK5ew&channel_id=ba0bdc7d71db77178b43ea0ec9b261674285c31913b5b8e9a3dd6e9ab1fc763f&origin=http%3A%2F%2Flocalhost%3A3000`
-  }
-}
-
 export const googleAuth = async (credential: string): Promise<loginResType> => {
   try {
     const { data } = await axios.post(
