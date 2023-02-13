@@ -35,8 +35,8 @@ export default function GoogleButton() {
     {
       onSuccess: res => {
         console.log('google auth success res : ', res)
-        saveUserTokenToBrowser(res.accessToken)
         auth.updateUserInfo(res)
+        router.replace('/')
       },
       onError: err => {
         if (err === 'NOT_A_MEMBER') {

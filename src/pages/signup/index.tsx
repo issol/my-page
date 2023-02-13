@@ -60,6 +60,9 @@ import { FormErrors } from 'src/shared/const/form-errors'
 // ** components
 import GoogleButton from '../components/google-button'
 
+// ** types
+import { loginResType } from 'src/types/sign/signInTypes'
+
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
 }))
@@ -228,14 +231,15 @@ const SignUpPage = () => {
     },
   )
 
-  function signUpOnsuccess() {
+  function signUpOnsuccess(res: loginResType) {
     if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
       router.push(
         {
           pathname: '/signup/finish/consumer',
           query: {
-            email: getValues('email'),
-            password: getValues('password'),
+            userId: res.userId,
+            email: res.email,
+            accessToken: res.accessToken,
           },
         },
         '/signup/finish/consumer',
@@ -256,8 +260,8 @@ const SignUpPage = () => {
   const signUpMutation = useMutation(
     () => signUp(getValues('email'), role, getValues('password')),
     {
-      onSuccess: data => {
-        signUpOnsuccess()
+      onSuccess(data: loginResType) {
+        signUpOnsuccess(data)
       },
       onError: (e: any) => {
         signUpOnError(e)
@@ -269,8 +273,8 @@ const SignUpPage = () => {
   const snsSignUpMutation = useMutation(
     () => snsSignUp(getValues('email'), role),
     {
-      onSuccess: data => {
-        signUpOnsuccess()
+      onSuccess(data: loginResType) {
+        signUpOnsuccess(data)
       },
       onError: (e: any) => {
         signUpOnError(e)

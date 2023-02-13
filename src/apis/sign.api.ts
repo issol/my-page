@@ -80,7 +80,7 @@ export const signUp = async (
   email: string,
   roles: Array<RoleType>,
   password?: string,
-): Promise<{ userId: number; email: string }> => {
+): Promise<loginResType> => {
   const body = !password ? { email, roles } : { email, password, roles }
   try {
     const { data } = await axios.post(`/api/enough/a/signup`, body)
@@ -92,7 +92,7 @@ export const signUp = async (
 export const snsSignUp = async (
   email: string,
   roles: Array<RoleType>,
-): Promise<{ userId: number; email: string }> => {
+): Promise<loginResType> => {
   try {
     const { data } = await axios.post(`/api/enough/a/google/signup`, {
       email,

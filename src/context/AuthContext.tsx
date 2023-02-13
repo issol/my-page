@@ -22,7 +22,10 @@ import {
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
 import { getUserInfo } from 'src/apis/user.api'
-import { loginResType } from 'src/types/sign/signInTypes'
+import {
+  loginResType,
+  LoginResTypeWithOptionalAccessToken,
+} from 'src/types/sign/signInTypes'
 import { Box } from '@mui/system'
 import { Button, Dialog, Typography } from '@mui/material'
 import {
@@ -47,7 +50,7 @@ const defaultProvider: AuthValuesType = {
   setUser: (n: any) => {
     return null
   },
-  updateUserInfo: (_: any) => {
+  updateUserInfo: (res: LoginResTypeWithOptionalAccessToken) => {
     return null
   },
   setLoading: () => Boolean,
@@ -101,7 +104,10 @@ const AuthProvider = ({ children }: Props) => {
     initAuth()
   }, [])
 
-  async function updateUserInfo(response: loginResType) {
+  async function updateUserInfo(response: LoginResTypeWithOptionalAccessToken) {
+    if (response?.accessToken) {
+      saveUserTokenToBrowser(response.accessToken)
+    }
     getUserInfo(response.email)
       .then(value => {
         const profile = value
