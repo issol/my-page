@@ -22,6 +22,7 @@ import { Dispatch, SetStateAction, ChangeEvent } from 'react'
 import TextField from '@mui/material/TextField'
 type Props = {
   userInfo: CommentsOnProType[]
+  user: any
   page: number
   rowsPerPage: number
   offset: number
@@ -34,11 +35,18 @@ type Props = {
   selectedComment: CommentsOnProType | null
   handleCommentChange: (event: ChangeEvent<HTMLInputElement>) => void
   onClickEditCancelComment: () => void
+  onClickAddComment: () => void
+  clickedAddComment: boolean
   comment: string
+  onClickAddConfirmComment: () => void
+  onClickAddCancelComment: () => void
+  handleAddCommentChange: (event: ChangeEvent<HTMLInputElement>) => void
+  addComment: string
 }
 
 export default function CommentsAboutPro({
   userInfo,
+  user,
   page,
   rowsPerPage,
   offset,
@@ -51,8 +59,16 @@ export default function CommentsAboutPro({
   selectedComment,
   handleCommentChange,
   onClickEditCancelComment,
+  onClickAddComment,
+  clickedAddComment,
   comment,
+  onClickAddConfirmComment,
+  onClickAddCancelComment,
+  handleAddCommentChange,
+  addComment,
 }: Props) {
+  console.log(user)
+
   function getLegalName(row: CommentsOnProType) {
     return !row.firstName || !row.lastName
       ? '-'
@@ -85,10 +101,100 @@ export default function CommentsAboutPro({
         >
           Comments about Pro
         </Box>
-        <Button variant='contained'>Add comment</Button>
+        <Button variant='contained' onClick={onClickAddComment}>
+          Add comment
+        </Button>
       </Typography>
       <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
       <CardContent sx={{ padding: 0 }}>
+        {clickedAddComment ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+              }}
+            >
+              <Box sx={{ display: 'flex', gap: '8px' }}>
+                <Chip
+                  size='small'
+                  skin='light'
+                  label={'Writer'}
+                  color='error'
+                  sx={{
+                    textTransform: 'capitalize',
+                    '& .MuiChip-label': { lineHeight: '18px' },
+                    mr: 1,
+                  }}
+                />
+                <Typography
+                  variant='body1'
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 500,
+                    lineHeight: '21px',
+                    letterSpacing: '0.1px',
+                  }}
+                >
+                  {getLegalName(user)}
+                </Typography>
+                <Divider orientation='vertical' variant='middle' flexItem />
+                <Typography
+                  variant='body2'
+                  sx={{
+                    fontSize: '14px',
+
+                    lineHeight: '21px',
+                    letterSpacing: '0.15px',
+                  }}
+                >
+                  {user.email}
+                </Typography>
+              </Box>
+            </Box>
+
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <TextField
+                fullWidth
+                rows={4}
+                value={addComment}
+                onChange={handleAddCommentChange}
+                multiline
+                id='textarea-outlined-static'
+              />
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '8px',
+                  justifyContent: 'end',
+                }}
+              >
+                <Button
+                  variant='outlined'
+                  size='small'
+                  onClick={onClickAddCancelComment}
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant='contained'
+                  size='small'
+                  onClick={onClickAddConfirmComment}
+                >
+                  Confirm
+                </Button>
+              </Box>
+              <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
+            </Box>
+          </Box>
+        ) : null}
         {userInfo &&
           userInfo.slice(offset, offset + rowsPerPage).map(value => {
             return (
