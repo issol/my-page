@@ -37,9 +37,13 @@ export const getPermission = createAsyncThunk(
       //   },
       //   /* TODO: 임시 permission */
       //   {
-      //     subject: 'onboarding',
+      //     subject: 'dashboards',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
+      //   // {
+      //   //   subject: 'onboarding',
+      //   //   can: ['read', 'create', 'update', 'delete'],
+      //   // },
       //   {
       //     subject: 'client_guideline',
       //     can: ['read', 'create', 'update', 'delete'],

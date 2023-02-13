@@ -83,8 +83,6 @@ import {
   ApiErrorHandler,
   StatusCode,
 } from 'src/shared/sentry-provider'
-import { googleAuth } from 'src/apis/sign.api'
-import Script from 'next/script'
 import { removeAllStorage } from 'src/shared/auth/storage'
 
 // ** Extend App Props with Emotion
@@ -210,32 +208,8 @@ const App = (props: ExtendedAppProps) => {
     removeAllStorage()
   }, [])
 
-  useEffect(() => {
-    generateGoogleLoginButton()
-  }, [router])
-
-  function generateGoogleLoginButton() {
-    window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-    })
-    window?.google?.accounts?.id.renderButton(
-      document.getElementById('buttonDiv'),
-      {
-        theme: 'outline',
-        width: 450,
-        background: 'transparent',
-      },
-    )
-  }
-
   return (
     <QueryClientProvider client={queryClient}>
-      <Script
-        src='https://accounts.google.com/gsi/client'
-        strategy='afterInteractive'
-        onLoad={generateGoogleLoginButton}
-        onReady={generateGoogleLoginButton}
-      />
       <Provider store={store}>
         <CacheProvider value={emotionCache}>
           <Head>

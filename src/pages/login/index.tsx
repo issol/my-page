@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, MouseEvent, useEffect, useRef } from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -14,8 +14,10 @@ import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
+import { Checkbox, FormControlLabel } from '@mui/material'
+
+// ** nextJs
 import Link from 'next/link'
-import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -32,11 +34,14 @@ import themeConfig from 'src/configs/themeConfig'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-import { Checkbox, FormControlLabel } from '@mui/material'
-import { redirectGoogleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
-import { useRouter } from 'next/router'
+
+// ** fetches
+import { redirectLinkedInAuth } from 'src/apis/sign.api'
 import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
+
+// ** values
 import { FormErrors } from 'src/shared/const/form-errors'
+import GoogleButton from '../components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -85,7 +90,6 @@ interface FormData {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
-  const router = useRouter()
 
   // ** Hooks
   const auth = useAuth()
@@ -182,17 +186,10 @@ const LoginPage = () => {
                 <img src='/images/logos/google.png' alt='google sign in' />
               </IconButton>
 
-              <Link
-                href=''
-                // onClick={redirectGoogleAuth}
-                style={{ textDecoration: 'none' }}
-              >
+              <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              {/* for test */}
-              <GoogleButtonWrapper>
-                <div id='buttonDiv'></div>
-              </GoogleButtonWrapper>
+              <GoogleButton />
             </Box>
             <Box
               sx={{
@@ -380,8 +377,8 @@ LoginPage.guestGuard = true
 
 export default LoginPage
 
-const GoogleButtonWrapper = styled.div`
-  position: absolute;
-  /* opacity: 0.7; */
-  opacity: 0.0001 !important;
-`
+// const GoogleButtonWrapper = styled.div`
+//   position: absolute;
+//   /* opacity: 0.7; */
+//   opacity: 0.0001 !important;
+// `

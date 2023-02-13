@@ -3,3 +3,7 @@ export type loginResType = {
   email: string
   accessToken: string
 }
+
+export type LoginResTypeWithOptionalAccessToken = loginResType & {
+  accessToken?: string
+}

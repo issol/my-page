@@ -162,8 +162,8 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (auth.user?.firstName) {
-      const role = userAccess.role.length ? userAccess.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
+      const role = userAccess?.role?.length ? userAccess.role[0] : null
+      router.replace(`/`)
     }
   }, [auth])
 
@@ -394,7 +394,7 @@ const PersonalInfoPro = () => {
     const filtered = jobInfoFields.filter(f => f.id! === id)[0]
     const index = jobInfoFields.findIndex(f => f.id! === id)
     let newVal = { ...filtered, [item]: value }
-    if (item === 'jobType' && value === 'dtp') {
+    if (item === 'jobType' && value === 'DTP') {
       newVal = { ...filtered, [item]: value, source: '', target: '' }
     }
     update(index, newVal)
@@ -955,7 +955,7 @@ const PersonalInfoPro = () => {
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.source,
@@ -1011,7 +1011,7 @@ const PersonalInfoPro = () => {
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.target,
@@ -1064,7 +1064,7 @@ const PersonalInfoPro = () => {
                   <IconButton
                     onClick={addJobInfo}
                     disabled={jobInfoFields.some(item => {
-                      if (item.jobType === 'dtp') {
+                      if (item.jobType === 'DTP') {
                         return !item.jobType || !item.role
                       } else {
                         return (

@@ -35,10 +35,10 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
-  redirectGoogleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
   signUp,
+  snsSignUp,
   validateRole,
   verifyPinCode,
 } from 'src/apis/sign.api'
@@ -47,9 +47,21 @@ import { useMutation } from 'react-query'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
+
+// ** NextJs
 import { useRouter } from 'next/router'
+
+// ** Context
 import { ModalContext } from 'src/context/ModalContext'
+
+// ** values
 import { FormErrors } from 'src/shared/const/form-errors'
+
+// ** components
+import GoogleButton from '../components/google-button'
+
+// ** types
+import { loginResType } from 'src/types/sign/signInTypes'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -90,22 +102,18 @@ const DisabledCard = muiStyled(Card)(() => ({
 const schema = yup.object().shape({
   email: yup
     .string()
-    .email('Invalid email address')
-    .test(
-      'email-duplication',
-      'This email is already registered',
-      (val: any) => {
-        return new Promise((resolve, reject) => {
-          checkEmailDuplication(val)
-            .then(() => {
-              resolve(true)
-            })
-            .catch((e: any) => {
-              resolve(false)
-            })
-        })
-      },
-    )
+    .email(FormErrors.invalidEmail)
+    .test('email-duplication', FormErrors.registeredEmail, (val: any) => {
+      return new Promise((resolve, reject) => {
+        checkEmailDuplication(val)
+          .then(() => {
+            resolve(true)
+          })
+          .catch((e: any) => {
+            resolve(false)
+          })
+      })
+    })
     .required(FormErrors.required),
   password: yup
     .string()
@@ -119,47 +127,60 @@ const schema = yup.object().shape({
         /[0-9]/g.test(val) &&
         /[$@$!%*#?&]/g.test(val)
       )
-    }),
+    })
+    .when('type', (type, schema) =>
+      type === 'sns' ? yup.string().nullable() : schema,
+    ),
 
-  terms: yup.bool().oneOf([true], 'Field must be checked'),
+  terms: yup.bool().oneOf([true], FormErrors.checkbox),
 })
 
 const defaultValues = {
   password: '',
   email: '',
   terms: true,
+  type: '',
 }
 
 interface FormData {
   email: string
   password: string
   terms: boolean
+  type: string
+}
+
+enum Roles {
+  PRO = 'PRO',
+  LPM = 'LPM',
+  TAD = 'TAD',
+  CLIENT = 'CLIENT',
 }
 
 const SignUpPage = () => {
   const router = useRouter()
+  const { email } = router.query
   const { setModal } = useContext(ModalContext)
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
   const [pin, setPin] = useState('')
   const [pinError, setPinError] = useState('')
-  const isPro = role.includes('PRO')
-  const isNotPro = role.some(item => item === 'LPM' || item === 'TAD')
+  const isPro = role.includes(Roles.PRO)
+  const isNotPro = role.some(item => item === Roles.LPM || item === Roles.TAD)
   const [validationNewPassword, setValidationNewPassword] = useState([
     {
       id: 1,
-      text: '9-20 characters',
+      text: FormErrors.passwordLength,
       checked: false,
     },
     {
       id: 2,
-      text: 'Uppercase and lowercase characters',
+      text: FormErrors.passwordRegexCase,
       checked: false,
     },
     {
       id: 3,
-      text: 'At least one number and special character',
+      text: FormErrors.passwordRegexSpecialChar,
       checked: false,
     },
   ])
@@ -170,6 +191,7 @@ const SignUpPage = () => {
   const {
     control,
     handleSubmit,
+    setValue,
     getValues,
     watch,
     formState: { errors, isValid },
@@ -178,6 +200,18 @@ const SignUpPage = () => {
     mode: 'onBlur',
     resolver: yupResolver(schema),
   })
+
+  useEffect(() => {
+    const emailAsString: string = email as string
+    const replacedEmail = emailAsString?.replace('%40', '@')
+    setValue('email', replacedEmail, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    watch('email')
+    setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
+    setStep(2)
+  }, [email])
 
   const verifyEmail = useMutation(
     () => sendEmailVerificationCode(getValues('email')),
@@ -197,31 +231,53 @@ const SignUpPage = () => {
     },
   )
 
+  function signUpOnsuccess(res: loginResType) {
+    if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
+      router.push(
+        {
+          pathname: '/signup/finish/consumer',
+          query: {
+            userId: res.userId,
+            email: res.email,
+            accessToken: res.accessToken,
+          },
+        },
+        '/signup/finish/consumer',
+      )
+    } else {
+      router.push('/signup/finish/manager')
+    }
+  }
+
+  function signUpOnError(e: any) {
+    if (e?.statusCode === 409) {
+      toast.error(FormErrors.alreadyRegistered)
+    } else {
+      toast.error('Something went wrong. Please try again.')
+    }
+  }
+
   const signUpMutation = useMutation(
-    () => signUp(getValues('email'), getValues('password'), role),
+    () => signUp(getValues('email'), role, getValues('password')),
     {
-      onSuccess: data => {
-        if (role.includes('PRO') || role.includes('CLIENT')) {
-          router.push(
-            {
-              pathname: '/signup/finish/consumer',
-              query: {
-                email: getValues('email'),
-                password: getValues('password'),
-              },
-            },
-            '/signup/finish/consumer',
-          )
-        } else {
-          router.push('/signup/finish/manager')
-        }
+      onSuccess(data: loginResType) {
+        signUpOnsuccess(data)
       },
       onError: (e: any) => {
-        if (e?.statusCode === 409) {
-          toast.error(FormErrors.alreadyRegistered)
-        } else {
-          toast.error('Something went wrong. Please try again.')
-        }
+        signUpOnError(e)
+      },
+      retry: 1,
+    },
+  )
+
+  const snsSignUpMutation = useMutation(
+    () => snsSignUp(getValues('email'), role),
+    {
+      onSuccess(data: loginResType) {
+        signUpOnsuccess(data)
+      },
+      onError: (e: any) => {
+        signUpOnError(e)
       },
       retry: 1,
     },
@@ -273,8 +329,8 @@ const SignUpPage = () => {
     const filtered = role.filter(item => item !== value)
     if (e.target.checked) {
       switch (value) {
-        case 'LPM':
-        case 'TAD':
+        case Roles.LPM:
+        case Roles.TAD:
           validateRole('Gloz', getValues('email')).then(res => {
             if (res) setRole([...filtered, value])
             else {
@@ -326,8 +382,8 @@ const SignUpPage = () => {
 
           break
 
-        case 'PRO':
-        case 'CLIENT':
+        case Roles.PRO:
+        case Roles.CLIENT:
           setRole([...filtered, value])
           break
       }
@@ -337,7 +393,11 @@ const SignUpPage = () => {
   }
 
   const onRoleSubmit = () => {
-    verifyEmail.mutate()
+    if (getValues('type') === 'sns') {
+      snsSignUpMutation.mutate()
+    } else {
+      verifyEmail.mutate()
+    }
   }
 
   return (
@@ -399,9 +459,12 @@ const SignUpPage = () => {
                   <img src='/images/logos/google.png' alt='google sign in' />
                 </IconButton>
 
-                <Link href='' onClick={redirectGoogleAuth}>
-                  Sign up with Google
+                <Link href='' style={{ textDecoration: 'none' }}>
+                  <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
+                <GoogleButton
+                // handleCredentialResponse={handleCredentialResponse}
+                />
               </Box>
               <Box
                 sx={{
@@ -635,8 +698,8 @@ const SignUpPage = () => {
 
                   <Checkbox
                     id='client'
-                    value='CLIENT'
-                    checked={role.some(item => item === 'CLIENT') || false}
+                    value={Roles.CLIENT}
+                    checked={role.some(item => item === Roles.CLIENT) || false}
                     onChange={onRoleSelect}
                     disabled
                   />
@@ -666,9 +729,9 @@ const SignUpPage = () => {
                   </Typography>
 
                   <Checkbox
-                    value='PRO'
+                    value={Roles.PRO}
                     id='pro'
-                    checked={role.includes('PRO')}
+                    checked={role.includes(Roles.PRO)}
                     disabled={isNotPro}
                     onChange={onRoleSelect}
                   />
@@ -697,10 +760,10 @@ const SignUpPage = () => {
                     I recruit and train Pros
                   </Typography>
                   <Checkbox
-                    value='TAD'
+                    value={Roles.TAD}
                     id='tad'
                     disabled={isPro}
-                    checked={role.includes('TAD')}
+                    checked={role.includes(Roles.TAD)}
                     onChange={onRoleSelect}
                   />
                 </CardContent>
@@ -729,9 +792,9 @@ const SignUpPage = () => {
                     I manage localization projects
                   </Typography>
                   <Checkbox
-                    value='LPM'
+                    value={Roles.LPM}
                     id='lpm'
-                    checked={role.includes('LPM')}
+                    checked={role.includes(Roles.LPM)}
                     disabled={isPro}
                     onChange={onRoleSelect}
                   />

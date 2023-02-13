@@ -108,7 +108,7 @@ const PersonalInfoManager = () => {
   useEffect(() => {
     if (auth.user?.firstName) {
       const role = userAccess.role.length ? userAccess.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
+      router.replace(`/`)
     }
   }, [auth])
 
@@ -136,12 +136,7 @@ const PersonalInfoManager = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          router.push('/dashboard')
-          // if (userAccess.role?.includes('TAD')) {
-          //   router.push('/tad/dashboard')
-          // } else {
-          //   router.push('/lpm/dashboard')
-          // }
+          router.push('/dashboards')
         })
       },
       onError: () => {

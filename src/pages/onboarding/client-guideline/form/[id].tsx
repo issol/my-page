@@ -17,7 +17,7 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { Fragment, Suspense, useContext, useEffect, useState } from 'react'
+import { Suspense, useContext, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -57,10 +57,13 @@ import {
 
 // ** fetches
 import axios from 'axios'
-import { getPresignedUrl } from 'src/apis/user.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
-import { postGuideline, deleteGuideline } from 'src/apis/client-guideline.api'
+import {
+  postGuideline,
+  deleteGuidelineFile,
+  getGuidelineFileURl,
+} from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 
 // ** types
@@ -359,7 +362,7 @@ const ClientGuidelineEdit = () => {
 
     data.file?.length &&
       data.file.forEach(file => {
-        getPresignedUrl(user?.id as number, file.name).then(res => {
+        getGuidelineFileURl(user?.id as number, file.name).then(res => {
           const formData = new FormData()
           formData.append('files', file)
           axios
@@ -388,7 +391,7 @@ const ClientGuidelineEdit = () => {
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
-        deleteGuideline(user?.id as number, item).catch(err =>
+        deleteGuidelineFile(user?.id as number, item).catch(err =>
           toast.error(
             'Something went wrong while deleting files. Please try again.',
             {

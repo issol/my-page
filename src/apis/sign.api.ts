@@ -25,23 +25,18 @@ export const getRefreshToken = async () => {
   return data
 }
 
-/* TODO : url 수정 */
-export const redirectGoogleAuth = (e: any) => {
-  e.preventDefault()
-  if (typeof window === 'object') {
-    // window.location.href = `https://accounts.google.com/o/oauth2/v2/auth/oauthchooseaccount?access_type=offline&prompt=consent&response_type=code&redirect_uri=${window.location.protocol}%2F%2F${window.location.host}%2Fsign%2Frequest-g-grant&scope=email%20profile%20openid&client_id=644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com&flowName=GeneralOAuthFlow`
-    // window.location.href = `https://accounts.google.com/gsi/select?client_id=644269375379-aidfbdlh5jip1oel3242h5al3o1qsr40.apps.googleusercontent.com&ux_mode=popup&ui_mode=card&as=ifN6k6z5Hyusc2hYPiK5ew&channel_id=ba0bdc7d71db77178b43ea0ec9b261674285c31913b5b8e9a3dd6e9ab1fc763f&origin=http%3A%2F%2Flocalhost%3A3000`
-  }
-}
-
-export const googleAuth = async (credential: string, g_csrf_token: string) => {
+export const googleAuth = async (credential: string): Promise<loginResType> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/a/google/x-gu-grant?credential=${credential}&g_csrf_token=${g_csrf_token}`,
+    const { data } = await axios.post(
+      `/api/enough/a/google/x-gu-grant?credential=${credential}`,
     )
     return data
   } catch (e: any) {
-    throw new Error(e)
+    if (e.response.data.statusCode === 403) {
+      throw 'NOT_A_MEMBER'
+    } else {
+      throw new Error(e)
+    }
   }
 }
 
@@ -83,13 +78,24 @@ export const verifyPinCode = async (
 
 export const signUp = async (
   email: string,
-  password: string,
   roles: Array<RoleType>,
-): Promise<{ userId: number; email: string }> => {
+  password?: string,
+): Promise<loginResType> => {
+  const body = !password ? { email, roles } : { email, password, roles }
   try {
-    const { data } = await axios.post(`/api/enough/a/signup`, {
+    const { data } = await axios.post(`/api/enough/a/signup`, body)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+export const snsSignUp = async (
+  email: string,
+  roles: Array<RoleType>,
+): Promise<loginResType> => {
+  try {
+    const { data } = await axios.post(`/api/enough/a/google/signup`, {
       email,
-      password,
       roles,
     })
     return data

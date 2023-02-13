@@ -8,5 +8,5 @@ export default Dashboards
 
 Dashboards.acl = {
   action: 'read',
-  subject: 'dashboards',
+  subject: 'members',
 }
