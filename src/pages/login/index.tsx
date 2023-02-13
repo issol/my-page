@@ -58,6 +58,7 @@ import { useMutation } from 'react-query'
 
 // ** values
 import { FormErrors } from 'src/shared/const/form-errors'
+import GoogleButton from '../components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -128,31 +129,10 @@ const LoginPage = () => {
     },
   )
 
-  useEffect(() => {
-    generateGoogleLoginButton()
-  }, [router])
-
   function handleCredentialResponse(response: { credential?: string }) {
     if (response.credential) {
       googleMutation.mutate(response.credential)
     }
-  }
-
-  function generateGoogleLoginButton() {
-    window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-    })
-    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
-    // window?.google?.accounts?.id.prompt();
-    window?.google?.accounts?.id.renderButton(
-      document.getElementById('buttonDiv'),
-      {
-        theme: 'outline',
-        width: 450,
-        background: 'transparent',
-      },
-    )
   }
 
   const {
@@ -192,12 +172,6 @@ const LoginPage = () => {
   }
   return (
     <Box className='content-center'>
-      <Script
-        src='https://accounts.google.com/gsi/client'
-        strategy='afterInteractive'
-        onLoad={generateGoogleLoginButton}
-        onReady={generateGoogleLoginButton}
-      />
       <RightWrapper>
         <Box
           sx={{
@@ -256,9 +230,9 @@ const LoginPage = () => {
               <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              <GoogleButtonWrapper>
-                <div id='buttonDiv'></div>
-              </GoogleButtonWrapper>
+              <GoogleButton
+                handleCredentialResponse={handleCredentialResponse}
+              />
             </Box>
             <Box
               sx={{
@@ -446,8 +420,8 @@ LoginPage.guestGuard = true
 
 export default LoginPage
 
-const GoogleButtonWrapper = styled.div`
-  position: absolute;
-  /* opacity: 0.7; */
-  opacity: 0.0001 !important;
-`
+// const GoogleButtonWrapper = styled.div`
+//   position: absolute;
+//   /* opacity: 0.7; */
+//   opacity: 0.0001 !important;
+// `

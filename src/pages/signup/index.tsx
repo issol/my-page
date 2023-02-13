@@ -54,6 +54,7 @@ import { useRouter } from 'next/router'
 import { ModalContext } from 'src/context/ModalContext'
 import { FormErrors } from 'src/shared/const/form-errors'
 import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
+import GoogleButton from '../components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -119,7 +120,10 @@ const schema = yup.object().shape({
         /[0-9]/g.test(val) &&
         /[$@$!%*#?&]/g.test(val)
       )
-    }),
+    })
+    .when('type', (type, schema) =>
+      type === 'sns' ? yup.string().nullable() : schema,
+    ),
 
   terms: yup.bool().oneOf([true], FormErrors.checkbox),
 })
@@ -128,12 +132,14 @@ const defaultValues = {
   password: '',
   email: '',
   terms: true,
+  type: '',
 }
 
 interface FormData {
   email: string
   password: string
   terms: boolean
+  type: string
 }
 
 enum Roles {
@@ -174,6 +180,19 @@ const SignUpPage = () => {
   // ** Hooks
   const auth = useAuth()
 
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    formState: { errors, isValid },
+  } = useForm({
+    defaultValues,
+    mode: 'onBlur',
+    resolver: yupResolver(schema),
+  })
+
   const googleMutation = useMutation(
     (credential: string) => googleAuth(credential),
     {
@@ -186,49 +205,17 @@ const SignUpPage = () => {
         console.log(err)
         if (err === 'NOT_A_MEMBER') {
           // ** TODO : sign up 시키기
+          setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
         }
       },
     },
   )
-
-  useEffect(() => {
-    generateGoogleLoginButton()
-  }, [router])
 
   function handleCredentialResponse(response: { credential?: string }) {
     if (response.credential) {
       googleMutation.mutate(response.credential)
     }
   }
-
-  function generateGoogleLoginButton() {
-    window?.google?.accounts?.id?.initialize({
-      client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID,
-      callback: handleCredentialResponse,
-    })
-    //** 이거 활성화 하면 화면 오른쪽 상단에 구글 로그인이 보여짐 */
-    // window?.google?.accounts?.id.prompt();
-    window?.google?.accounts?.id.renderButton(
-      document.getElementById('buttonDiv'),
-      {
-        theme: 'outline',
-        width: 450,
-        background: 'transparent',
-      },
-    )
-  }
-
-  const {
-    control,
-    handleSubmit,
-    getValues,
-    watch,
-    formState: { errors, isValid },
-  } = useForm({
-    defaultValues,
-    mode: 'onBlur',
-    resolver: yupResolver(schema),
-  })
 
   const verifyEmail = useMutation(
     () => sendEmailVerificationCode(getValues('email')),
@@ -453,9 +440,9 @@ const SignUpPage = () => {
                 <Link href='' style={{ textDecoration: 'none' }}>
                   <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
-                <GoogleButtonWrapper>
-                  <div id='buttonDiv'></div>
-                </GoogleButtonWrapper>
+                <GoogleButton
+                  handleCredentialResponse={handleCredentialResponse}
+                />
               </Box>
               <Box
                 sx={{
@@ -892,9 +879,3 @@ SignUpPage.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 SignUpPage.guestGuard = true
 
 export default SignUpPage
-
-const GoogleButtonWrapper = styled.div`
-  position: absolute;
-  /* opacity: 0.7; */
-  opacity: 0.0001 !important;
-`
