@@ -105,14 +105,8 @@ export default function ClientGuidLines() {
   }, [filter.category])
 
   useEffect(() => {
-    let mounted = true
-    if (mounted) {
-      if (isEqual(initialFilter, filter)) {
-        refetch()
-      }
-    }
-    return (): void => {
-      mounted = false
+    if (isEqual(initialFilter, filter)) {
+      refetch()
     }
   }, [filter])
 
