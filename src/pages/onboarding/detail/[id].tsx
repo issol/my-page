@@ -32,7 +32,14 @@ import {
   CommentsOnProType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
+import {
+  addTest,
+  certifyRole,
+  testAction,
+  deleteComment,
+  editComment,
+  addingComment,
+} from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -51,6 +58,9 @@ import EditCommentModal from '../components/detail/modal/edit-comment-modal'
 import CancelEditCommentModal from '../components/detail/modal/edit-cancel-comment-modal'
 import CancelSaveCommentModal from '../components/detail/modal/cancel-comment-modal'
 import SaveCommentModal from '../components/detail/modal/save-comment-modal'
+import DeleteCommentModal from '../components/detail/modal/delete-comment-modal'
+
+import dayjs from 'dayjs'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -181,6 +191,36 @@ export default function OnboardingDetail() {
   const addTestMutation = useMutation(
     (value: { userId: number; jobInfo: AddRoleType }) =>
       addTest(value.userId, value.jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`${variables.userId}`)
+      },
+    },
+  )
+
+  const deleteCommentMutation = useMutation(
+    (value: { userId: number; commentId: number }) =>
+      deleteComment(value.userId, value.commentId),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`${variables.userId}`)
+      },
+    },
+  )
+
+  const editCommentMutation = useMutation(
+    (value: { userId: number; comment: CommentsOnProType }) =>
+      editComment(value.userId, value.comment),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`${variables.userId}`)
+      },
+    },
+  )
+
+  const addCommentMutation = useMutation(
+    (value: { userId: number; comment: CommentsOnProType }) =>
+      addingComment(value.userId, value.comment),
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`${variables.userId}`)
@@ -414,6 +454,13 @@ export default function OnboardingDetail() {
   }
 
   const handleEditComment = () => {
+    const res = {
+      ...selectedComment!,
+      comment: comment,
+    }
+
+    editCommentMutation.mutate({ userId: Number(id), comment: res })
+
     setClickedEditComment(false)
 
     setSelectedComment(null)
@@ -426,13 +473,29 @@ export default function OnboardingDetail() {
   }
 
   const handleAddComment = () => {
+    const res = {
+      id: 0,
+      userId: Number(id),
+      firstName: userInfo.firstName,
+      middleName: userInfo.middleName,
+      lastName: userInfo.lastName,
+      email: userInfo.email,
+      createdAt: '2023-02-15T21:40:10Z',
+      updatedAt: '2023-02-15T21:40:10Z',
+      comment: addComment,
+    }
     setAddComment('')
     setClickedAddComment(false)
+    addCommentMutation.mutate({ userId: Number(id), comment: res })
   }
 
   const handleAddCancelComment = () => {
     setAddComment('')
     setClickedAddComment(false)
+  }
+
+  const handleDeleteComment = (comment: CommentsOnProType) => {
+    deleteCommentMutation.mutate({ userId: Number(id), commentId: comment.id })
   }
 
   const onClickEditConfirmComment = () => {
@@ -471,6 +534,16 @@ export default function OnboardingDetail() {
         open={true}
         onClose={() => setModal(null)}
         cancelSave={handleAddCancelComment}
+      />,
+    )
+  }
+
+  const onClickDeleteComment = (comment: CommentsOnProType) => {
+    setModal(
+      <DeleteCommentModal
+        open={true}
+        onClose={() => setModal(null)}
+        deleteComment={() => handleDeleteComment(comment)}
       />,
     )
   }
@@ -689,6 +762,7 @@ export default function OnboardingDetail() {
             onClickAddConfirmComment={onClickAddConfirmComment}
             onClickAddCancelComment={onClickAddCancelComment}
             handleAddCommentChange={handleAddCommentChange}
+            onClickDeleteComment={onClickDeleteComment}
             addComment={addComment}
           />
         </Grid>

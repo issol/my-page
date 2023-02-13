@@ -3189,3 +3189,54 @@ mock.onPost('/api/pro/details/test').reply(request => {
 
   return [200]
 })
+
+mock.onDelete('/api/pro/details/comments').reply(request => {
+  const { userId, id } = request.params
+
+  // Convert Id to number
+  const eventId = Number(id)
+  const matchedUser = onboardingUser.filter(value => value.userId === userId)
+  const matchedUserIndex = onboardingUser.findIndex(
+    value => value.userId === userId,
+  )
+  const matchedComments = matchedUser[0].commentsOnPro!.findIndex(
+    ev => ev.id === eventId,
+  )
+
+  onboardingUser[matchedUserIndex].commentsOnPro!.splice(matchedComments, 1)
+
+  return [200]
+})
+
+mock.onPost('/api/pro/details/comments').reply(request => {
+  const { userId, comment } = JSON.parse(request.data).data
+
+  const eventId = Number(userId)
+
+  const index = onboardingUser.findIndex(value => value.userId === eventId)
+  const commentIndex = onboardingUser[index].commentsOnPro?.findIndex(
+    value => value.id === comment.id,
+  )
+
+  onboardingUser[index].commentsOnPro?.splice(commentIndex!, 1, comment)
+
+  console.log(comment)
+
+  return [200]
+})
+
+mock.onPost('/api/pro/details/comments/add').reply(request => {
+  const { userId, comment } = JSON.parse(request.data).data
+
+  const eventId = Number(userId)
+  const index = onboardingUser.findIndex(value => value.userId === eventId)
+
+  const res = {
+    ...comment,
+    id: onboardingUser[index].commentsOnPro!.length + 1,
+  }
+
+  onboardingUser[index].commentsOnPro?.push(res)
+
+  return [200]
+})
