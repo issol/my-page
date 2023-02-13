@@ -9,8 +9,8 @@ export interface CountryType {
 export interface JobInfoType {
   jobType: string
   role: string
-  source: string
-  target: string
+  source?: string | null
+  target?: string | null
 }
 
 export interface PersonalInfo {

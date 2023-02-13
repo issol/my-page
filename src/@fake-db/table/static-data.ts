@@ -1,3 +1,5 @@
+import { OnboardingListType } from 'src/types/onboarding/list'
+
 export const rows = [
   {
     id: 1,

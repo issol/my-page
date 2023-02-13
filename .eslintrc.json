@@ -36,6 +36,9 @@
         "count": 1
       }
     ],
+    // recommend use to const
+    "prefer-const": "off",
+    "react-hooks/rules-of-hooks": "off",
     "@typescript-eslint/ban-types": [
       "off",
       {
