@@ -34,7 +34,7 @@ export default function Onboarding() {
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
-  const [expanded, setExpanded] = useState<string | false>(false)
+  const [expanded, setExpanded] = useState<string | false>('panel1')
 
   const handleFilterStateChange =
     (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {

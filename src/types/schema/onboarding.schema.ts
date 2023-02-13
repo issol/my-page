@@ -9,13 +9,13 @@ export const assignTestSchema = yup.object().shape({
         .string()
         .required('This field is required')
         .when('jobType', (jobType, schema) =>
-          jobType === 'dtp' ? yup.string().nullable() : schema,
+          jobType === 'DTP' ? yup.string().nullable() : schema,
         ),
       target: yup
         .string()
         .required('This field is required')
         .when('jobType', (jobType, schema) =>
-          jobType === 'dtp' ? yup.string().nullable() : schema,
+          jobType === 'DTP' ? yup.string().nullable() : schema,
         ),
     }),
   ),

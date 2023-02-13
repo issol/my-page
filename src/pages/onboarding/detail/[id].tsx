@@ -5,6 +5,7 @@ import { useGetUserInfoWithResume } from 'src/queries/userInfo/userInfo-query'
 import { Box } from '@mui/system'
 
 import styled from 'styled-components'
+import toast from 'react-hot-toast'
 import { UserInfoResType } from 'src/apis/user.api'
 import About from '../components/detail/about'
 import AppliedRole from '../components/detail/applied-role'
@@ -170,7 +171,6 @@ export default function OnboardingDetail() {
       certifyRole(value.userId, value.jobInfoId),
     {
       onSuccess: (data, variables) => {
-        alert('delete')
         queryClient.invalidateQueries(`${variables.userId}`)
         // displayUndoToast(variables.user, variables.payload.reply)
       },
@@ -182,7 +182,6 @@ export default function OnboardingDetail() {
       testAction(value.userId, value.jobInfoId, value.status),
     {
       onSuccess: (data, variables) => {
-        alert('success')
         queryClient.invalidateQueries(`${variables.userId}`)
       },
     },
@@ -213,6 +212,9 @@ export default function OnboardingDetail() {
       editComment(value.userId, value.comment),
     {
       onSuccess: (data, variables) => {
+        toast.success('Successfully edited!', {
+          position: 'bottom-right',
+        })
         queryClient.invalidateQueries(`${variables.userId}`)
       },
     },
@@ -223,6 +225,9 @@ export default function OnboardingDetail() {
       addingComment(value.userId, value.comment),
     {
       onSuccess: (data, variables) => {
+        toast.success('Successfully saved!', {
+          position: 'bottom-right',
+        })
         queryClient.invalidateQueries(`${variables.userId}`)
       },
     },
@@ -336,7 +341,7 @@ export default function OnboardingDetail() {
       const filtered = jobInfoFields.filter(f => f.id! === id)[0]
       const index = jobInfoFields.findIndex(f => f.id! === id)
       let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && value === 'dtp') {
+      if (item === 'jobType' && value === 'DTP') {
         newVal = { ...filtered, [item]: value, source: '', target: '' }
       }
       update(index, newVal)
@@ -345,7 +350,7 @@ export default function OnboardingDetail() {
       const filtered = roleJobInfoFields.filter(f => f.id! === id)[0]
       const index = roleJobInfoFields.findIndex(f => f.id! === id)
       let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && value === 'dtp') {
+      if (item === 'jobType' && value === 'DTP') {
         newVal = { ...filtered, [item]: value, source: '', target: '' }
       }
       roleUpdate(index, newVal)
