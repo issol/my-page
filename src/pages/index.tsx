@@ -10,10 +10,6 @@ import Spinner from 'src/@core/components/spinner'
 // ** Hook Imports
 import { useAuth } from 'src/hooks/useAuth'
 
-// export const getHomeRoute = (role: Array<RoleType>) => {
-//   return `/${role[0]?.toLowerCase()}/dashboard`
-// }
-
 const Home = () => {
   // ** Hooks
   const auth = useAuth()

@@ -163,7 +163,7 @@ const PersonalInfoPro = () => {
   useEffect(() => {
     if (auth.user?.firstName) {
       const role = userAccess?.role?.length ? userAccess.role[0] : null
-      router.replace(`/${role?.toLowerCase()}/dashboard`)
+      router.replace(`/`)
     }
   }, [auth])
 
