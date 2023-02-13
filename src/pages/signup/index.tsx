@@ -18,9 +18,6 @@ import { Card, CardContent, Link } from '@mui/material'
 
 import cloneDeep from 'lodash/cloneDeep'
 
-// ** styles
-import styled from 'styled-components'
-
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -38,7 +35,6 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { Checkbox } from '@mui/material'
 import {
   checkEmailDuplication,
-  googleAuth,
   redirectLinkedInAuth,
   sendEmailVerificationCode,
   signUp,
@@ -50,10 +46,17 @@ import { useMutation } from 'react-query'
 
 // ** Third Party Components
 import toast from 'react-hot-toast'
+
+// ** NextJs
 import { useRouter } from 'next/router'
+
+// ** Context
 import { ModalContext } from 'src/context/ModalContext'
+
+// ** values
 import { FormErrors } from 'src/shared/const/form-errors'
-import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
+
+// ** components
 import GoogleButton from '../components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -151,6 +154,7 @@ enum Roles {
 
 const SignUpPage = () => {
   const router = useRouter()
+  const { email } = router.query
   const { setModal } = useContext(ModalContext)
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
@@ -193,29 +197,17 @@ const SignUpPage = () => {
     resolver: yupResolver(schema),
   })
 
-  const googleMutation = useMutation(
-    (credential: string) => googleAuth(credential),
-    {
-      onSuccess: res => {
-        console.log(res)
-        saveUserTokenToBrowser(res.accessToken)
-        auth.updateUserInfo(res)
-      },
-      onError: err => {
-        console.log(err)
-        if (err === 'NOT_A_MEMBER') {
-          // ** TODO : sign up 시키기
-          setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
-        }
-      },
-    },
-  )
-
-  function handleCredentialResponse(response: { credential?: string }) {
-    if (response.credential) {
-      googleMutation.mutate(response.credential)
-    }
-  }
+  useEffect(() => {
+    const emailAsString: string = email as string
+    const replacedEmail = emailAsString?.replace('%40', '@')
+    setValue('email', replacedEmail, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+    watch('email')
+    setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
+    setStep(2)
+  }, [email])
 
   const verifyEmail = useMutation(
     () => sendEmailVerificationCode(getValues('email')),
@@ -235,8 +227,9 @@ const SignUpPage = () => {
     },
   )
 
+  // ** TODO : SNS용 api가 추가될 수 있음
   const signUpMutation = useMutation(
-    () => signUp(getValues('email'), getValues('password'), role),
+    () => signUp(getValues('email'), role, getValues('password')),
     {
       onSuccess: data => {
         if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
@@ -375,7 +368,11 @@ const SignUpPage = () => {
   }
 
   const onRoleSubmit = () => {
-    verifyEmail.mutate()
+    if (getValues('type') === 'sns') {
+      signUpMutation.mutate()
+    } else {
+      verifyEmail.mutate()
+    }
   }
 
   return (
@@ -441,7 +438,7 @@ const SignUpPage = () => {
                   <Typography color='primary'>Sign up with Google</Typography>
                 </Link>
                 <GoogleButton
-                  handleCredentialResponse={handleCredentialResponse}
+                // handleCredentialResponse={handleCredentialResponse}
                 />
               </Box>
               <Box

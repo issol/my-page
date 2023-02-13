@@ -78,15 +78,12 @@ export const verifyPinCode = async (
 
 export const signUp = async (
   email: string,
-  password: string,
   roles: Array<RoleType>,
+  password?: string,
 ): Promise<{ userId: number; email: string }> => {
+  const body = !password ? { email, roles } : { email, password, roles }
   try {
-    const { data } = await axios.post(`/api/enough/a/signup`, {
-      email,
-      password,
-      roles,
-    })
+    const { data } = await axios.post(`/api/enough/a/signup`, body)
     return data
   } catch (e: any) {
     throw new Error(e)

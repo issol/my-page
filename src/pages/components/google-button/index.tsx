@@ -1,13 +1,69 @@
-import { useRouter } from 'next/router'
+import { useEffect, useRef } from 'react'
+
+// ** NextJs
 import Script from 'next/script'
-import { useEffect } from 'react'
+import { useRouter } from 'next/router'
+
+// ** styles
 import styled from 'styled-components'
 
-export default function GoogleButton(handleCredentialResponse: any) {
+// ** context
+import { useAuth } from 'src/hooks/useAuth'
+
+// ** fetch
+import { useMutation } from 'react-query'
+import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
+import { googleAuth } from 'src/apis/sign.api'
+
+// ** third party
+import jwt_decode from 'jwt-decode'
+import { toast } from 'react-hot-toast'
+
+export default function GoogleButton() {
   const router = useRouter()
+  const emailRef = useRef('')
+
+  // ** Hooks
+  const auth = useAuth()
+
   useEffect(() => {
     generateGoogleLoginButton()
   }, [router])
+
+  const googleMutation = useMutation(
+    (credential: string) => googleAuth(credential),
+    {
+      onSuccess: res => {
+        console.log('google auth success res : ', res)
+        saveUserTokenToBrowser(res.accessToken)
+        auth.updateUserInfo(res)
+      },
+      onError: err => {
+        if (err === 'NOT_A_MEMBER') {
+          router.replace(
+            {
+              pathname: '/signup/',
+              query: { email: emailRef.current },
+            },
+            '/signup/',
+          )
+        } else {
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        }
+      },
+    },
+  )
+
+  function handleCredentialResponse(response: { credential?: string }) {
+    if (response.credential) {
+      //@ts-ignore
+      const email = jwt_decode(response.credential)?.email as string
+      emailRef.current = email
+      googleMutation.mutate(response.credential)
+    }
+  }
 
   function generateGoogleLoginButton() {
     window?.google?.accounts?.id?.initialize({
@@ -42,6 +98,5 @@ export default function GoogleButton(handleCredentialResponse: any) {
 
 const GoogleButtonWrapper = styled.div`
   position: absolute;
-  /* opacity: 0.7; */
   opacity: 0.0001 !important;
 `

@@ -1,12 +1,5 @@
 // ** React Imports
-import {
-  useState,
-  ReactNode,
-  MouseEvent,
-  useEffect,
-  useRef,
-  useContext,
-} from 'react'
+import { useState, ReactNode, MouseEvent, useEffect } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -25,11 +18,6 @@ import { Checkbox, FormControlLabel } from '@mui/material'
 
 // ** nextJs
 import Link from 'next/link'
-import { useRouter } from 'next/router'
-import Script from 'next/script'
-
-// ** styles
-import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -48,13 +36,8 @@ import themeConfig from 'src/configs/themeConfig'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** fetches
-import { googleAuth, redirectLinkedInAuth } from 'src/apis/sign.api'
-import {
-  getRememberMe,
-  removeRememberMe,
-  saveUserTokenToBrowser,
-} from 'src/shared/auth/storage'
-import { useMutation } from 'react-query'
+import { redirectLinkedInAuth } from 'src/apis/sign.api'
+import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
 
 // ** values
 import { FormErrors } from 'src/shared/const/form-errors'
@@ -107,33 +90,9 @@ interface FormData {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
-  const router = useRouter()
 
   // ** Hooks
   const auth = useAuth()
-
-  const googleMutation = useMutation(
-    (credential: string) => googleAuth(credential),
-    {
-      onSuccess: res => {
-        console.log(res)
-        saveUserTokenToBrowser(res.accessToken)
-        auth.updateUserInfo(res)
-      },
-      onError: err => {
-        console.log(err)
-        if (err === 'NOT_A_MEMBER') {
-          // ** TODO : sign up 시키기
-        }
-      },
-    },
-  )
-
-  function handleCredentialResponse(response: { credential?: string }) {
-    if (response.credential) {
-      googleMutation.mutate(response.credential)
-    }
-  }
 
   const {
     control,
@@ -230,9 +189,7 @@ const LoginPage = () => {
               <Link href='' style={{ textDecoration: 'none' }}>
                 <Typography color='primary'>Sign in with Google</Typography>
               </Link>
-              <GoogleButton
-                handleCredentialResponse={handleCredentialResponse}
-              />
+              <GoogleButton />
             </Box>
             <Box
               sx={{
