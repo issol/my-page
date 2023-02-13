@@ -663,10 +663,10 @@ export const onboardingUser: OnboardingUserType[] = [
       {
         id: 0,
         userId: 1,
-        firstName: 'Isadore',
-        middleName: 'Davine',
-        lastName: 'Dwelly',
-        email: 'ddwelly0@nbcnews.com',
+        firstName: 'Jay',
+        middleName: null,
+        lastName: 'Lee',
+        email: 'jay@glozinc.com',
         createdAt: '2022-04-27T14:13:15Z',
         updatedAt: '2023-01-13T21:40:10Z',
         comment:
