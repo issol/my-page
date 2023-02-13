@@ -42,6 +42,7 @@ type Props = {
   onClickAddCancelComment: () => void
   handleAddCommentChange: (event: ChangeEvent<HTMLInputElement>) => void
   addComment: string
+  onClickDeleteComment: (comment: CommentsOnProType) => void
 }
 
 export default function CommentsAboutPro({
@@ -66,6 +67,7 @@ export default function CommentsAboutPro({
   onClickAddCancelComment,
   handleAddCommentChange,
   addComment,
+  onClickDeleteComment,
 }: Props) {
   console.log(user)
 
@@ -200,7 +202,11 @@ export default function CommentsAboutPro({
             return (
               <>
                 <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '14px' }}
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '14px',
+                  }}
                 >
                   <Box
                     sx={{
@@ -264,7 +270,10 @@ export default function CommentsAboutPro({
                               </IconButton>
                             </>
                           ) : null}
-                          <IconButton sx={{ padding: 1 }}>
+                          <IconButton
+                            sx={{ padding: 1 }}
+                            onClick={() => onClickDeleteComment(value)}
+                          >
                             <Icon icon='mdi:delete-outline' />
                           </IconButton>
                         </>
@@ -290,7 +299,6 @@ export default function CommentsAboutPro({
                         value={comment}
                         onChange={handleCommentChange}
                         multiline
-                        defaultValue={value.comment}
                         id='textarea-outlined-static'
                       />
                       <Box
