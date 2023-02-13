@@ -1,5 +1,6 @@
 import mock from 'src/@fake-db/mock'
 import {
+  AddRoleType,
   AssignReviewerType,
   OnboardingUserType,
 } from 'src/types/onboarding/list'
@@ -3161,6 +3162,30 @@ mock.onPost('/api/pro/details/reviewer/action').reply(request => {
   reviewer.splice(index, 1, res[index])
 
   reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
+
+  return [200]
+})
+
+mock.onPost('/api/pro/details/test').reply(request => {
+  const { userId, jobInfo } = JSON.parse(request.data).data
+
+  const eventId = Number(userId)
+
+  console.log(jobInfo)
+
+  const index = onboardingUser.findIndex(value => value.userId === eventId)
+
+  jobInfo.map((value: any, idx: number) => {
+    const res = {
+      ...value,
+      id: onboardingUser[index].jobInfo.length + 1,
+      status: 'Awaiting Assignment',
+
+      history: [],
+    }
+
+    onboardingUser[index].jobInfo.push(res)
+  })
 
   return [200]
 })

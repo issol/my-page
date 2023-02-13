@@ -24,7 +24,7 @@ import {
   TestHistoryType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import { certifyRole, testAction } from 'src/apis/onboarding.api'
+import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/modal/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -37,6 +37,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { assignTestSchema } from 'src/types/schema/onboarding.schema'
 import AssignTestModal from '../components/detail/modal/assign-test.modal'
 import CancelTestModal from '../components/detail/modal/cancel-test-modal'
+import AssignRoleModal from '../components/detail/modal/assign-role-modal'
+import CancelRoleModal from '../components/detail/modal/cancel-role-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -49,6 +51,7 @@ export default function OnboardingDetail() {
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] = useState(userInfo)
   const [jobInfo, setJobInfo] = useState(userInfo?.jobInfo)
+
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<SelectedJobInfoType | null>(null)
 
@@ -63,10 +66,15 @@ export default function OnboardingDetail() {
   const commentsProOffset = commentsProPage * commentsProRowsPerPage
 
   const [appliedRoleModalOpen, setAppliedRoleModalOpen] = useState(false)
+
   const [assignTestModalOpen, setAssignTestModalOpen] = useState(false)
   const [cancelTestModalOpen, setCancelTestModalOpen] = useState(false)
+  const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false)
+  const [cancelRoleModalOpen, setCancelRoleModalOpen] = useState(false)
 
   const [assignTestJobInfo, setAssignTestJobInfo] =
+    useState<AddRoleType>(defaultValues)
+  const [assignRoleJobInfo, setAssignRoleJobInfo] =
     useState<AddRoleType>(defaultValues)
 
   const languageList = getGloLanguage()
@@ -91,12 +99,36 @@ export default function OnboardingDetail() {
   })
 
   const {
+    control: roleControl,
+    handleSubmit: handleRoleSubmit,
+    reset: roleReset,
+
+    trigger: roleTrigger,
+    getValues: roleGetValues,
+    formState: { errors: roleErrors },
+  } = useForm<AddRoleType>({
+    defaultValues,
+    mode: 'onBlur',
+    resolver: yupResolver(assignTestSchema),
+  })
+
+  const {
     fields: jobInfoFields,
     append,
     remove,
     update,
   } = useFieldArray({
     control,
+    name: 'jobInfo',
+  })
+
+  const {
+    fields: roleJobInfoFields,
+    append: roleAppend,
+    remove: roleRemove,
+    update: roleUpdate,
+  } = useFieldArray({
+    control: roleControl,
     name: 'jobInfo',
   })
 
@@ -122,6 +154,16 @@ export default function OnboardingDetail() {
     {
       onSuccess: (data, variables) => {
         alert('success')
+        queryClient.invalidateQueries(`${variables.userId}`)
+      },
+    },
+  )
+
+  const addTestMutation = useMutation(
+    (value: { userId: number; jobInfo: AddRoleType }) =>
+      addTest(value.userId, value.jobInfo),
+    {
+      onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`${variables.userId}`)
       },
     },
@@ -229,15 +271,27 @@ export default function OnboardingDetail() {
     id: string,
     value: any,
     item: 'jobType' | 'role' | 'source' | 'target',
+    type: string,
   ) => {
-    const filtered = jobInfoFields.filter(f => f.id! === id)[0]
-    const index = jobInfoFields.findIndex(f => f.id! === id)
-    let newVal = { ...filtered, [item]: value }
-    if (item === 'jobType' && value === 'dtp') {
-      newVal = { ...filtered, [item]: value, source: '', target: '' }
+    if (type === 'test') {
+      const filtered = jobInfoFields.filter(f => f.id! === id)[0]
+      const index = jobInfoFields.findIndex(f => f.id! === id)
+      let newVal = { ...filtered, [item]: value }
+      if (item === 'jobType' && value === 'dtp') {
+        newVal = { ...filtered, [item]: value, source: '', target: '' }
+      }
+      update(index, newVal)
+      trigger('jobInfo')
+    } else if (type === 'role') {
+      const filtered = roleJobInfoFields.filter(f => f.id! === id)[0]
+      const index = roleJobInfoFields.findIndex(f => f.id! === id)
+      let newVal = { ...filtered, [item]: value }
+      if (item === 'jobType' && value === 'dtp') {
+        newVal = { ...filtered, [item]: value, source: '', target: '' }
+      }
+      roleUpdate(index, newVal)
+      roleTrigger('jobInfo')
     }
-    update(index, newVal)
-    trigger('jobInfo')
   }
 
   const onChangeTestStatus = (
@@ -263,10 +317,32 @@ export default function OnboardingDetail() {
   const handleAssignTest = (jobInfo: AddRoleType) => {
     //** TODO : Assign 연결 */
     console.log(jobInfo)
+    addTestMutation.mutate({ userId: Number(id), jobInfo: jobInfo })
   }
 
-  const addJobInfo = () => {
-    if (jobInfoFields.length >= 10) {
+  const onClickAssignRole = (data: AddRoleType) => {
+    setAssignRoleJobInfo(data)
+    setAssignRoleModalOpen(true)
+  }
+  const onClickCancelRole = () => {
+    setCancelRoleModalOpen(true)
+  }
+
+  const handelAssignRole = (jobInfo: AddRoleType) => {
+    console.log(jobInfo)
+  }
+
+  const onCloseModal = (type: string) => {
+    type === 'test'
+      ? reset({ jobInfo: [{ jobType: '', role: '', source: '', target: '' }] })
+      : roleReset({
+          jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
+        })
+    setAppliedRoleModalOpen(false)
+  }
+
+  const addJobInfo = (type: string) => {
+    if (jobInfoFields.length >= 10 || roleJobInfoFields.length >= 10) {
       setModal(
         <Box
           sx={{
@@ -303,12 +379,19 @@ export default function OnboardingDetail() {
       )
       return
     }
-    append({ jobType: '', role: '', source: '', target: '' })
+    type === 'test'
+      ? append({ jobType: '', role: '', source: '', target: '' })
+      : roleAppend({ jobType: '', role: '', source: '', target: '' })
   }
 
-  const removeJobInfo = (item: { id: string }) => {
-    const idx = jobInfoFields.map(item => item.id).indexOf(item.id)
-    idx !== -1 && remove(idx)
+  const removeJobInfo = (item: { id: string }, type: string) => {
+    if (type === 'test') {
+      const idx = jobInfoFields.map(item => item.id).indexOf(item.id)
+      idx !== -1 && remove(idx)
+    } else if (type === 'role') {
+      const idx = roleJobInfoFields.map(item => item.id).indexOf(item.id)
+      idx !== -1 && roleRemove(idx)
+    }
   }
 
   useEffect(() => {
@@ -342,6 +425,7 @@ export default function OnboardingDetail() {
           setAppliedRoleModalOpen(false)
         }}
         jobInfoFields={jobInfoFields}
+        roleJobInfoFields={roleJobInfoFields}
         control={control}
         errors={errors}
         onChangeJobInfo={onChangeJobInfo}
@@ -352,11 +436,20 @@ export default function OnboardingDetail() {
         handleSubmit={handleSubmit}
         onClickAssignTest={onClickAssignTest}
         onClickCancelTest={onClickCancelTest}
+        onClickAssignRole={onClickAssignRole}
+        onClickCancelRole={onClickCancelRole}
+        roleControl={roleControl}
+        handleRoleSubmit={handleRoleSubmit}
+        roleGetValues={roleGetValues}
+        roleErrors={roleErrors}
       />
 
       <AssignTestModal
         open={assignTestModalOpen}
         onClose={() => setAssignTestModalOpen(false)}
+        onAssignClose={() => {
+          onCloseModal('test')
+        }}
         assignTest={handleAssignTest}
         jobInfo={assignTestJobInfo}
       />
@@ -364,10 +457,26 @@ export default function OnboardingDetail() {
         open={cancelTestModalOpen}
         onClose={() => setCancelTestModalOpen(false)}
         onCloseAssignTestModal={() => {
-          reset({
-            jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
-          })
-          setAppliedRoleModalOpen(false)
+          onCloseModal('test')
+        }}
+      />
+
+      <AssignRoleModal
+        open={assignRoleModalOpen}
+        onClose={() => setAssignRoleModalOpen(false)}
+        onAssignClose={() => {
+          onCloseModal('role')
+        }}
+        assignRole={handelAssignRole}
+        jobInfo={assignRoleJobInfo}
+      />
+      <CancelRoleModal
+        open={cancelRoleModalOpen}
+        onClose={() => setCancelRoleModalOpen(false)}
+        onCloseAssignRoleModal={() => {
+          console.log('close')
+
+          onCloseModal('role')
         }}
       />
       <Grid item xs={12}>

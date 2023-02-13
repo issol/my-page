@@ -16,14 +16,14 @@ import { AddRoleType } from 'src/types/onboarding/list'
 type Props = {
   open: boolean
   onClose: any
+  assignRole: (jobInfo: AddRoleType) => void
   onAssignClose: any
-  assignTest: (jobInfo: AddRoleType) => void
   jobInfo: AddRoleType
 }
-export default function AssignTestModal({
+export default function AssignRoleModal({
   open,
   onClose,
-  assignTest,
+  assignRole,
   onAssignClose,
   jobInfo,
 }: Props) {
@@ -73,7 +73,7 @@ export default function AssignTestModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to assign the test?
+            Are you sure to assign the role?
           </Typography>
         </DialogContentText>
         <Box
@@ -99,7 +99,7 @@ export default function AssignTestModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              assignTest(jobInfo)
+              assignRole(jobInfo)
               onClose()
               onAssignClose()
             }}

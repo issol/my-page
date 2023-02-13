@@ -16,16 +16,13 @@ import { AddRoleType } from 'src/types/onboarding/list'
 type Props = {
   open: boolean
   onClose: any
-  onAssignClose: any
-  assignTest: (jobInfo: AddRoleType) => void
-  jobInfo: AddRoleType
+
+  onCloseAssignRoleModal: any
 }
-export default function AssignTestModal({
+export default function CancelRoleModal({
   open,
   onClose,
-  assignTest,
-  onAssignClose,
-  jobInfo,
+  onCloseAssignRoleModal,
 }: Props) {
   return (
     <Dialog
@@ -51,7 +48,7 @@ export default function AssignTestModal({
           }}
         >
           <Image
-            src='/images/icons/alert/alert-success.svg'
+            src='/images/icons/alert/alert-error-color.svg'
             width={68}
             height={68}
             alt=''
@@ -73,7 +70,7 @@ export default function AssignTestModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to assign the test?
+            Are you sure to cancel the assignment of the role?
           </Typography>
         </DialogContentText>
         <Box
@@ -91,7 +88,7 @@ export default function AssignTestModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={onClose}
           >
-            Cancel
+            No
           </Button>
           <Button
             size='medium'
@@ -99,12 +96,12 @@ export default function AssignTestModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              assignTest(jobInfo)
+              console.log('close')
               onClose()
-              onAssignClose()
+              onCloseAssignRoleModal()
             }}
           >
-            Assign
+            Cancel
           </Button>
         </Box>
       </DialogContent>

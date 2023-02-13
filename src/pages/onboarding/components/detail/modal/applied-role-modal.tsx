@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { SyntheticEvent, useContext, useState } from 'react'
+import { SyntheticEvent, useContext, useState, useEffect } from 'react'
 import Box from '@mui/material/Box'
 
 import Dialog from '@mui/material/Dialog'
@@ -59,28 +59,38 @@ type Props = {
   open: boolean
   onClose: any
   jobInfoFields: FieldArrayWithId<AddRoleType, 'jobInfo', 'id'>[]
+  roleJobInfoFields: FieldArrayWithId<AddRoleType, 'jobInfo', 'id'>[]
   control: Control<AddRoleType, any>
   errors: Partial<FieldErrorsImpl<AddRoleType>>
   onChangeJobInfo: (
     id: string,
     value: any,
     item: 'jobType' | 'role' | 'source' | 'target',
+    type: string,
   ) => void
   languageList: {
     value: string
     label: GloLanguageEnum
   }[]
-  addJobInfo: () => void
-  removeJobInfo: (item: { id: string }) => void
+  addJobInfo: (type: string) => void
+  removeJobInfo: (item: { id: string }, type: string) => void
   getValues: UseFormGetValues<AddRoleType>
   handleSubmit: UseFormHandleSubmit<AddRoleType>
   onClickAssignTest: (data: any) => void
   onClickCancelTest: () => void
+  roleControl: Control<AddRoleType, any>
+  handleRoleSubmit: UseFormHandleSubmit<AddRoleType>
+
+  roleGetValues: UseFormGetValues<AddRoleType>
+  roleErrors: Partial<FieldErrorsImpl<AddRoleType>>
+  onClickAssignRole: (data: AddRoleType) => void
+  onClickCancelRole: () => void
 }
 export default function AppliedRoleModal({
   open,
   onClose,
   jobInfoFields,
+  roleJobInfoFields,
   control,
   errors,
   onChangeJobInfo,
@@ -91,12 +101,22 @@ export default function AppliedRoleModal({
   handleSubmit,
   onClickAssignTest,
   onClickCancelTest,
+  roleControl,
+  handleRoleSubmit,
+
+  roleGetValues,
+  roleErrors,
+  onClickAssignRole,
+  onClickCancelRole,
 }: Props) {
-  const { setModal } = useContext(ModalContext)
   const [value, setValue] = useState<string>('1')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
+  useEffect(() => {
+    !open && setValue('1')
+  }, [open])
 
   return (
     <Dialog
@@ -172,7 +192,7 @@ export default function AppliedRoleModal({
                           </Typography>
                           {jobInfoFields.length > 1 && (
                             <IconButton
-                              onClick={() => removeJobInfo(item)}
+                              onClick={() => removeJobInfo(item, 'test')}
                               sx={{ padding: 1 }}
                             >
                               <Icon icon='mdi:delete-outline'></Icon>
@@ -207,13 +227,14 @@ export default function AppliedRoleModal({
                                     }
                                     value={item.jobType}
                                     placeholder='Job type *'
-                                    onChange={e =>
+                                    onChange={e => {
                                       onChangeJobInfo(
                                         item.id,
                                         e.target.value,
                                         'jobType',
+                                        'test',
                                       )
-                                    }
+                                    }}
                                   >
                                     {JobList.map((item, idx) => (
                                       <MenuItem value={item.value} key={idx}>
@@ -266,6 +287,7 @@ export default function AppliedRoleModal({
                                         item.id,
                                         e.target.value,
                                         'role',
+                                        'test',
                                       )
                                     }
                                   >
@@ -311,7 +333,12 @@ export default function AppliedRoleModal({
                                   }
                                   options={languageList}
                                   onChange={(e, v) =>
-                                    onChangeJobInfo(item.id, v?.value, 'source')
+                                    onChangeJobInfo(
+                                      item.id,
+                                      v?.value,
+                                      'source',
+                                      'test',
+                                    )
                                   }
                                   renderOption={(props, option) => (
                                     <Box
@@ -367,7 +394,12 @@ export default function AppliedRoleModal({
                                   }
                                   options={languageList}
                                   onChange={(e, v) =>
-                                    onChangeJobInfo(item.id, v?.value, 'target')
+                                    onChangeJobInfo(
+                                      item.id,
+                                      v?.value,
+                                      'target',
+                                      'test',
+                                    )
                                   }
                                   renderOption={(props, option) => (
                                     <Box
@@ -411,7 +443,7 @@ export default function AppliedRoleModal({
                   })}
                   <Box>
                     <IconButton
-                      onClick={addJobInfo}
+                      onClick={() => addJobInfo('test')}
                       color='primary'
                       disabled={jobInfoFields.some(item => {
                         if (item.jobType === 'dtp') {
@@ -448,7 +480,323 @@ export default function AppliedRoleModal({
               </form>
             </Box>
           </TabPanel>
-          <TabPanel value='2' sx={{ padding: 0 }}></TabPanel>
+          <TabPanel value='2' sx={{ padding: 0 }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                mt: '30px',
+              }}
+            >
+              <form onSubmit={handleRoleSubmit(onClickAssignRole)}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                  {/* JobInfos */}
+                  {roleJobInfoFields?.map((item, idx) => {
+                    return (
+                      <Box key={item.id}>
+                        {/* job type & role */}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            mb: 4,
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                            {idx < 9 ? 0 : null}
+                            {idx + 1}.
+                          </Typography>
+                          {jobInfoFields.length > 1 && (
+                            <IconButton
+                              onClick={() => removeJobInfo(item, 'role')}
+                              sx={{ padding: 1 }}
+                            >
+                              <Icon icon='mdi:delete-outline'></Icon>
+                            </IconButton>
+                          )}
+                        </Box>
+
+                        <Box sx={{ display: 'flex', gap: '16px' }}>
+                          <FormControl sx={{ mb: 2 }} fullWidth>
+                            <Controller
+                              name={`jobInfo.${idx}.jobType`}
+                              control={roleControl}
+                              render={({ field }) => (
+                                <>
+                                  <InputLabel
+                                    id='jobType'
+                                    error={
+                                      roleErrors.jobInfo?.length
+                                        ? !!roleErrors.jobInfo[idx]?.jobType
+                                        : false
+                                    }
+                                  >
+                                    Job type*
+                                  </InputLabel>
+                                  <Select
+                                    label='Job type*'
+                                    {...field}
+                                    error={
+                                      roleErrors.jobInfo?.length
+                                        ? !!roleErrors.jobInfo[idx]?.jobType
+                                        : false
+                                    }
+                                    value={item.jobType}
+                                    placeholder='Job type *'
+                                    onChange={e =>
+                                      onChangeJobInfo(
+                                        item.id,
+                                        e.target.value,
+                                        'jobType',
+                                        'role',
+                                      )
+                                    }
+                                  >
+                                    {JobList.map((item, idx) => (
+                                      <MenuItem value={item.value} key={idx}>
+                                        {item.label}
+                                      </MenuItem>
+                                    ))}
+                                  </Select>
+                                </>
+                              )}
+                            />
+                            {roleErrors.jobInfo?.length
+                              ? roleErrors.jobInfo[idx]?.jobType && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {roleErrors?.jobInfo[idx]?.jobType?.message}
+                                  </FormHelperText>
+                                )
+                              : ''}
+                          </FormControl>
+                          <FormControl sx={{ mb: 4 }} fullWidth>
+                            <Controller
+                              name={`jobInfo.${idx}.role`}
+                              control={roleControl}
+                              render={({ field }) => (
+                                <>
+                                  <InputLabel
+                                    id='role'
+                                    error={
+                                      roleErrors.jobInfo?.length
+                                        ? !!roleErrors.jobInfo[idx]?.role
+                                        : false
+                                    }
+                                  >
+                                    Role*
+                                  </InputLabel>
+                                  <Select
+                                    label='Role*'
+                                    {...field}
+                                    error={
+                                      roleErrors.jobInfo?.length
+                                        ? !!roleErrors.jobInfo[idx]?.role
+                                        : false
+                                    }
+                                    value={item.role}
+                                    placeholder='Role *'
+                                    disabled={
+                                      !!!roleGetValues(`jobInfo.${idx}.jobType`)
+                                    }
+                                    onChange={e =>
+                                      onChangeJobInfo(
+                                        item.id,
+                                        e.target.value,
+                                        'role',
+                                        'role',
+                                      )
+                                    }
+                                  >
+                                    {/* @ts-ignore */}
+                                    {RolePair[item.jobType]?.map(
+                                      (item: any, idx: number) => (
+                                        <MenuItem value={item.value} key={idx}>
+                                          {item.label}
+                                        </MenuItem>
+                                      ),
+                                    )}
+                                  </Select>
+                                </>
+                              )}
+                            />
+
+                            {roleErrors.jobInfo?.length
+                              ? roleErrors.jobInfo[idx]?.role && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {roleErrors?.jobInfo[idx]?.role?.message}
+                                  </FormHelperText>
+                                )
+                              : ''}
+                          </FormControl>
+                        </Box>
+                        {/* languages */}
+                        <Box sx={{ display: 'flex', gap: '16px' }}>
+                          <FormControl sx={{ mb: 2 }} fullWidth>
+                            <Controller
+                              name={`jobInfo.${idx}.source`}
+                              control={roleControl}
+                              render={({ field }) => (
+                                <Autocomplete
+                                  autoHighlight
+                                  fullWidth
+                                  {...field}
+                                  disableClearable
+                                  disabled={item.jobType === 'dtp'}
+                                  value={
+                                    languageList.filter(
+                                      l => l.value === item.source,
+                                    )[0]
+                                  }
+                                  options={languageList}
+                                  onChange={(e, v) =>
+                                    onChangeJobInfo(
+                                      item.id,
+                                      v?.value,
+                                      'source',
+                                      'role',
+                                    )
+                                  }
+                                  renderOption={(props, option) => (
+                                    <Box
+                                      component='li'
+                                      {...props}
+                                      key={props.id}
+                                    >
+                                      {option.label}
+                                    </Box>
+                                  )}
+                                  renderInput={params => (
+                                    <TextField
+                                      {...params}
+                                      label='Source*'
+                                      error={
+                                        roleErrors.jobInfo?.length
+                                          ? !!roleErrors.jobInfo[idx]?.source
+                                          : false
+                                      }
+                                      inputProps={{
+                                        ...params.inputProps,
+                                        autoComplete: 'new-password',
+                                      }}
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+
+                            {roleErrors.jobInfo?.length
+                              ? roleErrors.jobInfo[idx]?.source && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {roleErrors?.jobInfo[idx]?.source?.message}
+                                  </FormHelperText>
+                                )
+                              : ''}
+                          </FormControl>
+                          <FormControl sx={{ mb: 2 }} fullWidth>
+                            <Controller
+                              name={`jobInfo.${idx}.target`}
+                              control={roleControl}
+                              render={({ field }) => (
+                                <Autocomplete
+                                  autoHighlight
+                                  fullWidth
+                                  {...field}
+                                  disableClearable
+                                  disabled={item.jobType === 'dtp'}
+                                  value={
+                                    languageList.filter(
+                                      l => l.value === item.target,
+                                    )[0]
+                                  }
+                                  options={languageList}
+                                  onChange={(e, v) =>
+                                    onChangeJobInfo(
+                                      item.id,
+                                      v?.value,
+                                      'target',
+                                      'role',
+                                    )
+                                  }
+                                  renderOption={(props, option) => (
+                                    <Box
+                                      component='li'
+                                      {...props}
+                                      key={props.id}
+                                    >
+                                      {option.label}
+                                    </Box>
+                                  )}
+                                  renderInput={params => (
+                                    <TextField
+                                      {...params}
+                                      label='Target*'
+                                      error={
+                                        roleErrors.jobInfo?.length
+                                          ? !!roleErrors.jobInfo[idx]?.target
+                                          : false
+                                      }
+                                      inputProps={{
+                                        ...params.inputProps,
+                                        autoComplete: 'new-password',
+                                      }}
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+
+                            {roleErrors.jobInfo?.length
+                              ? roleErrors.jobInfo[idx]?.target && (
+                                  <FormHelperText sx={{ color: 'error.main' }}>
+                                    {roleErrors?.jobInfo[idx]?.target?.message}
+                                  </FormHelperText>
+                                )
+                              : ''}
+                          </FormControl>
+                        </Box>
+                      </Box>
+                    )
+                  })}
+                  <Box>
+                    <IconButton
+                      onClick={() => addJobInfo('role')}
+                      color='primary'
+                      disabled={roleJobInfoFields.some(item => {
+                        if (item.jobType === 'dtp') {
+                          return !item.jobType || !item.role
+                        } else {
+                          return (
+                            !item.jobType ||
+                            !item.role ||
+                            !item.target ||
+                            !item.source
+                          )
+                        }
+                      })}
+                      sx={{ padding: 0 }}
+                    >
+                      <Icon icon='mdi:plus-box' width={26}></Icon>
+                    </IconButton>
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: '24px',
+                    }}
+                  >
+                    <Button variant='outlined' onClick={onClickCancelRole}>
+                      Cancel
+                    </Button>
+                    <Button variant='contained' type='submit'>
+                      Assign role
+                    </Button>
+                  </Box>
+                </Box>
+              </form>
+            </Box>
+          </TabPanel>
         </TabContext>
       </DialogContent>
     </Dialog>
