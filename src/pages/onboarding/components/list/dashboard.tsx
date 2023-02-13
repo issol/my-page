@@ -53,7 +53,7 @@ export default function OnboardingDashboard() {
                 aria-hidden
               />
               <Link
-                href='/onboarding/contract-forms'
+                href='/onboarding/contracts'
                 style={{
                   fontSize: '0.813rem',
                   fontWeight: 500,
