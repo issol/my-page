@@ -69,7 +69,7 @@ export default function SaveCommentModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to edit this comment?
+            Are you sure to save this comment?
           </Typography>
         </DialogContentText>
         <Box

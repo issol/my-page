@@ -131,7 +131,6 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries('reviewers')
-        alert('success')
       },
     },
   )

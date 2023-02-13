@@ -7,13 +7,13 @@ import {
 
 export const onboardingUser: OnboardingUserType[] = [
   {
-    id: 'SC-15',
+    id: 'P-000010',
     userId: 1,
-    email: 'ddwelly0@nbcnews.com',
-    firstName: 'Isadore',
-    middleName: 'Davine',
-    lastName: 'Dwelly',
-    experience: 'No experience',
+    email: 'jay@glozinc.com',
+    firstName: 'Jay',
+    middleName: null,
+    lastName: 'Lee',
+    experience: '3-5 years',
     notesFromPro:
       'It was a pleasure working with you and your team. We hope you will keep us in mind for future freelance project!',
     isActive: true,
@@ -551,28 +551,106 @@ export const onboardingUser: OnboardingUserType[] = [
           },
         ],
       },
+      {
+        id: 8,
+        jobType: 'Webcomics',
+        role: 'SDH QCer',
+        source: 'PH',
+        target: 'HR',
+        status: 'General failed',
+        history: [
+          {
+            id: 1,
+            status: 'Test failed',
+            reviewer: {
+              firstName: 'Tammy',
+              middleName: null,
+              lastName: 'Na',
+              email: 'tammy@glozinc.com',
+            },
+            date: '2023-01-4T17:30:10Z',
+          },
+          {
+            id: 2,
+            status: 'Review completed',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-13T10:12:10Z',
+          },
+          {
+            id: 3,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Bon',
+              middleName: 'Youjin',
+              lastName: 'Kim',
+              email: 'bon@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 4,
+            status: 'Reviewing',
+            reviewer: {
+              firstName: 'Haley',
+              middleName: null,
+              lastName: 'Park',
+              email: 'haley@naver.com',
+            },
+            date: '2023-01-03T09:20:10Z',
+          },
+          {
+            id: 5,
+            status: 'Test submitted',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2023-01-01T13:35:10Z',
+          },
+          {
+            id: 6,
+            status: 'Test in progress',
+            reviewer: {
+              firstName: '',
+              middleName: null,
+              lastName: '',
+              email: '',
+            },
+            date: '2022-12-31T17:22:10Z',
+          },
+        ],
+      },
     ],
 
     isOnboarded: false,
-    legalNamePronunciation: null,
-    pronounce: null,
-    preferredName: null,
-    preferredNamePronunciation: null,
+    legalNamePronunciation: 'dƷéi li:',
+    pronounce: 'HE',
+    preferredName: 'Jay',
+    preferredNamePronunciation: 'dƷéi',
     timezone: {
-      phone: '672',
-      code: 'AQ',
-      label: 'Antarctica',
+      phone: '82',
+      code: 'KR',
+      label: 'Asia/Seoul',
     },
-    mobile: '814-968-1048',
-    phone: '386-364-4659',
+    mobile: '010-1234-1048',
+    phone: '2-364-4659',
     resume: ['UltricesPhasellus.mp3'],
     specialties: [
-      'Juncaceae',
-      'Asteraceae',
-      'Liliaceae',
-      'Acanthaceae',
-      'Acanthaceae',
-      'Acanthaceae',
+      'Cooking/Food&Drink',
+      'Health(Mental and physical)',
+      'Sports',
+      'Beauty/Fashion',
+      'Music/Entertainment',
+      'Nature',
+      'Travel',
+      'Science/Engineering',
     ],
     contracts: [
       'Leo.avi',
@@ -657,7 +735,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'US-FL',
+    id: 'P-000009',
     userId: 2,
     email: 'otoffetto1@facebook.com',
     firstName: 'Olin',
@@ -995,7 +1073,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'FJ-N',
+    id: 'P-000008',
     userId: 3,
     email: 'dwalkinshaw2@illinois.edu',
     firstName: 'Noemi',
@@ -1181,7 +1259,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'PK-BA',
+    id: 'P-000007',
     userId: 4,
     email: 'lrobez3@shareasale.com',
     firstName: 'Luca',
@@ -1294,7 +1372,7 @@ export const onboardingUser: OnboardingUserType[] = [
     commentsOnPro: [],
   },
   {
-    id: 'ET-AM',
+    id: 'P-000006',
     userId: 5,
     email: 'cmulliner4@va.gov',
     firstName: 'Cirilo',
@@ -1708,7 +1786,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'CY-04',
+    id: 'P-000005',
     userId: 6,
     email: 'swolfe5@bing.com',
     firstName: 'Greg',
@@ -1894,7 +1972,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'ID-JA',
+    id: 'P-000004',
     userId: 7,
     email: 'mchorlton6@yellowpages.com',
     firstName: 'Margalo',
@@ -2156,7 +2234,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'US-AK',
+    id: 'P-000003',
     userId: 8,
     email: 'rheinz7@barnesandnoble.com',
     firstName: 'Lilas',
@@ -2418,7 +2496,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'SK-PV',
+    id: 'P-000002',
     userId: 9,
     email: 'arichmont8@addthis.com',
     firstName: 'Indira',
@@ -2756,7 +2834,7 @@ export const onboardingUser: OnboardingUserType[] = [
     ],
   },
   {
-    id: 'JP-47',
+    id: 'P-000001',
     userId: 10,
     email: 'ahintze9@nytimes.com',
     firstName: 'Janifer',
@@ -3076,9 +3154,9 @@ const reviewer: AssignReviewerType[] = [
 mock.onGet('/api/pro/details').reply(request => {
   const { id } = request.params
 
-  const result = onboardingUser.filter(value => value.userId === id)
+  const index = onboardingUser.findIndex(value => value.userId === id)
 
-  return [200, ...result]
+  return [200, onboardingUser[index]]
 })
 
 mock.onDelete('/api/pro/details/jobInfo').reply(request => {
@@ -3127,6 +3205,7 @@ mock.onPost('/api/pro/details/jobInfo/item').reply(request => {
   })
 
   onboardingUser[matchedUserIndex].jobInfo = matchedJobInfo
+
   return [200]
 })
 
@@ -3167,7 +3246,8 @@ mock.onPost('/api/pro/details/reviewer/action').reply(request => {
 })
 
 mock.onPost('/api/pro/details/test').reply(request => {
-  const { userId, jobInfo } = JSON.parse(request.data).data
+  const { userId, jobInfo }: { userId: number; jobInfo: AddRoleType } =
+    JSON.parse(request.data).data
 
   const eventId = Number(userId)
 
@@ -3175,17 +3255,23 @@ mock.onPost('/api/pro/details/test').reply(request => {
 
   const index = onboardingUser.findIndex(value => value.userId === eventId)
 
-  jobInfo.map((value: any, idx: number) => {
-    const res = {
-      ...value,
-      id: onboardingUser[index].jobInfo.length + 1,
-      status: 'Awaiting Assignment',
+  jobInfo.jobInfo.map(
+    (
+      value: { jobType: string; source: string; target: string; role: string },
+      idx: number,
+    ) => {
+      const res = {
+        ...value,
+        id: onboardingUser[index].jobInfo.length + 1,
+        status: 'Awaiting Assignment',
+        source: value.source !== '' ? value.source.toUpperCase() : null,
+        target: value.target !== '' ? value.target.toUpperCase() : null,
+        history: [],
+      }
 
-      history: [],
-    }
-
-    onboardingUser[index].jobInfo.push(res)
-  })
+      onboardingUser[index].jobInfo.unshift(res)
+    },
+  )
 
   return [200]
 })
@@ -3220,8 +3306,6 @@ mock.onPost('/api/pro/details/comments').reply(request => {
 
   onboardingUser[index].commentsOnPro?.splice(commentIndex!, 1, comment)
 
-  console.log(comment)
-
   return [200]
 })
 
@@ -3230,13 +3314,14 @@ mock.onPost('/api/pro/details/comments/add').reply(request => {
 
   const eventId = Number(userId)
   const index = onboardingUser.findIndex(value => value.userId === eventId)
+  console.log(comment)
 
   const res = {
     ...comment,
     id: onboardingUser[index].commentsOnPro!.length + 1,
   }
 
-  onboardingUser[index].commentsOnPro?.push(res)
+  onboardingUser[index].commentsOnPro?.unshift(res)
 
   return [200]
 })

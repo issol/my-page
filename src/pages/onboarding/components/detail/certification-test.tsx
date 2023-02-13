@@ -77,6 +77,8 @@ export default function CertificationTest({
                       selectedJobInfo.status === 'Test failed' ||
                       selectedJobInfo.status === 'Review completed'
                         ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
+                        : selectedJobInfo.status === 'General failed'
+                        ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
                         : 'rgba(76, 78, 100, 0.05)',
                     boxShadow: 'none',
                   }}
@@ -136,6 +138,21 @@ export default function CertificationTest({
                               In progress
                             </Typography>
                             <CircularProgress size={20} />
+                          </Box>
+                        ) : selectedJobInfo.status === 'General failed' ? (
+                          <Box sx={{ display: 'flex', gap: '8px' }}>
+                            <Typography
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: '14px',
+                                lineHeight: '24px',
+                                letterSpacing: '0.4px',
+                                color: 'rgba(76, 78, 100, 0.87)',
+                              }}
+                            >
+                              Failed
+                            </Typography>
+                            <img src='/images/icons/onboarding-icons/general-failed.svg' />
                           </Box>
                         ) : selectedJobInfo.status === 'Test in progress' ||
                           selectedJobInfo.status === 'Test submitted' ||

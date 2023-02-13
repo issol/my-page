@@ -69,7 +69,7 @@ export default function CancelSaveCommentModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to cancel the edit of this comment?
+            Are you sure to cancel this comment?
           </Typography>
         </DialogContentText>
         <Box

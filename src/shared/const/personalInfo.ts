@@ -25,8 +25,8 @@ export const DefaultRolePair = [
     jobType: ['document_text', 'youtube'],
   },
 
-  { label: 'DTPer', value: 'DTPer', jobType: ['dtp'] },
-  { label: 'DTP QCer', value: 'DTP QCer', jobType: ['dtp'] },
+  { label: 'DTPer', value: 'DTPer', jobType: ['DTP'] },
+  { label: 'DTP QCer', value: 'DTP QCer', jobType: ['DTP'] },
 
   {
     label: 'Audio description QCer',
