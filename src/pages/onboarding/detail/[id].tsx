@@ -15,21 +15,29 @@ import Contracts from '../components/detail/contracts'
 import CommentsAboutPro from '../components/detail/comments-pro'
 import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
-import { SyntheticEvent, useContext, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  SyntheticEvent,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
+
 import _ from 'lodash'
 import {
   AddRoleType,
   SelectedJobInfoType,
   TestHistoryType,
+  CommentsOnProType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
-import TestDetailsModal from '../components/detail/modal/test-details-modal'
+import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
-import AppliedRoleModal from '../components/detail/modal/applied-role-modal'
+import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import Button from '@mui/material/Button'
@@ -39,6 +47,8 @@ import AssignTestModal from '../components/detail/modal/assign-test.modal'
 import CancelTestModal from '../components/detail/modal/cancel-test-modal'
 import AssignRoleModal from '../components/detail/modal/assign-role-modal'
 import CancelRoleModal from '../components/detail/modal/cancel-role-modal'
+import EditCommentModal from '../components/detail/modal/edit-comment-modal'
+import CancelEditCommentModal from '../components/detail/modal/edit-cancel-comment-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -71,6 +81,14 @@ export default function OnboardingDetail() {
   const [cancelTestModalOpen, setCancelTestModalOpen] = useState(false)
   const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false)
   const [cancelRoleModalOpen, setCancelRoleModalOpen] = useState(false)
+
+  const [editCommentModalOpen, setEditCommentModalOpen] = useState(false)
+  const [cancelCommentModalOpen, setCancelCommentModalOpen] = useState(false)
+
+  const [clickedEditComment, setClickedEditComment] = useState(false)
+  const [selectedComment, setSelectedComment] =
+    useState<CommentsOnProType | null>(null)
+  const [comment, setComment] = useState<string>('')
 
   const [assignTestJobInfo, setAssignTestJobInfo] =
     useState<AddRoleType>(defaultValues)
@@ -394,6 +412,50 @@ export default function OnboardingDetail() {
     }
   }
 
+  const handleEditComment = () => {
+    setClickedEditComment(false)
+    setEditCommentModalOpen(false)
+    setSelectedComment(null)
+  }
+
+  const handleCancelComment = () => {
+    setClickedEditComment(false)
+    setCancelCommentModalOpen(false)
+    setSelectedComment(null)
+  }
+
+  const onClickEditConfirmComment = () => {
+    setModal(
+      <EditCommentModal
+        open={true}
+        onClose={() => setModal(null)}
+        editComment={handleEditComment}
+      />,
+    )
+    setEditCommentModalOpen(true)
+  }
+
+  const onClickEditCancelComment = () => {
+    setModal(
+      <CancelEditCommentModal
+        open={true}
+        onClose={() => setModal(null)}
+        cancelEdit={handleCancelComment}
+      />,
+    )
+    setCancelCommentModalOpen(true)
+  }
+
+  const onClickEditComment = (comment: CommentsOnProType) => {
+    setComment(comment.comment)
+    setSelectedComment(comment)
+    setClickedEditComment(true)
+  }
+
+  const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setComment(event.target.value)
+  }
+
   useEffect(() => {
     let tempUserInfo = userInfo
 
@@ -575,6 +637,15 @@ export default function OnboardingDetail() {
             rowsPerPage={commentsProRowsPerPage}
             handleChangePage={handleChangeCommentsProPage}
             offset={commentsProOffset}
+            userId={Number(id!)}
+            onClickEditConfirmComment={onClickEditConfirmComment}
+            setClickedEditComment={setClickedEditComment}
+            clickedEditComment={clickedEditComment}
+            onClickEditComment={onClickEditComment}
+            selectedComment={selectedComment}
+            handleCommentChange={handleCommentChange}
+            onClickEditCancelComment={onClickEditCancelComment}
+            comment={comment}
           />
         </Grid>
 
