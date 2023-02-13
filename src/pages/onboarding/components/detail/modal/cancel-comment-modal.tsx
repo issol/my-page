@@ -16,12 +16,12 @@ import { AddRoleType } from 'src/types/onboarding/list'
 type Props = {
   open: boolean
   onClose: any
-  cancelEdit: () => void
+  cancelSave: () => void
 }
-export default function CancelEditCommentModal({
+export default function CancelSaveCommentModal({
   open,
   onClose,
-  cancelEdit,
+  cancelSave,
 }: Props) {
   return (
     <Dialog
@@ -95,7 +95,7 @@ export default function CancelEditCommentModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              cancelEdit()
+              cancelSave()
               onClose()
             }}
           >

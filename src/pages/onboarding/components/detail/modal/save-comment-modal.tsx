@@ -12,16 +12,16 @@ import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
 
-import { AddRoleType } from 'src/types/onboarding/list'
+import { AddRoleType, CommentsOnProType } from 'src/types/onboarding/list'
 type Props = {
   open: boolean
   onClose: any
-  cancelEdit: () => void
+  saveComment: () => void
 }
-export default function CancelEditCommentModal({
+export default function SaveCommentModal({
   open,
   onClose,
-  cancelEdit,
+  saveComment,
 }: Props) {
   return (
     <Dialog
@@ -47,7 +47,7 @@ export default function CancelEditCommentModal({
           }}
         >
           <Image
-            src='/images/icons/alert/alert-error-color.svg'
+            src='/images/icons/alert/alert-success.svg'
             width={68}
             height={68}
             alt=''
@@ -69,7 +69,7 @@ export default function CancelEditCommentModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to cancel the edit of this comment?
+            Are you sure to edit this comment?
           </Typography>
         </DialogContentText>
         <Box
@@ -95,7 +95,7 @@ export default function CancelEditCommentModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              cancelEdit()
+              saveComment()
               onClose()
             }}
           >

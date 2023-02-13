@@ -42,14 +42,14 @@ export const assignReviewer = async (id: number, status: string) => {
 
 export const addTest = async (userId: number, jobInfo: AddRoleType) => {
   try {
-    const res = jobInfo.jobInfo.map(value => ({
-      ...value,
-      jobType: JobList.filter(data => data.value === value.jobType)[0].label,
-    }))
-    console.log(res)
+    // const res = jobInfo.jobInfo.map(value => ({
+    //   ...value,
+    //   jobType: JobList.filter(data => data.value === value.jobType)[0].label,
+    // }))
+    // console.log(res)
 
     const data = await axios.post('/api/pro/details/test', {
-      data: { userId: userId, jobInfo: res },
+      data: { userId: userId, jobInfo: jobInfo },
     })
 
     return data

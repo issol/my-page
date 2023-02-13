@@ -49,6 +49,8 @@ import AssignRoleModal from '../components/detail/modal/assign-role-modal'
 import CancelRoleModal from '../components/detail/modal/cancel-role-modal'
 import EditCommentModal from '../components/detail/modal/edit-comment-modal'
 import CancelEditCommentModal from '../components/detail/modal/edit-cancel-comment-modal'
+import CancelSaveCommentModal from '../components/detail/modal/cancel-comment-modal'
+import SaveCommentModal from '../components/detail/modal/save-comment-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -82,13 +84,12 @@ export default function OnboardingDetail() {
   const [assignRoleModalOpen, setAssignRoleModalOpen] = useState(false)
   const [cancelRoleModalOpen, setCancelRoleModalOpen] = useState(false)
 
-  const [editCommentModalOpen, setEditCommentModalOpen] = useState(false)
-  const [cancelCommentModalOpen, setCancelCommentModalOpen] = useState(false)
-
   const [clickedEditComment, setClickedEditComment] = useState(false)
   const [selectedComment, setSelectedComment] =
     useState<CommentsOnProType | null>(null)
   const [comment, setComment] = useState<string>('')
+  const [addComment, setAddComment] = useState<string>('')
+  const [clickedAddComment, setClickedAddComment] = useState(false)
 
   const [assignTestJobInfo, setAssignTestJobInfo] =
     useState<AddRoleType>(defaultValues)
@@ -150,7 +151,7 @@ export default function OnboardingDetail() {
     name: 'jobInfo',
   })
 
-  const { setModal, setScrollable } = useContext(ModalContext)
+  const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
 
@@ -414,14 +415,24 @@ export default function OnboardingDetail() {
 
   const handleEditComment = () => {
     setClickedEditComment(false)
-    setEditCommentModalOpen(false)
+
     setSelectedComment(null)
   }
 
-  const handleCancelComment = () => {
+  const handleEditCancelComment = () => {
     setClickedEditComment(false)
-    setCancelCommentModalOpen(false)
+
     setSelectedComment(null)
+  }
+
+  const handleAddComment = () => {
+    setAddComment('')
+    setClickedAddComment(false)
+  }
+
+  const handleAddCancelComment = () => {
+    setAddComment('')
+    setClickedAddComment(false)
   }
 
   const onClickEditConfirmComment = () => {
@@ -432,7 +443,6 @@ export default function OnboardingDetail() {
         editComment={handleEditComment}
       />,
     )
-    setEditCommentModalOpen(true)
   }
 
   const onClickEditCancelComment = () => {
@@ -440,10 +450,29 @@ export default function OnboardingDetail() {
       <CancelEditCommentModal
         open={true}
         onClose={() => setModal(null)}
-        cancelEdit={handleCancelComment}
+        cancelEdit={handleEditCancelComment}
       />,
     )
-    setCancelCommentModalOpen(true)
+  }
+
+  const onClickAddConfirmComment = () => {
+    setModal(
+      <SaveCommentModal
+        open={true}
+        onClose={() => setModal(null)}
+        saveComment={handleAddComment}
+      />,
+    )
+  }
+
+  const onClickAddCancelComment = () => {
+    setModal(
+      <CancelSaveCommentModal
+        open={true}
+        onClose={() => setModal(null)}
+        cancelSave={handleAddCancelComment}
+      />,
+    )
   }
 
   const onClickEditComment = (comment: CommentsOnProType) => {
@@ -454,6 +483,14 @@ export default function OnboardingDetail() {
 
   const handleCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
     setComment(event.target.value)
+  }
+
+  const handleAddCommentChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setAddComment(event.target.value)
+  }
+
+  const onClickAddComment = () => {
+    setClickedAddComment(true)
   }
 
   useEffect(() => {
@@ -633,6 +670,7 @@ export default function OnboardingDetail() {
         <Grid item xs={12}>
           <CommentsAboutPro
             userInfo={userInfo?.commentsOnPro}
+            user={userInfo}
             page={commentsProPage}
             rowsPerPage={commentsProRowsPerPage}
             handleChangePage={handleChangeCommentsProPage}
@@ -646,6 +684,12 @@ export default function OnboardingDetail() {
             handleCommentChange={handleCommentChange}
             onClickEditCancelComment={onClickEditCancelComment}
             comment={comment}
+            onClickAddComment={onClickAddComment}
+            clickedAddComment={clickedAddComment}
+            onClickAddConfirmComment={onClickAddConfirmComment}
+            onClickAddCancelComment={onClickAddCancelComment}
+            handleAddCommentChange={handleAddCommentChange}
+            addComment={addComment}
           />
         </Grid>
 
