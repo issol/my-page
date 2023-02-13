@@ -89,6 +89,20 @@ export const signUp = async (
     throw new Error(e)
   }
 }
+export const snsSignUp = async (
+  email: string,
+  roles: Array<RoleType>,
+): Promise<{ userId: number; email: string }> => {
+  try {
+    const { data } = await axios.post(`/api/enough/a/google/signup`, {
+      email,
+      roles,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
 
 export const validateRole = async (
   companyName: string,

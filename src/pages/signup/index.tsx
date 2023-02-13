@@ -38,6 +38,7 @@ import {
   redirectLinkedInAuth,
   sendEmailVerificationCode,
   signUp,
+  snsSignUp,
   validateRole,
   verifyPinCode,
 } from 'src/apis/sign.api'
@@ -227,32 +228,52 @@ const SignUpPage = () => {
     },
   )
 
-  // ** TODO : SNS용 api가 추가될 수 있음
+  function signUpOnsuccess() {
+    if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
+      router.push(
+        {
+          pathname: '/signup/finish/consumer',
+          query: {
+            email: getValues('email'),
+            password: getValues('password'),
+          },
+        },
+        '/signup/finish/consumer',
+      )
+    } else {
+      router.push('/signup/finish/manager')
+    }
+  }
+
+  function signUpOnError(e: any) {
+    if (e?.statusCode === 409) {
+      toast.error(FormErrors.alreadyRegistered)
+    } else {
+      toast.error('Something went wrong. Please try again.')
+    }
+  }
+
   const signUpMutation = useMutation(
     () => signUp(getValues('email'), role, getValues('password')),
     {
       onSuccess: data => {
-        if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
-          router.push(
-            {
-              pathname: '/signup/finish/consumer',
-              query: {
-                email: getValues('email'),
-                password: getValues('password'),
-              },
-            },
-            '/signup/finish/consumer',
-          )
-        } else {
-          router.push('/signup/finish/manager')
-        }
+        signUpOnsuccess()
       },
       onError: (e: any) => {
-        if (e?.statusCode === 409) {
-          toast.error(FormErrors.alreadyRegistered)
-        } else {
-          toast.error('Something went wrong. Please try again.')
-        }
+        signUpOnError(e)
+      },
+      retry: 1,
+    },
+  )
+
+  const snsSignUpMutation = useMutation(
+    () => snsSignUp(getValues('email'), role),
+    {
+      onSuccess: data => {
+        signUpOnsuccess()
+      },
+      onError: (e: any) => {
+        signUpOnError(e)
       },
       retry: 1,
     },
@@ -369,7 +390,7 @@ const SignUpPage = () => {
 
   const onRoleSubmit = () => {
     if (getValues('type') === 'sns') {
-      signUpMutation.mutate()
+      snsSignUpMutation.mutate()
     } else {
       verifyEmail.mutate()
     }
