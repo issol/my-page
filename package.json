@@ -127,6 +127,7 @@
     "eslint-import-resolver-typescript": "3.5.2",
     "eslint-plugin-import": "2.26.0",
     "eslint-plugin-storybook": "^0.6.8",
+    "msw": "^1.0.1",
     "next-transpile-modules": "9.1.0",
     "prettier": "2.7.1",
     "tsconfig-paths-webpack-plugin": "^4.0.0",
@@ -147,5 +148,8 @@
     "react-credit-cards": {
       "react": "$react"
     }
+  },
+  "msw": {
+    "workerDirectory": "public"
   }
 }

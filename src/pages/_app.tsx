@@ -85,6 +85,11 @@ import {
 } from 'src/shared/sentry-provider'
 import { removeAllStorage } from 'src/shared/auth/storage'
 
+/* msw mock server */
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+  require('../mocks')
+}
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
