@@ -209,7 +209,7 @@ export default function ClientGuideLineList({
             onPageSizeChange={setPageSize}
             rowsPerPageOptions={[10, 25, 50]}
             onPageChange={setSkip}
-            rowCount={list.count | 0}
+            rowCount={list.count || 0}
             rows={list.data}
             loading={isLoading}
           />
@@ -219,7 +219,6 @@ export default function ClientGuideLineList({
   )
 }
 
-// ** TODO : chip style 컬러 추가해야 함
 const CategoryChip = styled(Chip)<{ cl: ChipColorType }>`
   background: ${({ cl }) =>
     cl === 'orange'
