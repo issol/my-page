@@ -26,6 +26,7 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import FallbackSpinner from 'src/@core/components/spinner'
+import { Writer } from 'src/pages/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -339,6 +340,9 @@ const ContractDetail = () => {
                     NoRowsOverlay: () => noHistory(),
                     NoResultsOverlay: () => noHistory(),
                   }}
+                  sx={{
+                    '& .MuiDataGrid-row': { cursor: 'pointer' },
+                  }}
                   autoHeight
                   columns={columns}
                   pageSize={pageSize}
@@ -454,17 +458,6 @@ ContractDetail.acl = {
   action: 'read',
   subject: 'contract',
 }
-
-const Writer = styled(Chip)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #ff4d49;
-  font-weight: 500;
-  color: #ff4d49;
-`
 
 const StyledEditor = styled(EditorWrapper)<{
   error?: boolean

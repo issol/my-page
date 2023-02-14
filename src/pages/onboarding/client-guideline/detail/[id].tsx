@@ -19,6 +19,7 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
+import { Writer } from 'src/pages/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -678,17 +679,6 @@ ClientGuidelineDetail.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const Writer = styled(Chip)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #ff4d49;
-  font-weight: 500;
-  color: #ff4d49;
-`
 
 const StyledEditor = styled(EditorWrapper)<{
   error?: boolean

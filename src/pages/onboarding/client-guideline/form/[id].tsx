@@ -31,6 +31,7 @@ import FallbackSpinner from 'src/@core/components/spinner'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { Writer } from 'src/pages/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -430,7 +431,7 @@ const ClientGuidelineEdit = () => {
               <Card sx={{ padding: '30px 20px 20px' }}>
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Chip>Writer</Chip>
+                    <Writer label='Writer' size='small' />
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color='primary'
@@ -692,21 +693,6 @@ ClientGuidelineEdit.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const Chip = styled.span`
-  padding: 3px 8px;
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #ff4d49;
-  border-radius: 16px;
-
-  font-weight: 500;
-  font-size: 0.813rem;
-  color: #ff4d49;
-`
 
 const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
   .rdw-editor-main {

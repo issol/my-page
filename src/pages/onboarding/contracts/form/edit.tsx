@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card } from '@mui/material'
+import { Button, Card, Chip } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
@@ -16,6 +16,7 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { Writer } from 'src/pages/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -157,7 +158,7 @@ const ContractForm = () => {
                 <Typography variant='h6'>{contract?.title}</Typography>
 
                 <Box display='flex' alignItems='center' gap='8px'>
-                  <Chip>Writer</Chip>
+                  <Writer label='Writer' size='small' />
                   <Typography
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color='primary'
@@ -230,21 +231,6 @@ ContractForm.acl = {
   action: 'read',
   subject: 'contract',
 }
-
-const Chip = styled.span`
-  padding: 3px 8px;
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #ff4d49;
-  border-radius: 16px;
-
-  font-weight: 500;
-  font-size: 0.813rem;
-  color: #ff4d49;
-`
 
 const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
   .rdw-editor-main {

@@ -21,6 +21,7 @@ import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import styled from 'styled-components'
+import { Writer } from 'src/pages/components/chip'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -151,7 +152,7 @@ const ContractForm = () => {
                 <Typography variant='h6'>{getTitle()}</Typography>
 
                 <Box display='flex' alignItems='center' gap='8px'>
-                  <Chip>Writer</Chip>
+                  <Writer label='Writer' size='small' />
                   <Typography
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color='primary'
@@ -225,21 +226,6 @@ ContractForm.acl = {
   action: 'create',
   subject: 'contract',
 }
-
-const Chip = styled.span`
-  padding: 3px 8px;
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #ff4d49;
-  border-radius: 16px;
-
-  font-weight: 500;
-  font-size: 0.813rem;
-  color: #ff4d49;
-`
 
 const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
   .rdw-editor-main {
