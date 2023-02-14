@@ -7,7 +7,7 @@ export const BASEURL =
 
 export const handlers = [
   // Handles a GET /user request
-  rest.get(BASEURL+'/api/enough/u/pu/r-check?email=', (req, res, ctx) => {
+  rest.get(BASEURL+'/api/enough/u/pu/r-check', (req, res, ctx) => {
     const userEmail = req.url.searchParams.get('email')
     if(userEmail!='jay@glozinc.com') {
       return res(
