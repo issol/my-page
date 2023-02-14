@@ -325,7 +325,7 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.source,
@@ -386,7 +386,7 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.target,
@@ -446,7 +446,7 @@ export default function AppliedRoleModal({
                       onClick={() => addJobInfo('test')}
                       color='primary'
                       disabled={jobInfoFields.some(item => {
-                        if (item.jobType === 'dtp') {
+                        if (item.jobType === 'DTP') {
                           return !item.jobType || !item.role
                         } else {
                           return (
@@ -642,7 +642,7 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.source,
@@ -703,7 +703,7 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'dtp'}
+                                  disabled={item.jobType === 'DTP'}
                                   value={
                                     languageList.filter(
                                       l => l.value === item.target,
@@ -763,7 +763,7 @@ export default function AppliedRoleModal({
                       onClick={() => addJobInfo('role')}
                       color='primary'
                       disabled={roleJobInfoFields.some(item => {
-                        if (item.jobType === 'dtp') {
+                        if (item.jobType === 'DTP') {
                           return !item.jobType || !item.role
                         } else {
                           return (

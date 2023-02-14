@@ -103,7 +103,11 @@ export default function CommentsAboutPro({
         >
           Comments about Pro
         </Box>
-        <Button variant='contained' onClick={onClickAddComment}>
+        <Button
+          variant='contained'
+          onClick={onClickAddComment}
+          disabled={!!selectedComment}
+        >
           Add comment
         </Button>
       </Typography>
@@ -137,6 +141,7 @@ export default function CommentsAboutPro({
                     fontWeight: 500,
                     lineHeight: '21px',
                     letterSpacing: '0.1px',
+                    color: '#666CFF',
                   }}
                 >
                   {getLegalName(user)}
@@ -234,6 +239,10 @@ export default function CommentsAboutPro({
                           fontWeight: 500,
                           lineHeight: '21px',
                           letterSpacing: '0.1px',
+                          color:
+                            value.userId === userId
+                              ? '#666CFF'
+                              : 'rgba(76, 78, 100, 0.87)',
                         }}
                       >
                         {getLegalName(value)}
