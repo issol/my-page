@@ -425,10 +425,6 @@ const ClientGuidelineEdit = () => {
             !content.getCurrentContent().getPlainText('\u0001') && showError
           }
         >
-          <Typography variant='h6' mb='24px'>
-            New client guidelines
-          </Typography>
-
           <Grid container spacing={6} className='match-height'>
             <Grid item xs={9}>
               <Card sx={{ padding: '30px 20px 20px' }}>

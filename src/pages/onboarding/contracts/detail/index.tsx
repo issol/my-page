@@ -77,6 +77,7 @@ const ContractDetail = () => {
   const [historyContent, setHistoryContent] = useState(
     EditorState.createEmpty(),
   )
+  const [pageSize, setPageSize] = useState(5)
   const [currentRow, setCurrentRow] = useState({
     id: null,
     userId: null,
@@ -332,16 +333,20 @@ const ContractDetail = () => {
             </Card>
             <Card sx={{ marginTop: '24px', width: '100%' }}>
               <CardHeader title='Version history' />
-              <Box sx={{ height: 500 }}>
+              <Box sx={{ height: '100%' }}>
                 <DataGrid
                   components={{
                     NoRowsOverlay: () => noHistory(),
                     NoResultsOverlay: () => noHistory(),
                   }}
-                  onRowClick={onRowClick}
-                  columns={columns}
                   autoHeight
-                  rows={contract?.versionHistory?.slice(0, 10)}
+                  columns={columns}
+                  pageSize={pageSize}
+                  onPageSizeChange={setPageSize}
+                  rowsPerPageOptions={[5, 15, 30]}
+                  rowCount={contract?.versionHistory?.length || 0}
+                  rows={contract?.versionHistory || []}
+                  onRowClick={onRowClick}
                 />
               </Box>
             </Card>
