@@ -1,27 +1,16 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
-import Chip from 'src/@core/components/mui/chip'
-import Select from '@mui/material/Select'
-import MenuItem from '@mui/material/MenuItem'
-import InputLabel from '@mui/material/InputLabel'
-import FormControl from '@mui/material/FormControl'
+import { Card, Grid, Typography } from '@mui/material'
+
 import { Box } from '@mui/system'
 import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
-import { v4 as uuidv4 } from 'uuid'
-import Link from 'next/link'
-import { JobInfoType } from 'src/types/sign/personalInfoTypes'
 
 import styled from 'styled-components'
-import JobTypeRoleChips from 'src/@core/components/jobtype-role-chips'
-import { OnboardingListType } from 'src/types/onboarding/list'
-import { TestStatusColor } from 'src/shared/const/chipColors'
+
 import { Dispatch, SetStateAction } from 'react'
 import { onboardingUser } from 'src/@fake-db/user'
 
-type CellType = {
-  row: OnboardingListType
-}
+import { columns } from 'src/shared/const/onboarding'
 
 type Props = {
   onboardingListPage: number
@@ -36,176 +25,6 @@ export default function OnboardingList({
   onboardingListPageSize,
   setOnboardingListPageSize,
 }: Props) {
-  function getLegalName(row: OnboardingListType) {
-    return !row.firstName || !row.lastName
-      ? '-'
-      : row.firstName +
-          (row.middleName ? ' (' + row.middleName + ')' : '') +
-          ` ${row.lastName}`
-  }
-  const columns = [
-    {
-      flex: 0.1,
-      field: 'id',
-      minWidth: 80,
-      headerName: 'No.',
-      renderHeader: () => <Box>No.</Box>,
-    },
-    {
-      flex: 0.25,
-      minWidth: 200,
-      field: 'name',
-      headerName: 'Legal name / Email',
-      renderHeader: () => <Box>Legal name / Email</Box>,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '12px',
-
-              whiteSpace: 'nowrap',
-              overflow: 'hidden',
-              textOverflow: 'ellipsis',
-            }}
-          >
-            <img
-              width={34}
-              height={34}
-              alt=''
-              aria-hidden
-              src={`${
-                row.isOnboarded
-                  ? '/images/icons/project-icons/onboarding-activate.png'
-                  : '/images/icons/project-icons/onboarding-deactivate.png'
-              }`}
-            />
-            <Box
-              sx={{
-                whiteSpace: 'nowrap',
-                overflow: 'hidden',
-                textOverflow: 'ellipsis',
-              }}
-            >
-              <Link
-                href={`/onboarding/detail/${row.userId}`}
-                style={{ textDecoration: 'none' }}
-              >
-                <Typography
-                  sx={{
-                    fontWeight: '600',
-                    fontSize: '1rem',
-                    whiteSpace: 'nowrap',
-                    overflow: 'hidden',
-                    textOverflow: 'ellipsis',
-                  }}
-                >
-                  {getLegalName(row)}
-                </Typography>
-              </Link>
-              <Typography
-                variant='body2'
-                sx={{
-                  whiteSpace: 'nowrap',
-                  overflow: 'hidden',
-                  textOverflow: 'ellipsis',
-                }}
-              >
-                {row.email}
-              </Typography>
-            </Box>
-          </Box>
-        )
-      },
-    },
-    {
-      flex: 0.15,
-      minWidth: 100,
-      field: 'experience',
-      headerName: 'Experience',
-      renderHeader: () => <Box>Experience</Box>,
-    },
-    {
-      flex: 0.4,
-      minWidth: 180,
-      field: 'jobInfo',
-      headerName: 'Job type / Role',
-      renderHeader: () => <Box>Job type / Role</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box
-          sx={{
-            display: 'flex',
-            gap: '8px',
-            alignItems: 'center',
-          }}
-        >
-          {!row?.jobInfo.length
-            ? '-'
-            : row?.jobInfo.map(
-                (item, idx) =>
-                  idx === 0 && (
-                    <JobTypeRoleChips jobInfo={item} key={uuidv4()} />
-                  ),
-              )}
-          {row?.jobInfo.length > 1 ? (
-            <CountChip>+{row.jobInfo.length - 1}</CountChip>
-          ) : null}
-        </Box>
-      ),
-    },
-    {
-      flex: 0.15,
-      minWidth: 120,
-      field: 'languages',
-      headerName: 'Language pair',
-      renderHeader: () => <Box>Language pair</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box>
-          {!row.jobInfo.length ? (
-            '-'
-          ) : (
-            <Box key={row.id}>
-              <Language>
-                {row.jobInfo[0].source} &rarr; {row.jobInfo[0].target}
-              </Language>
-            </Box>
-          )}
-        </Box>
-      ),
-    },
-    {
-      flex: 0.17,
-      field: 'age',
-      minWidth: 80,
-      headerName: 'testStatus',
-      renderHeader: () => <Box>Test status</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box>
-          {!row?.jobInfo.length
-            ? '-'
-            : row?.jobInfo.map(
-                (item, idx) =>
-                  idx === 0 && (
-                    <Chip
-                      size='medium'
-                      key={uuidv4()}
-                      type='testStatus'
-                      label={item.status}
-                      /* @ts-ignore */
-                      customColor={TestStatusColor[item.status]}
-                      sx={{
-                        textTransform: 'capitalize',
-                        '& .MuiChip-label': { lineHeight: '18px' },
-                        mr: 1,
-                      }}
-                    />
-                  ),
-              )}
-        </Box>
-      ),
-    },
-  ]
   return (
     <Grid item xs={12}>
       <Card>
@@ -259,7 +78,6 @@ export default function OnboardingList({
               },
             }}
             columns={columns}
-            // rowHeight={70}
             rows={onboardingUser ?? []}
             autoHeight
             disableSelectionOnClick
@@ -290,21 +108,6 @@ export default function OnboardingList({
 //   font-weight: 500;
 //   font-size: 0.813rem;
 // `
-const CountChip = styled.p`
-  padding: 3px 4px;
-  text-align: center;
-  width: 40px;
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #6d788d;
-  border: 1px solid rgba(76, 78, 100, 0.6);
-  border-radius: 16px;
-  font-weight: 500;
-  font-size: 0.813rem;
-`
 
 const StatusChip = styled.p`
   padding: 4px 8px;

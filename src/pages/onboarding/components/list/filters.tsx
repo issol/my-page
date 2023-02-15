@@ -12,7 +12,7 @@ import {
   UseFormHandleSubmit,
   UseFormTrigger,
 } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
+
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
@@ -31,12 +31,12 @@ import {
   SyntheticEvent,
 } from 'react'
 import _ from 'lodash'
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+
 import InputAdornment from '@mui/material/InputAdornment'
 import { styled } from '@mui/material/styles'
 import OutlinedInput from '@mui/material/OutlinedInput'
 import IconButton from '@mui/material/IconButton'
-import { FilterType } from '../..'
+import { FilterType } from 'src/types/onboarding/list'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
@@ -47,9 +47,9 @@ export type CardProps = {
 }
 
 type Props = {
-  control: any
-  handleSubmit: any
-  onSubmit: (data: any) => void
+  control: Control<FilterType, any>
+  handleSubmit: UseFormHandleSubmit<FilterType>
+  onSubmit: (data: FilterType) => void
   onClickResetButton: () => void
   trigger: UseFormTrigger<FilterType>
   setJobTypeOptions: Dispatch<
@@ -135,8 +135,6 @@ export default function Filters({
             sx={{ boxShadow: 'none', paddingTop: 3 }}
           >
             <form onSubmit={handleSubmit(onSubmit)}>
-              {/* <CardHeader title='Search Filters' /> */}
-
               <Grid
                 container
                 xs={12}
@@ -172,9 +170,15 @@ export default function Filters({
                             }[] = []
                             item.map((data, idx) => {
                               const jobTypeValue = data?.value
+                              console.log(jobTypeValue)
+
                               /* @ts-ignore */
                               const rolePair = RolePair[jobTypeValue]
-                              arr.push(...rolePair)
+                              const res = DefaultRolePair.filter(value =>
+                                value.jobType.includes(jobTypeValue),
+                              )
+
+                              arr.push(...res)
 
                               trigger('role')
                             })
@@ -234,6 +238,8 @@ export default function Filters({
                               label: string
                               value: string
                             }[] = []
+                            console.log(item)
+
                             item.map((data, idx) => {
                               data.jobType.map(value => {
                                 const jobType = JobList.filter(
@@ -330,15 +336,10 @@ export default function Filters({
                         disableCloseOnSelect
                         limitTags={1}
                         options={_.uniqBy(languageList, 'value')}
-                        // getOptionDisabled={option => option.disabled}
                         id='target'
                         getOptionLabel={option => option.label}
                         renderInput={params => (
-                          <TextField
-                            {...params}
-                            label='Target'
-                            // placeholder='Favorites'
-                          />
+                          <TextField {...params} label='Target' />
                         )}
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>

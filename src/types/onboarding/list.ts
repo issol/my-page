@@ -4,19 +4,6 @@ import {
   PronounceType,
 } from '../sign/personalInfoTypes'
 
-// export type OnboardingListType = {
-//   id: string
-//   userId: number
-//   email: string
-//   firstName: string
-//   middleName?: string | null
-//   lastName: string
-//   jobInfo: Array<JobInfoType>
-//   experience: string
-//   testStatus: string
-//   isOnboarded: boolean
-// }
-
 export type OnboardingListType = Omit<
   OnboardingUserType,
   | 'legalNamePronunciation'
@@ -108,4 +95,27 @@ export type AddRoleType = {
     source: string
     target: string
   }[]
+}
+
+export type FilterType = {
+  jobType: { label: string; value: string }[]
+  role: { label: string; value: string; jobType: string[] }[]
+  source: { label: string; value: string }[]
+  target: { label: string; value: string }[]
+  experience: { label: string; value: string }[]
+  testStatus: { label: string; value: string }[]
+  search: string
+}
+
+export interface SelectType {
+  label: string
+  value: string
+}
+
+export interface RoleSelectType extends SelectType {
+  jobType: string[]
+}
+
+export type OnboardingListCellType = {
+  row: OnboardingListType
 }

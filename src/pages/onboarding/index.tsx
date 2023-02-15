@@ -5,21 +5,15 @@ import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
 import { SyntheticEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import { DefaultRolePair, JobList } from 'src/shared/const/personalInfo'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import {
+  FilterType,
+  SelectType,
+  RoleSelectType,
+} from 'src/types/onboarding/list'
 
-export type FilterType = {
-  jobType: { label: string; value: string }[]
-  role: { label: string; value: string; jobType: string[] }[]
-  source: { label: string; value: string }[]
-  target: { label: string; value: string }[]
-  experience: { label: string; value: string }[]
-  testStatus: { label: string; value: string }[]
-  search: string
-}
-
-const defaultValues = {
+const defaultValues: FilterType = {
   jobType: [],
   role: [],
   source: [],
@@ -29,32 +23,21 @@ const defaultValues = {
   search: '',
 }
 export default function Onboarding() {
-  const [jobTypeOptions, setJobTypeOptions] = useState(JobList)
-  const [roleOptions, setRoleOptions] = useState(DefaultRolePair)
+  const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
+  const [roleOptions, setRoleOptions] =
+    useState<RoleSelectType[]>(DefaultRolePair)
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
-  const handleFilterStateChange =
-    (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
-      setExpanded(isExpanded ? panel : false)
-    }
-
   const languageList = getGloLanguage()
 
-  const {
-    control,
-    handleSubmit,
-    watch,
-    trigger,
-    reset,
-    formState: { errors, dirtyFields },
-  } = useForm<FilterType>({
+  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
-    // resolver: yupResolver(profileSchema),
   })
+
   const onClickResetButton = () => {
     setRoleOptions(DefaultRolePair)
     setJobTypeOptions(JobList)
@@ -69,9 +52,17 @@ export default function Onboarding() {
     })
   }
 
-  const onSubmit = (data: any) => {
-    // console.log(data)
+  const onSubmit = (data: FilterType) => {
+    const { jobType, role, source, target, experience, testStatus, search } =
+      data
+
+    //** TODO : API 연결 */
   }
+
+  const handleFilterStateChange =
+    (panel: string) => (event: SyntheticEvent, isExpanded: boolean) => {
+      setExpanded(isExpanded ? panel : false)
+    }
 
   return (
     <Grid container spacing={6}>

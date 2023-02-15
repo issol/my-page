@@ -674,7 +674,15 @@ export default function OnboardingDetail() {
                   <img
                     width={32}
                     height={32}
-                    src='/images/icons/project-icons/onboarding-activate.png'
+                    src={
+                      userInfo.isOnboarded && userInfo.isActive
+                        ? `/images/icons/onboarding-icons/pro-active.png`
+                        : !userInfo.isOnboarded
+                        ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                        : userInfo.isOnboarded && !userInfo.isActive
+                        ? `/images/icons/onboarding-icons/pro-inactive.png`
+                        : ''
+                    }
                     alt='onboarding'
                   />
                 </Box>
