@@ -118,9 +118,15 @@ const ContractDetail = () => {
       })
     },
   })
-  console.log('contract : ', contract)
   useEffect(() => {
+    // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 사용하기
     if (contract?.content) {
+      // for (let i = 0; i < contract.content?.blocks?.length; i++) {
+      //   if (!contract.content?.blocks[i]?.text.includes('@name')) continue
+      //   contract.content.blocks[i].text = contract.content?.blocks[
+      //     i
+      //   ]?.text?.replace('@name', 'This is Name!!!!!!')
+      // }
       const content = convertFromRaw(contract?.content as any)
       const editorState = EditorState.createWithContent(content)
       setMainContent(editorState)
