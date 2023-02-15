@@ -18,7 +18,7 @@ export const RoleColor = {
   'Audio description QCer': '#D1C76B',
   'Dubbing QCer': '#A89F52',
   'Dubbing script translator': '#6F6934',
-  Interpreter: '#80FCCF',
+  Interpreter: '#CBFFEC',
   Copywriter: '#BFF0FF',
   Editor: '#67DBFF',
   'Video editor': '#CFDBDE',
