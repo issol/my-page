@@ -6,10 +6,11 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertToRaw, EditorState } from 'draft-js'
+import { toast } from 'react-hot-toast'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -27,26 +28,62 @@ import { Writer } from 'src/pages/components/chip'
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
 import { AuthContext } from 'src/context/AuthContext'
+
+// ** values
 import { FormErrors } from 'src/shared/const/form-errors'
+
+// ** fetches
+import { useMutation } from 'react-query'
+import {
+  ContractFormType,
+  postContract,
+  ContractType,
+  LangType,
+  ContractTypeEnum,
+  ContractLangEnum,
+} from 'src/apis/contract.api'
 
 const ContractForm = () => {
   const router = useRouter()
-  const { type, language } = router.query
+  const type = router.query.type as ContractType
+  const language = router.query.language as LangType
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
+  useEffect(() => {
+    if (!type || !language) router.push('/onboarding/contracts/')
+  }, [router.query])
+
+  const postContractMutation = useMutation(
+    (param: ContractFormType) => postContract(param),
+    {
+      onSuccess: () =>
+        router.push({
+          pathname: '/onboarding/contracts/detail',
+          query: { type, language },
+        }),
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   function getTitle() {
     switch (type) {
-      case 'nda':
-        if (language === 'ko') return '[KOR] NDA'
+      case ContractTypeEnum.NDA:
+        if (language === ContractLangEnum.KOREAN) return '[KOR] NDA'
         else return '[ENG] NDA'
-      case 'privacy':
-        if (language === 'ko') return '[KOR] Privacy Contract'
+      case ContractTypeEnum.PRIVACY:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Privacy Contract'
         else return '[ENG] Privacy Contract'
-      case 'freelancer':
-        if (language === 'ko') return '[KOR] Freelancer Contract'
+      case ContractTypeEnum.FREELANCER:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Freelancer Contract'
         else return '[ENG] Freelancer Contract'
       default:
         return ''
@@ -75,11 +112,11 @@ const ContractForm = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               setValue(EditorState.createEmpty())
@@ -114,12 +151,12 @@ const ContractForm = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
-            type='submit'
+            variant='contained'
+            type='button'
             onClick={() => {
               setModal(null)
               onSubmit()
@@ -132,11 +169,16 @@ const ContractForm = () => {
     )
   }
 
-  function onSubmit(/* e: FormEvent<HTMLFormElement> */) {
-    console.log('content state', convertToRaw(value.getCurrentContent()))
-
-    //** data to send to server */
+  function onSubmit() {
     const data = convertToRaw(value.getCurrentContent())
+    postContractMutation.mutate({
+      type,
+      language,
+      title: getTitle(),
+      writer: user?.username!,
+      email: user?.email!,
+      content: data,
+    })
   }
 
   return (
@@ -206,7 +248,7 @@ const ContractForm = () => {
                 <Button
                   variant='contained'
                   onClick={onUpload}
-                  type='submit'
+                  type='button'
                   disabled={!value.getCurrentContent().getPlainText('\u0001')}
                 >
                   Upload

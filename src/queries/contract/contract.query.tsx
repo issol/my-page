@@ -1,6 +1,16 @@
 import { toast } from 'react-hot-toast'
-import { useQuery } from 'react-query'
+import { useQuery, useQueryClient } from 'react-query'
 import { ContractParam, getContractDetail } from 'src/apis/contract.api'
+
+export const useInvalidateContractQuery = () => {
+  const queryClient = useQueryClient()
+  function invalidate() {
+    queryClient.invalidateQueries({
+      queryKey: 'get-contract/detail',
+    })
+  }
+  return invalidate
+}
 
 export const useGetContract = ({ type, language }: ContractParam) => {
   return useQuery(
