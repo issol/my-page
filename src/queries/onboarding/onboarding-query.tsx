@@ -20,7 +20,7 @@ export const useGetReviewerList = () => {
 }
 
 export const useGetOnboardingProList = () => {
-  return useQuery<OnboardingListType[]>(
+  return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
     'onboarding-pro-list',
     () => {
       return getOnboardingProList()

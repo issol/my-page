@@ -15,6 +15,9 @@ export type OnboardingListType = Omit<
   | 'phone'
   | 'resume'
   | 'specialties'
+  | 'notesFromPro'
+  | 'contracts'
+  | 'commentsOnPro'
 >
 
 export interface OnboardingJobInfoType extends JobInfoType {
