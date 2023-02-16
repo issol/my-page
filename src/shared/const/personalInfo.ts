@@ -91,22 +91,23 @@ export const RolePair = {
   'Documents/Text': [
     { label: 'QCer', value: 'QCer' },
     { label: 'Translator', value: 'Translator' },
-  ],
-  DTP: [
     { label: 'DTPer', value: 'DTPer' },
     { label: 'DTP QCer', value: 'DTP QCer' },
-  ],
-  Interpretation: [{ label: 'Interpretation', value: 'Interpretation' }],
-  'Misc.': [
-    { label: 'Copywriter', value: 'Copywriter' },
-    { label: 'Editor', value: 'Editor' },
-    { label: 'Video editor', value: 'Video editor' },
   ],
   Dubbing: [
     { label: 'Audio description QCer', value: 'Audio description QCer' },
     { label: 'Dubbing QCer', value: 'Dubbing QCer' },
     { label: 'Dubbing script translator', value: 'Dubbing script translator' },
+    { label: 'Dubbing script QCer', value: 'Dubbing script QCer' },
+    { label: 'Dubbing voice artist', value: 'Dubbing voice artist' },
   ],
+  Interpretation: [{ label: 'Interpreter', value: 'Interpreter' }],
+  'Misc.': [
+    { label: 'Copywriter', value: 'Copywriter' },
+    { label: 'Editor', value: 'Editor' },
+    { label: 'Video editor', value: 'Video editor' },
+  ],
+
   'OTT/Subtitle': [
     { label: 'SDH author', value: 'SDH author' },
     { label: 'SDH QCer', value: 'SDH QCer' },
@@ -114,22 +115,22 @@ export const RolePair = {
     { label: 'Subtitle QCer', value: 'Subtitle QCer' },
     { label: 'Template author', value: 'Template author' },
     { label: 'Template QCer', value: 'Template QCer' },
+    { label: 'Translator', value: 'Translator' },
     { label: 'Supp author', value: 'Supp author' },
     { label: 'Supp QCer', value: 'Supp QCer' },
   ],
   Webcomics: [
+    { label: 'DTPer', value: 'DTPer' },
+    { label: 'DTP QCer', value: 'DTP QCer' },
     { label: 'Proofreader', value: 'Proofreader' },
     { label: 'Webcomics QCer', value: 'Webcomics QCer' },
     { label: 'Webcomic translator', value: 'Webcomic translator' },
   ],
   Webnovel: [
+    { label: 'DTPer', value: 'DTPer' },
+    { label: 'DTP QCer', value: 'DTP QCer' },
     { label: 'Wenovel QCer', value: 'Wenovel QCer' },
     { label: 'Webnovel translator', value: 'Webnovel translator' },
-  ],
-  YouTube: [
-    { label: 'Subtitle QCer', value: 'Subtitle QCer' },
-    { label: 'Subtitle author', value: 'Subtitle author' },
-    { label: 'Translator', value: 'Translator' },
   ],
 } as const
 

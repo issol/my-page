@@ -22,7 +22,7 @@ export const getContractDetail = async (props: ContractParam) => {
         blocks: [
           {
             key: 'd9so6',
-            text: 'translation guidelines document for web novels:',
+            text: '@name translation guidelines document for web novels:',
             type: 'unstyled',
             depth: 0,
             inlineStyleRanges: [],
