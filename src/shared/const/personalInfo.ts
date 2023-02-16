@@ -7,85 +7,13 @@ export const Pronunciation = [
 
 export const JobList = [
   { label: 'Documents/Text', value: 'Documents/Text' },
-  { label: 'DTP', value: 'DTP' },
   { label: 'Dubbing', value: 'Dubbing' },
   { label: 'Interpretation', value: 'Interpretation' },
   { label: 'Misc.', value: 'Misc.' },
   { label: 'OTT/Subtitle', value: 'OTT/Subtitle' },
   { label: 'Webcomics', value: 'Webcomics' },
   { label: 'Webnovel', value: 'Webnovel' },
-  { label: 'YouTube', value: 'YouTube' },
 ].sort((a, b) => a.label.localeCompare(b.label))
-
-export const DefaultRolePair: Array<{
-  label: string
-  value: string
-  jobType: string[]
-}> = [
-  { label: 'QCer', value: 'QCer', jobType: ['Documents/Text'] },
-  {
-    label: 'Translator',
-    value: 'Translator',
-    jobType: ['Documents/Text', 'YouTube'],
-  },
-
-  { label: 'DTPer', value: 'DTPer', jobType: ['DTP'] },
-  { label: 'DTP QCer', value: 'DTP QCer', jobType: ['DTP'] },
-
-  {
-    label: 'Audio description QCer',
-    value: 'Audio description QCer',
-    jobType: ['Dubbing'],
-  },
-  { label: 'Dubbing QCer', value: 'Dubbing QCer', jobType: ['Dubbing'] },
-  {
-    label: 'Dubbing script translator',
-    value: 'Dubbing script translator',
-    jobType: ['Dubbing'],
-  },
-
-  { label: 'Interpreter', value: 'Interpreter', jobType: ['Interpretation'] },
-
-  { label: 'Copywriter', value: 'Copywriter', jobType: ['Misc.'] },
-  { label: 'Editor', value: 'Editor', jobType: ['Misc.'] },
-  { label: 'Video editor', value: 'Video editor', jobType: ['Misc.'] },
-
-  { label: 'SDH author', value: 'SDH author', jobType: ['OTT/Subtitle'] },
-  { label: 'SDH QCer', value: 'SDH QCer', jobType: ['OTT/Subtitle'] },
-  {
-    label: 'Subtitle author',
-    value: 'Subtitle author',
-    jobType: ['OTT/Subtitle', 'YouTube'],
-  },
-  {
-    label: 'Subtitle QCer',
-    value: 'Subtitle QCer',
-    jobType: ['OTT/Subtitle', 'YouTube'],
-  },
-  {
-    label: 'Template author',
-    value: 'Template author',
-    jobType: ['OTT/Subtitle'],
-  },
-  { label: 'Template QCer', value: 'Template QCer', jobType: ['OTT/Subtitle'] },
-  { label: 'Supp author', value: 'Supp author', jobType: ['OTT/Subtitle'] },
-  { label: 'Supp QCer', value: 'Supp QCer', jobType: ['OTT/Subtitle'] },
-
-  { label: 'Proofreader', value: 'Proofreader', jobType: ['Webcomics'] },
-  { label: 'Webcomics QCer', value: 'Webcomics QCer', jobType: ['Webcomics'] },
-  {
-    label: 'Webcomic translator',
-    value: 'Webcomic translator',
-    jobType: ['Webcomics'],
-  },
-
-  { label: 'Wenovel QCer', value: 'Wenovel QCer', jobType: ['Webnovel'] },
-  {
-    label: 'Webnovel translator',
-    value: 'Webnovel translator',
-    jobType: ['Webnovel'],
-  },
-]
 
 export const RolePair = {
   'Documents/Text': [

@@ -5,13 +5,15 @@ import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
 import { SyntheticEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { DefaultRolePair, JobList } from 'src/shared/const/personalInfo'
+import { DefaultRolePair } from 'src/shared/const/onboarding'
+import { JobList } from 'src/shared/const/personalInfo'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import {
   FilterType,
   SelectType,
   RoleSelectType,
 } from 'src/types/onboarding/list'
+import { useGetOnboardingProList } from 'src/queries/onboarding/onboarding-query'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -23,6 +25,7 @@ const defaultValues: FilterType = {
   search: '',
 }
 export default function Onboarding() {
+  const { data: onboardingProList } = useGetOnboardingProList()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] =
     useState<RoleSelectType[]>(DefaultRolePair)
@@ -37,6 +40,8 @@ export default function Onboarding() {
     defaultValues,
     mode: 'onSubmit',
   })
+
+  console.log(onboardingProList)
 
   const onClickResetButton = () => {
     setRoleOptions(DefaultRolePair)
@@ -85,6 +90,7 @@ export default function Onboarding() {
         expanded={expanded}
       />
       <OnboardingList
+        onboardingProList={onboardingProList!.data}
         onboardingListPage={onboardingListPage}
         setOnboardingListPage={setOnboardingListPage}
         onboardingListPageSize={onboardingListPageSize}

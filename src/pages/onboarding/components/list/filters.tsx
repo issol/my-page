@@ -19,10 +19,10 @@ import Autocomplete from '@mui/material/Autocomplete'
 import {
   JobList,
   RolePair,
-  DefaultRolePair,
   ExperiencedYears,
   TestStatus,
 } from 'src/shared/const/personalInfo'
+import { DefaultRolePair } from 'src/shared/const/onboarding'
 import {
   useState,
   useEffect,

@@ -19,8 +19,11 @@ export type OnboardingListType = Omit<
 
 export interface OnboardingJobInfoType extends JobInfoType {
   id: number
-  status: string
-  history: Array<TestHistoryType>
+  testStatus: string
+  jobId: string
+  createdAt: string
+  updatedAt: string
+  // history: Array<TestHistoryType>
 }
 
 export type CommentsOnProType = {

@@ -1,4 +1,5 @@
 import { rest } from 'msw'
+import { onboardingUser } from 'src/@fake-db/user'
 import { Book, Review } from './types'
 
 // 이 부분 글로벌 const로 빠져야 합니다.
@@ -7,23 +8,23 @@ export const BASEURL =
 
 export const handlers = [
   // Handles a GET /user request
-  rest.get(BASEURL+'/api/enough/u/pu/r-check', (req, res, ctx) => {
+  rest.get(BASEURL + '/api/enough/u/pu/r-check', (req, res, ctx) => {
     const userEmail = req.url.searchParams.get('email')
-    if(userEmail!='jay@glozinc.com') {
-      return res(
-        ctx.status(200),
-        ctx.body('good to go!'),
-      );
-    }
-    else {
+    if (userEmail != 'jay@glozinc.com') {
+      return res(ctx.status(200), ctx.body('good to go!'))
+    } else {
       return res(
         ctx.status(409),
         ctx.json({
           statusCode: 409,
-          message: "Email: jay@glozinc.com 이미 가입된 계정입니다.",
-          error: "Conflict"}),
-      );
+          message: 'Email: jay@glozinc.com 이미 가입된 계정입니다.',
+          error: 'Conflict',
+        }),
+      )
     }
   }),
-];
 
+  // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
+  //   return res(ctx.status(200), ctx.json(onboardingUser))
+  // }),
+]

@@ -11,12 +11,14 @@ import { Dispatch, SetStateAction } from 'react'
 import { onboardingUser } from 'src/@fake-db/user'
 
 import { columns } from 'src/shared/const/onboarding'
+import { OnboardingListType } from 'src/types/onboarding/list'
 
 type Props = {
   onboardingListPage: number
   setOnboardingListPage: Dispatch<SetStateAction<number>>
   onboardingListPageSize: number
   setOnboardingListPageSize: Dispatch<SetStateAction<number>>
+  onboardingProList: OnboardingListType[]
 }
 
 export default function OnboardingList({
@@ -24,6 +26,7 @@ export default function OnboardingList({
   setOnboardingListPage,
   onboardingListPageSize,
   setOnboardingListPageSize,
+  onboardingProList,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -78,13 +81,13 @@ export default function OnboardingList({
               },
             }}
             columns={columns}
-            rows={onboardingUser ?? []}
+            rows={onboardingProList ?? []}
             autoHeight
             disableSelectionOnClick
             pageSize={onboardingListPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
             page={onboardingListPage}
-            rowCount={onboardingUser.length}
+            rowCount={onboardingProList.length}
             onPageChange={(newPage: number) => {
               setOnboardingListPage(newPage)
             }}

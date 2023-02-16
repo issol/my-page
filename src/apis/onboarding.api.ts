@@ -1,6 +1,5 @@
 import axios from 'axios'
 import { AddRoleType, CommentsOnProType } from 'src/types/onboarding/list'
-import { JobList } from 'src/shared/const/personalInfo'
 
 export const certifyRole = async (userId: number, jobInfoId: number) => {
   const data = await axios.delete('/api/pro/details/jobInfo', {

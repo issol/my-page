@@ -3,13 +3,15 @@ import Typography from '@mui/material/Typography'
 import {
   OnboardingListCellType,
   OnboardingUserType,
+  OnboardingListType,
+  RoleSelectType,
 } from 'src/types/onboarding/list'
 import LegalNameEmail from 'src/pages/onboarding/components/list/list-item/legalname-email'
 import JobTypeRole from 'src/pages/onboarding/components/list/list-item/jobtype-role'
 import TestStatus from 'src/pages/onboarding/components/list/list-item/test-status'
 import { GridColumns } from '@mui/x-data-grid'
 
-export const columns: GridColumns<OnboardingUserType> = [
+export const columns: GridColumns<OnboardingListType> = [
   {
     flex: 0.1,
     field: 'id',
@@ -62,7 +64,8 @@ export const columns: GridColumns<OnboardingUserType> = [
             <Typography variant='body1' sx={{ fontWeight: 600 }}>
               {row.jobInfo[0].source && row.jobInfo[0].target ? (
                 <>
-                  {row.jobInfo[0].source} &rarr; {row.jobInfo[0].target}
+                  {row.jobInfo[0].source.toUpperCase()} &rarr;{' '}
+                  {row.jobInfo[0].target.toUpperCase()}
                 </>
               ) : (
                 '-'
@@ -82,5 +85,121 @@ export const columns: GridColumns<OnboardingUserType> = [
     renderCell: ({ row }: OnboardingListCellType) => {
       return <TestStatus row={row} />
     },
+  },
+]
+
+export const DefaultRolePair: Array<RoleSelectType> = [
+  {
+    label: 'Audio description QCer',
+    value: 'Audio description QCer',
+    jobType: ['Dubbing'],
+  },
+  {
+    label: 'Copywriter',
+    value: 'Copywriter',
+    jobType: ['Misc.'],
+  },
+  {
+    label: 'DTPer',
+    value: 'DTPer',
+    jobType: ['Documents/Text', 'Webcomics', 'Webnovel'],
+  },
+  {
+    label: 'DTP QCer',
+    value: 'DTP QCer',
+    jobType: ['Documents/Text', 'Webcomics', 'Webnovel'],
+  },
+  {
+    label: 'Dubbing QCer',
+    value: 'Dubbing QCer',
+    jobType: ['Dubbing'],
+  },
+  {
+    label: 'Dubbing QCer',
+    value: 'Dubbing QCer',
+    jobType: ['Dubbing'],
+  },
+  {
+    label: 'Editor',
+    value: 'Editor',
+    jobType: ['Misc.'],
+  },
+  {
+    label: 'Interpreter',
+    value: 'Interpreter',
+    jobType: ['Interpretation'],
+  },
+  {
+    label: 'Proofreader',
+    value: 'Proofreader',
+    jobType: ['Webcomics'],
+  },
+  {
+    label: 'QCer',
+    value: 'QCer',
+    jobType: ['Documents/Text'],
+  },
+  {
+    label: 'SDH author',
+    value: 'SDH author',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'SDH QCer',
+    value: 'SDH QCer',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Subtitle author',
+    value: 'Subtitle author',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Subtitle QCer',
+    value: 'Subtitle QCer',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Supp author',
+    value: 'Supp author',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Supp QCer',
+    value: 'Supp QCer',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Template author',
+    value: 'Template author',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Template QCer',
+    value: 'Template QCer',
+    jobType: ['OTT/Subtitle'],
+  },
+  {
+    label: 'Translator',
+    value: 'Translator',
+    jobType: ['Documents/Text', 'OTT/Subtitle'],
+  },
+  {
+    label: 'Video editor',
+    value: 'Video editor',
+    jobType: ['Misc.'],
+  },
+  { label: 'Webcomics QCer', value: 'Webcomics QCer', jobType: ['Webcomics'] },
+  {
+    label: 'Webcomic translator',
+    value: 'Webcomic translator',
+    jobType: ['Webcomics'],
+  },
+
+  { label: 'Wenovel QCer', value: 'Wenovel QCer', jobType: ['Webnovel'] },
+  {
+    label: 'Webnovel translator',
+    value: 'Webnovel translator',
+    jobType: ['Webnovel'],
   },
 ]
