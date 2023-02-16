@@ -3,16 +3,20 @@ import { Box } from '@mui/system'
 
 import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
-import { Fragment, Suspense, useContext, useEffect, useState } from 'react'
-import { ModalContext } from 'src/context/ModalContext'
-import { StyledNextLink } from 'src/@core/components/customLink'
-import { useRouter } from 'next/router'
-import { ContractParam, getContractDetail } from 'src/apis/contract.api'
-import { useGetContract } from 'src/queries/contract/contract.query'
 import FallbackSpinner from 'src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
 
-//** TODO : 사용자가 각 서류를 제출 했는지 안 했는지 여부 어떻게 저장할지 논의 */
+import { Fragment, Suspense, useContext } from 'react'
+import { ModalContext } from 'src/context/ModalContext'
+import { useRouter } from 'next/router'
+
+import {
+  ContractLangEnum,
+  ContractParam,
+  ContractTypeEnum,
+  getContractDetail,
+} from 'src/apis/contract.api'
+
 export default function ContractForm() {
   const { setModal } = useContext(ModalContext)
   const router = useRouter()
@@ -28,7 +32,7 @@ export default function ContractForm() {
           })
         } else {
           router.push({
-            pathname: '/onboarding/contracts/post',
+            pathname: '/onboarding/contracts/form/post',
             query: { type, language },
           })
         }
@@ -125,11 +129,13 @@ export default function ContractForm() {
                     Pros will sign the NDA before taking the certification test.
                   </Typography>
                   <Box display='flex' gap='8px' mt='12px'>
-                    {/* TODO : 등록된 문서가 있을 경우 & 없을 경우 routing 다르게 해주기 */}
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'nda', language: 'ko' })
+                        onButtonClick({
+                          type: ContractTypeEnum.NDA,
+                          language: ContractLangEnum.KOREAN,
+                        })
                       }
                     >
                       KOR
@@ -137,7 +143,10 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'nda', language: 'en' })
+                        onButtonClick({
+                          type: ContractTypeEnum.NDA,
+                          language: ContractLangEnum.ENGLISH,
+                        })
                       }
                     >
                       ENG
@@ -165,7 +174,10 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'privacy', language: 'ko' })
+                        onButtonClick({
+                          type: ContractTypeEnum.PRIVACY,
+                          language: ContractLangEnum.KOREAN,
+                        })
                       }
                     >
                       KOR
@@ -173,7 +185,10 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'privacy', language: 'en' })
+                        onButtonClick({
+                          type: ContractTypeEnum.PRIVACY,
+                          language: ContractLangEnum.ENGLISH,
+                        })
                       }
                     >
                       ENG
@@ -202,7 +217,10 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'freelancer', language: 'ko' })
+                        onButtonClick({
+                          type: ContractTypeEnum.FREELANCER,
+                          language: ContractLangEnum.KOREAN,
+                        })
                       }
                     >
                       KOR
@@ -210,7 +228,10 @@ export default function ContractForm() {
                     <Button
                       variant='outlined'
                       onClick={() =>
-                        onButtonClick({ type: 'freelancer', language: 'en' })
+                        onButtonClick({
+                          type: ContractTypeEnum.FREELANCER,
+                          language: ContractLangEnum.ENGLISH,
+                        })
                       }
                     >
                       ENG

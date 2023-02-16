@@ -1,15 +1,16 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, Chip } from '@mui/material'
+import { Button, Card } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { FormEvent, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
+import { toast } from 'react-hot-toast'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -29,16 +30,31 @@ import { useRouter } from 'next/router'
 import { AuthContext } from 'src/context/AuthContext'
 
 // ** fetch
-import { useGetContract } from 'src/queries/contract/contract.query'
+import {
+  useGetContract,
+  useInvalidateContractQuery,
+} from 'src/queries/contract/contract.query'
 
 // ** types
-import { ContractParam } from 'src/apis/contract.api'
+import {
+  ContractLangEnum,
+  ContractType,
+  ContractTypeEnum,
+  ContractUpdateFormType,
+  LangType,
+  updateContract,
+} from 'src/apis/contract.api'
 import { FormErrors } from 'src/shared/const/form-errors'
 
-//** TODO : save api 붙이기 */
+// ** fetches
+import { useMutation } from 'react-query'
+
 const ContractForm = () => {
   const router = useRouter()
-  const { type, language } = router.query as ContractParam
+  const invalidate = useInvalidateContractQuery()
+
+  const type = router.query.type as ContractType
+  const language = router.query.language as LangType
 
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
@@ -46,10 +62,20 @@ const ContractForm = () => {
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
-  const { data: contract } = useGetContract({
+  const { data } = useGetContract({
     type,
     language,
   })
+
+  const { currentVersion: contract } = data || {
+    documentId: null,
+    userId: null,
+    title: '',
+    email: '',
+    writer: '',
+    updatedAt: '',
+    content: null,
+  }
 
   useEffect(() => {
     if (contract?.content) {
@@ -81,11 +107,11 @@ const ContractForm = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               router.back()
@@ -120,12 +146,12 @@ const ContractForm = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
             type='submit'
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
@@ -138,11 +164,49 @@ const ContractForm = () => {
     )
   }
 
-  function onSubmit() {
-    console.log('content state', convertToRaw(value.getCurrentContent()))
+  const updateContractMutation = useMutation(
+    (param: { id: number; form: ContractUpdateFormType }) =>
+      updateContract(param.id, param.form),
+    {
+      onSuccess: () => {
+        invalidate()
+        router.push({
+          pathname: '/onboarding/contracts/detail',
+          query: { type, language },
+        })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
 
-    //** data to send to server */
+  function onSubmit() {
     const data = convertToRaw(value.getCurrentContent())
+    updateContractMutation.mutate({
+      id: contract?.documentId!,
+      form: { writer: user?.username!, email: user?.email!, content: data },
+    })
+  }
+
+  function getTitle() {
+    switch (type) {
+      case ContractTypeEnum.NDA:
+        if (language === ContractLangEnum.KOREAN) return '[KOR] NDA'
+        else return '[ENG] NDA'
+      case ContractTypeEnum.PRIVACY:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Privacy Contract'
+        else return '[ENG] Privacy Contract'
+      case ContractTypeEnum.FREELANCER:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Freelancer Contract'
+        else return '[ENG] Freelancer Contract'
+      default:
+        return ''
+    }
   }
 
   return (
@@ -155,7 +219,7 @@ const ContractForm = () => {
           <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
-                <Typography variant='h6'>{contract?.title}</Typography>
+                <Typography variant='h6'>{getTitle()}</Typography>
 
                 <Box display='flex' alignItems='center' gap='8px'>
                   <Writer label='Writer' size='small' />
