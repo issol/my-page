@@ -192,22 +192,13 @@ export default function ClientGuideLineList({
             </Box>
           }
         />
-        <Box sx={{ height: 500 }}>
+        <Box /* sx={{ height: 500 }} */>
           <DataGrid
+            autoHeight
             components={{
               NoRowsOverlay: () => noData(),
               NoResultsOverlay: () => noData(),
             }}
-            // columns={columns}
-            // autoHeight
-            // paginationMode='server'
-            // pageSize={pageSize}
-            // onPageSizeChange={setPageSize}
-            // rowsPerPageOptions={[10, 25, 50]}
-            // onPageChange={setSkip}
-            // rowCount={list.count || 0}
-            // rows={list.data}
-            // loading={isLoading}
             rows={list.data}
             rowCount={list.count}
             loading={isLoading}
@@ -219,7 +210,6 @@ export default function ClientGuideLineList({
             onPageChange={setSkip}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             columns={columns}
-            // initialState={initialState}
           />
         </Box>
       </Card>
