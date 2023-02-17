@@ -30,7 +30,7 @@ import { useRouter } from 'next/router'
 import { AuthContext } from 'src/context/AuthContext'
 
 // ** values
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** fetches
 import { useMutation } from 'react-query'

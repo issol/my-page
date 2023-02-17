@@ -127,7 +127,7 @@ const ContractDetail = () => {
     },
   })
   const restoreMutation = useMutation(
-    () => restoreContract(contract?.documentId!),
+    () => restoreContract(contract?.documentId!, user?.username!, user?.email!),
     {
       onSuccess: () => {
         refetch()
@@ -140,6 +140,11 @@ const ContractDetail = () => {
       },
     },
   )
+
+  useEffect(() => {
+    refetch()
+  }, [])
+  console.log(contract)
   useEffect(() => {
     // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 사용하기
     if (contract?.content) {
@@ -335,7 +340,7 @@ const ContractDetail = () => {
     <Suspense fallback={<FallbackSpinner />}>
       <StyledEditor style={{ margin: '0 70px' }}>
         <Grid container spacing={6}>
-          <Grid container xs={9} mt='24px'>
+          <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
                 <Typography variant='h6'>{getTitle()}</Typography>
@@ -426,7 +431,7 @@ const ContractDetail = () => {
           <StyledEditor maxHeight={true}>
             <Grid
               container
-              xs={12}
+              /* xs={12} */
               sx={{ padding: '50px 60px 50px' }}
               justifyContent='center'
             >
