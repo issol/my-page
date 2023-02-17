@@ -136,17 +136,7 @@ export default function ClientGuideLineList({
       headerName: 'Service type',
       renderHeader: () => <Box>Service type</Box>,
       renderCell: ({ row }: CellType) => {
-        return (
-          <Box sx={{ overflow: 'scroll', display: 'flex', gap: '5px' }}>
-            {!row?.serviceType.length
-              ? '-'
-              : row?.serviceType?.map((item, idx) => (
-                  <Box key={idx} sx={{ display: 'flex', gap: '8px' }}>
-                    <ServiceType label={item} size='small' />
-                  </Box>
-                ))}
-          </Box>
-        )
+        return <ServiceType label={row.serviceType} size='small' />
       },
     },
     {

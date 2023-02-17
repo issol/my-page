@@ -322,6 +322,7 @@ const ClientGuidelineForm = () => {
       category: data.category.value,
       serviceType: data.serviceType.value,
       content: formContent,
+      text: content.getCurrentContent().getPlainText('\u0001'),
     }
     guidelineMutation.mutate(finalValue)
   }

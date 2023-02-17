@@ -12,7 +12,7 @@ export const getGuidelines = async (
         title: string
         client: string
         category: string
-        serviceType: Array<string>
+        serviceType: string
         dueAt: string
       }>
     | []
@@ -30,7 +30,7 @@ export const getGuidelines = async (
           title: 'Naver webtoon guideline Ver.3',
           client: 'Naver',
           category: 'Webcomics',
-          serviceType: ['Translation'],
+          serviceType: 'Translation',
           dueAt: 'Tue Jan 31 2023 00:40:09',
         },
         {
@@ -38,7 +38,7 @@ export const getGuidelines = async (
           title: 'Tappytoon style guide',
           client: 'Tappytoon',
           category: 'Webnovel',
-          serviceType: ['Translation', 'Proofreading', 'QC', 'DTP'],
+          serviceType: 'Proofreading',
           dueAt: 'Tue Jan 31 2023 00:40:09',
         },
         {
@@ -46,7 +46,7 @@ export const getGuidelines = async (
           title: 'Naver webtoon guideline Ver.3',
           client: 'Naver',
           category: 'YouTube',
-          serviceType: ['QC'],
+          serviceType: 'QC',
           dueAt: 'Tue Jan 31 2023 00:40:09',
         },
         {
@@ -54,7 +54,7 @@ export const getGuidelines = async (
           title: 'Naver webtoon guideline Ver.3',
           client: 'Naver',
           category: 'Webcomics',
-          serviceType: ['Translation'],
+          serviceType: 'Translation',
           dueAt: 'Tue Jan 31 2023 00:40:09',
         },
       ],
@@ -416,607 +416,6 @@ export const getGuidelineDetail = async (id: number) => {
             entityMap: {},
           },
         },
-        //new
-        // {
-        //   id: 11,
-        //   userId: 11333,
-        //   title: 'hellow',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 22,
-        //   userId: 11333,
-        //   title: 'world',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 33,
-        //   userId: 11333,
-        //   title: 'This',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 44,
-        //   userId: 11333,
-        //   title: 'is',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 55,
-        //   userId: 11333,
-        //   title: 'my',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 66,
-        //   userId: 11333,
-        //   title: 'name',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 77,
-        //   userId: 11333,
-        //   title: 'bon',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 88,
-        //   userId: 11333,
-        //   title: 'nice',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 99,
-        //   userId: 11333,
-        //   title: 'to',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 5533445,
-        //   userId: 11333,
-        //   title: 'meet',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 111,
-        //   userId: 11333,
-        //   title: 'you',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 222,
-        //   userId: 11333,
-        //   title: 'testing',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 333,
-        //   userId: 11333,
-        //   title: 'pagination',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 444,
-        //   userId: 11333,
-        //   title: 'with',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 555,
-        //   userId: 11333,
-        //   title: 'mock',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 666,
-        //   userId: 11333,
-        //   title: 'data',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 777,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 888,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 999,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 1141410006,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 1111,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 2222,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 3333,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 4444,
-        //   userId: 11333,
-        //   title: 'Client guideline',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
-        // {
-        //   id: 5555,
-        //   userId: 11333,
-        //   title: 'the end',
-        //   email: 'bon@glozinc.com',
-        //   client: 'GloZ',
-        //   category: 'Dubbing',
-        //   serviceType: 'DTP',
-        //   files: [],
-        //   content: {
-        //     blocks: [
-        //       {
-        //         key: 'f5ile',
-        //         text: 'translation guidelines document for movie subtitles: ',
-        //         type: 'unstyled',
-        //         depth: 0,
-        //         inlineStyleRanges: [],
-        //         entityRanges: [],
-        //         data: {},
-        //       },
-        //     ],
-        //     entityMap: {},
-        //   },
-        // },
       ],
     }
   } catch (e: any) {
@@ -1041,11 +440,20 @@ export type FormType = {
   category: string
   serviceType: string
   content: any
+  text: string
 }
 
 export const postGuideline = async (form: FormType) => {
   try {
     return await axios.post(`/api/enough/a/r-req/al?type=`, form)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateGuideline = async (form: FormType) => {
+  try {
+    return await axios.patch(`/api/enough/a/r-req/al?type=`, form)
   } catch (e: any) {
     throw new Error(e)
   }
