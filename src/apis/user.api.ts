@@ -65,16 +65,16 @@ export const updateConsumerUserInfo = async (
   }
 }
 
-export const getPresignedUrl = async (userId: number, fileName: string) => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
+// export const getPresignedUrl = async (userId: number, fileName: string) => {
+//   try {
+//     const { data } = await axios.get(
+//       `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
+//     )
+//     return data
+//   } catch (e: any) {
+//     throw new Error(e)
+//   }
+// }
 
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (

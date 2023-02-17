@@ -63,9 +63,9 @@ import { useMutation } from 'react-query'
 import {
   postGuideline,
   deleteGuidelineFile,
-  getGuidelineFileURl,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
+import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -363,7 +363,11 @@ const ClientGuidelineEdit = () => {
 
     data.file?.length &&
       data.file.forEach(file => {
-        getGuidelineFileURl(user?.id as number, file.name).then(res => {
+        getPresignedUrl(
+          user?.id as number,
+          file.name,
+          FilePathEnum.guideline,
+        ).then(res => {
           const formData = new FormData()
           formData.append('files', file)
           axios
@@ -411,6 +415,7 @@ const ClientGuidelineEdit = () => {
       category: data.category.value,
       serviceType: data.serviceType.value,
       content: formContent,
+      text: content.getCurrentContent().getPlainText('\u0001'),
     }
     guidelineMutation.mutate(finalValue)
   }

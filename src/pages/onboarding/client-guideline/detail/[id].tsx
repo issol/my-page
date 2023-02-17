@@ -43,11 +43,12 @@ import axios from 'axios'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import {
   deleteGuideline,
-  getGuidelineFileURl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
+import { getPresignedUrl } from 'src/apis/common.api'
+import { FilePathEnum } from 'src/apis/common.api'
 
 type CellType = {
   row: {
@@ -160,34 +161,36 @@ const ClientGuidelineDetail = () => {
 
   // ** TODO: file down 구현하기
   function fetchFile(fileName: string) {
-    getGuidelineFileURl(user?.id as number, fileName).then(res => {
-      axios
-        .get(res, {
-          headers: {
-            Authorization:
-              'Bearer ' + typeof window === 'object'
-                ? getUserTokenFromBrowser()
-                : null,
-          },
-        })
-        .then(res => {
-          console.log('upload client guideline file success :', res)
-          const url = window.URL.createObjectURL(new Blob([res.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', `${fileName}`)
-          document.body.appendChild(link)
-          link.click()
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
+    getPresignedUrl(user?.id as number, fileName, FilePathEnum.guideline).then(
+      res => {
+        axios
+          .get(res, {
+            headers: {
+              Authorization:
+                'Bearer ' + typeof window === 'object'
+                  ? getUserTokenFromBrowser()
+                  : null,
             },
-          ),
-        )
-    })
+          })
+          .then(res => {
+            console.log('upload client guideline file success :', res)
+            const url = window.URL.createObjectURL(new Blob([res.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `${fileName}`)
+            document.body.appendChild(link)
+            link.click()
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      },
+    )
   }
 
   function downloadOneFile(name: string) {

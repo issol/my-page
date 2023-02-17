@@ -423,16 +423,16 @@ export const getGuidelineDetail = async (id: number) => {
   }
 }
 
-export const getGuidelineFileURl = async (userId: number, fileName: string) => {
-  try {
-    const { data } = await axios.get(
-      `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
+// export const getGuidelineFileURl = async (userId: number, fileName: string) => {
+//   try {
+//     const { data } = await axios.get(
+//       `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
+//     )
+//     return data
+//   } catch (e: any) {
+//     throw new Error(e)
+//   }
+// }
 
 export type FormType = {
   title: string

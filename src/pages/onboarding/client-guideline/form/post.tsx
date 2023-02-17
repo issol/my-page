@@ -57,7 +57,7 @@ import {
 
 // ** fetches
 import axios from 'axios'
-import { getPresignedUrl } from 'src/apis/user.api'
+import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 import { postGuideline } from 'src/apis/client-guideline.api'
@@ -287,7 +287,11 @@ const ClientGuidelineForm = () => {
 
     data.file?.length &&
       data.file.forEach(file => {
-        getPresignedUrl(user?.id as number, file.name).then(res => {
+        getPresignedUrl(
+          user?.id as number,
+          file.name,
+          FilePathEnum.guideline,
+        ).then(res => {
           const formData = new FormData()
           formData.append('files', file)
           axios

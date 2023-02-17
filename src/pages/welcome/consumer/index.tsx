@@ -22,7 +22,6 @@ import MenuItem from '@mui/material/MenuItem'
 import Icon from 'src/@core/components/icon'
 
 // ** Third Party Imports
-
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
@@ -52,25 +51,27 @@ import {
   RolePair,
   Specialties,
 } from 'src/shared/const/personalInfo'
+import { useDropzone } from 'react-dropzone'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
+
+// ** values
 import {
   ConsumerUserInfoType,
   CountryType,
   PersonalInfo,
 } from 'src/types/sign/personalInfoTypes'
+import { FormErrors } from 'src/shared/const/formErrors'
+
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
-import { useDropzone } from 'react-dropzone'
 import styled from 'styled-components'
-import {
-  getPresignedUrl,
-  getUserInfo,
-  updateConsumerUserInfo,
-} from 'src/apis/user.api'
-import axios from 'axios'
+
+// **fetches
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
+import axios from 'axios'
+import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
 import { useAppSelector } from 'src/hooks/useRedux'
-import { FormErrors } from 'src/shared/const/formErrors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -298,7 +299,11 @@ const PersonalInfoPro = () => {
   const onSubmit = (data: PersonalInfo) => {
     data.resume?.length &&
       data.resume.forEach(file => {
-        getPresignedUrl(auth.user?.id as number, file.name).then(res => {
+        getPresignedUrl(
+          auth.user?.id as number,
+          file.name,
+          FilePathEnum.resume,
+        ).then(res => {
           const formData = new FormData()
           formData.append('files', file)
           axios
