@@ -22,12 +22,13 @@ type CellType = {
     title: string
     client: string
     category: string
-    serviceType: Array<string>
-    dueAt: string
+    serviceType: string
+    createdAt: string
   }
 }
 
 type Props = {
+  skip: number
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
@@ -38,8 +39,8 @@ type Props = {
           title: string
           client: string
           category: string
-          serviceType: Array<string>
-          dueAt: string
+          serviceType: string
+          createdAt: string
         }>
       | []
     count: number
@@ -57,6 +58,7 @@ type ChipColorType =
   | 'black'
 
 export default function ClientGuideLineList({
+  skip,
   pageSize,
   setSkip,
   setPageSize,
@@ -125,7 +127,7 @@ export default function ClientGuideLineList({
         <CategoryChip
           cl={getChipColor(row.category)}
           size='small'
-          label={row.client}
+          label={row.category}
         />
       ),
     },
@@ -142,12 +144,12 @@ export default function ClientGuideLineList({
     {
       flex: 0.23,
       minWidth: 120,
-      field: 'dueAt',
+      field: 'createdAt',
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.dueAt)}
+          {FullDateTimezoneHelper(row.createdAt)}
         </Box>
       ),
     },
@@ -170,6 +172,8 @@ export default function ClientGuideLineList({
       </Box>
     )
   }
+  console.log(list)
+  // console.log(object);
   return (
     <Grid item xs={12}>
       <Card>
@@ -194,15 +198,28 @@ export default function ClientGuideLineList({
               NoRowsOverlay: () => noData(),
               NoResultsOverlay: () => noData(),
             }}
-            columns={columns}
-            autoHeight
-            pageSize={pageSize}
-            onPageSizeChange={setPageSize}
-            rowsPerPageOptions={[10, 25, 50]}
-            onPageChange={setSkip}
-            rowCount={list.count || 0}
+            // columns={columns}
+            // autoHeight
+            // paginationMode='server'
+            // pageSize={pageSize}
+            // onPageSizeChange={setPageSize}
+            // rowsPerPageOptions={[10, 25, 50]}
+            // onPageChange={setSkip}
+            // rowCount={list.count || 0}
+            // rows={list.data}
+            // loading={isLoading}
             rows={list.data}
+            rowCount={list.count}
             loading={isLoading}
+            rowsPerPageOptions={[10, 25, 50]}
+            pagination
+            page={skip}
+            pageSize={pageSize}
+            paginationMode='server'
+            onPageChange={setSkip}
+            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+            columns={columns}
+            // initialState={initialState}
           />
         </Box>
       </Card>
