@@ -108,7 +108,21 @@ const ClientGuidelineEdit = () => {
   const [deletedFiles, setDeletedFiles] = useState<string[] | []>([])
 
   const { data, isSuccess } = useGetGuideLineDetail(Number(id))
-  console.log(data)
+
+  const currentVersion = data?.currentVersion || {
+    id: null,
+    userId: null,
+    title: '',
+    writer: '',
+    email: '',
+    client: '',
+    category: '',
+    serviceType: null,
+    updatedAt: '',
+    content: null,
+    files: [],
+  }
+
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -199,8 +213,6 @@ const ClientGuidelineEdit = () => {
     setValue,
     setError,
     clearErrors,
-    watch,
-    trigger,
     formState: { errors, isValid },
   } = useForm<ClientGuidelineType>({
     defaultValues,
@@ -217,27 +229,31 @@ const ClientGuidelineEdit = () => {
 
   useEffect(() => {
     if (isSuccess) {
-      initializeValue('title', data.title)
+      initializeValue('title', currentVersion.title)
 
       initializeValue(
         'client',
-        ClientCategoryIncludeGloz.filter(item => item.value === data.client)[0],
+        ClientCategoryIncludeGloz.filter(
+          item => item.value === currentVersion.client,
+        )[0],
       )
       initializeValue(
         'category',
-        Category.filter(item => item.value === data.category)[0],
+        Category.filter(item => item.value === currentVersion.category)[0],
       )
       initializeValue(
         'serviceType',
-        ServiceType.filter(item => item.value === data.serviceType)[0],
+        ServiceType.filter(
+          item => item.value === currentVersion.serviceType,
+        )[0],
       )
-      if (data?.content) {
+      if (currentVersion?.content) {
         const editorState = EditorState.createWithContent(
-          convertFromRaw(data?.content as any),
+          convertFromRaw(currentVersion?.content as any),
         )
         setContent(editorState)
       }
-      if (data?.files.length) setSavedFiles(data.files)
+      if (currentVersion?.files.length) setSavedFiles(currentVersion.files)
     }
   }, [isSuccess])
 
@@ -642,7 +658,7 @@ const ClientGuidelineEdit = () => {
                     </Button>
                   </div>
                   <div>
-                    {data?.files?.length ? (
+                    {currentVersion?.files?.length ? (
                       <List sx={{ paddingBottom: 0 }}>{savedFileList}</List>
                     ) : null}
                     {files.length ? (

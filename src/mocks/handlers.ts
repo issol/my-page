@@ -57,7 +57,7 @@ export const handlers = [
       'Netflix',
       'RIDI',
       'Sandbox',
-      'Tapitoon',
+      'Tapytoon',
     ]
     const categories = [
       'Documents/Text',
@@ -162,6 +162,120 @@ export const handlers = [
     )
   }),
 
+  // guideline upload
+  rest.post(BASEURL + '/api/enough/onboard/guideline', (req, res, ctx) => {
+    if (
+      req.body.category &&
+      req.body.client &&
+      req.body.content &&
+      req.body.serviceType &&
+      req.body.title
+    ) {
+      return res(ctx.status(200), ctx.json(req.body))
+    } else {
+      return res(ctx.status(404), ctx.json(req.body))
+    }
+  }),
+
+  rest.get(BASEURL + '/api/enough/onboard/guideline/:id', (req, res, ctx) => {
+    const id = req.params.id
+    const detail = {
+      currentVersion: {
+        id: id,
+        userId: 12345,
+        title: 'title sample',
+        writer: 'Jay Lee',
+        email: 'jay@glozinc.com',
+        client: 'GloZ',
+        category: 'Dubbing',
+        serviceType: 'Editing',
+        updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+        content: {
+          blocks: [
+            {
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+            {
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
+        files: [
+          { name: 'file1.docx', size: 34876123 },
+          { name: 'file2.xlsx', size: 25161 },
+        ],
+      },
+      versionHistory: [
+        {
+          id: 2,
+          userId: 12345,
+          title: 'title sample',
+          name: 'Jay Lee',
+          email: 'jay@glozinc.com',
+          client: 'GloZ',
+          category: 'Dubbing',
+          serviceType: 'Editing',
+          content: 'awefawef',
+          updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+          files: [
+            { name: 'file1.docx', size: 34876123 },
+            { name: 'file2.xlsx', size: 25161 },
+          ],
+        },
+        {
+          id: 1,
+          userId: 12345,
+          title: 'title sample',
+          name: 'Jay Lee',
+          email: 'jay@glozinc.com',
+          client: 'GloZ',
+          category: 'Dubbing',
+          serviceType: 'Editing',
+          content: 'awefawef',
+          updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+          files: [
+            { name: 'file1.docx', size: 34876123 },
+            { name: 'file2.xlsx', size: 25161 },
+          ],
+        },
+      ],
+    }
+    return res(ctx.status(200), ctx.json(detail))
+  }),
+
+  rest.patch(
+    BASEURL + '/api/enough/onboard/guideline/:guidelineId',
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.body(req.params.guidelineId))
+    },
+  ),
+
+  rest.delete(
+    BASEURL + '/api/enough/onboard/guideline/:guidelineId',
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.body(req.params.guidelineId))
+    },
+  ),
+
+  rest.delete(
+    BASEURL + '/api/enough/onboard/guideline/file/:fileId',
+    (req, res, ctx) => {
+      return res(ctx.status(200), ctx.body(req.params.fileId))
+    },
+  ),
   // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
   //   return res(ctx.status(200), ctx.json(onboardingUser))
   // }),

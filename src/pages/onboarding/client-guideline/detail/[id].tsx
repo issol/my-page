@@ -98,6 +98,23 @@ const ClientGuidelineDetail = () => {
   const { user } = useContext(AuthContext)
 
   const { data, refetch } = useGetGuideLineDetail(Number(id))
+
+  const { currentVersion } = data || {
+    id: null,
+    userId: null,
+    title: '',
+    writer: '',
+    email: '',
+    client: '',
+    category: '',
+    serviceType: null,
+    updatedAt: '',
+    content: null,
+    files: [],
+  }
+
+  const versionHistory = data?.versionHistory || []
+
   const restoreMutation = useMutation((id: number) => restoreGuideline(id), {
     onSuccess: data => {
       refetch()
@@ -120,12 +137,12 @@ const ClientGuidelineDetail = () => {
   })
 
   useEffect(() => {
-    if (data?.content) {
-      const content = convertFromRaw(data?.content as any)
+    if (currentVersion?.content) {
+      const content = convertFromRaw(currentVersion?.content as any)
       const editorState = EditorState.createWithContent(content)
       setMainContent(editorState)
     }
-  }, [data])
+  }, [currentVersion])
 
   const columns = [
     {
@@ -151,11 +168,13 @@ const ClientGuidelineDetail = () => {
       field: 'updatedAt',
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.updatedAt)}
-        </Box>
-      ),
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ overflowX: 'scroll' }}>
+            {FullDateTimezoneHelper(row.updatedAt)}
+          </Box>
+        )
+      },
     },
   ]
 
@@ -369,7 +388,7 @@ const ClientGuidelineDetail = () => {
                   cursor='pointer'
                   onClick={() => router.back()}
                 />
-                {data?.title}
+                {currentVersion?.title}
               </Typography>
 
               <Box display='flex' flexDirection='column' gap='8px'>
@@ -377,15 +396,19 @@ const ClientGuidelineDetail = () => {
                   <Writer label='Writer' size='small' />
                   <Typography
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    color={`${user?.id === data?.userId ? 'primary' : ''}`}
+                    color={`${
+                      user?.id === currentVersion?.userId ? 'primary' : ''
+                    }`}
                   >
-                    {data?.writer}
+                    {currentVersion?.writer}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>{data?.email}</Typography>
+                  <Typography variant='body2'>
+                    {currentVersion?.email}
+                  </Typography>
                 </Box>
                 <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(data?.updatedAt)}
+                  {FullDateTimezoneHelper(currentVersion?.updatedAt)}
                 </Typography>
               </Box>
             </Box>
@@ -396,7 +419,9 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Grid>
               <Grid item xs={2} mb='10px'>
-                <Typography variant='body2'>{data?.client}</Typography>
+                <Typography variant='body2'>
+                  {currentVersion?.client}
+                </Typography>
               </Grid>
             </Grid>
             <Grid container xs={12} mb='10px'>
@@ -406,7 +431,9 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant='body2'>{data?.category}</Typography>
+                <Typography variant='body2'>
+                  {currentVersion?.category}
+                </Typography>
               </Grid>
             </Grid>
             <Grid container xs={12} mb='10px'>
@@ -416,7 +443,9 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Grid>
               <Grid item xs={2}>
-                <Typography variant='body2'>{data?.serviceType}</Typography>
+                <Typography variant='body2'>
+                  {currentVersion?.serviceType}
+                </Typography>
               </Grid>
             </Grid>
             <Divider />
@@ -439,8 +468,8 @@ const ClientGuidelineDetail = () => {
                 pageSize={pageSize}
                 onPageSizeChange={setPageSize}
                 rowsPerPageOptions={[5, 15, 30]}
-                rowCount={data?.versionHistory?.length || 0}
-                rows={data?.versionHistory || []}
+                rowCount={versionHistory?.length || 0}
+                rows={versionHistory || []}
                 onRowClick={onRowClick}
               />
             </Box>
@@ -461,12 +490,15 @@ const ClientGuidelineDetail = () => {
                   Attached file
                 </Typography>
                 <Typography variant='body2'>
-                  {Math.round(getFileSize(data?.files) / 100) / 10 > 1000
+                  {Math.round(getFileSize(currentVersion?.files) / 100) / 10 >
+                  1000
                     ? `${(
-                        Math.round(getFileSize(data?.files) / 100) / 10000
+                        Math.round(getFileSize(currentVersion?.files) / 100) /
+                        10000
                       ).toFixed(1)} mb`
                     : `${(
-                        Math.round(getFileSize(data?.files) / 100) / 10
+                        Math.round(getFileSize(currentVersion?.files) / 100) /
+                        10
                       ).toFixed(1)} kb`}
                   /50mb
                 </Typography>
@@ -474,13 +506,13 @@ const ClientGuidelineDetail = () => {
               <Button
                 variant='outlined'
                 startIcon={<Icon icon='mdi:download' />}
-                onClick={() => downloadAllFiles(data?.files)}
+                onClick={() => downloadAllFiles(currentVersion?.files)}
               >
                 Download all
               </Button>
-              {data?.files?.length ? (
+              {currentVersion?.files?.length ? (
                 <Fragment>
-                  <List>{fileList(data?.files)}</List>
+                  <List>{fileList(currentVersion?.files)}</List>
                 </Fragment>
               ) : null}
             </Box>
