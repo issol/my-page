@@ -39,7 +39,7 @@ export const handlers = [
     const f_ServiceType = req.url.searchParams.get('serviceType') || ''
 
     const titles = ['sample title 1', 'sample title 2', 'sample title 3', 'my title 1', 'my title 2', 'my title 3', 'company title 1', 'company title 2', 'company title 3'];
-    const clients = ['Disney', 'Naver', 'Netflix', 'RIDI', 'Sandbox', 'Tapitoon'];
+    const clients = ['Disney', 'Naver', 'Netflix', 'RIDI', 'Sandbox', 'Tapytoon'];
     const categories = ['Documents/Text', 'Dubbing', 'Interpretation', 'Misc.' ,'OTT/Subtitle', 'Webcomics', 'Webnovel'];
     const serviceTypes = ['Admin task(Internal task)', 'Copywriting', 'DTP', 'DTP file prep', 'DTP QC', 'Editing', 'File preparation', 'Final check', 'interpretation', 'Proofreading', 'QC', 'Review', 'Revision(Rework)', 'Subtitle', 'TAE(Translator accept edits)', 'Translation', 'Transcription'];
     
@@ -80,6 +80,106 @@ export const handlers = [
     }))
   }),
 
+  // guideline upload
+  rest.post(BASEURL + '/api/enough/onboard/guideline', (req, res, ctx) => {
+    if(req.body.category && req.body.client && req.body.content && req.body.serviceType && req.body.title) {
+      return res(ctx.status(200), ctx.json(req.body))
+    } else {
+      return res(ctx.status(404), ctx.json(req.body))
+    }
+  }),
+
+  rest.get(BASEURL + '/api/enough/onboard/guideline/:id', (req, res, ctx) => {
+    const id = req.params.id
+    const detail = 
+    {
+      "currentVersion" : {
+        "id": id,
+        "userId": 12345,
+        "title" : "title sample",
+        "writer" : "Jay Lee", 
+        "email" : "jay@glozinc.com",
+        "client" : "GloZ",
+        "category" : "Dubbing",
+        "serviceType" : "Editing",
+        "updatedAt": "2023-02-10T07:33:53.740Z1",
+        "content": {
+          "blocks": [
+            {
+              "key": 'd9so6',
+              "text": 'translation guidelines document for web novels:',
+              "type": 'unstyled',
+              "depth": 0,
+              "inlineStyleRanges": [],
+              "entityRanges": [],
+              "data": {},
+            },
+            {
+              "key": 'b75mm',
+              "text": 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              "type": 'unstyled',
+              "depth": 0,
+              "inlineStyleRanges": [],
+              "entityRanges": [],
+              "data": {},
+            }
+          ],
+          "entityMap": {},
+        },
+        "files" : [
+          { "name": "file1.docx", "size": 34876123 },
+          { "name": "file2.xlsx", "size": 25161 }
+        ]
+      },
+      "versionHistory": [ 
+        { 
+          "id": 2,
+          "userId": 12345,
+          "title" : "title sample",
+          "name" : "Jay Lee", 
+          "email" : "jay@glozinc.com",
+          "client" : "GloZ",
+          "category" : "Dubbing",
+          "serviceType" : "Editing",
+          "content" : "awefawef",
+          "updatedAt": "2023-02-10T07:33:53.740Z1",
+          "files" : [
+            { "name": "file1.docx", "size": 34876123 },
+            { "name": "file2.xlsx", "size": 25161 }
+          ]
+        },
+        { 
+          "id": 1,
+          "userId": 12345,
+          "title" : "title sample",
+          "name" : "Jay Lee", 
+          "email" : "jay@glozinc.com",
+          "client" : "GloZ",
+          "category" : "Dubbing",
+          "serviceType" : "Editing",
+          "content" : "awefawef",
+          "updatedAt": "2023-02-10T07:33:53.740Z1",
+          "files" : [
+            { "name": "file1.docx", "size": 34876123 },
+            { "name": "file2.xlsx", "size": 25161 }
+          ]
+        },
+      ],
+    }
+    return res(ctx.status(200), ctx.json(detail))
+  }),
+
+  rest.patch(BASEURL + '/api/enough/onboard/guideline/:guidelineId', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.body(req.params.guidelineId))
+  }),
+
+  rest.delete(BASEURL + '/api/enough/onboard/guideline/:guidelineId', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.body(req.params.guidelineId))
+  }),
+
+  rest.delete(BASEURL + '/api/enough/onboard/guideline/file/:fileId', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.body(req.params.fileId))
+  })
   // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
   //   return res(ctx.status(200), ctx.json(onboardingUser))
   // }),
