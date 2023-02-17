@@ -41,20 +41,26 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 // ** fetcher
-import { useGetContract } from 'src/queries/contract/contract.query'
+import {
+  useInvalidateContractQuery,
+  useGetContract,
+} from 'src/queries/contract/contract.query'
 
 // ** types
 import {
-  ContractParam,
+  LangType,
+  ContractType,
   deleteContract,
   restoreContract,
+  ContractTypeEnum,
+  ContractLangEnum,
 } from 'src/apis/contract.api'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 
 type CellType = {
   row: {
-    id: number
+    documentId: number
     userId: number
     version: string
     writer?: string
@@ -67,11 +73,12 @@ type CellType = {
 // ** TODO : api완료되면 mutation 파라미터 수정, detail 데이터 스키마 변경에 따라 변경해주기
 const ContractDetail = () => {
   const router = useRouter()
-
+  const invalidate = useInvalidateContractQuery()
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
+  const type = router.query.type as ContractType
+  const language = router.query.language as LangType
 
-  const { type, language } = router.query as ContractParam
   const [openDetail, setOpenDetail] = useState(false)
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
@@ -91,13 +98,25 @@ const ContractDetail = () => {
 
   const { setModal } = useContext(ModalContext)
 
-  const { data: contract, refetch } = useGetContract({
+  const { data, refetch } = useGetContract({
     type,
     language,
   })
 
-  const deleteMutation = useMutation(() => deleteContract(contract?.id!), {
+  const { currentVersion: contract } = data || {
+    documentId: null,
+    userId: null,
+    title: '',
+    email: '',
+    writer: '',
+    updatedAt: '',
+    content: null,
+  }
+  const versionHistory = data?.versionHistory || []
+
+  const deleteMutation = useMutation(() => deleteContract(type, language), {
     onSuccess: () => {
+      invalidate()
       router.push('/onboarding/contracts')
       return
     },
@@ -107,17 +126,25 @@ const ContractDetail = () => {
       })
     },
   })
-  const restoreMutation = useMutation(() => restoreContract(contract?.id!), {
-    onSuccess: () => {
-      refetch()
-      return
+  const restoreMutation = useMutation(
+    () => restoreContract(contract?.documentId!, user?.username!, user?.email!),
+    {
+      onSuccess: () => {
+        refetch()
+        return
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
     },
-    onError: () => {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
-    },
-  })
+  )
+
+  useEffect(() => {
+    refetch()
+  }, [])
+  console.log(contract)
   useEffect(() => {
     // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 사용하기
     if (contract?.content) {
@@ -135,14 +162,16 @@ const ContractDetail = () => {
 
   function getTitle() {
     switch (type) {
-      case 'nda':
-        if (language === 'ko') return '[KOR] NDA'
+      case ContractTypeEnum.NDA:
+        if (language === ContractLangEnum.KOREAN) return '[KOR] NDA'
         else return '[ENG] NDA'
-      case 'privacy':
-        if (language === 'ko') return '[KOR] Privacy Contract'
+      case ContractTypeEnum.PRIVACY:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Privacy Contract'
         else return '[ENG] Privacy Contract'
-      case 'freelancer':
-        if (language === 'ko') return '[KOR] Freelancer Contract'
+      case ContractTypeEnum.FREELANCER:
+        if (language === ContractLangEnum.KOREAN)
+          return '[KOR] Freelancer Contract'
         else return '[ENG] Freelancer Contract'
       default:
         return ''
@@ -213,11 +242,11 @@ const ContractDetail = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               deleteMutation.mutate()
@@ -267,7 +296,7 @@ const ContractDetail = () => {
         </Box>
         <ModalButtonGroup>
           <Button
-            variant='contained'
+            variant='outlined'
             onClick={() => {
               setModal(null)
               setOpenDetail(true)
@@ -276,7 +305,7 @@ const ContractDetail = () => {
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               restoreMutation.mutate()
@@ -311,7 +340,7 @@ const ContractDetail = () => {
     <Suspense fallback={<FallbackSpinner />}>
       <StyledEditor style={{ margin: '0 70px' }}>
         <Grid container spacing={6}>
-          <Grid container xs={9} mt='24px'>
+          <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
               <Box display='flex' justifyContent='space-between' mb='26px'>
                 <Typography variant='h6'>{getTitle()}</Typography>
@@ -342,6 +371,7 @@ const ContractDetail = () => {
               <CardHeader title='Version history' />
               <Box sx={{ height: '100%' }}>
                 <DataGrid
+                  getRowId={row => row?.documentId}
                   components={{
                     NoRowsOverlay: () => noHistory(),
                     NoResultsOverlay: () => noHistory(),
@@ -354,8 +384,8 @@ const ContractDetail = () => {
                   pageSize={pageSize}
                   onPageSizeChange={setPageSize}
                   rowsPerPageOptions={[5, 15, 30]}
-                  rowCount={contract?.versionHistory?.length || 0}
-                  rows={contract?.versionHistory || []}
+                  rowCount={versionHistory?.length}
+                  rows={versionHistory}
                   onRowClick={onRowClick}
                 />
               </Box>
@@ -401,7 +431,7 @@ const ContractDetail = () => {
           <StyledEditor maxHeight={true}>
             <Grid
               container
-              xs={12}
+              /* xs={12} */
               sx={{ padding: '50px 60px 50px' }}
               justifyContent='center'
             >

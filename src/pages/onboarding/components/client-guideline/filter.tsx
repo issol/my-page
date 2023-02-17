@@ -25,7 +25,7 @@ import {
   ClientCategory,
   ServiceType,
   ServiceType2,
-} from 'src/shared/const/client-guideline'
+} from 'src/shared/const/clientGuideline'
 
 // ** types
 import { ConstType, FilterOmitType } from '../../client-guideline'

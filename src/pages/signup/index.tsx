@@ -55,7 +55,7 @@ import { useRouter } from 'next/router'
 import { ModalContext } from 'src/context/ModalContext'
 
 // ** values
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** components
 import GoogleButton from '../components/google-button'

@@ -64,6 +64,7 @@ export default function ClientGuideLineList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  /* TODO: 값 업데이트 되어서 수정해야 할 수 있음 */
   function getChipColor(type: string): ChipColorType {
     switch (type) {
       case 'Documents/Text':

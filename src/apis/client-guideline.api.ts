@@ -2,7 +2,7 @@ import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
-// **TODO api완성되면 endpoint, res 수정
+type GuideLineType = {}
 export const getGuidelines = async (
   filters: FilterType,
 ): Promise<{
@@ -20,10 +20,9 @@ export const getGuidelines = async (
 }> => {
   console.log(makeQuery(filters))
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/a/r-req/al?type=${props.type}&language=${props.language}`,
-    // )
+    // const { data } = await axios.get(`/api/enough/onboard/guideline`)
 
+    // return data
     return {
       data: [
         {

@@ -1,6 +1,6 @@
 import * as yup from 'yup'
 import { checkEmailDuplication } from 'src/apis/sign.api'
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 export default function useForgotPasswordSchema() {
   const forgotPasswordSchema = yup.object({
