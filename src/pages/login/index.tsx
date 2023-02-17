@@ -40,7 +40,7 @@ import { redirectLinkedInAuth } from 'src/apis/sign.api'
 import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
 
 // ** values
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 import GoogleButton from '../components/google-button'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({

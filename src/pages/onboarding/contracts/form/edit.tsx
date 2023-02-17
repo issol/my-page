@@ -44,7 +44,7 @@ import {
   LangType,
   updateContract,
 } from 'src/apis/contract.api'
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** fetches
 import { useMutation } from 'react-query'

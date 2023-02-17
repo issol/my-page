@@ -2,7 +2,7 @@ import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
-// **TODO api완성되면 endpoint, res 수정
+type GuideLineType = {}
 export const getGuidelines = async (
   filters: FilterType,
 ): Promise<{
@@ -20,47 +20,46 @@ export const getGuidelines = async (
 }> => {
   console.log(makeQuery(filters))
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/a/r-req/al?type=${props.type}&language=${props.language}`,
-    // )
+    const { data } = await axios.get(`/api/enough/onboard/guideline`)
 
-    return {
-      data: [
-        {
-          id: 21778705315028,
-          title: 'Naver webtoon guideline Ver.3',
-          client: 'Naver',
-          category: 'Webcomics',
-          serviceType: ['Translation'],
-          dueAt: 'Tue Jan 31 2023 00:40:09',
-        },
-        {
-          id: 2,
-          title: 'Tappytoon style guide',
-          client: 'Tappytoon',
-          category: 'Webnovel',
-          serviceType: ['Translation', 'Proofreading', 'QC', 'DTP'],
-          dueAt: 'Tue Jan 31 2023 00:40:09',
-        },
-        {
-          id: 3,
-          title: 'Naver webtoon guideline Ver.3',
-          client: 'Naver',
-          category: 'YouTube',
-          serviceType: ['QC'],
-          dueAt: 'Tue Jan 31 2023 00:40:09',
-        },
-        {
-          id: 4,
-          title: 'Naver webtoon guideline Ver.3',
-          client: 'Naver',
-          category: 'Webcomics',
-          serviceType: ['Translation'],
-          dueAt: 'Tue Jan 31 2023 00:40:09',
-        },
-      ],
-      count: 4,
-    }
+    return data
+    // return {
+    //   data: [
+    //     {
+    //       id: 21778705315028,
+    //       title: 'Naver webtoon guideline Ver.3',
+    //       client: 'Naver',
+    //       category: 'Webcomics',
+    //       serviceType: ['Translation'],
+    //       dueAt: 'Tue Jan 31 2023 00:40:09',
+    //     },
+    //     {
+    //       id: 2,
+    //       title: 'Tappytoon style guide',
+    //       client: 'Tappytoon',
+    //       category: 'Webnovel',
+    //       serviceType: ['Translation', 'Proofreading', 'QC', 'DTP'],
+    //       dueAt: 'Tue Jan 31 2023 00:40:09',
+    //     },
+    //     {
+    //       id: 3,
+    //       title: 'Naver webtoon guideline Ver.3',
+    //       client: 'Naver',
+    //       category: 'YouTube',
+    //       serviceType: ['QC'],
+    //       dueAt: 'Tue Jan 31 2023 00:40:09',
+    //     },
+    //     {
+    //       id: 4,
+    //       title: 'Naver webtoon guideline Ver.3',
+    //       client: 'Naver',
+    //       category: 'Webcomics',
+    //       serviceType: ['Translation'],
+    //       dueAt: 'Tue Jan 31 2023 00:40:09',
+    //     },
+    //   ],
+    //   count: 4,
+    // }
   } catch (e: any) {
     return {
       data: [],

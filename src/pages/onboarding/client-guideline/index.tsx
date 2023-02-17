@@ -16,7 +16,7 @@ import {
   ClientCategory,
   ServiceType,
   ServiceType2,
-} from 'src/shared/const/client-guideline'
+} from 'src/shared/const/clientGuideline'
 
 import isEqual from 'lodash/isEqual'
 

@@ -70,7 +70,7 @@ import {
 import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useAppSelector } from 'src/hooks/useRedux'
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',

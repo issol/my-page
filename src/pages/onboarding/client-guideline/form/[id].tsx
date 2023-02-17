@@ -54,7 +54,7 @@ import {
   Category,
   ClientCategoryIncludeGloz,
   ServiceType,
-} from 'src/shared/const/client-guideline'
+} from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import axios from 'axios'
@@ -70,7 +70,7 @@ import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 const defaultValues = {
   title: '',

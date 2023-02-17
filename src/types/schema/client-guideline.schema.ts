@@ -1,5 +1,5 @@
 import * as yup from 'yup'
-import { FormErrors } from 'src/shared/const/form-errors'
+import { FormErrors } from 'src/shared/const/formErrors'
 
 export type ClientGuidelineType = {
   title: string
