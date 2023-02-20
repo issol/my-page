@@ -115,6 +115,7 @@ const ClientGuidelineEdit = () => {
 
   const currentVersion = data?.currentVersion || {
     id: null,
+    version: null,
     userId: null,
     title: '',
     writer: '',
@@ -363,7 +364,7 @@ const ClientGuidelineEdit = () => {
     (form: FormType) => updateGuideline(id, form),
     {
       onSuccess: data => {
-        router.push(`/onboarding/client-guideline/detail/${id}`)
+        router.push(`/onboarding/client-guideline/detail/${data?.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -397,7 +398,12 @@ const ClientGuidelineEdit = () => {
       const fileInfo: Array<FilePostType> = []
       const paths = data?.file?.map(file =>
         getFilePath(
-          [data.client.value, data.category.value, data.serviceType.value],
+          [
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+            `V${currentVersion?.version!}`,
+          ],
           file.name,
         ),
       )

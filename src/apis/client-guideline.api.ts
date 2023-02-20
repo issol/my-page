@@ -138,7 +138,10 @@ export const postGuideline = async (
   }
 }
 
-export const updateGuideline = async (id: number, form: FormType) => {
+export const updateGuideline = async (
+  id: number,
+  form: FormType,
+): Promise<{ id: number }> => {
   try {
     return await axios.patch(`/api/enough/onboard/guideline/${id}`, form)
   } catch (e: any) {

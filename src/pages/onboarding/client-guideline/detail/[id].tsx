@@ -185,6 +185,7 @@ const ClientGuidelineDetail = () => {
   function fetchFile(fileName: string) {
     const path = getFilePath(
       [
+        currentVersion?.client!,
         currentVersion?.category!,
         currentVersion?.serviceType!,
         `V${currentVersion?.version}`,
@@ -353,7 +354,7 @@ const ClientGuidelineDetail = () => {
       </ModalContainer>,
     )
   }
-
+  console.log(currentVersion)
   function noHistory() {
     return (
       <Box

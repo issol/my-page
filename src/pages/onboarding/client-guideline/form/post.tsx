@@ -369,7 +369,12 @@ const ClientGuidelineForm = () => {
       const fileInfo: Array<FilePostType> = []
       const paths = data?.file?.map(file =>
         getFilePath(
-          [data.client.value, data.category.value, data.serviceType.value],
+          [
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+            'V1',
+          ],
           file.name,
         ),
       )
