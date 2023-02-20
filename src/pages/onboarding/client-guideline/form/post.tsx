@@ -60,6 +60,7 @@ import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
+  FilePostType,
   getGuidelinePreSignedUrl,
   postGuideline,
 } from 'src/apis/client-guideline.api'
@@ -350,38 +351,11 @@ const ClientGuidelineForm = () => {
 
   const onSubmit = () => {
     const data = getValues()
-
-    data.file?.length &&
-      data.file.forEach(file => {
-        const path = [
-          getFilePath([
-            data.client.value,
-            data.category.value,
-            data.serviceType.value,
-          ]) + file.name,
-        ]
-
-        getGuidelinePreSignedUrl(path).then(res => {
-          const formData = new FormData()
-          formData.append('files', file)
-          postFiles(res[0], formData)
-            .then(res =>
-              console.log('upload client guideline file success :', res),
-            )
-            .catch(err =>
-              toast.error(
-                'Something went wrong while uploading files. Please try again.',
-                {
-                  position: 'bottom-left',
-                },
-              ),
-            )
-        })
-      })
-
     //** data to send to server */
     const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue = {
+    const finalValue: FormType = {
+      writer: user?.username!,
+      email: user?.email!,
       title: data.title,
       client: data.client.value,
       category: data.category.value,
@@ -389,7 +363,44 @@ const ClientGuidelineForm = () => {
       content: formContent,
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    guidelineMutation.mutate(finalValue)
+    // file upload
+    if (data.file.length) {
+      const formData = new FormData()
+      const fileInfo: Array<FilePostType> = []
+      const paths = data?.file?.map(file =>
+        getFilePath(
+          [data.client.value, data.category.value, data.serviceType.value],
+          file.name,
+        ),
+      )
+      getGuidelinePreSignedUrl(paths).then(res => {
+        const promiseArr = res.map((url, idx) => {
+          fileInfo.push({
+            name: data.file[idx].name,
+            size: data.file[idx]?.size,
+            fileUrl: res[idx],
+          })
+          formData.append(`file`, data.file[idx])
+          return postFiles(url, formData)
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            console.log('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelineMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    } else {
+      guidelineMutation.mutate(finalValue)
+    }
   }
 
   return (

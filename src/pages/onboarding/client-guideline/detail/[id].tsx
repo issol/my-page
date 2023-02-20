@@ -181,13 +181,6 @@ const ClientGuidelineDetail = () => {
       },
     },
   ]
-  // console.log(
-  // getFilePath([
-  //   currentVersion?.category,
-  //   currentVersion?.serviceType,
-  //   `V${currentVersion?.version}`,
-  // ]),
-  // )
 
   function fetchFile(fileName: string) {
     const path =
@@ -195,7 +188,9 @@ const ClientGuidelineDetail = () => {
         currentVersion?.category!,
         currentVersion?.serviceType!,
         `V${currentVersion?.version}`,
-      ]) + fileName
+      ]) +
+      '/' +
+      fileName
 
     // ** TODO: getGuidelinePreSignedUrl의 리스폰스타입이 확정 되면 axios.get의 url부분 수정하기
     getGuidelinePreSignedUrl([path]).then(res => {

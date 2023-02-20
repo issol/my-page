@@ -60,6 +60,7 @@ import {
 import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
+  FilePostType,
   FileType,
   getGuidelinePreSignedUrl,
   updateGuideline,
@@ -269,7 +270,6 @@ const ClientGuidelineEdit = () => {
     savedFiles.forEach(
       (file: { name: string; size: number }) => (result += file.size),
     )
-    console.log(result)
     setFileSize(result)
   }, [files, savedFiles])
 
@@ -378,33 +378,57 @@ const ClientGuidelineEdit = () => {
 
   const onSubmit = () => {
     const data = getValues()
-    // ** TODO: getGuidelinePreSignedUrl의 리스폰스타입이 확정 되면 axios.get의 url부분 수정하기
-    data.file?.length &&
-      data.file.forEach((file, idx) => {
-        const path = [
-          getFilePath([
-            data.client.value,
-            data.category.value,
-            data.serviceType.value,
-          ]) + file.name,
-        ]
-        getGuidelinePreSignedUrl(path).then(res => {
-          const formData = new FormData()
-          formData.append('files', file)
-          postFiles(res[idx], formData)
-            .then(res =>
-              console.log('upload client guideline file success :', res),
-            )
-            .catch(err =>
-              toast.error(
-                'Something went wrong while uploading files. Please try again.',
-                {
-                  position: 'bottom-left',
-                },
-              ),
-            )
+    //** data to send to server */
+    const formContent = convertToRaw(content.getCurrentContent())
+    const finalValue: FormType = {
+      writer: user?.username!,
+      email: user?.email!,
+      title: data.title,
+      client: data.client.value,
+      category: data.category.value,
+      serviceType: data.serviceType.value,
+      content: formContent,
+      text: content.getCurrentContent().getPlainText('\u0001'),
+    }
+
+    // file upload
+    if (data.file.length) {
+      const formData = new FormData()
+      const fileInfo: Array<FilePostType> = []
+      const paths = data?.file?.map(file =>
+        getFilePath(
+          [data.client.value, data.category.value, data.serviceType.value],
+          file.name,
+        ),
+      )
+      getGuidelinePreSignedUrl(paths).then(res => {
+        const promiseArr = res.map((url, idx) => {
+          fileInfo.push({
+            name: data.file[idx].name,
+            size: data.file[idx]?.size,
+            fileUrl: res[idx],
+          })
+          formData.append(`file`, data.file[idx])
+          return postFiles(url, formData)
         })
+        Promise.all(promiseArr)
+          .then(res => {
+            console.log('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelinePatchMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
       })
+    } else {
+      guidelinePatchMutation.mutate(finalValue)
+    }
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
@@ -418,18 +442,6 @@ const ClientGuidelineEdit = () => {
         ),
       )
     }
-
-    //** data to send to server */
-    const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue = {
-      title: data.title,
-      client: data.client.value,
-      category: data.category.value,
-      serviceType: data.serviceType.value,
-      content: formContent,
-      text: content.getCurrentContent().getPlainText('\u0001'),
-    }
-    guidelinePatchMutation.mutate(finalValue)
   }
 
   if (!isSuccess) return null

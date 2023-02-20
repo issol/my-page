@@ -1,4 +1,4 @@
-import axios from 'src/configs/axios'
+import axios, { BASEURL } from 'src/configs/axios'
 import originalAxios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 
@@ -16,7 +16,7 @@ export const getPresignedUrl = async (
 ) => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}&path=${path}`,
+      `${BASEURL}/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}&path=${path}`,
     )
     return data
   } catch (e: any) {

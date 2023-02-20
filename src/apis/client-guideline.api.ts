@@ -3,6 +3,7 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
 export type FileType = { id: number; name: string; size: number }
+export type FilePostType = { name: string; size: number; fileUrl: string }
 export const getGuidelines = async (
   filters: FilterType,
 ): Promise<{
@@ -115,19 +116,23 @@ export const checkGuidelineExistence = async (
 }
 
 export type FormType = {
+  writer: string
+  email: string
   title: string
   client: string
   category: string
   serviceType: string
   content: any
   text: string
+  files?: Array<FilePostType>
 }
 
 export const postGuideline = async (
   form: FormType,
 ): Promise<{ id: number }> => {
   try {
-    return await axios.post(`/api/enough/onboard/guideline`, form)
+    const { data } = await axios.post(`/api/enough/onboard/guideline`, form)
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
@@ -184,11 +189,15 @@ export const restoreGuideline = async (id: number) => {
 // path : /<clinet>/<category>/<serviceType>/V<version>/<fileName> 형태
 export const getGuidelinePreSignedUrl = async (
   path: string[],
-): Promise<Array<any>> => {
+): Promise<Array<string>> => {
   try {
-    return await axios.post(`/api/enough/onboard/guideline/upload-file`, {
-      path,
-    })
+    const { data } = await axios.post(
+      `/api/enough/onboard/guideline/upload-file`,
+      {
+        path,
+      },
+    )
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
