@@ -3236,8 +3236,6 @@ mock.onPost('/api/pro/details/reviewer/action').reply(request => {
     }
   })
 
-  console.log(res)
-
   reviewer.splice(index, 1, res[index])
 
   reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
@@ -3250,8 +3248,6 @@ mock.onPost('/api/pro/details/test').reply(request => {
     JSON.parse(request.data).data
 
   const eventId = Number(userId)
-
-  console.log(jobInfo)
 
   const index = onboardingUser.findIndex(value => value.userId === eventId)
 
@@ -3314,7 +3310,6 @@ mock.onPost('/api/pro/details/comments/add').reply(request => {
 
   const eventId = Number(userId)
   const index = onboardingUser.findIndex(value => value.userId === eventId)
-  console.log(comment)
 
   const res = {
     ...comment,
