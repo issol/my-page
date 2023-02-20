@@ -183,16 +183,15 @@ const ClientGuidelineDetail = () => {
   ]
 
   function fetchFile(fileName: string) {
-    const path =
-      getFilePath([
+    const path = getFilePath(
+      [
         currentVersion?.category!,
         currentVersion?.serviceType!,
         `V${currentVersion?.version}`,
-      ]) +
-      '/' +
-      fileName
+      ],
+      fileName,
+    )
 
-    // ** TODO: getGuidelinePreSignedUrl의 리스폰스타입이 확정 되면 axios.get의 url부분 수정하기
     getGuidelinePreSignedUrl([path]).then(res => {
       axios
         .get(res[0], {
@@ -242,6 +241,7 @@ const ClientGuidelineDetail = () => {
   }
 
   function fileList(files: Array<FileType> | []) {
+    console.log(files)
     if (!files.length) return null
     return files.map(file => (
       <FileList key={file.name} onClick={() => downloadOneFile(file.name)}>
@@ -423,7 +423,7 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Box>
             </Box>
-            <Grid container xs={12}>
+            <Grid container>
               <Grid item xs={2} mb='10px'>
                 <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
                   Client
@@ -435,7 +435,7 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Grid>
             </Grid>
-            <Grid container xs={12} mb='10px'>
+            <Grid container mb='10px'>
               <Grid item xs={2}>
                 <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
                   Category
@@ -447,7 +447,7 @@ const ClientGuidelineDetail = () => {
                 </Typography>
               </Grid>
             </Grid>
-            <Grid container xs={12} mb='10px'>
+            <Grid container mb='10px'>
               <Grid item xs={2}>
                 <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
                   Service type
@@ -600,7 +600,7 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Box>
                   </Box>
-                  <Grid container xs={12}>
+                  <Grid container>
                     <Grid item xs={2} mb='10px'>
                       <Typography
                         sx={{ fontWeight: 600, fontSize: '0.875rem' }}
@@ -614,7 +614,7 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Grid>
                   </Grid>
-                  <Grid container xs={12} mb='10px'>
+                  <Grid container mb='10px'>
                     <Grid item xs={2}>
                       <Typography
                         sx={{ fontWeight: 600, fontSize: '0.875rem' }}
@@ -628,7 +628,7 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Grid>
                   </Grid>
-                  <Grid container xs={12} mb='10px'>
+                  <Grid container mb='10px'>
                     <Grid item xs={2}>
                       <Typography
                         sx={{ fontWeight: 600, fontSize: '0.875rem' }}
