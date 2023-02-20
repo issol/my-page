@@ -8,6 +8,23 @@ export const BASEURL =
 
 const image = '/sample/seo.pdf'
 
+type ReqType = {
+  body: {
+    category?: any
+    client?: any
+    content?: any
+    serviceType?: any
+    title?: any
+  }
+}
+
+type ReqType2 = {
+  params: {
+    guidelineId?: any
+    fileId?: any
+  }
+}
+
 export const handlers = [
   // Handles a GET /user request
   rest.get(BASEURL + '/api/enough/u/pu/r-check', (req, res, ctx) => {
@@ -36,9 +53,15 @@ export const handlers = [
       serviceType: string
     }
     const f_Title = req.url.searchParams.get('title') || ''
-    const f_Client = req.url.searchParams.get('client') || ''
-    const f_Category = req.url.searchParams.get('category') || ''
-    const f_ServiceType = req.url.searchParams.get('serviceType') || ''
+    const f_Client = req.url.searchParams.get('client')
+      ? [req.url.searchParams.get('client')]
+      : []
+    const f_Category = req.url.searchParams.get('category')
+      ? [req.url.searchParams.get('category')]
+      : []
+    const f_ServiceType = req.url.searchParams.get('serviceType')
+      ? [req.url.searchParams.get('serviceType')]
+      : []
 
     const titles = [
       'sample title 1',
@@ -115,9 +138,9 @@ export const handlers = [
 
     function filterData(
       titles?: string,
-      clients?: string[],
-      categories?: string[],
-      serviceTypes?: string[],
+      clients?: Array<string | null>,
+      categories?: Array<string | null>,
+      serviceTypes?: Array<string | null>,
     ): Data[] {
       return sampleList.filter(
         item =>
@@ -141,19 +164,23 @@ export const handlers = [
   }),
 
   // guideline upload
-  rest.post(BASEURL + '/api/enough/onboard/guideline', (req, res, ctx) => {
-    if (
-      req.body.category &&
-      req.body.client &&
-      req.body.content &&
-      req.body.serviceType &&
-      req.body.title
-    ) {
-      return res(ctx.status(200), ctx.json(req.body))
-    } else {
-      return res(ctx.status(404), ctx.json(req.body))
-    }
-  }),
+
+  rest.post(
+    BASEURL + '/api/enough/onboard/guideline',
+    (req: ReqType, res, ctx) => {
+      if (
+        req.body?.category &&
+        req.body?.client &&
+        req.body?.content &&
+        req.body?.serviceType &&
+        req.body?.title
+      ) {
+        return res(ctx.status(200), ctx.json(req.body))
+      } else {
+        return res(ctx.status(404), ctx.json(req.body))
+      }
+    },
+  ),
 
   rest.get(BASEURL + '/api/enough/onboard/guideline/:id', (req, res, ctx) => {
     const id = req.params.id
@@ -236,21 +263,21 @@ export const handlers = [
 
   rest.patch(
     BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.guidelineId))
     },
   ),
 
   rest.delete(
     BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.guidelineId))
     },
   ),
 
   rest.delete(
     BASEURL + '/api/enough/onboard/guideline/file/:fileId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.fileId))
     },
   ),
