@@ -11,9 +11,10 @@ import Icon from 'src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 type Props = {
-  userInfo: OnboardingUserType
+  userInfo: OnboardingProDetailsType
 }
 
 export default function Contracts({ userInfo }: Props) {
@@ -63,7 +64,7 @@ export default function Contracts({ userInfo }: Props) {
                       height: '41px',
                     }}
                   ></img>
-                  <ContractsFileName>{value}</ContractsFileName>
+                  <ContractsFileName>{value.fileName}</ContractsFileName>
                 </Box>
               )
             })

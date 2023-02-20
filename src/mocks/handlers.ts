@@ -6,6 +6,8 @@ import { Book, Review } from './types'
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 
+const image = '/sample/seo.pdf'
+
 export const handlers = [
   // Handles a GET /user request
   rest.get(BASEURL + '/api/enough/u/pu/r-check', (req, res, ctx) => {
@@ -22,6 +24,19 @@ export const handlers = [
         }),
       )
     }
+  }),
+
+  rest.get(BASEURL + '/api/enough/resume', async (req, res, ctx) => {
+    // const imageBuffer = await fetch(image).then(res => res.arrayBuffer())
+    // console.log(imageBuffer)
+
+    // return res(
+    //   ctx.set('Content-Length', imageBuffer.byteLength.toString()),
+    //   ctx.set('ContentType', 'application/pdf'),
+    //   // Respond with the "ArrayBuffer".
+    //   ctx.body(imageBuffer),
+    // )
+    return res(ctx.status(200), ctx.json({ url: '/sample/sample.docx' }))
   }),
 
   // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {

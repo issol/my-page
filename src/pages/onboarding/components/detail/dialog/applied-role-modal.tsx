@@ -110,16 +110,6 @@ export default function AppliedRoleModal({
   onClickAssignRole,
   onClickCancelRole,
 }: Props) {
-  console.log(
-    jobInfoFields.some(item => {
-      if (item.jobType === 'DTP') {
-        return !item.jobType || !item.role
-      } else {
-        return !item.jobType || !item.role || !item.target || !item.source
-      }
-    }),
-  )
-
   const [value, setValue] = useState<string>('1')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)

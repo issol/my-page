@@ -25,9 +25,10 @@ import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
 import { Dispatch, SetStateAction } from 'react'
 import TestDetailsModal from './dialog/test-details-modal'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 type Props = {
-  userInfo: OnboardingUserType
+  userInfo: OnboardingProDetailsType
   selectedJobInfo: SelectedJobInfoType | null
   onClickAction: (jobInfoId: number, status: string) => void
   onClickTestDetails: (history: SelectedJobInfoType) => void
@@ -71,13 +72,13 @@ export default function CertificationTest({
                     mt: 2,
 
                     background:
-                      selectedJobInfo.status === 'Test in progress' ||
-                      selectedJobInfo.status === 'Test submitted' ||
-                      selectedJobInfo.status === 'Reviewing' ||
-                      selectedJobInfo.status === 'Test failed' ||
-                      selectedJobInfo.status === 'Review completed'
+                      selectedJobInfo.testStatus === 'Test in progress' ||
+                      selectedJobInfo.testStatus === 'Test submitted' ||
+                      selectedJobInfo.testStatus === 'Reviewing' ||
+                      selectedJobInfo.testStatus === 'Test failed' ||
+                      selectedJobInfo.testStatus === 'Review completed'
                         ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
-                        : selectedJobInfo.status === 'General failed'
+                        : selectedJobInfo.testStatus === 'General failed'
                         ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
                         : 'rgba(76, 78, 100, 0.05)',
                     boxShadow: 'none',
@@ -105,7 +106,7 @@ export default function CertificationTest({
                         )}
                       </Typography>
                       <Box sx={{ display: 'flex', gap: '10px' }}>
-                        {selectedJobInfo.status === 'Test assigned' ? (
+                        {selectedJobInfo.testStatus === 'Test assigned' ? (
                           <>
                             <Button
                               variant='contained'
@@ -124,7 +125,8 @@ export default function CertificationTest({
                               Proceed
                             </Button>
                           </>
-                        ) : selectedJobInfo.status === 'General in progress' ? (
+                        ) : selectedJobInfo.testStatus ===
+                          'General in progress' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
@@ -139,7 +141,7 @@ export default function CertificationTest({
                             </Typography>
                             <CircularProgress size={20} />
                           </Box>
-                        ) : selectedJobInfo.status === 'General failed' ? (
+                        ) : selectedJobInfo.testStatus === 'General failed' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
@@ -154,11 +156,11 @@ export default function CertificationTest({
                             </Typography>
                             <img src='/images/icons/onboarding-icons/general-failed.svg' />
                           </Box>
-                        ) : selectedJobInfo.status === 'Test in progress' ||
-                          selectedJobInfo.status === 'Test submitted' ||
-                          selectedJobInfo.status === 'Reviewing' ||
-                          selectedJobInfo.status === 'Test failed' ||
-                          selectedJobInfo.status === 'Review completed' ? (
+                        ) : selectedJobInfo.testStatus === 'Test in progress' ||
+                          selectedJobInfo.testStatus === 'Test submitted' ||
+                          selectedJobInfo.testStatus === 'Reviewing' ||
+                          selectedJobInfo.testStatus === 'Test failed' ||
+                          selectedJobInfo.testStatus === 'Review completed' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
@@ -174,7 +176,7 @@ export default function CertificationTest({
 
                             <img src='/images/icons/onboarding-icons/general-passed.svg' />
                           </Box>
-                        ) : selectedJobInfo.status === 'General skipped' ? (
+                        ) : selectedJobInfo.testStatus === 'General skipped' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
@@ -202,11 +204,11 @@ export default function CertificationTest({
               <TimelineSeparator>
                 <TimelineDot
                   color={
-                    selectedJobInfo.status === 'Test in progress' ||
-                    selectedJobInfo.status === 'Test submitted' ||
-                    selectedJobInfo.status === 'Reviewing' ||
-                    selectedJobInfo.status === 'Review completed' ||
-                    selectedJobInfo.status === 'Test failed'
+                    selectedJobInfo.testStatus === 'Test in progress' ||
+                    selectedJobInfo.testStatus === 'Test submitted' ||
+                    selectedJobInfo.testStatus === 'Reviewing' ||
+                    selectedJobInfo.testStatus === 'Review completed' ||
+                    selectedJobInfo.testStatus === 'Test failed'
                       ? 'primary'
                       : 'grey'
                   }
@@ -224,11 +226,11 @@ export default function CertificationTest({
                   <Typography variant='body1' sx={{ fontWeight: 600 }}>
                     Skill Test
                   </Typography>
-                  {selectedJobInfo.status === 'Test in progress' ||
-                  selectedJobInfo.status === 'Test submitted' ||
-                  selectedJobInfo.status === 'Reviewing' ||
-                  selectedJobInfo.status === 'Test failed' ||
-                  selectedJobInfo.status === 'Review completed' ? (
+                  {selectedJobInfo.testStatus === 'Test in progress' ||
+                  selectedJobInfo.testStatus === 'Test submitted' ||
+                  selectedJobInfo.testStatus === 'Reviewing' ||
+                  selectedJobInfo.testStatus === 'Test failed' ||
+                  selectedJobInfo.testStatus === 'Review completed' ? (
                     <Typography
                       variant='body2'
                       sx={{
@@ -247,7 +249,7 @@ export default function CertificationTest({
                     mt: 2,
 
                     background:
-                      selectedJobInfo.status === 'Test failed'
+                      selectedJobInfo.testStatus === 'Test failed'
                         ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
                         : 'rgba(76, 78, 100, 0.05)',
                     boxShadow: 'none',
@@ -290,23 +292,24 @@ export default function CertificationTest({
                           size='medium'
                           type='testStatus'
                           label={
-                            selectedJobInfo.status === 'Test in progress' ||
-                            selectedJobInfo.status === 'Test submitted' ||
-                            selectedJobInfo.status === 'Reviewing' ||
-                            selectedJobInfo.status === 'Test failed' ||
-                            selectedJobInfo.status === 'Review completed'
-                              ? selectedJobInfo.status
+                            selectedJobInfo.testStatus === 'Test in progress' ||
+                            selectedJobInfo.testStatus === 'Test submitted' ||
+                            selectedJobInfo.testStatus === 'Reviewing' ||
+                            selectedJobInfo.testStatus === 'Test failed' ||
+                            selectedJobInfo.testStatus === 'Review completed'
+                              ? selectedJobInfo.testStatus
                               : '-'
                           }
                           /* @ts-ignore */
                           customColor={
                             TestStatusColor[
-                              selectedJobInfo.status === 'Test in progress' ||
-                              selectedJobInfo.status === 'Test submitted' ||
-                              selectedJobInfo.status === 'Reviewing' ||
-                              selectedJobInfo.status === 'Test failed' ||
-                              selectedJobInfo.status === 'Review completed'
-                                ? selectedJobInfo.status
+                              selectedJobInfo.testStatus ===
+                                'Test in progress' ||
+                              selectedJobInfo.testStatus === 'Test submitted' ||
+                              selectedJobInfo.testStatus === 'Reviewing' ||
+                              selectedJobInfo.testStatus === 'Test failed' ||
+                              selectedJobInfo.testStatus === 'Review completed'
+                                ? selectedJobInfo.testStatus
                                 : 'default'
                             ]
                           }

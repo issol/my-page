@@ -69,8 +69,6 @@ export default function CommentsAboutPro({
   addComment,
   onClickDeleteComment,
 }: Props) {
-  console.log(user)
-
   function getLegalName(row: CommentsOnProType) {
     return !row.firstName || !row.lastName
       ? '-'

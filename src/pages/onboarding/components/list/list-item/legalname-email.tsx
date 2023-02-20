@@ -48,7 +48,7 @@ const LegalNameEmail = ({ row }: OnboardingListCellType) => {
         }}
       >
         <Link
-          href={`/onboarding/detail/${row.userId}`}
+          href={`/onboarding/detail/${row.id}`}
           style={{ textDecoration: 'none' }}
         >
           <Typography

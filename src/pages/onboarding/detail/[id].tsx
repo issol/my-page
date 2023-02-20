@@ -18,12 +18,14 @@ import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
 import {
   ChangeEvent,
+  Suspense,
   SyntheticEvent,
   useContext,
   useEffect,
   useState,
 } from 'react'
 import { JobInfoType } from 'src/types/sign/personalInfoTypes'
+import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
 
 import _ from 'lodash'
 import {
@@ -31,6 +33,7 @@ import {
   SelectedJobInfoType,
   TestHistoryType,
   CommentsOnProType,
+  OnboardingJobInfoType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 import {
@@ -44,7 +47,11 @@ import {
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
+import {
+  useGetResume,
+  useGetOnboardingProDetails,
+  useGetReviewerList,
+} from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
@@ -60,20 +67,34 @@ import CancelEditCommentModal from '../components/detail/modal/edit-cancel-comme
 import CancelSaveCommentModal from '../components/detail/modal/cancel-comment-modal'
 import SaveCommentModal from '../components/detail/modal/save-comment-modal'
 import DeleteCommentModal from '../components/detail/modal/delete-comment-modal'
+import FilePreviewDownloadModal from '../components/detail/modal/file-preview-download-modal'
 
 import dayjs from 'dayjs'
+import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import FallbackSpinner from 'src/@core/components/spinner'
+import { log } from 'console'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
 }
-export default function OnboardingDetail() {
+
+const OnboardingDetails = () => (
+  <Suspense fallback={<FallbackSpinner />}>
+    <OnboardingDetail />
+  </Suspense>
+)
+
+function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
-  const { data: userInfo } = useGetUserInfoWithResume(id)
+  const { data: userInfo } = useGetOnboardingProDetails(id!)
   const { data: reviewerList } = useGetReviewerList()
+  const { data: resume } = useGetResume()
   const [hideFailedTest, setHideFailedTest] = useState(false)
-  const [selectedUserInfo, setSelectedUserInfo] = useState(userInfo)
-  const [jobInfo, setJobInfo] = useState(userInfo?.jobInfo)
+  const [selectedUserInfo, setSelectedUserInfo] =
+    useState<OnboardingProDetailsType | null>(null)
+  const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<SelectedJobInfoType | null>(null)
@@ -262,55 +283,74 @@ export default function OnboardingDetail() {
     return `/images/signup/role-${role.toLowerCase()}.png`
   }
 
-  function getLegalName(row: UserInfoResType) {
-    return !row.firstName || !row.lastName
-      ? '-'
-      : row.firstName +
-          (row.middleName ? ' (' + row.middleName + ')' : '') +
-          ` ${row.lastName}`
-  }
-
-  if (!userInfo) {
-    return null
-  }
-
   const handleHideFailedTestChange = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+    if (selectedUserInfo) {
+      if (event.target.checked) {
+        let prevState = selectedUserInfo
 
-    if (event.target.checked) {
-      let prevState = selectedUserInfo
+        const res = prevState.jobInfo.filter(
+          (value: any) =>
+            !(
+              value.status === 'Test failed' ||
+              value.status === 'General failed'
+            ),
+        )
 
-      const res = prevState.jobInfo.filter(
-        (value: any) =>
-          !(
-            value.status === 'Test failed' || value.status === 'General failed'
-          ),
-      )
+        prevState['jobInfo'] = res
+        setSelectedUserInfo(prevState)
+      } else {
+        let prevState = selectedUserInfo
 
-      prevState['jobInfo'] = res
-      setSelectedUserInfo(prevState)
-    } else {
-      let prevState = selectedUserInfo
-
-      prevState['jobInfo'] = jobInfo
-      setSelectedUserInfo(prevState)
+        prevState['jobInfo'] = jobInfo
+        setSelectedUserInfo(prevState)
+      }
     }
   }
 
-  const handleClickRoleCard = (jobInfo: SelectedJobInfoType) => {
+  const handleClickRoleCard = (jobInfo: OnboardingJobInfoType) => {
     setSelectedJobInfo(jobInfo)
-    const prevState = selectedUserInfo
-    const res = selectedUserInfo.jobInfo.map((value: any) => {
-      if (value.id === jobInfo.id) {
-        return { ...value, selected: true }
-      } else {
-        return { ...value, selected: false }
-      }
-    })
-    prevState['jobInfo'] = res
-    setSelectedUserInfo(prevState)
+    if (selectedUserInfo !== null) {
+      setSelectedUserInfo((prevState: OnboardingProDetailsType | null) => {
+        if (prevState) {
+          const res = prevState.jobInfo.map((value: any) => {
+            if (value.id === jobInfo.id) {
+              return { ...value, selected: true }
+            } else {
+              return { ...value, selected: false }
+            }
+          })
+          prevState['jobInfo'] = res
+
+          return prevState
+        } else {
+          return null
+        }
+      })
+      // let prevState = selectedUserInfo
+      // console.log(selectedUserInfo.jobInfo)
+      // console.log(jobInfo.id)
+      // const res = prevState.jobInfo.map((value: any) => {
+      //   if (value.id === jobInfo.id) {
+      //     return { ...value, selected: true }
+      //   } else {
+      //     return { ...value, selected: false }
+      //   }
+      // })
+
+      // const index = prevState.jobInfo.findIndex(
+      //   (value: OnboardingJobInfoType) => value.id === jobInfo.id,
+      // )
+      // console.log(index)
+
+      // // prevState['jobInfo'] = res
+      // prevState.jobInfo.splice(index, 1, res[index])
+      // console.log(prevState.jobInfo)
+
+      // setSelectedUserInfo(prevState)
+    }
   }
 
   const onClickCertify = (jobInfoId: number) => {
@@ -380,7 +420,7 @@ export default function OnboardingDetail() {
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
     //** TODO : Assign 연결 */
-    console.log(jobInfo)
+
     addTestMutation.mutate({ userId: Number(id), jobInfo: jobInfo })
   }
 
@@ -481,10 +521,10 @@ export default function OnboardingDetail() {
     const res = {
       id: 0,
       userId: Number(id),
-      firstName: userInfo.firstName,
-      middleName: userInfo.middleName,
-      lastName: userInfo.lastName,
-      email: userInfo.email,
+      firstName: userInfo!.firstName,
+      middleName: userInfo!.middleName,
+      lastName: userInfo!.lastName,
+      email: userInfo!.email,
       createdAt: '2023-02-15T21:40:10Z',
       updatedAt: '2023-02-15T21:40:10Z',
       comment: addComment,
@@ -572,9 +612,9 @@ export default function OnboardingDetail() {
   }
 
   useEffect(() => {
-    let tempUserInfo = userInfo
+    let tempUserInfo = userInfo!
 
-    const res = userInfo.jobInfo.map((value: any) => ({
+    const res = userInfo!.jobInfo.map((value: any) => ({
       ...value,
       selected: value.id === actionId ? true : false,
     }))
@@ -590,6 +630,31 @@ export default function OnboardingDetail() {
     }
     // setSelectedJobInfo(res)
   }, [userInfo])
+
+  useEffect(() => {
+    console.log(selectedUserInfo)
+  }, [selectedUserInfo])
+
+  const onClickResume = (resume: {
+    id: number
+    uri: string
+    fileName: string
+    fileType: string
+  }) => {
+    setModal(
+      <FilePreviewDownloadModal
+        open={true}
+        onClose={() => setModal(null)}
+        docs={[resume]}
+        // docs={[
+        //   {
+        //     uri: `https://docs.google.com/document/d/1BtUG2ZlePhGkuONaijG-Hvc2UPcpS_Xk`,
+        //   },
+        // ]}
+      />,
+    )
+    // setDocs([{ uri: `http://localhost:3000${resume!}` }])
+  }
 
   return (
     <Grid container xs={12} spacing={6}>
@@ -670,16 +735,18 @@ export default function OnboardingDetail() {
               </Card>
               <Box sx={{ alignSelf: 'self-end' }}>
                 <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Typography variant='h5'>{getLegalName(userInfo)}</Typography>
+                  <Typography variant='h5'>
+                    {getLegalName(userInfo!)}
+                  </Typography>
                   <img
                     width={32}
                     height={32}
                     src={
-                      userInfo.isOnboarded && userInfo.isActive
+                      userInfo!.isOnboarded && userInfo!.isActive
                         ? `/images/icons/onboarding-icons/pro-active.png`
-                        : !userInfo.isOnboarded
+                        : !userInfo!.isOnboarded
                         ? `/images/icons/onboarding-icons/pro-onboarding.png`
-                        : userInfo.isOnboarded && !userInfo.isActive
+                        : userInfo!.isOnboarded && !userInfo!.isActive
                         ? `/images/icons/onboarding-icons/pro-inactive.png`
                         : ''
                     }
@@ -693,8 +760,8 @@ export default function OnboardingDetail() {
                     color: 'rgba(76, 78, 100, 0.6)',
                   }}
                 >
-                  {userInfo.legalNamePronunciation
-                    ? userInfo.legalNamePronunciation
+                  {userInfo!.legalNamePronunciation
+                    ? userInfo!.legalNamePronunciation
                     : '-'}
                 </Typography>
               </Box>
@@ -711,26 +778,26 @@ export default function OnboardingDetail() {
         height='100%'
       >
         <Grid item xs={12}>
-          <About userInfo={userInfo} />
+          <About userInfo={userInfo!} />
         </Grid>
         <Grid item xs={12}>
-          <NoteFromPro userInfo={userInfo} />
+          <NoteFromPro userInfo={userInfo!} />
         </Grid>
       </Grid>
 
       <Grid item xs={7} display='flex' gap='24px' direction='column'>
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Resume userInfo={userInfo} />
+            <Resume userInfo={userInfo!} onClickResume={onClickResume} />
           </Grid>
           <Grid item xs={6}>
-            <Experience userInfo={userInfo} />
+            <Experience userInfo={userInfo!} />
           </Grid>
         </Grid>
 
         <Grid item xs={12}>
           <AppliedRole
-            userInfo={selectedUserInfo?.jobInfo}
+            userInfo={selectedUserInfo ? selectedUserInfo!.jobInfo : []}
             hideFailedTest={hideFailedTest}
             handleHideFailedTestChange={handleHideFailedTestChange}
             selectedJobInfo={selectedJobInfo}
@@ -747,7 +814,7 @@ export default function OnboardingDetail() {
 
         <Grid item xs={12}>
           <CertificationTest
-            userInfo={userInfo}
+            userInfo={userInfo!}
             selectedJobInfo={selectedJobInfo}
             onClickAction={onClickAction}
             onClickTestDetails={onClickTestDetails}
@@ -755,7 +822,7 @@ export default function OnboardingDetail() {
         </Grid>
         <Grid item xs={12}>
           <CommentsAboutPro
-            userInfo={userInfo?.commentsOnPro}
+            userInfo={userInfo!.commentsOnPro!}
             user={userInfo}
             page={commentsProPage}
             rowsPerPage={commentsProRowsPerPage}
@@ -782,10 +849,10 @@ export default function OnboardingDetail() {
 
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Contracts userInfo={userInfo} />
+            <Contracts userInfo={userInfo!} />
           </Grid>
           <Grid item xs={6}>
-            <Specialties userInfo={userInfo} />
+            <Specialties userInfo={userInfo!} />
           </Grid>
         </Grid>
       </Grid>
@@ -794,7 +861,7 @@ export default function OnboardingDetail() {
 }
 
 // ** TODO : 렐,백엔드와 논의 후 수정
-OnboardingDetail.acl = {
+OnboardingDetails.acl = {
   subject: 'onboarding',
   action: 'read',
 }
@@ -816,3 +883,5 @@ const DesignedCard = styled(Card)`
       #666cff;
   }
 `
+
+export default OnboardingDetails

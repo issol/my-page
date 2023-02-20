@@ -11,11 +11,19 @@ import Icon from 'src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+
 type Props = {
-  userInfo: OnboardingUserType
+  userInfo: OnboardingProDetailsType
+  onClickResume: (resume: {
+    id: number
+    uri: string
+    fileName: string
+    fileType: string
+  }) => void
 }
 
-export default function Resume({ userInfo }: Props) {
+export default function Resume({ userInfo, onClickResume }: Props) {
   return (
     <Card sx={{ padding: '20px' }}>
       <TypoGraphy
@@ -32,7 +40,6 @@ export default function Resume({ userInfo }: Props) {
           <img src='/images/icons/file-icons/download.svg'></img>
         </IconButton>
       </TypoGraphy>
-
       <CardContent sx={{ padding: 0 }}>
         <Box sx={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
           {userInfo.resume && userInfo.resume.length ? (
@@ -47,16 +54,18 @@ export default function Resume({ userInfo }: Props) {
                     justifyContent: 'center',
                     alignItems: 'center',
                     gap: '5px',
+                    cursor: 'pointer',
                   }}
+                  onClick={() => onClickResume(value)}
                 >
                   <img
-                    src='/images/icons/file-icons/resume-pdf.png'
+                    src={`/images/icons/file-icons/${value.fileType}-file.svg`}
                     style={{
-                      width: '37px',
-                      height: '41px',
+                      width: '40px',
+                      height: '40px',
                     }}
                   ></img>
-                  <ResumeFileName>{value}</ResumeFileName>
+                  <ResumeFileName>{value.fileName}</ResumeFileName>
                 </Box>
               )
             })

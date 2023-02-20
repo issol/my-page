@@ -26,6 +26,7 @@ export interface OnboardingJobInfoType extends JobInfoType {
   jobId: string
   createdAt: string
   updatedAt: string
+  selected: boolean
   // history: Array<TestHistoryType>
 }
 
@@ -74,7 +75,7 @@ export type OnboardingUserType = {
   experience: string
   jobInfo: Array<OnboardingJobInfoType>
   isOnboarded: boolean
-  notesFromPro?: string | null
+  notesFromUser?: string | null
   isActive: boolean
   legalNamePronunciation?: string | null
   pronounce?: PronounceType | null
@@ -83,8 +84,18 @@ export type OnboardingUserType = {
   timezone: CountryType
   mobile?: string | null
   phone?: string | null
-  resume?: Array<string>
-  contracts?: Array<string>
+  resume?: Array<{
+    id: number
+    uri: string
+    fileName: string
+    fileType: string
+  }>
+  contracts?: Array<{
+    id: number
+    uri: string
+    fileName: string
+    fileType: string
+  }>
   specialties?: Array<string>
   commentsOnPro?: Array<CommentsOnProType>
 }

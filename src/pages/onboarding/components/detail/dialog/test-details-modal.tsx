@@ -535,6 +535,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
               <Tab
                 value='1'
                 label='Test details'
+                sx={{ textTransform: 'none' }}
                 icon={
                   <img
                     src={`/images/icons/onboarding-icons/test-details-${
@@ -555,6 +556,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                   />
                 }
                 iconPosition='start'
+                sx={{ textTransform: 'none' }}
               />
             </TabList>
             <TabPanel value='1' sx={{ padding: 0 }}>

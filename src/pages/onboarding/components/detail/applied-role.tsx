@@ -3,6 +3,7 @@ import Divider from '@mui/material/Divider'
 import CardHeader from '@mui/material/CardHeader'
 import CardContent from '@mui/material/CardContent'
 import {
+  OnboardingJobInfoType,
   OnboardingUserType,
   SelectedJobInfoType,
   TestHistoryType,
@@ -20,13 +21,13 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 type Props = {
-  userInfo: SelectedJobInfoType[]
+  userInfo: Array<OnboardingJobInfoType>
   handleHideFailedTestChange: (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
   hideFailedTest: boolean
   selectedJobInfo: JobInfoType | null
-  handleClickRoleCard: (jobInfo: SelectedJobInfoType) => void
+  handleClickRoleCard: (jobInfo: OnboardingJobInfoType) => void
   page: number
   rowsPerPage: number
   offset: number
@@ -55,6 +56,7 @@ export default function AppliedRole({
     status: string,
     jobInfoId: number,
   ) => {
+    console.log(userInfo)
     if (status === 'Awaiting Assignment') {
       if (jobType === 'DTP' || jobType === 'Interpretation') {
         return (
@@ -342,7 +344,11 @@ export default function AppliedRole({
                       </Typography>
 
                       <Grid item display='flex' gap='16px' mt={'17px'}>
-                        {getStatusButton(value.jobType, value.status, value.id)}
+                        {getStatusButton(
+                          value.jobType,
+                          value.testStatus,
+                          value.id,
+                        )}
                       </Grid>
                     </CardContent>
                   </Card>
