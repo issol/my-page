@@ -38,6 +38,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
 import { FormControlLabel } from '@mui/material'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
+import _ from 'lodash'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -136,12 +137,12 @@ export default function AppliedRoleModal({
           position: 'relative',
         }}
       >
-        <IconButton
+        {/* <IconButton
           sx={{ position: 'absolute', top: '20px', right: '20px' }}
           onClick={onClose}
         >
           <Icon icon='mdi:close'></Icon>
-        </IconButton>
+        </IconButton> */}
         <TabContext value={value}>
           <TabList onChange={handleChange} aria-label='customized tabs example'>
             <Tab
@@ -154,6 +155,7 @@ export default function AppliedRoleModal({
                   }.svg`}
                 />
               }
+              sx={{ textTransform: 'none' }}
               iconPosition='start'
             />
             <Tab
@@ -161,6 +163,7 @@ export default function AppliedRoleModal({
               label='Assign role'
               icon={<Icon icon='mdi:account-outline'></Icon>}
               iconPosition='start'
+              sx={{ textTransform: 'none' }}
             />
           </TabList>
           <TabPanel value='1' sx={{ padding: 0 }}>
@@ -472,7 +475,22 @@ export default function AppliedRoleModal({
                     <Button variant='outlined' onClick={onClickCancelTest}>
                       Cancel
                     </Button>
-                    <Button variant='contained' type='submit'>
+                    <Button
+                      variant='contained'
+                      type='submit'
+                      disabled={jobInfoFields.some(item => {
+                        if (item.jobType === 'DTP') {
+                          return !item.jobType || !item.role
+                        } else {
+                          return (
+                            !item.jobType ||
+                            !item.role ||
+                            !item.target ||
+                            !item.source
+                          )
+                        }
+                      })}
+                    >
                       Assign test
                     </Button>
                   </Box>
@@ -789,7 +807,22 @@ export default function AppliedRoleModal({
                     <Button variant='outlined' onClick={onClickCancelRole}>
                       Cancel
                     </Button>
-                    <Button variant='contained' type='submit'>
+                    <Button
+                      variant='contained'
+                      type='submit'
+                      disabled={roleJobInfoFields.some(item => {
+                        if (item.jobType === 'DTP') {
+                          return !item.jobType || !item.role
+                        } else {
+                          return (
+                            !item.jobType ||
+                            !item.role ||
+                            !item.target ||
+                            !item.source
+                          )
+                        }
+                      })}
+                    >
                       Assign role
                     </Button>
                   </Box>

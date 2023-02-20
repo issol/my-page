@@ -1,10 +1,29 @@
 import { rest } from 'msw'
-import { onboardingUser } from 'src/@fake-db/user'
+
 import { Book, Review } from './types'
 
 // 이 부분 글로벌 const로 빠져야 합니다.
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
+
+const image = '/sample/seo.pdf'
+
+type ReqType = {
+  body: {
+    category?: any
+    client?: any
+    content?: any
+    serviceType?: any
+    title?: any
+  }
+}
+
+type ReqType2 = {
+  params: {
+    guidelineId?: any
+    fileId?: any
+  }
+}
 
 export const handlers = [
   // Handles a GET /user request
@@ -36,9 +55,15 @@ export const handlers = [
     const f_Skip = Number(req.url.searchParams.get('skip')) || 1
     const f_PageSize = Number(req.url.searchParams.get('pageSize')) || 10
     const f_Title = req.url.searchParams.get('title') || ''
-    const f_Client = req.url.searchParams.get('client') || ''
-    const f_Category = req.url.searchParams.get('category') || ''
-    const f_ServiceType = req.url.searchParams.get('serviceType') || ''
+    const f_Client = req.url.searchParams.get('client')
+      ? [req.url.searchParams.get('client')]
+      : []
+    const f_Category = req.url.searchParams.get('category')
+      ? [req.url.searchParams.get('category')]
+      : []
+    const f_ServiceType = req.url.searchParams.get('serviceType')
+      ? [req.url.searchParams.get('serviceType')]
+      : []
 
     const titles = [
       'sample title 1',
@@ -114,23 +139,12 @@ export const handlers = [
     }
 
     function filterData(
-      skip: number,
-      take: number,
       titles?: string,
-      clients?: string[],
-      categories?: string[],
-      serviceTypes?: string[],
+      clients?: Array<string | null>,
+      categories?: Array<string | null>,
+      serviceTypes?: Array<string | null>,
     ): Data[] {
-      // return sampleList
-      //   .filter(
-      //     item =>
-      //       (!titles || titles === item.title) &&
-      //       (clients?.length === 0 || clients?.includes(item.client)) &&
-      //       (categories?.length === 0 || categories?.includes(item.category)) &&
-      //       (serviceTypes?.length === 0 ||
-      //         serviceTypes?.includes(item.serviceType)),
-      //   )
-      let filteredList = sampleList.filter(
+      return sampleList.filter(
         item =>
           (!titles || titles === item.title) &&
           (clients?.length === 0 || clients?.includes(item.client)) &&
@@ -138,51 +152,43 @@ export const handlers = [
           (serviceTypes?.length === 0 ||
             serviceTypes?.includes(item.serviceType)),
       )
-      // 페이지네이션을 위해 적절한 데이터를 가져옴
-      filteredList = filteredList.slice(skip - 1, take)
-      return filteredList
     }
 
     const sampleList: Data[] = generateRandomData()
-    const finalList = filterData(
-      f_Skip,
-      f_PageSize,
-      f_Title,
-      f_Client,
-      f_Category,
-      f_ServiceType,
-    )
+    const finalList = filterData(f_Title, f_Client, f_Category, f_ServiceType)
     return res(
       ctx.status(200),
       ctx.json({
         data: finalList,
-        // count: finalList.length,
-        count: 20,
+        count: finalList.length,
       }),
     )
   }),
 
   // guideline upload
-  rest.post(BASEURL + '/api/enough/onboard/guideline', (req, res, ctx) => {
-    if (
-      req.body.category &&
-      req.body.client &&
-      req.body.content &&
-      req.body.serviceType &&
-      req.body.title
-    ) {
-      return res(ctx.status(200), ctx.json(req.body))
-    } else {
-      return res(ctx.status(404), ctx.json(req.body))
-    }
-  }),
+
+  rest.post(
+    BASEURL + '/api/enough/onboard/guideline',
+    (req: ReqType, res, ctx) => {
+      if (
+        req.body?.category &&
+        req.body?.client &&
+        req.body?.content &&
+        req.body?.serviceType &&
+        req.body?.title
+      ) {
+        return res(ctx.status(200), ctx.json(req.body))
+      } else {
+        return res(ctx.status(404), ctx.json(req.body))
+      }
+    },
+  ),
 
   rest.get(BASEURL + '/api/enough/onboard/guideline/:id', (req, res, ctx) => {
     const id = req.params.id
     const detail = {
       currentVersion: {
         id: id,
-        version: 1,
         userId: 12345,
         title: 'title sample',
         writer: 'Jay Lee',
@@ -190,7 +196,7 @@ export const handlers = [
         client: 'GloZ',
         category: 'Dubbing',
         serviceType: 'Editing',
-        updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+        updatedAt: '2023-02-10T07:33:53.740Z1',
         content: {
           blocks: [
             {
@@ -230,7 +236,7 @@ export const handlers = [
           category: 'Dubbing',
           serviceType: 'Editing',
           content: 'awefawef',
-          updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+          updatedAt: '2023-02-10T07:33:53.740Z1',
           files: [
             { name: 'file1.docx', size: 34876123 },
             { name: 'file2.xlsx', size: 25161 },
@@ -246,7 +252,7 @@ export const handlers = [
           category: 'Dubbing',
           serviceType: 'Editing',
           content: 'awefawef',
-          updatedAt: 'Fri Feb 17 2023 18:32:29 GMT+0900',
+          updatedAt: '2023-02-10T07:33:53.740Z1',
           files: [
             { name: 'file1.docx', size: 34876123 },
             { name: 'file2.xlsx', size: 25161 },
@@ -259,21 +265,21 @@ export const handlers = [
 
   rest.patch(
     BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.guidelineId))
     },
   ),
 
   rest.delete(
     BASEURL + '/api/enough/onboard/guideline/:guidelineId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.guidelineId))
     },
   ),
 
   rest.delete(
     BASEURL + '/api/enough/onboard/guideline/file/:fileId',
-    (req, res, ctx) => {
+    (req: ReqType2, res, ctx) => {
       return res(ctx.status(200), ctx.body(req.params.fileId))
     },
   ),

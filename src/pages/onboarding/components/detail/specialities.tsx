@@ -11,8 +11,9 @@ import Icon from 'src/@core/components/icon'
 import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import Chip from 'src/@core/components/mui/chip'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 type Props = {
-  userInfo: OnboardingUserType
+  userInfo: OnboardingProDetailsType
 }
 
 export default function Specialties({ userInfo }: Props) {

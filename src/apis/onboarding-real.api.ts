@@ -1,15 +1,26 @@
+import { AxiosResponse } from 'axios'
+import { log } from 'console'
 import axios from 'src/configs/axios'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 export const getOnboardingProList = async () => {
   const data = await axios.get('/api/enough/onboard/user/al?take=20&skip=0')
 
-  console.log(data)
-
   return data.data
 }
 
-export const getOnboardingProDetails = async (userId: string) => {
-  const data = await axios.get(`/api/enough/onboard/user/al/${userId}`)
+export const getOnboardingProDetails = async (
+  userId: string,
+): Promise<OnboardingProDetailsType> => {
+  const { data } = await axios.get<OnboardingProDetailsType>(
+    `/api/enough/onboard/user/${userId}`,
+  )
 
-  return data.data
+  return data
+}
+
+export const getResume = async () => {
+  const data = await axios.get('/api/enough/resume')
+
+  return data.data.url
 }

@@ -191,7 +191,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
 
   useEffect(() => {
     setInfo(jobInfo)
-    setTestStatus({ value: jobInfo.status, label: jobInfo.status })
+    setTestStatus({ value: jobInfo.testStatus, label: jobInfo.testStatus })
   }, [jobInfo])
 
   useEffect(() => {
@@ -535,6 +535,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
               <Tab
                 value='1'
                 label='Test details'
+                sx={{ textTransform: 'none' }}
                 icon={
                   <img
                     src={`/images/icons/onboarding-icons/test-details-${
@@ -555,6 +556,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                   />
                 }
                 iconPosition='start'
+                sx={{ textTransform: 'none' }}
               />
             </TabList>
             <TabPanel value='1' sx={{ padding: 0 }}>
@@ -626,7 +628,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                         },
                       }}
                     >
-                      <DataGrid
+                      {/* <DataGrid
                         components={{
                           NoRowsOverlay: () => {
                             return (
@@ -678,7 +680,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                         onPageSizeChange={(newPageSize: number) =>
                           setTestHistoryPageSize(newPageSize)
                         }
-                      />
+                      /> */}
                     </Box>
                   </Card>
                 </Grid>

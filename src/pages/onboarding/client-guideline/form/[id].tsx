@@ -31,7 +31,7 @@ import FallbackSpinner from 'src/@core/components/spinner'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-import { Writer } from 'src/pages/components/chip'
+import { Writer } from 'src/@core/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
