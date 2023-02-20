@@ -1,30 +1,30 @@
-import { IDocument } from "..";
+import { IDocument } from '@cyntler/react-doc-viewer'
 
 export const getFileName = (
   document: IDocument | undefined,
-  retainURLParams: boolean
+  retainURLParams: boolean,
 ): string => {
   if (!document) {
-    return "";
+    return ''
   }
 
-  let fileName = "";
+  let fileName = ''
 
   if (document.fileName) {
-    fileName = document.fileName;
+    fileName = document.fileName
   } else {
-    fileName = document.uri || "";
-    fileName = decodeURI(fileName);
+    fileName = document.uri || ''
+    fileName = decodeURI(fileName)
 
     if (!retainURLParams) {
-      fileName = fileName.split("?")[0];
+      fileName = fileName.split('?')[0]
     }
 
-    const splitURL = fileName.split("/");
+    const splitURL = fileName.split('/')
     if (splitURL.length) {
-      fileName = splitURL[splitURL.length - 1];
+      fileName = splitURL[splitURL.length - 1]
     }
   }
 
-  return fileName;
-};
+  return fileName
+}

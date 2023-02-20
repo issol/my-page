@@ -16,7 +16,7 @@ export default function NoteFromPro({ userInfo }: Props) {
       <CardHeader title='Notes from Pro' sx={{ padding: 0 }}></CardHeader>
       <Divider sx={{ my: theme => `${theme.spacing(7)} !important` }} />
       <CardContent sx={{ padding: 0 }}>
-        {userInfo.notesFromPro ?? '-'}
+        {userInfo.notesFromUser ?? '-'}
       </CardContent>
     </Card>
   )

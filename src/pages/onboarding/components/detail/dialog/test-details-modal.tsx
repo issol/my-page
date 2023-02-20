@@ -191,7 +191,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
 
   useEffect(() => {
     setInfo(jobInfo)
-    setTestStatus({ value: jobInfo.status, label: jobInfo.status })
+    setTestStatus({ value: jobInfo.testStatus, label: jobInfo.testStatus })
   }, [jobInfo])
 
   useEffect(() => {
@@ -628,7 +628,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                         },
                       }}
                     >
-                      <DataGrid
+                      {/* <DataGrid
                         components={{
                           NoRowsOverlay: () => {
                             return (
@@ -680,7 +680,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
                         onPageSizeChange={(newPageSize: number) =>
                           setTestHistoryPageSize(newPageSize)
                         }
-                      />
+                      /> */}
                     </Box>
                   </Card>
                 </Grid>
