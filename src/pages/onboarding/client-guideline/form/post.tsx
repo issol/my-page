@@ -59,6 +59,7 @@ import {
 import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
+  checkGuidelineExistence,
   getGuidelinePreSignedUrl,
   postGuideline,
 } from 'src/apis/client-guideline.api'
@@ -93,6 +94,7 @@ const ClientGuidelineForm = () => {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
+  const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
 
   // ** file values
   const MAXIMUM_FILE_SIZE = 50000000
@@ -124,7 +126,67 @@ const ClientGuidelineForm = () => {
       setFiles(uniqueFiles)
     },
   })
-  console.log(files)
+
+  useEffect(() => {
+    if (isDuplicated) {
+      setModal(
+        <ModalContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='The guide line is already exist.'
+            />
+            <Typography variant='body2'>
+              The guideline for this client/category/
+              <br />
+              service type already exists.
+            </Typography>
+          </Box>
+          <ModalButtonGroup>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setModal(null)
+                resetFormSelection()
+              }}
+            >
+              Okay
+            </Button>
+          </ModalButtonGroup>
+        </ModalContainer>,
+      )
+    }
+  }, [isDuplicated])
+
+  function resetFormSelection() {
+    ;['client', 'category', 'serviceType'].forEach(name => {
+      setValue(
+        name,
+        { label: '', value: '' },
+        { shouldDirty: true, shouldValidate: true },
+      )
+    })
+  }
+
+  function checkGuideline() {
+    const { category, client, serviceType } = getValues()
+    if (category.value && client.value && serviceType.value) {
+      checkGuidelineExistence(
+        category.value,
+        client.value,
+        serviceType.value,
+      ).then(res => setIsDuplicated(res))
+    }
+  }
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -203,7 +265,7 @@ const ClientGuidelineForm = () => {
             src='/images/icons/project-icons/status-alert-error.png'
             width={60}
             height={60}
-            alt='role select error'
+            alt=''
           />
           <Typography variant='body2'>
             Are you sure to discard this contract?
@@ -242,7 +304,7 @@ const ClientGuidelineForm = () => {
             src='/images/icons/project-icons/status-successful.png'
             width={60}
             height={60}
-            alt='role select error'
+            alt=''
           />
           <Typography variant='body2'>
             Are you sure to upload this guideline?
@@ -338,7 +400,7 @@ const ClientGuidelineForm = () => {
         </Typography>
 
         <Grid container spacing={6} className='match-height'>
-          <Grid item xs={9}>
+          <Grid item xs={12} md={8}>
             <Card sx={{ padding: '30px 20px 20px' }}>
               <Box display='flex' justifyContent='flex-end' mb='26px'>
                 <Box display='flex' alignItems='center' gap='8px'>
@@ -395,6 +457,7 @@ const ClientGuidelineForm = () => {
                         options={ClientCategoryIncludeGloz}
                         filterSelectedOptions
                         onChange={(e, v) => {
+                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
                         }}
@@ -433,6 +496,7 @@ const ClientGuidelineForm = () => {
                         value={value}
                         filterSelectedOptions
                         onChange={(e, v) => {
+                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
                         }}
@@ -471,6 +535,7 @@ const ClientGuidelineForm = () => {
                       value={value}
                       filterSelectedOptions
                       onChange={(e, v) => {
+                        checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
                       }}
@@ -518,7 +583,13 @@ const ClientGuidelineForm = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+          <Grid
+            item
+            xs={12}
+            md={4}
+            className='match-height'
+            sx={{ height: '152px' }}
+          >
             <Card style={{ height: '565px', overflow: 'scroll' }}>
               <Box
                 sx={{

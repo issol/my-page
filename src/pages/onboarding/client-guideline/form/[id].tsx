@@ -444,7 +444,7 @@ const ClientGuidelineEdit = () => {
           }
         >
           <Grid container spacing={6} className='match-height'>
-            <Grid item xs={9}>
+            <Grid item xs={12} md={8}>
               <Card sx={{ padding: '30px 20px 20px' }}>
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
@@ -616,7 +616,13 @@ const ClientGuidelineEdit = () => {
               </Card>
             </Grid>
 
-            <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+            <Grid
+              item
+              xs={12}
+              md={4}
+              className='match-height'
+              sx={{ height: '152px' }}
+            >
               <Card style={{ height: '565px', overflow: 'scroll' }}>
                 <Box
                   sx={{
