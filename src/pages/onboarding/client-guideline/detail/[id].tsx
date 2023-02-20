@@ -50,6 +50,9 @@ import { useMutation } from 'react-query'
 import { getPresignedUrl } from 'src/apis/common.api'
 import { FilePathEnum } from 'src/apis/common.api'
 
+// ** helpers
+import { getFilePath } from 'src/shared/transformer/filePath.transformer'
+
 type CellType = {
   row: {
     id: number
@@ -177,6 +180,13 @@ const ClientGuidelineDetail = () => {
       },
     },
   ]
+  // console.log(
+  //   getFilePath([
+  //     currentVersion?.category,
+  //     currentVersion?.serviceType,
+  //     `V${currentVersion?.version}`,
+  //   ]),
+  // )
 
   // ** TODO: file down 구현하기
   function fetchFile(fileName: string) {

@@ -61,8 +61,9 @@ import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 import {
-  postGuideline,
   deleteGuidelineFile,
+  FileType,
+  updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
@@ -88,7 +89,7 @@ interface FileProp {
 
 const ClientGuidelineEdit = () => {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query.id)
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
@@ -105,9 +106,9 @@ const ClientGuidelineEdit = () => {
   const [savedFiles, setSavedFiles] = useState<
     Array<{ name: string; size: number }> | []
   >([])
-  const [deletedFiles, setDeletedFiles] = useState<string[] | []>([])
+  const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
-  const { data, isSuccess } = useGetGuideLineDetail(Number(id))
+  const { data, isSuccess } = useGetGuideLineDetail(id)
 
   const currentVersion = data?.currentVersion || {
     id: null,
@@ -154,9 +155,9 @@ const ClientGuidelineEdit = () => {
     setFiles([...filtered])
   }
 
-  const handleRemoveSavedFile = (fileName: string) => {
-    setSavedFiles(savedFiles.filter(item => item.name !== fileName))
-    setDeletedFiles([...deletedFiles, fileName])
+  const handleRemoveSavedFile = (file: FileType) => {
+    setSavedFiles(savedFiles.filter(item => item.name !== file.name))
+    setDeletedFiles([...deletedFiles, file])
   }
 
   const fileList = files.map((file: FileProp) => (
@@ -201,7 +202,7 @@ const ClientGuidelineEdit = () => {
           </Typography>
         </div>
       </div>
-      <IconButton onClick={() => handleRemoveSavedFile(file.name)}>
+      <IconButton onClick={() => handleRemoveSavedFile(file)}>
         <Icon icon='mdi:close' fontSize={20} />
       </IconButton>
     </FileList>
@@ -356,12 +357,11 @@ const ClientGuidelineEdit = () => {
     )
   }
 
-  const guidelineMutation = useMutation(
-    (form: FormType) => postGuideline(form),
+  const guidelinePatchMutation = useMutation(
+    (form: FormType) => updateGuideline(id, form),
     {
       onSuccess: data => {
-        //** TODO : return data에 오는 id로 client-guideline detail페이지로 이동하기
-        //router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        router.push(`/onboarding/client-guideline/detail/${id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -412,7 +412,7 @@ const ClientGuidelineEdit = () => {
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
-        deleteGuidelineFile(user?.id as number, item).catch(err =>
+        deleteGuidelineFile(item.id).catch(err =>
           toast.error(
             'Something went wrong while deleting files. Please try again.',
             {
@@ -433,7 +433,7 @@ const ClientGuidelineEdit = () => {
       content: formContent,
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    guidelineMutation.mutate(finalValue)
+    guidelinePatchMutation.mutate(finalValue)
   }
 
   if (!isSuccess) return null

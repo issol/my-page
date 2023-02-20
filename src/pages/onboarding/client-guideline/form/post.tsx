@@ -268,8 +268,7 @@ const ClientGuidelineForm = () => {
     (form: FormType) => postGuideline(form),
     {
       onSuccess: data => {
-        //** TODO : return data에 오는 id로 client-guideline detail페이지로 이동하기
-        //router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        router.push(`/onboarding/client-guideline/detail/${data.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })

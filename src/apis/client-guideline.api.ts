@@ -2,7 +2,7 @@ import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
-type GuideLineType = {}
+export type FileType = { id: number; name: string; size: number }
 export const getGuidelines = async (
   filters: FilterType,
 ): Promise<{
@@ -81,10 +81,7 @@ export type CurrentGuidelineType = {
   serviceType: string
   updatedAt: string
   content: any
-  files: Array<{
-    name: string
-    size: number
-  }>
+  files: Array<FileType>
 }
 
 export type GuideDetailType = {
@@ -455,17 +452,19 @@ export type FormType = {
   text: string
 }
 
-export const postGuideline = async (form: FormType) => {
+export const postGuideline = async (
+  form: FormType,
+): Promise<{ id: number }> => {
   try {
-    return await axios.post(`/api/enough/a/r-req/al?type=`, form)
+    return await axios.post(`/api/enough/onboard/guideline`, form)
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const updateGuideline = async (form: FormType) => {
+export const updateGuideline = async (id: number, form: FormType) => {
   try {
-    return await axios.patch(`/api/enough/a/r-req/al?type=`, form)
+    return await axios.patch(`/api/enough/onboard/guideline/${id}`, form)
   } catch (e: any) {
     throw new Error(e)
   }
@@ -481,24 +480,23 @@ export const uploadGuidelineFiles = async (id: number, fileName: string) => {
   }
 }
 
-export const deleteGuidelineFile = async (userId: number, fileName: string) => {
+export const deleteGuidelineFile = async (fileId: number) => {
   try {
-    return await axios.delete(
-      `/api/enough/a/r-req/al?type=${userId}&fileName=${fileName}`,
-    )
+    return await axios.delete(`/api/enough/onboard/guideline/file/${fileId}`)
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const deleteGuideline = async (userId: number) => {
+export const deleteGuideline = async (guidelineId: number) => {
   try {
-    return await axios.delete(`/api/enough/a/r-req/al?type=${userId}`)
+    return await axios.delete(`/api/enough/onboard/guideline/${guidelineId}`)
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
+// ** TODO : api수정
 export const restoreGuideline = async (id: number) => {
   try {
     return await axios.patch(`/api/enough/a/r-req/al?type=${id}`)

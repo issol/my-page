@@ -182,6 +182,7 @@ export const handlers = [
     const detail = {
       currentVersion: {
         id: id,
+        version: 1,
         userId: 12345,
         title: 'title sample',
         writer: 'Jay Lee',
