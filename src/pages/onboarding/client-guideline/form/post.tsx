@@ -167,8 +167,11 @@ const ClientGuidelineForm = () => {
     }
   }, [isDuplicated])
 
+  type FormSelectKey = 'client' | 'category' | 'serviceType'
+
   function resetFormSelection() {
-    ;['client', 'category', 'serviceType'].forEach(name => {
+    const values: Array<FormSelectKey> = ['client', 'category', 'serviceType']
+    values.forEach(name => {
       setValue(
         name,
         { label: '', value: '' },
