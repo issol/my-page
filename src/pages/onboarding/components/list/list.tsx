@@ -8,7 +8,6 @@ import CardHeader from '@mui/material/CardHeader'
 import styled from 'styled-components'
 
 import { Dispatch, SetStateAction } from 'react'
-import { onboardingUser } from 'src/@fake-db/user'
 
 import { columns } from 'src/shared/const/onboarding'
 import { OnboardingListType } from 'src/types/onboarding/list'
@@ -32,7 +31,7 @@ export default function OnboardingList({
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${onboardingUser.length})`}
+          title={`Pros (${onboardingProList.length})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box

@@ -1,5 +1,5 @@
 import { rest } from 'msw'
-import { onboardingUser } from 'src/@fake-db/user'
+
 import { Book, Review } from './types'
 
 // 이 부분 글로벌 const로 빠져야 합니다.
