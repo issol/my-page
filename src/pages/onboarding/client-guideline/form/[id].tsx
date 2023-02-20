@@ -511,7 +511,6 @@ const ClientGuidelineEdit = () => {
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(errors.client)}
                               label='Client*'
                               placeholder='Client*'
                               disabled
@@ -523,12 +522,6 @@ const ClientGuidelineEdit = () => {
                         />
                       )}
                     />
-                    {errors.client && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.client?.label?.message ||
-                          errors.client?.value?.message}
-                      </FormHelperText>
-                    )}
                   </Grid>
                   {/* category */}
                   <Grid item xs={6} mb='20px'>
@@ -552,7 +545,6 @@ const ClientGuidelineEdit = () => {
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(errors.category)}
                               label='Category*'
                               placeholder='Category*'
                               disabled
@@ -564,12 +556,6 @@ const ClientGuidelineEdit = () => {
                         />
                       )}
                     />
-                    {errors.category && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.category?.label?.message ||
-                          errors.category?.value?.message}
-                      </FormHelperText>
-                    )}
                   </Grid>
                 </Box>
                 {/* service type */}
@@ -594,7 +580,6 @@ const ClientGuidelineEdit = () => {
                         renderInput={params => (
                           <TextField
                             {...params}
-                            error={Boolean(errors.serviceType)}
                             label='Service type*'
                             placeholder='Service type*'
                             disabled
@@ -606,12 +591,6 @@ const ClientGuidelineEdit = () => {
                       />
                     )}
                   />
-                  {errors.serviceType && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.serviceType?.label?.message ||
-                        errors.serviceType?.value?.message}
-                    </FormHelperText>
-                  )}
                 </Grid>
                 <Divider />
                 <ReactDraftWysiwyg
