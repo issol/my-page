@@ -26,7 +26,7 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import FallbackSpinner from 'src/@core/components/spinner'
-import { Writer } from 'src/pages/components/chip'
+import { Writer } from 'src/@core/components/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'

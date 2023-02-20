@@ -22,7 +22,7 @@ import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import styled from 'styled-components'
-import { Writer } from 'src/pages/components/chip'
+import { Writer } from 'src/@core/components/chip'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
