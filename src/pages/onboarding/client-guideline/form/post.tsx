@@ -56,16 +56,18 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
-import axios from 'axios'
-import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
-import { postGuideline } from 'src/apis/client-guideline.api'
+import {
+  getGuidelinePreSignedUrl,
+  postGuideline,
+} from 'src/apis/client-guideline.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
+import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
 const defaultValues = {
   title: '',
@@ -286,23 +288,18 @@ const ClientGuidelineForm = () => {
 
     data.file?.length &&
       data.file.forEach(file => {
-        getPresignedUrl(
-          user?.id as number,
-          file.name,
-          FilePathEnum.guideline,
-        ).then(res => {
+        const path = [
+          getFilePath([
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+          ]) + file.name,
+        ]
+
+        getGuidelinePreSignedUrl(path).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          axios
-            .put(res, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization:
-                  'Bearer ' + typeof window === 'object'
-                    ? getUserTokenFromBrowser()
-                    : null,
-              },
-            })
+          postFiles(res[0], formData)
             .then(res =>
               console.log('upload client guideline file success :', res),
             )

@@ -67,10 +67,8 @@ import { ModalContext } from 'src/context/ModalContext'
 import styled from 'styled-components'
 
 // **fetches
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import axios from 'axios'
-import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
+import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
 import { useAppSelector } from 'src/hooks/useRedux'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -306,16 +304,7 @@ const PersonalInfoPro = () => {
         ).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          axios
-            .put(res, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization:
-                  'Bearer ' + typeof window === 'object'
-                    ? getUserTokenFromBrowser()
-                    : null,
-              },
-            })
+          postFiles(res, formData)
             .then(res => console.log('upload resume success :', res))
             .catch(err => console.log('upload resume failed : ', err))
         })

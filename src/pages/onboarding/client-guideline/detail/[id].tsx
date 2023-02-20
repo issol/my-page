@@ -43,6 +43,7 @@ import axios from 'axios'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import {
   deleteGuideline,
+  getGuidelinePreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
@@ -181,45 +182,50 @@ const ClientGuidelineDetail = () => {
     },
   ]
   // console.log(
-  //   getFilePath([
-  //     currentVersion?.category,
-  //     currentVersion?.serviceType,
-  //     `V${currentVersion?.version}`,
-  //   ]),
+  // getFilePath([
+  //   currentVersion?.category,
+  //   currentVersion?.serviceType,
+  //   `V${currentVersion?.version}`,
+  // ]),
   // )
 
-  // ** TODO: file down 구현하기
   function fetchFile(fileName: string) {
-    getPresignedUrl(user?.id as number, fileName, FilePathEnum.guideline).then(
-      res => {
-        axios
-          .get(res, {
-            headers: {
-              Authorization:
-                'Bearer ' + typeof window === 'object'
-                  ? getUserTokenFromBrowser()
-                  : null,
+    const path =
+      getFilePath([
+        currentVersion?.category!,
+        currentVersion?.serviceType!,
+        `V${currentVersion?.version}`,
+      ]) + fileName
+
+    // ** TODO: getGuidelinePreSignedUrl의 리스폰스타입이 확정 되면 axios.get의 url부분 수정하기
+    getGuidelinePreSignedUrl([path]).then(res => {
+      axios
+        .get(res[0], {
+          headers: {
+            Authorization:
+              'Bearer ' + typeof window === 'object'
+                ? getUserTokenFromBrowser()
+                : null,
+          },
+        })
+        .then(res => {
+          console.log('upload client guideline file success :', res)
+          const url = window.URL.createObjectURL(new Blob([res.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `${fileName}`)
+          document.body.appendChild(link)
+          link.click()
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
             },
-          })
-          .then(res => {
-            console.log('upload client guideline file success :', res)
-            const url = window.URL.createObjectURL(new Blob([res.data]))
-            const link = document.createElement('a')
-            link.href = url
-            link.setAttribute('download', `${fileName}`)
-            document.body.appendChild(link)
-            link.click()
-          })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
-      },
-    )
+          ),
+        )
+    })
   }
 
   function downloadOneFile(name: string) {

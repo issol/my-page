@@ -1,20 +1,14 @@
 import axios from 'src/configs/axios'
+import originalAxios from 'axios'
+import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 
 export enum FilePathEnum {
   resume = 'resume',
   contract = 'contracts',
-  guideline = 'guideline',
 }
-type Paths =
-  | FilePathEnum.resume
-  | FilePathEnum.contract
-  | FilePathEnum.guideline
+type Paths = FilePathEnum.resume | FilePathEnum.contract
 
-//ex : path = /guideline/<clinet>/<category>/<serviceType>/V<version>/<fileName>
-// / :  - (하이픈) 으로 변경
-// 공백 : _ (언더바) 으로 변경
-// (ex) <버킷>/guideline/NAVER/Documents-Text/TAE(Translator_accept_edits)/V1/<fileName>
-
+//resume, contract form 용 (유저 개개인용)
 export const getPresignedUrl = async (
   userId: number,
   fileName: string,
@@ -28,4 +22,16 @@ export const getPresignedUrl = async (
   } catch (e: any) {
     throw new Error(e)
   }
+}
+
+export const postFiles = async (url: string, formData: FormData) => {
+  return originalAxios.put(url, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      Authorization:
+        'Bearer ' + typeof window === 'object'
+          ? getUserTokenFromBrowser()
+          : null,
+    },
+  })
 }

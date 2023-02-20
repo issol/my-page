@@ -57,21 +57,23 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
-import axios from 'axios'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
   FileType,
+  getGuidelinePreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import { FilePathEnum, getPresignedUrl } from 'src/apis/common.api'
+import { postFiles } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
+
+// ** helpers
+import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
 const defaultValues = {
   title: '',
@@ -376,26 +378,20 @@ const ClientGuidelineEdit = () => {
 
   const onSubmit = () => {
     const data = getValues()
-
+    // ** TODO: getGuidelinePreSignedUrl의 리스폰스타입이 확정 되면 axios.get의 url부분 수정하기
     data.file?.length &&
-      data.file.forEach(file => {
-        getPresignedUrl(
-          user?.id as number,
-          file.name,
-          FilePathEnum.guideline,
-        ).then(res => {
+      data.file.forEach((file, idx) => {
+        const path = [
+          getFilePath([
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+          ]) + file.name,
+        ]
+        getGuidelinePreSignedUrl(path).then(res => {
           const formData = new FormData()
           formData.append('files', file)
-          axios
-            .put(res, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization:
-                  'Bearer ' + typeof window === 'object'
-                    ? getUserTokenFromBrowser()
-                    : null,
-              },
-            })
+          postFiles(res[idx], formData)
             .then(res =>
               console.log('upload client guideline file success :', res),
             )

@@ -504,3 +504,21 @@ export const restoreGuideline = async (id: number) => {
     throw new Error(e)
   }
 }
+
+// ** TODO : method, response 문의
+// 1. path를 배열로 여러개 보내면 해당 path의 pre signed url이 한꺼번에 배열로 오는지?
+// => 여러개를 한꺼번에 받거나 업로드 할 때를 위해 배열로, 리턴도 배열인데 자세한 스키마는 나중에 전달해주시기로 함
+// method post맞는지 => 배열을 보내기 위해서
+// 이건 공통 용
+// path : /<clinet>/<category>/<serviceType>/V<version>/<fileName> 형태
+export const getGuidelinePreSignedUrl = async (
+  path: string[],
+): Promise<Array<any>> => {
+  try {
+    return await axios.post(`/api/enough/onboard/guideline/upload-file`, {
+      path,
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
