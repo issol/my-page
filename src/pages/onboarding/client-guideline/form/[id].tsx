@@ -498,6 +498,7 @@ const ClientGuidelineEdit = () => {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled
                           options={ClientCategoryIncludeGloz}
                           filterSelectedOptions
                           onChange={(e, v) => {
@@ -513,6 +514,10 @@ const ClientGuidelineEdit = () => {
                               error={Boolean(errors.client)}
                               label='Client*'
                               placeholder='Client*'
+                              disabled
+                              InputProps={{
+                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                              }}
                             />
                           )}
                         />
@@ -550,6 +555,10 @@ const ClientGuidelineEdit = () => {
                               error={Boolean(errors.category)}
                               label='Category*'
                               placeholder='Category*'
+                              disabled
+                              InputProps={{
+                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                              }}
                             />
                           )}
                         />
@@ -588,6 +597,10 @@ const ClientGuidelineEdit = () => {
                             error={Boolean(errors.serviceType)}
                             label='Service type*'
                             placeholder='Service type*'
+                            disabled
+                            InputProps={{
+                              sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                            }}
                           />
                         )}
                       />
