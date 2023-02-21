@@ -22,11 +22,14 @@ import MSDocRenderer from 'src/shared/viewer/msdoc'
 import JPGRenderer from 'src/shared/viewer/jpg'
 import PNGRenderer from 'src/shared/viewer/png'
 import CSVRenderer from 'src/shared/viewer/csv'
+import styled from 'styled-components'
+import Link from 'next/link'
+import { log } from 'console'
 
 type Props = {
   open: boolean
   onClose: any
-  docs: { uri: string; fileName: string; fileType: string }[] | null
+  docs: { uri: string; fileName: string; fileType: string }[]
 }
 export default function FilePreviewDownloadModal({
   open,
@@ -61,6 +64,33 @@ export default function FilePreviewDownloadModal({
       </Box>
     )
   }
+
+  const downloadFile = (file: {
+    uri: string
+    fileName: string
+    fileType: string
+  }) => {
+    fetch(file.uri, { method: 'GET' })
+      .then(res => {
+        return res.blob()
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${file.fileName}.${file.fileType}`
+        document.body.appendChild(a)
+        a.click()
+        setTimeout((_: any) => {
+          window.URL.revokeObjectURL(url)
+        }, 60000)
+        a.remove()
+        onClose()
+      })
+      .catch(error => {
+        console.log(error)
+      })
+  }
   return (
     <Dialog
       open={open}
@@ -79,12 +109,23 @@ export default function FilePreviewDownloadModal({
           gap: 1,
         }}
       >
-        <IconButton
-          sx={{ position: 'absolute', top: '20px', right: '20px', zIndex: 3 }}
-          onClick={onClose}
+        <Box
+          sx={{
+            position: 'absolute',
+            top: '20px',
+            right: '20px',
+            zIndex: 3,
+            display: 'flex',
+          }}
         >
-          <Icon icon='mdi:close'></Icon>
-        </IconButton>
+          <IconButton onClick={() => downloadFile(docs![0])}>
+            <Icon icon='mdi:cloud-download-outline'></Icon>
+          </IconButton>
+
+          <IconButton onClick={onClose}>
+            <Icon icon='mdi:close'></Icon>
+          </IconButton>
+        </Box>
         <Box
           sx={{
             width: 1000,

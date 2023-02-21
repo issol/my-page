@@ -2,6 +2,9 @@
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
 
+import { Chip } from '@mui/material'
+import styled from 'styled-components'
+
 // ** Custom Components Imports
 import CardSnippet from 'src/@core/components/card-snippet'
 
@@ -21,7 +24,7 @@ import ChipsClickable from 'src/views/components/chips/ChipsClickable'
 // ** Source code imports
 import * as source from 'src/views/components/chips/ChipsSourceCode'
 
-const Pagination = () => {
+const Chips = () => {
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={12} md={6}>
@@ -29,11 +32,12 @@ const Pagination = () => {
           title='Chip Variants'
           code={{
             tsx: source.ChipsVariantsTSXCode,
-            jsx: source.ChipsVariantsJSXCode
+            jsx: source.ChipsVariantsJSXCode,
           }}
         >
           <Typography>
-            Use <code>variant='outlined'</code> prop with <code>Chip</code> component for outlined chip.
+            Use <code>variant='outlined'</code> prop with <code>Chip</code>{' '}
+            component for outlined chip.
           </Typography>
           <ChipsVariants />
         </CardSnippet>
@@ -43,7 +47,7 @@ const Pagination = () => {
           title='Disabled Chips'
           code={{
             tsx: source.ChipsDisabledTSXCode,
-            jsx: source.ChipsDisabledJSXCode
+            jsx: source.ChipsDisabledJSXCode,
           }}
         >
           <Typography>
@@ -57,7 +61,7 @@ const Pagination = () => {
           title='Colors'
           code={{
             tsx: source.ChipsColorsTSXCode,
-            jsx: source.ChipsColorsJSXCode
+            jsx: source.ChipsColorsJSXCode,
           }}
         >
           <Typography sx={{ mb: 4 }}>
@@ -71,12 +75,12 @@ const Pagination = () => {
           title='onDelete'
           code={{
             tsx: source.ChipsOnDeleteTSXCode,
-            jsx: source.ChipsOnDeleteJSXCode
+            jsx: source.ChipsOnDeleteJSXCode,
           }}
         >
           <Typography sx={{ mb: 4 }}>
-            Use <code>onDelete</code> prop for delete icon in a chip. Use <code>deleteIcon</code> prop to change the
-            default delete icon.
+            Use <code>onDelete</code> prop for delete icon in a chip. Use{' '}
+            <code>deleteIcon</code> prop to change the default delete icon.
           </Typography>
           <ChipsOnDelete />
         </CardSnippet>
@@ -86,7 +90,7 @@ const Pagination = () => {
           title='Chip Sizes'
           code={{
             tsx: source.ChipsSizesTSXCode,
-            jsx: source.ChipsSizesJSXCode
+            jsx: source.ChipsSizesJSXCode,
           }}
         >
           <Typography>
@@ -100,12 +104,12 @@ const Pagination = () => {
           title='Clickable Chip'
           code={{
             tsx: source.ChipsClickableTSXCode,
-            jsx: source.ChipsClickableJSXCode
+            jsx: source.ChipsClickableJSXCode,
           }}
         >
           <Typography>
-            You can make any chip clickable by adding <code>clickable</code> prop and use <code>component='a'</code> to
-            make it a link.
+            You can make any chip clickable by adding <code>clickable</code>{' '}
+            prop and use <code>component='a'</code> to make it a link.
           </Typography>
           <ChipsClickable />
         </CardSnippet>
@@ -115,11 +119,12 @@ const Pagination = () => {
           title='Chip with Avatar'
           code={{
             tsx: source.ChipsAvatarTSXCode,
-            jsx: source.ChipsAvatarJSXCode
+            jsx: source.ChipsAvatarJSXCode,
           }}
         >
           <Typography>
-            Use <code>Avatar</code> component inside <code>avatar</code> prop for a chip with avatar.
+            Use <code>Avatar</code> component inside <code>avatar</code> prop
+            for a chip with avatar.
           </Typography>
           <ChipsAvatar />
         </CardSnippet>
@@ -129,7 +134,7 @@ const Pagination = () => {
           title='Icon Chip'
           code={{
             tsx: source.ChipsIconTSXCode,
-            jsx: source.ChipsIconJSXCode
+            jsx: source.ChipsIconJSXCode,
           }}
         >
           <Typography>
@@ -143,10 +148,13 @@ const Pagination = () => {
           title='Chips Array'
           code={{
             tsx: source.ChipsArrayTSXCode,
-            jsx: source.ChipsArrayJSXCode
+            jsx: source.ChipsArrayJSXCode,
           }}
         >
-          <Typography>You can make a list of chips that can make some or all chips deletable.</Typography>
+          <Typography>
+            You can make a list of chips that can make some or all chips
+            deletable.
+          </Typography>
           <ChipsArray />
         </CardSnippet>
       </Grid>
@@ -155,12 +163,12 @@ const Pagination = () => {
           title='Custom Light Chips'
           code={{
             tsx: source.ChipsLightTSXCode,
-            jsx: source.ChipsLightJSXCode
+            jsx: source.ChipsLightJSXCode,
           }}
         >
           <Typography>
-            If you want to use light variant of the chips, you need to use our custom component with{' '}
-            <code>skin='light'</code> prop.
+            If you want to use light variant of the chips, you need to use our
+            custom component with <code>skin='light'</code> prop.
           </Typography>
           <ChipsLight />
         </CardSnippet>
@@ -170,7 +178,7 @@ const Pagination = () => {
           title='Custom Rounded'
           code={{
             tsx: source.ChipsRoundedTSXCode,
-            jsx: source.ChipsRoundedJSXCode
+            jsx: source.ChipsRoundedJSXCode,
           }}
         >
           <Typography>
@@ -183,4 +191,15 @@ const Pagination = () => {
   )
 }
 
-export default Pagination
+export default Chips
+
+export const Writer = styled(Chip)`
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #ff4d49;
+  font-weight: 500;
+  color: #ff4d49;
+`

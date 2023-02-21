@@ -1,12 +1,12 @@
 import { Card, Grid, Typography } from '@mui/material'
 
 import { useRouter } from 'next/router'
-import { useGetUserInfoWithResume } from 'src/queries/userInfo/userInfo-query'
+
 import { Box } from '@mui/system'
 
 import styled from 'styled-components'
 import toast from 'react-hot-toast'
-import { UserInfoResType } from 'src/apis/user.api'
+
 import About from '../components/detail/about'
 import AppliedRole from '../components/detail/applied-role'
 import CertificationTest from '../components/detail/certification-test'
@@ -24,14 +24,11 @@ import {
   useEffect,
   useState,
 } from 'react'
-import { JobInfoType } from 'src/types/sign/personalInfoTypes'
-import DocViewer, { DocViewerRenderers } from '@cyntler/react-doc-viewer'
 
 import _ from 'lodash'
 import {
   AddRoleType,
   SelectedJobInfoType,
-  TestHistoryType,
   CommentsOnProType,
   OnboardingJobInfoType,
 } from 'src/types/onboarding/list'
@@ -69,11 +66,11 @@ import SaveCommentModal from '../components/detail/modal/save-comment-modal'
 import DeleteCommentModal from '../components/detail/modal/delete-comment-modal'
 import FilePreviewDownloadModal from '../components/detail/modal/file-preview-download-modal'
 
-import dayjs from 'dayjs'
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
-import { log } from 'console'
+
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import { addCommentOnPro } from 'src/apis/onboarding-real.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -89,8 +86,8 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const { data: userInfo } = useGetOnboardingProDetails(id!)
-  const { data: reviewerList } = useGetReviewerList()
-  const { data: resume } = useGetResume()
+  // const { data: reviewerList } = useGetReviewerList()
+  // const { data: resume } = useGetResume()
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] =
     useState<OnboardingProDetailsType | null>(null)
@@ -242,8 +239,8 @@ function OnboardingDetail() {
   )
 
   const addCommentMutation = useMutation(
-    (value: { userId: number; comment: CommentsOnProType }) =>
-      addingComment(value.userId, value.comment),
+    (value: { userId: number; comment: string }) =>
+      addCommentOnPro(value.userId, value.comment),
     {
       onSuccess: (data, variables) => {
         toast.success('Successfully saved!', {
@@ -406,7 +403,7 @@ function OnboardingDetail() {
   }
 
   const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
-    setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={reviewerList} />)
+    setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={[]} />)
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
@@ -518,20 +515,9 @@ function OnboardingDetail() {
   }
 
   const handleAddComment = () => {
-    const res = {
-      id: 0,
-      userId: Number(id),
-      firstName: userInfo!.firstName,
-      middleName: userInfo!.middleName,
-      lastName: userInfo!.lastName,
-      email: userInfo!.email,
-      createdAt: '2023-02-15T21:40:10Z',
-      updatedAt: '2023-02-15T21:40:10Z',
-      comment: addComment,
-    }
     setAddComment('')
     setClickedAddComment(false)
-    addCommentMutation.mutate({ userId: Number(id), comment: res })
+    addCommentMutation.mutate({ userId: userInfo!.userId, comment: addComment })
   }
 
   const handleAddCancelComment = () => {

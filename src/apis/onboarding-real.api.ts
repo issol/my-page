@@ -24,3 +24,10 @@ export const getResume = async () => {
 
   return data.data.url
 }
+
+export const addCommentOnPro = async (userId: number, comment: string) => {
+  await axios.post(`/api/enough/u/comment`, {
+    userId: userId,
+    comment: comment,
+  })
+}
