@@ -35,7 +35,7 @@ const PDFControls: FC<{}> = () => {
     <Container id='pdf-controls'>
       {paginated && numPages > 1 && <PDFPagination />}
 
-      {currentDocument?.fileData && (
+      {/* {currentDocument?.fileData && (
         <DownloadButton
           id='pdf-download'
           href={currentDocument?.fileData as string}
@@ -44,7 +44,7 @@ const PDFControls: FC<{}> = () => {
         >
           <DownloadPDFIcon color='#000' size='75%' />
         </DownloadButton>
-      )}
+      )} */}
 
       <ControlButton
         id='pdf-zoom-out'
@@ -92,7 +92,7 @@ const Container = styled.div`
   top: 0;
   left: 0;
   z-index: 1;
-  justify-content: flex-end;
+  justify-content: center;
   padding: 8px;
   background-color: ${(props: IStyledProps) => props.theme.tertiary};
   box-shadow: 0px 2px 3px #00000033;
