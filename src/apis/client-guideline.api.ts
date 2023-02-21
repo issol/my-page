@@ -143,7 +143,11 @@ export const updateGuideline = async (
   form: FormType,
 ): Promise<{ id: number }> => {
   try {
-    return await axios.patch(`/api/enough/onboard/guideline/${id}`, form)
+    const { data } = await axios.patch(
+      `/api/enough/onboard/guideline/${id}`,
+      form,
+    )
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
@@ -184,12 +188,28 @@ export const restoreGuideline = async (id: number) => {
 }
 
 // path : /<clinet>/<category>/<serviceType>/V<version>/<fileName> 형태
-export const getGuidelinePreSignedUrl = async (
+export const getGuidelineUploadPreSignedUrl = async (
   path: string[],
 ): Promise<Array<string>> => {
   try {
     const { data } = await axios.post(
       `/api/enough/onboard/guideline/upload-file`,
+      {
+        path,
+      },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getGuidelineDownloadPreSignedUrl = async (
+  path: string[],
+): Promise<Array<string>> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/onboard/guideline/download-file`,
       {
         path,
       },

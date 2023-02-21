@@ -56,12 +56,12 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
-import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
+import { postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
   FilePostType,
-  getGuidelinePreSignedUrl,
+  getGuidelineUploadPreSignedUrl,
   postGuideline,
 } from 'src/apis/client-guideline.api'
 
@@ -367,7 +367,7 @@ const ClientGuidelineForm = () => {
     if (data.file.length) {
       const formData = new FormData()
       const fileInfo: Array<FilePostType> = []
-      const paths = data?.file?.map(file =>
+      const paths: string[] = data?.file?.map(file =>
         getFilePath(
           [
             data.client.value,
@@ -378,12 +378,12 @@ const ClientGuidelineForm = () => {
           file.name,
         ),
       )
-      getGuidelinePreSignedUrl(paths).then(res => {
+      getGuidelineUploadPreSignedUrl(paths).then(res => {
         const promiseArr = res.map((url, idx) => {
           fileInfo.push({
             name: data.file[idx].name,
             size: data.file[idx]?.size,
-            fileUrl: res[idx],
+            fileUrl: paths[idx],
           })
           formData.append(`file`, data.file[idx])
           return postFiles(url, formData)

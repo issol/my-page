@@ -62,7 +62,7 @@ import {
   deleteGuidelineFile,
   FilePostType,
   FileType,
-  getGuidelinePreSignedUrl,
+  getGuidelineUploadPreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
@@ -396,7 +396,7 @@ const ClientGuidelineEdit = () => {
     if (data.file.length) {
       const formData = new FormData()
       const fileInfo: Array<FilePostType> = []
-      const paths = data?.file?.map(file =>
+      const paths: string[] = data?.file?.map(file =>
         getFilePath(
           [
             data.client.value,
@@ -407,12 +407,12 @@ const ClientGuidelineEdit = () => {
           file.name,
         ),
       )
-      getGuidelinePreSignedUrl(paths).then(res => {
+      getGuidelineUploadPreSignedUrl(paths).then(res => {
         const promiseArr = res.map((url, idx) => {
           fileInfo.push({
             name: data.file[idx].name,
             size: data.file[idx]?.size,
-            fileUrl: res[idx],
+            fileUrl: paths[idx],
           })
           formData.append(`file`, data.file[idx])
           return postFiles(url, formData)

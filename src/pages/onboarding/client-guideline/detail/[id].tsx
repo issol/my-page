@@ -43,13 +43,11 @@ import axios from 'axios'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import {
   deleteGuideline,
-  getGuidelinePreSignedUrl,
+  getGuidelineUploadPreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
-import { getPresignedUrl } from 'src/apis/common.api'
-import { FilePathEnum } from 'src/apis/common.api'
 
 // ** helpers
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
@@ -193,7 +191,7 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getGuidelinePreSignedUrl([path]).then(res => {
+    getGuidelineUploadPreSignedUrl([path]).then(res => {
       axios
         .get(res[0], {
           headers: {
