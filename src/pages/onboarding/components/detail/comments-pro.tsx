@@ -20,6 +20,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { Dispatch, SetStateAction, ChangeEvent } from 'react'
 import TextField from '@mui/material/TextField'
+import { log } from 'console'
 type Props = {
   userInfo: CommentsOnProType[]
   user: any
@@ -69,6 +70,7 @@ export default function CommentsAboutPro({
   addComment,
   onClickDeleteComment,
 }: Props) {
+  console.log(userInfo)
   function getLegalName(row: CommentsOnProType) {
     return !row.firstName || !row.lastName
       ? '-'
@@ -101,15 +103,20 @@ export default function CommentsAboutPro({
         >
           Comments about Pro
         </Box>
-        <Button
-          variant='contained'
-          onClick={onClickAddComment}
-          disabled={!!selectedComment}
-        >
-          Add comment
-        </Button>
+        {clickedAddComment ? null : (
+          <Button
+            variant='contained'
+            onClick={onClickAddComment}
+            disabled={!!selectedComment}
+          >
+            Add comment
+          </Button>
+        )}
       </Typography>
-      <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
+      {userInfo && userInfo.length ? (
+        <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
+      ) : null}
+
       <CardContent sx={{ padding: 0 }}>
         {clickedAddComment ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
@@ -196,11 +203,15 @@ export default function CommentsAboutPro({
                   Confirm
                 </Button>
               </Box>
-              <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
+              {userInfo && userInfo.length ? (
+                <Divider
+                  sx={{ my: theme => `${theme.spacing(4)} !important` }}
+                />
+              ) : null}
             </Box>
           </Box>
         ) : null}
-        {userInfo &&
+        {userInfo && userInfo.length ? (
           userInfo.slice(offset, offset + rowsPerPage).map(value => {
             return (
               <>
@@ -335,20 +346,28 @@ export default function CommentsAboutPro({
                     <Box>{value.comment}</Box>
                   )}
                 </Box>
+
                 <Divider
                   sx={{ my: theme => `${theme.spacing(4)} !important` }}
                 />
               </>
             )
-          })}
-        <Grid item xs={12}>
-          <CustomPagination
-            listCount={userInfo.length}
-            page={page}
-            handleChangePage={handleChangePage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
+          })
+        ) : clickedAddComment ? null : (
+          <Box>-</Box>
+        )}
+        {userInfo && userInfo.length ? (
+          <Grid item xs={12}>
+            <CustomPagination
+              listCount={userInfo.length}
+              page={page}
+              handleChangePage={handleChangePage}
+              rowsPerPage={rowsPerPage}
+            />
+          </Grid>
+        ) : (
+          <Grid></Grid>
+        )}
       </CardContent>
     </Card>
   )

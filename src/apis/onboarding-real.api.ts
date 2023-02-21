@@ -31,3 +31,14 @@ export const addCommentOnPro = async (userId: number, comment: string) => {
     comment: comment,
   })
 }
+
+export const editCommentOnPro = async (commentId: number, comment: string) => {
+  await axios.patch('/api/enough/u/comment', {
+    commentId: commentId,
+    comment: comment,
+  })
+}
+
+export const deleteCommentOnPro = async (commentId: number) => {
+  await axios.delete(`/api/enough/u/comment/${commentId}`)
+}

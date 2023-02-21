@@ -68,9 +68,16 @@ import FilePreviewDownloadModal from '../components/detail/modal/file-preview-do
 
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
+import Icon from 'src/@core/components/icon'
+import IconButton from '@mui/material/IconButton'
 
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
-import { addCommentOnPro } from 'src/apis/onboarding-real.api'
+import {
+  addCommentOnPro,
+  deleteCommentOnPro,
+  editCommentOnPro,
+} from 'src/apis/onboarding-real.api'
+import { AuthContext } from 'src/context/AuthContext'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -86,6 +93,7 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const { data: userInfo } = useGetOnboardingProDetails(id!)
+  const { user } = useContext(AuthContext)
   // const { data: reviewerList } = useGetReviewerList()
   // const { data: resume } = useGetResume()
   const [hideFailedTest, setHideFailedTest] = useState(false)
@@ -216,24 +224,39 @@ function OnboardingDetail() {
   )
 
   const deleteCommentMutation = useMutation(
-    (value: { userId: number; commentId: number }) =>
-      deleteComment(value.userId, value.commentId),
+    (value: { commentId: number }) => deleteCommentOnPro(value.commentId),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
+        toast.error('Successfully deleted!', {
+          position: 'bottom-left',
+
+          icon: (
+            <IconButton
+              color='error'
+              sx={{
+                backgroundColor: '#d32f2f',
+                color: '#ffffff',
+                padding: 0.6,
+              }}
+            >
+              <Icon icon='mdi:delete-outline' />
+            </IconButton>
+          ),
+        })
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
 
   const editCommentMutation = useMutation(
-    (value: { userId: number; comment: CommentsOnProType }) =>
-      editComment(value.userId, value.comment),
+    (value: { commentId: number; comment: string }) =>
+      editCommentOnPro(value.commentId, value.comment),
     {
       onSuccess: (data, variables) => {
         toast.success('Successfully edited!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
@@ -246,7 +269,7 @@ function OnboardingDetail() {
         toast.success('Successfully saved!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
@@ -496,12 +519,10 @@ function OnboardingDetail() {
   }
 
   const handleEditComment = () => {
-    const res = {
-      ...selectedComment!,
+    editCommentMutation.mutate({
+      commentId: selectedComment!.id,
       comment: comment,
-    }
-
-    editCommentMutation.mutate({ userId: Number(id), comment: res })
+    })
 
     setClickedEditComment(false)
 
@@ -526,7 +547,7 @@ function OnboardingDetail() {
   }
 
   const handleDeleteComment = (comment: CommentsOnProType) => {
-    deleteCommentMutation.mutate({ userId: Number(id), commentId: comment.id })
+    deleteCommentMutation.mutate({ commentId: comment.id })
   }
 
   const onClickEditConfirmComment = () => {
@@ -632,14 +653,8 @@ function OnboardingDetail() {
         open={true}
         onClose={() => setModal(null)}
         docs={[resume]}
-        // docs={[
-        //   {
-        //     uri: `https://docs.google.com/document/d/1BtUG2ZlePhGkuONaijG-Hvc2UPcpS_Xk`,
-        //   },
-        // ]}
       />,
     )
-    // setDocs([{ uri: `http://localhost:3000${resume!}` }])
   }
 
   return (
@@ -814,7 +829,7 @@ function OnboardingDetail() {
             rowsPerPage={commentsProRowsPerPage}
             handleChangePage={handleChangeCommentsProPage}
             offset={commentsProOffset}
-            userId={Number(id!)}
+            userId={user!.id}
             onClickEditConfirmComment={onClickEditConfirmComment}
             setClickedEditComment={setClickedEditComment}
             clickedEditComment={clickedEditComment}
