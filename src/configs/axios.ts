@@ -67,7 +67,15 @@ instance.interceptors.response.use(
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
         try {
-          const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
+          const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`, {
+            headers: {
+              Accept: 'application/json',
+              Authorization:
+                'Bearer ' + typeof window === 'object'
+                  ? getUserTokenFromBrowser()
+                  : null,
+            },
+          })
 
           const { accessToken: newAccessToken } = data
 
