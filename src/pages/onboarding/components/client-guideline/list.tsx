@@ -172,8 +172,7 @@ export default function ClientGuideLineList({
       </Box>
     )
   }
-  console.log(list)
-  // console.log(object);
+
   return (
     <Grid item xs={12}>
       <Card>

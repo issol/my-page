@@ -6,6 +6,7 @@ import { UserDataType } from 'src/context/types'
 export function removeAllStorage() {
   if (typeof window === 'object') {
     window.localStorage.clear()
+    window.sessionStorage.clear()
   }
 }
 

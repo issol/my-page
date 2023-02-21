@@ -20,9 +20,9 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import { JobList } from 'src/shared/const/personalInfo'
 import {
-  ClientCategory,
+  Category,
+  ClientCategoryIncludeGloz,
   ServiceType,
   ServiceType2,
 } from 'src/shared/const/clientGuideline'
@@ -70,11 +70,11 @@ export default function Filters({
                 autoHighlight
                 fullWidth
                 multiple
-                value={filterValue(ClientCategory, 'client')}
+                value={filterValue(ClientCategoryIncludeGloz, 'client')}
                 onChange={(e, v) =>
                   setFilter({ ...filter, client: v.map(item => item.value) })
                 }
-                options={ClientCategory}
+                options={ClientCategoryIncludeGloz}
                 filterSelectedOptions
                 id='client'
                 getOptionLabel={option => option.label}
@@ -97,8 +97,8 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
-                  options={JobList}
-                  value={filterValue(JobList, 'category')}
+                  options={Category}
+                  value={filterValue(Category, 'category')}
                   onChange={(e, v) =>
                     setFilter({
                       ...filter,

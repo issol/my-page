@@ -336,7 +336,7 @@ const ClientGuidelineForm = () => {
     (form: FormType) => postGuideline(form),
     {
       onSuccess: data => {
-        router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        router.replace(`/onboarding/client-guideline/detail/${data.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })

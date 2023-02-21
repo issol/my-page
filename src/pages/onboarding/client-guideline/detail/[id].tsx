@@ -43,7 +43,7 @@ import axios from 'axios'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import {
   deleteGuideline,
-  getGuidelineUploadPreSignedUrl,
+  getGuidelineDownloadPreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
@@ -191,7 +191,7 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getGuidelineUploadPreSignedUrl([path]).then(res => {
+    getGuidelineDownloadPreSignedUrl([path]).then(res => {
       axios
         .get(res[0], {
           headers: {
