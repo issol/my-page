@@ -117,16 +117,20 @@ const ClientGuidelineDetail = () => {
 
   const versionHistory = data?.versionHistory || []
 
-  const restoreMutation = useMutation((id: number) => restoreGuideline(id), {
-    onSuccess: data => {
-      refetch()
+  const restoreMutation = useMutation(
+    (info: { id: number; writer: string; email: string }) =>
+      restoreGuideline(info.id, info.writer, info.email),
+    {
+      onSuccess: data => {
+        refetch()
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
     },
-    onError: () => {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
-    },
-  })
+  )
   const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
     onSuccess: () => {
       router.push('/onboarding/client-guideline')
@@ -240,7 +244,6 @@ const ClientGuidelineDetail = () => {
   }
 
   function fileList(files: Array<FileType> | []) {
-    console.log(files)
     if (!files.length) return null
     return files.map(file => (
       <FileList key={file.name} onClick={() => downloadOneFile(file.name)}>
@@ -343,7 +346,11 @@ const ClientGuidelineDetail = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              restoreMutation.mutate(currentRow?.id!)
+              restoreMutation.mutate({
+                id: currentRow?.id!,
+                writer: currentRow?.writer!,
+                email: currentRow?.email!,
+              })
             }}
           >
             Restore
@@ -352,7 +359,7 @@ const ClientGuidelineDetail = () => {
       </ModalContainer>,
     )
   }
-  console.log(currentVersion)
+
   function noHistory() {
     return (
       <Box

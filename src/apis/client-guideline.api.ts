@@ -179,9 +179,16 @@ export const deleteGuideline = async (guidelineId: number) => {
   }
 }
 
-export const restoreGuideline = async (id: number) => {
+export const restoreGuideline = async (
+  id: number,
+  writer: string,
+  email: string,
+) => {
   try {
-    return await axios.post(`/api/enough/onboard/guideline/restore/${id}`)
+    return await axios.post(`/api/enough/onboard/guideline/restore/${id}`, {
+      writer,
+      email,
+    })
   } catch (e: any) {
     throw new Error(e)
   }

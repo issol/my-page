@@ -276,6 +276,38 @@ const ClientGuidelineEdit = () => {
 
   useEffect(() => {
     if (fileSize > MAXIMUM_FILE_SIZE) {
+      setModal(
+        <ModalContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='The maximum file size you can upload is 50mb.'
+            />
+            <Typography variant='body2'>
+              The maximum file size you can upload is 50mb.
+            </Typography>
+          </Box>
+          <ModalButtonGroup>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setModal(null)
+              }}
+            >
+              Okay
+            </Button>
+          </ModalButtonGroup>
+        </ModalContainer>,
+      )
       setError('file', { message: FormErrors.fileSizeExceed })
     } else {
       clearErrors('file')
