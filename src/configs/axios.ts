@@ -62,12 +62,22 @@ instance.interceptors.response.use(
     error.config = error.config ?? {}
     const originalRequest = error.config
     const originalRequestHeader = error.config.headers ?? {}
-
     if (error.response?.status === 401) {
       if (!isTokenRefreshing) {
         isTokenRefreshing = true
         try {
-          const { data } = await axios.get(`${BASEURL}/api/enough/a/refresh`)
+          const refreshTokenInstance = axios.create({
+            baseURL: BASEURL,
+            headers: {
+              Accept: 'application/json',
+              Authorization: originalRequest?.headers?.Authorization,
+            },
+            withCredentials: true,
+            timeout: 10000,
+          })
+          const { data } = await refreshTokenInstance.get(
+            '/api/enough/a/refresh',
+          )
 
           const { accessToken: newAccessToken } = data
 
@@ -75,7 +85,7 @@ instance.interceptors.response.use(
             isTokenRefreshing = false
             window.location.href = '/login'
 
-            removeUserTokenFromBrowser()
+            removeUserDataFromBrowser()
 
             return Promise.reject(error)
           } else {
@@ -88,6 +98,7 @@ instance.interceptors.response.use(
             // window.location.reload()
           }
         } catch (e: any) {
+          window.location.href = '/login'
           removeUserDataFromBrowser()
         }
       }

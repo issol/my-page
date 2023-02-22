@@ -86,7 +86,7 @@ import {
 import { removeAllStorage } from 'src/shared/auth/storage'
 
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+if (process.env.NEXT_PUBLIC_API_MOCKING === '') {
   require('../mocks')
 }
 

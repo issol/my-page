@@ -57,20 +57,24 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
-import axios from 'axios'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 import {
-  postGuideline,
   deleteGuidelineFile,
-  getGuidelineFileURl,
+  FilePostType,
+  FileType,
+  getGuidelineUploadPreSignedUrl,
+  updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
+import { postFiles } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
+
+// ** helpers
+import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
 const defaultValues = {
   title: '',
@@ -88,7 +92,7 @@ interface FileProp {
 
 const ClientGuidelineEdit = () => {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query.id)
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
@@ -105,10 +109,75 @@ const ClientGuidelineEdit = () => {
   const [savedFiles, setSavedFiles] = useState<
     Array<{ name: string; size: number }> | []
   >([])
-  const [deletedFiles, setDeletedFiles] = useState<string[] | []>([])
+  const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
-  const { data, isSuccess } = useGetGuideLineDetail(Number(id))
-  console.log(data)
+  const { data, isSuccess } = useGetGuideLineDetail(id)
+
+  const currentVersion = data?.currentVersion || {
+    id: null,
+    version: null,
+    userId: null,
+    title: '',
+    writer: '',
+    email: '',
+    client: '',
+    category: '',
+    serviceType: null,
+    updatedAt: '',
+    content: null,
+    files: [],
+  }
+
+  const {
+    control,
+    getValues,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors, isValid },
+  } = useForm<ClientGuidelineType>({
+    defaultValues,
+    mode: 'onChange',
+    resolver: yupResolver(clientGuidelineSchema),
+  })
+
+  function initializeValue(
+    name: 'title' | 'client' | 'category' | 'serviceType' | 'file',
+    value: string | { value: string; label: string },
+  ) {
+    setValue(name, value, { shouldDirty: true, shouldValidate: true })
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      initializeValue('title', currentVersion.title)
+
+      initializeValue(
+        'client',
+        ClientCategoryIncludeGloz.filter(
+          item => item.value === currentVersion.client,
+        )[0],
+      )
+      initializeValue(
+        'category',
+        Category.filter(item => item.value === currentVersion.category)[0],
+      )
+      initializeValue(
+        'serviceType',
+        ServiceType.filter(
+          item => item.value === currentVersion.serviceType,
+        )[0],
+      )
+      if (currentVersion?.content) {
+        const editorState = EditorState.createWithContent(
+          convertFromRaw(currentVersion?.content as any),
+        )
+        setContent(editorState)
+      }
+      if (currentVersion?.files.length) setSavedFiles(currentVersion.files)
+    }
+  }, [isSuccess])
+
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -126,9 +195,47 @@ const ClientGuidelineEdit = () => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          const found = acc.find(f => f.name === file.name)
-          if (!found) acc.push(file)
-          return acc
+          let result = fileSize
+          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          if (result > MAXIMUM_FILE_SIZE) {
+            setModal(
+              <ModalContainer>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <img
+                    src='/images/icons/project-icons/status-alert-error.png'
+                    width={60}
+                    height={60}
+                    alt='The maximum file size you can upload is 50mb.'
+                  />
+                  <Typography variant='body2'>
+                    The maximum file size you can upload is 50mb.
+                  </Typography>
+                </Box>
+                <ModalButtonGroup>
+                  <Button
+                    variant='contained'
+                    onClick={() => {
+                      setModal(null)
+                    }}
+                  >
+                    Okay
+                  </Button>
+                </ModalButtonGroup>
+              </ModalContainer>,
+            )
+            return acc
+          } else {
+            const found = acc.find(f => f.name === file.name)
+            if (!found) acc.push(file)
+            return acc
+          }
         }, [])
       setFiles(uniqueFiles)
     },
@@ -140,9 +247,9 @@ const ClientGuidelineEdit = () => {
     setFiles([...filtered])
   }
 
-  const handleRemoveSavedFile = (fileName: string) => {
-    setSavedFiles(savedFiles.filter(item => item.name !== fileName))
-    setDeletedFiles([...deletedFiles, fileName])
+  const handleRemoveSavedFile = (file: FileType) => {
+    setSavedFiles(savedFiles.filter(item => item.name !== file.name))
+    setDeletedFiles([...deletedFiles, file])
   }
 
   const fileList = files.map((file: FileProp) => (
@@ -187,59 +294,11 @@ const ClientGuidelineEdit = () => {
           </Typography>
         </div>
       </div>
-      <IconButton onClick={() => handleRemoveSavedFile(file.name)}>
+      <IconButton onClick={() => handleRemoveSavedFile(file)}>
         <Icon icon='mdi:close' fontSize={20} />
       </IconButton>
     </FileList>
   ))
-
-  const {
-    control,
-    getValues,
-    setValue,
-    setError,
-    clearErrors,
-    watch,
-    trigger,
-    formState: { errors, isValid },
-  } = useForm<ClientGuidelineType>({
-    defaultValues,
-    mode: 'onChange',
-    resolver: yupResolver(clientGuidelineSchema),
-  })
-
-  function initializeValue(
-    name: 'title' | 'client' | 'category' | 'serviceType' | 'file',
-    value: string | { value: string; label: string },
-  ) {
-    setValue(name, value, { shouldDirty: true, shouldValidate: true })
-  }
-
-  useEffect(() => {
-    if (isSuccess) {
-      initializeValue('title', data.title)
-
-      initializeValue(
-        'client',
-        ClientCategoryIncludeGloz.filter(item => item.value === data.client)[0],
-      )
-      initializeValue(
-        'category',
-        Category.filter(item => item.value === data.category)[0],
-      )
-      initializeValue(
-        'serviceType',
-        ServiceType.filter(item => item.value === data.serviceType)[0],
-      )
-      if (data?.content) {
-        const editorState = EditorState.createWithContent(
-          convertFromRaw(data?.content as any),
-        )
-        setContent(editorState)
-      }
-      if (data?.files.length) setSavedFiles(data.files)
-    }
-  }, [isSuccess])
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
@@ -250,17 +309,8 @@ const ClientGuidelineEdit = () => {
     savedFiles.forEach(
       (file: { name: string; size: number }) => (result += file.size),
     )
-    console.log(result)
     setFileSize(result)
   }, [files, savedFiles])
-
-  useEffect(() => {
-    if (fileSize > MAXIMUM_FILE_SIZE) {
-      setError('file', { message: FormErrors.fileSizeExceed })
-    } else {
-      clearErrors('file')
-    }
-  }, [fileSize])
 
   function onDiscard() {
     setModal(
@@ -340,12 +390,11 @@ const ClientGuidelineEdit = () => {
     )
   }
 
-  const guidelineMutation = useMutation(
-    (form: FormType) => postGuideline(form),
+  const guidelinePatchMutation = useMutation(
+    (form: FormType) => updateGuideline(id, form),
     {
       onSuccess: data => {
-        //** TODO : return data에 오는 id로 client-guideline detail페이지로 이동하기
-        //router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        router.push(`/onboarding/client-guideline/detail/${data?.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -360,39 +409,66 @@ const ClientGuidelineEdit = () => {
 
   const onSubmit = () => {
     const data = getValues()
+    //** data to send to server */
+    const formContent = convertToRaw(content.getCurrentContent())
+    const finalValue: FormType = {
+      writer: user?.username!,
+      email: user?.email!,
+      title: data.title,
+      client: data.client.value,
+      category: data.category.value,
+      serviceType: data.serviceType.value,
+      content: formContent,
+      text: content.getCurrentContent().getPlainText('\u0001'),
+    }
 
-    data.file?.length &&
-      data.file.forEach(file => {
-        getGuidelineFileURl(user?.id as number, file.name).then(res => {
-          const formData = new FormData()
-          formData.append('files', file)
-          axios
-            .put(res, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization:
-                  'Bearer ' + typeof window === 'object'
-                    ? getUserTokenFromBrowser()
-                    : null,
-              },
-            })
-            .then(res =>
-              console.log('upload client guideline file success :', res),
-            )
-            .catch(err =>
-              toast.error(
-                'Something went wrong while uploading files. Please try again.',
-                {
-                  position: 'bottom-left',
-                },
-              ),
-            )
+    // file upload
+    if (data.file.length) {
+      const formData = new FormData()
+      const fileInfo: Array<FilePostType> = []
+      const paths: string[] = data?.file?.map(file =>
+        getFilePath(
+          [
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+            `V${currentVersion?.version!}`,
+          ],
+          file.name,
+        ),
+      )
+      getGuidelineUploadPreSignedUrl(paths).then(res => {
+        const promiseArr = res.map((url, idx) => {
+          fileInfo.push({
+            name: data.file[idx].name,
+            size: data.file[idx]?.size,
+            fileUrl: paths[idx],
+          })
+          formData.append(`file`, data.file[idx])
+          return postFiles(url, formData)
         })
+        Promise.all(promiseArr)
+          .then(res => {
+            console.log('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelinePatchMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
       })
+    } else {
+      guidelinePatchMutation.mutate(finalValue)
+    }
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
-        deleteGuidelineFile(user?.id as number, item).catch(err =>
+        deleteGuidelineFile(item.id).catch(err =>
           toast.error(
             'Something went wrong while deleting files. Please try again.',
             {
@@ -402,17 +478,6 @@ const ClientGuidelineEdit = () => {
         ),
       )
     }
-
-    //** data to send to server */
-    const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue = {
-      title: data.title,
-      client: data.client.value,
-      category: data.category.value,
-      serviceType: data.serviceType.value,
-      content: formContent,
-    }
-    guidelineMutation.mutate(finalValue)
   }
 
   if (!isSuccess) return null
@@ -427,7 +492,7 @@ const ClientGuidelineEdit = () => {
           }
         >
           <Grid container spacing={6} className='match-height'>
-            <Grid item xs={9}>
+            <Grid item xs={12} md={8}>
               <Card sx={{ padding: '30px 20px 20px' }}>
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
@@ -481,6 +546,7 @@ const ClientGuidelineEdit = () => {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled
                           options={ClientCategoryIncludeGloz}
                           filterSelectedOptions
                           onChange={(e, v) => {
@@ -493,20 +559,17 @@ const ClientGuidelineEdit = () => {
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(errors.client)}
                               label='Client*'
                               placeholder='Client*'
+                              disabled
+                              InputProps={{
+                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                              }}
                             />
                           )}
                         />
                       )}
                     />
-                    {errors.client && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.client?.label?.message ||
-                          errors.client?.value?.message}
-                      </FormHelperText>
-                    )}
                   </Grid>
                   {/* category */}
                   <Grid item xs={6} mb='20px'>
@@ -530,20 +593,17 @@ const ClientGuidelineEdit = () => {
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(errors.category)}
                               label='Category*'
                               placeholder='Category*'
+                              disabled
+                              InputProps={{
+                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                              }}
                             />
                           )}
                         />
                       )}
                     />
-                    {errors.category && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.category?.label?.message ||
-                          errors.category?.value?.message}
-                      </FormHelperText>
-                    )}
                   </Grid>
                 </Box>
                 {/* service type */}
@@ -568,20 +628,17 @@ const ClientGuidelineEdit = () => {
                         renderInput={params => (
                           <TextField
                             {...params}
-                            error={Boolean(errors.serviceType)}
                             label='Service type*'
                             placeholder='Service type*'
+                            disabled
+                            InputProps={{
+                              sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                            }}
                           />
                         )}
                       />
                     )}
                   />
-                  {errors.serviceType && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.serviceType?.label?.message ||
-                        errors.serviceType?.value?.message}
-                    </FormHelperText>
-                  )}
                 </Grid>
                 <Divider />
                 <ReactDraftWysiwyg
@@ -607,7 +664,13 @@ const ClientGuidelineEdit = () => {
               </Card>
             </Grid>
 
-            <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+            <Grid
+              item
+              xs={12}
+              md={4}
+              className='match-height'
+              sx={{ height: '152px' }}
+            >
               <Card style={{ height: '565px', overflow: 'scroll' }}>
                 <Box
                   sx={{
@@ -637,7 +700,7 @@ const ClientGuidelineEdit = () => {
                     </Button>
                   </div>
                   <div>
-                    {data?.files?.length ? (
+                    {currentVersion?.files?.length ? (
                       <List sx={{ paddingBottom: 0 }}>{savedFileList}</List>
                     ) : null}
                     {files.length ? (

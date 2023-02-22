@@ -56,16 +56,20 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
-import axios from 'axios'
-import { getPresignedUrl } from 'src/apis/user.api'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
-import { postGuideline } from 'src/apis/client-guideline.api'
+import {
+  checkGuidelineExistence,
+  FilePostType,
+  getGuidelineUploadPreSignedUrl,
+  postGuideline,
+} from 'src/apis/client-guideline.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
+import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
 const defaultValues = {
   title: '',
@@ -91,6 +95,7 @@ const ClientGuidelineForm = () => {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
+  const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
 
   // ** file values
   const MAXIMUM_FILE_SIZE = 50000000
@@ -115,14 +120,115 @@ const ClientGuidelineForm = () => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          const found = acc.find(f => f.name === file.name)
-          if (!found) acc.push(file)
-          return acc
+          let result = fileSize
+          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          if (result > MAXIMUM_FILE_SIZE) {
+            setModal(
+              <ModalContainer>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <img
+                    src='/images/icons/project-icons/status-alert-error.png'
+                    width={60}
+                    height={60}
+                    alt='The maximum file size you can upload is 50mb.'
+                  />
+                  <Typography variant='body2'>
+                    The maximum file size you can upload is 50mb.
+                  </Typography>
+                </Box>
+                <ModalButtonGroup>
+                  <Button
+                    variant='contained'
+                    onClick={() => {
+                      setModal(null)
+                    }}
+                  >
+                    Okay
+                  </Button>
+                </ModalButtonGroup>
+              </ModalContainer>,
+            )
+            return acc
+          } else {
+            const found = acc.find(f => f.name === file.name)
+            if (!found) acc.push(file)
+            return acc
+          }
         }, [])
       setFiles(uniqueFiles)
     },
   })
-  console.log(files)
+
+  useEffect(() => {
+    if (isDuplicated) {
+      setModal(
+        <ModalContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='The guide line is already exist.'
+            />
+            <Typography variant='body2'>
+              The guideline for this client/category/
+              <br />
+              service type already exists.
+            </Typography>
+          </Box>
+          <ModalButtonGroup>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setModal(null)
+                resetFormSelection()
+              }}
+            >
+              Okay
+            </Button>
+          </ModalButtonGroup>
+        </ModalContainer>,
+      )
+    }
+  }, [isDuplicated])
+
+  type FormSelectKey = 'client' | 'category' | 'serviceType'
+
+  function resetFormSelection() {
+    const values: Array<FormSelectKey> = ['client', 'category', 'serviceType']
+    values.forEach(name => {
+      setValue(
+        name,
+        { label: '', value: '' },
+        { shouldDirty: true, shouldValidate: true },
+      )
+    })
+  }
+
+  function checkGuideline() {
+    const { category, client, serviceType } = getValues()
+    if (category.value && client.value && serviceType.value) {
+      checkGuidelineExistence(
+        category.value,
+        client.value,
+        serviceType.value,
+      ).then(res => setIsDuplicated(res))
+    }
+  }
 
   const handleRemoveFile = (file: FileProp) => {
     const uploadedFiles = files
@@ -178,14 +284,6 @@ const ClientGuidelineForm = () => {
     setFileSize(result)
   }, [files])
 
-  useEffect(() => {
-    if (fileSize > MAXIMUM_FILE_SIZE) {
-      setError('file', { message: FormErrors.fileSizeExceed })
-    } else {
-      clearErrors('file')
-    }
-  }, [fileSize])
-
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -201,7 +299,7 @@ const ClientGuidelineForm = () => {
             src='/images/icons/project-icons/status-alert-error.png'
             width={60}
             height={60}
-            alt='role select error'
+            alt=''
           />
           <Typography variant='body2'>
             Are you sure to discard this contract?
@@ -240,7 +338,7 @@ const ClientGuidelineForm = () => {
             src='/images/icons/project-icons/status-successful.png'
             width={60}
             height={60}
-            alt='role select error'
+            alt=''
           />
           <Typography variant='body2'>
             Are you sure to upload this guideline?
@@ -268,8 +366,7 @@ const ClientGuidelineForm = () => {
     (form: FormType) => postGuideline(form),
     {
       onSuccess: data => {
-        //** TODO : return data에 오는 id로 client-guideline detail페이지로 이동하기
-        //router.push(`/onboarding/client-guideline/detail/${data.id}`)
+        router.replace(`/onboarding/client-guideline/detail/${data.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -284,46 +381,61 @@ const ClientGuidelineForm = () => {
 
   const onSubmit = () => {
     const data = getValues()
-
-    data.file?.length &&
-      data.file.forEach(file => {
-        getPresignedUrl(user?.id as number, file.name).then(res => {
-          const formData = new FormData()
-          formData.append('files', file)
-          axios
-            .put(res, formData, {
-              headers: {
-                'Content-Type': 'multipart/form-data',
-                Authorization:
-                  'Bearer ' + typeof window === 'object'
-                    ? getUserTokenFromBrowser()
-                    : null,
-              },
-            })
-            .then(res =>
-              console.log('upload client guideline file success :', res),
-            )
-            .catch(err =>
-              toast.error(
-                'Something went wrong while uploading files. Please try again.',
-                {
-                  position: 'bottom-left',
-                },
-              ),
-            )
-        })
-      })
-
     //** data to send to server */
     const formContent = convertToRaw(content.getCurrentContent())
-    const finalValue = {
+    const finalValue: FormType = {
+      writer: user?.username!,
+      email: user?.email!,
       title: data.title,
       client: data.client.value,
       category: data.category.value,
       serviceType: data.serviceType.value,
       content: formContent,
+      text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    guidelineMutation.mutate(finalValue)
+    // file upload
+    if (data.file.length) {
+      const formData = new FormData()
+      const fileInfo: Array<FilePostType> = []
+      const paths: string[] = data?.file?.map(file =>
+        getFilePath(
+          [
+            data.client.value,
+            data.category.value,
+            data.serviceType.value,
+            'V1',
+          ],
+          file.name,
+        ),
+      )
+      getGuidelineUploadPreSignedUrl(paths).then(res => {
+        const promiseArr = res.map((url, idx) => {
+          fileInfo.push({
+            name: data.file[idx].name,
+            size: data.file[idx]?.size,
+            fileUrl: paths[idx],
+          })
+          formData.append(`file`, data.file[idx])
+          return postFiles(url, formData)
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            console.log('upload client guideline file success :', res)
+            finalValue.files = fileInfo
+            guidelineMutation.mutate(finalValue)
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    } else {
+      guidelineMutation.mutate(finalValue)
+    }
   }
 
   return (
@@ -337,7 +449,7 @@ const ClientGuidelineForm = () => {
         </Typography>
 
         <Grid container spacing={6} className='match-height'>
-          <Grid item xs={9}>
+          <Grid item xs={12} md={8}>
             <Card sx={{ padding: '30px 20px 20px' }}>
               <Box display='flex' justifyContent='flex-end' mb='26px'>
                 <Box display='flex' alignItems='center' gap='8px'>
@@ -394,6 +506,7 @@ const ClientGuidelineForm = () => {
                         options={ClientCategoryIncludeGloz}
                         filterSelectedOptions
                         onChange={(e, v) => {
+                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
                         }}
@@ -432,6 +545,7 @@ const ClientGuidelineForm = () => {
                         value={value}
                         filterSelectedOptions
                         onChange={(e, v) => {
+                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
                         }}
@@ -470,6 +584,7 @@ const ClientGuidelineForm = () => {
                       value={value}
                       filterSelectedOptions
                       onChange={(e, v) => {
+                        checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
                       }}
@@ -517,7 +632,13 @@ const ClientGuidelineForm = () => {
             </Card>
           </Grid>
 
-          <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+          <Grid
+            item
+            xs={12}
+            md={4}
+            className='match-height'
+            sx={{ height: '152px' }}
+          >
             <Card style={{ height: '565px', overflow: 'scroll' }}>
               <Box
                 sx={{

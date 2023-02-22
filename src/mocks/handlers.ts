@@ -52,6 +52,8 @@ export const handlers = [
       category: string
       serviceType: string
     }
+    const f_Skip = Number(req.url.searchParams.get('skip')) || 1
+    const f_PageSize = Number(req.url.searchParams.get('pageSize')) || 10
     const f_Title = req.url.searchParams.get('title') || ''
     const f_Client = req.url.searchParams.get('client')
       ? [req.url.searchParams.get('client')]
