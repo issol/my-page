@@ -91,6 +91,7 @@ export default function FilePreviewDownloadModal({
         console.log(error)
       })
   }
+
   return (
     <Dialog
       open={open}

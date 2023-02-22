@@ -8,7 +8,7 @@ import { PDFContext } from '../state'
 import { setPDFPaginated, setZoomLevel } from '../state/actions'
 
 import {
-  DownloadPDFIcon,
+  // DownloadPDFIcon,
   ResetZoomPDFIcon,
   TogglePaginationPDFIcon,
   ZoomInPDFIcon,
@@ -94,7 +94,8 @@ const Container = styled.div`
   z-index: 1;
   justify-content: center;
   padding: 8px;
-  background-color: ${(props: IStyledProps) => props.theme.tertiary};
+  // background-color: ${(props: IStyledProps) => props.theme.tertiary};
+  background-color: #ffffff;
   box-shadow: 0px 2px 3px #00000033;
 
   @media (max-width: 768px) {
