@@ -16,14 +16,7 @@ import Contracts from '../components/detail/contracts'
 import CommentsAboutPro from '../components/detail/comments-pro'
 import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
-import {
-  ChangeEvent,
-  Suspense,
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
 
 import _ from 'lodash'
 import {
@@ -33,22 +26,11 @@ import {
   OnboardingJobInfoType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import {
-  addTest,
-  certifyRole,
-  testAction,
-  deleteComment,
-  editComment,
-  addingComment,
-} from 'src/apis/onboarding.api'
+import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
-import {
-  useGetResume,
-  useGetOnboardingProDetails,
-  useGetReviewerList,
-} from 'src/queries/onboarding/onboarding-query'
+import { useGetOnboardingProDetails } from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
@@ -78,6 +60,9 @@ import {
   editCommentOnPro,
 } from 'src/apis/onboarding-real.api'
 import { AuthContext } from 'src/context/AuthContext'
+import RejectTestModal from '../components/detail/modal/reject-test-modal'
+import { RejectReason } from 'src/shared/const/onboarding'
+import { log } from 'console'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -94,15 +79,14 @@ function OnboardingDetail() {
   const { id } = router.query
   const { data: userInfo } = useGetOnboardingProDetails(id!)
   const { user } = useContext(AuthContext)
-  // const { data: reviewerList } = useGetReviewerList()
-  // const { data: resume } = useGetResume()
+
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] =
     useState<OnboardingProDetailsType | null>(null)
   const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
   const [selectedJobInfo, setSelectedJobInfo] =
-    useState<SelectedJobInfoType | null>(null)
+    useState<OnboardingJobInfoType | null>(null)
 
   const [actionId, setActionId] = useState(0)
 
@@ -134,11 +118,6 @@ function OnboardingDetail() {
     useState<AddRoleType>(defaultValues)
 
   const languageList = getGloLanguage()
-
-  const [testStatus, setTestStatus] = useState<{
-    value: string
-    label: string
-  } | null>(null)
 
   const {
     control,
@@ -315,7 +294,9 @@ function OnboardingDetail() {
           (value: any) =>
             !(
               value.status === 'Test failed' ||
-              value.status === 'General failed'
+              value.status === 'Basic failed' ||
+              value.status === 'Rejected' ||
+              value.status === 'Paused'
             ),
         )
 
@@ -332,45 +313,17 @@ function OnboardingDetail() {
 
   const handleClickRoleCard = (jobInfo: OnboardingJobInfoType) => {
     setSelectedJobInfo(jobInfo)
-    if (selectedUserInfo !== null) {
-      setSelectedUserInfo((prevState: OnboardingProDetailsType | null) => {
-        if (prevState) {
-          const res = prevState.jobInfo.map((value: any) => {
-            if (value.id === jobInfo.id) {
-              return { ...value, selected: true }
-            } else {
-              return { ...value, selected: false }
-            }
-          })
-          prevState['jobInfo'] = res
+  }
 
-          return prevState
-        } else {
-          return null
-        }
-      })
-      // let prevState = selectedUserInfo
-      // console.log(selectedUserInfo.jobInfo)
-      // console.log(jobInfo.id)
-      // const res = prevState.jobInfo.map((value: any) => {
-      //   if (value.id === jobInfo.id) {
-      //     return { ...value, selected: true }
-      //   } else {
-      //     return { ...value, selected: false }
-      //   }
-      // })
-
-      // const index = prevState.jobInfo.findIndex(
-      //   (value: OnboardingJobInfoType) => value.id === jobInfo.id,
-      // )
-      // console.log(index)
-
-      // // prevState['jobInfo'] = res
-      // prevState.jobInfo.splice(index, 1, res[index])
-      // console.log(prevState.jobInfo)
-
-      // setSelectedUserInfo(prevState)
-    }
+  const onClickReject = (jobInfo: OnboardingJobInfoType) => {
+    setModal(
+      <RejectTestModal
+        open={true}
+        onClose={() => setModal(null)}
+        jobInfo={jobInfo}
+        userInfo={userInfo!}
+      />,
+    )
   }
 
   const onClickCertify = (jobInfoId: number) => {
@@ -416,13 +369,6 @@ function OnboardingDetail() {
       roleUpdate(index, newVal)
       roleTrigger('jobInfo')
     }
-  }
-
-  const onChangeTestStatus = (
-    event: SyntheticEvent,
-    newValue: { value: string; label: string } | null,
-  ) => {
-    setTestStatus(newValue)
   }
 
   const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
@@ -810,6 +756,7 @@ function OnboardingDetail() {
             onClickCertify={onClickCertify}
             onClickAction={onClickAction}
             onClickAddRole={onClickAddRole}
+            onClickReject={onClickReject}
           />
         </Grid>
 

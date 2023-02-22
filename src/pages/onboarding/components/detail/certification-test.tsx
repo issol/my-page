@@ -1,8 +1,7 @@
 import { Card } from '@mui/material'
 import { styled } from '@mui/material/styles'
 import Divider from '@mui/material/Divider'
-import Icon from 'src/@core/components/icon'
-import Avatar from '@mui/material/Avatar'
+
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import CardHeader from '@mui/material/CardHeader'
@@ -23,8 +22,7 @@ import {
 import languageHelper from 'src/shared/helpers/language.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
-import { Dispatch, SetStateAction } from 'react'
-import TestDetailsModal from './dialog/test-details-modal'
+
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 type Props = {
@@ -53,7 +51,8 @@ export default function CertificationTest({
   return (
     <Card sx={{ padding: '20px' }}>
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
-      {selectedJobInfo ? (
+      {selectedJobInfo &&
+      selectedJobInfo.testStatus !== 'Awaiting assignment' ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
@@ -65,17 +64,17 @@ export default function CertificationTest({
                 sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
               >
                 <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                  General Test
+                  Basic Test
                 </Typography>
                 <Card
                   sx={{
                     mt: 2,
 
                     background:
-                      selectedJobInfo.testStatus === 'Test in progress' ||
-                      selectedJobInfo.testStatus === 'Test submitted' ||
+                      selectedJobInfo.testStatus === 'Skill in progress' ||
+                      selectedJobInfo.testStatus === 'Skill submitted' ||
                       selectedJobInfo.testStatus === 'Reviewing' ||
-                      selectedJobInfo.testStatus === 'Test failed' ||
+                      selectedJobInfo.testStatus === 'Skill failed' ||
                       selectedJobInfo.testStatus === 'Review completed'
                         ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
                         : selectedJobInfo.testStatus === 'General failed'
@@ -126,7 +125,7 @@ export default function CertificationTest({
                             </Button>
                           </>
                         ) : selectedJobInfo.testStatus ===
-                          'General in progress' ? (
+                          'Basic in progress' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
@@ -141,7 +140,7 @@ export default function CertificationTest({
                             </Typography>
                             <CircularProgress size={20} />
                           </Box>
-                        ) : selectedJobInfo.testStatus === 'General failed' ? (
+                        ) : selectedJobInfo.testStatus === 'Basic failed' ? (
                           <Box sx={{ display: 'flex', gap: '8px' }}>
                             <Typography
                               sx={{
