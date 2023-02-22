@@ -642,7 +642,7 @@ function OnboardingDetail() {
     console.log(selectedUserInfo)
   }, [selectedUserInfo])
 
-  const onClickResume = (resume: {
+  const onClickFile = (file: {
     id: number
     uri: string
     fileName: string
@@ -652,7 +652,7 @@ function OnboardingDetail() {
       <FilePreviewDownloadModal
         open={true}
         onClose={() => setModal(null)}
-        docs={[resume]}
+        docs={[file]}
       />,
     )
   }
@@ -789,7 +789,7 @@ function OnboardingDetail() {
       <Grid item xs={7} display='flex' gap='24px' direction='column'>
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Resume userInfo={userInfo!} onClickResume={onClickResume} />
+            <Resume userInfo={userInfo!} onClickResume={onClickFile} />
           </Grid>
           <Grid item xs={6}>
             <Experience userInfo={userInfo!} />
@@ -850,7 +850,7 @@ function OnboardingDetail() {
 
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Contracts userInfo={userInfo!} />
+            <Contracts userInfo={userInfo!} onClickContracts={onClickFile} />
           </Grid>
           <Grid item xs={6}>
             <Specialties userInfo={userInfo!} />

@@ -133,6 +133,7 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
 
         const res = data
         res['resume'] = resume
+        res['contracts'] = resume
         res['jobInfo'] = jobInfo
 
         return res!
