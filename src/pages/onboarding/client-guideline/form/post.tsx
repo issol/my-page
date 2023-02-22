@@ -120,9 +120,47 @@ const ClientGuidelineForm = () => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          const found = acc.find(f => f.name === file.name)
-          if (!found) acc.push(file)
-          return acc
+          let result = fileSize
+          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          if (result > MAXIMUM_FILE_SIZE) {
+            setModal(
+              <ModalContainer>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <img
+                    src='/images/icons/project-icons/status-alert-error.png'
+                    width={60}
+                    height={60}
+                    alt='The maximum file size you can upload is 50mb.'
+                  />
+                  <Typography variant='body2'>
+                    The maximum file size you can upload is 50mb.
+                  </Typography>
+                </Box>
+                <ModalButtonGroup>
+                  <Button
+                    variant='contained'
+                    onClick={() => {
+                      setModal(null)
+                    }}
+                  >
+                    Okay
+                  </Button>
+                </ModalButtonGroup>
+              </ModalContainer>,
+            )
+            return acc
+          } else {
+            const found = acc.find(f => f.name === file.name)
+            if (!found) acc.push(file)
+            return acc
+          }
         }, [])
       setFiles(uniqueFiles)
     },
@@ -245,46 +283,6 @@ const ClientGuidelineForm = () => {
 
     setFileSize(result)
   }, [files])
-
-  useEffect(() => {
-    if (fileSize > MAXIMUM_FILE_SIZE) {
-      setModal(
-        <ModalContainer>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='The maximum file size you can upload is 50mb.'
-            />
-            <Typography variant='body2'>
-              The maximum file size you can upload is 50mb.
-            </Typography>
-          </Box>
-          <ModalButtonGroup>
-            <Button
-              variant='contained'
-              onClick={() => {
-                setModal(null)
-              }}
-            >
-              Okay
-            </Button>
-          </ModalButtonGroup>
-        </ModalContainer>,
-      )
-      setError('file', { message: FormErrors.fileSizeExceed })
-    } else {
-      clearErrors('file')
-    }
-  }, [fileSize])
 
   function onDiscard() {
     setModal(

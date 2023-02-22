@@ -128,6 +128,56 @@ const ClientGuidelineEdit = () => {
     files: [],
   }
 
+  const {
+    control,
+    getValues,
+    setValue,
+    setError,
+    clearErrors,
+    formState: { errors, isValid },
+  } = useForm<ClientGuidelineType>({
+    defaultValues,
+    mode: 'onChange',
+    resolver: yupResolver(clientGuidelineSchema),
+  })
+
+  function initializeValue(
+    name: 'title' | 'client' | 'category' | 'serviceType' | 'file',
+    value: string | { value: string; label: string },
+  ) {
+    setValue(name, value, { shouldDirty: true, shouldValidate: true })
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      initializeValue('title', currentVersion.title)
+
+      initializeValue(
+        'client',
+        ClientCategoryIncludeGloz.filter(
+          item => item.value === currentVersion.client,
+        )[0],
+      )
+      initializeValue(
+        'category',
+        Category.filter(item => item.value === currentVersion.category)[0],
+      )
+      initializeValue(
+        'serviceType',
+        ServiceType.filter(
+          item => item.value === currentVersion.serviceType,
+        )[0],
+      )
+      if (currentVersion?.content) {
+        const editorState = EditorState.createWithContent(
+          convertFromRaw(currentVersion?.content as any),
+        )
+        setContent(editorState)
+      }
+      if (currentVersion?.files.length) setSavedFiles(currentVersion.files)
+    }
+  }, [isSuccess])
+
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -145,9 +195,47 @@ const ClientGuidelineEdit = () => {
       const uniqueFiles = files
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
-          const found = acc.find(f => f.name === file.name)
-          if (!found) acc.push(file)
-          return acc
+          let result = fileSize
+          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          if (result > MAXIMUM_FILE_SIZE) {
+            setModal(
+              <ModalContainer>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    alignItems: 'center',
+                    gap: '12px',
+                  }}
+                >
+                  <img
+                    src='/images/icons/project-icons/status-alert-error.png'
+                    width={60}
+                    height={60}
+                    alt='The maximum file size you can upload is 50mb.'
+                  />
+                  <Typography variant='body2'>
+                    The maximum file size you can upload is 50mb.
+                  </Typography>
+                </Box>
+                <ModalButtonGroup>
+                  <Button
+                    variant='contained'
+                    onClick={() => {
+                      setModal(null)
+                    }}
+                  >
+                    Okay
+                  </Button>
+                </ModalButtonGroup>
+              </ModalContainer>,
+            )
+            return acc
+          } else {
+            const found = acc.find(f => f.name === file.name)
+            if (!found) acc.push(file)
+            return acc
+          }
         }, [])
       setFiles(uniqueFiles)
     },
@@ -212,56 +300,6 @@ const ClientGuidelineEdit = () => {
     </FileList>
   ))
 
-  const {
-    control,
-    getValues,
-    setValue,
-    setError,
-    clearErrors,
-    formState: { errors, isValid },
-  } = useForm<ClientGuidelineType>({
-    defaultValues,
-    mode: 'onChange',
-    resolver: yupResolver(clientGuidelineSchema),
-  })
-
-  function initializeValue(
-    name: 'title' | 'client' | 'category' | 'serviceType' | 'file',
-    value: string | { value: string; label: string },
-  ) {
-    setValue(name, value, { shouldDirty: true, shouldValidate: true })
-  }
-
-  useEffect(() => {
-    if (isSuccess) {
-      initializeValue('title', currentVersion.title)
-
-      initializeValue(
-        'client',
-        ClientCategoryIncludeGloz.filter(
-          item => item.value === currentVersion.client,
-        )[0],
-      )
-      initializeValue(
-        'category',
-        Category.filter(item => item.value === currentVersion.category)[0],
-      )
-      initializeValue(
-        'serviceType',
-        ServiceType.filter(
-          item => item.value === currentVersion.serviceType,
-        )[0],
-      )
-      if (currentVersion?.content) {
-        const editorState = EditorState.createWithContent(
-          convertFromRaw(currentVersion?.content as any),
-        )
-        setContent(editorState)
-      }
-      if (currentVersion?.files.length) setSavedFiles(currentVersion.files)
-    }
-  }, [isSuccess])
-
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
 
@@ -273,46 +311,6 @@ const ClientGuidelineEdit = () => {
     )
     setFileSize(result)
   }, [files, savedFiles])
-
-  useEffect(() => {
-    if (fileSize > MAXIMUM_FILE_SIZE) {
-      setModal(
-        <ModalContainer>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='The maximum file size you can upload is 50mb.'
-            />
-            <Typography variant='body2'>
-              The maximum file size you can upload is 50mb.
-            </Typography>
-          </Box>
-          <ModalButtonGroup>
-            <Button
-              variant='contained'
-              onClick={() => {
-                setModal(null)
-              }}
-            >
-              Okay
-            </Button>
-          </ModalButtonGroup>
-        </ModalContainer>,
-      )
-      setError('file', { message: FormErrors.fileSizeExceed })
-    } else {
-      clearErrors('file')
-    }
-  }, [fileSize])
 
   function onDiscard() {
     setModal(
