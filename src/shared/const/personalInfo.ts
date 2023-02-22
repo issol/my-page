@@ -46,6 +46,7 @@ export const RolePair = {
     { label: 'Translator', value: 'Translator' },
     { label: 'Supp author', value: 'Supp author' },
     { label: 'Supp QCer', value: 'Supp QCer' },
+    { label: 'QCer', value: 'QCer' },
   ],
   Webcomics: [
     { label: 'DTPer', value: 'DTPer' },

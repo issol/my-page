@@ -137,7 +137,7 @@ export const DefaultRolePair: Array<RoleSelectType> = [
   {
     label: 'QCer',
     value: 'QCer',
-    jobType: ['Documents/Text'],
+    jobType: ['Documents/Text', 'OTT/Subtitle'],
   },
   {
     label: 'SDH author',
