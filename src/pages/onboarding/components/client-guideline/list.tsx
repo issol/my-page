@@ -179,7 +179,9 @@ export default function ClientGuideLineList({
         <CardHeader
           title={
             <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Guidelines (0)</Typography>{' '}
+              <Typography variant='h6'>
+                Guidelines ({list?.count | 0})
+              </Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink
                   href='/onboarding/client-guideline/form/post'
