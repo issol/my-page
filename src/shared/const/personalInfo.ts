@@ -117,35 +117,52 @@ export const TestStatus = [
   },
   { label: 'Test assigned', value: 'Test assigned' },
   {
-    label: 'General in progress',
-    value: 'General in progress',
+    label: 'Basic in progress',
+    value: 'Basic in progress',
   },
   {
-    label: 'General failed',
-    value: 'General failed',
+    label: 'Basic submitted',
+    value: 'Basic submitted',
   },
   {
-    label: 'General passed',
-    value: 'General passed',
+    label: 'Basic failed',
+    value: 'Basic failed',
   },
   {
-    label: 'Test in progress',
-    value: 'Test in progress',
+    label: 'Basic passed',
+    value: 'Basic passed',
   },
   {
-    label: 'Test submitted',
-    value: 'Test submitted',
+    label: 'Skill in progress',
+    value: 'Skill in progress',
+  },
+  {
+    label: 'Skill submitted',
+    value: 'Skill submitted',
   },
   {
     label: 'Reviewing',
     value: 'Reviewing',
   },
   {
+    label: 'Review canceled',
+    value: 'Review canceled',
+  },
+
+  {
     label: 'Review completed',
     value: 'Review completed',
   },
   {
-    label: 'Test failed',
-    value: 'Test failed',
+    label: 'Skill failed',
+    value: 'Skill failed',
+  },
+  {
+    label: 'Paused',
+    value: 'Paused',
+  },
+  {
+    label: 'Rejected',
+    value: 'Rejected',
   },
 ]
