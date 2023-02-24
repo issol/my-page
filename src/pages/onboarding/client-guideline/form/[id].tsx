@@ -28,10 +28,12 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import FallbackSpinner from 'src/@core/components/spinner'
+import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import { Writer } from 'src/@core/components/chip'
+import FileItem from 'src/@core/components/fileItem'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -61,7 +63,6 @@ import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
   FilePostType,
-  FileType,
   getGuidelineUploadPreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
@@ -70,7 +71,9 @@ import { postFiles } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
-import { toast } from 'react-hot-toast'
+import { FileType } from 'src/types/common/file.type'
+
+// ** values
 import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** helpers
@@ -82,12 +85,6 @@ const defaultValues = {
   category: { label: '', value: '' },
   serviceType: { label: '', value: '' },
   file: [],
-}
-
-interface FileProp {
-  name: string
-  type: string
-  size: number
 }
 
 const ClientGuidelineEdit = () => {
@@ -196,7 +193,7 @@ const ClientGuidelineEdit = () => {
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
           let result = fileSize
-          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          acc.concat(file).forEach((file: FileType) => (result += file.size))
           if (result > MAXIMUM_FILE_SIZE) {
             setModal(
               <ModalContainer>
@@ -241,9 +238,9 @@ const ClientGuidelineEdit = () => {
     },
   })
 
-  const handleRemoveFile = (file: FileProp) => {
+  const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
+    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     setFiles([...filtered])
   }
 
@@ -252,59 +249,19 @@ const ClientGuidelineEdit = () => {
     setDeletedFiles([...deletedFiles, file])
   }
 
-  const fileList = files.map((file: FileProp) => (
-    <FileList key={file.name}>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-          />
-        </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-          </Typography>
-        </div>
-      </div>
-      <IconButton onClick={() => handleRemoveFile(file)}>
-        <Icon icon='mdi:close' fontSize={20} />
-      </IconButton>
-    </FileList>
+  const fileList = files.map((file: FileType) => (
+    <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
   ))
 
   const savedFileList = savedFiles?.map((file: any) => (
-    <FileList key={file.name}>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-          />
-        </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-          </Typography>
-        </div>
-      </div>
-      <IconButton onClick={() => handleRemoveSavedFile(file)}>
-        <Icon icon='mdi:close' fontSize={20} />
-      </IconButton>
-    </FileList>
+    <FileItem key={file.name} file={file} onClear={handleRemoveSavedFile} />
   ))
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
 
     let result = 0
-    files.forEach((file: FileProp) => (result += file.size))
+    files.forEach((file: FileType) => (result += file.size))
 
     savedFiles.forEach(
       (file: { name: string; size: number }) => (result += file.size),
@@ -468,7 +425,7 @@ const ClientGuidelineEdit = () => {
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
-        deleteGuidelineFile(item.id).catch(err =>
+        deleteGuidelineFile(item.id!).catch(err =>
           toast.error(
             'Something went wrong while deleting files. Please try again.',
             {
@@ -760,35 +717,5 @@ ClientGuidelineEdit.acl = {
 const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
   .rdw-editor-main {
     border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`
-const FileList = styled.div`
-  display: flex;
-  margin-bottom: 8px;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px;
-  border: 1px solid rgba(76, 78, 100, 0.22);
-  background: #f9f8f9;
-  .file-details {
-    display: flex;
-    align-items: center;
-  }
-  .file-preview {
-    margin-right: 8px;
-    display: flex;
-  }
-
-  img {
-    width: 38px;
-    height: 38px;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(93, 89, 98, 0.14);
-  }
-
-  .file-name {
-    font-weight: 600;
   }
 `

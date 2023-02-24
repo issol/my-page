@@ -1,8 +1,8 @@
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
+import { FileType } from 'src/types/common/file.type'
 
-export type FileType = { id: number; name: string; size: number }
 export type FilePostType = { name: string; size: number; fileUrl: string }
 export const getGuidelines = async (
   filters: FilterType,

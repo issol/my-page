@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, CardHeader, Chip, IconButton, List } from '@mui/material'
+import { Button, Card, CardHeader, List } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
@@ -20,6 +20,7 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
 import { Writer } from 'src/@core/components/chip'
+import FileItem from 'src/@core/components/fileItem'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -52,6 +53,9 @@ import { useMutation } from 'react-query'
 // ** helpers
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
+// ** types
+import { FileType } from 'src/types/common/file.type'
+
 type CellType = {
   row: {
     id: number
@@ -67,8 +71,6 @@ type CellType = {
     content: any
   }
 }
-
-type FileType = { name: string; size: number }
 
 const ClientGuidelineDetail = () => {
   const router = useRouter()
@@ -246,24 +248,7 @@ const ClientGuidelineDetail = () => {
   function fileList(files: Array<FileType> | []) {
     if (!files.length) return null
     return files.map(file => (
-      <FileList key={file.name} onClick={() => downloadOneFile(file.name)}>
-        <div className='file-details'>
-          <div className='file-preview'>
-            <Icon
-              icon='material-symbols:file-present-outline'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            />
-          </div>
-          <div>
-            <Typography className='file-name'>{file.name}</Typography>
-            <Typography className='file-size' variant='body2'>
-              {Math.round(file.size / 100) / 10 > 1000
-                ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-                : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-            </Typography>
-          </div>
-        </div>
-      </FileList>
+      <FileItem key={file.name} file={file} onClick={downloadOneFile} />
     ))
   }
 
@@ -742,36 +727,5 @@ const StyledEditor = styled(EditorWrapper)<{
   }
   .rdw-editor-toolbar {
     display: none;
-  }
-`
-const FileList = styled.div`
-  display: flex;
-  cursor: pointer;
-  margin-bottom: 8px;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px;
-  border: 1px solid rgba(76, 78, 100, 0.22);
-  background: #f9f8f9;
-  .file-details {
-    display: flex;
-    align-items: center;
-  }
-  .file-preview {
-    margin-right: 8px;
-    display: flex;
-  }
-
-  img {
-    width: 38px;
-    height: 38px;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(93, 89, 98, 0.14);
-  }
-
-  .file-name {
-    font-weight: 600;
   }
 `
