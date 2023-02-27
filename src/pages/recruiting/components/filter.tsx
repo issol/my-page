@@ -85,12 +85,7 @@ export default function Filters({
         />
         <Collapse in={collapsed}>
           <CardContent>
-            <Grid
-              container
-              spacing={6}
-              rowSpacing={4}
-              sx={{ padding: '0 20px 20px' }}
-            >
+            <Grid container spacing={6} rowSpacing={4}>
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete

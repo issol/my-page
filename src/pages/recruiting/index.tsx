@@ -8,6 +8,7 @@ import PageHeader from 'src/@core/components/page-header'
 // ** component imports
 import RecruitingDashboard from './components/dashboard'
 import Filters from './components/filter'
+import RecruitingList from './components/list'
 
 // ** third parties
 import isEqual from 'lodash/isEqual'
@@ -19,6 +20,9 @@ import {
   ProRolePair,
   RoleList,
 } from 'src/shared/const/common'
+
+// ** fetch
+import { useGetRecruitingList } from 'src/queries/recruiting.query'
 
 export type FilterType = {
   client: string
@@ -47,6 +51,12 @@ export default function Recruiting() {
   const [skip, setSkip] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
+
+  const {
+    data: list,
+    refetch,
+    isLoading,
+  } = useGetRecruitingList({ ...filter, skip, pageSize }, search, setSearch)
 
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
@@ -98,7 +108,7 @@ export default function Recruiting() {
 
   useEffect(() => {
     if (isEqual(initialFilter, filter)) {
-      // refetch()
+      refetch()
     }
   }, [filter])
 
@@ -117,6 +127,14 @@ export default function Recruiting() {
         search={() => setSearch(true)}
         jobTypeOption={jobTypeOption}
         roleOption={roleOption}
+      />
+      <RecruitingList
+        skip={skip}
+        pageSize={pageSize}
+        setSkip={setSkip}
+        setPageSize={setPageSize}
+        list={list || { data: [], count: 0 }}
+        isLoading={isLoading}
       />
     </Grid>
   )
