@@ -1,5 +1,16 @@
+import { Grid, Typography } from '@mui/material'
+import PageHeader from 'src/@core/components/page-header'
+import RecruitingDashboard from './components/dashboard'
+
 export default function Recruiting() {
-  return <div>여긴 리크루팅~</div>
+  return (
+    <Grid container spacing={6}>
+      <PageHeader
+        title={<Typography variant='h5'>Recruiting info</Typography>}
+      />
+      <RecruitingDashboard />
+    </Grid>
+  )
 }
 
 Recruiting.acl = {

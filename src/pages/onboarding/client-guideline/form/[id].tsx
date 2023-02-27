@@ -11,10 +11,6 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
 // ** React Imports
 import { Suspense, useContext, useEffect, useState } from 'react'
@@ -32,7 +28,7 @@ import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-import { Writer } from 'src/@core/components/chip'
+import CustomChip from 'src/@core/components/mui/chip'
 import FileItem from 'src/@core/components/fileItem'
 
 // ** Styles
@@ -453,7 +449,12 @@ const ClientGuidelineEdit = () => {
               <Card sx={{ padding: '30px 20px 20px' }}>
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Writer label='Writer' size='small' />
+                    <CustomChip
+                      label='Writer'
+                      skin='light'
+                      color='error'
+                      size='small'
+                    />
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color='primary'
