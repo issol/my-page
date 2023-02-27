@@ -17,16 +17,19 @@ import { ThemeColor } from 'src/@core/layouts/types'
 
 // ** Custom Components Imports
 import CustomAvatar from 'src/@core/components/mui/avatar'
-import OptionsMenu from 'src/@core/components/option-menu'
 
-interface SaleDataType {
+type Props = {
+  onboardingStatistic: { onboarded: number; testing: number; waiting: number }
+}
+
+interface DataType {
   stats: number
   title: string
   color: ThemeColor
   icon: ReactElement
 }
 
-const salesData: SaleDataType[] = [
+const salesData: DataType[] = [
   {
     stats: 900,
     color: 'primary',
@@ -47,30 +50,55 @@ const salesData: SaleDataType[] = [
   },
 ]
 
-const renderStats = () => {
-  return salesData.map((sale: SaleDataType, index: number) => (
+const renderStats = (data: DataType[]) => {
+  return data.map((value: DataType, index: number) => (
     <Grid item xs={12} sm={4} key={index}>
       <Box key={index} sx={{ display: 'flex', alignItems: 'center' }}>
         <CustomAvatar
           skin='light'
           variant='rounded'
-          color={sale.color}
+          color={value.color}
           sx={{ mr: 4 }}
         >
-          {sale.icon}
+          {value.icon}
         </CustomAvatar>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Typography variant='h6' sx={{ fontWeight: 600 }}>
-            {sale.stats}
+            {value.stats}
           </Typography>
-          <Typography variant='caption'>{sale.title}</Typography>
+          <Typography variant='caption' sx={{ textTransform: 'capitalize' }}>
+            {value.title}
+          </Typography>
         </Box>
       </Box>
     </Grid>
   ))
 }
 
-const Overview = () => {
+const Overview = ({ onboardingStatistic }: Props) => {
+  console.log(Object.entries(onboardingStatistic))
+
+  const data = Object.entries(onboardingStatistic).map((key, value) => {
+    return {
+      stats: value,
+      color: 'primary',
+      title: key[0],
+      icon:
+        key[0] === 'onboarded' ? (
+          <Icon icon='mdi:airplane-takeoff' />
+        ) : key[0] === 'testing' ? (
+          <img
+            src='/images/icons/onboarding-icons/status-testing.svg'
+            alt='testing'
+          />
+        ) : (
+          <Icon icon='mdi:clock-time-four' />
+        ),
+    }
+  })
+
+  console.log(data)
+
   return (
     <Card>
       <CardHeader
@@ -80,7 +108,7 @@ const Overview = () => {
       />
       <CardContent>
         <Grid container spacing={6}>
-          {renderStats()}
+          {renderStats(data)}
         </Grid>
       </CardContent>
     </Card>

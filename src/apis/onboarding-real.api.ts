@@ -4,6 +4,7 @@ import axios from 'src/configs/axios'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { OnboardingFilterType } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
+import { LOADIPHLPAPI } from 'dns'
 
 export const getOnboardingProList = async (filters: OnboardingFilterType) => {
   const data = await axios.get(
@@ -45,4 +46,16 @@ export const editCommentOnPro = async (commentId: number, comment: string) => {
 
 export const deleteCommentOnPro = async (commentId: number) => {
   await axios.delete(`/api/enough/u/comment/${commentId}`)
+}
+
+export const getOnboardingStatistic = async () => {
+  const data = await axios.get('/api/enough/cert/statistic')
+
+  return data.data
+}
+
+export const getStatistic = async () => {
+  const data = await axios.get('/api/enough/u/statistic/today')
+
+  return data.data
 }

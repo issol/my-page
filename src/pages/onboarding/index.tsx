@@ -14,7 +14,11 @@ import {
   RoleSelectType,
   OnboardingFilterType,
 } from 'src/types/onboarding/list'
-import { useGetOnboardingProList } from 'src/queries/onboarding/onboarding-query'
+import {
+  useGetOnboardingProList,
+  useGetStatistic,
+  useGetOnboardingStatistic,
+} from 'src/queries/onboarding/onboarding-query'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -39,7 +43,10 @@ export default function Onboarding() {
     take: onboardingListPageSize,
     skip: onboardingListPageSize * onboardingListPage,
   })
+
   const { data: onboardingProList } = useGetOnboardingProList(filters)
+  const { data: totalStatistics } = useGetStatistic()
+  const { data: onboardingStatistic } = useGetOnboardingStatistic()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] =
     useState<RoleSelectType[]>(DefaultRolePair)
@@ -52,8 +59,6 @@ export default function Onboarding() {
     defaultValues,
     mode: 'onSubmit',
   })
-
-  console.log(onboardingProList)
 
   const onClickResetButton = () => {
     setRoleOptions(DefaultRolePair)
@@ -113,7 +118,10 @@ export default function Onboarding() {
       <PageHeader
         title={<Typography variant='h5'>Onboarding list</Typography>}
       />
-      <OnboardingDashboard />
+      <OnboardingDashboard
+        totalStatistics={totalStatistics!}
+        onboardingStatistic={onboardingStatistic!}
+      />
       <Filters
         control={control}
         handleSubmit={handleSubmit}

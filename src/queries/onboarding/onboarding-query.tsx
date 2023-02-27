@@ -1,9 +1,11 @@
-import { useQuery, UseQueryResult } from 'react-query'
+import { useQueries, useQuery, UseQueryResult } from 'react-query'
 import { getReviewer } from 'src/apis/onboarding.api'
 import {
   getOnboardingProDetails,
   getOnboardingProList,
+  getOnboardingStatistic,
   getResume,
+  getStatistic,
 } from 'src/apis/onboarding-real.api'
 import {
   OnboardingFilterType,
@@ -154,6 +156,28 @@ export const useGetResume = () => {
       suspense: true,
 
       useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useGetStatistic = () => {
+  return useQuery<{ todayRegisteredUser: number; totalUser: number }>(
+    'statistic',
+    () => getStatistic(),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+    },
+  )
+}
+
+export const useGetOnboardingStatistic = () => {
+  return useQuery<{ onboarded: number; testing: number; waiting: number }>(
+    'onboarding-status',
+    () => getOnboardingStatistic(),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
     },
   )
 }
