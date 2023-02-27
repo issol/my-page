@@ -328,7 +328,10 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'DTP'}
+                                  disabled={
+                                    item.role === 'DTPer' ||
+                                    item.role === 'DTP QCer'
+                                  }
                                   value={
                                     languageList.filter(
                                       l => l.value === item.source,
@@ -389,7 +392,10 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'DTP'}
+                                  disabled={
+                                    item.role === 'DTPer' ||
+                                    item.role === 'DTP QCer'
+                                  }
                                   value={
                                     languageList.filter(
                                       l => l.value === item.target,
@@ -449,7 +455,7 @@ export default function AppliedRoleModal({
                       onClick={() => addJobInfo('test')}
                       color='primary'
                       disabled={jobInfoFields.some(item => {
-                        if (item.jobType === 'DTP') {
+                        if (item.role === 'DTPer' || item.role === 'DTP QCer') {
                           return !item.jobType || !item.role
                         } else {
                           return (
@@ -479,7 +485,7 @@ export default function AppliedRoleModal({
                       variant='contained'
                       type='submit'
                       disabled={jobInfoFields.some(item => {
-                        if (item.jobType === 'DTP') {
+                        if (item.role === 'DTPer' || item.role === 'DTP QCer') {
                           return !item.jobType || !item.role
                         } else {
                           return (

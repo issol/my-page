@@ -16,38 +16,23 @@ import Contracts from '../components/detail/contracts'
 import CommentsAboutPro from '../components/detail/comments-pro'
 import Resume from '../components/detail/resume'
 import Experience from '../components/detail/experience'
-import {
-  ChangeEvent,
-  Suspense,
-  SyntheticEvent,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
 
 import _ from 'lodash'
 import {
   AddRoleType,
   SelectedJobInfoType,
   CommentsOnProType,
-  OnboardingJobInfoType,
+  AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import {
-  addTest,
-  certifyRole,
-  testAction,
-  deleteComment,
-  editComment,
-  addingComment,
-} from 'src/apis/onboarding.api'
+import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
 import {
-  useGetResume,
+  useGetAppliedRole,
   useGetOnboardingProDetails,
-  useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
@@ -68,9 +53,21 @@ import FilePreviewDownloadModal from '../components/detail/modal/file-preview-do
 
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
+import Icon from 'src/@core/components/icon'
+import IconButton from '@mui/material/IconButton'
 
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
-import { addCommentOnPro } from 'src/apis/onboarding-real.api'
+import {
+  AppliedRoleType,
+  OnboardingProDetailsType,
+} from 'src/types/onboarding/details'
+import {
+  addCommentOnPro,
+  addCreatedAppliedRole,
+  deleteCommentOnPro,
+  editCommentOnPro,
+} from 'src/apis/onboarding-real.api'
+import { AuthContext } from 'src/context/AuthContext'
+import RejectTestModal from '../components/detail/modal/reject-test-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -86,15 +83,19 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const { data: userInfo } = useGetOnboardingProDetails(id!)
-  // const { data: reviewerList } = useGetReviewerList()
-  // const { data: resume } = useGetResume()
+
+  const { data: appliedRole } = useGetAppliedRole(userInfo!.userId)
+  console.log(appliedRole)
+
+  const { user } = useContext(AuthContext)
+
   const [hideFailedTest, setHideFailedTest] = useState(false)
   const [selectedUserInfo, setSelectedUserInfo] =
     useState<OnboardingProDetailsType | null>(null)
   const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
   const [selectedJobInfo, setSelectedJobInfo] =
-    useState<SelectedJobInfoType | null>(null)
+    useState<AppliedRoleType | null>(null)
 
   const [actionId, setActionId] = useState(0)
 
@@ -127,11 +128,6 @@ function OnboardingDetail() {
 
   const languageList = getGloLanguage()
 
-  const [testStatus, setTestStatus] = useState<{
-    value: string
-    label: string
-  } | null>(null)
-
   const {
     control,
     handleSubmit,
@@ -142,7 +138,7 @@ function OnboardingDetail() {
     formState: { errors, dirtyFields },
   } = useForm<AddRoleType>({
     defaultValues,
-    mode: 'onBlur',
+    mode: 'onChange',
     resolver: yupResolver(assignTestSchema),
   })
 
@@ -206,34 +202,48 @@ function OnboardingDetail() {
   )
 
   const addTestMutation = useMutation(
-    (value: { userId: number; jobInfo: AddRoleType }) =>
-      addTest(value.userId, value.jobInfo),
+    (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
       },
     },
   )
 
   const deleteCommentMutation = useMutation(
-    (value: { userId: number; commentId: number }) =>
-      deleteComment(value.userId, value.commentId),
+    (value: { commentId: number }) => deleteCommentOnPro(value.commentId),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
+        toast.error('Successfully deleted!', {
+          position: 'bottom-left',
+
+          icon: (
+            <IconButton
+              color='error'
+              sx={{
+                backgroundColor: '#d32f2f',
+                color: '#ffffff',
+                padding: 0.6,
+              }}
+            >
+              <Icon icon='mdi:delete-outline' />
+            </IconButton>
+          ),
+        })
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
 
   const editCommentMutation = useMutation(
-    (value: { userId: number; comment: CommentsOnProType }) =>
-      editComment(value.userId, value.comment),
+    (value: { commentId: number; comment: string }) =>
+      editCommentOnPro(value.commentId, value.comment),
     {
       onSuccess: (data, variables) => {
         toast.success('Successfully edited!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
@@ -246,7 +256,7 @@ function OnboardingDetail() {
         toast.success('Successfully saved!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`${id}`)
       },
     },
   )
@@ -292,7 +302,9 @@ function OnboardingDetail() {
           (value: any) =>
             !(
               value.status === 'Test failed' ||
-              value.status === 'General failed'
+              value.status === 'Basic failed' ||
+              value.status === 'Rejected' ||
+              value.status === 'Paused'
             ),
         )
 
@@ -307,47 +319,19 @@ function OnboardingDetail() {
     }
   }
 
-  const handleClickRoleCard = (jobInfo: OnboardingJobInfoType) => {
+  const handleClickRoleCard = (jobInfo: AppliedRoleType) => {
     setSelectedJobInfo(jobInfo)
-    if (selectedUserInfo !== null) {
-      setSelectedUserInfo((prevState: OnboardingProDetailsType | null) => {
-        if (prevState) {
-          const res = prevState.jobInfo.map((value: any) => {
-            if (value.id === jobInfo.id) {
-              return { ...value, selected: true }
-            } else {
-              return { ...value, selected: false }
-            }
-          })
-          prevState['jobInfo'] = res
+  }
 
-          return prevState
-        } else {
-          return null
-        }
-      })
-      // let prevState = selectedUserInfo
-      // console.log(selectedUserInfo.jobInfo)
-      // console.log(jobInfo.id)
-      // const res = prevState.jobInfo.map((value: any) => {
-      //   if (value.id === jobInfo.id) {
-      //     return { ...value, selected: true }
-      //   } else {
-      //     return { ...value, selected: false }
-      //   }
-      // })
-
-      // const index = prevState.jobInfo.findIndex(
-      //   (value: OnboardingJobInfoType) => value.id === jobInfo.id,
-      // )
-      // console.log(index)
-
-      // // prevState['jobInfo'] = res
-      // prevState.jobInfo.splice(index, 1, res[index])
-      // console.log(prevState.jobInfo)
-
-      // setSelectedUserInfo(prevState)
-    }
+  const onClickReject = (jobInfo: AppliedRoleType) => {
+    setModal(
+      <RejectTestModal
+        open={true}
+        onClose={() => setModal(null)}
+        jobInfo={jobInfo}
+        userInfo={userInfo!}
+      />,
+    )
   }
 
   const onClickCertify = (jobInfoId: number) => {
@@ -395,18 +379,12 @@ function OnboardingDetail() {
     }
   }
 
-  const onChangeTestStatus = (
-    event: SyntheticEvent,
-    newValue: { value: string; label: string } | null,
-  ) => {
-    setTestStatus(newValue)
-  }
-
-  const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
+  const onClickTestDetails = (jobInfo: AppliedRoleType) => {
     setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={[]} />)
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
+    console.log(data)
     setAssignTestJobInfo(data)
     setAssignTestModalOpen(true)
   }
@@ -416,9 +394,18 @@ function OnboardingDetail() {
   }
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
+    const res = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
     //** TODO : Assign 연결 */
 
-    addTestMutation.mutate({ userId: Number(id), jobInfo: jobInfo })
+    addTestMutation.mutate(res)
   }
 
   const onClickAssignRole = (data: AddRoleType) => {
@@ -496,12 +483,10 @@ function OnboardingDetail() {
   }
 
   const handleEditComment = () => {
-    const res = {
-      ...selectedComment!,
+    editCommentMutation.mutate({
+      commentId: selectedComment!.id,
       comment: comment,
-    }
-
-    editCommentMutation.mutate({ userId: Number(id), comment: res })
+    })
 
     setClickedEditComment(false)
 
@@ -526,7 +511,7 @@ function OnboardingDetail() {
   }
 
   const handleDeleteComment = (comment: CommentsOnProType) => {
-    deleteCommentMutation.mutate({ userId: Number(id), commentId: comment.id })
+    deleteCommentMutation.mutate({ commentId: comment.id })
   }
 
   const onClickEditConfirmComment = () => {
@@ -621,7 +606,7 @@ function OnboardingDetail() {
     console.log(selectedUserInfo)
   }, [selectedUserInfo])
 
-  const onClickResume = (resume: {
+  const onClickFile = (file: {
     id: number
     uri: string
     fileName: string
@@ -631,15 +616,9 @@ function OnboardingDetail() {
       <FilePreviewDownloadModal
         open={true}
         onClose={() => setModal(null)}
-        docs={[resume]}
-        // docs={[
-        //   {
-        //     uri: `https://docs.google.com/document/d/1BtUG2ZlePhGkuONaijG-Hvc2UPcpS_Xk`,
-        //   },
-        // ]}
+        docs={[file]}
       />,
     )
-    // setDocs([{ uri: `http://localhost:3000${resume!}` }])
   }
 
   return (
@@ -774,7 +753,7 @@ function OnboardingDetail() {
       <Grid item xs={7} display='flex' gap='24px' direction='column'>
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Resume userInfo={userInfo!} onClickResume={onClickResume} />
+            <Resume userInfo={userInfo!} onClickResume={onClickFile} />
           </Grid>
           <Grid item xs={6}>
             <Experience userInfo={userInfo!} />
@@ -783,7 +762,7 @@ function OnboardingDetail() {
 
         <Grid item xs={12}>
           <AppliedRole
-            userInfo={selectedUserInfo ? selectedUserInfo!.jobInfo : []}
+            userInfo={appliedRole!}
             hideFailedTest={hideFailedTest}
             handleHideFailedTestChange={handleHideFailedTestChange}
             selectedJobInfo={selectedJobInfo}
@@ -795,6 +774,7 @@ function OnboardingDetail() {
             onClickCertify={onClickCertify}
             onClickAction={onClickAction}
             onClickAddRole={onClickAddRole}
+            onClickReject={onClickReject}
           />
         </Grid>
 
@@ -814,7 +794,7 @@ function OnboardingDetail() {
             rowsPerPage={commentsProRowsPerPage}
             handleChangePage={handleChangeCommentsProPage}
             offset={commentsProOffset}
-            userId={Number(id!)}
+            userId={user!.id}
             onClickEditConfirmComment={onClickEditConfirmComment}
             setClickedEditComment={setClickedEditComment}
             clickedEditComment={clickedEditComment}
@@ -835,7 +815,7 @@ function OnboardingDetail() {
 
         <Grid item xs={12} display='flex' gap='24px'>
           <Grid item xs={6}>
-            <Contracts userInfo={userInfo!} />
+            <Contracts userInfo={userInfo!} onClickContracts={onClickFile} />
           </Grid>
           <Grid item xs={6}>
             <Specialties userInfo={userInfo!} />
