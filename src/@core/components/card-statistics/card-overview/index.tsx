@@ -78,26 +78,26 @@ const renderStats = (data: DataType[]) => {
 const Overview = ({ onboardingStatistic }: Props) => {
   console.log(Object.entries(onboardingStatistic))
 
-  const data = Object.entries(onboardingStatistic).map((key, value) => {
-    return {
-      stats: value,
-      color: 'primary',
-      title: key[0],
-      icon:
-        key[0] === 'onboarded' ? (
-          <Icon icon='mdi:airplane-takeoff' />
-        ) : key[0] === 'testing' ? (
-          <img
-            src='/images/icons/onboarding-icons/status-testing.svg'
-            alt='testing'
-          />
-        ) : (
-          <Icon icon='mdi:clock-time-four' />
-        ),
-    }
-  })
-
-  console.log(data)
+  const data: DataType[] = Object.entries(onboardingStatistic).map(
+    (key, value) => {
+      return {
+        stats: value,
+        color: 'primary',
+        title: key[0],
+        icon:
+          key[0] === 'onboarded' ? (
+            <Icon icon='mdi:airplane-takeoff' />
+          ) : key[0] === 'testing' ? (
+            <img
+              src='/images/icons/onboarding-icons/status-testing.svg'
+              alt='testing'
+            />
+          ) : (
+            <Icon icon='mdi:clock-time-four' />
+          ),
+      }
+    },
+  )
 
   return (
     <Card>
