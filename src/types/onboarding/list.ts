@@ -105,13 +105,22 @@ export interface SelectedJobInfoType extends OnboardingJobInfoType {
   selected: boolean
 }
 
-export type AddRoleType = {
+export interface AddRoleType {
   jobInfo: {
     jobType: string
     role: string
     source: string
     target: string
   }[]
+}
+
+export interface AddRolePayloadType {
+  userId: number
+  userCompany: string
+  jobType: string
+  role: string
+  source: string
+  target: string
 }
 
 export type FilterType = {

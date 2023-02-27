@@ -21,13 +21,16 @@ import { ChangeEvent, useEffect, useState } from 'react'
 import { RejectReason } from 'src/shared/const/onboarding'
 import { v4 as uuidv4 } from 'uuid'
 import TextField from '@mui/material/TextField'
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import {
+  AppliedRoleType,
+  OnboardingProDetailsType,
+} from 'src/types/onboarding/details'
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 type Props = {
   open: boolean
   onClose: any
-  jobInfo: OnboardingJobInfoType
+  jobInfo: AppliedRoleType
   userInfo: OnboardingProDetailsType
 }
 export default function RejectTestModal({

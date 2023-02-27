@@ -23,14 +23,17 @@ import {
   AddRoleType,
   SelectedJobInfoType,
   CommentsOnProType,
-  OnboardingJobInfoType,
+  AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
 import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { useGetOnboardingProDetails } from 'src/queries/onboarding/onboarding-query'
+import {
+  useGetAppliedRole,
+  useGetOnboardingProDetails,
+} from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
@@ -53,16 +56,18 @@ import FallbackSpinner from 'src/@core/components/spinner'
 import Icon from 'src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import {
+  AppliedRoleType,
+  OnboardingProDetailsType,
+} from 'src/types/onboarding/details'
 import {
   addCommentOnPro,
+  addCreatedAppliedRole,
   deleteCommentOnPro,
   editCommentOnPro,
 } from 'src/apis/onboarding-real.api'
 import { AuthContext } from 'src/context/AuthContext'
 import RejectTestModal from '../components/detail/modal/reject-test-modal'
-import { RejectReason } from 'src/shared/const/onboarding'
-import { log } from 'console'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -78,6 +83,10 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const { data: userInfo } = useGetOnboardingProDetails(id!)
+
+  const { data: appliedRole } = useGetAppliedRole(userInfo!.userId)
+  console.log(appliedRole)
+
   const { user } = useContext(AuthContext)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
@@ -86,7 +95,7 @@ function OnboardingDetail() {
   const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
   const [selectedJobInfo, setSelectedJobInfo] =
-    useState<OnboardingJobInfoType | null>(null)
+    useState<AppliedRoleType | null>(null)
 
   const [actionId, setActionId] = useState(0)
 
@@ -129,7 +138,7 @@ function OnboardingDetail() {
     formState: { errors, dirtyFields },
   } = useForm<AddRoleType>({
     defaultValues,
-    mode: 'onBlur',
+    mode: 'onChange',
     resolver: yupResolver(assignTestSchema),
   })
 
@@ -193,11 +202,10 @@ function OnboardingDetail() {
   )
 
   const addTestMutation = useMutation(
-    (value: { userId: number; jobInfo: AddRoleType }) =>
-      addTest(value.userId, value.jobInfo),
+    (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
+        queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
       },
     },
   )
@@ -311,11 +319,11 @@ function OnboardingDetail() {
     }
   }
 
-  const handleClickRoleCard = (jobInfo: OnboardingJobInfoType) => {
+  const handleClickRoleCard = (jobInfo: AppliedRoleType) => {
     setSelectedJobInfo(jobInfo)
   }
 
-  const onClickReject = (jobInfo: OnboardingJobInfoType) => {
+  const onClickReject = (jobInfo: AppliedRoleType) => {
     setModal(
       <RejectTestModal
         open={true}
@@ -371,11 +379,12 @@ function OnboardingDetail() {
     }
   }
 
-  const onClickTestDetails = (jobInfo: SelectedJobInfoType) => {
+  const onClickTestDetails = (jobInfo: AppliedRoleType) => {
     setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={[]} />)
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
+    console.log(data)
     setAssignTestJobInfo(data)
     setAssignTestModalOpen(true)
   }
@@ -385,9 +394,18 @@ function OnboardingDetail() {
   }
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
+    const res = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
     //** TODO : Assign 연결 */
 
-    addTestMutation.mutate({ userId: Number(id), jobInfo: jobInfo })
+    addTestMutation.mutate(res)
   }
 
   const onClickAssignRole = (data: AddRoleType) => {
@@ -744,7 +762,7 @@ function OnboardingDetail() {
 
         <Grid item xs={12}>
           <AppliedRole
-            userInfo={selectedUserInfo ? selectedUserInfo!.jobInfo : []}
+            userInfo={appliedRole!}
             hideFailedTest={hideFailedTest}
             handleHideFailedTestChange={handleHideFailedTestChange}
             selectedJobInfo={selectedJobInfo}

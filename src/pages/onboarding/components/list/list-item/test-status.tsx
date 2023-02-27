@@ -22,7 +22,7 @@ const TestStatus = ({ row }: OnboardingListCellType) => {
                   type='testStatus'
                   label={item.testStatus}
                   /* @ts-ignore */
-                  customColor={TestStatusColor[item.testStatus]}
+                  customcolor={TestStatusColor[item.testStatus]}
                   sx={{
                     textTransform: 'capitalize',
                     '& .MuiChip-label': { lineHeight: '18px' },

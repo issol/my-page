@@ -1,6 +1,7 @@
-import { useQueries, useQuery, UseQueryResult } from 'react-query'
+import { useQuery } from 'react-query'
 import { getReviewer } from 'src/apis/onboarding.api'
 import {
+  getAppliedRole,
   getOnboardingProDetails,
   getOnboardingProList,
   getOnboardingStatistic,
@@ -12,44 +13,10 @@ import {
   OnboardingJobInfoType,
   OnboardingListType,
 } from 'src/types/onboarding/list'
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
-import { AxiosResponse } from 'axios'
-
-// const defaultValue: OnboardingProDetailsType = {
-//   id: '',
-//   userId: 0,
-//   email: '',
-//   firstName: '',
-//   middleName: null,
-//   lastName: '',
-//   experience: '',
-//   jobInfo: [],
-//   isOnboarded: false,
-//   notesFromUser: null,
-//   isActive: false,
-//   legalNamePronunciation: null,
-//   pronounce: null,
-//   preferredName: null,
-//   preferredNamePronunciation: null,
-//   timezone: {
-//     code: 'ko',
-//     label: '',
-//     phone: '',
-//   },
-//   mobile: null,
-//   phone: null,
-//   resume: [{ uri: '', fileName: '', fileType: '' }],
-//   contracts: [{ uri: '', fileName: '', fileType: '' }],
-//   specialties: [''],
-//   commentsOnPro: [],
-//   corporationId: '',
-//   createdAt: '',
-//   updatedAt: '',
-//   deletedAt: '',
-//   fromSNS: false,
-//   havePreferredName: false,
-//   company: '',
-// }
+import {
+  AppliedRoleType,
+  OnboardingProDetailsType,
+} from 'src/types/onboarding/details'
 
 export const useGetReviewerList = () => {
   return useQuery(
@@ -178,6 +145,18 @@ export const useGetOnboardingStatistic = () => {
     {
       staleTime: 60 * 1000,
       suspense: true,
+    },
+  )
+}
+
+export const useGetAppliedRole = (id: number) => {
+  return useQuery<Array<AppliedRoleType>>(
+    `applied-role-${id}`,
+    () => getAppliedRole(id),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+      enabled: !!id,
     },
   )
 }

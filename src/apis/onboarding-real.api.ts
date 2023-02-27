@@ -2,7 +2,10 @@ import { AxiosResponse } from 'axios'
 import { log } from 'console'
 import axios from 'src/configs/axios'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
-import { OnboardingFilterType } from 'src/types/onboarding/list'
+import {
+  AddRolePayloadType,
+  OnboardingFilterType,
+} from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { LOADIPHLPAPI } from 'dns'
 
@@ -58,4 +61,14 @@ export const getStatistic = async () => {
   const data = await axios.get('/api/enough/u/statistic/today')
 
   return data.data
+}
+
+export const getAppliedRole = async (id: number) => {
+  const data = await axios.get(`/api/enough/cert/request/role?userId=${id}`)
+
+  return data.data
+}
+
+export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
+  await axios.post('/api/enough/cert/request/role/generate', { data: payload })
 }

@@ -15,15 +15,16 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
+import { AppliedRoleType } from 'src/types/onboarding/details'
 
 type Props = {
-  userInfo: Array<OnboardingJobInfoType>
+  userInfo: Array<AppliedRoleType>
   handleHideFailedTestChange: (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => void
   hideFailedTest: boolean
-  selectedJobInfo: OnboardingJobInfoType | null
-  handleClickRoleCard: (jobInfo: OnboardingJobInfoType) => void
+  selectedJobInfo: AppliedRoleType | null
+  handleClickRoleCard: (jobInfo: AppliedRoleType) => void
   page: number
   rowsPerPage: number
   offset: number
@@ -31,7 +32,7 @@ type Props = {
   onClickCertify: (jobInfoId: number) => void
   onClickAction: (jobInfoId: number, status: string) => void
   onClickAddRole: () => void
-  onClickReject: (jobInfo: OnboardingJobInfoType) => void
+  onClickReject: (jobInfo: AppliedRoleType) => void
 }
 
 export default function AppliedRole({
@@ -49,7 +50,20 @@ export default function AppliedRole({
   onClickAddRole,
   onClickReject,
 }: Props) {
-  const getStatusButton = (jobInfo: OnboardingJobInfoType) => {
+  const verifiedNoTest = (jobInfo: AppliedRoleType) => {
+    const noBasic = jobInfo!.test.filter(
+      value => value.status === 'NO_TEST' && value.testType === 'basic',
+    )
+    const noSkill = jobInfo!.test.filter(
+      value => value.status === 'NO_TEST' && value.testType === 'skill',
+    )
+    if ((noBasic && noSkill) || (!noBasic && noSkill)) {
+      return true
+    } else {
+      return false
+    }
+  }
+  const getStatusButton = (jobInfo: AppliedRoleType) => {
     if (jobInfo.testStatus === 'Awaiting assignment') {
       if (
         jobInfo.role === 'DTPer' ||
@@ -227,6 +241,23 @@ export default function AppliedRole({
           Test assigned
         </Button>
       )
+    } else if (verifiedNoTest(jobInfo)) {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background: 'rgba(76, 78, 100, 0.12)',
+              border: 'none',
+              color: ' rgba(76, 78, 100, 0.38)',
+            },
+          }}
+        >
+          No certification test created
+        </Button>
+      )
     } else {
       return <Typography></Typography>
     }
@@ -264,103 +295,125 @@ export default function AppliedRole({
             ></img>
           </IconButton>
         </Box>
+        {userInfo.length ? (
+          <FormControlLabel
+            value='start'
+            control={
+              <Switch
+                checked={hideFailedTest}
+                onChange={handleHideFailedTestChange}
+                inputProps={{ 'aria-label': 'controlled' }}
+              />
+            }
+            label={
+              <Typography
+                sx={{
+                  fontStyle: 'normal',
+                  fontWeight: 400,
+                  fontSize: '14px',
+                  lineHeight: '21px',
 
-        <FormControlLabel
-          value='start'
-          control={
-            <Switch
-              checked={hideFailedTest}
-              onChange={handleHideFailedTestChange}
-              inputProps={{ 'aria-label': 'controlled' }}
-            />
-          }
-          label={
-            <Typography
-              sx={{
-                fontStyle: 'normal',
-                fontWeight: 400,
-                fontSize: '14px',
-                lineHeight: '21px',
+                  letterSpacing: '0.15px',
 
-                letterSpacing: '0.15px',
-
-                color: 'rgba(76, 78, 100, 0.6)',
-              }}
-            >
-              Hide failed test
-            </Typography>
-          }
-          labelPlacement='start'
-        />
+                  color: 'rgba(76, 78, 100, 0.6)',
+                }}
+              >
+                Hide failed test
+              </Typography>
+            }
+            labelPlacement='start'
+          />
+        ) : null}
       </Typography>
-      <CardContent sx={{ padding: 0 }}>
+
+      <CardContent
+        sx={{
+          padding: 0,
+          paddingBottom: userInfo.length ? '1.25rem' : '0px !important',
+        }}
+      >
         <Grid container spacing={6} xs={12}>
-          {userInfo &&
-            userInfo.slice(offset, offset + rowsPerPage).map(value => {
-              return (
-                <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
-                  <Card
-                    sx={{
-                      padding: '20px',
-                      height: '100%',
-                      flex: 1,
-                      cursor: 'pointer',
-                      border:
-                        selectedJobInfo && value.id === selectedJobInfo!.id
-                          ? '2px solid #666CFF'
-                          : '2px solid rgba(76, 78, 100, 0.12)',
-                    }}
-                    onClick={() => handleClickRoleCard(value)}
-                  >
-                    <Box>
-                      <Typography
-                        variant='subtitle1'
-                        sx={{ fontWeight: 600, lineHeight: '24px' }}
-                      >
-                        {value.jobType}
-                      </Typography>
-                      <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
-                        {value.role}
-                      </Typography>
-                    </Box>
-                    <CardContent
+          {userInfo && userInfo.length
+            ? userInfo.slice(offset, offset + rowsPerPage).map(value => {
+                return (
+                  <Grid item lg={6} md={12} sm={12} xs={12} key={uuidv4()}>
+                    <Card
                       sx={{
-                        padding: 0,
-                        paddingTop: '10px',
-                        paddingBottom: '0 !important',
+                        padding: '20px',
+                        height: '100%',
+                        flex: 1,
+                        cursor: 'pointer',
+                        border:
+                          selectedJobInfo && value.id === selectedJobInfo!.id
+                            ? '2px solid #666CFF'
+                            : '2px solid rgba(76, 78, 100, 0.12)',
                       }}
+                      onClick={() => handleClickRoleCard(value)}
                     >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{ fontWeight: 600, minHeight: '20px' }}
+                      <Box>
+                        <Typography
+                          variant='subtitle1'
+                          sx={{ fontWeight: 600, lineHeight: '24px' }}
+                        >
+                          {value.jobType}
+                        </Typography>
+                        <Typography
+                          variant='subtitle1'
+                          sx={{ fontWeight: 600 }}
+                        >
+                          {value.role}
+                        </Typography>
+                      </Box>
+                      <CardContent
+                        sx={{
+                          padding: 0,
+                          paddingTop: '10px',
+                          paddingBottom: '0 !important',
+                        }}
                       >
-                        {value.source && value.target ? (
-                          <>
-                            {value.source} &rarr; {value.target}
-                          </>
-                        ) : (
-                          ''
-                        )}
-                      </Typography>
+                        <Typography
+                          variant='subtitle2'
+                          sx={{
+                            fontWeight: 600,
+                            minHeight: '20px',
 
-                      <Grid item display='flex' gap='16px' mt={'17px'}>
-                        {getStatusButton(value)}
-                      </Grid>
-                    </CardContent>
-                  </Card>
-                </Grid>
-              )
-            })}
-          <Grid item xs={12}>
-            <CustomPagination
-              listCount={userInfo.length}
-              page={page}
-              handleChangePage={handleChangePage}
-              rowsPerPage={rowsPerPage}
-            />
-          </Grid>
+                            lineHeight: '20px',
 
-          {/* </Box> */}
+                            letterSpacing: ' 0.15px',
+                          }}
+                        >
+                          {value.source &&
+                          value.target &&
+                          value.source !== '' &&
+                          value.target !== '' ? (
+                            <>
+                              {value.source.toUpperCase()} &rarr;{' '}
+                              {value.target.toUpperCase()}
+                            </>
+                          ) : (
+                            ''
+                          )}
+                        </Typography>
+
+                        <Grid item display='flex' gap='16px' mt={'17px'}>
+                          {getStatusButton(value)}
+                        </Grid>
+                      </CardContent>
+                    </Card>
+                  </Grid>
+                )
+              })
+            : null}
+          {userInfo.length ? (
+            <Grid item xs={12}>
+              <CustomPagination
+                listCount={userInfo.length}
+                page={page}
+                handleChangePage={handleChangePage}
+                rowsPerPage={rowsPerPage}
+              />
+            </Grid>
+          ) : null}
         </Grid>
       </CardContent>
     </Card>

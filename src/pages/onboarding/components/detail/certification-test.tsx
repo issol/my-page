@@ -14,22 +14,21 @@ import TimelineConnector from '@mui/lab/TimelineConnector'
 import MuiTimeline, { TimelineProps } from '@mui/lab/Timeline'
 import CircularProgress from '@mui/material/CircularProgress'
 import Box from '@mui/material/Box'
-import {
-  OnboardingUserType,
-  SelectedJobInfoType,
-  TestHistoryType,
-} from 'src/types/onboarding/list'
+
 import languageHelper from 'src/shared/helpers/language.helper'
 import Chip from 'src/@core/components/mui/chip'
 import { TestStatusColor } from 'src/shared/const/chipColors'
 
-import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import {
+  AppliedRoleType,
+  OnboardingProDetailsType,
+} from 'src/types/onboarding/details'
 
 type Props = {
   userInfo: OnboardingProDetailsType
-  selectedJobInfo: SelectedJobInfoType | null
+  selectedJobInfo: AppliedRoleType | null
   onClickAction: (jobInfoId: number, status: string) => void
-  onClickTestDetails: (history: SelectedJobInfoType) => void
+  onClickTestDetails: (history: AppliedRoleType) => void
 }
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -48,11 +47,25 @@ export default function CertificationTest({
   onClickAction,
   onClickTestDetails,
 }: Props) {
+  const verifiedNoTest = (jobInfo: AppliedRoleType) => {
+    const noBasic = jobInfo!.test.filter(
+      value => value.status === 'NO_TEST' && value.testType === 'basic',
+    )
+    const noSkill = jobInfo!.test.filter(
+      value => value.status === 'NO_TEST' && value.testType === 'skill',
+    )
+    if ((noBasic && noSkill) || (!noBasic && noSkill)) {
+      return true
+    } else {
+      return false
+    }
+  }
   return (
     <Card sx={{ padding: '20px' }}>
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
       {selectedJobInfo &&
-      selectedJobInfo.testStatus !== 'Awaiting assignment' ? (
+      selectedJobInfo.testStatus !== 'Awaiting assignment' &&
+      !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
@@ -94,7 +107,7 @@ export default function CertificationTest({
                       <Typography variant='body1' sx={{ fontWeight: 600 }}>
                         {selectedJobInfo?.target ? (
                           <>
-                            {selectedJobInfo?.target} (
+                            {selectedJobInfo?.target.toUpperCase()} (
                             {languageHelper(
                               selectedJobInfo?.target?.toLowerCase(),
                             )}
@@ -191,6 +204,20 @@ export default function CertificationTest({
 
                             <img src='/images/icons/onboarding-icons/general-skipped.svg' />
                           </Box>
+                        ) : selectedJobInfo.test.find(
+                            value => value.testType === 'basic',
+                          )?.status === 'NO_TEST' ? (
+                          <Chip
+                            size='small'
+                            type='testStatus'
+                            label={'No test'}
+                            /* @ts-ignore */
+                            customcolor={'#6D788D'}
+                            sx={{
+                              '& .MuiChip-label': { lineHeight: '18px' },
+                              mr: 1,
+                            }}
+                          />
                         ) : null}
                       </Box>
                     </Box>
@@ -275,10 +302,13 @@ export default function CertificationTest({
                           variant='subtitle2'
                           sx={{ fontWeight: 600, fontSize: '14px' }}
                         >
-                          {selectedJobInfo.source && selectedJobInfo.target ? (
+                          {selectedJobInfo.source &&
+                          selectedJobInfo.target &&
+                          selectedJobInfo.source !== '' &&
+                          selectedJobInfo.target !== '' ? (
                             <>
-                              {selectedJobInfo.source} &rarr;{' '}
-                              {selectedJobInfo.target}
+                              {selectedJobInfo.source.toUpperCase()} &rarr;{' '}
+                              {selectedJobInfo.target.toUpperCase()}
                             </>
                           ) : (
                             ''
@@ -300,7 +330,7 @@ export default function CertificationTest({
                               : '-'
                           }
                           /* @ts-ignore */
-                          customColor={
+                          customcolor={
                             TestStatusColor[
                               selectedJobInfo.testStatus ===
                                 'Test in progress' ||

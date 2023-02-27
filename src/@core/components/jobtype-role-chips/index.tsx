@@ -19,7 +19,7 @@ const JobTypeRoleChips = ({ jobInfo }: Props) => {
         type='jobType'
         label={jobInfo.jobType}
         /* @ts-ignore */
-        customColor={JobTypeColor[jobInfo.jobType]}
+        customcolor={JobTypeColor[jobInfo.jobType]}
         sx={{
           textTransform: 'capitalize',
           '& .MuiChip-label': { lineHeight: '18px' },
@@ -32,7 +32,7 @@ const JobTypeRoleChips = ({ jobInfo }: Props) => {
         type='role'
         label={jobInfo.role}
         /* @ts-ignore */
-        customColor={RoleColor[jobInfo.role]}
+        customcolor={RoleColor[jobInfo.role]}
         sx={{
           textTransform: 'capitalize',
           '& .MuiChip-label': { lineHeight: '18px' },
