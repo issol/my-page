@@ -1,9 +1,5 @@
 // ** Type import
 import { VerticalNavItemsType } from 'src/@core/layouts/types'
-import { RoleType } from 'src/context/types'
-
-// ** TODO : 렐과 상의 후 action, subject 수정하기
-//role별 메뉴를 만드는게 좋을 것 같음. 그래야 action, subject를 정확히 줄 수 있음
 
 const navigation = (): VerticalNavItemsType => {
   return [
@@ -13,6 +9,29 @@ const navigation = (): VerticalNavItemsType => {
       action: 'read',
       subject: 'members',
       path: `/dashboards`,
+    },
+
+    {
+      title: 'Recruiting',
+      icon: 'mdi:account-outline',
+      action: 'read',
+      subject: 'recruiting',
+      children: [
+        {
+          title: 'Recruiting Info',
+          path: `/recruiting`,
+          action: 'read',
+          icon: 'ic:baseline-perm-contact-calendar',
+          subject: 'recruiting',
+        },
+        {
+          title: 'Job Posting',
+          path: `/jobPosting`,
+          icon: 'ic:baseline-home-repair-service',
+          action: 'read',
+          subject: 'job_posting',
+        },
+      ],
     },
 
     {
