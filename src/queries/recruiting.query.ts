@@ -1,8 +1,19 @@
-import { getRecruitingList } from './../apis/recruiting.api'
+import { getRecruitingList, getRecruitingCount } from './../apis/recruiting.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { FilterType } from 'src/pages/recruiting'
 
+export const useGetRecruitingCount = () => {
+  return useQuery(
+    'get-recruiting/count',
+    () => {
+      return getRecruitingCount()
+    },
+    {
+      suspense: true,
+    },
+  )
+}
 export const useGetRecruitingList = (
   filter: FilterType,
   search: boolean,

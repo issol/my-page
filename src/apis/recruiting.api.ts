@@ -2,6 +2,31 @@ import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/recruiting'
 
+export type RecruitingCountType = {
+  onGoing: number
+  done: number
+  hold: number
+  total: number
+}
+export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
+  try {
+    // const { data } = await axios.get(`/api/enough/onboard/guideline`)
+    // return data
+    return {
+      onGoing: 1000,
+      done: 300,
+      hold: 300,
+      total: 1600,
+    }
+  } catch (e: any) {
+    return {
+      onGoing: 0,
+      done: 0,
+      hold: 0,
+      total: 0,
+    }
+  }
+}
 export type RecruitingDataType = {
   id: number
   status: 'Ongoing' | 'Paused' | 'Fulfilled'

@@ -14,15 +14,16 @@ import RecruitingList from './components/list'
 import isEqual from 'lodash/isEqual'
 
 // ** values
-import {
-  JobList,
-  ProJobPair,
-  ProRolePair,
-  RoleList,
-} from 'src/shared/const/common'
+import { ProJobPair, ProRolePair } from 'src/shared/const/common'
 
 // ** fetch
-import { useGetRecruitingList } from 'src/queries/recruiting.query'
+import {
+  useGetRecruitingCount,
+  useGetRecruitingList,
+} from 'src/queries/recruiting.query'
+
+// ** types
+import { RecruitingCountType } from 'src/apis/recruiting.api'
 
 export type FilterType = {
   client: string
@@ -57,6 +58,7 @@ export default function Recruiting() {
     refetch,
     isLoading,
   } = useGetRecruitingList({ ...filter, skip, pageSize }, search, setSearch)
+  const { data: counts } = useGetRecruitingCount()
 
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
@@ -75,7 +77,6 @@ export default function Recruiting() {
 
   useEffect(() => {
     const newFilter = findDynamicFilterOptions('jobType')
-    // setJobTypeOption(newFilter)
     setRoleOption(newFilter)
     if (newFilter.length && filter.role !== '') {
       const reset = newFilter.filter(role => role.value === filter.role)
@@ -117,8 +118,8 @@ export default function Recruiting() {
       <PageHeader
         title={<Typography variant='h5'>Recruiting info</Typography>}
       />
-      {/* TODO : data받아서 전달하기 */}
-      <RecruitingDashboard />
+
+      <RecruitingDashboard counts={counts as RecruitingCountType} />
 
       <Filters
         filter={filter}
