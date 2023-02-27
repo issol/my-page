@@ -1,10 +1,7 @@
 import { rest } from 'msw'
+import { BASEURL } from 'src/configs/axios'
 
 import { Book, Review } from './types'
-
-// 이 부분 글로벌 const로 빠져야 합니다.
-export const BASEURL =
-  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 
 const image = '/sample/seo.pdf'
 
