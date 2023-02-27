@@ -2,9 +2,13 @@ import { AxiosResponse } from 'axios'
 import { log } from 'console'
 import axios from 'src/configs/axios'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import { OnboardingFilterType } from 'src/types/onboarding/list'
+import { makeQuery } from 'src/shared/transformer/query.transformer'
 
-export const getOnboardingProList = async () => {
-  const data = await axios.get('/api/enough/onboard/user/al?take=20&skip=0')
+export const getOnboardingProList = async (filters: OnboardingFilterType) => {
+  const data = await axios.get(
+    `/api/enough/onboard/user/al?${makeQuery(filters)}`,
+  )
 
   return data.data
 }

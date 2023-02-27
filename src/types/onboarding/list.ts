@@ -136,3 +136,15 @@ export interface RoleSelectType extends SelectType {
 export type OnboardingListCellType = {
   row: OnboardingListType
 }
+
+export type OnboardingFilterType = {
+  take: number
+  skip: number
+  role?: string[]
+  jobType?: string[]
+  search?: string
+  source: string[]
+  target: string[]
+  experience: string[]
+  testStatus: string[]
+}

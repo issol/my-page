@@ -6,6 +6,7 @@ import {
   getResume,
 } from 'src/apis/onboarding-real.api'
 import {
+  OnboardingFilterType,
   OnboardingJobInfoType,
   OnboardingListType,
 } from 'src/types/onboarding/list'
@@ -64,11 +65,11 @@ export const useGetReviewerList = () => {
   )
 }
 
-export const useGetOnboardingProList = () => {
+export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
-    'onboarding-pro-list',
+    ['onboarding-pro-list', filters],
     () => {
-      return getOnboardingProList()
+      return getOnboardingProList(filters)
     },
     {
       staleTime: 60 * 1000, // 1
