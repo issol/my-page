@@ -204,3 +204,18 @@ export const ProJobPair = {
   'Webnovel QCer': [{ label: Job.Webnovel, value: Job.Webnovel }],
   'Webnovel translator': [{ label: Job.Webnovel, value: Job.Webnovel }],
 } as const
+
+export const RecruitingStatus = [
+  {
+    value: 'Ongoing',
+    label: 'Ongoing',
+  },
+  {
+    value: 'Paused',
+    label: 'Paused',
+  },
+  {
+    value: 'Fulfilled',
+    label: 'Fulfilled',
+  },
+]

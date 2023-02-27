@@ -218,10 +218,7 @@ export default function RecruitingList({
                 Recruiting list ({list?.count | 0})
               </Typography>{' '}
               <Button variant='contained'>
-                <StyledNextLink
-                  href='/onboarding/client-guideline/form/post'
-                  color='white'
-                >
+                <StyledNextLink href='/recruiting/post' color='white'>
                   Add recruiting info
                 </StyledNextLink>
               </Button>
@@ -312,19 +309,4 @@ const RoleChip = styled(Chip)<{ type: string }>`
       : '#FFBFE9'};
 
   color: #111111;
-`
-const ServiceType = styled(Chip)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #666cff;
-  border: 1px solid rgba(102, 108, 255, 0.5);
-`
-
-const Title = styled(Typography)`
-  font-weight: 600;
-  font-size: 1rem;
-  color: rgba(76, 78, 100, 0.87);
 `
