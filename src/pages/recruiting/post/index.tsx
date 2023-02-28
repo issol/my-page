@@ -207,6 +207,7 @@ export default function RecruitingPost() {
 
   return (
     <DatePickerWrapper>
+      <Icon icon='/images/icons/etc/icon-keyboad.png' fontSize='1.5rem' />
       <form>
         <StyledEditor
           style={{ margin: '0 70px' }}

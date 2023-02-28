@@ -13,7 +13,7 @@ const navigation = (): HorizontalNavItemsType => {
 
     {
       title: 'Recruiting',
-      icon: 'mdi:account-outline',
+      icon: '/images/icons/person-search.png',
       action: 'read',
       subject: 'recruiting',
       children: [

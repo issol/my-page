@@ -26,7 +26,6 @@ interface Props {
   settings: Settings
   toggleNavVisibility: () => void
   saveSettings: (values: Settings) => void
-  handleSwitchRole: (role: RoleType | null) => void
 }
 
 const notifications: NotificationsType[] = [
@@ -127,13 +126,7 @@ const shortcuts: ShortcutsType[] = [
 
 const AppBarContent = (props: Props) => {
   // ** Props
-  const {
-    hidden,
-    settings,
-    saveSettings,
-    toggleNavVisibility,
-    handleSwitchRole,
-  } = props
+  const { hidden, settings, saveSettings, toggleNavVisibility } = props
 
   return (
     <Box
@@ -167,7 +160,7 @@ const AppBarContent = (props: Props) => {
         <ModeToggler settings={settings} saveSettings={saveSettings} />
         {/* <ShortcutsDropdown settings={settings} shortcuts={shortcuts} /> */}
         {/* <NotificationDropdown settings={settings} notifications={notifications} /> */}
-        <UserDropdown settings={settings} handleSwitchRole={handleSwitchRole} />
+        <UserDropdown settings={settings} />
       </Box>
     </Box>
   )
