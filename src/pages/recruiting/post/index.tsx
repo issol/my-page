@@ -122,7 +122,7 @@ export default function RecruitingPost() {
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema),
   })
-  console.log(watch('numberOfLinguist'))
+
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -207,7 +207,6 @@ export default function RecruitingPost() {
 
   return (
     <DatePickerWrapper>
-      <Icon icon='/images/icons/etc/icon-keyboad.png' fontSize='1.5rem' />
       <form>
         <StyledEditor
           style={{ margin: '0 70px' }}
@@ -240,45 +239,45 @@ export default function RecruitingPost() {
                     <Typography variant='body2'>{user?.email}</Typography>
                   </Box>
                 </Box>
-                {/* status */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='status'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={RecruitingStatus}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        value={value}
-                        id='status'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.status)}
-                            label='Status*'
-                            placeholder='Status*'
-                          />
-                        )}
-                      />
+                <Grid container spacing={6} mb='20px'>
+                  {/* status */}
+                  <Grid item xs={6}>
+                    <Controller
+                      name='status'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={RecruitingStatus}
+                          filterSelectedOptions
+                          onChange={(e, v) => {
+                            if (!v) onChange({ value: '', label: '' })
+                            else onChange(v)
+                          }}
+                          value={value}
+                          id='status'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors.status)}
+                              label='Status*'
+                              placeholder='Status*'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.status && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.status?.message}
+                      </FormHelperText>
                     )}
-                  />
-                  {errors.status && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.status?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* client */}
-                <Box display='flex' gap='20px'>
-                  <Grid item xs={6} mb='20px'>
+                  </Grid>
+                  {/* client */}
+                  <Grid item xs={6}>
                     <Controller
                       name='client'
                       control={control}
@@ -314,310 +313,325 @@ export default function RecruitingPost() {
                       </FormHelperText>
                     )}
                   </Grid>
-                </Box>
-                {/* jobType */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='jobType'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={JobList}
-                        value={value}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        id='jobType'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.jobType)}
-                            label='Job type*'
-                            placeholder='Job type*'
-                          />
-                        )}
-                      />
+                  {/* jobType */}
+                  <Grid item xs={6}>
+                    <Controller
+                      name='jobType'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={JobList}
+                          value={value}
+                          filterSelectedOptions
+                          onChange={(e, v) => {
+                            if (!v) onChange({ value: '', label: '' })
+                            else onChange(v)
+                          }}
+                          id='jobType'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors.jobType)}
+                              label='Job type*'
+                              placeholder='Job type*'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.jobType && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.jobType?.label?.message ||
+                          errors.jobType?.value?.message}
+                      </FormHelperText>
                     )}
-                  />
-                  {errors.jobType && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.jobType?.label?.message ||
-                        errors.jobType?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* role */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='role'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={RoleList}
-                        value={value}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        id='role'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.role)}
-                            label='Role*'
-                            placeholder='Role*'
-                          />
-                        )}
-                      />
+                  </Grid>
+                  {/* role */}
+                  <Grid item xs={6}>
+                    <Controller
+                      name='role'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={RoleList}
+                          value={value}
+                          filterSelectedOptions
+                          onChange={(e, v) => {
+                            if (!v) onChange({ value: '', label: '' })
+                            else onChange(v)
+                          }}
+                          id='role'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors.role)}
+                              label='Role*'
+                              placeholder='Role*'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.role && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.role?.label?.message ||
+                          errors.role?.value?.message}
+                      </FormHelperText>
                     )}
-                  />
-                  {errors.role && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.role?.label?.message ||
-                        errors.role?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* source */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='sourceLanguage'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={languageList}
-                        value={value}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        id='sourceLanguage'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.sourceLanguage)}
-                            label='Source*'
-                            placeholder='Source*'
-                          />
-                        )}
-                      />
+                  </Grid>
+                  {/* source */}
+                  <Grid item xs={6}>
+                    <Controller
+                      name='sourceLanguage'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={languageList}
+                          value={value}
+                          filterSelectedOptions
+                          onChange={(e, v) => {
+                            if (!v) onChange({ value: '', label: '' })
+                            else onChange(v)
+                          }}
+                          id='sourceLanguage'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors.sourceLanguage)}
+                              label='Source*'
+                              placeholder='Source*'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.sourceLanguage && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.sourceLanguage?.label?.message ||
+                          errors.sourceLanguage?.value?.message}
+                      </FormHelperText>
                     )}
-                  />
-                  {errors.sourceLanguage && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.sourceLanguage?.label?.message ||
-                        errors.sourceLanguage?.value?.message}
-                    </FormHelperText>
-                  )}
+                  </Grid>
+
+                  {/* target */}
+                  <Grid item xs={6}>
+                    <Controller
+                      name='targetLanguage'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={languageList}
+                          value={value}
+                          filterSelectedOptions
+                          onChange={(e, v) => {
+                            if (!v) onChange({ value: '', label: '' })
+                            else onChange(v)
+                          }}
+                          id='targetLanguage'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors.targetLanguage)}
+                              label='Target*'
+                              placeholder='Target*'
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.targetLanguage && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.targetLanguage?.label?.message ||
+                          errors.targetLanguage?.value?.message}
+                      </FormHelperText>
+                    )}
+                  </Grid>
                 </Grid>
 
-                {/* target */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='targetLanguage'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={languageList}
-                        value={value}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        id='targetLanguage'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors.targetLanguage)}
-                            label='Target*'
-                            placeholder='Target*'
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                  {errors.targetLanguage && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.targetLanguage?.label?.message ||
-                        errors.targetLanguage?.value?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
                 <Divider />
-                {/* numberOfLinguist */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='numberOfLinguist'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <TextField
-                        onChange={e => {
-                          const value = Number(e.target.value)
-                          if (value <= 15) onChange(value)
-                          else return
-                        }}
-                        value={value}
-                        error={Boolean(errors.numberOfLinguist)}
-                        label='Number of linguist'
-                        placeholder='Number of linguist'
-                        InputProps={{
-                          type: 'number',
-                        }}
-                      />
-                    )}
-                  />
-                  {errors.numberOfLinguist && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.numberOfLinguist?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-
-                {/* date & time */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='dueDate'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <DatePicker
-                        selected={value ? new Date(value) : null}
-                        id='dueDate'
-                        popperPlacement={popperPlacement}
-                        // onChange={(date: Date) => setDate(date)}
-                        onChange={onChange}
-                        placeholderText='Due date'
-                        customInput={
-                          <CustomInput label='Due date' icon='calendar' />
-                        }
-                      />
-                    )}
-                  />
-                  {errors.dueDate && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.dueDate?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* timezone */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='dueDateTimezone'
-                    control={control}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        value={value}
-                        options={countries as CountryType[]}
-                        onChange={(e, v) => onChange(v)}
-                        disableClearable
-                        renderOption={(props, option) => (
-                          <Box component='li' {...props}>
-                            {option.label} ({option.code}) +{option.phone}
-                          </Box>
-                        )}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            label='Due date timezone'
-                            error={Boolean(errors.dueDateTimezone)}
-                            inputProps={{
-                              ...params.inputProps,
-                            }}
-                          />
-                        )}
-                      />
-                    )}
-                  />
-                  {errors.dueDateTimezone && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.dueDateTimezone?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* jobpost link */}
-                <Select
-                  id='job post link'
-                  labelId='select job post link'
-                  defaultValue='insert'
-                  onChange={e => setLinkMode(e.target.value as LinkModeType)}
+                <Grid
+                  container
+                  spacing={6}
+                  mb='20px'
+                  sx={{ paddingTop: '10px' }}
+                  rowSpacing={6}
                 >
-                  <MenuItem value='insert'>Insert link</MenuItem>
-                  <MenuItem value='find'>Find link</MenuItem>
-                </Select>
-                {linkMode === 'insert' ? (
-                  <Controller
-                    name='jobPostLink'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <OutlinedInput
-                        value={value}
-                        id='jobPostLink'
-                        onChange={onChange}
-                        placeholder='Job posting link'
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton edge='end'>
-                              <Icon
-                                icon='material-symbols:open-in-new'
-                                opacity={0.7}
-                              />
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                      />
+                  <Grid item xs={4}>
+                    <Controller
+                      name='numberOfLinguist'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <TextField
+                          fullWidth
+                          onChange={e => {
+                            const value = Number(e.target.value)
+                            if (value <= 15) onChange(value)
+                            else return
+                          }}
+                          value={value}
+                          error={Boolean(errors.numberOfLinguist)}
+                          label='Number of linguist'
+                          placeholder='Number of linguist'
+                          InputProps={{
+                            type: 'number',
+                          }}
+                        />
+                      )}
+                    />
+                    {errors.numberOfLinguist && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.numberOfLinguist?.message}
+                      </FormHelperText>
                     )}
-                  />
-                ) : (
-                  <Controller
-                    name='jobPostLink'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <OutlinedInput
-                        value={value}
-                        id='jobPostLink'
-                        onChange={onChange}
-                        placeholder='Job posting link'
-                        endAdornment={
-                          <InputAdornment position='end'>
-                            <IconButton edge='end'>
-                              <Icon
-                                icon='material-symbols:open-in-new'
-                                opacity={0.7}
-                              />
-                            </IconButton>
-                          </InputAdornment>
-                        }
-                      />
+                  </Grid>
+                  {/* date & time */}
+                  <Grid item xs={4}>
+                    <Controller
+                      name='dueDate'
+                      control={control}
+                      rules={{ required: true }}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <DatePicker
+                          selected={value ? new Date(value) : null}
+                          id='dueDate'
+                          popperPlacement={popperPlacement}
+                          onChange={onChange}
+                          placeholderText='Due date'
+                          customInput={<CustomInput icon='calendar' />}
+                        />
+                      )}
+                    />
+                    {errors.dueDate && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.dueDate?.message}
+                      </FormHelperText>
                     )}
-                  />
-                )}
-                <Divider />
+                  </Grid>
+                  {/* timezone */}
+                  <Grid item xs={4}>
+                    <Controller
+                      name='dueDateTimezone'
+                      control={control}
+                      render={({ field: { value, onChange, onBlur } }) => (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          value={value}
+                          options={countries as CountryType[]}
+                          onChange={(e, v) => onChange(v)}
+                          disableClearable
+                          renderOption={(props, option) => (
+                            <Box component='li' {...props}>
+                              {option.label} ({option.code}) +{option.phone}
+                            </Box>
+                          )}
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              label='Due date timezone'
+                              error={Boolean(errors.dueDateTimezone)}
+                              inputProps={{
+                                ...params.inputProps,
+                              }}
+                            />
+                          )}
+                        />
+                      )}
+                    />
+                    {errors.dueDateTimezone && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.dueDateTimezone?.message}
+                      </FormHelperText>
+                    )}
+                  </Grid>
+                  {/* jobpost link */}
+                  <Grid item xs={12}>
+                    <Box display='flex' gap='8px'>
+                      <Select
+                        id='job post link'
+                        labelId='select job post link'
+                        defaultValue='insert'
+                        onChange={e =>
+                          setLinkMode(e.target.value as LinkModeType)
+                        }
+                      >
+                        <MenuItem value='insert'>Insert link</MenuItem>
+                        <MenuItem value='find'>Find link</MenuItem>
+                      </Select>
+                      {linkMode === 'insert' ? (
+                        <Controller
+                          name='jobPostLink'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <OutlinedInput
+                              fullWidth
+                              value={value}
+                              id='jobPostLink'
+                              onChange={onChange}
+                              placeholder='Job posting link'
+                              endAdornment={
+                                <InputAdornment position='end'>
+                                  <IconButton edge='end'>
+                                    <Icon
+                                      icon='material-symbols:open-in-new'
+                                      opacity={0.7}
+                                    />
+                                  </IconButton>
+                                </InputAdornment>
+                              }
+                            />
+                          )}
+                        />
+                      ) : (
+                        <Controller
+                          name='jobPostLink'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <OutlinedInput
+                              fullWidth
+                              readOnly
+                              value={value}
+                              id='jobPostLink'
+                              onChange={onChange}
+                              placeholder='Job posting link'
+                              endAdornment={
+                                <InputAdornment position='end'>
+                                  <IconButton edge='end'>
+                                    <Icon
+                                      icon='material-symbols:open-in-new'
+                                      opacity={0.7}
+                                    />
+                                  </IconButton>
+                                </InputAdornment>
+                              }
+                            />
+                          )}
+                        />
+                      )}
+                    </Box>
+                  </Grid>
+                </Grid>
+
+                <Divider style={{ marginBottom: '20px' }} />
                 <ReactDraftWysiwyg
                   editorState={content}
                   placeholder='Write down a guideline or attach it as a file.'
