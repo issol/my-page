@@ -28,7 +28,7 @@ import { Fragment, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import { convertToRaw, EditorState } from 'draft-js'
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -60,6 +60,7 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
+import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
 
 // ** types
 import {
@@ -70,19 +71,18 @@ import {
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
 import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 
 /**
  * TODO :
- * 1. job posting만들고 나서 list를 dialog에 연결하기
- * 2. onSubmit함수 완성하기
- * 3. api연결
+ * 1. onSubmit함수 완성하기
+ * 2. api연결
  */
-export default function RecruitingPost() {
+export default function RecruitingEdit() {
   const router = useRouter()
+  const { id } = router.query
   const languageList = getGloLanguage()
 
   const theme = useTheme()
@@ -96,6 +96,77 @@ export default function RecruitingPost() {
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
+
+  const { data, refetch, isSuccess } = useGetRecruitingDetail(Number(id))
+
+  const { currentVersion: currData } = data || {
+    id: null,
+    version: null,
+    writer: '',
+    email: '',
+    createdAt: '',
+    status: '',
+    client: '',
+    jobType: '',
+    role: '',
+    sourceLanguage: '',
+    targetLanguage: '',
+    numberOfLinguist: null,
+    dueDate: '',
+    dueDateTimezone: '',
+    jobPostLink: '',
+    content: '',
+    isHide: 'false',
+  }
+
+  function initializeValues(data: any) {
+    const values: Array<{ name: any; list?: Array<any> }> = [
+      { name: 'status', list: RecruitingStatus },
+      { name: 'client', list: ClientCategoryIncludeGloz },
+      { name: 'role', list: RoleList },
+      { name: 'jobType', list: JobList },
+      { name: 'sourceLanguage', list: languageList },
+      { name: 'targetLanguage', list: languageList },
+      { name: 'numberOfLinguist' },
+      { name: 'dueDate' },
+      { name: 'dueDateTimezone', list: countries },
+      { name: 'jobPostLink' },
+    ]
+
+    values.forEach(({ name, list = null }) => {
+      const value = data[name]
+      let itemValue = null
+      if (!value) {
+        return
+      }
+      if (list?.length) {
+        if (name !== 'dueDateTimezone') {
+          // @ts-ignore
+          itemValue = list.find(item => item.value === value)
+        } else {
+          // @ts-ignore
+          itemValue = list.find(item => item.code === value)
+        }
+      } else {
+        itemValue = value
+      }
+
+      setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
+    })
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      initializeValues(currData)
+
+      if (currData?.content) {
+        const editorState = EditorState.createWithContent(
+          convertFromRaw(currData?.content as any),
+        )
+        setContent(editorState)
+      }
+    }
+  }, [isSuccess])
 
   type LinkModeType = 'insert' | 'find'
   const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
@@ -156,7 +227,7 @@ export default function RecruitingPost() {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              router.push('/recruiting/')
+              router.replace('/recruiting/')
             }}
           >
             Discard
@@ -230,12 +301,16 @@ export default function RecruitingPost() {
                     />
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                      color='primary'
+                      color={
+                        user?.email === currData?.email
+                          ? 'primary'
+                          : 'secondary'
+                      }
                     >
-                      {user?.username}
+                      {currData?.writer}
                     </Typography>
                     <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
+                    <Typography variant='body2'>{currData?.email}</Typography>
                   </Box>
                 </Box>
                 <Grid container spacing={6} mb='20px'>
@@ -681,7 +756,7 @@ export default function RecruitingPost() {
   )
 }
 
-RecruitingPost.acl = {
+RecruitingEdit.acl = {
   subject: 'recruiting',
   action: 'create',
 }

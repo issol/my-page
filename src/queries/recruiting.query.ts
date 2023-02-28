@@ -1,4 +1,8 @@
-import { getRecruitingList, getRecruitingCount } from './../apis/recruiting.api'
+import {
+  getRecruitingList,
+  getRecruitingCount,
+  getRecruitingDetail,
+} from './../apis/recruiting.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { FilterType } from 'src/pages/recruiting'
@@ -33,6 +37,18 @@ export const useGetRecruitingList = (
           position: 'bottom-left',
         })
       },
+    },
+  )
+}
+
+export const useGetRecruitingDetail = (id: number) => {
+  return useQuery(
+    'get-recruiting/detail',
+    () => {
+      return getRecruitingDetail(id)
+    },
+    {
+      suspense: true,
     },
   )
 }

@@ -8,6 +8,7 @@ export type RecruitingCountType = {
   hold: number
   total: number
 }
+
 export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
   try {
     // const { data } = await axios.get(`/api/enough/onboard/guideline`)
@@ -104,5 +105,125 @@ export const getRecruitingList = async (
       data: [],
       count: 0,
     }
+  }
+}
+
+export type CurrentHistoryType = {
+  id: number
+  version: number
+  writer: string
+  email: string
+  createdAt: string
+  status: 'Ongoing' | 'Paused' | 'Fulfilled'
+  client: string
+  jobType: string
+  role: string
+  sourceLanguage: string
+  targetLanguage: string
+  numberOfLinguist: number
+  dueDate: string | null
+  dueDateTimezone: string | null
+  jobPostLink: string // short url
+  content: any
+  isHide: boolean
+}
+
+export type DetailType = {
+  currentVersion: CurrentHistoryType
+  versionHistory: Array<CurrentHistoryType>
+}
+
+export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
+  try {
+    // const { data } = await axios.get(`/api/enough/onboard/guideline/${id}`)
+    // return data
+    return {
+      currentVersion: {
+        id: 1,
+        version: 2,
+        writer: 'Bon kim',
+        email: 'bon@glozinc.com',
+        createdAt: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
+        status: 'Ongoing',
+        client: 'GloZ',
+        jobType: 'Interpretation',
+        role: 'DTPer',
+        sourceLanguage: 'en',
+        targetLanguage: 'ko',
+        numberOfLinguist: 3,
+        dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
+        dueDateTimezone: 'KR',
+        jobPostLink: 'wwww.example.com',
+        content: {
+          blocks: [
+            {
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+            {
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
+        isHide: false,
+      },
+      versionHistory: [
+        {
+          id: 2,
+          version: 2,
+          writer: 'Bon kim',
+          email: 'bon@glozinc.com',
+          createdAt: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
+          status: 'Ongoing',
+          client: 'GloZ',
+          jobType: 'Interpretation',
+          role: 'DTPer',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
+          numberOfLinguist: 3,
+          dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
+          dueDateTimezone: 'KR',
+          jobPostLink: 'wwww.example.com',
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: 'translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+          isHide: false,
+        },
+      ],
+    }
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
