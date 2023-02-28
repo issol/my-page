@@ -7,9 +7,14 @@ import JobTypeRoleChips from 'src/@core/components/jobtype-role-chips'
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
 
-import { OnboardingListCellType } from 'src/types/onboarding/list'
+type Props = {
+  jobInfo: {
+    jobType: string
+    role: string
+  }[]
+}
 
-const JobTypeRole = ({ row }: OnboardingListCellType) => {
+const JobTypeRole = ({ jobInfo }: Props) => {
   return (
     <Box
       sx={{
@@ -18,15 +23,19 @@ const JobTypeRole = ({ row }: OnboardingListCellType) => {
         alignItems: 'center',
       }}
     >
-      {!row?.jobInfo.length
+      {!jobInfo.length
         ? '-'
-        : row?.jobInfo.map(
+        : jobInfo.map(
             (item, idx) =>
-              idx === 0 && <JobTypeRoleChips jobInfo={item} key={uuidv4()} />,
+              idx === 0 && (
+                <JobTypeRoleChips
+                  jobType={item.jobType}
+                  role={item.role}
+                  key={uuidv4()}
+                />
+              ),
           )}
-      {row?.jobInfo.length > 1 ? (
-        <CountChip>+{row.jobInfo.length - 1}</CountChip>
-      ) : null}
+      {jobInfo.length > 1 ? <CountChip>+{jobInfo.length - 1}</CountChip> : null}
     </Box>
   )
 }

@@ -27,8 +27,8 @@
       "apexcharts/*": [
         "./node_modules/apexcharts-clevision/*"
       ],
-      "./src/*": [
-        "src/*"
+      "src/*": [
+        "./src/*"
       ]
     }
   },

@@ -46,7 +46,11 @@ export const columns: GridColumns<OnboardingListType> = [
     headerName: 'Job type / Role',
     renderHeader: () => <Box>Job type / Role</Box>,
     renderCell: ({ row }: OnboardingListCellType) => {
-      return <JobTypeRole row={row} />
+      const jobInfo = row.jobInfo.map(value => ({
+        jobType: value.jobType,
+        role: value.role,
+      }))
+      return <JobTypeRole jobInfo={jobInfo} />
     },
   },
   {

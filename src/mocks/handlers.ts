@@ -1,10 +1,13 @@
 import { rest } from 'msw'
+import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 import { Book, Review } from './types'
 
 // 이 부분 글로벌 const로 빠져야 합니다.
 export const BASEURL =
   process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
+
+const languageList = getGloLanguage()
 
 const image = '/sample/seo.pdf'
 
@@ -283,7 +286,153 @@ export const handlers = [
       return res(ctx.status(200), ctx.body(req.params.fileId))
     },
   ),
-  // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
-  //   return res(ctx.status(200), ctx.json(onboardingUser))
-  // }),
+
+  rest.get(BASEURL + '/api/enough/cert/test/paper', (req, res, ctx) => {
+    interface Data {
+      testType: string
+      jobType: string
+      role: string
+      source: string
+      target: string
+    }
+    const f_Skip = Number(req.url.searchParams.get('skip')) || 0
+    const f_Take = Number(req.url.searchParams.get('take')) || 10
+
+    const f_TestType = req.url.searchParams.get('testType')
+      ? [req.url.searchParams.get('testType')]
+      : []
+    const f_JobType = req.url.searchParams.get('jobType')
+      ? [req.url.searchParams.get('jobType')]
+      : []
+    const f_Role = req.url.searchParams.get('role')
+      ? [req.url.searchParams.get('role')]
+      : []
+    const f_Source = req.url.searchParams.get('source')
+      ? [req.url.searchParams.get('source')]
+      : []
+    const f_Target = req.url.searchParams.get('target')
+      ? [req.url.searchParams.get('target')]
+      : []
+
+    const testTypes = ['Basic test', 'Skill test']
+    const jobTypes = [
+      'Documents/Text',
+      'Dubbing',
+      'Interpretation',
+      'Misc.',
+      'OTT/Subtitle',
+      'Webcomics',
+      'Webnovel',
+    ]
+    const roleTypes = [
+      'Audio describer',
+      'Audio description QCer',
+      'Copywriter',
+      'DTPer',
+      'DTP QCer',
+      'Dubbing audio QCer',
+      'Dubbing script QCer',
+      'Dubbing script translator',
+      'Dubbing voice artist',
+      'Editor',
+      'Interpreter',
+      'Proofreader',
+      'QCer',
+      'SDH author',
+      'SDH QCer',
+      'Subtitle author',
+      'Subtitle QCer',
+      'Supp author',
+      'Supp QCer',
+      'Template author',
+      'Template QCer',
+      'Transcriber',
+      'Translator',
+      'Video editor',
+      'Webcomics QCer',
+      'Webcomics translator',
+      'Webnovel QCer',
+      'Webnovel translator',
+    ]
+
+    const languages = languageList.map(value => value.value)
+
+    function getRandomDate() {
+      const start = new Date('2022-01-01')
+      const end = new Date('2023-12-31')
+      return new Date(
+        start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+      ).toISOString()
+    }
+    function generateRandomData() {
+      const data = []
+      for (let i = 0; i < 20; i++) {
+        // 20개의 랜덤 데이터 생성
+        const testType = testTypes[Math.floor(Math.random() * testTypes.length)]
+        const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
+        const role = roleTypes[Math.floor(Math.random() * roleTypes.length)]
+        const source =
+          testType === 'Basic Test'
+            ? ''
+            : languages[Math.floor(Math.random() * languages.length)]
+        const target = languages[Math.floor(Math.random() * languages.length)]
+
+        const createdAt = getRandomDate()
+        const updatedAt = getRandomDate()
+        const id = i + 1
+        data.push({
+          id,
+          testType,
+          jobType,
+          role,
+          source,
+          target,
+          createdAt,
+          updatedAt,
+        })
+      }
+      return data
+    }
+
+    function filterData(
+      take: number,
+      skip: number,
+      testType: Array<string | null>,
+      jobType: Array<string | null>,
+      role: Array<string | null>,
+      source: Array<string | null>,
+      target: Array<string | null>,
+    ): Data[] {
+      return sampleList
+        .filter(
+          item =>
+            (testType?.length === 0 || testType?.includes(item.testType)) &&
+            (jobType?.length === 0 || jobType?.includes(item.jobType)) &&
+            (role?.length === 0 || role?.includes(item.role)) &&
+            (source?.length === 0 || source?.includes(item.source)) &&
+            (target?.length === 0 || target?.includes(item.target)),
+        )
+        .slice(skip, skip + take)
+    }
+
+    const sampleList: Data[] = generateRandomData()
+    const finalList = filterData(
+      f_Take,
+      f_Skip,
+
+      f_TestType,
+      f_JobType,
+      f_Role,
+      f_Source,
+      f_Target,
+    )
+    return res(
+      ctx.status(200),
+      ctx.json({
+        data: finalList,
+        count: sampleList.length,
+      }),
+    )
+    // return res(ctx.status(200), ctx.json())
+  }),
 ]

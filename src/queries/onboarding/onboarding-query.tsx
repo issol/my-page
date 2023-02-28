@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { getReviewer } from 'src/apis/onboarding.api'
+
 import {
   getAppliedRole,
   getOnboardingProDetails,
@@ -7,7 +7,7 @@ import {
   getOnboardingStatistic,
   getResume,
   getStatistic,
-} from 'src/apis/onboarding-real.api'
+} from 'src/apis/onboarding.api'
 import {
   OnboardingFilterType,
   OnboardingJobInfoType,
@@ -18,21 +18,21 @@ import {
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 
-export const useGetReviewerList = () => {
-  return useQuery(
-    'reviewers',
-    () => {
-      return getReviewer()
-    },
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
+// export const useGetReviewerList = () => {
+//   return useQuery(
+//     'reviewers',
+//     () => {
+//       return getReviewer()
+//     },
+//     {
+//       staleTime: 60 * 1000, // 1
+//       keepPreviousData: true,
+//       suspense: true,
 
-      useErrorBoundary: (error: any) => error.response?.status >= 500,
-    },
-  )
-}
+//       useErrorBoundary: (error: any) => error.response?.status >= 500,
+//     },
+//   )
+// }
 
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(

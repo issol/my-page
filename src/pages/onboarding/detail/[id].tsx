@@ -65,7 +65,7 @@ import {
   addCreatedAppliedRole,
   deleteCommentOnPro,
   editCommentOnPro,
-} from 'src/apis/onboarding-real.api'
+} from './src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
 import RejectTestModal from '../components/detail/modal/reject-test-modal'
 

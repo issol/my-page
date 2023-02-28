@@ -7,29 +7,29 @@ import CardHeader from '@mui/material/CardHeader'
 
 import { Dispatch, SetStateAction } from 'react'
 
-import { columns } from 'src/shared/const/onboarding'
-import { OnboardingListType } from 'src/types/onboarding/list'
+import { TestMaterialListType } from 'src/types/certification-test/list'
+import { materialColumns } from 'src/shared/const/certification-test'
 
 type Props = {
-  onboardingListPage: number
-  setOnboardingListPage: Dispatch<SetStateAction<number>>
-  onboardingListPageSize: number
-  setOnboardingListPageSize: Dispatch<SetStateAction<number>>
-  onboardingProList: OnboardingListType[]
+  testMaterialListPage: number
+  setTestMaterialListPage: Dispatch<SetStateAction<number>>
+  testMaterialListPageSize: number
+  setTestMaterialListPageSize: Dispatch<SetStateAction<number>>
+  testMaterialList: TestMaterialListType[]
 }
 
-export default function OnboardingList({
-  onboardingListPage,
-  setOnboardingListPage,
-  onboardingListPageSize,
-  setOnboardingListPageSize,
-  onboardingProList,
+export default function TestMaterialList({
+  testMaterialListPage,
+  setTestMaterialListPage,
+  testMaterialListPageSize,
+  setTestMaterialListPageSize,
+  testMaterialList,
 }: Props) {
   return (
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${onboardingProList.length})`}
+          title={`Pros (${testMaterialList.length})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
@@ -77,19 +77,19 @@ export default function OnboardingList({
                 )
               },
             }}
-            columns={columns}
-            rows={onboardingProList ?? []}
+            columns={materialColumns}
+            rows={testMaterialList ?? []}
             autoHeight
             disableSelectionOnClick
-            pageSize={onboardingListPageSize}
-            rowsPerPageOptions={[5, 10, 25, 50]}
-            page={onboardingListPage}
-            rowCount={onboardingProList.length}
+            pageSize={testMaterialListPageSize}
+            rowsPerPageOptions={[10, 25, 50]}
+            page={testMaterialListPage}
+            rowCount={testMaterialList.length}
             onPageChange={(newPage: number) => {
-              setOnboardingListPage(newPage)
+              setTestMaterialListPage(newPage)
             }}
             onPageSizeChange={(newPageSize: number) =>
-              setOnboardingListPageSize(newPageSize)
+              setTestMaterialListPageSize(newPageSize)
             }
           />
         </Box>
