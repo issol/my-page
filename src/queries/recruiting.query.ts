@@ -49,6 +49,7 @@ export const useGetRecruitingDetail = (id: number) => {
     },
     {
       suspense: true,
+      useErrorBoundary: false,
     },
   )
 }

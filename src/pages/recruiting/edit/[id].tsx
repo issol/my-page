@@ -18,6 +18,8 @@ import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -40,6 +42,7 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import CustomChip from 'src/@core/components/mui/chip'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
+import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -79,10 +82,12 @@ import { countries } from 'src/@fake-db/autocomplete'
  * TODO :
  * 1. onSubmit함수 완성하기
  * 2. api연결
+ * 3. onSuccess, onError추가
  */
 export default function RecruitingEdit() {
   const router = useRouter()
   const { id } = router.query
+
   const languageList = getGloLanguage()
 
   const theme = useTheme()
@@ -97,7 +102,13 @@ export default function RecruitingEdit() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
 
-  const { data, refetch, isSuccess } = useGetRecruitingDetail(Number(id))
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
+    Number(id),
+  )
+
+  if (isError) {
+    return <EmptyPost />
+  }
 
   const { currentVersion: currData } = data || {
     id: null,
@@ -118,6 +129,10 @@ export default function RecruitingEdit() {
     content: '',
     isHide: 'false',
   }
+
+  const ability = useContext(AbilityContext)
+  const isWriter =
+    ability.can('update', 'recruiting') && user?.email === currData?.email
 
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [
@@ -360,6 +375,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           options={ClientCategoryIncludeGloz}
                           filterSelectedOptions
                           onChange={(e, v) => {
@@ -397,6 +413,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           options={JobList}
                           value={value}
                           filterSelectedOptions
@@ -434,6 +451,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           options={RoleList}
                           value={value}
                           filterSelectedOptions
@@ -471,6 +489,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           options={languageList}
                           value={value}
                           filterSelectedOptions
@@ -509,6 +528,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           options={languageList}
                           value={value}
                           filterSelectedOptions
@@ -554,6 +574,7 @@ export default function RecruitingEdit() {
                       render={({ field: { value, onChange, onBlur } }) => (
                         <TextField
                           fullWidth
+                          disabled={!isWriter}
                           onChange={e => {
                             const value = Number(e.target.value)
                             if (value <= 15) onChange(value)
@@ -583,6 +604,7 @@ export default function RecruitingEdit() {
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
                         <DatePicker
+                          disabled={!isWriter}
                           selected={value ? new Date(value) : null}
                           id='dueDate'
                           popperPlacement={popperPlacement}
@@ -607,6 +629,7 @@ export default function RecruitingEdit() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
+                          disabled={!isWriter}
                           value={value}
                           options={countries as CountryType[]}
                           onChange={(e, v) => onChange(v)}
@@ -639,6 +662,7 @@ export default function RecruitingEdit() {
                   <Grid item xs={12}>
                     <Box display='flex' gap='8px'>
                       <Select
+                        disabled={!isWriter}
                         id='job post link'
                         labelId='select job post link'
                         defaultValue='insert'
@@ -657,6 +681,7 @@ export default function RecruitingEdit() {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <OutlinedInput
                               fullWidth
+                              disabled={!isWriter}
                               value={value}
                               id='jobPostLink'
                               onChange={onChange}
@@ -682,6 +707,7 @@ export default function RecruitingEdit() {
                           render={({ field: { value, onChange, onBlur } }) => (
                             <OutlinedInput
                               fullWidth
+                              disabled={!isWriter}
                               readOnly
                               value={value}
                               id='jobPostLink'
@@ -709,6 +735,7 @@ export default function RecruitingEdit() {
                 <ReactDraftWysiwyg
                   editorState={content}
                   placeholder='Memo'
+                  readOnly={!isWriter}
                   onEditorStateChange={data => {
                     setContent(data)
                   }}
@@ -758,7 +785,7 @@ export default function RecruitingEdit() {
 
 RecruitingEdit.acl = {
   subject: 'recruiting',
-  action: 'create',
+  action: 'update',
 }
 
 const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`
