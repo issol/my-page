@@ -70,7 +70,6 @@ type CellType = {
   }
 }
 
-// ** TODO : api완료되면 mutation 파라미터 수정, detail 데이터 스키마 변경에 따라 변경해주기
 const ContractDetail = () => {
   const router = useRouter()
   const invalidate = useInvalidateContractQuery()

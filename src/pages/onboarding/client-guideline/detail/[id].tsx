@@ -531,7 +531,7 @@ const ClientGuidelineDetail = () => {
               ) : null}
             </Box>
           </Card>
-          {isEditable(Number(id)) && (
+          {isEditable(Number(currentVersion?.userId)) && (
             <Card style={{ marginTop: '24px' }}>
               <Box
                 sx={{

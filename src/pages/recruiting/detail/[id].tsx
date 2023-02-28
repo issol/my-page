@@ -1,7 +1,15 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, CardHeader, List } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardHeader,
+  List,
+  TableBody,
+  TableCell,
+  TableRow,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
@@ -19,10 +27,11 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
-import FileItem from 'src/@core/components/fileItem'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
+import EmptyPost from 'src/@core/components/page/empty-post'
+import PageHeader from 'src/@core/components/page-header'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -36,44 +45,31 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { AuthContext } from 'src/context/AuthContext'
 
 // ** helpers
-import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import {
+  FullDateTimezoneHelper,
+  MMDDYYYYHelper,
+} from 'src/shared/helpers/date.helper'
+import { getGmtTime } from 'src/shared/helpers/timezone.helper'
 
 // ** NextJS
 import { useRouter } from 'next/router'
 
 // ** fetches
-import axios from 'axios'
-import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import {
-  deleteGuideline,
-  getGuidelineDownloadPreSignedUrl,
-  restoreGuideline,
-} from 'src/apis/client-guideline.api'
-import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
+import { deleteGuideline } from 'src/apis/client-guideline.api'
 import { useMutation } from 'react-query'
 
-// ** helpers
-import { getFilePath } from 'src/shared/transformer/filePath.transformer'
-
 // ** types
-import { FileType } from 'src/types/common/file.type'
+import { CurrentHistoryType } from 'src/apis/recruiting.api'
 
 type CellType = {
-  row: {
-    id: number
-    userId: number
-    title: string
-    writer?: string
-    email: string
-    client: string
-    category: string
-    serviceType: string
-    updatedAt?: string
-    files: any
-    content: any
-  }
+  row: CurrentHistoryType
 }
 
+/** TODO:
+ * 1. hide, delete, update api 연결
+ * 2. onsuccess, onerror함수 추가
+ */
 const RecruitingDetail = () => {
   const router = useRouter()
   const { id } = router.query
@@ -82,62 +78,56 @@ const RecruitingDetail = () => {
   const [historyContent, setHistoryContent] = useState(
     EditorState.createEmpty(),
   )
-  const [pageSize, setPageSize] = useState(5)
-  const [currentRow, setCurrentRow] = useState({
+
+  const initialValue = {
     id: null,
-    userId: null,
-    title: '',
+    version: null,
     writer: '',
     email: '',
-    updatedAt: '',
+    createdAt: '',
+    status: '',
     client: '',
-    category: '',
-    serviceType: '',
-    files: [],
-    content: null,
-  })
+    jobType: '',
+    role: '',
+    sourceLanguage: '',
+    targetLanguage: '',
+    numberOfLinguist: null,
+    dueDate: '',
+    dueDateTimezone: '',
+    jobPostLink: '',
+    content: '',
+    isHide: 'false',
+  }
+  const [pageSize, setPageSize] = useState(5)
+  const [currentRow, setCurrentRow] = useState(initialValue)
 
   const [openDetail, setOpenDetail] = useState(false)
 
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
+
   const { user } = useContext(AuthContext)
 
-  const { data, refetch } = useGetGuideLineDetail(Number(id))
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
+    Number(id),
+  )
 
-  const { currentVersion } = data || {
-    id: null,
-    userId: null,
-    title: '',
-    writer: '',
-    email: '',
-    client: '',
-    category: '',
-    serviceType: null,
-    updatedAt: '',
-    content: null,
-    files: [],
+  if (isError) {
+    return <EmptyPost />
   }
+
+  const { currentVersion } = data || { initialValue }
 
   const versionHistory = data?.versionHistory || []
 
-  const restoreMutation = useMutation(
-    (info: { id: number; writer: string; email: string }) =>
-      restoreGuideline(info.id, info.writer, info.email),
-    {
-      onSuccess: data => {
-        refetch()
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
+  const isWriter =
+    ability.can('update', 'recruiting') &&
+    currentVersion?.email === user?.email!
+  const isMaster = ability.can('update', 'recruiting')
+
   const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
     onSuccess: () => {
-      router.push('/onboarding/client-guideline')
+      router.replace('/recruiting/')
     },
     onError: () => {
       toast.error('Something went wrong. Please try again.', {
@@ -154,10 +144,41 @@ const RecruitingDetail = () => {
     }
   }, [currentVersion])
 
+  function renderTable(
+    label: string,
+    value: number | string | undefined | null,
+  ) {
+    return (
+      <Grid container mb={'11px'}>
+        <Grid item xs={6}>
+          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+            {label}
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography
+            variant='body2'
+            sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            {value ?? '-'}
+            {label === 'Job posting link' && (
+              <Icon
+                icon='material-symbols:open-in-new'
+                opacity={0.7}
+                fontSize='1.3rem'
+                cursor='pointer'
+              />
+            )}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
+  }
+
   const columns = [
     {
       flex: 0.28,
-      field: 'title',
+      field: 'version',
       minWidth: 80,
       headerName: 'Version',
       renderHeader: () => <Box>Version</Box>,
@@ -175,84 +196,18 @@ const RecruitingDetail = () => {
     {
       flex: 0.23,
       minWidth: 120,
-      field: 'updatedAt',
+      field: 'createdAt',
       headerName: 'Date & Time',
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.updatedAt)}
+            {FullDateTimezoneHelper(row.createdAt)}
           </Box>
         )
       },
     },
   ]
-
-  function fetchFile(fileName: string) {
-    const path = getFilePath(
-      [
-        currentVersion?.client!,
-        currentVersion?.category!,
-        currentVersion?.serviceType!,
-        `V${currentVersion?.version}`,
-      ],
-      fileName,
-    )
-
-    getGuidelineDownloadPreSignedUrl([path]).then(res => {
-      axios
-        .get(res[0], {
-          headers: {
-            Authorization:
-              'Bearer ' + typeof window === 'object'
-                ? getUserTokenFromBrowser()
-                : null,
-          },
-        })
-        .then(res => {
-          console.log('upload client guideline file success :', res)
-          const url = window.URL.createObjectURL(new Blob([res.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', `${fileName}`)
-          document.body.appendChild(link)
-          link.click()
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
-          ),
-        )
-    })
-  }
-
-  function downloadOneFile(name: string) {
-    fetchFile(name)
-  }
-
-  function downloadAllFiles(files: Array<FileType> | [] | undefined) {
-    if (!files || !files.length) return
-
-    files.forEach(file => {
-      fetchFile(file.name)
-    })
-  }
-
-  function getFileSize(files: Array<FileType> | [] | undefined) {
-    if (!files || !files.length) return 0
-    /* @ts-ignore */
-    return files.reduce((acc: number, file: FileType) => acc + file.size, 0)
-  }
-
-  function fileList(files: Array<FileType> | []) {
-    if (!files.length) return null
-    return files.map(file => (
-      <FileItem key={file.name} file={file} onClick={downloadOneFile} />
-    ))
-  }
 
   function onDelete() {
     setModal(
@@ -272,7 +227,7 @@ const RecruitingDetail = () => {
             alt='role select error'
           />
           <Typography variant='body2'>
-            Are you sure to delete this contract?
+            Are you sure to delete this recruiting request?
           </Typography>
         </Box>
         <ModalButtonGroup>
@@ -297,56 +252,6 @@ const RecruitingDetail = () => {
     router.push(`/onboarding/client-guideline/form/${id}`)
   }
 
-  function onRestore() {
-    setOpenDetail(false)
-    setModal(
-      <ModalContainer>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          <img
-            src='/images/icons/project-icons/status-alert-error.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='body2'>
-            Are you sure to restore this version?
-          </Typography>
-        </Box>
-        <ModalButtonGroup>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setModal(null)
-              setOpenDetail(true)
-            }}
-          >
-            Cancel
-          </Button>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              setModal(null)
-              restoreMutation.mutate({
-                id: currentRow?.id!,
-                writer: currentRow?.writer!,
-                email: currentRow?.email!,
-              })
-            }}
-          >
-            Restore
-          </Button>
-        </ModalButtonGroup>
-      </ModalContainer>,
-    )
-  }
-
   function noHistory() {
     return (
       <Box
@@ -363,10 +268,6 @@ const RecruitingDetail = () => {
     )
   }
 
-  function isEditable(id: number) {
-    return ability.can('update', 'client_guideline') || id === user?.id!
-  }
-
   function onRowClick(e: any) {
     setOpenDetail(true)
     setCurrentRow(e?.row)
@@ -379,26 +280,34 @@ const RecruitingDetail = () => {
 
   return (
     <StyledEditor style={{ margin: '0 70px' }}>
-      <Grid container spacing={6}>
+      <PageHeader
+        title={
+          <Box display='flex' alignItems='center' gap='8px'>
+            <Icon
+              icon='material-symbols:arrow-back-ios-new'
+              style={{ cursor: 'pointer' }}
+              onClick={() => router.back()}
+            />
+            <Typography variant='h5'>Recruiting info</Typography>
+          </Box>
+        }
+      />
+
+      <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
         <Grid item md={9} xs={12}>
           <Card sx={{ padding: '30px 20px 20px' }}>
             <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography
-                variant='h6'
-                sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <Icon
-                  icon='mdi:chevron-left'
-                  cursor='pointer'
-                  onClick={() => router.back()}
-                />
-                {currentVersion?.title}
-              </Typography>
+              <CustomChip
+                label={currentVersion?.id}
+                skin='light'
+                color='primary'
+                size='small'
+              />
 
               <Box display='flex' flexDirection='column' gap='8px'>
                 <Box display='flex' alignItems='center' gap='8px'>
                   <CustomChip
-                    label='Writer'
+                    label='Requestor'
                     skin='light'
                     color='error'
                     size='small'
@@ -406,7 +315,7 @@ const RecruitingDetail = () => {
                   <Typography
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color={`${
-                      user?.id === currentVersion?.userId ? 'primary' : ''
+                      user?.email === currentVersion?.email ? 'primary' : ''
                     }`}
                   >
                     {currentVersion?.writer}
@@ -417,44 +326,48 @@ const RecruitingDetail = () => {
                   </Typography>
                 </Box>
                 <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(currentVersion?.updatedAt)}
+                  {FullDateTimezoneHelper(currentVersion?.createdAt)}
                 </Typography>
               </Box>
             </Box>
-            <Grid container>
-              <Grid item xs={2} mb='10px'>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Client
-                </Typography>
+            <Divider />
+            <Grid container spacing={12} pt='10px'>
+              <Grid item xs={5}>
+                {renderTable('Status', currentVersion?.status)}
+                {renderTable('Job type', currentVersion?.jobType)}
+                {renderTable(
+                  'Source language',
+                  currentVersion?.sourceLanguage.toUpperCase(),
+                )}
               </Grid>
-              <Grid item xs={2} mb='10px'>
-                <Typography variant='body2'>
-                  {currentVersion?.client}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container mb='10px'>
-              <Grid item xs={2}>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Category
-                </Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant='body2'>
-                  {currentVersion?.category}
-                </Typography>
+              <Grid item xs={7}>
+                {renderTable('Client', currentVersion?.client)}
+                {renderTable('Role', currentVersion?.role)}
+                {renderTable(
+                  'Target language',
+                  currentVersion?.targetLanguage.toUpperCase(),
+                )}
               </Grid>
             </Grid>
-            <Grid container mb='10px'>
-              <Grid item xs={2}>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Service type
-                </Typography>
+
+            <Divider />
+            <Grid container spacing={12} pt='10px'>
+              <Grid item xs={5}>
+                {renderTable(
+                  'Number of linguist',
+                  currentVersion?.numberOfLinguist,
+                )}
+                {renderTable(
+                  'Due date',
+                  MMDDYYYYHelper(currentVersion?.dueDate),
+                )}
               </Grid>
-              <Grid item xs={2}>
-                <Typography variant='body2'>
-                  {currentVersion?.serviceType}
-                </Typography>
+              <Grid item xs={7}>
+                {renderTable('Job posting link', currentVersion?.jobPostLink)}
+                {renderTable(
+                  'Due date timezone',
+                  getGmtTime(currentVersion?.dueDateTimezone),
+                )}
               </Grid>
             </Grid>
             <Divider />
@@ -485,7 +398,7 @@ const RecruitingDetail = () => {
           </Card>
         </Grid>
         <Grid item md={3} xs={12}>
-          <Card style={{ height: '565px', overflow: 'scroll' }}>
+          <Card>
             <Box
               sx={{
                 padding: '20px',
@@ -494,48 +407,17 @@ const RecruitingDetail = () => {
                 gap: '12px',
               }}
             >
-              <Box display='flex' justifyContent='space-between'>
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                  Attached file
-                </Typography>
-                <Typography variant='body2'>
-                  {Math.round(getFileSize(currentVersion?.files) / 100) / 10 >
-                  1000
-                    ? `${(
-                        Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10000
-                      ).toFixed(1)} mb`
-                    : `${(
-                        Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10
-                      ).toFixed(1)} kb`}
-                  /50mb
-                </Typography>
-              </Box>
-              <Button
-                variant='outlined'
-                startIcon={<Icon icon='mdi:download' />}
-                onClick={() => downloadAllFiles(currentVersion?.files)}
-              >
-                Download all
-              </Button>
-              {currentVersion?.files?.length ? (
-                <Fragment>
-                  <List>{fileList(currentVersion?.files)}</List>
-                </Fragment>
-              ) : null}
-            </Box>
-          </Card>
-          {isEditable(Number(id)) && (
-            <Card style={{ marginTop: '24px' }}>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
+              {isWriter && (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={<Icon icon='clarity:eye-hide-line' />}
+                  onClick={onDelete}
+                >
+                  Hide
+                </Button>
+              )}
+              {isMaster && (
                 <Button
                   variant='outlined'
                   color='secondary'
@@ -544,6 +426,9 @@ const RecruitingDetail = () => {
                 >
                   Delete
                 </Button>
+              )}
+
+              {isMaster || isWriter ? (
                 <Button
                   variant='contained'
                   startIcon={<Icon icon='mdi:pencil-outline' />}
@@ -551,15 +436,17 @@ const RecruitingDetail = () => {
                 >
                   Edit
                 </Button>
-              </Box>
-            </Card>
-          )}
+              ) : (
+                ''
+              )}
+            </Box>
+          </Card>
         </Grid>
       </Grid>
       <Dialog
         open={openDetail}
         onClose={() => setOpenDetail(false)}
-        maxWidth='lg'
+        maxWidth='md'
       >
         <StyledEditor maxHeight={true}>
           <Grid
@@ -568,15 +455,20 @@ const RecruitingDetail = () => {
             justifyContent='center'
           >
             <Grid container spacing={6}>
-              <Grid item xs={12} md={8}>
+              <Grid item xs={12}>
                 <Card sx={{ padding: '20px', width: '100%' }}>
                   <Box display='flex' justifyContent='space-between' mb='26px'>
-                    <Typography variant='h6'>{currentRow?.title}</Typography>
+                    <CustomChip
+                      label={currentRow?.id}
+                      skin='light'
+                      color='primary'
+                      size='small'
+                    />
 
                     <Box display='flex' flexDirection='column' gap='8px'>
                       <Box display='flex' alignItems='center' gap='8px'>
                         <CustomChip
-                          label='Writer'
+                          label='Requestor'
                           skin='light'
                           color='error'
                           size='small'
@@ -603,46 +495,44 @@ const RecruitingDetail = () => {
                       </Typography>
                     </Box>
                   </Box>
-                  <Grid container>
-                    <Grid item xs={2} mb='10px'>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Client
-                      </Typography>
+                  <Divider />
+                  <Grid container spacing={12} pt='10px'>
+                    <Grid item xs={5}>
+                      {renderTable('Status', currentRow?.status)}
+                      {renderTable('Job type', currentRow?.jobType)}
+                      {renderTable(
+                        'Source language',
+                        currentRow?.sourceLanguage.toUpperCase(),
+                      )}
                     </Grid>
-                    <Grid item xs={2} mb='10px'>
-                      <Typography variant='body2'>
-                        {currentRow?.client}
-                      </Typography>
-                    </Grid>
-                  </Grid>
-                  <Grid container mb='10px'>
-                    <Grid item xs={2}>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Category
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Typography variant='body2'>
-                        {currentRow?.category}
-                      </Typography>
+                    <Grid item xs={7}>
+                      {renderTable('Client', currentRow?.client)}
+                      {renderTable('Role', currentRow?.role)}
+                      {renderTable(
+                        'Target language',
+                        currentRow?.targetLanguage.toUpperCase(),
+                      )}
                     </Grid>
                   </Grid>
-                  <Grid container mb='10px'>
-                    <Grid item xs={2}>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Service type
-                      </Typography>
+
+                  <Divider />
+                  <Grid container spacing={12} pt='10px'>
+                    <Grid item xs={5}>
+                      {renderTable(
+                        'Number of linguist',
+                        currentRow?.numberOfLinguist,
+                      )}
+                      {renderTable(
+                        'Due date',
+                        MMDDYYYYHelper(currentRow?.dueDate),
+                      )}
                     </Grid>
-                    <Grid item xs={2}>
-                      <Typography variant='body2'>
-                        {currentRow?.serviceType}
-                      </Typography>
+                    <Grid item xs={7}>
+                      {renderTable('Job posting link', currentRow?.jobPostLink)}
+                      {renderTable(
+                        'Due date timezone',
+                        getGmtTime(currentRow?.dueDateTimezone),
+                      )}
                     </Grid>
                   </Grid>
                   <Divider />
@@ -650,49 +540,6 @@ const RecruitingDetail = () => {
                     editorState={historyContent}
                     readOnly={true}
                   />
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Card style={{ height: '100%', overflow: 'scroll' }}>
-                  <Box
-                    sx={{
-                      padding: '20px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                    }}
-                  >
-                    <Box display='flex' justifyContent='space-between'>
-                      <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                        Attached file
-                      </Typography>
-                      <Typography variant='body2'>
-                        {Math.round(getFileSize(currentRow?.files) / 100) / 10 >
-                        1000
-                          ? `${(
-                              Math.round(getFileSize(currentRow?.files) / 100) /
-                              10000
-                            ).toFixed(1)} mb`
-                          : `${(
-                              Math.round(getFileSize(currentRow?.files) / 100) /
-                              10
-                            ).toFixed(1)} kb`}
-                        /50mb
-                      </Typography>
-                    </Box>
-                    <Button
-                      variant='outlined'
-                      startIcon={<Icon icon='mdi:download' />}
-                      onClick={() => downloadAllFiles(currentRow?.files)}
-                    >
-                      Download all
-                    </Button>
-                    {currentRow?.files?.length ? (
-                      <Fragment>
-                        <List>{fileList(currentRow?.files)}</List>
-                      </Fragment>
-                    ) : null}
-                  </Box>
                 </Card>
               </Grid>
             </Grid>
@@ -705,15 +552,6 @@ const RecruitingDetail = () => {
               >
                 Close
               </Button>
-              {isEditable(Number(currentRow?.userId!)) && (
-                <Button
-                  variant='contained'
-                  onClick={onRestore}
-                  sx={{ width: '226px' }}
-                >
-                  Restore this version
-                </Button>
-              )}
             </ModalButtonGroup>
           </Grid>
         </StyledEditor>
