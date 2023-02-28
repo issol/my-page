@@ -74,7 +74,7 @@ export const getGuidelines = async (
 export type CurrentGuidelineType = {
   id: number
   version?: number
-  userId: 12345
+  userId: number
   title: string
   writer: string
   email: string

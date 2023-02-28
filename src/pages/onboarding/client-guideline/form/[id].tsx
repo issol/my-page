@@ -30,6 +30,7 @@ import { toast } from 'react-hot-toast'
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import CustomChip from 'src/@core/components/mui/chip'
 import FileItem from 'src/@core/components/fileItem'
+import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -104,7 +105,11 @@ const ClientGuidelineEdit = () => {
   >([])
   const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
-  const { data, isSuccess } = useGetGuideLineDetail(id)
+  const { data, isSuccess, isError } = useGetGuideLineDetail(id)
+
+  if (isError) {
+    return <EmptyPost />
+  }
 
   const currentVersion = data?.currentVersion || {
     id: null,

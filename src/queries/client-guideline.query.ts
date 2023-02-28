@@ -37,11 +37,13 @@ export const useGetGuideLineDetail = (id: number) => {
     },
     {
       suspense: true,
+      useErrorBoundary: false,
       // onSuccess: () => setSearch(false),
-      onError: () => {
+      onError: (e: any) => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
         })
+        return e
       },
     },
   )

@@ -23,7 +23,6 @@ import FileItem from 'src/@core/components/fileItem'
 
 // ** Custom Components Imports
 import CustomChip from 'src/@core/components/mui/chip'
-import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -75,7 +74,7 @@ type CellType = {
   }
 }
 
-const ClientGuidelineDetail = () => {
+const RecruitingDetail = () => {
   const router = useRouter()
   const { id } = router.query
 
@@ -104,11 +103,7 @@ const ClientGuidelineDetail = () => {
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
 
-  const { data, refetch, isError } = useGetGuideLineDetail(Number(id))
-
-  if (isError) {
-    return <EmptyPost />
-  }
+  const { data, refetch } = useGetGuideLineDetail(Number(id))
 
   const { currentVersion } = data || {
     id: null,
@@ -727,11 +722,11 @@ const ClientGuidelineDetail = () => {
   )
 }
 
-export default ClientGuidelineDetail
+export default RecruitingDetail
 
-ClientGuidelineDetail.acl = {
+RecruitingDetail.acl = {
   action: 'read',
-  subject: 'client_guideline',
+  subject: 'recruiting',
 }
 
 const StyledEditor = styled(EditorWrapper)<{
