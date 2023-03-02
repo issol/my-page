@@ -16,7 +16,7 @@ import { toast } from 'react-hot-toast'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -273,9 +273,3 @@ ContractForm.acl = {
   action: 'create',
   subject: 'contract',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`

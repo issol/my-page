@@ -24,7 +24,7 @@ import {
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
 import FallbackSpinner from 'src/@core/components/spinner'
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -337,7 +337,7 @@ const ContractDetail = () => {
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
-      <StyledEditor style={{ margin: '0 70px' }}>
+      <StyledViewer style={{ margin: '0 70px' }}>
         <Grid container spacing={6}>
           <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
@@ -432,7 +432,7 @@ const ContractDetail = () => {
           onClose={() => setOpenDetail(false)}
           maxWidth='md'
         >
-          <StyledEditor maxHeight={true}>
+          <StyledViewer maxHeight={true}>
             <Grid
               container
               /* xs={12} */
@@ -490,9 +490,9 @@ const ContractDetail = () => {
                 )}
               </ModalButtonGroup>
             </Grid>
-          </StyledEditor>
+          </StyledViewer>
         </Dialog>
-      </StyledEditor>
+      </StyledViewer>
     </Suspense>
   )
 }
@@ -503,16 +503,3 @@ ContractDetail.acl = {
   action: 'read',
   subject: 'contract',
 }
-
-const StyledEditor = styled(EditorWrapper)<{
-  error?: boolean
-  maxHeight?: boolean
-}>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
-  }
-  .rdw-editor-toolbar {
-    display: none;
-  }
-`

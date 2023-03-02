@@ -30,9 +30,9 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import CustomChip from 'src/@core/components/mui/chip'
 import FileItem from 'src/@core/components/fileItem'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -703,9 +703,3 @@ ClientGuidelineForm.acl = {
   action: 'create',
   subject: 'client_guideline',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`

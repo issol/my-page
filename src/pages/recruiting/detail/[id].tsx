@@ -25,7 +25,7 @@ import { convertFromRaw, EditorState } from 'draft-js'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
 
 // ** Custom Components Imports
@@ -279,7 +279,7 @@ const RecruitingDetail = () => {
   }
 
   return (
-    <StyledEditor style={{ margin: '0 70px' }}>
+    <StyledViewer style={{ margin: '0 70px' }}>
       <PageHeader
         title={
           <Box display='flex' alignItems='center' gap='8px'>
@@ -448,7 +448,7 @@ const RecruitingDetail = () => {
         onClose={() => setOpenDetail(false)}
         maxWidth='md'
       >
-        <StyledEditor maxHeight={true}>
+        <StyledViewer maxHeight={true}>
           <Grid
             container
             sx={{ padding: '50px 60px 50px' }}
@@ -554,9 +554,9 @@ const RecruitingDetail = () => {
               </Button>
             </ModalButtonGroup>
           </Grid>
-        </StyledEditor>
+        </StyledViewer>
       </Dialog>
-    </StyledEditor>
+    </StyledViewer>
   )
 }
 
@@ -566,16 +566,3 @@ RecruitingDetail.acl = {
   action: 'read',
   subject: 'recruiting',
 }
-
-const StyledEditor = styled(EditorWrapper)<{
-  error?: boolean
-  maxHeight?: boolean
-}>`
-  .rdw-editor-main {
-    border: none !important;
-    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
-  }
-  .rdw-editor-toolbar {
-    display: none;
-  }
-`

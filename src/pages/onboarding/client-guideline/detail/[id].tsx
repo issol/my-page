@@ -17,7 +17,7 @@ import { convertFromRaw, EditorState } from 'draft-js'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
 import FileItem from 'src/@core/components/fileItem'
 
@@ -28,7 +28,6 @@ import EmptyPost from 'src/@core/components/page/empty-post'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
@@ -383,7 +382,7 @@ const ClientGuidelineDetail = () => {
   }
 
   return (
-    <StyledEditor style={{ margin: '0 70px' }}>
+    <StyledViewer style={{ margin: '0 70px' }}>
       <Grid container spacing={6}>
         <Grid item md={9} xs={12}>
           <Card sx={{ padding: '30px 20px 20px' }}>
@@ -566,7 +565,7 @@ const ClientGuidelineDetail = () => {
         onClose={() => setOpenDetail(false)}
         maxWidth='lg'
       >
-        <StyledEditor maxHeight={true}>
+        <StyledViewer maxHeight={true}>
           <Grid
             container
             sx={{ padding: '50px 60px 50px' }}
@@ -721,9 +720,9 @@ const ClientGuidelineDetail = () => {
               )}
             </ModalButtonGroup>
           </Grid>
-        </StyledEditor>
+        </StyledViewer>
       </Dialog>
-    </StyledEditor>
+    </StyledViewer>
   )
 }
 
@@ -733,16 +732,3 @@ ClientGuidelineDetail.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const StyledEditor = styled(EditorWrapper)<{
-  error?: boolean
-  maxHeight?: boolean
-}>`
-  .rdw-editor-main {
-    border: none !important;
-    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
-  }
-  .rdw-editor-toolbar {
-    display: none;
-  }
-`

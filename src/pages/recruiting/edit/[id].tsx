@@ -39,7 +39,7 @@ import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 import CustomChip from 'src/@core/components/mui/chip'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import EmptyPost from 'src/@core/components/page/empty-post'
@@ -787,9 +787,3 @@ RecruitingEdit.acl = {
   subject: 'recruiting',
   action: 'update',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error?: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`

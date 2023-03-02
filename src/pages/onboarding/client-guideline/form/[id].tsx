@@ -27,15 +27,14 @@ import FallbackSpinner from 'src/@core/components/spinner'
 import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
 import CustomChip from 'src/@core/components/mui/chip'
 import FileItem from 'src/@core/components/fileItem'
 import EmptyPost from 'src/@core/components/page/empty-post'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -719,9 +718,3 @@ ClientGuidelineEdit.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`
