@@ -196,8 +196,8 @@ export default function JobPostingList({
                 Recruiting list ({list?.count | 0})
               </Typography>{' '}
               <Button variant='contained'>
-                <StyledNextLink href='/recruiting/post' color='white'>
-                  Add recruiting info
+                <StyledNextLink href='/jobPosting/post' color='white'>
+                  Create job posting
                 </StyledNextLink>
               </Button>
             </Box>
