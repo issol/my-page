@@ -13,7 +13,7 @@ const navigation = (): HorizontalNavItemsType => {
 
     {
       title: 'Recruiting',
-      icon: '/images/icons/person-search.png',
+      icon: 'material-symbols:person-search-outline',
       action: 'read',
       subject: 'recruiting',
       children: [
