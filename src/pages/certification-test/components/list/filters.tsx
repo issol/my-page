@@ -1,4 +1,11 @@
-import { Card, CardHeader, Grid, Typography } from '@mui/material'
+import {
+  Accordion,
+  AccordionSummary,
+  Card,
+  CardHeader,
+  Grid,
+  Typography,
+} from '@mui/material'
 import Button from '@mui/material/Button'
 import InputLabel from '@mui/material/InputLabel'
 import FormControl from '@mui/material/FormControl'
@@ -16,42 +23,29 @@ import {
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import {
-  JobList,
-  RolePair,
-  ExperiencedYears,
-  TestStatus,
-} from 'src/shared/const/personalInfo'
+import { JobList, RolePair } from 'src/shared/const/personalInfo'
 import { DefaultRolePair } from 'src/shared/const/onboarding'
-import {
-  useState,
-  useEffect,
-  Dispatch,
-  SetStateAction,
-  SyntheticEvent,
-} from 'react'
+import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
 import _ from 'lodash'
 
-import InputAdornment from '@mui/material/InputAdornment'
 import { styled } from '@mui/material/styles'
-import OutlinedInput from '@mui/material/OutlinedInput'
-import IconButton from '@mui/material/IconButton'
-import { FilterType } from 'src/types/onboarding/list'
+
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
-import Accordion from '@mui/material/Accordion'
-import AccordionSummary from '@mui/material/AccordionSummary'
-import AccordionDetails from '@mui/material/AccordionDetails'
+import {
+  TestMaterialFilterType,
+  TestType,
+} from 'src/types/certification-test/list'
 
 export type CardProps = {
   dropdownClose: boolean
 }
 
 type Props = {
-  control: Control<FilterType, any>
-  handleSubmit: UseFormHandleSubmit<FilterType>
-  onSubmit: (data: FilterType) => void
+  control: Control<TestMaterialFilterType, any>
+  handleSubmit: UseFormHandleSubmit<TestMaterialFilterType>
+  onSubmit: (data: TestMaterialFilterType) => void
   onClickResetButton: () => void
-  trigger: UseFormTrigger<FilterType>
+  trigger: UseFormTrigger<TestMaterialFilterType>
   setJobTypeOptions: Dispatch<
     SetStateAction<
       {
@@ -88,7 +82,7 @@ type Props = {
   expanded: string | false
 }
 
-export default function Filters({
+export default function TestMaterialFilters({
   control,
   handleSubmit,
   onSubmit,
@@ -99,8 +93,8 @@ export default function Filters({
   jobTypeOptions,
   roleOptions,
   languageList,
-  expanded,
   handleFilterStateChange,
+  expanded,
 }: Props) {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
@@ -112,378 +106,315 @@ export default function Filters({
   return (
     <>
       <Grid item xs={12}>
-        <Accordion
-          expanded={expanded === 'panel1'}
-          onChange={handleFilterStateChange('panel1')}
-        >
-          <AccordionSummary
-            id='controlled-panel-header-1'
-            aria-controls='controlled-panel-content-1'
-            sx={{
-              borderRadius: '10px',
-              backgroundColor: '#fff',
-              height: '82px',
-            }}
-            expandIcon={<Icon icon='mdi:chevron-down' fontSize='24px' />}
+        <Card>
+          {' '}
+          <Accordion
+            expanded={expanded === 'panel1'}
+            onChange={handleFilterStateChange('panel1')}
           >
-            <Typography variant='h6'>
-              Search Filters {expanded !== 'panel1' && '(7)'}
-            </Typography>
-          </AccordionSummary>
-          <AutoCompleteComponent
-            dropdownClose={inputStyle}
-            sx={{ boxShadow: 'none', paddingTop: 3 }}
-          >
-            <form onSubmit={handleSubmit(onSubmit)}>
-              <Grid
-                container
-                xs={12}
-                spacing={6}
-                rowSpacing={4}
-                sx={{ padding: '0 20px 20px' }}
-              >
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='jobType'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        onChange={(event, item) => {
-                          onChange(item)
+            <AccordionSummary
+              id='controlled-panel-header-1'
+              aria-controls='controlled-panel-content-1'
+              sx={{
+                borderRadius: '10px',
+                backgroundColor: '#fff',
 
-                          if (item.length) {
-                            const arr: {
+                height: '82px',
+              }}
+              expandIcon={<Icon icon='mdi:chevron-down' fontSize='24px' />}
+            >
+              <Typography variant='h6'>
+                Search Filters {expanded !== 'panel1' && '(5)'}
+              </Typography>
+            </AccordionSummary>
+            <AutoCompleteComponent
+              dropdownClose={inputStyle}
+              sx={{
+                backgroundColor: '#fff',
+                borderRadius: '0px 0px 10px 10px',
+                boxShadow: 'none',
+                paddingTop: 3,
+              }}
+            >
+              {/* <Typography variant='h6'>Search Filters</Typography> */}
+              <form onSubmit={handleSubmit(onSubmit)}>
+                <Grid
+                  container
+                  xs={12}
+                  spacing={6}
+                  rowSpacing={4}
+                  sx={{ padding: '0 20px 20px' }}
+                >
+                  <Grid item xs={4}>
+                    <Controller
+                      control={control}
+                      name='testType'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={TestType}
+                          id='testType'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Test type' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Controller
+                      control={control}
+                      name='source'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={_.uniqBy(languageList, 'value')}
+                          id='source'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Source' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={4}>
+                    <Controller
+                      control={control}
+                      name='target'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={_.uniqBy(languageList, 'value')}
+                          id='target'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Target' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Controller
+                      control={control}
+                      name='jobType'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+
+                            if (item.length) {
+                              const arr: {
+                                label: string
+                                value: string
+                                jobType: string[]
+                              }[] = []
+                              item.map((data, idx) => {
+                                const jobTypeValue = data?.value
+                                console.log(jobTypeValue)
+
+                                /* @ts-ignore */
+                                const rolePair = RolePair[jobTypeValue]
+                                const res = DefaultRolePair.filter(value =>
+                                  value.jobType.includes(jobTypeValue),
+                                )
+
+                                arr.push(...res)
+
+                                trigger('role')
+                              })
+                              setRoleOptions(arr)
+                            } else {
+                              setRoleOptions(DefaultRolePair)
+                            }
+                          }}
+                          value={value}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={jobTypeOptions}
+                          id='jobType'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Job type' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={6}>
+                    <Controller
+                      control={control}
+                      name='role'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          onChange={(
+                            event,
+                            item: {
                               label: string
                               value: string
                               jobType: string[]
-                            }[] = []
-                            item.map((data, idx) => {
-                              const jobTypeValue = data?.value
-                              console.log(jobTypeValue)
+                            }[],
+                          ) => {
+                            onChange(item)
 
-                              /* @ts-ignore */
-                              const rolePair = RolePair[jobTypeValue]
-                              const res = DefaultRolePair.filter(value =>
-                                value.jobType.includes(jobTypeValue),
-                              )
+                            if (item.length) {
+                              const arr: {
+                                label: string
+                                value: string
+                              }[] = []
+                              console.log(item)
 
-                              arr.push(...res)
-
-                              trigger('role')
-                            })
-                            setRoleOptions(arr)
-                          } else {
-                            setRoleOptions(DefaultRolePair)
-                          }
-                        }}
-                        value={value}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={jobTypeOptions}
-                        id='jobType'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Job type' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='role'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        onChange={(
-                          event,
-                          item: {
-                            label: string
-                            value: string
-                            jobType: string[]
-                          }[],
-                        ) => {
-                          onChange(item)
-
-                          if (item.length) {
-                            const arr: {
-                              label: string
-                              value: string
-                            }[] = []
-                            console.log(item)
-
-                            item.map((data, idx) => {
-                              data.jobType.map(value => {
-                                const jobType = JobList.filter(
-                                  data => data.value === value,
-                                )
-                                arr.push(...jobType)
-                                trigger('jobType')
+                              item.map((data, idx) => {
+                                data.jobType.map(value => {
+                                  const jobType = JobList.filter(
+                                    data => data.value === value,
+                                  )
+                                  arr.push(...jobType)
+                                  trigger('jobType')
+                                })
                               })
-                            })
-                            setJobTypeOptions(_.uniqBy(arr, 'value'))
-                          } else {
-                            setJobTypeOptions(JobList)
-                          }
-                        }}
-                        value={value}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={roleOptions}
-                        id='role'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Role' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='source'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        onChange={(event, item) => {
-                          onChange(item)
-                        }}
-                        value={value}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={_.uniqBy(languageList, 'value')}
-                        id='source'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Source' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='target'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        onChange={(event, item) => {
-                          onChange(item)
-                        }}
-                        value={value}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={_.uniqBy(languageList, 'value')}
-                        id='target'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Target' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='experience'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        onChange={(event, item) => {
-                          onChange(item)
-                        }}
-                        value={value}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={ExperiencedYears}
-                        id='experience'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Experience' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={3}>
-                  <Controller
-                    control={control}
-                    name='testStatus'
-                    render={({ field: { onChange, value } }) => (
-                      <Autocomplete
-                        multiple
-                        fullWidth
-                        onClose={() => {
-                          setInputStyle(false)
-                        }}
-                        onOpen={() => {
-                          setInputStyle(true)
-                        }}
-                        onChange={(event, item) => {
-                          onChange(item)
-                        }}
-                        value={value}
-                        isOptionEqualToValue={(option, newValue) => {
-                          return option.value === newValue.value
-                        }}
-                        disableCloseOnSelect
-                        limitTags={1}
-                        options={TestStatus}
-                        id='testStatus'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField {...params} label='Test status' />
-                        )}
-                        renderOption={(props, option, { selected }) => (
-                          <li {...props}>
-                            <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
-                          </li>
-                        )}
-                      />
-                    )}
-                  />
-                </Grid>
-                <Grid item xs={6}>
-                  <FormControl fullWidth>
-                    <Controller
-                      control={control}
-                      name='search'
-                      render={({ field: { onChange, value } }) => (
-                        <>
-                          <InputLabel htmlFor='icons-adornment-password'>
-                            {onFocused
-                              ? 'Search Pros'
-                              : 'Search the legal name and email'}
-                          </InputLabel>
-                          <OutlinedInput
-                            label={
-                              onFocused
-                                ? 'Search Pros'
-                                : 'Search the legal name and email'
+                              setJobTypeOptions(_.uniqBy(arr, 'value'))
+                            } else {
+                              setJobTypeOptions(JobList)
                             }
-                            value={value}
-                            id='icons-adornment-password'
-                            onFocus={onFocusSearchInput}
-                            onBlur={() => setOnFocused(false)}
-                            onChange={onChange}
-                            type={'text'}
-                            endAdornment={
-                              <InputAdornment position='end'>
-                                <Icon fontSize={20} icon={'mdi:magnify'} />
-                              </InputAdornment>
-                            }
-                          />
-                        </>
+                          }}
+                          value={value}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={roleOptions}
+                          id='role'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Role' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
                       )}
                     />
-                  </FormControl>
+                  </Grid>
+
+                  <Grid item xs={12}>
+                    <Box display='flex' justifyContent='flex-end' gap='15px'>
+                      <Button
+                        variant='outlined'
+                        size='medium'
+                        color='secondary'
+                        type='button'
+                        onClick={onClickResetButton}
+                      >
+                        Reset
+                      </Button>
+                      <Button variant='contained' size='medium' type='submit'>
+                        Search
+                      </Button>
+                    </Box>
+                  </Grid>
                 </Grid>
-                <Grid item xs={12}>
-                  <Box display='flex' justifyContent='flex-end' gap='15px'>
-                    <Button
-                      variant='outlined'
-                      size='medium'
-                      color='secondary'
-                      type='button'
-                      onClick={onClickResetButton}
-                    >
-                      Reset
-                    </Button>
-                    <Button variant='contained' size='medium' type='submit'>
-                      Search
-                    </Button>
-                  </Box>
-                </Grid>
-              </Grid>
-            </form>
-          </AutoCompleteComponent>
-        </Accordion>
+              </form>
+            </AutoCompleteComponent>
+          </Accordion>
+        </Card>
       </Grid>
     </>
   )

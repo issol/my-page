@@ -9,7 +9,7 @@ export const useGetTestMaterialList = (
   filters: TestMaterialFilterPayloadType,
 ) => {
   return useQuery<{ data: TestMaterialListType[]; count: number }>(
-    'test-material-list',
+    ['test-material-list', filters],
     () => getTestMaterialList(filters),
     {
       staleTime: 60 * 1000, // 1

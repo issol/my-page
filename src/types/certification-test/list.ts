@@ -1,3 +1,5 @@
+import { SelectType } from '../onboarding/list'
+
 export type TestMaterialFilterType = {
   testType: { label: string; value: string }[]
   jobType: { label: string; value: string }[]
@@ -27,3 +29,14 @@ export type TestMaterialListType = {
   createdAt: string
   updatedAt: string
 }
+
+export const TestType: SelectType[] = [
+  {
+    value: 'Skill test',
+    label: 'Skill test',
+  },
+  {
+    value: 'Basic test',
+    label: 'Basic test',
+  },
+]

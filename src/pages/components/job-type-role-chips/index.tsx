@@ -1,11 +1,8 @@
-import { OnboardingListType } from 'src/types/onboarding/list'
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import Box from '@mui/material/Box'
-import Link from 'next/link'
-import Typography from '@mui/material/Typography'
-import JobTypeRoleChips from 'src/@core/components/jobtype-role-chips'
+
 import styled from 'styled-components'
 import { v4 as uuidv4 } from 'uuid'
+import JobTypeRoleChips from './role-chip'
 
 type Props = {
   jobInfo: {

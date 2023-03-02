@@ -7,9 +7,10 @@ import {
   RoleSelectType,
 } from 'src/types/onboarding/list'
 import LegalNameEmail from 'src/pages/onboarding/components/list/list-item/legalname-email'
-import JobTypeRole from 'src/pages/onboarding/components/list/list-item/jobtype-role'
+
 import TestStatus from 'src/pages/onboarding/components/list/list-item/test-status'
 import { GridColumns } from '@mui/x-data-grid'
+import JobTypeRole from 'src/pages/components/job-type-role-chips'
 
 export const columns: GridColumns<OnboardingListType> = [
   {

@@ -298,20 +298,21 @@ export const handlers = [
     const f_Skip = Number(req.url.searchParams.get('skip')) || 0
     const f_Take = Number(req.url.searchParams.get('take')) || 10
 
-    const f_TestType = req.url.searchParams.get('testType')
-      ? [req.url.searchParams.get('testType')]
+    const f_TestType = req.url.searchParams.getAll('testType')
+      ? req.url.searchParams.getAll('testType')
       : []
-    const f_JobType = req.url.searchParams.get('jobType')
-      ? [req.url.searchParams.get('jobType')]
+
+    const f_JobType = req.url.searchParams.getAll('jobType')
+      ? req.url.searchParams.getAll('jobType')
       : []
-    const f_Role = req.url.searchParams.get('role')
-      ? [req.url.searchParams.get('role')]
+    const f_Role = req.url.searchParams.getAll('role')
+      ? req.url.searchParams.getAll('role')
       : []
-    const f_Source = req.url.searchParams.get('source')
-      ? [req.url.searchParams.get('source')]
+    const f_Source = req.url.searchParams.getAll('source')
+      ? req.url.searchParams.getAll('source')
       : []
-    const f_Target = req.url.searchParams.get('target')
-      ? [req.url.searchParams.get('target')]
+    const f_Target = req.url.searchParams.getAll('target')
+      ? req.url.searchParams.getAll('target')
       : []
 
     const testTypes = ['Basic test', 'Skill test']
@@ -355,7 +356,7 @@ export const handlers = [
       'Webnovel translator',
     ]
 
-    const languages = languageList.map(value => value.value)
+    const languages = languageList.map(value => value.value.toUpperCase())
 
     function getRandomDate() {
       const start = new Date('2022-01-01')
@@ -397,11 +398,11 @@ export const handlers = [
     function filterData(
       take: number,
       skip: number,
-      testType: Array<string | null>,
-      jobType: Array<string | null>,
-      role: Array<string | null>,
-      source: Array<string | null>,
-      target: Array<string | null>,
+      testType: Array<string>,
+      jobType: Array<string>,
+      role: Array<string>,
+      source: Array<string>,
+      target: Array<string>,
     ): Data[] {
       return sampleList
         .filter(
