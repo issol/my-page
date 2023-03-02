@@ -10,6 +10,10 @@ import isEqual from 'lodash/isEqual'
 import { ProJobPair, ProRolePair } from 'src/shared/const/common'
 import Filters from './components/filter'
 
+// ** fetch
+import { useGetJobPostingList } from 'src/queries/jobPosting.query'
+import JobPostingList from './components/list'
+
 export type FilterType = {
   jobType: string
   role: string
@@ -39,6 +43,12 @@ export default function jobPosting() {
   const [skip, setSkip] = useState(1)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
+
+  const {
+    data: list,
+    refetch,
+    isLoading,
+  } = useGetJobPostingList({ ...filter, skip, pageSize }, search, setSearch)
 
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
@@ -89,7 +99,7 @@ export default function jobPosting() {
 
   useEffect(() => {
     if (isEqual(initialFilter, filter)) {
-      // refetch()
+      refetch()
     }
   }, [filter])
 
@@ -103,6 +113,14 @@ export default function jobPosting() {
         onReset={onReset}
         roleOption={roleOption}
         search={() => setSearch(true)}
+      />
+      <JobPostingList
+        skip={skip}
+        pageSize={pageSize}
+        setSkip={setSkip}
+        setPageSize={setPageSize}
+        list={list || { data: [], count: 0 }}
+        isLoading={isLoading}
       />
     </Grid>
   )
