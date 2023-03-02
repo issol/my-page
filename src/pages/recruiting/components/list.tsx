@@ -6,13 +6,17 @@ import CardHeader from '@mui/material/CardHeader'
 
 // ** custom component
 import { StyledNextLink } from 'src/@core/components/customLink'
-import CustomChip from 'src/@core/components/mui/chip'
 
 // ** third party
 import styled from 'styled-components'
 
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
+import {
+  JobTypeChip,
+  renderStatusChip,
+  RoleChip,
+} from 'src/@core/components/chips/chips'
 
 // ** nextJS
 import { useRouter } from 'next/router'
@@ -48,35 +52,6 @@ export default function RecruitingList({
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/recruiting/detail/${row.id}`)
-  }
-
-  function renderStatusChip(status: string) {
-    const color =
-      status === 'Fulfilled'
-        ? 'success'
-        : status === 'Ongoing'
-        ? 'warning'
-        : status === 'Paused'
-        ? 'secondary'
-        : ''
-    if (color) {
-      return (
-        <CustomChip label={status} skin='light' color={color} size='small' />
-      )
-    } else {
-      return (
-        <CustomChip
-          label={status}
-          skin='light'
-          sx={{
-            background:
-              'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #BEB033',
-            color: '#BEB033',
-          }}
-          size='small'
-        />
-      )
-    }
   }
 
   const columns = [
@@ -119,12 +94,17 @@ export default function RecruitingList({
       headerName: 'Job Type / Role',
       renderHeader: () => <Box>Job Type / Role</Box>,
       renderCell: ({ row }: CellType) => {
-        // ** TODO : role chip 디자인 추가해야 함
         return (
-          <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
-            <JobTypeChip type={row.jobType} label={row.jobType} size='small' />
-            <Chip label={row.role} size='small' />
-          </Box>
+          <Tooltip placement='bottom' title={`${row.jobType} / ${row.role}`}>
+            <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+              <JobTypeChip
+                type={row.jobType}
+                label={row.jobType}
+                size='small'
+              />
+              <RoleChip label={row.role} type={row.role} size='small' />
+            </Box>
+          </Tooltip>
         )
       },
     },
@@ -273,40 +253,3 @@ export default function RecruitingList({
     </Grid>
   )
 }
-
-const JobTypeChip = styled(Chip)<{ type: string }>`
-  background: ${({ type }) =>
-    type === 'Documents/Text'
-      ? '#FF9E90'
-      : type === 'Dubbing'
-      ? '#FFF387'
-      : type === 'Misc.'
-      ? '#BFF0FF'
-      : type === 'Interpretation'
-      ? '#CBFFEC'
-      : type === 'OTT/Subtitle'
-      ? '#A9E0FF'
-      : type === 'Webcomics'
-      ? '#BEEFAE'
-      : '#FFBFE9'};
-
-  color: #111111;
-`
-const RoleChip = styled(Chip)<{ type: string }>`
-  background: ${({ type }) =>
-    type === 'Documents/Text'
-      ? '#FF9E90'
-      : type === 'Dubbing'
-      ? '#FFF387'
-      : type === 'Misc.'
-      ? '#BFF0FF'
-      : type === 'Interpretation'
-      ? '#CBFFEC'
-      : type === 'OTT/Subtitle'
-      ? '#A9E0FF'
-      : type === 'Webcomics'
-      ? '#BEEFAE'
-      : '#FFBFE9'};
-
-  color: #111111;
-`
