@@ -1,5 +1,16 @@
 // ** mui
-import { Button, Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  Chip,
+  Dialog,
+  DialogTitle,
+  Grid,
+  IconButton,
+  Radio,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridRowParams } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
@@ -11,10 +22,7 @@ import { StyledNextLink } from 'src/@core/components/customLink'
 import styled from 'styled-components'
 
 // ** helpers
-import {
-  FullDateHelper,
-  FullDateTimezoneHelper,
-} from 'src/shared/helpers/date.helper'
+import { FullDateHelper } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -26,12 +34,17 @@ import { useRouter } from 'next/router'
 
 // ** types
 import { JobPostingDataType } from 'src/apis/jobPosting.api'
+import { useState } from 'react'
+import { Icon } from '@iconify/react'
 
 type CellType = {
   row: JobPostingDataType
 }
 
 type Props = {
+  open: boolean
+  handleClose: () => void
+  addLink: (link: string) => void
   skip: number
   pageSize: number
   setSkip: (num: number) => void
@@ -43,7 +56,10 @@ type Props = {
   isLoading: boolean
 }
 
-export default function JobPostingList({
+export default function JobPostingListModal({
+  open,
+  handleClose,
+  addLink,
   skip,
   pageSize,
   setSkip,
@@ -51,13 +67,27 @@ export default function JobPostingList({
   list,
   isLoading,
 }: Props) {
-  const router = useRouter()
-
-  function moveToDetail(row: GridRowParams) {
-    router.push(`/jobPosting/detail/${row.id}`)
-  }
-
+  const [selected, setSelected] = useState('')
   const columns = [
+    {
+      flex: 0.2,
+      minWidth: 60,
+      field: 'radiobutton',
+      headerName: '',
+      sortable: false,
+      renderHeader: () => <Radio size='small' sx={{ padding: 0 }} />,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Radio
+            sx={{ padding: 0 }}
+            value={row.jobPostLink}
+            size='small'
+            onClick={() => setSelected(row.jobPostLink)}
+            checked={selected === row.jobPostLink}
+          />
+        )
+      },
+    },
     {
       flex: 0.15,
       field: 'id',
@@ -115,24 +145,15 @@ export default function JobPostingList({
         </Tooltip>
       ),
     },
+
     {
-      flex: 0.23,
-      minWidth: 120,
-      field: 'yearsOfExperience',
-      headerName: 'Years of experience',
-      renderHeader: () => <Box>Years of experience</Box>,
+      flex: 0.1,
+      minWidth: 40,
+      field: 'numberOfLinguist',
+      headerName: 'Openings',
+      renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.yearsOfExperience}</Box>
-      ),
-    },
-    {
-      flex: 0.23,
-      minWidth: 120,
-      field: 'writer',
-      headerName: 'TAD',
-      renderHeader: () => <Box>TAD</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.writer}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.numberOfLinguist}</Box>
       ),
     },
     {
@@ -150,26 +171,6 @@ export default function JobPostingList({
             {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
           </Typography>
         </Tooltip>
-      ),
-    },
-    {
-      flex: 0.1,
-      minWidth: 40,
-      field: 'numberOfLinguist',
-      headerName: 'Openings',
-      renderHeader: () => <Box>Openings</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.numberOfLinguist}</Box>
-      ),
-    },
-    {
-      flex: 0.1,
-      minWidth: 120,
-      field: 'view',
-      headerName: 'View',
-      renderHeader: () => <Box>View</Box>,
-      renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.view}</Box>
       ),
     },
   ]
@@ -193,44 +194,66 @@ export default function JobPostingList({
   }
 
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>
-                Job posting ({list?.count | 0})
-              </Typography>{' '}
-              <Button variant='contained'>
-                <StyledNextLink href='/jobPosting/post' color='white'>
-                  Create job posting
-                </StyledNextLink>
-              </Button>
-            </Box>
-          }
-        />
-        <Box>
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => noData(),
-              NoResultsOverlay: () => noData(),
-            }}
-            onRowClick={e => moveToDetail(e)}
-            rows={list.data}
-            rowCount={list.count}
-            loading={isLoading}
-            rowsPerPageOptions={[10, 25, 50]}
-            pagination
-            page={skip}
-            pageSize={pageSize}
-            paginationMode='server'
-            onPageChange={setSkip}
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-            columns={columns}
+    <Dialog open={open} maxWidth='lg' fullWidth={true}>
+      <Box display='flex' justifyContent='right' padding='20px 10px 0'>
+        <IconButton onClick={handleClose}>
+          <Icon icon='mdi:close' />
+        </IconButton>
+      </Box>
+      <Grid item xs={12} sx={{ padding: '20px 50px 60px' }}>
+        <Box
+          sx={{
+            border: '1px solid rgba(76, 78, 100, 0.12)',
+            borderRadius: '10px',
+          }}
+        >
+          <CardHeader
+            title={
+              <Box display='flex' justifyContent='space-between'>
+                <Typography variant='h6'>
+                  Job posting list ({list?.count | 0})
+                </Typography>
+              </Box>
+            }
           />
+          <Box>
+            <DataGrid
+              autoHeight
+              components={{
+                NoRowsOverlay: () => noData(),
+                NoResultsOverlay: () => noData(),
+              }}
+              // onRowClick={e => moveToDetail(e)}
+              rows={list.data}
+              rowCount={list.count}
+              loading={isLoading}
+              rowsPerPageOptions={[5, 15, 30]}
+              pagination
+              page={skip}
+              pageSize={pageSize}
+              paginationMode='server'
+              onPageChange={setSkip}
+              onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+              columns={columns}
+            />
+          </Box>
         </Box>
-      </Card>
-    </Grid>
+        <Box display='flex' justifyContent='center' gap='12px' mt='24px'>
+          <Button variant='outlined' color='secondary' onClick={handleClose}>
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            color='primary'
+            onClick={() => {
+              addLink(selected)
+              handleClose()
+            }}
+          >
+            Select
+          </Button>
+        </Box>
+      </Grid>
+    </Dialog>
   )
 }

@@ -16,13 +16,12 @@ import {
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import { useTheme } from '@mui/material/styles'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -33,7 +32,7 @@ import { convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** Styled Component Import
@@ -44,7 +43,6 @@ import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -53,14 +51,12 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
+import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
+import { useMutation } from 'react-query'
+import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 
 // ** types
 import {
@@ -74,16 +70,26 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
-import { useMutation } from 'react-query'
+import JobPostingListModal from '../components/jobPosting-modal'
 
 export default function RecruitingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
 
-  const theme = useTheme()
-  const { direction } = theme
-  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
-    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+  /* dialog states */
+  const [openDialog, setOpenDialog] = useState(false)
+  const [skip, setSkip] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
+  const [search, setSearch] = useState(false)
+  const {
+    data: list,
+    refetch,
+    isLoading,
+  } = useGetJobPostingList({ skip, pageSize }, search, setSearch)
+
+  useEffect(() => {
+    if (openDialog) setSearch(true)
+  }, [openDialog])
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -111,10 +117,7 @@ export default function RecruitingPost() {
     control,
     getValues,
     setValue,
-    setError,
-    clearErrors,
     watch,
-    trigger,
     formState: { errors, isValid },
   } = useForm<RecruitingFormType>({
     defaultValues,
@@ -122,6 +125,9 @@ export default function RecruitingPost() {
     resolver: yupResolver(recruitingFormSchema),
   })
 
+  function addLink(link: string) {
+    setValue('jobPostLink', link, { shouldDirty: true, shouldValidate: true })
+  }
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -623,30 +629,23 @@ export default function RecruitingPost() {
                           )}
                         />
                       ) : (
-                        <Controller
-                          name='jobPostLink'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <OutlinedInput
-                              fullWidth
-                              readOnly
-                              value={value}
-                              id='jobPostLink'
-                              onChange={onChange}
-                              placeholder='Job posting link'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon
-                                      icon='material-symbols:open-in-new'
-                                      opacity={0.7}
-                                    />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
-                            />
-                          )}
+                        <OutlinedInput
+                          fullWidth
+                          readOnly
+                          value={watch('jobPostLink')}
+                          id='jobPostLink'
+                          onClick={() => setOpenDialog(true)}
+                          placeholder='Job posting link'
+                          endAdornment={
+                            <InputAdornment position='end'>
+                              <IconButton edge='end'>
+                                <Icon
+                                  icon='material-symbols:open-in-new'
+                                  opacity={0.7}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          }
                         />
                       )}
                     </Box>
@@ -700,6 +699,18 @@ export default function RecruitingPost() {
           </Grid>
         </StyledEditor>
       </form>
+      {/* job posting list dialog */}
+      <JobPostingListModal
+        open={openDialog}
+        handleClose={() => setOpenDialog(false)}
+        addLink={addLink}
+        skip={skip}
+        pageSize={pageSize}
+        setSkip={setSkip}
+        setPageSize={setPageSize}
+        list={list || { data: [], count: 0 }}
+        isLoading={isLoading}
+      />
     </DatePickerWrapper>
   )
 }

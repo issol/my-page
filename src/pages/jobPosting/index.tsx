@@ -15,14 +15,14 @@ import { useGetJobPostingList } from 'src/queries/jobPosting.query'
 import JobPostingList from './components/list'
 
 export type FilterType = {
-  jobType: string
-  role: string
-  yearsOfExperience: string
-  source: string
-  target: string
-  dueDate: string | undefined
-  skip: number
-  pageSize: number
+  jobType?: string
+  role?: string
+  yearsOfExperience?: string
+  source?: string
+  target?: string
+  dueDate?: string | undefined
+  skip?: number
+  pageSize?: number
 }
 
 export type FilterOmitType = Omit<FilterType, 'skip' | 'pageSize'>

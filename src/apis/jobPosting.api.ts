@@ -15,6 +15,8 @@ export type JobPostingDataType = {
   writer: string
   email: string
   dueDate: string
+  dueDateTimezone: string
+  jobPostLink: string
   view: number
 }
 export const getJobPostingList = async (
@@ -42,6 +44,8 @@ export const getJobPostingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'www.bon.com',
           view: 12,
         },
         {
@@ -56,6 +60,8 @@ export const getJobPostingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'www.bon.com/2',
           view: 30,
         },
         {
@@ -70,6 +76,8 @@ export const getJobPostingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
+          jobPostLink: 'www.bon.com/1',
+          dueDateTimezone: 'KST',
           view: 100,
         },
       ],
@@ -119,7 +127,7 @@ export const getJobPostingDetail = async (
       targetLanguage: 'ko',
       dueDate: Date(),
       numberOfLinguist: 5,
-      dueDateTimezone: 'KR',
+      dueDateTimezone: 'KST',
       yearsOfExperience: '1-2 year(s)',
       postLink: [{ id: 1, category: '알바천국', link: 'www.bon.com' }],
       jobPostLink: 'www.shorturl.com',

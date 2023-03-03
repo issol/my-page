@@ -38,6 +38,7 @@ export type RecruitingDataType = {
   targetLanguage: string
   writer: string
   dueDate: string
+  dueDateTimezone: string
   numberOfLinguist: number
   jobStatus: string
   isHide: boolean
@@ -67,6 +68,7 @@ export const getRecruitingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           jobStatus: 'Paused',
+          dueDateTimezone: 'KST',
           isHide: true,
         },
         {
@@ -79,6 +81,7 @@ export const getRecruitingList = async (
           targetLanguage: 'en',
           writer: 'Bon Kim',
           dueDate: Date(),
+          dueDateTimezone: 'KST',
           numberOfLinguist: 3,
           jobStatus: 'Paused',
           isHide: false,
@@ -93,6 +96,7 @@ export const getRecruitingList = async (
           targetLanguage: 'en',
           writer: 'Bon Kim',
           dueDate: Date(),
+          dueDateTimezone: 'KST',
           numberOfLinguist: 3,
           jobStatus: 'Not started',
           isHide: false,

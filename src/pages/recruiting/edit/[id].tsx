@@ -76,12 +76,29 @@ import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { useMutation } from 'react-query'
+import JobPostingListModal from '../components/jobPosting-modal'
+import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 
 export default function RecruitingEdit() {
   const router = useRouter()
   const id = Number(router.query.id)
 
   const languageList = getGloLanguage()
+
+  /* dialog states */
+  const [openDialog, setOpenDialog] = useState(false)
+  const [skip, setSkip] = useState(1)
+  const [pageSize, setPageSize] = useState(5)
+  const [search, setSearch] = useState(false)
+  const { data: list, isLoading } = useGetJobPostingList(
+    { skip, pageSize },
+    search,
+    setSearch,
+  )
+
+  useEffect(() => {
+    if (openDialog) setSearch(true)
+  }, [openDialog])
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -188,12 +205,17 @@ export default function RecruitingEdit() {
     control,
     getValues,
     setValue,
+    watch,
     formState: { errors, isValid },
   } = useForm<RecruitingFormType>({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema),
   })
+
+  function addLink(link: string) {
+    setValue('jobPostLink', link, { shouldDirty: true, shouldValidate: true })
+  }
 
   function onDiscard() {
     setModal(
@@ -713,31 +735,24 @@ export default function RecruitingEdit() {
                           )}
                         />
                       ) : (
-                        <Controller
-                          name='jobPostLink'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <OutlinedInput
-                              fullWidth
-                              disabled={!isWriter}
-                              readOnly
-                              value={value}
-                              id='jobPostLink'
-                              onChange={onChange}
-                              placeholder='Job posting link'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon
-                                      icon='material-symbols:open-in-new'
-                                      opacity={0.7}
-                                    />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
-                            />
-                          )}
+                        <OutlinedInput
+                          fullWidth
+                          disabled={!isWriter}
+                          readOnly
+                          value={watch('jobPostLink')}
+                          id='jobPostLink'
+                          onClick={() => isWriter && setOpenDialog(true)}
+                          placeholder='Job posting link'
+                          endAdornment={
+                            <InputAdornment position='end'>
+                              <IconButton edge='end'>
+                                <Icon
+                                  icon='material-symbols:open-in-new'
+                                  opacity={0.7}
+                                />
+                              </IconButton>
+                            </InputAdornment>
+                          }
                         />
                       )}
                     </Box>
@@ -792,6 +807,18 @@ export default function RecruitingEdit() {
           </Grid>
         </StyledEditor>
       </form>
+      {/* job posting list dialog */}
+      <JobPostingListModal
+        open={openDialog}
+        handleClose={() => setOpenDialog(false)}
+        addLink={addLink}
+        skip={skip}
+        pageSize={pageSize}
+        setSkip={setSkip}
+        setPageSize={setPageSize}
+        list={list || { data: [], count: 0 }}
+        isLoading={isLoading}
+      />
     </DatePickerWrapper>
   )
 }
