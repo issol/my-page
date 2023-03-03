@@ -6,16 +6,10 @@ import {
   Button,
   Card,
   FormHelperText,
-  InputAdornment,
-  List,
-  MenuItem,
-  OutlinedInput,
-  Select,
   TextField,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
 import { useTheme } from '@mui/material/styles'
 
 // ** Icon Imports
@@ -28,7 +22,7 @@ import { Fragment, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import { convertToRaw, EditorState } from 'draft-js'
+import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -56,21 +50,20 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import { useGetJobPostingDetail } from '@src/queries/jobPosting.query'
+import {
+  FormType,
+  updateJobPosting,
+  StatusType,
+} from '@src/apis/jobPosting.api'
 
 // ** types
 import {
   jobPostingFormSchema,
   JobPostingFormType,
   LinkType,
-  StatusType,
 } from 'src/types/schema/jobPosting.schema'
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
@@ -83,6 +76,7 @@ import { JobList, JobPostingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
+import { useMutation } from 'react-query'
 
 /**
  * TODO:
@@ -91,7 +85,7 @@ import { ExperiencedYears } from 'src/shared/const/personalInfo'
  * */
 export default function JobPostingEdit() {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query.id)
 
   const languageList = getGloLanguage()
 
@@ -104,9 +98,7 @@ export default function JobPostingEdit() {
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
-  const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
-    Number(id),
-  )
+  const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(id)
 
   if (isError) {
     return <EmptyPost />
@@ -123,11 +115,10 @@ export default function JobPostingEdit() {
     sourceLanguage: { value: '', label: '' },
     targetLanguage: { value: '', label: '' },
     yearsOfExperience: { value: '', label: '' },
-    link: [],
+    postLink: [],
     numberOfLinguist: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
-    jobPostLink: '',
   }
 
   const {
@@ -144,7 +135,54 @@ export default function JobPostingEdit() {
     mode: 'onChange',
     resolver: yupResolver(jobPostingFormSchema),
   })
-  console.log(errors)
+
+  function initializeValues(data: any) {
+    const values: Array<{ name: any; list?: Array<any> }> = [
+      { name: 'status', list: JobPostingStatus },
+      { name: 'jobType', list: JobList },
+      { name: 'role', list: RoleList },
+      { name: 'sourceLanguage', list: languageList },
+      { name: 'targetLanguage', list: languageList },
+      { name: 'numberOfLinguist' },
+      { name: 'yearsOfExperience', list: [...ExperiencedYears] },
+      { name: 'dueDate' },
+      { name: 'dueDateTimezone', list: countries },
+    ]
+
+    values.forEach(({ name, list = null }) => {
+      const value = data[name]
+      let itemValue = null
+      if (!value) {
+        return
+      }
+      if (list?.length) {
+        if (name !== 'dueDateTimezone') {
+          // @ts-ignore
+          itemValue = list.find(item => item.value === value)
+        } else {
+          // @ts-ignore
+          itemValue = list.find(item => item.code === value)
+        }
+      } else {
+        itemValue = value
+      }
+      setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
+    })
+  }
+
+  useEffect(() => {
+    if (isSuccess) {
+      initializeValues(data)
+      setLink(data.postLink)
+      if (data?.content) {
+        const editorState = EditorState.createWithContent(
+          convertFromRaw(data?.content as any),
+        )
+        setContent(editorState)
+      }
+    }
+  }, [isSuccess])
+
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -163,7 +201,7 @@ export default function JobPostingEdit() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to discard this recruiting request?
+            Are you sure to discard all changes?
           </Typography>
         </Box>
         <ModalButtonGroup>
@@ -174,7 +212,7 @@ export default function JobPostingEdit() {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              router.push('/recruiting/')
+              router.push('/jobPosting/')
             }}
           >
             Discard
@@ -202,15 +240,15 @@ export default function JobPostingEdit() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to upload this recruiting request?
+            Are you sure to save all changes?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
@@ -238,12 +276,43 @@ export default function JobPostingEdit() {
     setLink(itemToDelete)
   }
 
+  const updateMutation = useMutation(
+    (form: FormType) => updateJobPosting(id, form),
+    {
+      onSuccess: () => {
+        router.push(`/jobPosting/detail/${data?.id}`)
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   useEffect(() => {
-    setValue('link', link, { shouldDirty: true, shouldValidate: true })
+    setValue('postLink', link, { shouldDirty: true, shouldValidate: true })
   }, [link])
 
   const onSubmit = () => {
     const data = getValues()
+    const finalForm = {
+      status: data.status.value,
+      jobType: data.jobType.value,
+      role: data.role.value,
+      sourceLanguage: data.sourceLanguage.value,
+      targetLanguage: data.targetLanguage.value,
+      yearsOfExperience: data.yearsOfExperience?.value ?? '',
+      numberOfLinguist: data?.numberOfLinguist ?? 0,
+      dueDate: data?.dueDate ?? '',
+      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      postLink: data?.postLink ?? '',
+      content: content,
+    }
+    updateMutation.mutate(finalForm)
   }
 
   return (
@@ -257,10 +326,18 @@ export default function JobPostingEdit() {
           <Grid container spacing={6} className='match-height'>
             <Grid item xs={12} md={9}>
               <Card sx={{ padding: '30px 20px 20px' }}>
-                <Box display='flex' justifyContent='flex-end' mb='26px'>
+                <Box display='flex' justifyContent='space-between' mb='26px'>
+                  <Box display='flex' gap='10px'>
+                    <CustomChip
+                      label={data?.id}
+                      skin='light'
+                      color='primary'
+                      size='small'
+                    />
+                  </Box>
                   <Box display='flex' alignItems='center' gap='8px'>
                     <CustomChip
-                      label='Requestor'
+                      label='Writer'
                       skin='light'
                       color='error'
                       size='small'
@@ -294,7 +371,6 @@ export default function JobPostingEdit() {
                           }}
                           value={value}
                           id='status'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -332,7 +408,6 @@ export default function JobPostingEdit() {
                             else onChange(v)
                           }}
                           id='jobType'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -369,7 +444,6 @@ export default function JobPostingEdit() {
                             else onChange(v)
                           }}
                           id='role'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -406,7 +480,6 @@ export default function JobPostingEdit() {
                             else onChange(v)
                           }}
                           id='sourceLanguage'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -444,7 +517,6 @@ export default function JobPostingEdit() {
                             else onChange(v)
                           }}
                           id='targetLanguage'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -473,6 +545,7 @@ export default function JobPostingEdit() {
                   sx={{ paddingTop: '10px' }}
                   rowSpacing={6}
                 >
+                  {/* numberOfLinguist */}
                   <Grid item xs={6}>
                     <Controller
                       name='numberOfLinguist'
@@ -486,7 +559,7 @@ export default function JobPostingEdit() {
                             if (value <= 15) onChange(value)
                             else return
                           }}
-                          value={value}
+                          value={value ?? ''}
                           error={Boolean(errors.numberOfLinguist)}
                           label='Number of linguist'
                           placeholder='Number of linguist'
@@ -520,7 +593,6 @@ export default function JobPostingEdit() {
                             else onChange(v)
                           }}
                           id='yearsOfExperience'
-                          getOptionLabel={option => option.label}
                           renderInput={params => (
                             <TextField
                               {...params}
@@ -541,7 +613,11 @@ export default function JobPostingEdit() {
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
                         <CustomDatePicker
-                          selected={value ? new Date(value) : null}
+                          selected={
+                            value && !Number.isNaN(new Date(value).getTime())
+                              ? new Date(value)
+                              : null
+                          }
                           id='dueDate'
                           popperPlacement={popperPlacement}
                           onChange={onChange}
@@ -636,7 +712,7 @@ export default function JobPostingEdit() {
                       Link*
                     </Typography>
                     <Typography variant='body2'>
-                      {getValues('link')?.length || 0}/15
+                      {getValues('postLink')?.length || 0}/15
                     </Typography>
                   </Box>
                   <Button
@@ -647,15 +723,15 @@ export default function JobPostingEdit() {
                     <Icon icon='material-symbols:add' opacity={0.7} />
                     Add link
                   </Button>
-                  {watch('link').length ? <Divider /> : null}
-                  {watch('link').map(item => (
+                  {watch('postLink')?.length ? <Divider /> : null}
+                  {watch('postLink')?.map(item => (
                     <LinkItem key={item.id} link={item} onClear={deleteLink} />
                   ))}
                 </Box>
               </Card>
-              {errors.link && (
+              {errors.postLink && (
                 <FormHelperText sx={{ color: 'error.main' }} id=''>
-                  {errors.link.message}
+                  {errors.postLink.message}
                 </FormHelperText>
               )}
               <Card style={{ marginTop: '24px' }}>

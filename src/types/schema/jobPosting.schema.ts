@@ -1,21 +1,20 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
+import { StatusType } from '@src/apis/jobPosting.api'
 
-export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''
-export type LinkType = { id?: string; category: string; link: string }
+export type LinkType = { id?: string | number; category: string; link: string }
 export type JobPostingFormType = {
   status: { label: StatusType; value: StatusType }
   jobType: { label: string; value: string }
   role: { label: string; value: string }
   sourceLanguage: { label: string; value: string }
   targetLanguage: { label: string; value: string }
-  link: Array<LinkType>
+  postLink: Array<LinkType>
   yearsOfExperience?: { label: string; value: string }
   numberOfLinguist?: number
   dueDate?: string
   dueDateTimezone?: CountryType
-  jobPostLink?: string
 }
 
 export const jobPostingFormSchema = yup.object().shape({
@@ -45,7 +44,7 @@ export const jobPostingFormSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     value: yup.string().required(FormErrors.required),
   }),
-  link: yup
+  postLink: yup
     .array()
     .min(1, FormErrors.required)
     .max(15)
@@ -70,5 +69,4 @@ export const jobPostingFormSchema = yup.object().shape({
     label: yup.string().nullable(),
     phone: yup.string().nullable(),
   }),
-  jobPostLink: yup.string().nullable(),
 })

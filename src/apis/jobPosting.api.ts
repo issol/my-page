@@ -2,9 +2,10 @@ import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import { FilterType } from 'src/pages/jobPosting'
 
+export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''
 export type JobPostingDataType = {
   id: number
-  status: 'Not started' | 'Ongoing' | 'Paused' | 'Fulfilled'
+  status: StatusType
   jobType: string
   role: string
   sourceLanguage: string
@@ -84,7 +85,7 @@ export const getJobPostingList = async (
 
 export type JobPostingDetailType = {
   id: number
-  status: 'Not started' | 'Ongoing' | 'Paused' | 'Fulfilled'
+  status: StatusType
   writer: string
   email: string
   jobType: string
@@ -153,23 +154,23 @@ export const getJobPostingDetail = async (
   }
 }
 
-export type JobPostingFormType = {
-  status: 'Not started' | 'Ongoing' | 'Paused' | 'Fulfilled'
+export type FormType = {
+  status: StatusType
   jobType: string
   role: string
   sourceLanguage: string
   targetLanguage: string
   yearsOfExperience: string
-  numberOfLinguist: number
-  dueDate: string
-  dueDateTimezone: string
+  numberOfLinguist?: number
+  dueDate?: string
+  dueDateTimezone?: string
   postLink: Array<{ category: string; link: string }>
   content: any
 }
 
 //post
 export const postJobPosting = async (
-  form: JobPostingFormType,
+  form: FormType,
 ): Promise<{ id: number }> => {
   try {
     const { data } = await axios.post(`/api/sdlf`, form)
@@ -181,10 +182,11 @@ export const postJobPosting = async (
 
 //update
 export const updateJobPosting = async (
-  form: JobPostingFormType,
+  id: number,
+  form: FormType,
 ): Promise<{ id: number }> => {
   try {
-    const { data } = await axios.patch(`/api/sdlf`, form)
+    const { data } = await axios.patch(`/api/sdlf${id}`, form)
     return data
   } catch (e: any) {
     throw new Error(e)

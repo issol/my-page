@@ -55,11 +55,6 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
 
 // ** fetches
 
@@ -111,7 +106,7 @@ export default function JobPostingPost() {
     sourceLanguage: { value: '', label: '' },
     targetLanguage: { value: '', label: '' },
     yearsOfExperience: { value: '', label: '' },
-    link: [],
+    postLink: [],
     numberOfLinguist: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
@@ -227,7 +222,7 @@ export default function JobPostingPost() {
   }
 
   useEffect(() => {
-    setValue('link', link, { shouldDirty: true, shouldValidate: true })
+    setValue('postLink', link, { shouldDirty: true, shouldValidate: true })
   }, [link])
 
   const onSubmit = () => {
@@ -248,7 +243,7 @@ export default function JobPostingPost() {
                 <Box display='flex' justifyContent='flex-end' mb='26px'>
                   <Box display='flex' alignItems='center' gap='8px'>
                     <CustomChip
-                      label='Requestor'
+                      label='Writer'
                       skin='light'
                       color='error'
                       size='small'
@@ -624,7 +619,7 @@ export default function JobPostingPost() {
                       Link*
                     </Typography>
                     <Typography variant='body2'>
-                      {getValues('link')?.length || 0}/15
+                      {getValues('postLink')?.length || 0}/15
                     </Typography>
                   </Box>
                   <Button
@@ -635,15 +630,15 @@ export default function JobPostingPost() {
                     <Icon icon='material-symbols:add' opacity={0.7} />
                     Add link
                   </Button>
-                  {watch('link').length ? <Divider /> : null}
-                  {watch('link').map(item => (
+                  {watch('postLink').length ? <Divider /> : null}
+                  {watch('postLink').map(item => (
                     <LinkItem key={item.id} link={item} onClear={deleteLink} />
                   ))}
                 </Box>
               </Card>
-              {errors.link && (
+              {errors.postLink && (
                 <FormHelperText sx={{ color: 'error.main' }} id=''>
-                  {errors.link.message}
+                  {errors.postLink.message}
                 </FormHelperText>
               )}
               <Card style={{ marginTop: '24px' }}>

@@ -607,7 +607,7 @@ export default function RecruitingEdit() {
                           disabled={!isWriter}
                           selected={value ? new Date(value) : null}
                           id='dueDate'
-                          popperPlacement={popperPlacement}
+                          // popperPlacement={popperPlacement}
                           onChange={onChange}
                           placeholderText='Due date'
                           customInput={<CustomInput icon='calendar' />}
