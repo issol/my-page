@@ -16,7 +16,7 @@ import { useTheme } from '@mui/material/styles'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -27,7 +27,7 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 import AddLinkModal from '../components/add-link-modal'
 import EmptyPost from '@src/@core/components/page/empty-post'
@@ -83,11 +83,6 @@ export default function JobPostingEdit() {
   const id = Number(router.query.id)
 
   const languageList = getGloLanguage()
-
-  const theme = useTheme()
-  const { direction } = theme
-  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
-    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -615,7 +610,6 @@ export default function JobPostingEdit() {
                               : null
                           }
                           id='dueDate'
-                          popperPlacement={popperPlacement}
                           onChange={onChange}
                           placeholderText='Due date'
                           customInput={<CustomInput icon='calendar' />}

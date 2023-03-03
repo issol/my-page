@@ -16,7 +16,6 @@ import {
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import IconButton from '@mui/material/IconButton'
-import { useTheme } from '@mui/material/styles'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
@@ -24,7 +23,7 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -35,7 +34,7 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** Styled Component Import
@@ -47,7 +46,6 @@ import EmptyPost from 'src/@core/components/page/empty-post'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -56,20 +54,20 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
+import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
+import {
+  FormType,
+  StatusType,
+  updateRecruiting,
+} from '@src/apis/recruiting.api'
 
 // ** types
 import {
   recruitingFormSchema,
   RecruitingFormType,
-  StatusType,
 } from 'src/types/schema/recruiting.schema'
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
@@ -77,23 +75,13 @@ import { CountryType } from 'src/types/sign/personalInfoTypes'
 import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
+import { useMutation } from 'react-query'
 
-/**
- * TODO :
- * 1. onSubmit함수 완성하기
- * 2. api연결
- * 3. onSuccess, onError추가
- */
 export default function RecruitingEdit() {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query.id)
 
   const languageList = getGloLanguage()
-
-  const theme = useTheme()
-  const { direction } = theme
-  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
-    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -102,9 +90,7 @@ export default function RecruitingEdit() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
 
-  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
-    Number(id),
-  )
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(id)
 
   if (isError) {
     return <EmptyPost />
@@ -186,7 +172,7 @@ export default function RecruitingEdit() {
   type LinkModeType = 'insert' | 'find'
   const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
   const defaultValues = {
-    status: { value: 'Ongoing' as StatusType, label: 'Ongoing' as StatusType },
+    status: { value: '' as StatusType, label: '' as StatusType },
     client: { value: '', label: '' },
     jobType: { value: '', label: '' },
     role: { value: '', label: '' },
@@ -231,15 +217,15 @@ export default function RecruitingEdit() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to discard this recruiting request?
+            Are you sure to discard this request?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               router.replace('/recruiting/')
@@ -270,15 +256,15 @@ export default function RecruitingEdit() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to upload this recruiting request?
+            Are you sure to add this recruiting request?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
@@ -291,8 +277,40 @@ export default function RecruitingEdit() {
     )
   }
 
+  const updateMutation = useMutation(
+    (form: FormType) => updateRecruiting(id, form),
+    {
+      onSuccess: res => {
+        router.push(`/recruiting/detail/${res?.id}`)
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   const onSubmit = () => {
     const data = getValues()
+    const finalForm = {
+      status: data.status.value,
+      client: data.client.value,
+      jobType: data.jobType.value,
+      role: data.role.value,
+      sourceLanguage: data.sourceLanguage.value,
+      targetLanguage: data.targetLanguage.value,
+      numberOfLinguist: data.numberOfLinguist ?? 0,
+      dueDate: data.dueDate ?? '',
+      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      jobPostLink: data.jobPostLink,
+      content: convertToRaw(content.getCurrentContent()),
+      text: content.getCurrentContent().getPlainText('\u0001'),
+    }
+    updateMutation.mutate(finalForm)
   }
 
   return (
@@ -607,7 +625,6 @@ export default function RecruitingEdit() {
                           disabled={!isWriter}
                           selected={value ? new Date(value) : null}
                           id='dueDate'
-                          // popperPlacement={popperPlacement}
                           onChange={onChange}
                           placeholderText='Due date'
                           customInput={<CustomInput icon='calendar' />}

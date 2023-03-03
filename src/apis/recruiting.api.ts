@@ -256,6 +256,17 @@ export const postRecruiting = async (
 }
 
 //update
+export const updateRecruiting = async (
+  id: number,
+  form: FormType,
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.post(`url${id}`, form)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
 
 //hide
 
