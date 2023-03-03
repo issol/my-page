@@ -283,7 +283,6 @@ const Company = () => {
 
 export default Company
 
-// ** TODO : 렐과 상의 후 변경
 Company.acl = {
   action: 'read',
   subject: 'members',
