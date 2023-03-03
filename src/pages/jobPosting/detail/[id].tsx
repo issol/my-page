@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardHeader,
+  IconButton,
   List,
   TableBody,
   TableCell,
@@ -134,17 +135,18 @@ const JobPostingDetail = () => {
         <Grid item xs={6}>
           <Typography
             variant='body2'
-            sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            sx={{ display: 'flex', alignItems: 'center' }}
           >
             {value ?? '-'}
             {label === 'Job post link' && (
-              <Icon
-                icon='mdi:content-copy'
-                opacity={0.7}
-                fontSize='1.3rem'
-                cursor='pointer'
-                onClick={() => copyTextOnClick(value as string)}
-              />
+              <IconButton onClick={() => copyTextOnClick(value as string)}>
+                <Icon
+                  icon='mdi:content-copy'
+                  fontSize={18}
+                  opacity={0.7}
+                  cursor='pointer'
+                />
+              </IconButton>
             )}
           </Typography>
         </Grid>

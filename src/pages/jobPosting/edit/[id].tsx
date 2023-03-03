@@ -31,6 +31,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 import AddLinkModal from '../components/add-link-modal'
 import EmptyPost from '@src/@core/components/page/empty-post'
+import EditLinkModal from '../components/edit-link-modal'
 
 // ** Styled Component Import
 import { StyledEditor } from 'src/@core/components/editor/customEditor'
@@ -58,6 +59,7 @@ import {
   updateJobPosting,
   StatusType,
 } from '@src/apis/jobPosting.api'
+import { useMutation } from 'react-query'
 
 // ** types
 import {
@@ -71,12 +73,10 @@ import { CountryType } from 'src/types/sign/personalInfoTypes'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
 import { JobList, JobPostingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
-import { useMutation } from 'react-query'
 
 export default function JobPostingEdit() {
   const router = useRouter()
@@ -255,6 +255,15 @@ export default function JobPostingEdit() {
     setModal(<AddLinkModal onAdd={addLink} />)
   }
 
+  function openEditLinkModal(savedLink: LinkType) {
+    setModal(<EditLinkModal onAdd={editLink} savedLink={savedLink} />)
+  }
+
+  function editLink(item: LinkType) {
+    const itemToDelete = link.filter(v => v.id !== item.id)
+    const itemToAdd = { ...item, id: uuidv4() }
+    setLink([...itemToDelete, itemToAdd])
+  }
   function addLink(item: LinkType) {
     if (link.length >= 15) return
     const itemToAdd = { ...item, id: uuidv4() }
@@ -715,7 +724,12 @@ export default function JobPostingEdit() {
                   </Button>
                   {watch('postLink')?.length ? <Divider /> : null}
                   {watch('postLink')?.map(item => (
-                    <LinkItem key={item.id} link={item} onClear={deleteLink} />
+                    <LinkItem
+                      key={item.id}
+                      link={item}
+                      onClick={() => openEditLinkModal(item)}
+                      onClear={deleteLink}
+                    />
                   ))}
                 </Box>
               </Card>

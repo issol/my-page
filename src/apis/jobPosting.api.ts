@@ -44,7 +44,7 @@ export const getJobPostingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
-          dueDateTimezone: 'KST',
+          dueDateTimezone: 'KR',
           jobPostLink: 'www.bon.com',
           view: 12,
         },
@@ -60,7 +60,7 @@ export const getJobPostingList = async (
           dueDate: Date(),
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
-          dueDateTimezone: 'KST',
+          dueDateTimezone: 'KR',
           jobPostLink: 'www.bon.com/2',
           view: 30,
         },
@@ -77,7 +77,7 @@ export const getJobPostingList = async (
           numberOfLinguist: 3,
           yearsOfExperience: '1-2 year(s)',
           jobPostLink: 'www.bon.com/1',
-          dueDateTimezone: 'KST',
+          dueDateTimezone: 'KR',
           view: 100,
         },
       ],
@@ -104,7 +104,7 @@ export type JobPostingDetailType = {
   numberOfLinguist: number
   dueDateTimezone: string
   yearsOfExperience: string
-  postLink: Array<{ id: number; category: string; link: string }> // postLink로 보낸 값 (화면에서는 channel)
+  postLink: Array<{ id: number; category: string; link: string }> // postLink로 보낸 값
   jobPostLink: string // short url
   createdAt: string
   content: any
@@ -127,7 +127,7 @@ export const getJobPostingDetail = async (
       targetLanguage: 'ko',
       dueDate: Date(),
       numberOfLinguist: 5,
-      dueDateTimezone: 'KST',
+      dueDateTimezone: 'KR',
       yearsOfExperience: '1-2 year(s)',
       postLink: [{ id: 1, category: '알바천국', link: 'www.bon.com' }],
       jobPostLink: 'www.shorturl.com',

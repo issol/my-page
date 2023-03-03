@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardHeader,
+  IconButton,
   List,
   TableBody,
   TableCell,
@@ -62,6 +63,7 @@ import {
   deleteRecruiting,
   hideRecruiting,
 } from 'src/apis/recruiting.api'
+import Link from 'next/link'
 
 // ** types
 
@@ -155,16 +157,23 @@ const RecruitingDetail = () => {
         <Grid item xs={6}>
           <Typography
             variant='body2'
-            sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+            sx={{ display: 'flex', alignItems: 'center' }}
           >
             {value ?? '-'}
             {label === 'Job posting link' && (
-              <Icon
-                icon='material-symbols:open-in-new'
-                opacity={0.7}
-                fontSize='1.3rem'
-                cursor='pointer'
-              />
+              <IconButton>
+                <Icon
+                  icon='material-symbols:open-in-new'
+                  opacity={0.7}
+                  fontSize='1.3rem'
+                  cursor='pointer'
+                  onClick={() => {
+                    if (typeof window === 'object') {
+                      window.open(value as string)
+                    }
+                  }}
+                />
+              </IconButton>
             )}
           </Typography>
         </Grid>
