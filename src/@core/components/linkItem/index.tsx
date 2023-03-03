@@ -8,7 +8,7 @@ type Props = {
   onClick?: (link: LinkType) => void
   onClear?: (link: LinkType) => void
 }
-export default function LinkItem({ link, onClick, onClear }: Props) {
+export function LinkItem({ link, onClick, onClear }: Props) {
   return (
     <FileList onClick={() => onClick && onClick(link)}>
       <Typography className='file-name'>{link.category}</Typography>
@@ -20,12 +20,33 @@ export default function LinkItem({ link, onClick, onClear }: Props) {
           />
         </div>
 
-        <div></div>
         {onClear && (
           <IconButton onClick={() => onClear && onClear(link)}>
             <Icon icon='mdi:close' fontSize={20} />
           </IconButton>
         )}
+      </div>
+    </FileList>
+  )
+}
+
+type ReadOnlyProps = {
+  link: { id: number; category: string; link: string }
+  onClick: (link: string) => void
+}
+export function LinkReadOnlyItem({ link, onClick }: ReadOnlyProps) {
+  return (
+    <FileList>
+      <Typography className='file-name'>{link.category}</Typography>
+      <div className='file-details'>
+        <div className='file-preview' style={{ margin: 0 }}>
+          <IconButton onClick={() => onClick(link.link)}>
+            <Icon
+              icon='material-symbols:open-in-new'
+              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+            />
+          </IconButton>
+        </div>
       </div>
     </FileList>
   )

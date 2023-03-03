@@ -123,7 +123,7 @@ const RecruitingDetail = () => {
   const isWriter =
     ability.can('update', 'recruiting') &&
     currentVersion?.email === user?.email!
-  const isMaster = ability.can('update', 'recruiting')
+  const isMaster = ability.can('delete', 'recruiting')
 
   const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
     onSuccess: () => {

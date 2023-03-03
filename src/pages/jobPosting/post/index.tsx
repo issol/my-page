@@ -41,7 +41,7 @@ import AddLinkModal from '../components/add-link-modal'
 import { StyledEditor } from 'src/@core/components/editor/customEditor'
 import CustomChip from 'src/@core/components/mui/chip'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
-import LinkItem from 'src/@core/components/linkItem'
+import { LinkItem } from 'src/@core/components/linkItem'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -82,6 +82,11 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
 
+/**
+ * TODO:
+ * 1. post api onSuccess, onError 붙이기
+ * 2. 모달 내용 체크 및 discard기능 돌아가는 url체크
+ * */
 export default function JobPostingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()

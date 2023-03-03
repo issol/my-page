@@ -227,3 +227,11 @@ export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
     throw new Error(e)
   }
 }
+
+//post
+
+//update
+
+//hide
+
+//delete

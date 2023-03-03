@@ -1,0 +1,401 @@
+// ** MUI Imports
+import Grid from '@mui/material/Grid'
+import Typography from '@mui/material/Typography'
+import {
+  Button,
+  Card,
+  CardHeader,
+  List,
+  TableBody,
+  TableCell,
+  TableRow,
+} from '@mui/material'
+import { Box } from '@mui/system'
+import Divider from '@mui/material/Divider'
+import Dialog from '@mui/material/Dialog'
+import { DataGrid } from '@mui/x-data-grid'
+
+// ** React Imports
+import { Fragment, useContext, useEffect, useState } from 'react'
+
+// ** Third Party Imports
+import { convertFromRaw, EditorState } from 'draft-js'
+
+// ** Component Import
+import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
+
+// ** Styled Component Import
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
+import { toast } from 'react-hot-toast'
+import { renderStatusChip } from 'src/@core/components/chips/chips'
+
+// ** Custom Components Imports
+import CustomChip from 'src/@core/components/mui/chip'
+import EmptyPost from 'src/@core/components/page/empty-post'
+import PageHeader from 'src/@core/components/page-header'
+
+// ** Styles
+import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
+import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
+import { LinkReadOnlyItem } from 'src/@core/components/linkItem'
+import Icon from 'src/@core/components/icon'
+
+// ** contexts
+import { ModalContext } from 'src/context/ModalContext'
+import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { AuthContext } from 'src/context/AuthContext'
+
+// ** helpers
+import {
+  FullDateTimezoneHelper,
+  MMDDYYYYHelper,
+} from 'src/shared/helpers/date.helper'
+import { getGmtTime } from 'src/shared/helpers/timezone.helper'
+
+// ** NextJS
+import { useRouter } from 'next/router'
+
+// ** fetches
+import { useGetJobPostingDetail } from 'src/queries/jobPosting.query'
+import { deleteJobPosting } from 'src/apis/jobPosting.api'
+import { useMutation } from 'react-query'
+
+// ** types
+import { CurrentHistoryType } from 'src/apis/recruiting.api'
+
+type CellType = {
+  row: CurrentHistoryType
+}
+
+const JobPostingDetail = () => {
+  const router = useRouter()
+  const { id } = router.query
+
+  const [content, setContent] = useState(EditorState.createEmpty())
+
+  const { setModal } = useContext(ModalContext)
+  const ability = useContext(AbilityContext)
+
+  const { user } = useContext(AuthContext)
+
+  const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
+    Number(id),
+  )
+
+  if (isError) {
+    return <EmptyPost />
+  }
+
+  const isWriter =
+    ability.can('update', 'job_posting') && data?.email === user?.email!
+  const isMaster = ability.can('delete', 'job_posting')
+
+  const deleteMutation = useMutation((id: number) => deleteJobPosting(id), {
+    onSuccess: () => {
+      router.replace('/jobPosting/')
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+
+  useEffect(() => {
+    if (data?.content) {
+      const content = convertFromRaw(data?.content as any)
+      const editorState = EditorState.createWithContent(content)
+      setContent(editorState)
+    }
+  }, [data])
+
+  function copyTextOnClick(text: string) {
+    navigator.clipboard
+      .writeText(text)
+      .then(() => {
+        toast.success(`Copied ${text} to clipboard`)
+      })
+      .catch(err => {
+        toast.error('Failed to copy text: ', err)
+      })
+  }
+
+  function renderTable(
+    label: string,
+    value: number | string | undefined | null,
+  ) {
+    return (
+      <Grid container mb={'11px'}>
+        <Grid item xs={6}>
+          <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+            {label}
+          </Typography>
+        </Grid>
+        <Grid item xs={6}>
+          <Typography
+            variant='body2'
+            sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+          >
+            {value ?? '-'}
+            {label === 'Job post link' && (
+              <Icon
+                icon='mdi:content-copy'
+                opacity={0.7}
+                fontSize='1.3rem'
+                cursor='pointer'
+                onClick={() => copyTextOnClick(value as string)}
+              />
+            )}
+          </Typography>
+        </Grid>
+      </Grid>
+    )
+  }
+
+  const columns = [
+    {
+      flex: 0.28,
+      field: 'version',
+      minWidth: 80,
+      headerName: 'Version',
+      renderHeader: () => <Box>Version</Box>,
+    },
+    {
+      flex: 0.3,
+      minWidth: 130,
+      field: 'email',
+      headerName: 'Email',
+      renderHeader: () => <Box>Email</Box>,
+      renderCell: ({ row }: CellType) => (
+        <Typography variant='body2'>{row.email}</Typography>
+      ),
+    },
+    {
+      flex: 0.23,
+      minWidth: 120,
+      field: 'createdAt',
+      headerName: 'Date & Time',
+      renderHeader: () => <Box>Date & Time</Box>,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ overflowX: 'scroll' }}>
+            {FullDateTimezoneHelper(row.createdAt)}
+          </Box>
+        )
+      },
+    },
+  ]
+
+  function onDelete() {
+    setModal(
+      <ModalContainer>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            gap: '12px',
+          }}
+        >
+          <img
+            src='/images/icons/project-icons/status-alert-error.png'
+            width={60}
+            height={60}
+            alt='role select error'
+          />
+          <Typography variant='body2'>
+            Are you sure to delete this recruiting request?
+          </Typography>
+        </Box>
+        <ModalButtonGroup>
+          <Button variant='contained' onClick={() => setModal(null)}>
+            Cancel
+          </Button>
+          <Button
+            variant='outlined'
+            onClick={() => {
+              setModal(null)
+              deleteMutation.mutate(Number(id))
+            }}
+          >
+            Delete
+          </Button>
+        </ModalButtonGroup>
+      </ModalContainer>,
+    )
+  }
+
+  function onEdit() {
+    router.push(`/jobPosting/edit/${id}`)
+  }
+
+  return (
+    <StyledViewer style={{ margin: '0 70px' }}>
+      <PageHeader
+        title={
+          <Box display='flex' alignItems='center' gap='8px'>
+            <Icon
+              icon='material-symbols:arrow-back-ios-new'
+              style={{ cursor: 'pointer' }}
+              onClick={() => router.back()}
+            />
+            <Typography variant='h5'>Job posting list</Typography>
+          </Box>
+        }
+      />
+
+      <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
+        <Grid item md={9} xs={12}>
+          <Card sx={{ padding: '30px 20px 20px' }}>
+            <Box display='flex' justifyContent='space-between' mb='26px'>
+              <Box display='flex' gap='10px'>
+                <CustomChip
+                  label={data?.id}
+                  skin='light'
+                  color='primary'
+                  size='small'
+                />
+
+                {renderStatusChip(data?.status!)}
+              </Box>
+
+              <Box display='flex' flexDirection='column' gap='8px'>
+                <Box display='flex' alignItems='center' gap='8px'>
+                  <CustomChip
+                    label='Writer'
+                    skin='light'
+                    color='error'
+                    size='small'
+                  />
+                  <Typography
+                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                    color={`${user?.email === data?.email ? 'primary' : ''}`}
+                  >
+                    {data?.writer}
+                  </Typography>
+                  <Divider orientation='vertical' variant='middle' flexItem />
+                  <Typography variant='body2'>{data?.email}</Typography>
+                </Box>
+                <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                  {FullDateTimezoneHelper(data?.createdAt)}
+                </Typography>
+              </Box>
+            </Box>
+            <Divider />
+            <Grid container spacing={12} pt='10px'>
+              <Grid item xs={5}>
+                {renderTable('Job type', data?.jobType)}
+                {renderTable(
+                  'Source language',
+                  data?.sourceLanguage.toUpperCase(),
+                )}
+              </Grid>
+              <Grid item xs={7}>
+                {renderTable('Role', data?.role)}
+                {renderTable(
+                  'Target language',
+                  data?.targetLanguage.toUpperCase(),
+                )}
+              </Grid>
+            </Grid>
+
+            <Divider />
+            <Grid container spacing={12} pt='10px'>
+              <Grid item xs={5}>
+                {renderTable('Number of linguist', data?.numberOfLinguist)}
+                {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
+                {renderTable('Job post link', data?.jobPostLink)}
+              </Grid>
+              <Grid item xs={7}>
+                {renderTable('Years of experience', data?.yearsOfExperience)}
+                {renderTable(
+                  'Due date timezone',
+                  getGmtTime(data?.dueDateTimezone),
+                )}
+              </Grid>
+            </Grid>
+            <Divider />
+            <ReactDraftWysiwyg editorState={content} readOnly={true} />
+          </Card>
+        </Grid>
+        <Grid item md={3} xs={12}>
+          <Card style={{ height: '565px', overflow: 'scroll' }}>
+            <Box
+              sx={{
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              <Box display='flex' justifyContent='space-between'>
+                <Typography
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    fontWeight: 600,
+                    fontSize: '14px',
+                  }}
+                >
+                  <Icon icon='material-symbols:link' opacity={0.7} />
+                  Link*
+                </Typography>
+                <Typography variant='body2'>
+                  {data?.postLink?.length || 0}/15
+                </Typography>
+              </Box>
+
+              {data?.postLink?.length ? <Divider /> : null}
+              {data?.postLink?.map(item => (
+                <LinkReadOnlyItem
+                  key={item.id}
+                  link={item}
+                  onClick={copyTextOnClick}
+                />
+              ))}
+            </Box>
+          </Card>
+          <Card style={{ marginTop: '24px' }}>
+            <Box
+              sx={{
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '12px',
+              }}
+            >
+              {isMaster && (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  startIcon={<Icon icon='mdi:delete-outline' />}
+                  onClick={onDelete}
+                >
+                  Delete
+                </Button>
+              )}
+
+              {isMaster || isWriter ? (
+                <Button
+                  variant='contained'
+                  startIcon={<Icon icon='mdi:pencil-outline' />}
+                  onClick={onEdit}
+                >
+                  Edit
+                </Button>
+              ) : null}
+            </Box>
+          </Card>
+        </Grid>
+      </Grid>
+    </StyledViewer>
+  )
+}
+
+export default JobPostingDetail
+
+JobPostingDetail.acl = {
+  action: 'read',
+  subject: 'job_posting',
+}

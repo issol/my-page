@@ -1,6 +1,6 @@
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { getJobPostingList } from 'src/apis/jobPosting.api'
+import { getJobPostingDetail, getJobPostingList } from 'src/apis/jobPosting.api'
 import { FilterType } from 'src/pages/jobPosting'
 
 export const useGetJobPostingList = (
@@ -22,6 +22,19 @@ export const useGetJobPostingList = (
           position: 'bottom-left',
         })
       },
+    },
+  )
+}
+
+export const useGetJobPostingDetail = (id: number) => {
+  return useQuery(
+    'get-jobPosting/detail',
+    () => {
+      return getJobPostingDetail(id)
+    },
+    {
+      suspense: true,
+      useErrorBoundary: false,
     },
   )
 }
