@@ -15,8 +15,6 @@ import {
   Checkbox,
   Grid,
   IconButton,
-  InputLabel,
-  OutlinedInput,
 } from '@mui/material'
 import { useTheme } from '@mui/material/styles'
 
@@ -76,7 +74,7 @@ export default function Filters({
 
   return (
     <Grid item xs={12}>
-      <Card>
+      <Card style={{ overflow: 'visible' }}>
         <CardHeader
           title='Search Filters'
           action={
