@@ -1,5 +1,5 @@
 import Icon from 'src/@core/components/icon'
-import { IconButton, Typography } from '@mui/material'
+import { IconButton, Tooltip, Typography } from '@mui/material'
 import styled from 'styled-components'
 import { LinkType } from 'src/types/schema/jobPosting.schema'
 
@@ -10,23 +10,25 @@ type Props = {
 }
 export function LinkItem({ link, onClick, onClear }: Props) {
   return (
-    <FileList onClick={() => onClick && onClick(link)}>
-      <Typography className='file-name'>{link.category}</Typography>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon
-            icon='mdi:pencil-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-          />
-        </div>
+    <Tooltip title={`${link.category} / ${link.link}`} placement='left-end'>
+      <FileList onClick={() => onClick && onClick(link)}>
+        <Typography className='file-name'>{link.category}</Typography>
+        <div className='file-details'>
+          <div className='file-preview'>
+            <Icon
+              icon='mdi:pencil-outline'
+              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+            />
+          </div>
 
-        {onClear && (
-          <IconButton onClick={() => onClear && onClear(link)}>
-            <Icon icon='mdi:close' fontSize={20} />
-          </IconButton>
-        )}
-      </div>
-    </FileList>
+          {onClear && (
+            <IconButton onClick={() => onClear && onClear(link)}>
+              <Icon icon='mdi:close' fontSize={20} />
+            </IconButton>
+          )}
+        </div>
+      </FileList>
+    </Tooltip>
   )
 }
 
@@ -36,19 +38,21 @@ type ReadOnlyProps = {
 }
 export function LinkReadOnlyItem({ link, onClick }: ReadOnlyProps) {
   return (
-    <FileList>
-      <Typography className='file-name'>{link.category}</Typography>
-      <div className='file-details'>
-        <div className='file-preview' style={{ margin: 0 }}>
-          <IconButton onClick={() => onClick(link.link)}>
-            <Icon
-              icon='material-symbols:open-in-new'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            />
-          </IconButton>
+    <Tooltip title={`${link.category} / ${link.link}`} placement='left-end'>
+      <FileList>
+        <Typography className='file-name'>{link.category}</Typography>
+        <div className='file-details'>
+          <div className='file-preview' style={{ margin: 0 }}>
+            <IconButton onClick={() => onClick(link.link)}>
+              <Icon
+                icon='material-symbols:open-in-new'
+                style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+              />
+            </IconButton>
+          </div>
         </div>
-      </div>
-    </FileList>
+      </FileList>
+    </Tooltip>
   )
 }
 

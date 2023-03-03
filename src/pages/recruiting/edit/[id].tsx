@@ -188,10 +188,6 @@ export default function RecruitingEdit() {
     control,
     getValues,
     setValue,
-    setError,
-    clearErrors,
-    watch,
-    trigger,
     formState: { errors, isValid },
   } = useForm<RecruitingFormType>({
     defaultValues,

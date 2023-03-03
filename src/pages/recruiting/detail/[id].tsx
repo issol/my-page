@@ -56,23 +56,22 @@ import { useRouter } from 'next/router'
 
 // ** fetches
 import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
-import { deleteGuideline } from 'src/apis/client-guideline.api'
 import { useMutation } from 'react-query'
+import {
+  CurrentHistoryType,
+  deleteRecruiting,
+  hideRecruiting,
+} from 'src/apis/recruiting.api'
 
 // ** types
-import { CurrentHistoryType } from 'src/apis/recruiting.api'
 
 type CellType = {
   row: CurrentHistoryType
 }
 
-/** TODO:
- * 1. hide, delete, update api 연결
- * 2. onsuccess, onerror함수 추가
- */
 const RecruitingDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query?.id)
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [historyContent, setHistoryContent] = useState(
@@ -108,9 +107,7 @@ const RecruitingDetail = () => {
 
   const { user } = useContext(AuthContext)
 
-  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
-    Number(id),
-  )
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(id)
 
   if (isError) {
     return <EmptyPost />
@@ -125,7 +122,7 @@ const RecruitingDetail = () => {
     currentVersion?.email === user?.email!
   const isMaster = ability.can('delete', 'recruiting')
 
-  const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
+  const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {
       router.replace('/recruiting/')
     },
@@ -231,14 +228,14 @@ const RecruitingDetail = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
-              deleteMutation.mutate(Number(id))
+              deleteMutation.mutate(id)
             }}
           >
             Delete
@@ -248,8 +245,26 @@ const RecruitingDetail = () => {
     )
   }
 
+  const hideMutation = useMutation(
+    () => hideRecruiting(id, !currentVersion?.isHide),
+    {
+      onSuccess: () => {
+        router.replace('/recruiting/')
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  function onHide() {
+    hideMutation.mutate()
+  }
+
   function onEdit() {
-    router.push(`/onboarding/client-guideline/form/${id}`)
+    router.push(`/recruiting/edit/${id}`)
   }
 
   function noHistory() {
@@ -412,7 +427,7 @@ const RecruitingDetail = () => {
                   variant='outlined'
                   color='secondary'
                   startIcon={<Icon icon='clarity:eye-hide-line' />}
-                  onClick={onDelete}
+                  onClick={onHide}
                 >
                   Hide
                 </Button>

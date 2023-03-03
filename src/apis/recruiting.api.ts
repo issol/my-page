@@ -269,5 +269,19 @@ export const updateRecruiting = async (
 }
 
 //hide
+export const hideRecruiting = async (id: number, hide: boolean) => {
+  try {
+    return await axios.patch(`url?id=${id}&hide=${hide}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
 
 //delete
+export const deleteRecruiting = async (id: number) => {
+  try {
+    return await axios.delete(`url?id=${id}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
