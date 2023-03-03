@@ -86,7 +86,7 @@ import {
 import { removeAllStorage } from 'src/shared/auth/storage'
 
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING === '') {
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
   require('../mocks')
 }
 
@@ -209,9 +209,6 @@ const App = (props: ExtendedAppProps) => {
   // })
 
   //** TODO: QA동안 유지하고 삭제하기 */
-  useEffect(() => {
-    removeAllStorage()
-  }, [])
 
   return (
     <QueryClientProvider client={queryClient}>

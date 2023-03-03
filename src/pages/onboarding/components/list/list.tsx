@@ -5,8 +5,6 @@ import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
 
-import styled from 'styled-components'
-
 import { Dispatch, SetStateAction } from 'react'
 
 import { columns } from 'src/shared/const/onboarding'
@@ -99,38 +97,3 @@ export default function OnboardingList({
     </Grid>
   )
 }
-
-// ** TODO : chip style 컬러 추가해야 함
-// const Chip = styled.p`
-//   padding: 3px 4px;
-//   background: #beefae;
-//   border-radius: 16px;
-
-//   color: rgba(17, 17, 17, 0.87);
-//   font-weight: 500;
-//   font-size: 0.813rem;
-// `
-
-const StatusChip = styled.p`
-  padding: 4px 8px;
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #d18a00;
-  border-radius: 16px;
-  text-align: center;
-  font-weight: 500;
-  font-size: 13px;
-  color: #d18a00;
-`
-const Language = styled.p`
-  margin: 0;
-  font-weight: 600;
-  font-size: 16px;
-  line-height: 24px;
-
-  letter-spacing: 0.15px;
-  color: rgba(76, 78, 100, 0.87);
-`

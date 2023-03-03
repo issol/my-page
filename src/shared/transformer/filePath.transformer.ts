@@ -4,7 +4,8 @@
 
 export function getFilePath(name: string[], fileName: string) {
   const result = name
-    .map(item => item.replaceAll('/', '-').replaceAll(' ', '_'))
+    .map(item => item !== '' && item.replaceAll('/', '-').replaceAll(' ', '_'))
+    .filter(value => value)
     .join('/')
   return result + '/' + fileName
 }

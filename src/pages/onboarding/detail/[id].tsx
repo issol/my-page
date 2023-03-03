@@ -26,7 +26,7 @@ import {
   AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
+
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -65,7 +65,7 @@ import {
   addCreatedAppliedRole,
   deleteCommentOnPro,
   editCommentOnPro,
-} from 'src/apis/onboarding-real.api'
+} from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
 import RejectTestModal from '../components/detail/modal/reject-test-modal'
 
@@ -180,26 +180,26 @@ function OnboardingDetail() {
 
   const queryClient = useQueryClient()
 
-  const certifyRoleMutation = useMutation(
-    (value: { userId: number; jobInfoId: number }) =>
-      certifyRole(value.userId, value.jobInfoId),
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
-        // displayUndoToast(variables.user, variables.payload.reply)
-      },
-    },
-  )
+  // const certifyRoleMutation = useMutation(
+  //   (value: { userId: number; jobInfoId: number }) =>
+  //     certifyRole(value.userId, value.jobInfoId),
+  //   {
+  //     onSuccess: (data, variables) => {
+  //       queryClient.invalidateQueries(`${variables.userId}`)
+  //       // displayUndoToast(variables.user, variables.payload.reply)
+  //     },
+  //   },
+  // )
 
-  const testActionMutation = useMutation(
-    (value: { userId: number; jobInfoId: number; status: string }) =>
-      testAction(value.userId, value.jobInfoId, value.status),
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
-      },
-    },
-  )
+  // const testActionMutation = useMutation(
+  //   (value: { userId: number; jobInfoId: number; status: string }) =>
+  //     testAction(value.userId, value.jobInfoId, value.status),
+  //   {
+  //     onSuccess: (data, variables) => {
+  //       queryClient.invalidateQueries(`${variables.userId}`)
+  //     },
+  //   },
+  // )
 
   const addTestMutation = useMutation(
     (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
@@ -336,16 +336,16 @@ function OnboardingDetail() {
 
   const onClickCertify = (jobInfoId: number) => {
     setActionId(jobInfoId)
-    certifyRoleMutation.mutate({ userId: Number(id), jobInfoId: jobInfoId })
+    // certifyRoleMutation.mutate({ userId: Number(id), jobInfoId: jobInfoId })
   }
 
   const onClickAction = (jobInfoId: number, status: string) => {
     setActionId(jobInfoId)
-    testActionMutation.mutate({
-      userId: Number(id),
-      jobInfoId: jobInfoId,
-      status: status,
-    })
+    // testActionMutation.mutate({
+    //   userId: Number(id),
+    //   jobInfoId: jobInfoId,
+    //   status: status,
+    // })
   }
 
   const onClickAddRole = () => {

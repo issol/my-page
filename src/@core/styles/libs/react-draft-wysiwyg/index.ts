@@ -8,6 +8,7 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
       padding: 0,
       border: 0,
       marginBottom: 0,
+
       background: theme.palette.background.paper,
       // borderBottom: `1px solid ${theme.palette.divider}`,
       '& .rdw-fontsize-dropdown': {
@@ -133,6 +134,14 @@ export const EditorWrapper = styled('div')(({ theme }) => ({
       color: theme.palette.text.primary,
       borderRadius: '8px',
       border: `1px solid ${theme.palette.divider}`,
+
+      '& .DraftEditor-root': {
+        '& .public-DraftEditorPlaceholder-root': {
+          '& .public-DraftEditorPlaceholder-inner': {
+            whiteSpace: 'pre-line !important',
+          },
+        },
+      },
 
       ...(theme.direction === 'rtl'
         ? {
