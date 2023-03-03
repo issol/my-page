@@ -1,8 +1,8 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
+import { StatusType } from '@src/apis/recruiting.api'
 
-export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | 'Not started' | ''
 export type RecruitingFormType = {
   status: { label: StatusType; value: StatusType }
   client: { label: string; value: string }
@@ -13,7 +13,6 @@ export type RecruitingFormType = {
   numberOfLinguist?: number
   dueDate?: string
   dueDateTimezone?: CountryType
-  //   dueDateTimezone?: string
   jobPostLink?: string
 }
 

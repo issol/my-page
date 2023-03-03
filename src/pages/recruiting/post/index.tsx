@@ -60,12 +60,12 @@ import {
 } from 'src/shared/const/clientGuideline'
 
 // ** fetches
+import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
 
 // ** types
 import {
   recruitingFormSchema,
   RecruitingFormType,
-  StatusType,
 } from 'src/types/schema/recruiting.schema'
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
@@ -74,13 +74,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
+import { useMutation } from 'react-query'
 
-/**
- * TODO :
- * 1. job posting만들고 나서 list를 dialog에 연결하기
- * 2. onSubmit함수 완성하기
- * 3. api연결
- */
 export default function RecruitingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
@@ -100,7 +95,7 @@ export default function RecruitingPost() {
   type LinkModeType = 'insert' | 'find'
   const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
   const defaultValues = {
-    status: { value: 'Ongoing' as StatusType, label: 'Ongoing' as StatusType },
+    status: { value: '' as StatusType, label: '' as StatusType },
     client: { value: '', label: '' },
     jobType: { value: '', label: '' },
     role: { value: '', label: '' },
@@ -145,15 +140,15 @@ export default function RecruitingPost() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to discard this recruiting request?
+            Are you sure to discard this request?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               router.push('/recruiting/')
@@ -184,15 +179,15 @@ export default function RecruitingPost() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to upload this recruiting request?
+            Are you sure to add this recruiting request?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
@@ -205,8 +200,36 @@ export default function RecruitingPost() {
     )
   }
 
+  const postMutation = useMutation((form: FormType) => postRecruiting(form), {
+    onSuccess: res => {
+      router.push(`/recruiting/detail/${res?.id}`)
+      toast.success('Success', {
+        position: 'bottom-left',
+      })
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
   const onSubmit = () => {
     const data = getValues()
+    const finalForm = {
+      status: data.status.value,
+      client: data.client.value,
+      jobType: data.jobType.value,
+      role: data.role.value,
+      sourceLanguage: data.sourceLanguage.value,
+      targetLanguage: data.targetLanguage.value,
+      numberOfLinguist: data.numberOfLinguist ?? 0,
+      dueDate: data.dueDate ?? '',
+      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      jobPostLink: data.jobPostLink,
+      content: convertToRaw(content.getCurrentContent()),
+      text: content.getCurrentContent().getPlainText('\u0001'),
+    }
+    postMutation.mutate(finalForm)
   }
 
   return (

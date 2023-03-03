@@ -8,7 +8,7 @@ export type RecruitingCountType = {
   hold: number
   total: number
 }
-
+export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | ''
 export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
   try {
     // const { data } = await axios.get(`/api/enough/onboard/guideline`)
@@ -30,7 +30,7 @@ export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
 }
 export type RecruitingDataType = {
   id: number
-  status: 'Ongoing' | 'Paused' | 'Fulfilled'
+  status: StatusType
   client: string
   jobType: string
   role: string
@@ -114,7 +114,7 @@ export type CurrentHistoryType = {
   writer: string
   email: string
   createdAt: string
-  status: 'Ongoing' | 'Paused' | 'Fulfilled'
+  status: StatusType
   client: string
   jobType: string
   role: string
@@ -228,7 +228,32 @@ export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
   }
 }
 
+export type FormType = {
+  status: StatusType
+  client: string
+  jobType: string
+  role: string
+  sourceLanguage: string
+  targetLanguage: string
+  numberOfLinguist?: number
+  dueDate?: string
+  dueDateTimezone?: string
+  jobPostLink?: string
+  content: any
+  text: string
+}
+
 //post
+export const postRecruiting = async (
+  form: FormType,
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.post('url', form)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
 
 //update
 
