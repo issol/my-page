@@ -166,6 +166,7 @@ export type FormType = {
   dueDateTimezone?: string
   postLink: Array<{ category: string; link: string }>
   content: any
+  text: string
 }
 
 //post

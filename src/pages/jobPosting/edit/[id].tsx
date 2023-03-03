@@ -78,11 +78,6 @@ import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
 import { useMutation } from 'react-query'
 
-/**
- * TODO:
- * 1. post api onSuccess, onError 붙이기
- * 2. 모달 내용 체크 및 discard기능 돌아가는 url체크
- * */
 export default function JobPostingEdit() {
   const router = useRouter()
   const id = Number(router.query.id)
@@ -254,7 +249,7 @@ export default function JobPostingEdit() {
               onSubmit()
             }}
           >
-            Upload
+            Save
           </Button>
         </ModalButtonGroup>
       </ModalContainer>,
@@ -279,8 +274,8 @@ export default function JobPostingEdit() {
   const updateMutation = useMutation(
     (form: FormType) => updateJobPosting(id, form),
     {
-      onSuccess: () => {
-        router.push(`/jobPosting/detail/${data?.id}`)
+      onSuccess: res => {
+        router.push(`/jobPosting/detail/${res?.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -310,7 +305,8 @@ export default function JobPostingEdit() {
       dueDate: data?.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       postLink: data?.postLink ?? '',
-      content: content,
+      content: convertToRaw(content.getCurrentContent()),
+      text: content.getCurrentContent().getPlainText('\u0001'),
     }
     updateMutation.mutate(finalForm)
   }

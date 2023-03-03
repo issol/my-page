@@ -6,23 +6,16 @@ import {
   Button,
   Card,
   FormHelperText,
-  InputAdornment,
-  List,
-  MenuItem,
-  OutlinedInput,
-  Select,
   TextField,
 } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-import { useTheme } from '@mui/material/styles'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -33,7 +26,7 @@ import { convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import { toast } from 'react-hot-toast'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 import AddLinkModal from '../components/add-link-modal'
 
@@ -57,13 +50,13 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetches
+import { FormType, postJobPosting, StatusType } from '@src/apis/jobPosting.api'
 
 // ** types
 import {
   jobPostingFormSchema,
   JobPostingFormType,
   LinkType,
-  StatusType,
 } from 'src/types/schema/jobPosting.schema'
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
@@ -76,20 +69,11 @@ import { JobList, JobPostingStatus, RoleList } from 'src/shared/const/common'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
+import { useMutation } from 'react-query'
 
-/**
- * TODO:
- * 1. post api onSuccess, onError 붙이기
- * 2. 모달 내용 체크 및 discard기능 돌아가는 url체크
- * */
 export default function JobPostingPost() {
   const router = useRouter()
   const languageList = getGloLanguage()
-
-  const theme = useTheme()
-  const { direction } = theme
-  const popperPlacement: ReactDatePickerProps['popperPlacement'] =
-    direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -117,17 +101,14 @@ export default function JobPostingPost() {
     control,
     getValues,
     setValue,
-    setError,
-    clearErrors,
     watch,
-    trigger,
     formState: { errors, isValid },
   } = useForm<JobPostingFormType>({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(jobPostingFormSchema),
   })
-  console.log(errors)
+
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -146,15 +127,15 @@ export default function JobPostingPost() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to discard this recruiting request?
+            Are you sure to discard all changes?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               router.push('/recruiting/')
@@ -185,21 +166,21 @@ export default function JobPostingPost() {
             alt=''
           />
           <Typography variant='body2'>
-            Are you sure to upload this recruiting request?
+            Are you sure to post this job posting?
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
             }}
           >
-            Upload
+            Post
           </Button>
         </ModalButtonGroup>
       </ModalContainer>,
@@ -225,8 +206,37 @@ export default function JobPostingPost() {
     setValue('postLink', link, { shouldDirty: true, shouldValidate: true })
   }, [link])
 
+  const postMutation = useMutation((form: FormType) => postJobPosting(form), {
+    onSuccess: res => {
+      router.push(`/jobPosting/detail/${res?.id}`)
+      toast.success('Success', {
+        position: 'bottom-left',
+      })
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+
   const onSubmit = () => {
     const data = getValues()
+    const finalForm = {
+      status: data.status.value,
+      jobType: data.jobType.value,
+      role: data.role.value,
+      sourceLanguage: data.sourceLanguage.value,
+      targetLanguage: data.targetLanguage.value,
+      yearsOfExperience: data?.yearsOfExperience?.value ?? '',
+      numberOfLinguist: data.numberOfLinguist ?? 0,
+      dueDate: data.dueDate ?? '',
+      dueDateTimezone: data.dueDateTimezone?.code ?? '',
+      postLink: data.postLink,
+      content: convertToRaw(content.getCurrentContent()),
+      text: content.getCurrentContent().getPlainText('\u0001'),
+    }
+    postMutation.mutate(finalForm)
   }
 
   return (
@@ -526,7 +536,6 @@ export default function JobPostingPost() {
                         <CustomDatePicker
                           selected={value ? new Date(value) : null}
                           id='dueDate'
-                          popperPlacement={popperPlacement}
                           onChange={onChange}
                           placeholderText='Due date'
                           customInput={<CustomInput icon='calendar' />}
