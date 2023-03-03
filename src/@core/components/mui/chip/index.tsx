@@ -13,7 +13,7 @@ import { createTheme } from '@mui/material/styles'
 
 const Chip = (props: CustomChipProps) => {
   // ** Props
-  const { sx, skin, color, rounded, customColor, type } = props
+  const { sx, skin, color, rounded, customcolor, type } = props
 
   // ** Hook
   const bgColors = useBgColor()
@@ -42,23 +42,23 @@ const Chip = (props: CustomChipProps) => {
       sx={
         skin === 'light' && color
           ? Object.assign(colors[color], sx)
-          : type === 'jobType' && customColor
+          : type === 'jobType' && customcolor
           ? {
-              backgroundColor: customColor,
+              backgroundColor: customcolor,
               color: 'rgba(17, 17, 17, 0.87)',
               fontSize: '13px',
             }
-          : type === 'role' && customColor
+          : type === 'role' && customcolor
           ? {
-              background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customColor}`,
-              border: `1px solid ${customColor}`,
+              background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customcolor}`,
+              border: `1px solid ${customcolor}`,
               color: 'rgba(17, 17, 17, 0.87)',
               fontSize: '13px',
             }
-          : type === 'testStatus' && customColor
+          : type === 'testStatus' && customcolor
           ? {
-              background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customColor}`,
-              color: customColor,
+              background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${customcolor}`,
+              color: customcolor,
               fontSize: '13px',
               fontWeight: 500,
             }

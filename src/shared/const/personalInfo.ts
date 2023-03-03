@@ -19,14 +19,16 @@ export const RolePair = {
   'Documents/Text': [
     { label: 'QCer', value: 'QCer' },
     { label: 'Translator', value: 'Translator' },
+    { label: 'Transcriber', value: 'Transcriber' },
     { label: 'DTPer', value: 'DTPer' },
     { label: 'DTP QCer', value: 'DTP QCer' },
   ],
   Dubbing: [
+    { label: 'Audio describer', value: 'Audio describer' },
     { label: 'Audio description QCer', value: 'Audio description QCer' },
-    { label: 'Dubbing QCer', value: 'Dubbing QCer' },
-    { label: 'Dubbing script translator', value: 'Dubbing script translator' },
+    { label: 'Dubbing audio QCer', value: 'Dubbing audio QCer' },
     { label: 'Dubbing script QCer', value: 'Dubbing script QCer' },
+    { label: 'Dubbing script translator', value: 'Dubbing script translator' },
     { label: 'Dubbing voice artist', value: 'Dubbing voice artist' },
   ],
   Interpretation: [{ label: 'Interpreter', value: 'Interpreter' }],
@@ -37,15 +39,17 @@ export const RolePair = {
   ],
 
   'OTT/Subtitle': [
+    { label: 'QCer', value: 'QCer' },
     { label: 'SDH author', value: 'SDH author' },
     { label: 'SDH QCer', value: 'SDH QCer' },
     { label: 'Subtitle author', value: 'Subtitle author' },
     { label: 'Subtitle QCer', value: 'Subtitle QCer' },
-    { label: 'Template author', value: 'Template author' },
-    { label: 'Template QCer', value: 'Template QCer' },
-    { label: 'Translator', value: 'Translator' },
     { label: 'Supp author', value: 'Supp author' },
     { label: 'Supp QCer', value: 'Supp QCer' },
+    { label: 'Template author', value: 'Template author' },
+    { label: 'Template QCer', value: 'Template QCer' },
+    { label: 'Transcriber', value: 'Transcriber' },
+    { label: 'Translator', value: 'Translator' },
   ],
   Webcomics: [
     { label: 'DTPer', value: 'DTPer' },
@@ -116,35 +120,52 @@ export const TestStatus = [
   },
   { label: 'Test assigned', value: 'Test assigned' },
   {
-    label: 'General in progress',
-    value: 'General in progress',
+    label: 'Basic in progress',
+    value: 'Basic in progress',
   },
   {
-    label: 'General failed',
-    value: 'General failed',
+    label: 'Basic submitted',
+    value: 'Basic submitted',
   },
   {
-    label: 'General passed',
-    value: 'General passed',
+    label: 'Basic failed',
+    value: 'Basic failed',
   },
   {
-    label: 'Test in progress',
-    value: 'Test in progress',
+    label: 'Basic passed',
+    value: 'Basic passed',
   },
   {
-    label: 'Test submitted',
-    value: 'Test submitted',
+    label: 'Skill in progress',
+    value: 'Skill in progress',
+  },
+  {
+    label: 'Skill submitted',
+    value: 'Skill submitted',
   },
   {
     label: 'Reviewing',
     value: 'Reviewing',
   },
   {
+    label: 'Review canceled',
+    value: 'Review canceled',
+  },
+
+  {
     label: 'Review completed',
     value: 'Review completed',
   },
   {
-    label: 'Test failed',
-    value: 'Test failed',
+    label: 'Skill failed',
+    value: 'Skill failed',
+  },
+  {
+    label: 'Paused',
+    value: 'Paused',
+  },
+  {
+    label: 'Rejected',
+    value: 'Rejected',
   },
 ]

@@ -4,6 +4,6 @@ import { ChipProps } from '@mui/material/Chip'
 export type CustomChipProps = ChipProps & {
   skin?: 'light'
   rounded?: boolean
-  customColor?: string
+  customcolor?: string
   type?: string
 }

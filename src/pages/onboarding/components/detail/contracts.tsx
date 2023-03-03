@@ -15,9 +15,15 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 type Props = {
   userInfo: OnboardingProDetailsType
+  onClickContracts: (file: {
+    id: number
+    uri: string
+    fileName: string
+    fileType: string
+  }) => void
 }
 
-export default function Contracts({ userInfo }: Props) {
+export default function Contracts({ userInfo, onClickContracts }: Props) {
   return (
     <Card sx={{ padding: '20px' }}>
       <TypoGraphy
@@ -50,19 +56,22 @@ export default function Contracts({ userInfo }: Props) {
                   key={uuidv4()}
                   sx={{
                     width: '53px',
-
                     display: 'flex',
                     flexDirection: 'column',
+                    justifyContent: 'center',
                     alignItems: 'center',
                     gap: '5px',
+                    cursor: 'pointer',
                   }}
+                  onClick={() => onClickContracts(value)}
                 >
                   <img
-                    src='/images/icons/file-icons/resume-pdf.png'
+                    src={`/images/icons/file-icons/${value.fileType}-file.svg`}
                     style={{
-                      width: '37px',
-                      height: '41px',
+                      width: '40px',
+                      height: '40px',
                     }}
+                    alt='contracts'
                   ></img>
                   <ContractsFileName>{value.fileName}</ContractsFileName>
                 </Box>

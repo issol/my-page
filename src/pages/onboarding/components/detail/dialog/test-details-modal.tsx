@@ -54,6 +54,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
 import { useMutation, useQueryClient } from 'react-query'
 import { assignReviewer } from 'src/apis/onboarding.api'
+import { AppliedRoleType } from 'src/types/onboarding/details'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -71,7 +72,7 @@ type ReviewerCellType = {
 }
 
 type Props = {
-  jobInfo: SelectedJobInfoType
+  jobInfo: AppliedRoleType
   reviewerList: AssignReviewerType[]
 }
 
@@ -100,7 +101,7 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
 }))
 export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
   const { setModal } = useContext(ModalContext)
-  const [info, setInfo] = useState<SelectedJobInfoType>(jobInfo)
+  const [info, setInfo] = useState<AppliedRoleType>(jobInfo)
   const { data: reviewerList1 } = useGetReviewerList()
   const [selectedReviewer, setSelectedReviewer] =
     useState<AssignReviewerType | null>(null)
@@ -255,7 +256,7 @@ export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
             type='testStatus'
             label={row.status}
             /* @ts-ignore */
-            customColor={TestStatusColor[row.status]}
+            customcolor={TestStatusColor[row.status]}
             sx={{
               textTransform: 'capitalize',
               '& .MuiChip-label': { lineHeight: '18px' },

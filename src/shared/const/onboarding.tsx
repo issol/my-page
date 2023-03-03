@@ -90,6 +90,11 @@ export const columns: GridColumns<OnboardingListType> = [
 
 export const DefaultRolePair: Array<RoleSelectType> = [
   {
+    label: 'Audio describer',
+    value: 'Audio describer',
+    jobType: ['Dubbing'],
+  },
+  {
     label: 'Audio description QCer',
     value: 'Audio description QCer',
     jobType: ['Dubbing'],
@@ -110,8 +115,13 @@ export const DefaultRolePair: Array<RoleSelectType> = [
     jobType: ['Documents/Text', 'Webcomics', 'Webnovel'],
   },
   {
-    label: 'Dubbing QCer',
-    value: 'Dubbing QCer',
+    label: 'Dubbing audio QCer',
+    value: 'Dubbing audio QCer',
+    jobType: ['Dubbing'],
+  },
+  {
+    label: 'Dubbing script QCer',
+    value: 'Dubbing script QCer',
     jobType: ['Dubbing'],
   },
   {
@@ -132,7 +142,7 @@ export const DefaultRolePair: Array<RoleSelectType> = [
   {
     label: 'QCer',
     value: 'QCer',
-    jobType: ['Documents/Text'],
+    jobType: ['Documents/Text', 'OTT/Subtitle'],
   },
   {
     label: 'SDH author',
@@ -175,6 +185,11 @@ export const DefaultRolePair: Array<RoleSelectType> = [
     jobType: ['OTT/Subtitle'],
   },
   {
+    label: 'Transcriber',
+    value: 'Transcriber',
+    jobType: ['Documents/Text', 'OTT/Subtitle'],
+  },
+  {
     label: 'Translator',
     value: 'Translator',
     jobType: ['Documents/Text', 'OTT/Subtitle'],
@@ -184,17 +199,34 @@ export const DefaultRolePair: Array<RoleSelectType> = [
     value: 'Video editor',
     jobType: ['Misc.'],
   },
-  { label: 'Webcomics QCer', value: 'Webcomics QCer', jobType: ['Webcomics'] },
   {
-    label: 'Webcomic translator',
-    value: 'Webcomic translator',
+    label: 'Webcomics QCer',
+    value: 'Webcomics QCer',
     jobType: ['Webcomics'],
   },
-
-  { label: 'Wenovel QCer', value: 'Wenovel QCer', jobType: ['Webnovel'] },
+  {
+    label: 'Webcomics translator',
+    value: 'Webcomics translator',
+    jobType: ['Webcomics'],
+  },
+  {
+    label: 'Webnovel QCer',
+    value: 'Webnovel QCer',
+    jobType: ['Webnovel'],
+  },
   {
     label: 'Webnovel translator',
     value: 'Webnovel translator',
     jobType: ['Webnovel'],
   },
 ]
+
+export const RejectReason = {
+  'Pro does not have enough experience for this role.':
+    'Thank you for your interest!\nUnfortunately, your listed years of experience do not meet the required years of experience for this role, and thus cannot proceed any further.\nShould you have any questions or concerns, please do not hesitate to contact tad@glozinc.com.\n- TAD Onboarding Team',
+  'Pro is not suitable for this role.':
+    'Thank you for your interest!\nUnfortunately, your listed experience do not meet the experiences required for this role, and thus cannot proceed any further.\nShould you have any questions or concerns, please do not hesitate to contact tad@glozinc.com.\n- TAD Onboarding Team',
+  'Recruitment is not needed for this role.':
+    'Thank you for your interest, however, we are not currently recruiting the role/language pair you have applied for.\nWe are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so please do not hesitate to contact tad@glozinc.com for more information.\n- TAD Onboarding Team',
+  Others: '',
+}

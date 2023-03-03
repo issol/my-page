@@ -6,14 +6,24 @@ import styled from 'styled-components'
 import CardNormal from 'src/@core/components/card-statistics/card-normal'
 
 import Overview from 'src/@core/components/card-statistics/card-overview'
-export default function OnboardingDashboard() {
+
+type Props = {
+  totalStatistics: { todayRegisteredUser: number; totalUser: number }
+  onboardingStatistic: { onboarded: number; testing: number; waiting: number }
+}
+export default function OnboardingDashboard({
+  totalStatistics,
+  onboardingStatistic,
+}: Props) {
+  console.log(totalStatistics)
+
   return (
     <Grid item xs={12}>
       <Grid container spacing={6} className='match-height'>
         <Grid item xs={12} sm={6} md={2.5}>
           <CardNormal
             data={{
-              stats: '1,032',
+              stats: `${totalStatistics.totalUser.toLocaleString()}`,
               title: 'Total Pros',
               titleColor: '#666CFF',
 
@@ -24,7 +34,7 @@ export default function OnboardingDashboard() {
         <Grid item xs={12} sm={6} md={2.5}>
           <CardNormal
             data={{
-              stats: '27',
+              stats: `${totalStatistics.todayRegisteredUser.toLocaleString()}`,
               title: 'New Pros',
               titleColor: '#64C623',
               src: '/images/cards/card-stats-img-2.png',
@@ -32,7 +42,7 @@ export default function OnboardingDashboard() {
           />
         </Grid>
         <Grid item xs={12} sm={9} md={5.5}>
-          <Overview />
+          <Overview onboardingStatistic={onboardingStatistic} />
         </Grid>
         <Grid item xs={12} sm={3} md={1.5}>
           <Card sx={{ padding: '12px 15px' }}>

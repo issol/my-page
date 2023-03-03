@@ -12,8 +12,13 @@ import {
   FilterType,
   SelectType,
   RoleSelectType,
+  OnboardingFilterType,
 } from 'src/types/onboarding/list'
-import { useGetOnboardingProList } from 'src/queries/onboarding/onboarding-query'
+import {
+  useGetOnboardingProList,
+  useGetStatistic,
+  useGetOnboardingStatistic,
+} from 'src/queries/onboarding/onboarding-query'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -25,13 +30,27 @@ const defaultValues: FilterType = {
   search: '',
 }
 export default function Onboarding() {
-  const { data: onboardingProList } = useGetOnboardingProList()
-  const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
-  const [roleOptions, setRoleOptions] =
-    useState<RoleSelectType[]>(DefaultRolePair)
   const [onboardingListPage, setOnboardingListPage] = useState<number>(0)
   const [onboardingListPageSize, setOnboardingListPageSize] =
     useState<number>(10)
+  const [filters, setFilters] = useState<OnboardingFilterType>({
+    jobType: [],
+    role: [],
+    source: [],
+    target: [],
+    experience: [],
+    testStatus: [],
+    take: onboardingListPageSize,
+    skip: onboardingListPageSize * onboardingListPage,
+  })
+
+  const { data: onboardingProList } = useGetOnboardingProList(filters)
+  const { data: totalStatistics } = useGetStatistic()
+  const { data: onboardingStatistic } = useGetOnboardingStatistic()
+  const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
+  const [roleOptions, setRoleOptions] =
+    useState<RoleSelectType[]>(DefaultRolePair)
+
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
   const languageList = getGloLanguage()
@@ -40,8 +59,6 @@ export default function Onboarding() {
     defaultValues,
     mode: 'onSubmit',
   })
-
-  console.log(onboardingProList)
 
   const onClickResetButton = () => {
     setRoleOptions(DefaultRolePair)
@@ -55,13 +72,40 @@ export default function Onboarding() {
       testStatus: [],
       search: '',
     })
+
+    setFilters({
+      jobType: [],
+      role: [],
+      source: [],
+      target: [],
+      experience: [],
+      testStatus: [],
+      take: onboardingListPageSize,
+      skip: onboardingListPageSize * onboardingListPage,
+    })
   }
 
   const onSubmit = (data: FilterType) => {
     const { jobType, role, source, target, experience, testStatus, search } =
       data
 
-    //** TODO : API 연결 */
+    const filter = {
+      jobType: jobType.map(value => value.value),
+      role: role.map(value => value.value),
+      source: source.map(value => value.value),
+      target: target.map(value => value.value),
+      testStatus: testStatus.map(value => value.value),
+      experience: experience.map(value => value.value),
+      search: search,
+      take: onboardingListPageSize,
+      skip: onboardingListPageSize * onboardingListPage,
+    }
+
+    console.log(filter)
+
+    setFilters(filter)
+
+    console.log(data)
   }
 
   const handleFilterStateChange =
@@ -74,7 +118,10 @@ export default function Onboarding() {
       <PageHeader
         title={<Typography variant='h5'>Onboarding list</Typography>}
       />
-      <OnboardingDashboard />
+      <OnboardingDashboard
+        totalStatistics={totalStatistics!}
+        onboardingStatistic={onboardingStatistic!}
+      />
       <Filters
         control={control}
         handleSubmit={handleSubmit}

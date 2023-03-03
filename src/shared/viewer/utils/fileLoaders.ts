@@ -1,3 +1,5 @@
+import { log } from 'console'
+
 export interface FileLoaderFuncProps {
   documentURI: string
   signal: AbortSignal
@@ -26,6 +28,8 @@ const _fileLoader: BaseFileLoaderFunction = ({
   return fetch(documentURI, { signal, headers })
     .then(async res => {
       const blob = await res.blob()
+
+      console.log(blob)
 
       const fileReader = new FileReader()
       fileReader.addEventListener('loadend', () =>

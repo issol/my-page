@@ -15,7 +15,7 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
 type Props = {
   userInfo: OnboardingProDetailsType
-  onClickResume: (resume: {
+  onClickResume: (file: {
     id: number
     uri: string
     fileName: string

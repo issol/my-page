@@ -283,4 +283,348 @@ export const handlers = [
   // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
   //   return res(ctx.status(200), ctx.json(onboardingUser))
   // }),
+
+  // Recruiting
+  // 리크루팅 리스트 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting',
+    (req, res, ctx) => {
+      const recruitingList = {
+        'data': [
+          {
+            'id': 1,
+            'status': 'Ongoing',
+            'client': 'Netflix',
+            'jobType' : 'Webcomics',
+            'role' : 'Proofreader',
+            'sourceLanguage': 'EN',
+            'targetLanguage': 'KO',
+            'writer' : 'Tammy Na',
+            'dueDate' : '02/02/2023, 06:20 PM',
+            'numberOfLinguist' : 2,
+            'jobStatus':'Ongoing',
+            'isHide':false
+          },
+          {
+            'id': 2,
+            'status': 'Fulfilled',
+            'client': 'Naver',
+            'jobType' : 'YouTube',
+            'role' : 'Translator',
+            'sourceLanguage': 'JA',
+            'targetLanguage': 'FR',
+            'writer' : 'Jay Cha',
+            'dueDate' : '02/02/2023, 06:20 PM',
+            'numberOfLinguist' : 2,
+            'jobStatus':'Ongoing',
+            'isHide':false
+          }
+        ],
+        'count': 2
+      }
+      if (
+        req.url.searchParams.get('client') &&
+        req.url.searchParams.get('jobType') &&
+        req.url.searchParams.get('role') &&
+        req.url.searchParams.get('source') &&
+        req.url.searchParams.get('target')
+      ) return res(ctx.status(200), ctx.json(recruitingList))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  //리크루팅 디테일 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+      const id = req.params.id
+      const detail = {
+        'currentVersion' : {
+          'id': 1,
+          'version': 3,
+          'writer': 'Jay Cha',
+          'email': 'jaycha@glozinc.com',
+          'createdAt': '02/02/2023, 06:20 PM',
+          'status': "Ongoing", 
+          'client': 'Naver',
+          'jobType': 'OTT/Subtitle',
+          'role': 'Translator',
+          'sourceLanguage': 'KO',
+          'targetLanguage': 'ZH_HANT',
+          'numberOfLinguist': 3,
+          'dueDate': '02/02/2023, 06:20 PM',
+          'dueDateTimezone': null,
+          'jobPostLink': 'https://gloz.io/short1', // short url
+          'content': '???',
+          'isHide': false
+        },
+        'versionHistory' : [
+          {
+            'id': 2,
+            'version': 2,
+            'writer': 'Jay Cha',
+            'email': 'jaycha@glozinc.com',
+            'createdAt': '02/02/2023, 06:20 PM',
+            'status': "Ongoing", 
+            'client': 'Naver',
+            'jobType': 'OTT/Subtitle',
+            'role': 'Translator',
+            'sourceLanguage': 'KO',
+            'targetLanguage': 'ZH_HANT',
+            'numberOfLinguist': 3,
+            'dueDate': '02/02/2023, 06:20 PM',
+            'dueDateTimezone': null,
+            'jobPostLink': 'https://gloz.io/short1', // short url
+            'content': '???',
+            'isHide': false
+          },
+          {
+            'id': 3,
+            'version': 1,
+            'writer': 'Jay Cha',
+            'email': 'jaycha@glozinc.com',
+            'createdAt': '02/02/2023, 06:20 PM',
+            'status': "Ongoing", 
+            'client': 'Naver',
+            'jobType': 'OTT/Subtitle',
+            'role': 'Translator',
+            'sourceLanguage': 'KO',
+            'targetLanguage': 'ZH_HANT',
+            'numberOfLinguist': 3,
+            'dueDate': '02/02/2023, 06:20 PM',
+            'dueDateTimezone': null,
+            'jobPostLink': 'https://gloz.io/short1', // short url
+            'content': '???',
+            'isHide': false
+          }
+        ]
+      }
+      if (id) return res(ctx.status(200), ctx.json(detail))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  //리크루팅 디테일 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/dashboard', (req, res, ctx) => {
+      return res(ctx.status(200), ctx.json({
+        'onGoing':55,
+        'done':125,
+        'hold':76,
+        'total':256243
+      }))
+    },
+  ),
+
+  //리크루팅 요청서
+  rest.post(
+    BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.client &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.openings &&
+        req.body?.dueAt &&
+        req.body?.timezone &&
+        req.body?.jobPostLink &&
+        req.body?.content
+      )
+      return res(ctx.status(200), ctx.json({
+        'id':123
+      }))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  //리크루팅 업데이트
+  rest.patch(
+    BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+      if (
+        req.params.id &&
+        req.body?.status &&
+        req.body?.client &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.jobPostLink &&
+        req.body?.content
+      )
+      return res(ctx.status(200), ctx.json({
+        'id':req.params.id
+      }))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  //리크루팅 숨김처리
+  // 리크루팅 업데이트랑 엔드포인트가 겹침
+  // rest.patch(
+  //   BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+  //     if (
+  //       req.params.id &&
+  //       req.body?.hide
+  //     )
+  //     return res(ctx.status(200), ctx.json({
+  //       'id':req.params.id
+  //     }))
+  //     else return res(ctx.status(409), ctx.body(''))
+  //   },
+  // )
+
+  // 리크루팅 삭제
+  rest.delete(
+    BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+      if (req.params.id) return res(ctx.status(200), ctx.body(''))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 잡포스팅 리스트 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
+      const jobpostingList = {
+        'data': [
+          {
+            'id': 1,
+            'status': 'Ongoing',
+            'client': 'Netflix',
+            'jobType' : 'Webcomics',
+            'role' : 'Proofreader',
+            'sourceLanguage': 'EN',
+            'targetLanguage': 'KO',
+            'yearsOfExperience' : '3~5 years',
+            'tadName': 'Bon',
+            'dueAt' : '02/02/2023, 06:20 PM',
+            'openings' : 2,
+            'view': 23
+          },
+          {
+            'id': 2,
+            'status': 'Ongoing',
+            'client': 'Netflix',
+            'jobType' : 'Webcomics',
+            'role' : 'Proofreader',
+            'sourceLanguage': 'EN',
+            'targetLanguage': 'KO',
+            'yearsOfExperience' : '10+ years',
+            'tadName': 'Ethan',
+            'dueAt' : '02/02/2023, 06:20 PM',
+            'openings' : 5,
+            'view': 28239
+          }
+        ],
+        'count': 2
+      }  
+      if (
+        req.url.searchParams.get('jobType') &&
+        req.url.searchParams.get('role') &&
+        req.url.searchParams.get('source') &&
+        req.url.searchParams.get('target') &&
+        req.url.searchParams.get('yearsOfExperience') &&
+        req.url.searchParams.get('dueAt') &&
+        req.url.searchParams.get('take') &&
+        req.url.searchParams.get('skip')
+      ) return res(ctx.status(200), ctx.json(jobpostingList))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 잡포스팅 디테일 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/jobposting/:id', (req, res, ctx) => {
+      const jobpostingDetailList = {
+        'data': {
+          'id': req.params.id,
+          'writer': 'Jay Cha',
+          'email': 'jaycha@glozinc.com',
+          'jobType' : 'Webcomics',
+          'role' : 'Proofreader',
+          'sourceLanguage': 'EN',
+          'targetLanguage': 'KO',
+          'dueDate': '02/02/2023, 06:20 PM',
+          'numberOfLinguist': 5,
+          'dueDateTimezone': '?',
+          'yearsOfExperience' : '3~5 years',
+          'postLink' : [
+            {
+              'id': 1,
+              'category': 'JobKorea',
+              'link': 'https://jobkorea.com/123123'
+            },
+            {
+              'id': 2,
+              'category': 'Albamon',
+              'link': 'https://albamon.com/123123'
+            },
+          ],
+          'jobPostLink': 'htps://gloz.io/short2',
+          'createdAt' : '02/02/2023, 06:20 PM',
+          'content' : 'a',
+          'view': 23 
+        }
+      }
+      if (req.params.id) return res(ctx.status(200), ctx.json(jobpostingDetailList))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 잡포스팅 요청서
+  rest.post(
+    BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
+      )
+      return res(ctx.status(200), ctx.json({
+        'id':5
+      }))
+      else return res(ctx.status(409), ctx.body(''))
+    }
+  ),
+
+  // 잡포스팅 업데이트
+  rest.patch(
+    BASEURL + '/api/enough/recruiting/jobposting/:id', (req, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
+      )
+      return res(ctx.status(200), ctx.json({
+        'id':req.params.id
+      }))
+      else return res(ctx.status(409), ctx.body(''))
+    }
+  ),
+
+  // 리크루팅 삭제
+  rest.delete(
+    BASEURL + '/api/enough/recruiting/jobposting/:id', (req, res, ctx) => {
+      if (req.params.id) return res(ctx.status(200), ctx.body(''))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
 ]
