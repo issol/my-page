@@ -14,6 +14,7 @@ import { useForm } from 'react-hook-form'
 import TestMaterialList from './components/list/list'
 import { useGetTestMaterialList } from 'src/queries/certification-test/ceritification-test-list.query'
 import TestMaterialFilters from './components/list/filters'
+import { useRouter } from 'next/router'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -24,6 +25,7 @@ const defaultValues: TestMaterialFilterType = {
 }
 
 const CertificationTest = () => {
+  const router = useRouter()
   const [testMaterialListPage, setTestMaterialListPage] = useState<number>(0)
   const [testMaterialListPageSize, setTestMaterialListPageSize] =
     useState<number>(10)
@@ -122,6 +124,7 @@ const CertificationTest = () => {
         testMaterialListPageSize={testMaterialListPageSize}
         setTestMaterialListPageSize={setTestMaterialListPageSize}
         setFilters={setFilters}
+        router={router}
       />
     </Grid>
   )

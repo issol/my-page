@@ -209,9 +209,6 @@ const App = (props: ExtendedAppProps) => {
   // })
 
   //** TODO: QA동안 유지하고 삭제하기 */
-  useEffect(() => {
-    removeAllStorage()
-  }, [])
 
   return (
     <QueryClientProvider client={queryClient}>

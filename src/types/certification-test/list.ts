@@ -19,6 +19,15 @@ export type TestMaterialFilterPayloadType = {
   target: string[]
 }
 
+export type BasicTestExistencePayloadType = {
+  company: string
+  testType: string
+  sourceLanguage?: string
+  targetLanguage: string
+  jobType?: string
+  role?: string
+}
+
 export type TestMaterialListType = {
   id: number
   testType: string

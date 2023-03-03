@@ -12,6 +12,7 @@ import {
   TestMaterialListType,
 } from 'src/types/certification-test/list'
 import { materialColumns } from 'src/shared/const/certification-test'
+import { NextRouter } from 'next/router'
 
 type Props = {
   testMaterialListPage: number
@@ -20,6 +21,7 @@ type Props = {
   setTestMaterialListPageSize: Dispatch<SetStateAction<number>>
   testMaterialList: { data: TestMaterialListType[]; count: number }
   setFilters: any
+  router: NextRouter
 }
 
 export default function TestMaterialList({
@@ -29,6 +31,7 @@ export default function TestMaterialList({
   setTestMaterialListPageSize,
   testMaterialList,
   setFilters,
+  router,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -45,7 +48,16 @@ export default function TestMaterialList({
           <Typography variant='h6'>
             {`Test materials (${testMaterialList.count})`}
           </Typography>
-          <Button variant='contained' size='medium'>
+          <Button
+            variant='contained'
+            size='medium'
+            onClick={() => {
+              router.push({
+                pathname: '/certification-test/post',
+                query: { edit: JSON.stringify(false) },
+              })
+            }}
+          >
             Create new test
           </Button>
         </Box>
@@ -59,6 +71,7 @@ export default function TestMaterialList({
           }}
         >
           <DataGrid
+            sx={{ cursor: 'pointer' }}
             components={{
               NoRowsOverlay: () => {
                 return (
@@ -99,11 +112,14 @@ export default function TestMaterialList({
             rows={testMaterialList.data ?? []}
             paginationMode={'server'}
             autoHeight
-            disableSelectionOnClick
+            // disableSelectionOnClick
             pageSize={testMaterialListPageSize}
             rowsPerPageOptions={[10, 25, 50]}
             page={testMaterialListPage}
             rowCount={testMaterialList.count}
+            onCellClick={params => {
+              router.push(`/certification-test/detail/${params.row.id}`)
+            }}
             onPageChange={(newPage: number) => {
               setFilters((prevState: TestMaterialFilterPayloadType) => ({
                 ...prevState,

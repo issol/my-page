@@ -1,5 +1,6 @@
 import { rest } from 'msw'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+import { TestDetailType } from 'src/types/certification-test/detail'
 
 import { Book, Review } from './types'
 
@@ -435,5 +436,143 @@ export const handlers = [
       }),
     )
     // return res(ctx.status(200), ctx.json())
+  }),
+
+  rest.get(BASEURL + '/api/enough/cert/test/paper/:id', (req, res, ctx) => {
+    const id = req.params.id
+    const detail: TestDetailType = {
+      currentVersion: {
+        id: Number(id),
+        userId: 12345,
+        writer: 'Jay Lee',
+        email: 'jay@glozinc.com',
+        testType: 'basic',
+        jobType: 'Webnovel',
+        version: 3,
+        role: 'Webnovel QCer',
+        source: 'ko',
+        target: 'en',
+        googleFormLink:
+          'https://docs.google.com/forms/d/1tDrCHba9B4fted__MbMvkPH-t1DlvuURoq5wgaoh0k8/viewform?edit_requested=true',
+
+        updatedAt: '2023-02-10T07:33:53.740Z',
+        content: {
+          blocks: [
+            {
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+            {
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
+        files: [
+          { id: 1, name: 'file1.docx', size: 34876123, fileKey: '' },
+          { id: 2, name: 'file2.xlsx', size: 25161, fileKey: '' },
+        ],
+      },
+      versionHistory: [
+        {
+          id: 2,
+          userId: 12345,
+          writer: 'Jay Lee',
+          email: 'jay@glozinc.com',
+          testType: 'basic',
+          jobType: 'Webnovel',
+          role: 'Webnovel QCer',
+          version: 2,
+          source: 'ko',
+          target: 'en',
+          googleFormLink:
+            'https://docs.google.com/forms/d/1tDrCHba9B4fted__MbMvkPH-t1DlvuURoq5wgaoh0k8/viewform?edit_requested=true',
+
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: '5678translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: '5678Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+          updatedAt: '2023-02-10T07:33:53.740Z',
+          files: [
+            { id: 1, name: 'file1.docx', size: 34876123, fileKey: '' },
+            { id: 2, name: 'file2.xlsx', size: 25161, fileKey: '' },
+          ],
+        },
+        {
+          id: 1,
+          userId: 12345,
+          writer: 'Jay Lee',
+          email: 'jay@glozinc.com',
+          testType: 'basic',
+          jobType: 'Webnovel',
+          role: 'Webnovel QCer',
+          googleFormLink:
+            'https://docs.google.com/forms/d/1tDrCHba9B4fted__MbMvkPH-t1DlvuURoq5wgaoh0k8/viewform?edit_requested=true',
+          version: 1,
+          source: 'ko',
+          target: 'en',
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: '1234translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: '1234Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+
+          updatedAt: '2023-02-10T07:31:53.740Z',
+          files: [
+            { id: 1, name: 'file1.docx', size: 34876123, fileKey: '' },
+            { id: 2, name: 'file2.xlsx', size: 25161, fileKey: '' },
+          ],
+        },
+      ],
+    }
+    return res(ctx.status(200), ctx.json(detail))
   }),
 ]
