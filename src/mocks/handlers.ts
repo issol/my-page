@@ -1,4 +1,4 @@
-import { OnboardingProDetailsType } from '@src/types/onboarding/details'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { rest } from 'msw'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
