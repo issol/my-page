@@ -61,7 +61,15 @@ export default function CertificationTest({
     }
   }
   return (
-    <Card sx={{ padding: '20px' }}>
+    <Card
+      sx={{
+        padding: '20px',
+        background:
+          selectedJobInfo && selectedJobInfo.testStatus === 'Paused'
+            ? 'rgba(76, 78, 100, 0.12);'
+            : '#ffffff',
+      }}
+    >
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
       {selectedJobInfo &&
       selectedJobInfo.testStatus !== 'Awaiting assignment' &&
@@ -331,6 +339,7 @@ export default function CertificationTest({
                           }
                           /* @ts-ignore */
                           customcolor={
+                            /* @ts-ignore */
                             TestStatusColor[
                               selectedJobInfo.testStatus ===
                                 'Test in progress' ||
@@ -340,7 +349,7 @@ export default function CertificationTest({
                               selectedJobInfo.testStatus === 'Review completed'
                                 ? selectedJobInfo.testStatus
                                 : 'default'
-                            ]
+                            ] //@ts-ignore
                           }
                           sx={{
                             textTransform: 'capitalize',
