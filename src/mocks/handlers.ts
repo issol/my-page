@@ -1,3 +1,4 @@
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { rest } from 'msw'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
@@ -925,5 +926,67 @@ export const handlers = [
       ],
     }
     return res(ctx.status(200), ctx.json(detail))
+  }),
+
+  rest.get(BASEURL + '/api/enough/onboard/user/:id', (req, res, ctx) => {
+    const details: OnboardingProDetailsType = {
+      id: 'P-000001',
+      userId: 12,
+      firstName: 'leriel',
+      middleName: 'mike',
+      lastName: 'Kim',
+      experience: '3-5 years',
+      isActive: true,
+      isOnboarded: false,
+      legalNamePronunciation: 'Leriel Kim',
+      pronounce: 'HE',
+      preferredName: 'Lel',
+      preferredNamePronunciation: 'rel',
+      jobInfo: [],
+      email: 'leriel@glozinc.com',
+      timezone: {
+        phone: '82',
+        code: 'KR',
+        label: 'Asia/Seoul',
+      },
+      mobile: '01038088637',
+      phone: '63377335',
+      specialties: [
+        'Cooking/Food&Drink',
+        'Health(Mental and physical)',
+        'Sports',
+        'Beauty/Fashion',
+        'Music/Entertainment',
+        'Nature',
+        'Travel',
+        'Science/Engineering',
+      ],
+      notesFromUser: 'hi',
+      resume: [],
+      contracts: [],
+      commentsOnPro: [
+        {
+          id: 0,
+          userId: 1,
+          firstName: 'Jay',
+          middleName: null,
+          lastName: 'Lee',
+          email: 'jay@glozinc.com',
+          createdAt: '2022-04-27T14:13:15Z',
+          updatedAt: '2023-01-13T21:40:10Z',
+          comment:
+            'Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.',
+        },
+      ],
+      corporationId: 'P-000001',
+      createdAt: '2022-04-27T14:13:15Z',
+      updatedAt: '2022-04-27T14:13:15Z',
+      deletedAt: null,
+      fromSNS: false,
+      havePreferredName: true,
+      company: 'GloZ',
+    }
+
+    return res(ctx.status(200), ctx.json(details))
   }),
 ]

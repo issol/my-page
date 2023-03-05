@@ -245,3 +245,13 @@ export const RejectReason = {
     'Thank you for your interest, however, we are not currently recruiting the role/language pair you have applied for.\nWe are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so please do not hesitate to contact tad@glozinc.com for more information.\n- TAD Onboarding Team',
   Others: '',
 }
+
+export const PauseReason = {
+  'Recruitment is not currently needed for this role.':
+    'Thank you for your interest, however, we are not currently recruiting the role/language pair at this time and have paused your application process.\nWe are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so we will resume your process once more projects roll in!\n- TAD Onboarding Team',
+  'Too many applicants for this role.':
+    'Thank you for your interest, however, all roles for the language pair have been filled at this time. We are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so we will resume your process once more projects roll in!\n- TAD Onboarding Team',
+  'Project is not confirmed yet.':
+    'Thank you for applying for this role, however, the project you were offered is on-hold or has not been confirmed yet. Please note that we are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so we will resume your process as soon as we can!\n- TAD Onboarding Team',
+  Others: '',
+}

@@ -621,16 +621,22 @@ const TestMaterialPost = () => {
               : postTestMutation.mutate(finalValue)
             // guidelineMutation.mutate(finalValue)
           })
-          .catch(err =>
+          .catch(err => {
+            isFetched
+              ? patchTestMutation.mutate(patchValue)
+              : postTestMutation.mutate(finalValue)
             toast.error(
               'Something went wrong while uploading files. Please try again.',
               {
                 position: 'bottom-left',
               },
-            ),
-          )
+            )
+          })
       })
     } else {
+      isFetched
+      ? patchTestMutation.mutate(patchValue)
+      : postTestMutation.mutate(finalValue)
       // guidelineMutation.mutate(finalValue)
     }
   }

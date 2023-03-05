@@ -688,7 +688,9 @@ const CertificationTestDetail = () => {
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
                   <Typography variant='h6'>Test guideline</Typography>
-                  <Box sx={{ display: 'flex', gap: '8px' }}>
+                  <Box
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  >
                     <Writer label='Writer' size='small' />
                     {user?.username === currentVersion?.writer ? (
                       <Typography

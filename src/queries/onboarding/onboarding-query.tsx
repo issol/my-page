@@ -2,6 +2,7 @@ import { useQuery } from 'react-query'
 
 import {
   getAppliedRole,
+  getCertifiedRole,
   getOnboardingProDetails,
   getOnboardingProList,
   getOnboardingStatistic,
@@ -15,6 +16,7 @@ import {
 } from 'src/types/onboarding/list'
 import {
   AppliedRoleType,
+  CertifiedRoleType,
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 
@@ -153,6 +155,18 @@ export const useGetAppliedRole = (id: number) => {
   return useQuery<Array<AppliedRoleType>>(
     `applied-role-${id}`,
     () => getAppliedRole(id),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+      enabled: !!id,
+    },
+  )
+}
+
+export const useGetCertifiedRole = (id: number) => {
+  return useQuery<Array<CertifiedRoleType>>(
+    `certified-role-${id}`,
+    () => getCertifiedRole(id),
     {
       staleTime: 60 * 1000,
       suspense: true,
