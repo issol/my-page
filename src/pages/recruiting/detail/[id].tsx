@@ -161,17 +161,18 @@ const RecruitingDetail = () => {
           >
             {value ?? '-'}
             {label === 'Job posting link' && (
-              <IconButton>
+              <IconButton
+                onClick={() => {
+                  if (typeof window === 'object') {
+                    window.open(value as string)
+                  }
+                }}
+              >
                 <Icon
                   icon='material-symbols:open-in-new'
                   opacity={0.7}
                   fontSize='1.3rem'
                   cursor='pointer'
-                  onClick={() => {
-                    if (typeof window === 'object') {
-                      window.open(value as string)
-                    }
-                  }}
                 />
               </IconButton>
             )}

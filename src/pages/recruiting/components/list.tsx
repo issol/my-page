@@ -238,7 +238,6 @@ export default function RecruitingList({
               NoResultsOverlay: () => noData(),
             }}
             getRowClassName={params => {
-              console.log('params:', params.row.isHide)
               return params.row.isHide ? 'hide' : ''
             }}
             onRowClick={e => moveToDetail(e)}

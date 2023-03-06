@@ -188,7 +188,7 @@ export default function Filters({
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={4} md={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
                     autoHighlight
@@ -220,7 +220,7 @@ export default function Filters({
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={4} md={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
                     autoHighlight
@@ -252,7 +252,7 @@ export default function Filters({
                   />
                 </FormControl>
               </Grid>
-              <Grid item xs={12} sm={4} md={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <DatePickerWrapper>
                     <CustomDatePicker
