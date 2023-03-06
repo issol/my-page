@@ -15,8 +15,9 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
 import { TestStatus } from 'src/shared/const/personalInfo'
+import { useState, useEffect } from 'react'
 
 type Props = {
   userInfo: Array<AppliedRoleType>
@@ -32,7 +33,7 @@ type Props = {
   handleChangePage: (direction: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
   onClickResumeTest: (jobInfo: AppliedRoleType) => void
-  onClickAction: (jobInfoId: number, status: string) => void
+  onClickTestAssign: (jobInfo: AppliedRoleType) => void
   onClickAddRole: () => void
   onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
   onClickReason: (type: string, message: string, reason: string) => void
@@ -49,27 +50,17 @@ export default function AppliedRole({
   rowsPerPage,
   handleChangePage,
   onClickCertify,
-  onClickAction,
+  onClickTestAssign,
   onClickResumeTest,
   onClickAddRole,
   onClickRejectOrPause,
   onClickReason,
 }: Props) {
-  const verifiedNoTest = (jobInfo: AppliedRoleType) => {
-    const noBasic = jobInfo!.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'basic',
-    )
-    const noSkill = jobInfo!.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'skill',
-    )
-    if ((noBasic && noSkill) || (!noBasic && noSkill)) {
-      return true
-    } else {
-      return false
-    }
-  }
   const getStatusButton = (jobInfo: AppliedRoleType) => {
-    if (jobInfo.testStatus === 'Awaiting assignment') {
+    const basicTest = jobInfo.test.find(value => value.testType === 'basic')
+    const skillTest = jobInfo.test.find(value => value.testType === 'skill')
+
+    if (jobInfo.requestStatus === 'Awaiting assignment') {
       if (
         jobInfo.role === 'DTPer' ||
         jobInfo.role === 'DTP QCer' ||
@@ -128,7 +119,7 @@ export default function AppliedRole({
                 fullWidth
                 variant='contained'
                 onClick={() => {
-                  onClickAction(jobInfo.id, 'Awaiting assignment')
+                  onClickTestAssign(jobInfo)
                 }}
               >
                 Assign test
@@ -154,16 +145,18 @@ export default function AppliedRole({
               color: '#E04440',
             },
           }}
-          startIcon={
-            <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
-          }
+          // startIcon={
+          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
+          // }
         >
           Failed
         </Button>
       )
     } else if (
-      jobInfo.testStatus === 'Basic in progress' ||
-      jobInfo.testStatus === 'Basic passed'
+      basicTest &&
+      (basicTest!.status === 'Basic in progress' ||
+        basicTest!.status === 'Basic submitted' ||
+        basicTest!.status === 'Basic passed')
     ) {
       return (
         <Button
@@ -178,21 +171,23 @@ export default function AppliedRole({
               color: '#DF9F23',
             },
           }}
-          startIcon={
-            <img
-              src='/images/icons/onboarding-icons/general-in-progress.svg'
-              alt='in-progress'
-            />
-          }
+          // startIcon={
+          //   <img
+          //     src='/images/icons/onboarding-icons/general-in-progress.svg'
+          //     alt='in-progress'
+          //   />
+          // }
         >
           Basic test in progress
         </Button>
       )
     } else if (
-      jobInfo.testStatus === 'Skill in progress' ||
-      jobInfo.testStatus === 'Skill submitted' ||
-      jobInfo.testStatus === 'Reviewing' ||
-      jobInfo.testStatus === 'Review completed'
+      skillTest &&
+      (skillTest!.status === 'Skill in progress' ||
+        skillTest!.status === 'Skill submitted' ||
+        skillTest!.status === 'Reviewing' ||
+        skillTest!.status === 'Review completed' ||
+        skillTest!.status === 'Review canceled')
     ) {
       return (
         <Button
@@ -200,11 +195,6 @@ export default function AppliedRole({
           variant='contained'
           disabled
           sx={{
-            background:
-              'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF',
-            border: ' 1px solid #666CFF',
-            color: '#666CFF',
-
             '&.Mui-disabled': {
               background:
                 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF',
@@ -212,17 +202,17 @@ export default function AppliedRole({
               color: '#666CFF',
             },
           }}
-          startIcon={
-            <img
-              src='/images/icons/onboarding-icons/test-in-progress.svg'
-              alt='in-progress'
-            />
-          }
+          // startIcon={
+          //   <img
+          //     src='/images/icons/onboarding-icons/test-in-progress.svg'
+          //     alt='in-progress'
+          //   />
+          // }
         >
           Skill test in progress
         </Button>
       )
-    } else if (jobInfo.testStatus === 'Test assigned') {
+    } else if (jobInfo.requestStatus === 'Test assigned') {
       return (
         <Button
           fullWidth
@@ -236,17 +226,22 @@ export default function AppliedRole({
               color: '#64C623',
             },
           }}
-          startIcon={
-            <img
-              src='/images/icons/onboarding-icons/test-assigned.svg'
-              alt='test-assigned'
-            />
-          }
+          // startIcon={
+          //   <img
+          //     src='/images/icons/onboarding-icons/test-assigned.svg'
+          //     alt='test-assigned'
+          //   />
+          // }
         >
           Test assigned
         </Button>
       )
-    } else if (verifiedNoTest(jobInfo)) {
+    } else if (
+      basicTest &&
+      skillTest &&
+      ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
+        (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+    ) {
       if (
         jobInfo.role === 'DTPer' ||
         jobInfo.role === 'DTP QCer' ||
@@ -300,6 +295,48 @@ export default function AppliedRole({
           </Button>
         )
       }
+    } else if (jobInfo.requestStatus === 'Rejected') {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background:
+                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+              border: '1px solid rgba(255, 77, 73, 0.5)',
+              color: '#E04440',
+            },
+          }}
+          // startIcon={
+          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
+          // }
+        >
+          Rejected
+        </Button>
+      )
+    } else if (jobInfo.requestStatus === 'Paused') {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background:
+                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49',
+              border: '1px solid rgba(255, 77, 73, 0.5)',
+              color: '#E04440',
+            },
+          }}
+          // startIcon={
+          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
+          // }
+        >
+          Paused
+        </Button>
+      )
     } else {
       return <Typography></Typography>
     }
@@ -423,7 +460,9 @@ export default function AppliedRole({
                             gap: 2,
                           }}
                         >
-                          {value.testStatus === 'Test assigned' ? (
+                          {value.requestStatus !== 'Awaiting assignment' &&
+                          value.requestStatus !== 'Paused' &&
+                          value.requestStatus !== 'Rejected' ? (
                             <Button
                               variant='outlined'
                               size='small'
@@ -435,7 +474,7 @@ export default function AppliedRole({
                             >
                               Pause
                             </Button>
-                          ) : value.testStatus === 'Paused' ? (
+                          ) : value.requestStatus === 'Paused' ? (
                             <Button
                               variant='outlined'
                               size='small'
@@ -448,8 +487,8 @@ export default function AppliedRole({
                               Resume
                             </Button>
                           ) : null}
-                          {value.testStatus === 'Rejected' ||
-                          value.testStatus === 'Paused' ? (
+                          {value.requestStatus === 'Rejected' ||
+                          value.requestStatus === 'Paused' ? (
                             <Box
                               sx={{
                                 width: '20px',
