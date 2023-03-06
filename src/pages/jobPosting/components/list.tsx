@@ -204,7 +204,7 @@ export default function JobPostingList({
           }
         />
         <Box>
-          {/* <DataGrid
+          <DataGrid
             autoHeight
             components={{
               NoRowsOverlay: () => noData(),
@@ -222,7 +222,7 @@ export default function JobPostingList({
             onPageChange={setSkip}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             columns={columns}
-          /> */}
+          />
         </Box>
       </Card>
     </Grid>

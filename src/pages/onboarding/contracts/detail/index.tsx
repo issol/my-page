@@ -102,6 +102,12 @@ const ContractDetail = () => {
     language,
   })
 
+  useEffect(() => {
+    if (type && language) {
+      refetch()
+    }
+  }, [type, language])
+
   const { currentVersion: contract } = data || {
     documentId: null,
     userId: null,

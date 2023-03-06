@@ -26,13 +26,14 @@ export const useGetJobPostingList = (
   )
 }
 
-export const useGetJobPostingDetail = (id: number) => {
+export const useGetJobPostingDetail = (id: number, enabled: boolean) => {
   return useQuery(
     'get-jobPosting/detail',
     () => {
       return getJobPostingDetail(id)
     },
     {
+      enabled: enabled,
       suspense: true,
       useErrorBoundary: false,
     },

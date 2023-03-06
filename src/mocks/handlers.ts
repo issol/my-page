@@ -287,9 +287,186 @@ export const handlers = [
       return res(ctx.status(200), ctx.body(req.params.fileId))
     },
   ),
-  // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
-  //   return res(ctx.status(200), ctx.json(onboardingUser))
-  // }),
+
+  // 잡포스팅 리스트 가져오기
+  rest.get(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
+    console.log('req :::::::', req)
+    const jobpostingList = {
+      data: [
+        {
+          id: 1,
+          status: 'Ongoing',
+          client: 'Netflix',
+          jobType: 'Webcomics',
+          role: 'Proofreader',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
+          yearsOfExperience: '3~5 years',
+          tadName: 'Bon',
+          dueAt: '02/02/2023, 06:20 PM',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'htps://gloz.io/short2',
+          openings: 2,
+          view: 23,
+        },
+        {
+          id: 2,
+          status: 'Ongoing',
+          client: 'Netflix',
+          jobType: 'Webcomics',
+          role: 'Proofreader',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
+          yearsOfExperience: '10+ years',
+          tadName: 'Ethan',
+          dueAt: '02/02/2023, 06:20 PM',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'htps://gloz.io/short2',
+          openings: 5,
+          view: 28239,
+        },
+      ],
+      count: 2,
+    }
+    // if (
+    //   req.url.searchParams.get('jobType') &&
+    //   req.url.searchParams.get('role') &&
+    //   req.url.searchParams.get('source') &&
+    //   req.url.searchParams.get('target') &&
+    //   req.url.searchParams.get('yearsOfExperience') &&
+    //   req.url.searchParams.get('dueAt') &&
+    //   req.url.searchParams.get('take') &&
+    //   req.url.searchParams.get('skip')
+    // )
+    //   return
+    res(ctx.status(200), ctx.json(jobpostingList))
+    // else return res(ctx.status(409), ctx.body(''))
+  }),
+
+  // 잡포스팅 디테일 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/jobposting/:id',
+    (req, res, ctx) => {
+      const jobpostingDetailList = {
+        id: Number(req.params.id),
+        writer: 'Jay Cha',
+        email: 'jaycha@glozinc.com',
+        jobType: 'Webcomics',
+        role: 'Proofreader',
+        status: 'Not started',
+        sourceLanguage: 'en',
+        targetLanguage: 'ko',
+        dueDate: '02/02/2023, 06:20 PM',
+        numberOfLinguist: 5,
+        dueDateTimezone: '?',
+        yearsOfExperience: '3~5 years',
+        postLink: [
+          {
+            id: 1,
+            category: 'JobKorea',
+            link: 'https://jobkorea.com/123123',
+          },
+          {
+            id: 2,
+            category: 'Albamon',
+            link: 'https://albamon.com/123123',
+          },
+        ],
+        jobPostLink: 'htps://gloz.io/short2',
+        createdAt: '02/02/2023, 06:20 PM',
+        content: {
+          blocks: [
+            {
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+            {
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
+        view: 23,
+      }
+      if (req.params.id)
+        return res(ctx.status(200), ctx.json(jobpostingDetailList))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 잡포스팅 요청서
+  rest.post(
+    BASEURL + '/api/enough/recruiting/jobposting',
+    (req: any, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
+      )
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: 5,
+          }),
+        )
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 잡포스팅 업데이트
+  rest.patch(
+    BASEURL + '/api/enough/recruiting/jobposting/:id',
+    (req: any, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
+      )
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: req.params.id,
+          }),
+        )
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
+
+  // 리크루팅 삭제
+  rest.delete(
+    BASEURL + '/api/enough/recruiting/jobposting/:id',
+    (req, res, ctx) => {
+      if (req.params.id) return res(ctx.status(200), ctx.body(''))
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
 
   // Recruiting
   // 리크루팅 리스트 가져오기
@@ -557,159 +734,6 @@ export const handlers = [
     if (req.params.id) return res(ctx.status(200), ctx.body(''))
     else return res(ctx.status(409), ctx.body(''))
   }),
-
-  // 잡포스팅 리스트 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
-    const jobpostingList = {
-      data: [
-        {
-          id: 1,
-          status: 'Ongoing',
-          client: 'Netflix',
-          jobType: 'Webcomics',
-          role: 'Proofreader',
-          sourceLanguage: 'en',
-          targetLanguage: 'ko',
-          yearsOfExperience: '3~5 years',
-          tadName: 'Bon',
-          dueAt: '02/02/2023, 06:20 PM',
-          openings: 2,
-          view: 23,
-        },
-        {
-          id: 2,
-          status: 'Ongoing',
-          client: 'Netflix',
-          jobType: 'Webcomics',
-          role: 'Proofreader',
-          sourceLanguage: 'en',
-          targetLanguage: 'ko',
-          yearsOfExperience: '10+ years',
-          tadName: 'Ethan',
-          dueAt: '02/02/2023, 06:20 PM',
-          openings: 5,
-          view: 28239,
-        },
-      ],
-      count: 2,
-    }
-    if (
-      req.url.searchParams.get('jobType') &&
-      req.url.searchParams.get('role') &&
-      req.url.searchParams.get('source') &&
-      req.url.searchParams.get('target') &&
-      req.url.searchParams.get('yearsOfExperience') &&
-      req.url.searchParams.get('dueAt') &&
-      req.url.searchParams.get('take') &&
-      req.url.searchParams.get('skip')
-    )
-      return res(ctx.status(200), ctx.json(jobpostingList))
-    else return res(ctx.status(409), ctx.body(''))
-  }),
-
-  // 잡포스팅 디테일 가져오기
-  rest.get(
-    BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
-      const jobpostingDetailList = {
-        data: {
-          id: req.params.id,
-          writer: 'Jay Cha',
-          email: 'jaycha@glozinc.com',
-          jobType: 'Webcomics',
-          role: 'Proofreader',
-          sourceLanguage: 'en',
-          targetLanguage: 'ko',
-          dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 5,
-          dueDateTimezone: '?',
-          yearsOfExperience: '3~5 years',
-          postLink: [
-            {
-              id: 1,
-              category: 'JobKorea',
-              link: 'https://jobkorea.com/123123',
-            },
-            {
-              id: 2,
-              category: 'Albamon',
-              link: 'https://albamon.com/123123',
-            },
-          ],
-          jobPostLink: 'htps://gloz.io/short2',
-          createdAt: '02/02/2023, 06:20 PM',
-          content: 'a',
-          view: 23,
-        },
-      }
-      if (req.params.id)
-        return res(ctx.status(200), ctx.json(jobpostingDetailList))
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
-
-  // 잡포스팅 요청서
-  rest.post(
-    BASEURL + '/api/enough/recruiting/jobposting',
-    (req: any, res, ctx) => {
-      if (
-        req.body?.status &&
-        req.body?.jobType &&
-        req.body?.role &&
-        req.body?.sourceLanguage &&
-        req.body?.targetLanguage &&
-        req.body?.yearsOfExperience &&
-        req.body?.numberOfLinguist &&
-        req.body?.dueDate &&
-        req.body?.dueDateTimezone &&
-        req.body?.postLink &&
-        req.body?.content
-      )
-        return res(
-          ctx.status(200),
-          ctx.json({
-            id: 5,
-          }),
-        )
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
-
-  // 잡포스팅 업데이트
-  rest.patch(
-    BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req: any, res, ctx) => {
-      if (
-        req.body?.status &&
-        req.body?.jobType &&
-        req.body?.role &&
-        req.body?.sourceLanguage &&
-        req.body?.targetLanguage &&
-        req.body?.yearsOfExperience &&
-        req.body?.numberOfLinguist &&
-        req.body?.dueDate &&
-        req.body?.dueDateTimezone &&
-        req.body?.postLink &&
-        req.body?.content
-      )
-        return res(
-          ctx.status(200),
-          ctx.json({
-            id: req.params.id,
-          }),
-        )
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
-
-  // 리크루팅 삭제
-  rest.delete(
-    BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
-      if (req.params.id) return res(ctx.status(200), ctx.body(''))
-      else return res(ctx.status(409), ctx.body(''))
-    },
-  ),
 
   rest.get(BASEURL + '/api/enough/cert/test/paper', (req, res, ctx) => {
     interface Data {

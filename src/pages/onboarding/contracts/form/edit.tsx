@@ -61,10 +61,16 @@ const ContractForm = () => {
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
-  const { data } = useGetContract({
+  const { data, refetch } = useGetContract({
     type,
     language,
   })
+
+  useEffect(() => {
+    if (type && language) {
+      refetch()
+    }
+  }, [type, language])
 
   const { currentVersion: contract } = data || {
     documentId: null,

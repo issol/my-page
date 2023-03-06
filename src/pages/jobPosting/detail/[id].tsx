@@ -63,6 +63,7 @@ import { useMutation } from 'react-query'
 
 // ** types
 import { CurrentHistoryType } from 'src/apis/recruiting.api'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type CellType = {
   row: CurrentHistoryType
@@ -70,7 +71,7 @@ type CellType = {
 
 const JobPostingDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query.id)
 
   const [content, setContent] = useState(EditorState.createEmpty())
 
@@ -80,12 +81,15 @@ const JobPostingDetail = () => {
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
-    Number(id),
+    id,
+    false,
   )
 
-  if (isError) {
-    return <EmptyPost />
-  }
+  useEffect(() => {
+    if (!Number.isNaN(id)) {
+      refetch()
+    }
+  }, [id])
 
   const isWriter =
     ability.can('update', 'job_posting') && data?.email === user?.email!
@@ -217,7 +221,7 @@ const JobPostingDetail = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              deleteMutation.mutate(Number(id))
+              deleteMutation.mutate(id)
             }}
           >
             Delete
@@ -232,172 +236,189 @@ const JobPostingDetail = () => {
   }
 
   return (
-    <StyledViewer style={{ margin: '0 70px' }}>
-      <PageHeader
-        title={
-          <Box display='flex' alignItems='center' gap='8px'>
-            <Icon
-              icon='material-symbols:arrow-back-ios-new'
-              style={{ cursor: 'pointer' }}
-              onClick={() => router.back()}
-            />
-            <Typography variant='h5'>Job posting list</Typography>
-          </Box>
-        }
-      />
-
-      <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
-        <Grid item md={9} xs={12}>
-          <Card sx={{ padding: '30px 20px 20px' }}>
-            <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Box display='flex' gap='10px'>
-                <CustomChip
-                  label={data?.id}
-                  skin='light'
-                  color='primary'
-                  size='small'
+    <>
+      {!data ? (
+        <FallbackSpinner />
+      ) : isError ? (
+        <EmptyPost />
+      ) : (
+        <StyledViewer style={{ margin: '0 70px' }}>
+          <PageHeader
+            title={
+              <Box display='flex' alignItems='center' gap='8px'>
+                <Icon
+                  icon='material-symbols:arrow-back-ios-new'
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => router.back()}
                 />
-
-                {renderStatusChip(data?.status!)}
+                <Typography variant='h5'>Job posting list</Typography>
               </Box>
+            }
+          />
 
-              <Box display='flex' flexDirection='column' gap='8px'>
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <CustomChip
-                    label='Writer'
-                    skin='light'
-                    color='error'
-                    size='small'
-                  />
-                  <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    color={`${user?.email === data?.email ? 'primary' : ''}`}
-                  >
-                    {data?.writer}
-                  </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>{data?.email}</Typography>
+          <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
+            <Grid item md={9} xs={12}>
+              <Card sx={{ padding: '30px 20px 20px' }}>
+                <Box display='flex' justifyContent='space-between' mb='26px'>
+                  <Box display='flex' gap='10px'>
+                    <CustomChip
+                      label={data?.id}
+                      skin='light'
+                      color='primary'
+                      size='small'
+                    />
+
+                    {renderStatusChip(data?.status!)}
+                  </Box>
+
+                  <Box display='flex' flexDirection='column' gap='8px'>
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <CustomChip
+                        label='Writer'
+                        skin='light'
+                        color='error'
+                        size='small'
+                      />
+                      <Typography
+                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        color={`${
+                          user?.email === data?.email ? 'primary' : ''
+                        }`}
+                      >
+                        {data?.writer}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>{data?.email}</Typography>
+                    </Box>
+                    <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                      {FullDateTimezoneHelper(data?.createdAt)}
+                    </Typography>
+                  </Box>
                 </Box>
-                <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(data?.createdAt)}
-                </Typography>
-              </Box>
-            </Box>
-            <Divider />
-            <Grid container spacing={12} pt='10px'>
-              <Grid item xs={5}>
-                {renderTable('Job type', data?.jobType)}
-                {renderTable(
-                  'Source language',
-                  data?.sourceLanguage.toUpperCase(),
-                )}
-              </Grid>
-              <Grid item xs={7}>
-                {renderTable('Role', data?.role)}
-                {renderTable(
-                  'Target language',
-                  data?.targetLanguage.toUpperCase(),
-                )}
-              </Grid>
-            </Grid>
+                <Divider />
+                <Grid container spacing={12} pt='10px'>
+                  <Grid item xs={5}>
+                    {renderTable('Job type', data?.jobType)}
+                    {renderTable(
+                      'Source language',
+                      data?.sourceLanguage?.toUpperCase(),
+                    )}
+                  </Grid>
+                  <Grid item xs={7}>
+                    {renderTable('Role', data?.role)}
+                    {renderTable(
+                      'Target language',
+                      data?.targetLanguage?.toUpperCase(),
+                    )}
+                  </Grid>
+                </Grid>
 
-            <Divider />
-            <Grid container spacing={12} pt='10px'>
-              <Grid item xs={5}>
-                {renderTable('Number of linguist', data?.numberOfLinguist)}
-                {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
-                {renderTable('Job post link', data?.jobPostLink)}
-              </Grid>
-              <Grid item xs={7}>
-                {renderTable('Years of experience', data?.yearsOfExperience)}
-                {renderTable(
-                  'Due date timezone',
-                  getGmtTime(data?.dueDateTimezone),
-                )}
-              </Grid>
+                <Divider />
+                <Grid container spacing={12} pt='10px'>
+                  <Grid item xs={5}>
+                    {renderTable('Number of linguist', data?.numberOfLinguist)}
+                    {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
+                    {renderTable('Job post link', data?.jobPostLink)}
+                  </Grid>
+                  <Grid item xs={7}>
+                    {renderTable(
+                      'Years of experience',
+                      data?.yearsOfExperience,
+                    )}
+                    {renderTable(
+                      'Due date timezone',
+                      getGmtTime(data?.dueDateTimezone),
+                    )}
+                  </Grid>
+                </Grid>
+                <Divider />
+                <ReactDraftWysiwyg editorState={content} readOnly={true} />
+              </Card>
             </Grid>
-            <Divider />
-            <ReactDraftWysiwyg editorState={content} readOnly={true} />
-          </Card>
-        </Grid>
-        <Grid item md={3} xs={12}>
-          <Card style={{ height: '565px', overflow: 'scroll' }}>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Box display='flex' justifyContent='space-between'>
-                <Typography
+            <Grid item md={3} xs={12}>
+              <Card style={{ height: '565px', overflow: 'scroll' }}>
+                <Box
                   sx={{
+                    padding: '20px',
                     display: 'flex',
-                    alignItems: 'center',
-                    gap: '8px',
-                    fontWeight: 600,
-                    fontSize: '14px',
+                    flexDirection: 'column',
+                    gap: '12px',
                   }}
                 >
-                  <Icon icon='material-symbols:link' opacity={0.7} />
-                  Link*
-                </Typography>
-                <Typography variant='body2'>
-                  {data?.postLink?.length || 0}/15
-                </Typography>
-              </Box>
+                  <Box display='flex' justifyContent='space-between'>
+                    <Typography
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '8px',
+                        fontWeight: 600,
+                        fontSize: '14px',
+                      }}
+                    >
+                      <Icon icon='material-symbols:link' opacity={0.7} />
+                      Link*
+                    </Typography>
+                    <Typography variant='body2'>
+                      {data?.postLink?.length || 0}/15
+                    </Typography>
+                  </Box>
 
-              {data?.postLink?.length ? <Divider /> : null}
-              {data?.postLink?.map(item => (
-                <LinkReadOnlyItem
-                  key={item.id}
-                  link={item}
-                  onClick={copyTextOnClick}
-                />
-              ))}
-            </Box>
-          </Card>
-          <Card style={{ marginTop: '24px' }}>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              {isMaster && (
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='mdi:delete-outline' />}
-                  onClick={onDelete}
+                  {data?.postLink?.length ? <Divider /> : null}
+                  {data?.postLink?.map(item => (
+                    <LinkReadOnlyItem
+                      key={item.id}
+                      link={item}
+                      onClick={copyTextOnClick}
+                    />
+                  ))}
+                </Box>
+              </Card>
+              <Card style={{ marginTop: '24px' }}>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
                 >
-                  Delete
-                </Button>
-              )}
+                  {isMaster && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      startIcon={<Icon icon='mdi:delete-outline' />}
+                      onClick={onDelete}
+                    >
+                      Delete
+                    </Button>
+                  )}
 
-              {isMaster || isWriter ? (
-                <Button
-                  variant='contained'
-                  startIcon={<Icon icon='mdi:pencil-outline' />}
-                  onClick={onEdit}
-                >
-                  Edit
-                </Button>
-              ) : null}
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-    </StyledViewer>
+                  {isMaster || isWriter ? (
+                    <Button
+                      variant='contained'
+                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                      onClick={onEdit}
+                    >
+                      Edit
+                    </Button>
+                  ) : null}
+                </Box>
+              </Card>
+            </Grid>
+          </Grid>
+        </StyledViewer>
+      )}
+    </>
   )
 }
 
 export default JobPostingDetail
 
 JobPostingDetail.acl = {
-  action: 'read',
   subject: 'job_posting',
+  action: 'read',
 }

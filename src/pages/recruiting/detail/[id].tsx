@@ -53,6 +53,7 @@ import {
   deleteRecruiting,
   hideRecruiting,
 } from 'src/apis/recruiting.api'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 // ** types
 
@@ -100,12 +101,14 @@ const RecruitingDetail = () => {
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
     id,
-    router.query.id !== undefined,
+    false,
   )
 
-  if (isError) {
-    return <EmptyPost />
-  }
+  useEffect(() => {
+    if (!Number.isNaN(id)) {
+      refetch()
+    }
+  }, [id])
 
   const { currentVersion } = data || { initialValue }
 
@@ -296,284 +299,306 @@ const RecruitingDetail = () => {
   }
 
   return (
-    <StyledViewer style={{ margin: '0 70px' }}>
-      <PageHeader
-        title={
-          <Box display='flex' alignItems='center' gap='8px'>
-            <Icon
-              icon='material-symbols:arrow-back-ios-new'
-              style={{ cursor: 'pointer' }}
-              onClick={() => router.back()}
-            />
-            <Typography variant='h5'>Recruiting info</Typography>
-          </Box>
-        }
-      />
+    <>
+      {!data ? (
+        <FallbackSpinner />
+      ) : isError ? (
+        <EmptyPost />
+      ) : (
+        <StyledViewer style={{ margin: '0 70px' }}>
+          <PageHeader
+            title={
+              <Box display='flex' alignItems='center' gap='8px'>
+                <Icon
+                  icon='material-symbols:arrow-back-ios-new'
+                  style={{ cursor: 'pointer' }}
+                  onClick={() => router.back()}
+                />
+                <Typography variant='h5'>Recruiting info</Typography>
+              </Box>
+            }
+          />
 
-      <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
-        <Grid item md={9} xs={12}>
-          <Card sx={{ padding: '30px 20px 20px' }}>
-            <Box display='flex' justifyContent='space-between' mb='26px'>
-              <CustomChip
-                label={currentVersion?.id}
-                skin='light'
-                color='primary'
-                size='small'
-              />
-
-              <Box display='flex' flexDirection='column' gap='8px'>
-                <Box display='flex' alignItems='center' gap='8px'>
+          <Grid container spacing={6} sx={{ paddingTop: '20px' }}>
+            <Grid item md={9} xs={12}>
+              <Card sx={{ padding: '30px 20px 20px' }}>
+                <Box display='flex' justifyContent='space-between' mb='26px'>
                   <CustomChip
-                    label='Requestor'
+                    label={currentVersion?.id}
                     skin='light'
-                    color='error'
+                    color='primary'
                     size='small'
                   />
-                  <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    color={`${
-                      user?.email === currentVersion?.email ? 'primary' : ''
-                    }`}
-                  >
-                    {currentVersion?.writer}
-                  </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>
-                    {currentVersion?.email}
-                  </Typography>
-                </Box>
-                <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(currentVersion?.createdAt)}
-                </Typography>
-              </Box>
-            </Box>
-            <Divider />
-            <Grid container spacing={12} pt='10px'>
-              <Grid item xs={5}>
-                {renderTable('Status', currentVersion?.status)}
-                {renderTable('Job type', currentVersion?.jobType)}
-                {renderTable(
-                  'Source language',
-                  currentVersion?.sourceLanguage.toUpperCase(),
-                )}
-              </Grid>
-              <Grid item xs={7}>
-                {renderTable('Client', currentVersion?.client)}
-                {renderTable('Role', currentVersion?.role)}
-                {renderTable(
-                  'Target language',
-                  currentVersion?.targetLanguage.toUpperCase(),
-                )}
-              </Grid>
-            </Grid>
 
-            <Divider />
-            <Grid container spacing={12} pt='10px'>
-              <Grid item xs={5}>
-                {renderTable(
-                  'Number of linguist',
-                  currentVersion?.numberOfLinguist,
-                )}
-                {renderTable(
-                  'Due date',
-                  MMDDYYYYHelper(currentVersion?.dueDate),
-                )}
-              </Grid>
-              <Grid item xs={7}>
-                {renderTable('Job posting link', currentVersion?.jobPostLink)}
-                {renderTable(
-                  'Due date timezone',
-                  getGmtTime(currentVersion?.dueDateTimezone),
-                )}
-              </Grid>
-            </Grid>
-            <Divider />
-            <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
-          </Card>
-
-          <Card sx={{ marginTop: '24px', width: '100%' }}>
-            <CardHeader title='Version history' />
-            <Box sx={{ height: '100%' }}>
-              <DataGrid
-                components={{
-                  NoRowsOverlay: () => noHistory(),
-                  NoResultsOverlay: () => noHistory(),
-                }}
-                sx={{
-                  '& .MuiDataGrid-row': { cursor: 'pointer' },
-                }}
-                autoHeight
-                columns={columns}
-                pageSize={pageSize}
-                onPageSizeChange={setPageSize}
-                rowsPerPageOptions={[5, 15, 30]}
-                rowCount={versionHistory?.length || 0}
-                rows={versionHistory || []}
-                onRowClick={onRowClick}
-              />
-            </Box>
-          </Card>
-        </Grid>
-        <Grid item md={3} xs={12}>
-          <Card>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              {isWriter && (
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='clarity:eye-hide-line' />}
-                  onClick={onHide}
-                >
-                  Hide
-                </Button>
-              )}
-              {isMaster && (
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='mdi:delete-outline' />}
-                  onClick={onDelete}
-                >
-                  Delete
-                </Button>
-              )}
-
-              {isMaster || isWriter ? (
-                <Button
-                  variant='contained'
-                  startIcon={<Icon icon='mdi:pencil-outline' />}
-                  onClick={onEdit}
-                >
-                  Edit
-                </Button>
-              ) : (
-                ''
-              )}
-            </Box>
-          </Card>
-        </Grid>
-      </Grid>
-      <Dialog
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        maxWidth='md'
-      >
-        <StyledViewer maxHeight={true}>
-          <Grid
-            container
-            sx={{ padding: '50px 60px 50px' }}
-            justifyContent='center'
-          >
-            <Grid container spacing={6}>
-              <Grid item xs={12}>
-                <Card sx={{ padding: '20px', width: '100%' }}>
-                  <Box display='flex' justifyContent='space-between' mb='26px'>
-                    <CustomChip
-                      label={currentRow?.id}
-                      skin='light'
-                      color='primary'
-                      size='small'
-                    />
-
-                    <Box display='flex' flexDirection='column' gap='8px'>
-                      <Box display='flex' alignItems='center' gap='8px'>
-                        <CustomChip
-                          label='Requestor'
-                          skin='light'
-                          color='error'
-                          size='small'
-                        />
-                        <Typography
-                          sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                        >
-                          {currentRow?.writer}
-                        </Typography>
-                        <Divider
-                          orientation='vertical'
-                          variant='middle'
-                          flexItem
-                        />
-                        <Typography variant='body2'>
-                          {currentRow?.email}
-                        </Typography>
-                      </Box>
+                  <Box display='flex' flexDirection='column' gap='8px'>
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <CustomChip
+                        label='Requestor'
+                        skin='light'
+                        color='error'
+                        size='small'
+                      />
                       <Typography
-                        variant='body2'
-                        sx={{ alignSelf: 'flex-end' }}
+                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        color={`${
+                          user?.email === currentVersion?.email ? 'primary' : ''
+                        }`}
                       >
-                        {FullDateTimezoneHelper(new Date())}
+                        {currentVersion?.writer}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>
+                        {currentVersion?.email}
                       </Typography>
                     </Box>
+                    <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                      {FullDateTimezoneHelper(currentVersion?.createdAt)}
+                    </Typography>
                   </Box>
-                  <Divider />
-                  <Grid container spacing={12} pt='10px'>
-                    <Grid item xs={5}>
-                      {renderTable('Status', currentRow?.status)}
-                      {renderTable('Job type', currentRow?.jobType)}
-                      {renderTable(
-                        'Source language',
-                        currentRow?.sourceLanguage.toUpperCase(),
-                      )}
-                    </Grid>
-                    <Grid item xs={7}>
-                      {renderTable('Client', currentRow?.client)}
-                      {renderTable('Role', currentRow?.role)}
-                      {renderTable(
-                        'Target language',
-                        currentRow?.targetLanguage.toUpperCase(),
-                      )}
-                    </Grid>
+                </Box>
+                <Divider />
+                <Grid container spacing={12} pt='10px'>
+                  <Grid item xs={5}>
+                    {renderTable('Status', currentVersion?.status)}
+                    {renderTable('Job type', currentVersion?.jobType)}
+                    {renderTable(
+                      'Source language',
+                      currentVersion?.sourceLanguage.toUpperCase(),
+                    )}
                   </Grid>
+                  <Grid item xs={7}>
+                    {renderTable('Client', currentVersion?.client)}
+                    {renderTable('Role', currentVersion?.role)}
+                    {renderTable(
+                      'Target language',
+                      currentVersion?.targetLanguage.toUpperCase(),
+                    )}
+                  </Grid>
+                </Grid>
 
-                  <Divider />
-                  <Grid container spacing={12} pt='10px'>
-                    <Grid item xs={5}>
-                      {renderTable(
-                        'Number of linguist',
-                        currentRow?.numberOfLinguist,
-                      )}
-                      {renderTable(
-                        'Due date',
-                        MMDDYYYYHelper(currentRow?.dueDate),
-                      )}
-                    </Grid>
-                    <Grid item xs={7}>
-                      {renderTable('Job posting link', currentRow?.jobPostLink)}
-                      {renderTable(
-                        'Due date timezone',
-                        getGmtTime(currentRow?.dueDateTimezone),
-                      )}
-                    </Grid>
+                <Divider />
+                <Grid container spacing={12} pt='10px'>
+                  <Grid item xs={5}>
+                    {renderTable(
+                      'Number of linguist',
+                      currentVersion?.numberOfLinguist,
+                    )}
+                    {renderTable(
+                      'Due date',
+                      MMDDYYYYHelper(currentVersion?.dueDate),
+                    )}
                   </Grid>
-                  <Divider />
-                  <ReactDraftWysiwyg
-                    editorState={historyContent}
-                    readOnly={true}
+                  <Grid item xs={7}>
+                    {renderTable(
+                      'Job posting link',
+                      currentVersion?.jobPostLink,
+                    )}
+                    {renderTable(
+                      'Due date timezone',
+                      getGmtTime(currentVersion?.dueDateTimezone),
+                    )}
+                  </Grid>
+                </Grid>
+                <Divider />
+                <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
+              </Card>
+
+              <Card sx={{ marginTop: '24px', width: '100%' }}>
+                <CardHeader title='Version history' />
+                <Box sx={{ height: '100%' }}>
+                  <DataGrid
+                    components={{
+                      NoRowsOverlay: () => noHistory(),
+                      NoResultsOverlay: () => noHistory(),
+                    }}
+                    sx={{
+                      '& .MuiDataGrid-row': { cursor: 'pointer' },
+                    }}
+                    autoHeight
+                    columns={columns}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    rowsPerPageOptions={[5, 15, 30]}
+                    rowCount={versionHistory?.length || 0}
+                    rows={versionHistory || []}
+                    onRowClick={onRowClick}
                   />
-                </Card>
-              </Grid>
+                </Box>
+              </Card>
             </Grid>
-            <ModalButtonGroup style={{ marginTop: '24px' }}>
-              <Button
-                onClick={() => setOpenDetail(false)}
-                variant='outlined'
-                color='secondary'
-                sx={{ width: '226px' }}
-              >
-                Close
-              </Button>
-            </ModalButtonGroup>
+            <Grid item md={3} xs={12}>
+              <Card>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  {isWriter && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      startIcon={<Icon icon='clarity:eye-hide-line' />}
+                      onClick={onHide}
+                    >
+                      Hide
+                    </Button>
+                  )}
+                  {isMaster && (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      startIcon={<Icon icon='mdi:delete-outline' />}
+                      onClick={onDelete}
+                    >
+                      Delete
+                    </Button>
+                  )}
+
+                  {isMaster || isWriter ? (
+                    <Button
+                      variant='contained'
+                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                      onClick={onEdit}
+                    >
+                      Edit
+                    </Button>
+                  ) : (
+                    ''
+                  )}
+                </Box>
+              </Card>
+            </Grid>
           </Grid>
+          <Dialog
+            open={openDetail}
+            onClose={() => setOpenDetail(false)}
+            maxWidth='md'
+          >
+            <StyledViewer maxHeight={true}>
+              <Grid
+                container
+                sx={{ padding: '50px 60px 50px' }}
+                justifyContent='center'
+              >
+                <Grid container spacing={6}>
+                  <Grid item xs={12}>
+                    <Card sx={{ padding: '20px', width: '100%' }}>
+                      <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        mb='26px'
+                      >
+                        <CustomChip
+                          label={currentRow?.id}
+                          skin='light'
+                          color='primary'
+                          size='small'
+                        />
+
+                        <Box display='flex' flexDirection='column' gap='8px'>
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <CustomChip
+                              label='Requestor'
+                              skin='light'
+                              color='error'
+                              size='small'
+                            />
+                            <Typography
+                              sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
+                              {currentRow?.writer}
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='middle'
+                              flexItem
+                            />
+                            <Typography variant='body2'>
+                              {currentRow?.email}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            variant='body2'
+                            sx={{ alignSelf: 'flex-end' }}
+                          >
+                            {FullDateTimezoneHelper(new Date())}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Divider />
+                      <Grid container spacing={12} pt='10px'>
+                        <Grid item xs={5}>
+                          {renderTable('Status', currentRow?.status)}
+                          {renderTable('Job type', currentRow?.jobType)}
+                          {renderTable(
+                            'Source language',
+                            currentRow?.sourceLanguage.toUpperCase(),
+                          )}
+                        </Grid>
+                        <Grid item xs={7}>
+                          {renderTable('Client', currentRow?.client)}
+                          {renderTable('Role', currentRow?.role)}
+                          {renderTable(
+                            'Target language',
+                            currentRow?.targetLanguage.toUpperCase(),
+                          )}
+                        </Grid>
+                      </Grid>
+
+                      <Divider />
+                      <Grid container spacing={12} pt='10px'>
+                        <Grid item xs={5}>
+                          {renderTable(
+                            'Number of linguist',
+                            currentRow?.numberOfLinguist,
+                          )}
+                          {renderTable(
+                            'Due date',
+                            MMDDYYYYHelper(currentRow?.dueDate),
+                          )}
+                        </Grid>
+                        <Grid item xs={7}>
+                          {renderTable(
+                            'Job posting link',
+                            currentRow?.jobPostLink,
+                          )}
+                          {renderTable(
+                            'Due date timezone',
+                            getGmtTime(currentRow?.dueDateTimezone),
+                          )}
+                        </Grid>
+                      </Grid>
+                      <Divider />
+                      <ReactDraftWysiwyg
+                        editorState={historyContent}
+                        readOnly={true}
+                      />
+                    </Card>
+                  </Grid>
+                </Grid>
+                <ModalButtonGroup style={{ marginTop: '24px' }}>
+                  <Button
+                    onClick={() => setOpenDetail(false)}
+                    variant='outlined'
+                    color='secondary'
+                    sx={{ width: '226px' }}
+                  >
+                    Close
+                  </Button>
+                </ModalButtonGroup>
+              </Grid>
+            </StyledViewer>
+          </Dialog>
         </StyledViewer>
-      </Dialog>
-    </StyledViewer>
+      )}
+    </>
   )
 }
 

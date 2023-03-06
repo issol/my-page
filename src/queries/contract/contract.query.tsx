@@ -19,10 +19,11 @@ export const useGetContract = ({ type, language }: ContractParam) => {
       return getContractDetail({ type, language })
     },
     {
+      enabled: false,
+      // enabled: !!type && !!language,
       staleTime: 60 * 1000, // 1min
       keepPreviousData: true,
       suspense: true,
-      enabled: !!type && !!language,
       onSuccess: data => {
         return data
       },
