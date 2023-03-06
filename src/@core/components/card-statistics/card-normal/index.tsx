@@ -20,7 +20,7 @@ const CardNormal = ({ data }: Props) => {
   const { title, titleColor, src, stats } = data
 
   return (
-    <Card sx={{ overflow: 'visible', position: 'relative' }}>
+    <Card sx={{ overflow: 'scroll', position: 'relative' }}>
       <CardContent sx={{ pb: '0 !important' }}>
         <Grid container>
           <Grid

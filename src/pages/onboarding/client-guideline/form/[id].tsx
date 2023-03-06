@@ -11,10 +11,6 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
 // ** React Imports
 import { Suspense, useContext, useEffect, useState } from 'react'
@@ -28,15 +24,17 @@ import { convertFromRaw, convertToRaw, EditorState } from 'draft-js'
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 import FallbackSpinner from 'src/@core/components/spinner'
+import { toast } from 'react-hot-toast'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-import { Writer } from 'src/@core/components/chip'
+import CustomChip from 'src/@core/components/mui/chip'
+import FileItem from 'src/@core/components/fileItem'
+import EmptyPost from 'src/@core/components/page/empty-post'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -61,7 +59,6 @@ import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
   FilePostType,
-  FileType,
   getGuidelineUploadPreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
@@ -70,7 +67,9 @@ import { postFiles } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
-import { toast } from 'react-hot-toast'
+import { FileType } from 'src/types/common/file.type'
+
+// ** values
 import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** helpers
@@ -82,12 +81,6 @@ const defaultValues = {
   category: { label: '', value: '' },
   serviceType: { label: '', value: '' },
   file: [],
-}
-
-interface FileProp {
-  name: string
-  type: string
-  size: number
 }
 
 const ClientGuidelineEdit = () => {
@@ -111,7 +104,13 @@ const ClientGuidelineEdit = () => {
   >([])
   const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
-  const { data, isSuccess } = useGetGuideLineDetail(id)
+  const { data, refetch, isSuccess, isError } = useGetGuideLineDetail(id)
+
+  useEffect(() => {
+    if (!Number.isNaN(id)) {
+      refetch()
+    }
+  }, [id])
 
   const currentVersion = data?.currentVersion || {
     id: null,
@@ -196,7 +195,7 @@ const ClientGuidelineEdit = () => {
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
           let result = fileSize
-          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          acc.concat(file).forEach((file: FileType) => (result += file.size))
           if (result > MAXIMUM_FILE_SIZE) {
             setModal(
               <ModalContainer>
@@ -241,9 +240,9 @@ const ClientGuidelineEdit = () => {
     },
   })
 
-  const handleRemoveFile = (file: FileProp) => {
+  const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
+    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     setFiles([...filtered])
   }
 
@@ -252,59 +251,19 @@ const ClientGuidelineEdit = () => {
     setDeletedFiles([...deletedFiles, file])
   }
 
-  const fileList = files.map((file: FileProp) => (
-    <FileList key={file.name}>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-          />
-        </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-          </Typography>
-        </div>
-      </div>
-      <IconButton onClick={() => handleRemoveFile(file)}>
-        <Icon icon='mdi:close' fontSize={20} />
-      </IconButton>
-    </FileList>
+  const fileList = files.map((file: FileType) => (
+    <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
   ))
 
   const savedFileList = savedFiles?.map((file: any) => (
-    <FileList key={file.name}>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon
-            icon='material-symbols:file-present-outline'
-            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-          />
-        </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-          </Typography>
-        </div>
-      </div>
-      <IconButton onClick={() => handleRemoveSavedFile(file)}>
-        <Icon icon='mdi:close' fontSize={20} />
-      </IconButton>
-    </FileList>
+    <FileItem key={file.name} file={file} onClear={handleRemoveSavedFile} />
   ))
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
 
     let result = 0
-    files.forEach((file: FileProp) => (result += file.size))
+    files.forEach((file: FileType) => (result += file.size))
 
     savedFiles.forEach(
       (file: { name: string; size: number }) => (result += file.size),
@@ -330,7 +289,7 @@ const ClientGuidelineEdit = () => {
             alt='role select error'
           />
           <Typography variant='body2'>
-            Are you sure to discard this contract?
+            Are you sure to discard this guideline?
           </Typography>
         </Box>
         <ModalButtonGroup>
@@ -468,7 +427,7 @@ const ClientGuidelineEdit = () => {
 
     if (deletedFiles.length) {
       deletedFiles.forEach(item =>
-        deleteGuidelineFile(item.id).catch(err =>
+        deleteGuidelineFile(item.id!).catch(err =>
           toast.error(
             'Something went wrong while deleting files. Please try again.',
             {
@@ -483,270 +442,293 @@ const ClientGuidelineEdit = () => {
   if (!isSuccess) return null
 
   return (
-    <Suspense fallback={<FallbackSpinner />}>
-      <form>
-        <StyledEditor
-          style={{ margin: '0 70px' }}
-          error={
-            !content.getCurrentContent().getPlainText('\u0001') && showError
-          }
-        >
-          <Grid container spacing={6} className='match-height'>
-            <Grid item xs={12} md={8}>
-              <Card sx={{ padding: '30px 20px 20px' }}>
-                <Box display='flex' justifyContent='flex-end' mb='26px'>
-                  <Box display='flex' alignItems='center' gap='8px'>
-                    <Writer label='Writer' size='small' />
-                    <Typography
-                      sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                      color='primary'
-                    >
-                      {user?.username}
-                    </Typography>
-                    <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
-                  </Box>
-                </Box>
-                {/* title */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='title'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <>
-                        <TextField
-                          fullWidth
-                          autoFocus
-                          value={value}
-                          onBlur={onBlur}
-                          onChange={onChange}
-                          inputProps={{ maxLength: 100 }}
-                          error={Boolean(errors.title)}
-                          label='Title*'
-                          placeholder='Tappytoon webnovel styleguide #1'
+    <>
+      {!data ? (
+        <FallbackSpinner />
+      ) : isError ? (
+        <EmptyPost />
+      ) : (
+        <Suspense fallback={<FallbackSpinner />}>
+          <form>
+            <StyledEditor
+              style={{ margin: '0 70px' }}
+              error={
+                !content.getCurrentContent().getPlainText('\u0001') && showError
+              }
+            >
+              <Grid container spacing={6} className='match-height'>
+                <Grid item xs={12} md={8}>
+                  <Card sx={{ padding: '30px 20px 20px' }}>
+                    <Box display='flex' justifyContent='flex-end' mb='26px'>
+                      <Box display='flex' alignItems='center' gap='8px'>
+                        <CustomChip
+                          label='Writer'
+                          skin='light'
+                          color='error'
+                          size='small'
                         />
-                      </>
-                    )}
-                  />
-                  {errors.title && (
-                    <FormHelperText sx={{ color: 'error.main' }}>
-                      {errors.title?.message}
-                    </FormHelperText>
-                  )}
-                </Grid>
-                {/* client */}
-                <Box display='flex' gap='20px'>
-                  <Grid item xs={6} mb='20px'>
-                    <Controller
-                      name='client'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          disabled
-                          options={ClientCategoryIncludeGloz}
-                          filterSelectedOptions
-                          onChange={(e, v) => {
-                            if (!v) onChange({ value: '', label: '' })
-                            else onChange(v)
-                          }}
-                          value={value}
-                          id='client'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
+                        <Typography
+                          sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                          color='primary'
+                        >
+                          {user?.username}
+                        </Typography>
+                        <Divider
+                          orientation='vertical'
+                          variant='middle'
+                          flexItem
+                        />
+                        <Typography variant='body2'>{user?.email}</Typography>
+                      </Box>
+                    </Box>
+                    {/* title */}
+                    <Grid item xs={12} mb='20px'>
+                      <Controller
+                        name='title'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange, onBlur } }) => (
+                          <>
                             <TextField
-                              {...params}
-                              label='Client*'
-                              placeholder='Client*'
+                              fullWidth
+                              autoFocus
+                              value={value}
+                              onBlur={onBlur}
+                              onChange={onChange}
+                              inputProps={{ maxLength: 100 }}
+                              error={Boolean(errors.title)}
+                              label='Title*'
+                              placeholder='Tappytoon webnovel styleguide #1'
+                            />
+                          </>
+                        )}
+                      />
+                      {errors.title && (
+                        <FormHelperText sx={{ color: 'error.main' }}>
+                          {errors.title?.message}
+                        </FormHelperText>
+                      )}
+                    </Grid>
+                    {/* client */}
+                    <Box display='flex' gap='20px'>
+                      <Grid item xs={6} mb='20px'>
+                        <Controller
+                          name='client'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <Autocomplete
+                              autoHighlight
+                              fullWidth
                               disabled
-                              InputProps={{
-                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                              options={ClientCategoryIncludeGloz}
+                              filterSelectedOptions
+                              onChange={(e, v) => {
+                                if (!v) onChange({ value: '', label: '' })
+                                else onChange(v)
                               }}
+                              value={value}
+                              id='client'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  label='Client*'
+                                  placeholder='Client*'
+                                  disabled
+                                  InputProps={{
+                                    sx: {
+                                      background: 'rgba(76, 78, 100, 0.12)',
+                                    },
+                                  }}
+                                />
+                              )}
                             />
                           )}
                         />
-                      )}
-                    />
-                  </Grid>
-                  {/* category */}
-                  <Grid item xs={6} mb='20px'>
-                    <Controller
-                      name='category'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          options={Category}
-                          value={value}
-                          filterSelectedOptions
-                          onChange={(e, v) => {
-                            if (!v) onChange({ value: '', label: '' })
-                            else onChange(v)
-                          }}
-                          id='category'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Category*'
-                              placeholder='Category*'
-                              disabled
-                              InputProps={{
-                                sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                      </Grid>
+                      {/* category */}
+                      <Grid item xs={6} mb='20px'>
+                        <Controller
+                          name='category'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <Autocomplete
+                              autoHighlight
+                              fullWidth
+                              options={Category}
+                              value={value}
+                              filterSelectedOptions
+                              onChange={(e, v) => {
+                                if (!v) onChange({ value: '', label: '' })
+                                else onChange(v)
                               }}
+                              id='category'
+                              getOptionLabel={option => option.label}
+                              renderInput={params => (
+                                <TextField
+                                  {...params}
+                                  label='Category*'
+                                  placeholder='Category*'
+                                  disabled
+                                  InputProps={{
+                                    sx: {
+                                      background: 'rgba(76, 78, 100, 0.12)',
+                                    },
+                                  }}
+                                />
+                              )}
                             />
                           )}
                         />
-                      )}
-                    />
-                  </Grid>
-                </Box>
-                {/* service type */}
-                <Grid item xs={12} mb='20px'>
-                  <Controller
-                    name='serviceType'
-                    control={control}
-                    rules={{ required: true }}
-                    render={({ field: { value, onChange, onBlur } }) => (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={ServiceType}
-                        value={value}
-                        filterSelectedOptions
-                        onChange={(e, v) => {
-                          if (!v) onChange({ value: '', label: '' })
-                          else onChange(v)
-                        }}
-                        id='serviceType'
-                        getOptionLabel={option => option.label}
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            label='Service type*'
-                            placeholder='Service type*'
-                            disabled
-                            InputProps={{
-                              sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                      </Grid>
+                    </Box>
+                    {/* service type */}
+                    <Grid item xs={12} mb='20px'>
+                      <Controller
+                        name='serviceType'
+                        control={control}
+                        rules={{ required: true }}
+                        render={({ field: { value, onChange, onBlur } }) => (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            options={ServiceType}
+                            value={value}
+                            filterSelectedOptions
+                            onChange={(e, v) => {
+                              if (!v) onChange({ value: '', label: '' })
+                              else onChange(v)
                             }}
+                            id='serviceType'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='Service type*'
+                                placeholder='Service type*'
+                                disabled
+                                InputProps={{
+                                  sx: { background: 'rgba(76, 78, 100, 0.12)' },
+                                }}
+                              />
+                            )}
                           />
                         )}
                       />
+                    </Grid>
+                    <Divider />
+                    <ReactDraftWysiwyg
+                      editorState={content}
+                      placeholder='Write down a guideline or attach it as a file.'
+                      onEditorStateChange={data => {
+                        setShowError(true)
+                        setContent(data)
+                      }}
+                    />
+                    {!content.getCurrentContent().getPlainText('\u0001') &&
+                    showError ? (
+                      <Typography
+                        color='error'
+                        sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
+                        mt='8px'
+                      >
+                        {FormErrors.required}
+                      </Typography>
+                    ) : (
+                      ''
                     )}
-                  />
+                  </Card>
                 </Grid>
-                <Divider />
-                <ReactDraftWysiwyg
-                  editorState={content}
-                  placeholder='Write down a guideline or attach it as a file.'
-                  onEditorStateChange={data => {
-                    setShowError(true)
-                    setContent(data)
-                  }}
-                />
-                {!content.getCurrentContent().getPlainText('\u0001') &&
-                showError ? (
-                  <Typography
-                    color='error'
-                    sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
-                    mt='8px'
-                  >
-                    {FormErrors.required}
-                  </Typography>
-                ) : (
-                  ''
-                )}
-              </Card>
-            </Grid>
 
-            <Grid
-              item
-              xs={12}
-              md={4}
-              className='match-height'
-              sx={{ height: '152px' }}
-            >
-              <Card style={{ height: '565px', overflow: 'scroll' }}>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
+                <Grid
+                  item
+                  xs={12}
+                  md={4}
+                  className='match-height'
+                  sx={{ height: '152px' }}
                 >
-                  <Box display='flex' justifyContent='space-between'>
-                    <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                      Attached file
-                    </Typography>
-                    <Typography variant='body2'>
-                      {Math.round(fileSize / 100) / 10 > 1000
-                        ? `${(Math.round(fileSize / 100) / 10000).toFixed(
-                            1,
-                          )} mb`
-                        : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                      /50mb
-                    </Typography>
-                  </Box>
-                  <div {...getRootProps({ className: 'dropzone' })}>
-                    <Button variant='outlined' fullWidth>
-                      <input {...getInputProps()} />
-                      Upload files
-                    </Button>
-                  </div>
-                  <div>
-                    {currentVersion?.files?.length ? (
-                      <List sx={{ paddingBottom: 0 }}>{savedFileList}</List>
-                    ) : null}
-                    {files.length ? (
-                      <List sx={{ paddingTop: 0 }}>{fileList}</List>
-                    ) : null}
-                  </div>
-                </Box>
-              </Card>
-              {errors.file && (
-                <FormHelperText sx={{ color: 'error.main' }} id=''>
-                  {errors.file.message}
-                </FormHelperText>
-              )}
-              <Card style={{ marginTop: '24px' }}>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    onClick={onDiscard}
-                  >
-                    Discard
-                  </Button>
-                  <Button
-                    variant='contained'
-                    onClick={onUpload}
-                    disabled={
-                      !isValid ||
-                      !content.getCurrentContent().getPlainText('\u0001')
-                    }
-                  >
-                    Upload
-                  </Button>
-                </Box>
-              </Card>
-            </Grid>
-          </Grid>
-        </StyledEditor>
-      </form>
-    </Suspense>
+                  <Card style={{ height: '565px', overflow: 'scroll' }}>
+                    <Box
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      <Box display='flex' justifyContent='space-between'>
+                        <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                          Attached file
+                        </Typography>
+                        <Typography variant='body2'>
+                          {Math.round(fileSize / 100) / 10 > 1000
+                            ? `${(Math.round(fileSize / 100) / 10000).toFixed(
+                                1,
+                              )} mb`
+                            : `${(Math.round(fileSize / 100) / 10).toFixed(
+                                1,
+                              )} kb`}
+                          /50mb
+                        </Typography>
+                      </Box>
+                      <div {...getRootProps({ className: 'dropzone' })}>
+                        <Button variant='outlined' fullWidth>
+                          <input {...getInputProps()} />
+                          Upload files
+                        </Button>
+                      </div>
+                      <div>
+                        {currentVersion?.files?.length ? (
+                          <List sx={{ paddingBottom: 0 }}>{savedFileList}</List>
+                        ) : null}
+                        {files.length ? (
+                          <List sx={{ paddingTop: 0 }}>{fileList}</List>
+                        ) : null}
+                      </div>
+                    </Box>
+                  </Card>
+                  {errors.file && (
+                    <FormHelperText sx={{ color: 'error.main' }} id=''>
+                      {errors.file.message}
+                    </FormHelperText>
+                  )}
+                  <Card style={{ marginTop: '24px' }}>
+                    <Box
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        onClick={onDiscard}
+                      >
+                        Discard
+                      </Button>
+                      <Button
+                        variant='contained'
+                        onClick={onUpload}
+                        disabled={
+                          !isValid ||
+                          !content.getCurrentContent().getPlainText('\u0001')
+                        }
+                      >
+                        Upload
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              </Grid>
+            </StyledEditor>
+          </form>
+        </Suspense>
+      )}
+    </>
   )
 }
 
@@ -756,39 +738,3 @@ ClientGuidelineEdit.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`
-const FileList = styled.div`
-  display: flex;
-  margin-bottom: 8px;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px;
-  border: 1px solid rgba(76, 78, 100, 0.22);
-  background: #f9f8f9;
-  .file-details {
-    display: flex;
-    align-items: center;
-  }
-  .file-preview {
-    margin-right: 8px;
-    display: flex;
-  }
-
-  img {
-    width: 38px;
-    height: 38px;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(93, 89, 98, 0.14);
-  }
-
-  .file-name {
-    font-weight: 600;
-  }
-`

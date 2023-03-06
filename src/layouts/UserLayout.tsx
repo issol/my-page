@@ -24,10 +24,7 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
 import { useAuth } from 'src/hooks/useAuth'
-import { Button } from '@mui/material'
-import { RoleType } from 'src/context/types'
 import { useRouter } from 'next/router'
-import { ACLObj, AppAbility, buildAbilityFor } from 'src/configs/acl'
 import { useAppSelector } from 'src/hooks/useRedux'
 
 interface Props {
@@ -41,20 +38,9 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const userAccess = useAppSelector(state => state.userAccess)
   const { settings, saveSettings } = useSettings()
-  const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
-  const [role, setRole] = useState<RoleType | null>(null)
-  const [roleBtn, setRoleBtn] = useState<ReactNode>(null)
-
-  const handleSwitchRole = (role: RoleType | null) => {
-    if (role !== null) {
-      setRole(role)
-    }
-  }
 
   useEffect(() => {
     if (userAccess.role.length) {
-      setRole(userAccess?.role[0])
-
       if (!auth.user?.firstName) {
         if (userAccess.role?.includes('PRO')) {
           router.replace('/welcome/consumer')
@@ -71,18 +57,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       }
     }
   }, [userAccess])
-
-  // useEffect(() => {
-  //   setRoleBtn(
-  //     <div>
-  //       {auth.user?.role.map((item, idx) => (
-  //         <Button key={idx} onClick={() => setRole(item)}>
-  //           {item}
-  //         </Button>
-  //       ))}
-  //     </div>,
-  //   )
-  // }, [auth.user?.role])
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
@@ -108,7 +82,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       settings={settings}
       saveSettings={saveSettings}
       contentHeightFixed={contentHeightFixed}
-      roleButton={roleBtn}
       verticalLayoutProps={{
         navMenu: {
           navItems: VerticalNavItems(),
@@ -123,7 +96,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               settings={settings}
               saveSettings={saveSettings}
               toggleNavVisibility={props.toggleNavVisibility}
-              handleSwitchRole={handleSwitchRole}
             />
           ),
         },
@@ -142,7 +114,6 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
                 hidden={hidden}
                 settings={settings}
                 saveSettings={saveSettings}
-                handleSwitchRole={handleSwitchRole}
               />
             ),
           },

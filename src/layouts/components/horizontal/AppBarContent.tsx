@@ -21,7 +21,6 @@ interface Props {
   hidden: boolean
   settings: Settings
   saveSettings: (values: Settings) => void
-  handleSwitchRole: (role: RoleType | null) => void
 }
 
 const notifications: NotificationsType[] = [
@@ -122,7 +121,7 @@ const shortcuts: ShortcutsType[] = [
 
 const AppBarContent = (props: Props) => {
   // ** Props
-  const { hidden, settings, saveSettings, handleSwitchRole } = props
+  const { hidden, settings, saveSettings } = props
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -131,7 +130,7 @@ const AppBarContent = (props: Props) => {
       <ModeToggler settings={settings} saveSettings={saveSettings} />
       <ShortcutsDropdown settings={settings} shortcuts={shortcuts} />
       <NotificationDropdown settings={settings} notifications={notifications} />
-      <UserDropdown settings={settings} handleSwitchRole={handleSwitchRole} />
+      <UserDropdown settings={settings} />
     </Box>
   )
 }

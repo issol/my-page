@@ -1,15 +1,12 @@
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { rest } from 'msw'
+import { BASEURL } from 'src/configs/axios'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Book, Review } from './types'
 import { role } from 'src/@fake-db/user'
-
-// 이 부분 글로벌 const로 빠져야 합니다.
-export const BASEURL =
-  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 
 const languageList = getGloLanguage()
 
@@ -290,210 +287,10 @@ export const handlers = [
       return res(ctx.status(200), ctx.body(req.params.fileId))
     },
   ),
-  // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
-  //   return res(ctx.status(200), ctx.json(onboardingUser))
-  // }),
-
-  // Recruiting
-  // 리크루팅 리스트 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
-    const recruitingList = {
-      data: [
-        {
-          id: 1,
-          status: 'Ongoing',
-          client: 'Netflix',
-          jobType: 'Webcomics',
-          role: 'Proofreader',
-          sourceLanguage: 'EN',
-          targetLanguage: 'KO',
-          writer: 'Tammy Na',
-          dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 2,
-          jobStatus: 'Ongoing',
-          isHide: false,
-        },
-        {
-          id: 2,
-          status: 'Fulfilled',
-          client: 'Naver',
-          jobType: 'YouTube',
-          role: 'Translator',
-          sourceLanguage: 'JA',
-          targetLanguage: 'FR',
-          writer: 'Jay Cha',
-          dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 2,
-          jobStatus: 'Ongoing',
-          isHide: false,
-        },
-      ],
-      count: 2,
-    }
-    if (
-      req.url.searchParams.get('client') &&
-      req.url.searchParams.get('jobType') &&
-      req.url.searchParams.get('role') &&
-      req.url.searchParams.get('source') &&
-      req.url.searchParams.get('target')
-    )
-      return res(ctx.status(200), ctx.json(recruitingList))
-    else return res(ctx.status(409), ctx.body(''))
-  }),
-
-  //리크루팅 디테일 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-    const id = req.params.id
-    const detail = {
-      currentVersion: {
-        id: 1,
-        version: 3,
-        writer: 'Jay Cha',
-        email: 'jaycha@glozinc.com',
-        createdAt: '02/02/2023, 06:20 PM',
-        status: 'Ongoing',
-        client: 'Naver',
-        jobType: 'OTT/Subtitle',
-        role: 'Translator',
-        sourceLanguage: 'KO',
-        targetLanguage: 'ZH_HANT',
-        numberOfLinguist: 3,
-        dueDate: '02/02/2023, 06:20 PM',
-        dueDateTimezone: null,
-        jobPostLink: 'https://gloz.io/short1', // short url
-        content: '???',
-        isHide: false,
-      },
-      versionHistory: [
-        {
-          id: 2,
-          version: 2,
-          writer: 'Jay Cha',
-          email: 'jaycha@glozinc.com',
-          createdAt: '02/02/2023, 06:20 PM',
-          status: 'Ongoing',
-          client: 'Naver',
-          jobType: 'OTT/Subtitle',
-          role: 'Translator',
-          sourceLanguage: 'KO',
-          targetLanguage: 'ZH_HANT',
-          numberOfLinguist: 3,
-          dueDate: '02/02/2023, 06:20 PM',
-          dueDateTimezone: null,
-          jobPostLink: 'https://gloz.io/short1', // short url
-          content: '???',
-          isHide: false,
-        },
-        {
-          id: 3,
-          version: 1,
-          writer: 'Jay Cha',
-          email: 'jaycha@glozinc.com',
-          createdAt: '02/02/2023, 06:20 PM',
-          status: 'Ongoing',
-          client: 'Naver',
-          jobType: 'OTT/Subtitle',
-          role: 'Translator',
-          sourceLanguage: 'KO',
-          targetLanguage: 'ZH_HANT',
-          numberOfLinguist: 3,
-          dueDate: '02/02/2023, 06:20 PM',
-          dueDateTimezone: null,
-          jobPostLink: 'https://gloz.io/short1', // short url
-          content: '???',
-          isHide: false,
-        },
-      ],
-    }
-    if (id) return res(ctx.status(200), ctx.json(detail))
-    else return res(ctx.status(409), ctx.body(''))
-  }),
-
-  //리크루팅 디테일 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/dashboard', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({
-        onGoing: 55,
-        done: 125,
-        hold: 76,
-        total: 256243,
-      }),
-    )
-  }),
-
-  //리크루팅 요청서
-  rest.post(BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
-    if (
-      req.body?.status &&
-      req.body?.client &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.openings &&
-      req.body?.dueAt &&
-      req.body?.timezone &&
-      req.body?.jobPostLink &&
-      req.body?.content
-    )
-      return res(
-        ctx.status(200),
-        ctx.json({
-          id: 123,
-        }),
-      )
-    else return res(ctx.status(409), ctx.body(''))
-  }),
-
-  //리크루팅 업데이트
-  rest.patch(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-    if (
-      req.params.id &&
-      req.body?.status &&
-      req.body?.client &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.numberOfLinguist &&
-      req.body?.dueDate &&
-      req.body?.dueDateTimezone &&
-      req.body?.jobPostLink &&
-      req.body?.content
-    )
-      return res(
-        ctx.status(200),
-        ctx.json({
-          id: req.params.id,
-        }),
-      )
-    else return res(ctx.status(409), ctx.body(''))
-  }),
-
-  //리크루팅 숨김처리
-  // 리크루팅 업데이트랑 엔드포인트가 겹침
-  // rest.patch(
-  //   BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-  //     if (
-  //       req.params.id &&
-  //       req.body?.hide
-  //     )
-  //     return res(ctx.status(200), ctx.json({
-  //       'id':req.params.id
-  //     }))
-  //     else return res(ctx.status(409), ctx.body(''))
-  //   },
-  // )
-
-  // 리크루팅 삭제
-  rest.delete(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
-    if (req.params.id) return res(ctx.status(200), ctx.body(''))
-    else return res(ctx.status(409), ctx.body(''))
-  }),
 
   // 잡포스팅 리스트 가져오기
   rest.get(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
+    console.log('req :::::::', req)
     const jobpostingList = {
       data: [
         {
@@ -502,11 +299,13 @@ export const handlers = [
           client: 'Netflix',
           jobType: 'Webcomics',
           role: 'Proofreader',
-          sourceLanguage: 'EN',
-          targetLanguage: 'KO',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
           yearsOfExperience: '3~5 years',
           tadName: 'Bon',
           dueAt: '02/02/2023, 06:20 PM',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'htps://gloz.io/short2',
           openings: 2,
           view: 23,
         },
@@ -516,29 +315,32 @@ export const handlers = [
           client: 'Netflix',
           jobType: 'Webcomics',
           role: 'Proofreader',
-          sourceLanguage: 'EN',
-          targetLanguage: 'KO',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
           yearsOfExperience: '10+ years',
           tadName: 'Ethan',
           dueAt: '02/02/2023, 06:20 PM',
+          dueDateTimezone: 'KST',
+          jobPostLink: 'htps://gloz.io/short2',
           openings: 5,
           view: 28239,
         },
       ],
       count: 2,
     }
-    if (
-      req.url.searchParams.get('jobType') &&
-      req.url.searchParams.get('role') &&
-      req.url.searchParams.get('source') &&
-      req.url.searchParams.get('target') &&
-      req.url.searchParams.get('yearsOfExperience') &&
-      req.url.searchParams.get('dueAt') &&
-      req.url.searchParams.get('take') &&
-      req.url.searchParams.get('skip')
-    )
-      return res(ctx.status(200), ctx.json(jobpostingList))
-    else return res(ctx.status(409), ctx.body(''))
+    // if (
+    //   req.url.searchParams.get('jobType') &&
+    //   req.url.searchParams.get('role') &&
+    //   req.url.searchParams.get('source') &&
+    //   req.url.searchParams.get('target') &&
+    //   req.url.searchParams.get('yearsOfExperience') &&
+    //   req.url.searchParams.get('dueAt') &&
+    //   req.url.searchParams.get('take') &&
+    //   req.url.searchParams.get('skip')
+    // )
+    //   return
+    res(ctx.status(200), ctx.json(jobpostingList))
+    // else return res(ctx.status(409), ctx.body(''))
   }),
 
   // 잡포스팅 디테일 가져오기
@@ -546,35 +348,56 @@ export const handlers = [
     BASEURL + '/api/enough/recruiting/jobposting/:id',
     (req, res, ctx) => {
       const jobpostingDetailList = {
-        data: {
-          id: req.params.id,
-          writer: 'Jay Cha',
-          email: 'jaycha@glozinc.com',
-          jobType: 'Webcomics',
-          role: 'Proofreader',
-          sourceLanguage: 'EN',
-          targetLanguage: 'KO',
-          dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 5,
-          dueDateTimezone: '?',
-          yearsOfExperience: '3~5 years',
-          postLink: [
+        id: Number(req.params.id),
+        writer: 'Jay Cha',
+        email: 'jaycha@glozinc.com',
+        jobType: 'Webcomics',
+        role: 'Proofreader',
+        status: 'Not started',
+        sourceLanguage: 'en',
+        targetLanguage: 'ko',
+        dueDate: '02/02/2023, 06:20 PM',
+        numberOfLinguist: 5,
+        dueDateTimezone: '?',
+        yearsOfExperience: '3~5 years',
+        postLink: [
+          {
+            id: 1,
+            category: 'JobKorea',
+            link: 'https://jobkorea.com/123123',
+          },
+          {
+            id: 2,
+            category: 'Albamon',
+            link: 'https://albamon.com/123123',
+          },
+        ],
+        jobPostLink: 'htps://gloz.io/short2',
+        createdAt: '02/02/2023, 06:20 PM',
+        content: {
+          blocks: [
             {
-              id: 1,
-              category: 'JobKorea',
-              link: 'https://jobkorea.com/123123',
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
             },
             {
-              id: 2,
-              category: 'Albamon',
-              link: 'https://albamon.com/123123',
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
             },
           ],
-          jobPostLink: 'htps://gloz.io/short2',
-          createdAt: '02/02/2023, 06:20 PM',
-          content: 'a',
-          view: 23,
+          entityMap: {},
         },
+        view: 23,
       }
       if (req.params.id)
         return res(ctx.status(200), ctx.json(jobpostingDetailList))
@@ -583,33 +406,36 @@ export const handlers = [
   ),
 
   // 잡포스팅 요청서
-  rest.post(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
-    if (
-      req.body?.status &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.yearsOfExperience &&
-      req.body?.numberOfLinguist &&
-      req.body?.dueDate &&
-      req.body?.dueDateTimezone &&
-      req.body?.postLink &&
-      req.body?.content
-    )
-      return res(
-        ctx.status(200),
-        ctx.json({
-          id: 5,
-        }),
+  rest.post(
+    BASEURL + '/api/enough/recruiting/jobposting',
+    (req: any, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
       )
-    else return res(ctx.status(409), ctx.body(''))
-  }),
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: 5,
+          }),
+        )
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
 
   // 잡포스팅 업데이트
   rest.patch(
     BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
+    (req: any, res, ctx) => {
       if (
         req.body?.status &&
         req.body?.jobType &&
@@ -641,6 +467,276 @@ export const handlers = [
       else return res(ctx.status(409), ctx.body(''))
     },
   ),
+
+  // Recruiting
+  // 리크루팅 리스트 가져오기
+  rest.get(BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
+    const recruitingList = {
+      data: [
+        {
+          id: 1,
+          status: 'Ongoing',
+          client: 'Netflix',
+          jobType: 'Webcomics',
+          role: 'Proofreader',
+          sourceLanguage: 'en',
+          targetLanguage: 'ko',
+          writer: 'Tammy Na',
+          dueDate: '02/02/2023, 06:20 PM',
+          numberOfLinguist: 2,
+          jobStatus: 'Ongoing',
+          dueDateTimezone: 'KST',
+          isHide: false,
+        },
+        {
+          id: 2,
+          status: 'Fulfilled',
+          client: 'Naver',
+          jobType: 'YouTube',
+          role: 'Translator',
+          sourceLanguage: 'ja',
+          targetLanguage: 'fr',
+          writer: 'Jay Cha',
+          dueDate: '02/02/2023, 06:20 PM',
+          numberOfLinguist: 2,
+          dueDateTimezone: 'KST',
+          jobStatus: 'Ongoing',
+          isHide: false,
+        },
+      ],
+      count: 2,
+    }
+    // if (
+    //   req.url.searchParams.get('client') &&
+    //   req.url.searchParams.get('jobType') &&
+    //   req.url.searchParams.get('role') &&
+    //   req.url.searchParams.get('source') &&
+    //   req.url.searchParams.get('target')
+    // )
+    return res(ctx.status(200), ctx.json(recruitingList))
+    // else return res(ctx.status(409), ctx.body(''))
+  }),
+
+  //리크루팅 디테일 가져오기
+  rest.get(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+    const id = req.params.id
+    const detail = {
+      currentVersion: {
+        id: 1,
+        version: 3,
+        writer: 'Jay Cha',
+        email: 'jaycha@glozinc.com',
+        createdAt: '02/02/2023, 06:20 PM',
+        status: 'Ongoing',
+        client: 'Naver',
+        jobType: 'OTT/Subtitle',
+        role: 'Translator',
+        sourceLanguage: 'ko',
+        targetLanguage: 'en',
+        numberOfLinguist: 3,
+        dueDate: '02/02/2023, 06:20 PM',
+        dueDateTimezone: null,
+        jobPostLink: 'https://gloz.io/short1', // short url
+        content: {
+          blocks: [
+            {
+              key: 'd9so6',
+              text: 'translation guidelines document for web novels:',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+            {
+              key: 'b75mm',
+              text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+              type: 'unstyled',
+              depth: 0,
+              inlineStyleRanges: [],
+              entityRanges: [],
+              data: {},
+            },
+          ],
+          entityMap: {},
+        },
+        isHide: false,
+      },
+      versionHistory: [
+        {
+          id: 2,
+          version: 2,
+          writer: 'Jay Cha',
+          email: 'jaycha@glozinc.com',
+          createdAt: '02/02/2023, 06:20 PM',
+          status: 'Ongoing',
+          client: 'Naver',
+          jobType: 'OTT/Subtitle',
+          role: 'Translator',
+          sourceLanguage: 'ko',
+          targetLanguage: 'en',
+          numberOfLinguist: 3,
+          dueDate: '02/02/2023, 06:20 PM',
+          dueDateTimezone: null,
+          jobPostLink: 'https://gloz.io/short1', // short url
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: 'translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+          isHide: false,
+        },
+        {
+          id: 3,
+          version: 1,
+          writer: 'Jay Cha',
+          email: 'jaycha@glozinc.com',
+          createdAt: '02/02/2023, 06:20 PM',
+          status: 'Ongoing',
+          client: 'Naver',
+          jobType: 'OTT/Subtitle',
+          role: 'Translator',
+          sourceLanguage: 'ko',
+          targetLanguage: 'en',
+          numberOfLinguist: 3,
+          dueDate: '02/02/2023, 06:20 PM',
+          dueDateTimezone: null,
+          jobPostLink: 'https://gloz.io/short1', // short url
+          content: {
+            blocks: [
+              {
+                key: 'd9so6',
+                text: 'translation guidelines document for web novels:',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+              {
+                key: 'b75mm',
+                text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
+                type: 'unstyled',
+                depth: 0,
+                inlineStyleRanges: [],
+                entityRanges: [],
+                data: {},
+              },
+            ],
+            entityMap: {},
+          },
+          isHide: false,
+        },
+      ],
+    }
+    if (id) return res(ctx.status(200), ctx.json(detail))
+    else return res(ctx.status(409), ctx.body(''))
+  }),
+
+  //리크루팅 디테일 가져오기
+  rest.get(
+    BASEURL + '/api/enough/recruiting/dashboard?company=GloZ',
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          onGoing: 55,
+          done: 125,
+          hold: 76,
+          total: 256243,
+        }),
+      )
+    },
+  ),
+
+  //리크루팅 요청서
+  rest.post(BASEURL + '/api/enough/recruiting', (req: any, res, ctx) => {
+    if (
+      req.body?.status &&
+      req.body?.client &&
+      req.body?.jobType &&
+      req.body?.role &&
+      req.body?.sourceLanguage &&
+      req.body?.targetLanguage &&
+      req.body?.openings &&
+      req.body?.dueAt &&
+      req.body?.timezone &&
+      req.body?.jobPostLink &&
+      req.body?.content
+    )
+      return res(
+        ctx.status(200),
+        ctx.json({
+          id: 123,
+        }),
+      )
+    else return res(ctx.status(409), ctx.body(''))
+  }),
+
+  //리크루팅 업데이트
+  rest.patch(BASEURL + '/api/enough/recruiting/:id', (req: any, res, ctx) => {
+    if (
+      req.params.id &&
+      req.body?.status
+      // &&
+      // req.body?.client &&
+      // req.body?.jobType &&
+      // req.body?.role &&
+      // req.body?.sourceLanguage &&
+      // req.body?.targetLanguage &&
+      // req.body?.numberOfLinguist &&
+      // req.body?.dueDate &&
+      // req.body?.dueDateTimezone &&
+      // req.body?.jobPostLink &&
+      // req.body?.content
+    )
+      return res(
+        ctx.status(200),
+        ctx.json({
+          id: req.params.id,
+        }),
+      )
+    else return res(ctx.status(409), ctx.body(''))
+  }),
+
+  //리크루팅 숨김처리
+  // 리크루팅 업데이트랑 엔드포인트가 겹침
+  // rest.patch(
+  //   BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+  //     if (
+  //       req.params.id &&
+  //       req.body?.hide
+  //     )
+  //     return res(ctx.status(200), ctx.json({
+  //       'id':req.params.id
+  //     }))
+  //     else return res(ctx.status(409), ctx.body(''))
+  //   },
+  // )
+
+  // 리크루팅 삭제
+  rest.delete(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+    if (req.params.id) return res(ctx.status(200), ctx.body(''))
+    else return res(ctx.status(409), ctx.body(''))
+  }),
 
   rest.get(BASEURL + '/api/enough/cert/test/paper', (req, res, ctx) => {
     interface Data {
