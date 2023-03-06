@@ -423,18 +423,6 @@ export default function AppliedRole({
                             gap: 2,
                           }}
                         >
-                          {' '}
-                          <Button
-                            variant='outlined'
-                            size='small'
-                            color='primary'
-                            sx={{ height: '30px' }}
-                            onClick={() => {
-                              onClickResumeTest(value)
-                            }}
-                          >
-                            Resume
-                          </Button>
                           {value.testStatus === 'Test assigned' ? (
                             <Button
                               variant='outlined'
