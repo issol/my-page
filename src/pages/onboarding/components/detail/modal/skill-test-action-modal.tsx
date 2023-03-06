@@ -20,14 +20,14 @@ type Props = {
   onClose: any
   userInfo: AppliedRoleType
   type: string
-  handleActionBasicTest: (id: number, type: string) => void
+  handleActionSkillTest: (id: number, type: string) => void
 }
-export default function SkipBasicTestModal({
+export default function SkillTestActionModal({
   open,
   onClose,
   userInfo,
   type,
-  handleActionBasicTest,
+  handleActionSkillTest,
 }: Props) {
   return (
     <Dialog
@@ -53,7 +53,11 @@ export default function SkipBasicTestModal({
           }}
         >
           <Image
-            src='/images/icons/alert/alert-success.svg'
+            src={`/images/icons/alert/${
+              type === 'Awaiting assignment'
+                ? 'alert-error-color'
+                : 'alert-success'
+            }.svg`}
             width={68}
             height={68}
             alt=''
@@ -75,7 +79,13 @@ export default function SkipBasicTestModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure you want to skip this basic test?
+            Are you sure you want to&nbsp;
+            {type === 'Awaiting assignment'
+              ? 'cancel'
+              : type === 'Skill in progress'
+              ? 'proceed'
+              : null}
+            &nbsp;this skill test?
           </Typography>
           <Typography
             variant='body2'
@@ -106,7 +116,11 @@ export default function SkipBasicTestModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={onClose}
           >
-            Cancel
+            {type === 'Awaiting assignment'
+              ? 'No'
+              : type === 'Skill in progress'
+              ? 'Cancel'
+              : null}
           </Button>
           <Button
             size='medium'
@@ -115,10 +129,14 @@ export default function SkipBasicTestModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleActionBasicTest(userInfo.id, type)
+              handleActionSkillTest(userInfo.id, type)
             }}
           >
-            Skip
+            {type === 'Awaiting assignment'
+              ? 'Cancel'
+              : type === 'Skill in progress'
+              ? 'Proceed'
+              : null}
           </Button>
         </Box>
       </DialogContent>
