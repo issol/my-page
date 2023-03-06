@@ -74,6 +74,7 @@ type ReviewerCellType = {
 type Props = {
   jobInfo: AppliedRoleType
   reviewerList: AssignReviewerType[]
+  type: string
 }
 
 const defaultValues = {
@@ -99,14 +100,18 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     paddingBottom: theme.spacing(2),
   },
 }))
-export default function TestDetailsModal({ jobInfo, reviewerList }: Props) {
+export default function TestDetailsModal({
+  jobInfo,
+  reviewerList,
+  type,
+}: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<AppliedRoleType>(jobInfo)
   // const { data: reviewerList1 } = useGetReviewerList()
   const [selectedReviewer, setSelectedReviewer] =
     useState<AssignReviewerType | null>(null)
   const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
-  const [value, setValue] = useState<string>('1')
+  const [value, setValue] = useState<string>(type === 'detail' ? '1' : '2')
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [testHistoryPage, setTestHistoryPage] = useState<number>(0)
   const [testHistoryPageSize, setTestHistoryPageSize] = useState<number>(10)
