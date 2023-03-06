@@ -2,8 +2,10 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { rest } from 'msw'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
+import { v4 as uuidv4 } from 'uuid'
 
 import { Book, Review } from './types'
+import { role } from 'src/@fake-db/user'
 
 // 이 부분 글로벌 const로 빠져야 합니다.
 export const BASEURL =
@@ -928,65 +930,351 @@ export const handlers = [
     return res(ctx.status(200), ctx.json(detail))
   }),
 
-  rest.get(BASEURL + '/api/enough/onboard/user/:id', (req, res, ctx) => {
-    const details: OnboardingProDetailsType = {
-      id: 'P-000001',
-      userId: 12,
-      firstName: 'leriel',
-      middleName: 'mike',
-      lastName: 'Kim',
-      experience: '3-5 years',
-      isActive: true,
-      isOnboarded: false,
-      legalNamePronunciation: 'Leriel Kim',
-      pronounce: 'HE',
-      preferredName: 'Lel',
-      preferredNamePronunciation: 'rel',
-      jobInfo: [],
-      email: 'leriel@glozinc.com',
-      timezone: {
-        phone: '82',
-        code: 'KR',
-        label: 'Asia/Seoul',
-      },
-      mobile: '01038088637',
-      phone: '63377335',
-      specialties: [
-        'Cooking/Food&Drink',
-        'Health(Mental and physical)',
-        'Sports',
-        'Beauty/Fashion',
-        'Music/Entertainment',
-        'Nature',
-        'Travel',
-        'Science/Engineering',
-      ],
-      notesFromUser: 'hi',
-      resume: [],
-      contracts: [],
-      commentsOnPro: [
-        {
-          id: 0,
-          userId: 1,
-          firstName: 'Jay',
-          middleName: null,
-          lastName: 'Lee',
-          email: 'jay@glozinc.com',
-          createdAt: '2022-04-27T14:13:15Z',
-          updatedAt: '2023-01-13T21:40:10Z',
-          comment:
-            'Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.',
+  rest.get(BASEURL + '/api/enough/onboard/user/:userId', (req, res, ctx) => {
+    const id = req.params.userId
+    if (id.includes('P')) {
+      const details: OnboardingProDetailsType = {
+        id: 'P-000001',
+        userId: 12,
+        firstName: 'leriel',
+        middleName: 'mike',
+        lastName: 'Kim',
+        experience: '3-5 years',
+        isActive: true,
+        isOnboarded: false,
+        legalNamePronunciation: 'Leriel Kim',
+        pronounce: 'HE',
+        preferredName: 'Lel',
+        preferredNamePronunciation: 'rel',
+        jobInfo: [],
+        email: 'leriel@glozinc.com',
+        timezone: {
+          phone: '82',
+          code: 'KR',
+          label: 'Asia/Seoul',
         },
-      ],
-      corporationId: 'P-000001',
-      createdAt: '2022-04-27T14:13:15Z',
-      updatedAt: '2022-04-27T14:13:15Z',
-      deletedAt: null,
-      fromSNS: false,
-      havePreferredName: true,
-      company: 'GloZ',
+        mobile: '01038088637',
+        phone: '63377335',
+        specialties: [
+          'Cooking/Food&Drink',
+          'Health(Mental and physical)',
+          'Sports',
+          'Beauty/Fashion',
+          'Music/Entertainment',
+          'Nature',
+          'Travel',
+          'Science/Engineering',
+        ],
+        notesFromUser: 'hi',
+        resume: [],
+        contracts: [],
+        commentsOnPro: [
+          {
+            id: 0,
+            userId: 1,
+            firstName: 'Jay',
+            middleName: null,
+            lastName: 'Lee',
+            email: 'jay@glozinc.com',
+            createdAt: '2022-04-27T14:13:15Z',
+            updatedAt: '2023-01-13T21:40:10Z',
+            comment:
+              'Curabitur gravida nisi at nibh. In hac habitasse platea dictumst. Aliquam augue quam, sollicitudin vitae, consectetuer eget, rutrum at, lorem. Integer tincidunt ante vel ipsum. Praesent blandit lacinia erat. Vestibulum sed magna at nunc commodo placerat. Praesent blandit. Nam nulla. Integer pede justo, lacinia eget, tincidunt eget, tempus vel, pede. Morbi porttitor lorem id ligula. Suspendisse ornare consequat lectus. In est risus, auctor sed, tristique in, tempus sit amet, sem.',
+          },
+        ],
+        corporationId: 'P-000001',
+        createdAt: '2022-04-27T14:13:15Z',
+        updatedAt: '2022-04-27T14:13:15Z',
+        deletedAt: null,
+        fromSNS: false,
+        havePreferredName: true,
+        company: 'GloZ',
+      }
+
+      return res(ctx.status(200), ctx.json(details))
+    }
+  }),
+
+  //onboarding list
+  rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
+    console.log(req)
+
+    interface Data {
+      id: string
+      userId: number
+      email: string
+      firstName: string
+      middleName: string
+      lastName: string
+      experience: string
+      jobInfo: {
+        id: number
+        testStatus: string
+        jobType: string
+        role: string
+        source: string
+        target: string
+      }
+      isOnboarded: boolean
+      isActive: boolean
+    }
+    const f_Skip = Number(req.url.searchParams.get('skip')) || 0
+    const f_Take = Number(req.url.searchParams.get('take')) || 10
+
+    const f_Search = req.url.searchParams.get('search') || ''
+
+    const f_JobType = req.url.searchParams.getAll('jobType') ?? []
+
+    const f_Role = req.url.searchParams.getAll('role') ?? []
+    const f_Source = req.url.searchParams.getAll('source') ?? []
+    const f_Target = req.url.searchParams.getAll('target') ?? []
+
+    const f_Experience = req.url.searchParams.getAll('experience') ?? []
+
+    const f_TestStatus = req.url.searchParams.getAll('testStatus') ?? []
+
+    const jobTypes = [
+      'Documents/Text',
+      'Dubbing',
+      'Interpretation',
+      'Misc.',
+      'OTT/Subtitle',
+      'Webcomics',
+      'Webnovel',
+    ]
+    const roleTypes = [
+      'Audio describer',
+      'Audio description QCer',
+      'Copywriter',
+      'DTPer',
+      'DTP QCer',
+      'Dubbing audio QCer',
+      'Dubbing script QCer',
+      'Dubbing script translator',
+      'Dubbing voice artist',
+      'Editor',
+      'Interpreter',
+      'Proofreader',
+      'QCer',
+      'SDH author',
+      'SDH QCer',
+      'Subtitle author',
+      'Subtitle QCer',
+      'Supp author',
+      'Supp QCer',
+      'Template author',
+      'Template QCer',
+      'Transcriber',
+      'Translator',
+      'Video editor',
+      'Webcomics QCer',
+      'Webcomics translator',
+      'Webnovel QCer',
+      'Webnovel translator',
+    ]
+
+    const experiences = [
+      'No experience',
+      '1-2 year(s)',
+      '3-5 years',
+      '6-9 years',
+      '10+ years',
+    ]
+
+    const testStatusList = [
+      'Awaiting assignment',
+      'Test assigned',
+      'Basic in progress',
+      'Basic submitted',
+      'Basic failed',
+      'Basic passed',
+      'Skill in progress',
+      'Skill submitted',
+      'Reviewing',
+      'Review canceled',
+      'Review completed',
+      'Skill failed',
+      'Paused',
+      'Rejected',
+    ]
+
+    const languages = languageList.map(value => value.value.toUpperCase())
+
+    const firstNames = [
+      'Bon',
+      'Chloe',
+      'Ellie',
+      'Ethan',
+      'Haley',
+      'Hope',
+      'Jay',
+      'Leriel',
+      'Luke',
+      'Risha',
+      'Winter',
+    ]
+
+    const lastNames = [
+      'Kim',
+      'Yu',
+      'Park',
+      'Kim',
+      'Park',
+      'Kim',
+      'Lee',
+      'Kim',
+      'Kim',
+      'Park',
+      'Lee',
+    ]
+
+    const emails = [
+      'bon@glozinc.com',
+      'chole@glozinc.com',
+      'ellie@glozinc.com',
+      'ethan@glozinc.com',
+      'haley@glozinc.com',
+      'hope@glozinc.com',
+      'jay@glozinc.com',
+      'leriel@glozinc.com',
+      'luke@glozinc.com',
+      'risha@glozinc.com',
+      'winter@glozinc.com',
+    ]
+    function getRandomDate() {
+      const start = new Date('2022-01-01')
+      const end = new Date('2023-12-31')
+      return new Date(
+        start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+      ).toISOString()
+    }
+    function generateRandomData() {
+      const data = []
+
+      for (let i = 0; i < 11; i++) {
+        // 20개의 랜덤 데이터 생성
+        const jobInfo: any = []
+        const jobInfoLength = Math.floor(Math.random() * 5) + 1
+        for (let j = 0; j < jobInfoLength; j++) {
+          const id = j + 1
+          const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
+          const role = roleTypes[Math.floor(Math.random() * roleTypes.length)]
+          const source =
+            role === 'DTPer' || role === 'DTP QCer'
+              ? ''
+              : languages[Math.floor(Math.random() * languages.length)]
+          const target =
+            role === 'DTPer' || role === 'DTP QCer'
+              ? ''
+              : languages[Math.floor(Math.random() * languages.length)]
+          const testStatus =
+            testStatusList[Math.floor(Math.random() * testStatusList.length)]
+          jobInfo.push({
+            id,
+            jobType,
+            role,
+            source,
+            target,
+            testStatus,
+          })
+        }
+
+        const email = emails[Math.floor(Math.random() * testStatusList.length)]
+        const experience =
+          experiences[Math.floor(Math.random() * experiences.length)]
+
+        const createdAt = getRandomDate()
+        const updatedAt = getRandomDate()
+        const id = i + 1
+
+        data.push({
+          id: `P-${String(id).padStart(6, '0')}`,
+          userId: id,
+          email: email,
+          firstName: firstNames[i],
+          middleName: 'Minji',
+          lastName: lastNames[i],
+          createdAt,
+          updatedAt,
+          experience,
+          jobInfo,
+          isOnboarded: Math.random() < 0.5,
+          isActive: Math.random() < 0.5,
+        })
+      }
+      return data
     }
 
-    return res(ctx.status(200), ctx.json(details))
+    function filterData(
+      take: number,
+      skip: number,
+      search: string,
+      jobType: Array<string>,
+      role: Array<string>,
+      source: Array<string>,
+      target: Array<string>,
+      experience: Array<string>,
+      testStatus: Array<string>,
+    ): Data[] {
+      return sampleList
+        .filter(
+          item =>
+            (!search || search === (item.email || item.firstName)) &&
+            (jobType?.length === 0 ||
+              jobType?.includes(item.jobInfo.jobType)) &&
+            (role?.length === 0 || role?.includes(item.jobInfo.role)) &&
+            (source?.length === 0 || source?.includes(item.jobInfo.source)) &&
+            (target?.length === 0 || target?.includes(item.jobInfo.target)) &&
+            (experience?.length === 0 ||
+              experience?.includes(item.experience)) &&
+            (testStatus?.length === 0 ||
+              testStatus?.includes(item.jobInfo.testStatus)),
+        )
+        .slice(skip, skip + take)
+    }
+
+    const sampleList: Array<{
+      id: string
+      userId: number
+      email: string
+      firstName: string
+      middleName: string
+      lastName: string
+      experience: string
+      jobInfo: {
+        id: number
+        jobType: string
+        testStatus: string
+        role: string
+        source: string
+        target: string
+      }
+      isOnboarded: boolean
+      isActive: boolean
+    }> = generateRandomData()
+    const finalList = filterData(
+      f_Take,
+      f_Skip,
+      f_Search,
+
+      f_JobType,
+      f_Role,
+      f_Source,
+      f_Target,
+      f_Experience,
+      f_TestStatus,
+    )
+
+    return res(
+      ctx.status(200),
+      ctx.json({
+        data: finalList,
+        totalCount: sampleList.length,
+      }),
+    )
+  }),
+
+  rest.get(BASEURL + '/api/enough/cert/request/role', (req, res, ctx) => {
+    return res(ctx.status(200), ctx.json(role))
   }),
 ]

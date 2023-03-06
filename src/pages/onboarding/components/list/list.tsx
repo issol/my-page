@@ -16,6 +16,7 @@ type Props = {
   onboardingListPageSize: number
   setOnboardingListPageSize: Dispatch<SetStateAction<number>>
   onboardingProList: OnboardingListType[]
+  onboardingProListCount: number
 }
 
 export default function OnboardingList({
@@ -24,12 +25,13 @@ export default function OnboardingList({
   onboardingListPageSize,
   setOnboardingListPageSize,
   onboardingProList,
+  onboardingProListCount,
 }: Props) {
   return (
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${onboardingProList.length})`}
+          title={`Pros (${onboardingProListCount})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box
@@ -84,7 +86,7 @@ export default function OnboardingList({
             pageSize={onboardingListPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
             page={onboardingListPage}
-            rowCount={onboardingProList.length}
+            rowCount={onboardingProListCount}
             onPageChange={(newPage: number) => {
               setOnboardingListPage(newPage)
             }}

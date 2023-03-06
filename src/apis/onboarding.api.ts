@@ -11,6 +11,8 @@ export const getOnboardingProList = async (filters: OnboardingFilterType) => {
     `/api/enough/onboard/user/al?${makeQuery(filters)}`,
   )
 
+  console.log(data)
+
   return data.data
 }
 

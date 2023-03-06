@@ -20,28 +20,10 @@ import {
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 
-// export const useGetReviewerList = () => {
-//   return useQuery(
-//     'reviewers',
-//     () => {
-//       return getReviewer()
-//     },
-//     {
-//       staleTime: 60 * 1000, // 1
-//       keepPreviousData: true,
-//       suspense: true,
-
-//       useErrorBoundary: (error: any) => error.response?.status >= 500,
-//     },
-//   )
-// }
-
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
     ['onboarding-pro-list', filters],
-    () => {
-      return getOnboardingProList(filters)
-    },
+    () => getOnboardingProList(filters),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
@@ -56,10 +38,7 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
   const id = typeof userId === 'string' ? userId : ''
   return useQuery<OnboardingProDetailsType, Error, OnboardingProDetailsType>(
     `${userId}`,
-    () => {
-      return getOnboardingProDetails(id)
-    },
-
+    () => getOnboardingProDetails(id),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
