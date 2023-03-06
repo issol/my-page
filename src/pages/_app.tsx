@@ -208,6 +208,8 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
+  //** TODO: QA동안 유지하고 삭제하기 */
+
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>

@@ -1,82 +1,97 @@
-import axios from 'axios'
-import { AddRoleType, CommentsOnProType } from 'src/types/onboarding/list'
+import axios from 'src/configs/axios'
+import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import {
+  AddRolePayloadType,
+  OnboardingFilterType,
+} from 'src/types/onboarding/list'
+import { makeQuery } from 'src/shared/transformer/query.transformer'
 
-export const certifyRole = async (userId: number, jobInfoId: number) => {
-  const data = await axios.delete('/api/pro/details/jobInfo', {
-    params: { userId: userId, id: jobInfoId },
-  })
+export const getOnboardingProList = async (filters: OnboardingFilterType) => {
+  const data = await axios.get(
+    `/api/enough/onboard/user/al?${makeQuery(filters)}`,
+  )
 
-  return data
-}
-
-export const testAction = async (
-  userId: number,
-  jobInfoId: number,
-  status: string,
-) => {
-  try {
-    const data = await axios.post('/api/pro/details/jobInfo/item', {
-      data: { userId: userId, id: jobInfoId, status: status },
-    })
-
-    return data
-  } catch (e) {}
-}
-
-export const getReviewer = async () => {
-  const data = await axios.get('/api/pro/details/reviewer')
+  console.log(data)
 
   return data.data
 }
 
-export const assignReviewer = async (id: number, status: string) => {
-  try {
-    const data = await axios.post('/api/pro/details/reviewer/action', {
-      data: { id: id, status: status },
-    })
-
-    return data
-  } catch (e) {}
-}
-
-export const addTest = async (userId: number, jobInfo: AddRoleType) => {
-  try {
-    // const res = jobInfo.jobInfo.map(value => ({
-    //   ...value,
-    //   jobType: JobList.filter(data => data.value === value.jobType)[0].label,
-    // }))
-    // console.log(res)
-
-    const data = await axios.post('/api/pro/details/test', {
-      data: { userId: userId, jobInfo: jobInfo },
-    })
-
-    return data
-  } catch (e) {}
-}
-
-export const deleteComment = async (userId: number, commentId: number) => {
-  const data = await axios.delete('/api/pro/details/comments', {
-    params: { userId: userId, id: commentId },
-  })
+export const getOnboardingProDetails = async (
+  userId: string,
+): Promise<OnboardingProDetailsType> => {
+  const { data } = await axios.get<OnboardingProDetailsType>(
+    `/api/enough/onboard/user/${userId}`,
+  )
 
   return data
 }
 
-export const editComment = async (
-  userId: number,
-  comment: CommentsOnProType,
-) => {
-  const data = await axios.post('/api/pro/details/comments', {
-    data: { userId: userId, comment: comment },
+export const getResume = async () => {
+  const data = await axios.get('/api/enough/resume')
+
+  return data.data.url
+}
+
+export const addCommentOnPro = async (userId: number, comment: string) => {
+  await axios.post(`/api/enough/u/comment`, {
+    userId: userId,
+    comment: comment,
   })
 }
 
-export const addingComment = async (
-  userId: number,
-  comment: CommentsOnProType,
-) => {
-  const data = await axios.post('/api/pro/details/comments/add', {
-    data: { userId: userId, comment: comment },
+export const editCommentOnPro = async (commentId: number, comment: string) => {
+  await axios.patch('/api/enough/u/comment', {
+    commentId: commentId,
+    comment: comment,
   })
+}
+
+export const deleteCommentOnPro = async (commentId: number) => {
+  await axios.delete(`/api/enough/u/comment/${commentId}`)
+}
+
+export const getOnboardingStatistic = async () => {
+  const data = await axios.get('/api/enough/cert/statistic')
+
+  return data.data
+}
+
+export const getStatistic = async () => {
+  const data = await axios.get('/api/enough/u/statistic/today')
+
+  return data.data
+}
+
+export const getAppliedRole = async (id: number) => {
+  const data = await axios.get(`/api/enough/cert/request/role?userId=${id}`)
+
+  return data.data
+}
+
+export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
+  await axios.post('/api/enough/cert/request/role/generate', { data: payload })
+}
+
+export const patchAppliedRole = async (
+  id: number,
+  reply: string,
+  pauseReason?: string,
+  rejectReason?: string,
+  messageToUser?: string,
+) => {
+  const params = {
+    reply,
+    rejectReason,
+    messageToUser,
+  }
+
+  console.log(params)
+
+  await axios.patch(`/api/enough/cert/request/role/${id}`, params)
+}
+
+export const getCertifiedRole = async (id: number) => {
+  const data = await axios.get(`/api/enough/cert/certificate?userId=${id}`)
+
+  return data.data
 }

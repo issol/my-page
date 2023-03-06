@@ -26,12 +26,13 @@ import {
   AddRolePayloadType,
 } from 'src/types/onboarding/list'
 import { useMutation, useQueryClient } from 'react-query'
-import { addTest, certifyRole, testAction } from 'src/apis/onboarding.api'
+
 import { ModalContext } from 'src/context/ModalContext'
 import TestDetailsModal from '../components/detail/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
+  useGetCertifiedRole,
   useGetOnboardingProDetails,
 } from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
@@ -65,9 +66,14 @@ import {
   addCreatedAppliedRole,
   deleteCommentOnPro,
   editCommentOnPro,
-} from 'src/apis/onboarding-real.api'
+  patchAppliedRole,
+} from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
-import RejectTestModal from '../components/detail/modal/reject-test-modal'
+import NegativeActionsTestModal from '../components/detail/modal/negative-actions-test-modal'
+import CertifiedRole from '../components/detail/certified-role'
+import CertifyRoleModal from '../components/detail/modal/certify-role-modal'
+import ReasonModal from '../components/detail/modal/reason-modal'
+import ResumeTestModal from '../components/detail/modal/resume-test-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -85,7 +91,7 @@ function OnboardingDetail() {
   const { data: userInfo } = useGetOnboardingProDetails(id!)
 
   const { data: appliedRole } = useGetAppliedRole(userInfo!.userId)
-  console.log(appliedRole)
+  const { data: certifiedRole } = useGetCertifiedRole(userInfo!.userId)
 
   const { user } = useContext(AuthContext)
 
@@ -180,26 +186,49 @@ function OnboardingDetail() {
 
   const queryClient = useQueryClient()
 
-  const certifyRoleMutation = useMutation(
-    (value: { userId: number; jobInfoId: number }) =>
-      certifyRole(value.userId, value.jobInfoId),
+  // const certifyRoleMutation = useMutation(
+  //   (value: { userId: number; jobInfoId: number }) =>
+  //     certifyRole(value.userId, value.jobInfoId),
+  //   {
+  //     onSuccess: (data, variables) => {
+  //       queryClient.invalidateQueries(`${variables.userId}`)
+  //       // displayUndoToast(variables.user, variables.payload.reply)
+  //     },
+  //   },
+  // )
+
+  const appliedRoleActionMutation = useMutation(
+    (value: {
+      id: number
+      reply: string
+      pauseReason?: string
+      rejectReason?: string
+      messageToUser?: string
+    }) =>
+      patchAppliedRole(
+        value.id,
+        value.reply,
+        value.pauseReason,
+        value.rejectReason,
+        value.messageToUser,
+      ),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
-        // displayUndoToast(variables.user, variables.payload.reply)
+        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
       },
     },
   )
 
-  const testActionMutation = useMutation(
-    (value: { userId: number; jobInfoId: number; status: string }) =>
-      testAction(value.userId, value.jobInfoId, value.status),
-    {
-      onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${variables.userId}`)
-      },
-    },
-  )
+  // const testActionMutation = useMutation(
+  //   (value: { userId: number; jobInfoId: number; status: string }) =>
+  //     testAction(value.userId, value.jobInfoId, value.status),
+  //   {
+  //     onSuccess: (data, variables) => {
+  //       queryClient.invalidateQueries(`${variables.userId}`)
+  //     },
+  //   },
+  // )
 
   const addTestMutation = useMutation(
     (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
@@ -323,29 +352,103 @@ function OnboardingDetail() {
     setSelectedJobInfo(jobInfo)
   }
 
-  const onClickReject = (jobInfo: AppliedRoleType) => {
+  const handleCertifyRole = (id: number) => {
+    appliedRoleActionMutation.mutate({
+      id: id,
+      reply: 'certify',
+    })
+  }
+
+  const handleRejectRole = (
+    id: number,
+    rejectReason: string,
+    messageToUser: string,
+  ) => {
+    appliedRoleActionMutation.mutate({
+      id: id,
+      reply: 'reject',
+      rejectReason: rejectReason,
+      messageToUser: messageToUser,
+    })
+  }
+
+  const handlePauseRole = (
+    id: number,
+    pauseReason: string,
+    messageToUser: string,
+  ) => {
+    appliedRoleActionMutation.mutate({
+      id: id,
+      reply: 'pause',
+      pauseReason: pauseReason,
+      messageToUser: messageToUser,
+    })
+  }
+
+  const handleResumeTest = (id: number) => {
+    appliedRoleActionMutation.mutate({
+      id: id,
+      reply: 'resume',
+    })
+  }
+
+  const onClickRejectOrPause = (jobInfo: AppliedRoleType, type: string) => {
     setModal(
-      <RejectTestModal
+      <NegativeActionsTestModal
         open={true}
         onClose={() => setModal(null)}
+        type={type}
         jobInfo={jobInfo}
         userInfo={userInfo!}
+        handleRejectRole={handleRejectRole}
+        handlePauseRole={handlePauseRole}
       />,
     )
   }
 
-  const onClickCertify = (jobInfoId: number) => {
-    setActionId(jobInfoId)
-    certifyRoleMutation.mutate({ userId: Number(id), jobInfoId: jobInfoId })
+  const onClickCertify = (jobInfo: AppliedRoleType) => {
+    setActionId(jobInfo.id)
+    setModal(
+      <CertifyRoleModal
+        open={true}
+        onClose={() => setModal(null)}
+        userInfo={jobInfo}
+        handleCertifyRole={handleCertifyRole}
+      />,
+    )
+  }
+
+  const onClickResumeTest = (jobInfo: AppliedRoleType) => {
+    setActionId(jobInfo.id)
+    setModal(
+      <ResumeTestModal
+        open={true}
+        onClose={() => setModal(null)}
+        userInfo={jobInfo}
+        handleResumeTest={handleResumeTest}
+      />,
+    )
+  }
+
+  const onClickReason = (type: string, message: string, reason: string) => {
+    setModal(
+      <ReasonModal
+        open={true}
+        onClose={() => setModal(null)}
+        messageToUser={message}
+        reason={reason}
+        type={type}
+      />,
+    )
   }
 
   const onClickAction = (jobInfoId: number, status: string) => {
     setActionId(jobInfoId)
-    testActionMutation.mutate({
-      userId: Number(id),
-      jobInfoId: jobInfoId,
-      status: status,
-    })
+    // testActionMutation.mutate({
+    //   userId: Number(id),
+    //   jobInfoId: jobInfoId,
+    //   status: status,
+    // })
   }
 
   const onClickAddRole = () => {
@@ -746,6 +849,9 @@ function OnboardingDetail() {
           <About userInfo={userInfo!} />
         </Grid>
         <Grid item xs={12}>
+          <CertifiedRole userInfo={certifiedRole!} />
+        </Grid>
+        <Grid item xs={12}>
           <NoteFromPro userInfo={userInfo!} />
         </Grid>
       </Grid>
@@ -761,21 +867,25 @@ function OnboardingDetail() {
         </Grid>
 
         <Grid item xs={12}>
-          <AppliedRole
-            userInfo={appliedRole!}
-            hideFailedTest={hideFailedTest}
-            handleHideFailedTestChange={handleHideFailedTestChange}
-            selectedJobInfo={selectedJobInfo}
-            handleClickRoleCard={handleClickRoleCard}
-            page={rolePage}
-            rowsPerPage={roleRowsPerPage}
-            handleChangePage={handleChangeRolePage}
-            offset={roleOffset}
-            onClickCertify={onClickCertify}
-            onClickAction={onClickAction}
-            onClickAddRole={onClickAddRole}
-            onClickReject={onClickReject}
-          />
+          <Suspense>
+            <AppliedRole
+              userInfo={appliedRole!}
+              hideFailedTest={hideFailedTest}
+              handleHideFailedTestChange={handleHideFailedTestChange}
+              selectedJobInfo={selectedJobInfo}
+              handleClickRoleCard={handleClickRoleCard}
+              page={rolePage}
+              rowsPerPage={roleRowsPerPage}
+              handleChangePage={handleChangeRolePage}
+              offset={roleOffset}
+              onClickCertify={onClickCertify}
+              onClickAction={onClickAction}
+              onClickAddRole={onClickAddRole}
+              onClickRejectOrPause={onClickRejectOrPause}
+              onClickReason={onClickReason}
+              onClickResumeTest={onClickResumeTest}
+            />
+          </Suspense>
         </Grid>
 
         <Grid item xs={12}>

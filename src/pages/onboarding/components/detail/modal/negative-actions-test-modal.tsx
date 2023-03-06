@@ -18,7 +18,7 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { RejectReason } from 'src/shared/const/onboarding'
+import { PauseReason, RejectReason } from 'src/shared/const/onboarding'
 import { v4 as uuidv4 } from 'uuid'
 import TextField from '@mui/material/TextField'
 import {
@@ -26,29 +26,48 @@ import {
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { Pause } from '@mui/icons-material'
 
 type Props = {
   open: boolean
   onClose: any
+  type: string
   jobInfo: AppliedRoleType
   userInfo: OnboardingProDetailsType
+  handleRejectRole: (
+    id: number,
+    rejectReason: string,
+    messageToUser: string,
+  ) => void
+  handlePauseRole: (
+    id: number,
+    pauseReason: string,
+    messageToUser: string,
+  ) => void
 }
-export default function RejectTestModal({
+export default function NegativeActionsTestModal({
   open,
   onClose,
+  type,
   jobInfo,
   userInfo,
+  handleRejectRole,
+  handlePauseRole,
 }: Props) {
-  const [rejectReason, setRejectReason] = useState<string>('')
+  const [reason, setReason] = useState<string>('')
   const [messageToPro, setMessageToPro] = useState<string>('')
 
   const handleChangeMessageToPro = (event: ChangeEvent<HTMLInputElement>) => {
     setMessageToPro(event.target.value)
   }
-  const handleChangeRejectReason = (event: ChangeEvent<HTMLInputElement>) => {
-    setRejectReason((event.target as HTMLInputElement).value)
+  const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
+    setReason((event.target as HTMLInputElement).value)
     /* @ts-ignore */
-    const message = RejectReason[(event.target as HTMLInputElement).value]
+    const message: string =
+      type === 'reject' //@ts-ignore
+        ? RejectReason[(event.target as HTMLInputElement).value] //@ts-ignore
+        : PauseReason[(event.target as HTMLInputElement).value] //@ts-ignore
+
     setMessageToPro(
       (event.target as HTMLInputElement).value === 'Others'
         ? ''
@@ -106,7 +125,7 @@ export default function RejectTestModal({
                 color: 'rgba(76, 78, 100, 0.6)',
               }}
             >
-              Are you sure you want to reject this test?
+              Are you sure you want to {type} this test?
             </Typography>
             <Typography
               variant='subtitle2'
@@ -115,7 +134,8 @@ export default function RejectTestModal({
               {jobInfo.jobType}, {jobInfo.role},&nbsp;
               {jobInfo.source && jobInfo.target ? (
                 <>
-                  {jobInfo.source} &rarr; {jobInfo.target}
+                  {jobInfo.source.toUpperCase()} &rarr;{' '}
+                  {jobInfo.target.toUpperCase()}
                 </>
               ) : (
                 ''
@@ -127,20 +147,24 @@ export default function RejectTestModal({
           row
           aria-label='controlled'
           name='controlled'
-          value={rejectReason}
-          onChange={handleChangeRejectReason}
+          value={reason}
+          onChange={handleChangeReason}
           sx={{ maxWidth: 442 }}
         >
-          {Object.keys(RejectReason).map(value => {
-            return (
-              <FormControlLabel
-                key={uuidv4()}
-                value={value}
-                control={<Radio />}
-                label={value}
-              />
-            )
-          })}
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: 1 }}>
+            {Object.keys(type === 'reject' ? RejectReason : PauseReason).map(
+              value => {
+                return (
+                  <FormControlLabel
+                    key={uuidv4()}
+                    value={value}
+                    control={<Radio />}
+                    label={value}
+                  />
+                )
+              },
+            )}
+          </Box>
         </RadioGroup>
 
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
@@ -162,9 +186,9 @@ export default function RejectTestModal({
                 ? 'Write down a reason for rejecting this certification test.'
                 : undefined
             }
-            error={rejectReason !== '' && messageToPro === ''}
+            error={reason !== '' && messageToPro === ''}
             helperText={
-              rejectReason !== '' && messageToPro === ''
+              reason !== '' && messageToPro === ''
                 ? 'This field is required'
                 : null
             }
@@ -203,13 +227,16 @@ export default function RejectTestModal({
             size='medium'
             type='button'
             variant='contained'
-            disabled={rejectReason === '' || messageToPro === ''}
+            disabled={reason === '' || messageToPro === ''}
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
+              type === 'reject'
+                ? handleRejectRole(jobInfo.id, reason, messageToPro)
+                : handlePauseRole(jobInfo.id, reason, messageToPro)
             }}
           >
-            Reject
+            {type === 'reject' ? 'Reject' : 'Pause'}
           </Button>
         </Box>
       </DialogContent>

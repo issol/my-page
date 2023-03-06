@@ -1,13 +1,14 @@
 import { useQuery } from 'react-query'
-import { getReviewer } from 'src/apis/onboarding.api'
+
 import {
   getAppliedRole,
+  getCertifiedRole,
   getOnboardingProDetails,
   getOnboardingProList,
   getOnboardingStatistic,
   getResume,
   getStatistic,
-} from 'src/apis/onboarding-real.api'
+} from 'src/apis/onboarding.api'
 import {
   OnboardingFilterType,
   OnboardingJobInfoType,
@@ -15,31 +16,14 @@ import {
 } from 'src/types/onboarding/list'
 import {
   AppliedRoleType,
+  CertifiedRoleType,
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
-
-export const useGetReviewerList = () => {
-  return useQuery(
-    'reviewers',
-    () => {
-      return getReviewer()
-    },
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
-
-      useErrorBoundary: (error: any) => error.response?.status >= 500,
-    },
-  )
-}
 
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
     ['onboarding-pro-list', filters],
-    () => {
-      return getOnboardingProList(filters)
-    },
+    () => getOnboardingProList(filters),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
@@ -54,10 +38,7 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
   const id = typeof userId === 'string' ? userId : ''
   return useQuery<OnboardingProDetailsType, Error, OnboardingProDetailsType>(
     `${userId}`,
-    () => {
-      return getOnboardingProDetails(id)
-    },
-
+    () => getOnboardingProDetails(id),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
@@ -153,6 +134,18 @@ export const useGetAppliedRole = (id: number) => {
   return useQuery<Array<AppliedRoleType>>(
     `applied-role-${id}`,
     () => getAppliedRole(id),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+      enabled: !!id,
+    },
+  )
+}
+
+export const useGetCertifiedRole = (id: number) => {
+  return useQuery<Array<CertifiedRoleType>>(
+    `certified-role-${id}`,
+    () => getCertifiedRole(id),
     {
       staleTime: 60 * 1000,
       suspense: true,

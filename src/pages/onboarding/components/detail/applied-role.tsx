@@ -16,6 +16,7 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import { TestStatus } from 'src/shared/const/personalInfo'
 
 type Props = {
   userInfo: Array<AppliedRoleType>
@@ -29,10 +30,12 @@ type Props = {
   rowsPerPage: number
   offset: number
   handleChangePage: (direction: string) => void
-  onClickCertify: (jobInfoId: number) => void
+  onClickCertify: (jobInfo: AppliedRoleType) => void
+  onClickResumeTest: (jobInfo: AppliedRoleType) => void
   onClickAction: (jobInfoId: number, status: string) => void
   onClickAddRole: () => void
-  onClickReject: (jobInfo: AppliedRoleType) => void
+  onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
+  onClickReason: (type: string, message: string, reason: string) => void
 }
 
 export default function AppliedRole({
@@ -47,8 +50,10 @@ export default function AppliedRole({
   handleChangePage,
   onClickCertify,
   onClickAction,
+  onClickResumeTest,
   onClickAddRole,
-  onClickReject,
+  onClickRejectOrPause,
+  onClickReason,
 }: Props) {
   const verifiedNoTest = (jobInfo: AppliedRoleType) => {
     const noBasic = jobInfo!.test.filter(
@@ -81,7 +86,7 @@ export default function AppliedRole({
                   color: '#FF4D49',
                 }}
                 onClick={() => {
-                  onClickReject(jobInfo)
+                  onClickRejectOrPause(jobInfo, 'reject')
                 }}
               >
                 Reject
@@ -92,7 +97,7 @@ export default function AppliedRole({
                 fullWidth
                 variant='contained'
                 onClick={() => {
-                  onClickCertify(jobInfo.id)
+                  onClickCertify(jobInfo)
                 }}
               >
                 Certify
@@ -112,7 +117,7 @@ export default function AppliedRole({
                   color: '#FF4D49',
                 }}
                 onClick={() => {
-                  onClickReject(jobInfo)
+                  onClickRejectOrPause(jobInfo, 'reject')
                 }}
               >
                 Reject
@@ -242,22 +247,59 @@ export default function AppliedRole({
         </Button>
       )
     } else if (verifiedNoTest(jobInfo)) {
-      return (
-        <Button
-          fullWidth
-          variant='contained'
-          disabled
-          sx={{
-            '&.Mui-disabled': {
-              background: 'rgba(76, 78, 100, 0.12)',
-              border: 'none',
-              color: ' rgba(76, 78, 100, 0.38)',
-            },
-          }}
-        >
-          No certification test created
-        </Button>
-      )
+      if (
+        jobInfo.role === 'DTPer' ||
+        jobInfo.role === 'DTP QCer' ||
+        jobInfo.jobType === 'Interpretation'
+      ) {
+        return (
+          <>
+            <Grid item md={4} lg={4} xs={4}>
+              <Button
+                variant='outlined'
+                fullWidth
+                sx={{
+                  border: '1px solid rgba(255, 77, 73, 0.5)',
+                  color: '#FF4D49',
+                }}
+                onClick={() => {
+                  onClickRejectOrPause(jobInfo, 'reject')
+                }}
+              >
+                Reject
+              </Button>
+            </Grid>
+            <Grid item md={8} lg={8} xs={8}>
+              <Button
+                fullWidth
+                variant='contained'
+                onClick={() => {
+                  onClickCertify(jobInfo)
+                }}
+              >
+                Certify
+              </Button>
+            </Grid>
+          </>
+        )
+      } else {
+        return (
+          <Button
+            fullWidth
+            variant='contained'
+            disabled
+            sx={{
+              '&.Mui-disabled': {
+                background: 'rgba(76, 78, 100, 0.12)',
+                border: 'none',
+                color: ' rgba(76, 78, 100, 0.38)',
+              },
+            }}
+          >
+            No certification test created
+          </Button>
+        )
+      }
     } else {
       return <Typography></Typography>
     }
@@ -343,6 +385,7 @@ export default function AppliedRole({
                         height: '100%',
                         flex: 1,
                         cursor: 'pointer',
+
                         border:
                           selectedJobInfo && value.id === selectedJobInfo!.id
                             ? '2px solid #666CFF'
@@ -350,19 +393,90 @@ export default function AppliedRole({
                       }}
                       onClick={() => handleClickRoleCard(value)}
                     >
-                      <Box>
-                        <Typography
-                          variant='subtitle1'
-                          sx={{ fontWeight: 600, lineHeight: '24px' }}
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                        }}
+                      >
+                        <Box>
+                          <Typography
+                            variant='subtitle1'
+                            sx={{ fontWeight: 600, lineHeight: '24px' }}
+                          >
+                            {value.jobType}
+                          </Typography>
+                          <Typography
+                            variant='subtitle1'
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {value.role}
+                          </Typography>
+                        </Box>
+
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'flex-start',
+
+                            padding: 0,
+                            gap: 2,
+                          }}
                         >
-                          {value.jobType}
-                        </Typography>
-                        <Typography
-                          variant='subtitle1'
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {value.role}
-                        </Typography>
+                          {value.testStatus === 'Test assigned' ? (
+                            <Button
+                              variant='outlined'
+                              size='small'
+                              color='secondary'
+                              sx={{ height: '30px' }}
+                              onClick={() => {
+                                onClickRejectOrPause(value, 'pause')
+                              }}
+                            >
+                              Pause
+                            </Button>
+                          ) : value.testStatus === 'Paused' ? (
+                            <Button
+                              variant='outlined'
+                              size='small'
+                              color='primary'
+                              sx={{ height: '30px' }}
+                              onClick={() => {
+                                onClickResumeTest(value)
+                              }}
+                            >
+                              Resume
+                            </Button>
+                          ) : null}
+                          {value.testStatus === 'Rejected' ||
+                          value.testStatus === 'Paused' ? (
+                            <Box
+                              sx={{
+                                width: '20px',
+                                height: '20px',
+                              }}
+                            >
+                              <IconButton
+                                sx={{ padding: 0 }}
+                                onClick={event => {
+                                  event.stopPropagation()
+                                  onClickReason(
+                                    value.testStatus,
+                                    value.messageToUser!,
+                                    value.testStatus === 'Rejected'
+                                      ? value.rejectReason!
+                                      : value.pausedReason!,
+                                  )
+                                }}
+                              >
+                                <img
+                                  src='/images/icons/onboarding-icons/more-reason.svg'
+                                  alt='more'
+                                ></img>
+                              </IconButton>
+                            </Box>
+                          ) : null}
+                        </Box>
                       </Box>
                       <CardContent
                         sx={{

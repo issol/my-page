@@ -24,6 +24,9 @@ export type AppliedRoleType = {
   requestStatus: string
   operatorId: string | null
   response: string | null
+  messageToUser: string | null
+  rejectReason: string | null
+  pausedReason: string | null
   test: Array<TestType>
 }
 
@@ -60,4 +63,21 @@ export type TestPaperType = {
   isActive: boolean
   createdAt: string
   updatedAt: string
+}
+
+export type CertifiedRoleType = {
+  id: number
+  createdAt: string
+  updatedAt: string
+  userId: number
+  userEmail: string
+  userCompany: string
+  firstName: string
+  middleName?: string
+  lastName: string
+  jobType: string
+  role: string
+  source: string
+  target: string
+  deletedAt: string | null
 }

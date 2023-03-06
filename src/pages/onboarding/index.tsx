@@ -45,6 +45,7 @@ export default function Onboarding() {
   })
 
   const { data: onboardingProList } = useGetOnboardingProList(filters)
+
   const { data: totalStatistics } = useGetStatistic()
   const { data: onboardingStatistic } = useGetOnboardingStatistic()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
@@ -59,6 +60,8 @@ export default function Onboarding() {
     defaultValues,
     mode: 'onSubmit',
   })
+
+  console.log(onboardingProList)
 
   const onClickResetButton = () => {
     setRoleOptions(DefaultRolePair)
@@ -137,6 +140,7 @@ export default function Onboarding() {
         expanded={expanded}
       />
       <OnboardingList
+        onboardingProListCount={onboardingProList!.totalCount}
         onboardingProList={onboardingProList!.data}
         onboardingListPage={onboardingListPage}
         setOnboardingListPage={setOnboardingListPage}
