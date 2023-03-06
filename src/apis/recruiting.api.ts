@@ -11,16 +11,16 @@ export type RecruitingCountType = {
 export type StatusType = 'Ongoing' | 'Paused' | 'Fulfilled' | ''
 export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/recruiting/dashboard?company=GloZ`,
-    )
-    return data
-    // return {
-    //   onGoing: 1000,
-    //   done: 300,
-    //   hold: 300,
-    //   total: 1600,
-    // }
+    // const { data } = await axios.get(
+    //   `/api/enough/recruiting/dashboard?company=GloZ`,
+    // )
+    // return data
+    return {
+      onGoing: 1000,
+      done: 300,
+      hold: 300,
+      total: 1600,
+    }
   } catch (e: any) {
     return {
       onGoing: 0,

@@ -652,17 +652,20 @@ export const handlers = [
   }),
 
   //리크루팅 디테일 가져오기
-  rest.get(BASEURL + '/api/enough/recruiting/dashboard', (req, res, ctx) => {
-    return res(
-      ctx.status(200),
-      ctx.json({
-        onGoing: 55,
-        done: 125,
-        hold: 76,
-        total: 256243,
-      }),
-    )
-  }),
+  rest.get(
+    BASEURL + '/api/enough/recruiting/dashboard?company=GloZ',
+    (req, res, ctx) => {
+      return res(
+        ctx.status(200),
+        ctx.json({
+          onGoing: 55,
+          done: 125,
+          hold: 76,
+          total: 256243,
+        }),
+      )
+    },
+  ),
 
   //리크루팅 요청서
   rest.post(BASEURL + '/api/enough/recruiting', (req: any, res, ctx) => {
