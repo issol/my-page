@@ -32,7 +32,7 @@ type Props = {
   onClickBasicTestAction: (jobInfo: AppliedRoleType, type: string) => void
   onClickTestDetails: (history: AppliedRoleType, type: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
-  onClickSkillTestFail: (jobInfo: AppliedRoleType) => void
+  onClickSkillTestAction: (jobInfo: AppliedRoleType, type: string) => void
 }
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -51,19 +51,19 @@ export default function CertificationTest({
   onClickBasicTestAction,
   onClickCertify,
   onClickTestDetails,
-  onClickSkillTestFail,
+  onClickSkillTestAction,
 }: Props) {
   const [basicTest, setBasicTest] = useState<TestType | null>(null)
   const [skillTest, setSkillTest] = useState<TestType | null>(null)
 
   const verifiedNoTest = (jobInfo: AppliedRoleType) => {
-    const noBasic = jobInfo.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'basic',
-    )
+    const noBasic =
+      jobInfo.test.find(value => value.testType === 'basic')?.status ===
+      'NO_TEST'
 
-    const noSkill = jobInfo.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'skill',
-    )
+    const noSkill =
+      jobInfo.test.find(value => value.testType === 'skill')?.status ===
+      'NO_TEST'
 
     console.log(noBasic)
     console.log(noSkill)
@@ -99,8 +99,11 @@ export default function CertificationTest({
     >
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
       {selectedJobInfo &&
+      basicTest &&
+      skillTest &&
       selectedJobInfo.requestStatus !== 'Awaiting assignment' &&
-      selectedJobInfo.requestStatus !== 'Rejected' ? (
+      selectedJobInfo.requestStatus !== 'Rejected' &&
+      !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
@@ -108,13 +111,54 @@ export default function CertificationTest({
                 <TimelineDot color='warning' />
                 <TimelineConnector />
               </TimelineSeparator>
-              <TimelineContent
-                sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
-              >
-                <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                  Basic Test
-                </Typography>
-                {basicTest ? (
+              {basicTest ? (
+                <TimelineContent
+                  sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
+                >
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                      Basic Test
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 4 }}>
+                      {basicTest!.status === 'Basic submitted' ? (
+                        <>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: '14px',
+                              lineHeight: '20px',
+                              letterSpacing: '.15px',
+                            }}
+                          >
+                            Score : {basicTest.score ?? 0}
+                          </Typography>
+                          <Divider
+                            orientation='vertical'
+                            variant='fullWidth'
+                            flexItem
+                          />
+                        </>
+                      ) : null}
+                      {basicTest!.status === 'Basic submitted' ? (
+                        <>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              fontWeight: 500,
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                            }}
+                            // onClick={() => onClickTestDetails(selectedJobInfo)}
+                          >
+                            See response
+                          </Typography>
+                        </>
+                      ) : null}
+                    </Box>
+                  </Box>
+
                   <Card
                     sx={{
                       mt: 2,
@@ -150,123 +194,82 @@ export default function CertificationTest({
                             '-'
                           )}
                         </Typography>
-                        <Box sx={{ display: 'flex', gap: '10px' }}>
-                          {selectedJobInfo.requestStatus === 'Test assigned' ? (
-                            <>
-                              <Button
-                                variant='contained'
-                                onClick={() =>
-                                  onClickBasicTestAction(
-                                    selectedJobInfo,
-                                    'skip',
-                                  )
-                                }
-                              >
-                                Skip
-                              </Button>
-                              <Button
-                                variant='contained'
-                                onClick={() =>
-                                  onClickBasicTestAction(
-                                    selectedJobInfo,
-                                    'Basic in progress',
-                                  )
-                                }
-                              >
-                                Proceed
-                              </Button>
-                            </>
-                          ) : basicTest!.status === 'Basic in progress' ? (
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
-                              <Typography
-                                sx={{
-                                  fontWeight: 500,
-                                  fontSize: '14px',
-                                  lineHeight: '24px',
-                                  letterSpacing: '0.4px',
-                                  color: 'rgba(76, 78, 100, 0.87)',
-                                }}
-                              >
-                                In progress
-                              </Typography>
-                              <CircularProgress size={20} />
-                            </Box>
-                          ) : selectedJobInfo.testStatus === 'Basic failed' ? (
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
-                              <Typography
-                                sx={{
-                                  fontWeight: 500,
-                                  fontSize: '14px',
-                                  lineHeight: '24px',
-                                  letterSpacing: '0.4px',
-                                  color: 'rgba(76, 78, 100, 0.87)',
-                                }}
-                              >
-                                Failed
-                              </Typography>
-                              <img src='/images/icons/onboarding-icons/general-failed.svg' />
-                            </Box>
-                          ) : selectedJobInfo.testStatus ===
-                              'Test in progress' ||
-                            selectedJobInfo.testStatus === 'Test submitted' ||
-                            selectedJobInfo.testStatus === 'Reviewing' ||
-                            selectedJobInfo.testStatus === 'Test failed' ||
-                            selectedJobInfo.testStatus ===
-                              'Review completed' ? (
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
-                              <Typography
-                                sx={{
-                                  fontWeight: 500,
-                                  fontSize: '14px',
-                                  lineHeight: '24px',
-                                  letterSpacing: '0.4px',
-                                  color: 'rgba(76, 78, 100, 0.87)',
-                                }}
-                              >
-                                Passed
-                              </Typography>
-
-                              <img src='/images/icons/onboarding-icons/general-passed.svg' />
-                            </Box>
-                          ) : basicTest!.status === 'Skipped' ? (
-                            <Box sx={{ display: 'flex', gap: '8px' }}>
-                              <Typography
-                                sx={{
-                                  fontWeight: 500,
-                                  fontSize: '13px',
-                                  lineHeight: '18px',
-                                  letterSpacing: '0.16px',
-                                  color: '#64C623',
-                                }}
-                              >
-                                Skipped
-                              </Typography>
-                            </Box>
-                          ) : selectedJobInfo.test.find(
-                              value => value.testType === 'basic',
-                            )?.status === 'NO_TEST' ? (
-                            <Chip
-                              size='small'
-                              type='testStatus'
-                              label={'No test'}
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Chip
+                            size='medium'
+                            type='testStatus'
+                            label={
+                              basicTest!.status === 'Basic in progress' ||
+                              basicTest!.status === 'Basic submitted' ||
+                              basicTest!.status === 'Basic failed' ||
+                              basicTest!.status === 'Basic passed' ||
+                              basicTest!.status === 'NO_TEST'
+                                ? basicTest!.status === 'NO_TEST'
+                                  ? 'No test'
+                                  : basicTest!.status
+                                : '-'
+                            }
+                            /* @ts-ignore */
+                            customcolor={
                               /* @ts-ignore */
-                              customcolor={'#6D788D'}
-                              sx={{
-                                '& .MuiChip-label': { lineHeight: '18px' },
-                                mr: 1,
-                              }}
-                            />
+                              TestStatusColor[
+                                basicTest!.status === 'Basic in progress' ||
+                                basicTest!.status === 'Basic submitted' ||
+                                basicTest!.status === 'Basic failed' ||
+                                basicTest!.status === 'Basic passed' ||
+                                basicTest!.status === 'NO_TEST'
+                                  ? basicTest!.status
+                                  : 'default'
+                              ] //@ts-ignore
+                            }
+                            sx={{
+                              '& .MuiChip-label': { lineHeight: '18px' },
+                              mr: 1,
+                            }}
+                          />
+                          {basicTest!.status === 'Basic submitted' ? (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                              <Button
+                                variant='outlined'
+                                color='error'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic failed',
+                                  )
+                                }
+                              >
+                                Fail
+                              </Button>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic passed',
+                                  )
+                                }
+                              >
+                                Pass
+                              </Button>
+                            </Box>
                           ) : null}
                         </Box>
                       </Box>
                     </CardContent>
                   </Card>
-                ) : null}
-              </TimelineContent>
+                </TimelineContent>
+              ) : null}
             </TimelineItem>
 
             <TimelineItem>
-              {skillTest ? (
+              {skillTest && basicTest ? (
                 <>
                   <TimelineSeparator>
                     <TimelineDot
@@ -296,24 +299,29 @@ export default function CertificationTest({
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 4 }}>
                         {skillTest!.status === 'Skill submitted' ||
-                        skillTest!.status === 'Reviewing' ? (
-                          <Typography
-                            variant='body2'
-                            sx={{
-                              fontWeight: 500,
-                              textDecoration: 'underline',
-                              cursor: 'pointer',
-                            }}
-                            // onClick={() => onClickTestDetails(selectedJobInfo)}
-                          >
-                            See response
-                          </Typography>
+                        skillTest!.status === 'Reviewing' ||
+                        skillTest!.status === 'Skill failed' ? (
+                          <>
+                            {' '}
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 500,
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                              // onClick={() => onClickTestDetails(selectedJobInfo)}
+                            >
+                              See response
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='fullWidth'
+                              flexItem
+                            />
+                          </>
                         ) : null}
-                        <Divider
-                          orientation='vertical'
-                          variant='fullWidth'
-                          flexItem
-                        />
+
                         {skillTest!.status === 'Skill in progress' ||
                         skillTest!.status === 'Skill submitted' ||
                         skillTest!.status === 'Skill failed' ||
@@ -395,23 +403,21 @@ export default function CertificationTest({
                               alignItems: 'center',
                             }}
                           >
-                            <Chip
-                              size='medium'
-                              type='testStatus'
-                              label={
-                                skillTest!.status === 'Skill in progress' ||
-                                skillTest!.status === 'Skill submitted' ||
-                                skillTest!.status === 'Skill failed' ||
-                                skillTest!.status === 'Reviewing' ||
-                                skillTest!.status === 'Review completed' ||
-                                skillTest!.status === 'Review canceled'
-                                  ? skillTest!.status
-                                  : '-'
-                              }
-                              /* @ts-ignore */
-                              customcolor={
-                                /* @ts-ignore */
-                                TestStatusColor[
+                            {(basicTest!.status === 'Basic failed' ||
+                              basicTest!.status === 'Basic passed') &&
+                            skillTest!.status !== 'Cancelled' &&
+                            !(
+                              skillTest!.status === 'Skill in progress' ||
+                              skillTest!.status === 'Skill submitted' ||
+                              skillTest!.status === 'Skill failed' ||
+                              skillTest!.status === 'Reviewing' ||
+                              skillTest!.status === 'Review completed' ||
+                              skillTest!.status === 'Review canceled'
+                            ) ? null : (
+                              <Chip
+                                size='medium'
+                                type='testStatus'
+                                label={
                                   skillTest!.status === 'Skill in progress' ||
                                   skillTest!.status === 'Skill submitted' ||
                                   skillTest!.status === 'Skill failed' ||
@@ -419,15 +425,30 @@ export default function CertificationTest({
                                   skillTest!.status === 'Review completed' ||
                                   skillTest!.status === 'Review canceled'
                                     ? skillTest!.status
-                                    : 'default'
-                                ] //@ts-ignore
-                              }
-                              sx={{
-                                textTransform: 'capitalize',
-                                '& .MuiChip-label': { lineHeight: '18px' },
-                                mr: 1,
-                              }}
-                            />
+                                    : '-'
+                                }
+                                /* @ts-ignore */
+                                customcolor={
+                                  /* @ts-ignore */
+                                  TestStatusColor[
+                                    skillTest!.status === 'Skill in progress' ||
+                                    skillTest!.status === 'Skill submitted' ||
+                                    skillTest!.status === 'Skill failed' ||
+                                    skillTest!.status === 'Reviewing' ||
+                                    skillTest!.status === 'Review completed' ||
+                                    skillTest!.status === 'Review canceled'
+                                      ? skillTest!.status
+                                      : 'default'
+                                  ] //@ts-ignore
+                                }
+                                sx={{
+                                  textTransform: 'capitalize',
+                                  '& .MuiChip-label': { lineHeight: '18px' },
+                                  mr: 1,
+                                }}
+                              />
+                            )}
+
                             {skillTest!.status === 'Skill submitted' ? (
                               <Button
                                 variant='contained'
@@ -446,7 +467,10 @@ export default function CertificationTest({
                                   variant='outlined'
                                   color='error'
                                   onClick={() =>
-                                    onClickSkillTestFail(selectedJobInfo)
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Skill failed',
+                                    )
                                   }
                                 >
                                   Fail
@@ -461,12 +485,155 @@ export default function CertificationTest({
                                 </Button>
                               </Box>
                             ) : null}
+                            {basicTest!.status === 'Basic failed' &&
+                            !(
+                              skillTest!.status === 'Cancelled' ||
+                              skillTest?.status === 'Skill in progress' ||
+                              skillTest!.status === 'Skill submitted' ||
+                              skillTest!.status === 'Reviewing' ||
+                              skillTest!.status === 'Skill failed' ||
+                              skillTest!.status === 'Review completed'
+                            ) ? (
+                              <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button
+                                  variant='outlined'
+                                  onClick={() =>
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Cancelled',
+                                    )
+                                  }
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant='contained'
+                                  onClick={() =>
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Skill in progress',
+                                    )
+                                  }
+                                >
+                                  Proceed
+                                </Button>
+                              </Box>
+                            ) : basicTest!.status === 'Basic passed' &&
+                              !(
+                                skillTest!.status === 'Cancelled' ||
+                                skillTest?.status === 'Skill in progress' ||
+                                skillTest!.status === 'Skill submitted' ||
+                                skillTest!.status === 'Reviewing' ||
+                                skillTest!.status === 'Skill failed' ||
+                                skillTest!.status === 'Review completed'
+                              ) ? (
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickSkillTestAction(
+                                    selectedJobInfo,
+                                    'Skill in progress',
+                                  )
+                                }
+                              >
+                                Proceed
+                              </Button>
+                            ) : null}
                           </Box>
                         </Box>
                       </CardContent>
                     </Card>
                   </TimelineContent>
                 </>
+              ) : null}
+            </TimelineItem>
+          </Timeline>
+        </CardContent>
+      ) : basicTest && basicTest!.status === 'NO_TEST' ? (
+        <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
+          <Timeline sx={{ my: 0, py: 0 }}>
+            <TimelineItem>
+              <TimelineSeparator>
+                <TimelineDot color='warning' />
+                <TimelineConnector />
+              </TimelineSeparator>
+              {basicTest ? (
+                <TimelineContent
+                  sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
+                >
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                      Basic Test
+                    </Typography>
+                  </Box>
+
+                  <Card
+                    sx={{
+                      mt: 2,
+                      marginBottom: '0px !important',
+                      background: 'rgba(76, 78, 100, 0.05)',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                          {selectedJobInfo?.target ? (
+                            <>
+                              {selectedJobInfo?.target.toUpperCase()} (
+                              {languageHelper(
+                                selectedJobInfo?.target?.toLowerCase(),
+                              )}
+                              )
+                            </>
+                          ) : (
+                            '-'
+                          )}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Chip
+                            size='medium'
+                            type='testStatus'
+                            label={
+                              basicTest!.status === 'NO_TEST'
+                                ? basicTest!.status === 'NO_TEST'
+                                  ? 'No test'
+                                  : basicTest!.status
+                                : '-'
+                            }
+                            /* @ts-ignore */
+                            customcolor={
+                              /* @ts-ignore */
+                              TestStatusColor[
+                                basicTest!.status === 'NO_TEST'
+                                  ? basicTest!.status
+                                  : 'default'
+                              ] //@ts-ignore
+                            }
+                            sx={{
+                              '& .MuiChip-label': { lineHeight: '18px' },
+                              mr: 1,
+                            }}
+                          />
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </TimelineContent>
               ) : null}
             </TimelineItem>
           </Timeline>

@@ -14,18 +14,20 @@ import Typography from '@mui/material/Typography'
 
 import { AddRoleType } from 'src/types/onboarding/list'
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import languageHelper from 'src/shared/helpers/language.helper'
 type Props = {
   open: boolean
   onClose: any
   userInfo: AppliedRoleType
-  handleSkillTestFail: (id: number) => void
+  type: string
+  handleActionBasicTest: (id: number, type: string) => void
 }
-export default function SkillTestFailModal({
+export default function BasicTestActionModal({
   open,
   onClose,
   userInfo,
-
-  handleSkillTestFail,
+  type,
+  handleActionBasicTest,
 }: Props) {
   return (
     <Dialog
@@ -51,7 +53,9 @@ export default function SkillTestFailModal({
           }}
         >
           <Image
-            src='/images/icons/alert/alert-success.svg'
+            src={`/images/icons/alert/${
+              type === 'Basic failed' ? 'alert-error-color' : 'alert-success'
+            }.svg`}
             width={68}
             height={68}
             alt=''
@@ -73,20 +77,26 @@ export default function SkillTestFailModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure you want to assign this test?
+            Are you sure{' '}
+            {type === 'Skipped'
+              ? 'you want to skip'
+              : type === 'Basic in progress'
+              ? 'you want to proceed'
+              : type === 'Basic failed'
+              ? 'you want to fail'
+              : type === 'Basic passed'
+              ? 'to proceed'
+              : null}
+            &nbsp;this basic test?
           </Typography>
           <Typography
             variant='body2'
             sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
           >
-            {userInfo.jobType}, {userInfo.role},{' '}
-            {userInfo.source &&
-            userInfo.target &&
-            userInfo.source !== '' &&
-            userInfo.target !== '' ? (
+            {userInfo.target && userInfo.target !== '' ? (
               <>
-                {userInfo.source.toUpperCase()} &rarr;{' '}
-                {userInfo.target.toUpperCase()}
+                {userInfo.target.toUpperCase()}&nbsp;
+                {`(${languageHelper(userInfo.target)})`}
               </>
             ) : (
               ''
@@ -117,10 +127,18 @@ export default function SkillTestFailModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleSkillTestFail(userInfo.id)
+              handleActionBasicTest(userInfo.id, type)
             }}
           >
-            Assign
+            {type === 'Skipped'
+              ? 'Skip'
+              : type === 'Basic in progress'
+              ? 'Proceed'
+              : type === 'Basic failed'
+              ? 'Fail'
+              : type === 'Basic passed'
+              ? 'Pass'
+              : null}
           </Button>
         </Box>
       </DialogContent>

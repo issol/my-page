@@ -33,7 +33,7 @@ type Props = {
   handleChangePage: (direction: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
   onClickResumeTest: (jobInfo: AppliedRoleType) => void
-  onClickTestAssign: (jobInfo: AppliedRoleType) => void
+  onClickTestAssign: (jobInfo: AppliedRoleType, status?: string) => void
   onClickAddRole: () => void
   onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
   onClickReason: (type: string, message: string, reason: string) => void
@@ -119,7 +119,9 @@ export default function AppliedRole({
                 fullWidth
                 variant='contained'
                 onClick={() => {
-                  onClickTestAssign(jobInfo)
+                  basicTest!.status === 'NO_TEST'
+                    ? onClickTestAssign(jobInfo, 'Skill in progress')
+                    : onClickTestAssign(jobInfo)
                 }}
               >
                 Assign test
@@ -460,7 +462,19 @@ export default function AppliedRole({
                             gap: 2,
                           }}
                         >
-                          {value.requestStatus !== 'Awaiting assignment' &&
+                          {!(
+                            (value.test.find(data => data.testType === 'basic')!
+                              .status === 'NO_TEST' &&
+                              value.test.find(
+                                data => data.testType === 'skill',
+                              )!.status === 'NO_TEST') ||
+                            (value.test.find(data => data.testType === 'basic')!
+                              .status !== 'NO_TEST' &&
+                              value.test.find(
+                                data => data.testType === 'skill',
+                              )!.status === 'NO_TEST')
+                          ) &&
+                          value.requestStatus !== 'Awaiting assignment' &&
                           value.requestStatus !== 'Paused' &&
                           value.requestStatus !== 'Rejected' ? (
                             <Button
@@ -502,9 +516,7 @@ export default function AppliedRole({
                                   onClickReason(
                                     value.testStatus,
                                     value.messageToUser!,
-                                    value.testStatus === 'Rejected'
-                                      ? value.rejectReason!
-                                      : value.pausedReason!,
+                                    value.reason!,
                                   )
                                 }}
                               >

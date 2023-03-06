@@ -18,13 +18,14 @@ type Props = {
   open: boolean
   onClose: any
   userInfo: AppliedRoleType
-  handleAssignRole: (id: number) => void
+  status: string
+  handleAssignRole: (id: number, status?: string) => void
 }
 export default function TestAssignModal({
   open,
   onClose,
   userInfo,
-
+  status,
   handleAssignRole,
 }: Props) {
   return (
@@ -117,7 +118,7 @@ export default function TestAssignModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleAssignRole(userInfo.id)
+              handleAssignRole(userInfo.id, status)
             }}
           >
             Assign

@@ -25,8 +25,7 @@ export type AppliedRoleType = {
   operatorId: string | null
   response: string | null
   messageToUser: string | null
-  rejectReason: string | null
-  pausedReason: string | null
+  reason: string | null
   test: Array<TestType>
 }
 
