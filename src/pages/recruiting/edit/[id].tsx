@@ -107,7 +107,10 @@ export default function RecruitingEdit() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
 
-  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(id)
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
+    id,
+    router.query.id !== undefined,
+  )
 
   if (isError) {
     return <EmptyPost />

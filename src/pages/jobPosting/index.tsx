@@ -49,7 +49,7 @@ export default function jobPosting() {
     refetch,
     isLoading,
   } = useGetJobPostingList({ ...filter, skip, pageSize }, search, setSearch)
-
+  console.log(list)
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
   ): Array<{ value: string; label: string }> {

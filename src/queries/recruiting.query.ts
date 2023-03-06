@@ -41,7 +41,7 @@ export const useGetRecruitingList = (
   )
 }
 
-export const useGetRecruitingDetail = (id: number) => {
+export const useGetRecruitingDetail = (id: number, enabled: boolean) => {
   return useQuery(
     'get-recruiting/detail',
     () => {
@@ -50,6 +50,7 @@ export const useGetRecruitingDetail = (id: number) => {
     {
       suspense: true,
       useErrorBoundary: false,
+      enabled: enabled,
     },
   )
 }

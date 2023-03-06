@@ -1,23 +1,14 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import {
-  Button,
-  Card,
-  CardHeader,
-  IconButton,
-  List,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@mui/material'
+import { Button, Card, CardHeader, IconButton } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
 import { DataGrid } from '@mui/x-data-grid'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertFromRaw, EditorState } from 'draft-js'
@@ -37,7 +28,6 @@ import PageHeader from 'src/@core/components/page-header'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
@@ -63,7 +53,6 @@ import {
   deleteRecruiting,
   hideRecruiting,
 } from 'src/apis/recruiting.api'
-import Link from 'next/link'
 
 // ** types
 
@@ -109,7 +98,10 @@ const RecruitingDetail = () => {
 
   const { user } = useContext(AuthContext)
 
-  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(id)
+  const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
+    id,
+    router.query.id !== undefined,
+  )
 
   if (isError) {
     return <EmptyPost />

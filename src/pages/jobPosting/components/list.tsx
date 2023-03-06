@@ -1,5 +1,5 @@
 // ** mui
-import { Button, Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
+import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridRowParams } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
@@ -7,14 +7,8 @@ import CardHeader from '@mui/material/CardHeader'
 // ** custom component
 import { StyledNextLink } from 'src/@core/components/customLink'
 
-// ** third party
-import styled from 'styled-components'
-
 // ** helpers
-import {
-  FullDateHelper,
-  FullDateTimezoneHelper,
-} from 'src/shared/helpers/date.helper'
+import { FullDateHelper } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -210,7 +204,7 @@ export default function JobPostingList({
           }
         />
         <Box>
-          <DataGrid
+          {/* <DataGrid
             autoHeight
             components={{
               NoRowsOverlay: () => noData(),
@@ -218,7 +212,7 @@ export default function JobPostingList({
             }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
-            rowCount={list.count}
+            rowCount={list.count || 0}
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination
@@ -228,7 +222,7 @@ export default function JobPostingList({
             onPageChange={setSkip}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             columns={columns}
-          />
+          /> */}
         </Box>
       </Card>
     </Grid>

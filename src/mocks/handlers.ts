@@ -481,7 +481,7 @@ export const handlers = [
   }),
 
   //리크루팅 요청서
-  rest.post(BASEURL + '/api/enough/recruiting', (req, res, ctx) => {
+  rest.post(BASEURL + '/api/enough/recruiting', (req: any, res, ctx) => {
     if (
       req.body?.status &&
       req.body?.client &&
@@ -505,20 +505,21 @@ export const handlers = [
   }),
 
   //리크루팅 업데이트
-  rest.patch(BASEURL + '/api/enough/recruiting/:id', (req, res, ctx) => {
+  rest.patch(BASEURL + '/api/enough/recruiting/:id', (req: any, res, ctx) => {
     if (
       req.params.id &&
-      req.body?.status &&
-      req.body?.client &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.numberOfLinguist &&
-      req.body?.dueDate &&
-      req.body?.dueDateTimezone &&
-      req.body?.jobPostLink &&
-      req.body?.content
+      req.body?.status
+      // &&
+      // req.body?.client &&
+      // req.body?.jobType &&
+      // req.body?.role &&
+      // req.body?.sourceLanguage &&
+      // req.body?.targetLanguage &&
+      // req.body?.numberOfLinguist &&
+      // req.body?.dueDate &&
+      // req.body?.dueDateTimezone &&
+      // req.body?.jobPostLink &&
+      // req.body?.content
     )
       return res(
         ctx.status(200),
@@ -641,33 +642,36 @@ export const handlers = [
   ),
 
   // 잡포스팅 요청서
-  rest.post(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
-    if (
-      req.body?.status &&
-      req.body?.jobType &&
-      req.body?.role &&
-      req.body?.sourceLanguage &&
-      req.body?.targetLanguage &&
-      req.body?.yearsOfExperience &&
-      req.body?.numberOfLinguist &&
-      req.body?.dueDate &&
-      req.body?.dueDateTimezone &&
-      req.body?.postLink &&
-      req.body?.content
-    )
-      return res(
-        ctx.status(200),
-        ctx.json({
-          id: 5,
-        }),
+  rest.post(
+    BASEURL + '/api/enough/recruiting/jobposting',
+    (req: any, res, ctx) => {
+      if (
+        req.body?.status &&
+        req.body?.jobType &&
+        req.body?.role &&
+        req.body?.sourceLanguage &&
+        req.body?.targetLanguage &&
+        req.body?.yearsOfExperience &&
+        req.body?.numberOfLinguist &&
+        req.body?.dueDate &&
+        req.body?.dueDateTimezone &&
+        req.body?.postLink &&
+        req.body?.content
       )
-    else return res(ctx.status(409), ctx.body(''))
-  }),
+        return res(
+          ctx.status(200),
+          ctx.json({
+            id: 5,
+          }),
+        )
+      else return res(ctx.status(409), ctx.body(''))
+    },
+  ),
 
   // 잡포스팅 업데이트
   rest.patch(
     BASEURL + '/api/enough/recruiting/jobposting/:id',
-    (req, res, ctx) => {
+    (req: any, res, ctx) => {
       if (
         req.body?.status &&
         req.body?.jobType &&
