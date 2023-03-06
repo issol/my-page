@@ -56,63 +56,39 @@ export default function Filters({
 
   return (
     <Grid item xs={12}>
-      <Card>
-        <CardHeader title='Search Filters' />
-        <Grid
-          container
-          spacing={6}
-          rowSpacing={4}
-          sx={{ padding: '0 20px 20px' }}
-        >
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                multiple
-                value={filterValue(ClientCategoryIncludeGloz, 'client')}
-                onChange={(e, v) =>
-                  setFilter({ ...filter, client: v.map(item => item.value) })
-                }
-                options={ClientCategoryIncludeGloz}
-                filterSelectedOptions
-                id='client'
-                getOptionLabel={option => option.label}
-                renderInput={params => (
-                  <TextField {...params} label='Client' placeholder='Client' />
-                )}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    <Checkbox checked={selected} sx={{ mr: 2 }} />
-                    {option.label}
-                  </li>
-                )}
-              />
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
+      <form
+        onSubmit={e => {
+          e.preventDefault()
+          search()
+        }}
+      >
+        <Card>
+          <CardHeader title='Search Filters' />
+          <Grid
+            container
+            spacing={6}
+            rowSpacing={4}
+            sx={{ padding: '0 20px 20px' }}
+          >
+            <Grid item xs={6}>
               <FormControl fullWidth>
                 <Autocomplete
                   autoHighlight
                   fullWidth
                   multiple
-                  options={Category}
-                  value={filterValue(Category, 'category')}
+                  value={filterValue(ClientCategoryIncludeGloz, 'client')}
                   onChange={(e, v) =>
-                    setFilter({
-                      ...filter,
-                      category: v.map(item => item.value),
-                    })
+                    setFilter({ ...filter, client: v.map(item => item.value) })
                   }
+                  options={ClientCategoryIncludeGloz}
                   filterSelectedOptions
-                  id='category'
+                  id='client'
                   getOptionLabel={option => option.label}
                   renderInput={params => (
                     <TextField
                       {...params}
-                      label='Category'
-                      placeholder='Category'
+                      label='Client'
+                      placeholder='Client'
                     />
                   )}
                   renderOption={(props, option, { selected }) => (
@@ -123,87 +99,126 @@ export default function Filters({
                   )}
                 />
               </FormControl>
-            </FormControl>
-          </Grid>
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                multiple
-                options={serviceType || []}
-                value={filterValue(ServiceType, 'serviceType')}
-                onChange={(e, v) =>
-                  setFilter({
-                    ...filter,
-                    serviceType: v.map(item => item.value),
-                  })
-                }
-                filterSelectedOptions
-                id='serviceType'
-                getOptionLabel={option => option.label}
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Service type'
-                    placeholder='Service type'
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <FormControl fullWidth>
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    multiple
+                    options={Category}
+                    value={filterValue(Category, 'category')}
+                    onChange={(e, v) =>
+                      setFilter({
+                        ...filter,
+                        category: v.map(item => item.value),
+                      })
+                    }
+                    filterSelectedOptions
+                    id='category'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Category'
+                        placeholder='Category'
+                      />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
                   />
-                )}
-                renderOption={(props, option, { selected }) => (
-                  <li {...props}>
-                    <Checkbox checked={selected} sx={{ mr: 2 }} />
-                    {option.label}
-                  </li>
-                )}
-              />
-            </FormControl>
-          </Grid>
+                </FormControl>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  multiple
+                  options={serviceType || []}
+                  value={filterValue(ServiceType, 'serviceType')}
+                  onChange={(e, v) =>
+                    setFilter({
+                      ...filter,
+                      serviceType: v.map(item => item.value),
+                    })
+                  }
+                  filterSelectedOptions
+                  id='serviceType'
+                  getOptionLabel={option => option.label}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Service type'
+                      placeholder='Service type'
+                    />
+                  )}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox checked={selected} sx={{ mr: 2 }} />
+                      {option.label}
+                    </li>
+                  )}
+                />
+              </FormControl>
+            </Grid>
 
-          <Grid item xs={6}>
-            <FormControl fullWidth>
-              <InputLabel htmlFor='icons-adornment-password'>
-                Search client guidelines
-              </InputLabel>
-              <OutlinedInput
-                label='Search client guidelines'
-                value={filter.content}
-                onChange={e =>
-                  setFilter({
-                    ...filter,
-                    content: e.target.value,
-                    title: e.target.value,
-                  })
-                }
-                endAdornment={
-                  <InputAdornment position='end'>
-                    <IconButton
-                      edge='end'
-                      aria-label='toggle password visibility'
-                    >
-                      <Icon icon='mdi:magnify' />
-                    </IconButton>
-                  </InputAdornment>
-                }
-              />
-            </FormControl>
+            <Grid item xs={6}>
+              <FormControl fullWidth>
+                <InputLabel htmlFor='icons-adornment-password'>
+                  Search client guidelines
+                </InputLabel>
+                <OutlinedInput
+                  label='Search client guidelines'
+                  value={filter.content}
+                  onChange={e =>
+                    setFilter({
+                      ...filter,
+                      content: e.target.value,
+                      title: e.target.value,
+                    })
+                  }
+                  endAdornment={
+                    <InputAdornment position='end'>
+                      <IconButton
+                        edge='end'
+                        aria-label='toggle password visibility'
+                      >
+                        <Icon icon='mdi:magnify' />
+                      </IconButton>
+                    </InputAdornment>
+                  }
+                />
+              </FormControl>
+            </Grid>
+            <Grid item xs={12}>
+              <Box display='flex' justifyContent='flex-end' gap='15px'>
+                <Button
+                  variant='outlined'
+                  size='medium'
+                  color='secondary'
+                  onClick={onReset}
+                >
+                  Reset
+                </Button>
+                <Button
+                  variant='contained'
+                  size='medium'
+                  type='submit' /* onClick={search} */
+                >
+                  Search
+                </Button>
+              </Box>
+            </Grid>
           </Grid>
-          <Grid item xs={12}>
-            <Box display='flex' justifyContent='flex-end' gap='15px'>
-              <Button
-                variant='outlined'
-                size='medium'
-                color='secondary'
-                onClick={onReset}
-              >
-                Reset
-              </Button>
-              <Button variant='contained' size='medium' onClick={search}>
-                Search
-              </Button>
-            </Box>
-          </Grid>
-        </Grid>
-      </Card>
+        </Card>
+      </form>
     </Grid>
   )
 }

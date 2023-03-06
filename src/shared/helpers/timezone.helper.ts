@@ -6,9 +6,11 @@ interface Timezone {
   value: string
 }
 
-export const getGmtTime = (code: string) => {
+// output ex : (GMT+09:00) Asia/Seoul
+export const getGmtTime = (code: string | null | undefined) => {
+  if (!code) return '-'
   /* @ts-ignore */
-  const timezoneName = timezones.countries[code].zones[0]
+  const timezoneName = timezones.countries[code]?.zones[0]
   return `(GMT${moment.tz(timezoneName).format('Z')}) ${timezoneName}`
 }
 
