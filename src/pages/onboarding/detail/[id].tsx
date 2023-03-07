@@ -341,7 +341,7 @@ function OnboardingDetail() {
         prevState = res
         setAppliedRoleList(prevState)
       } else {
-        let prevState = appliedRoleList
+        let prevState = appliedRole!
 
         setAppliedRoleList(prevState)
       }
