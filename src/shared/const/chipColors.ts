@@ -57,6 +57,6 @@ export const TestStatusColor = {
 }
 
 export const TestTypeColor = {
-  'Basic test': '#FDB528',
-  'Skill test': '#666CFF',
+  basic: '#FDB528',
+  skill: '#666CFF',
 }

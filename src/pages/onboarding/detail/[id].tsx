@@ -59,10 +59,7 @@ import FallbackSpinner from 'src/@core/components/spinner'
 import Icon from 'src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import {
-  AppliedRoleType,
-  OnboardingProDetailsType,
-} from 'src/types/onboarding/details'
+import { AppliedRoleType } from 'src/types/onboarding/details'
 import {
   addCommentOnPro,
   addCreatedAppliedRole,

@@ -19,7 +19,7 @@ const TestTypeChip = ({ testType }: Props) => {
         key={uuidv4()}
         size='medium'
         type={`testType-${testType}`}
-        label={testType}
+        label={testType === 'basic' ? 'Basic test' : 'Skill test'}
         /* @ts-ignore */
         customcolor={TestTypeColor[testType]}
         sx={{

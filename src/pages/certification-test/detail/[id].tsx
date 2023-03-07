@@ -171,24 +171,64 @@ const CertificationTestDetail = () => {
   function fileList(files: Array<FileType> | []) {
     if (!files.length) return null
     return files.map(file => (
-      <FileList key={uuidv4()} onClick={() => downloadOneFile(file.name)}>
-        <div className='file-details'>
-          <div className='file-preview'>
+      <Box
+        key={uuidv4()}
+        onClick={() => downloadOneFile(file.name)}
+        sx={{
+          cursor: 'pointer',
+          boxSizing: 'border-box',
+          padding: '10px 12px',
+          background: '#F9F8F9',
+          border: '1px solid rgba(76, 78, 100, 0.22)',
+          borderRadius: '5px',
+          display: 'flex',
+          alignItems: 'center',
+          width: '100%',
+          overflow: 'hidden',
+        }}
+      >
+        <Grid container xs={12}>
+          <Grid
+            item
+            xs={2}
+            sx={{
+              padding: 0,
+
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+            }}
+          >
             <Icon
               icon='material-symbols:file-present-outline'
               style={{ color: 'rgba(76, 78, 100, 0.54)' }}
             />
-          </div>
-          <div>
-            <Typography className='file-name'>{file.name}</Typography>
-            <Typography className='file-size' variant='body2'>
+          </Grid>
+          <Grid item xs={8} sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Box
+              sx={{
+                fontWeight: 600,
+                width: '100%',
+                overflow: 'hidden',
+                whiteSpace: 'nowrap',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {file.name}
+            </Box>
+            <Typography variant='body2'>
               {Math.round(file.size / 100) / 10 > 1000
                 ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
                 : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
             </Typography>
-          </div>
-        </div>
-      </FileList>
+          </Grid>
+          {/* <Grid item xs={2}>
+            <IconButton onClick={() => handleRemoveFile(file)}>
+              <Icon icon='mdi:close' fontSize={24} />
+            </IconButton>
+          </Grid> */}
+        </Grid>
+      </Box>
     ))
   }
 
@@ -537,6 +577,7 @@ const CertificationTestDetail = () => {
                       fullWidth
                       startIcon={<Icon icon='mdi:download' />}
                       onClick={() => downloadAllFiles(currentRow?.files)}
+                      disabled={!!!currentRow?.files}
                     >
                       Download all
                     </Button>
@@ -545,7 +586,7 @@ const CertificationTestDetail = () => {
                     sx={{
                       padding: '0 20px',
                       overflow: 'scroll',
-
+                      marginBottom: '12px',
                       height: '454px',
 
                       '&::-webkit-scrollbar': { display: 'none' },
@@ -553,7 +594,15 @@ const CertificationTestDetail = () => {
                   >
                     {currentVersion?.files?.length ? (
                       <Fragment>
-                        <List>{fileList(currentVersion?.files)}</List>
+                        <List
+                          sx={{
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                          }}
+                        >
+                          {fileList(currentVersion?.files)}
+                        </List>
                       </Fragment>
                     ) : null}
                   </Box>
@@ -574,65 +623,30 @@ const CertificationTestDetail = () => {
           </Box>
         </Box>
       </Dialog>
-      <Box sx={{ display: 'flex', gap: 4 }}>
-        <Grid xs={9.55} container>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: 4,
-              width: '100%',
-            }}
-          >
-            <Card sx={{ padding: '20px', width: '100%' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <Grid container xs={12}>
-                  <Grid item xs={2}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                      }}
-                    >
-                      Test type
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <Typography variant='subtitle2'>
-                      {currentVersion?.testType === 'basic'
-                        ? 'Basic test'
-                        : 'Skill test'}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                <Grid container xs={12}>
-                  <Grid item xs={2}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                      }}
-                    >
-                      Language pair
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <Typography variant='subtitle2'>
-                      {currentVersion?.testType === 'basic' ? (
-                        `${currentVersion?.target.toUpperCase()}`
-                      ) : (
-                        <>
-                          {currentVersion?.source.toUpperCase()}
-                          &nbsp;&rarr;&nbsp;
-                          {currentVersion?.target.toUpperCase()}
-                        </>
-                      )}
-                    </Typography>
-                  </Grid>
-                </Grid>
-                {currentVersion?.testType === 'skill' ? (
+      <Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-start',
+            marginBottom: '24px',
+          }}
+        >
+          <IconButton onClick={() => router.push('/certification-test')}>
+            <img src='/images/icons/etc/left-arrow.svg' alt='back' />
+          </IconButton>
+        </Box>
+        <Box sx={{ display: 'flex', gap: 4 }}>
+          <Grid xs={9.55} container>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: 4,
+                width: '100%',
+              }}
+            >
+              <Card sx={{ padding: '20px', width: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
                   <Grid container xs={12}>
                     <Grid item xs={2}>
                       <Typography
@@ -642,40 +656,94 @@ const CertificationTestDetail = () => {
                           lineHeight: '20px',
                         }}
                       >
-                        Job type / Role
+                        Test type
                       </Typography>
                     </Grid>
                     <Grid item xs={10}>
                       <Typography variant='subtitle2'>
-                        {currentVersion?.jobType} / {currentVersion?.role}
+                        {currentVersion?.testType === 'basic'
+                          ? 'Basic test'
+                          : 'Skill test'}
                       </Typography>
                     </Grid>
                   </Grid>
-                ) : null}
-
-                <Grid container xs={12}>
-                  <Grid item xs={2}>
-                    <Typography
-                      sx={{
-                        fontWeight: 600,
-                        fontSize: '14px',
-                        lineHeight: '20px',
-                      }}
-                    >
-                      Google form link
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={10}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='subtitle2'>
-                        {currentVersion?.googleFormLink}
+                  <Grid container xs={12}>
+                    <Grid item xs={2}>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          lineHeight: '20px',
+                        }}
+                      >
+                        Language pair
                       </Typography>
+                    </Grid>
+                    <Grid item xs={10}>
+                      <Typography variant='subtitle2'>
+                        {currentVersion?.testType === 'basic' ? (
+                          `${currentVersion?.target.toUpperCase()}`
+                        ) : (
+                          <>
+                            {currentVersion?.source.toUpperCase()}
+                            &nbsp;&rarr;&nbsp;
+                            {currentVersion?.target.toUpperCase()}
+                          </>
+                        )}
+                      </Typography>
+                    </Grid>
+                  </Grid>
+                  {currentVersion?.testType === 'skill' ? (
+                    <Grid container xs={12}>
+                      <Grid item xs={2}>
+                        <Typography
+                          sx={{
+                            fontWeight: 600,
+                            fontSize: '14px',
+                            lineHeight: '20px',
+                          }}
+                        >
+                          Job type / Role
+                        </Typography>
+                      </Grid>
+                      <Grid item xs={10}>
+                        <Typography variant='subtitle2'>
+                          {currentVersion?.jobType} / {currentVersion?.role}
+                        </Typography>
+                      </Grid>
+                    </Grid>
+                  ) : null}
+
+                  <Grid container xs={12}>
+                    <Grid item xs={2}>
+                      <Typography
+                        sx={{
+                          fontWeight: 600,
+                          fontSize: '14px',
+                          lineHeight: '20px',
+                        }}
+                      >
+                        Google form link
+                      </Typography>
+                    </Grid>
+                    <Grid item xs={9.5}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          overflow: 'hidden',
+                          wordBreak: 'break-all',
+                        }}
+                      >
+                        <Typography variant='subtitle2'>
+                          {currentVersion?.googleFormLink}
+                        </Typography>
+                      </Box>
+                    </Grid>
+                    <Grid
+                      item
+                      xs={0.5}
+                      sx={{ display: 'flex', justifyContent: 'flex-end' }}
+                    >
                       <IconButton
                         sx={{ width: 24, height: 24 }}
                         onClick={() =>
@@ -685,192 +753,213 @@ const CertificationTestDetail = () => {
                       >
                         <OpenInNewIcon />
                       </IconButton>
-                    </Box>
+                    </Grid>
                   </Grid>
-                </Grid>
-              </Box>
-            </Card>
+                </Box>
+              </Card>
 
-            <Card sx={{ padding: '20px' }}>
-              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-                  <Typography variant='h6'>Test guideline</Typography>
+              <Card sx={{ padding: '20px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                   <Box
-                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
                   >
-                    <CustomChip
-                      label='Writer'
-                      skin='light'
-                      color='error'
-                      size='small'
-                    />
-                    {user?.username === currentVersion?.writer ? (
-                      <Typography
-                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                        color='primary'
-                      >
-                        {currentVersion?.writer}
-                      </Typography>
-                    ) : (
-                      <Typography
-                        sx={{ fontWeight: 500, fontSize: '0.875rem' }}
-                      >
-                        {currentVersion?.writer}
-                      </Typography>
-                    )}
-                    <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
+                    <Typography variant='h6'>Test guideline</Typography>
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <CustomChip
+                        label='Writer'
+                        skin='light'
+                        color='error'
+                        size='small'
+                      />
+                      {user?.username === currentVersion?.writer ? (
+                        <Typography
+                          sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                          color='primary'
+                        >
+                          {currentVersion?.writer}
+                        </Typography>
+                      ) : (
+                        <Typography
+                          sx={{ fontWeight: 500, fontSize: '0.875rem' }}
+                        >
+                          {currentVersion?.writer}
+                        </Typography>
+                      )}
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>{user?.email}</Typography>
+                    </Box>
                   </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      mb: '20px',
+                    }}
+                  >
+                    <Typography variant='body2'>
+                      {FullDateTimezoneHelper(currentVersion?.updatedAt)}
+                    </Typography>
+                  </Box>
+                  <Divider />
+                  <StyledEditor>
+                    <ReactDraftWysiwyg
+                      editorState={mainContent}
+                      readOnly={true}
+                    />
+                  </StyledEditor>
+                </Box>
+              </Card>
+              <Card>
+                <CardHeader title='Version history' />
+                <Box sx={{ height: '100%' }}>
+                  <DataGrid
+                    components={{
+                      NoRowsOverlay: () => noHistory(),
+                      NoResultsOverlay: () => noHistory(),
+                    }}
+                    sx={{
+                      '& .MuiDataGrid-row': { cursor: 'pointer' },
+                    }}
+                    disableSelectionOnClick
+                    autoHeight
+                    columns={columns}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    rowsPerPageOptions={[5, 15, 30]}
+                    onCellClick={params => {
+                      setOpenDetail(true)
+                      setCurrentRow(params.row)
+                      console.log(params.row)
+
+                      if (params.row?.content) {
+                        const content = convertFromRaw(
+                          params.row.content as any,
+                        )
+                        const editorState =
+                          EditorState.createWithContent(content)
+                        setHistoryContent(editorState)
+                      }
+                    }}
+                    rowCount={versionHistory?.length || 0}
+                    rows={versionHistory || []}
+                    // onRowClick={onRowClick}
+                  />
+                </Box>
+              </Card>
+            </Box>
+          </Grid>
+          <Grid container xs={2.45}>
+            <Box sx={{ width: '100%' }}>
+              <Card>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  <Box display='flex' justifyContent='space-between'>
+                    <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                      Test guideline file
+                    </Typography>
+                    <Typography variant='body2'>
+                      {Math.round(getFileSize(currentVersion?.files) / 100) /
+                        10 >
+                      1000
+                        ? `${(
+                            Math.round(
+                              getFileSize(currentVersion?.files) / 100,
+                            ) / 10000
+                          ).toFixed(1)} mb`
+                        : `${(
+                            Math.round(
+                              getFileSize(currentVersion?.files) / 100,
+                            ) / 10
+                          ).toFixed(1)} kb`}
+                      /50mb
+                    </Typography>
+                  </Box>
+
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    startIcon={<Icon icon='mdi:download' />}
+                    onClick={() => downloadAllFiles(currentVersion?.files)}
+                    disabled={!!!currentRow?.files}
+                  >
+                    Download all
+                  </Button>
                 </Box>
                 <Box
                   sx={{
-                    display: 'flex',
-                    justifyContent: 'flex-end',
-                    mb: '20px',
+                    padding: '0 20px',
+                    overflow: 'scroll',
+                    marginBottom: '12px',
+                    height: '454px',
+
+                    '&::-webkit-scrollbar': { display: 'none' },
                   }}
                 >
-                  <Typography variant='body2'>
-                    {FullDateTimezoneHelper(currentVersion?.updatedAt)}
-                  </Typography>
+                  {currentVersion?.files?.length ? (
+                    <Fragment>
+                      <List
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px',
+                        }}
+                      >
+                        {fileList(currentVersion?.files)}
+                      </List>
+                    </Fragment>
+                  ) : null}
                 </Box>
-                <Divider />
-                <StyledEditor>
-                  <ReactDraftWysiwyg
-                    editorState={mainContent}
-                    readOnly={true}
-                  />
-                </StyledEditor>
-              </Box>
-            </Card>
-            <Card>
-              <CardHeader title='Version history' />
-              <Box sx={{ height: '100%' }}>
-                <DataGrid
-                  components={{
-                    NoRowsOverlay: () => noHistory(),
-                    NoResultsOverlay: () => noHistory(),
-                  }}
+              </Card>
+
+              <Card style={{ marginTop: '24px' }}>
+                <Box
                   sx={{
-                    '& .MuiDataGrid-row': { cursor: 'pointer' },
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
                   }}
-                  disableSelectionOnClick
-                  autoHeight
-                  columns={columns}
-                  pageSize={pageSize}
-                  onPageSizeChange={setPageSize}
-                  rowsPerPageOptions={[5, 15, 30]}
-                  onCellClick={params => {
-                    setOpenDetail(true)
-                    setCurrentRow(params.row)
-                    console.log(params.row)
-
-                    if (params.row?.content) {
-                      const content = convertFromRaw(params.row.content as any)
-                      const editorState = EditorState.createWithContent(content)
-                      setHistoryContent(editorState)
-                    }
-                  }}
-                  rowCount={versionHistory?.length || 0}
-                  rows={versionHistory || []}
-                  // onRowClick={onRowClick}
-                />
-              </Box>
-            </Card>
-          </Box>
-        </Grid>
-        <Grid container xs={2.45}>
-          <Box sx={{ width: '100%' }}>
-            <Card>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Box display='flex' justifyContent='space-between'>
-                  <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    Test guideline file
-                  </Typography>
-                  <Typography variant='body2'>
-                    {Math.round(getFileSize(currentVersion?.files) / 100) / 10 >
-                    1000
-                      ? `${(
-                          Math.round(getFileSize(currentVersion?.files) / 100) /
-                          10000
-                        ).toFixed(1)} mb`
-                      : `${(
-                          Math.round(getFileSize(currentVersion?.files) / 100) /
-                          10
-                        ).toFixed(1)} kb`}
-                    /50mb
-                  </Typography>
+                >
+                  <Button
+                    variant='outlined'
+                    color='secondary'
+                    startIcon={<Icon icon='mdi:delete-outline' />}
+                    onClick={onDelete}
+                  >
+                    Delete
+                  </Button>
+                  <Button
+                    variant='contained'
+                    startIcon={<Icon icon='mdi:edit-outline' />}
+                    onClick={() => {
+                      router.push({
+                        pathname: '/certification-test/post',
+                        query: {
+                          edit: JSON.stringify(true),
+                          id: id,
+                        },
+                      })
+                    }}
+                  >
+                    Edit
+                  </Button>
                 </Box>
-
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  startIcon={<Icon icon='mdi:download' />}
-                  onClick={() => downloadAllFiles(currentVersion?.files)}
-                >
-                  Download all
-                </Button>
-              </Box>
-              <Box
-                sx={{
-                  padding: '0 20px',
-                  overflow: 'scroll',
-
-                  height: '454px',
-
-                  '&::-webkit-scrollbar': { display: 'none' },
-                }}
-              >
-                {currentVersion?.files?.length ? (
-                  <Fragment>
-                    <List>{fileList(currentVersion?.files)}</List>
-                  </Fragment>
-                ) : null}
-              </Box>
-            </Card>
-
-            <Card style={{ marginTop: '24px' }}>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='mdi:delete-outline' />}
-                  onClick={onDelete}
-                >
-                  Delete
-                </Button>
-                <Button
-                  variant='contained'
-                  startIcon={<Icon icon='mdi:edit-outline' />}
-                  onClick={() => {
-                    router.push({
-                      pathname: '/certification-test/post',
-                      query: {
-                        edit: JSON.stringify(true),
-                        id: id,
-                      },
-                    })
-                  }}
-                >
-                  Edit
-                </Button>
-              </Box>
-            </Card>
-          </Box>
-        </Grid>
+              </Card>
+            </Box>
+          </Grid>
+        </Box>
       </Box>
     </Box>
   )

@@ -32,9 +32,11 @@ export const materialColumns: GridColumns<TestMaterialListType> = [
     hideSortIcons: true,
     renderHeader: () => <Box>Job type / Role</Box>,
     renderCell: ({ row }: { row: TestMaterialListType }) => {
-      return (
-        <JobTypeRole jobInfo={[{ jobType: row.jobType, role: row.role }]} />
-      )
+      if (row.testType === 'skill') {
+        return (
+          <JobTypeRole jobInfo={[{ jobType: row.jobType, role: row.role }]} />
+        )
+      }
     },
   },
   {
@@ -50,11 +52,22 @@ export const materialColumns: GridColumns<TestMaterialListType> = [
       <Box>
         <Box key={row.id}>
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {row.source === '' ? (
-              row.target.toUpperCase()
+            {row.testType === 'skill' ? (
+              <>
+                {row.source &&
+                row.target &&
+                row.source !== '' &&
+                row.target !== '' ? (
+                  <>
+                    {row.source.toUpperCase()} &rarr; {row.target.toUpperCase()}
+                  </>
+                ) : null}
+              </>
             ) : (
               <>
-                {row.source} &rarr; {row.target}
+                {row.target && row.target !== ''
+                  ? row.target.toUpperCase()
+                  : null}
               </>
             )}
           </Typography>

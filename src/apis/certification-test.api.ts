@@ -123,3 +123,11 @@ export const deleteTest = async (id: number) => {
     throw new Error(e)
   }
 }
+
+export const deleteTestFile = async (fileId: number) => {
+  try {
+    return await axios.delete(`/api/enough/cert/test/paper/file/${fileId}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
