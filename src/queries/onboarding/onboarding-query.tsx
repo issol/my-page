@@ -3,10 +3,12 @@ import { useQuery } from 'react-query'
 import {
   getAppliedRole,
   getCertifiedRole,
+  getHistory,
   getOnboardingProDetails,
   getOnboardingProList,
   getOnboardingStatistic,
   getResume,
+  getReviewer,
   getStatistic,
 } from 'src/apis/onboarding.api'
 import {
@@ -150,6 +152,38 @@ export const useGetCertifiedRole = (id: number) => {
       staleTime: 60 * 1000,
       suspense: true,
       enabled: !!id,
+    },
+  )
+}
+
+export const useGetReviewerList = () => {
+  return useQuery(
+    'reviewers',
+    () => {
+      return getReviewer()
+    },
+    {
+      staleTime: 60 * 1000, // 1
+      keepPreviousData: true,
+      suspense: true,
+
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useGetHistory = () => {
+  return useQuery(
+    'history',
+    () => {
+      return getHistory()
+    },
+    {
+      staleTime: 60 * 1000, // 1
+      keepPreviousData: true,
+      suspense: true,
+
+      useErrorBoundary: (error: any) => error.response?.status >= 500,
     },
   )
 }

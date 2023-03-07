@@ -55,6 +55,11 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { AppliedRoleType } from 'src/types/onboarding/details'
+import {
+  useGetHistory,
+  useGetReviewerList,
+} from 'src/queries/onboarding/onboarding-query'
+import { assignReviewer } from 'src/apis/onboarding.api'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -75,6 +80,7 @@ type Props = {
   jobInfo: AppliedRoleType
   reviewerList: AssignReviewerType[]
   type: string
+  history: any
 }
 
 const defaultValues = {
@@ -104,10 +110,12 @@ export default function TestDetailsModal({
   jobInfo,
   reviewerList,
   type,
+  history,
 }: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<AppliedRoleType>(jobInfo)
-  // const { data: reviewerList1 } = useGetReviewerList()
+  const { data: reviewerList1 } = useGetReviewerList()
+  const { data: history1 } = useGetHistory()
   const [selectedReviewer, setSelectedReviewer] =
     useState<AssignReviewerType | null>(null)
   const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
@@ -131,15 +139,15 @@ export default function TestDetailsModal({
     label: string
   } | null>(null)
 
-  // const assignReviewerMutation = useMutation(
-  //   (value: { id: number; status: string }) =>
-  //     assignReviewer(value.id, value.status),
-  //   {
-  //     onSuccess: (data, variables) => {
-  //       queryClient.invalidateQueries('reviewers')
-  //     },
-  //   },
-  // )
+  const assignReviewerMutation = useMutation(
+    (value: { id: number; status: string }) =>
+      assignReviewer(value.id, value.status),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries('reviewers')
+      },
+    },
+  )
 
   // const {
   //   control,
@@ -172,23 +180,23 @@ export default function TestDetailsModal({
           ` ${row.lastName}`
   }
 
-  // const requestReview = (
-  //   reviewer: AssignReviewerType | null,
-  //   status: string,
-  // ) => {
-  //   console.log(reviewer)
-  //   assignReviewerMutation.mutate({
-  //     id: reviewer?.id!,
-  //     status: status,
-  //   })
-  // }
+  const requestReview = (
+    reviewer: AssignReviewerType | null,
+    status: string,
+  ) => {
+    console.log(reviewer)
+    assignReviewerMutation.mutate({
+      id: reviewer?.id!,
+      status: status,
+    })
+  }
 
-  // const reassignReviewer = () => {
-  //   assignReviewerMutation.mutate({
-  //     id: acceptedId,
-  //     status: 'Re assign',
-  //   })
-  // }
+  const reassignReviewer = () => {
+    assignReviewerMutation.mutate({
+      id: acceptedId,
+      status: 'Re assign',
+    })
+  }
 
   const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
     setSelectedReviewer(reviewer)
@@ -200,29 +208,29 @@ export default function TestDetailsModal({
     setTestStatus({ value: jobInfo.testStatus, label: jobInfo.testStatus })
   }, [jobInfo])
 
-  // useEffect(() => {
-  //   const accepted = reviewerList1.find(
-  //     (value: any) => value.status === 'Request accepted',
-  //   )
-  //   const acceptedId = reviewerList1.findIndex(
-  //     (value: any) => value.status === 'Request accepted',
-  //   )
-  //   if (accepted) {
-  //     setAcceptedId(reviewerList1[acceptedId].id)
-  //     setIsAccepted(true)
-  //     const res = reviewerList1.map((value: any) => {
-  //       if (value.status === 'Request accepted') {
-  //         return { ...value }
-  //       } else {
-  //         return { ...value, status: '-' }
-  //       }
-  //     })
-  //     setReviewers(res)
-  //   } else {
-  //     setIsAccepted(false)
-  //     setReviewers(reviewerList1)
-  //   }
-  // }, [reviewerList1])
+  useEffect(() => {
+    const accepted = reviewerList1.find(
+      (value: any) => value.status === 'Request accepted',
+    )
+    const acceptedId = reviewerList1.findIndex(
+      (value: any) => value.status === 'Request accepted',
+    )
+    if (accepted) {
+      setAcceptedId(reviewerList1[acceptedId].id)
+      setIsAccepted(true)
+      const res = reviewerList1.map((value: any) => {
+        if (value.status === 'Request accepted') {
+          return { ...value }
+        } else {
+          return { ...value, status: '-' }
+        }
+      })
+      setReviewers(res)
+    } else {
+      setIsAccepted(false)
+      setReviewers(reviewerList1)
+    }
+  }, [reviewerList1])
 
   useEffect(() => {
     const accepted = reviewerList.find(
@@ -513,12 +521,12 @@ export default function TestDetailsModal({
       aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
     >
-      {/* <RequestReviewerModal
+      <RequestReviewerModal
         reviewer={selectedReviewer}
         requestReview={requestReview}
         open={requestReviewerModalOpen}
         onClose={() => setRequestReviewerModalOpen(false)}
-      /> */}
+      />
 
       <DialogContent
         sx={{
@@ -589,21 +597,23 @@ export default function TestDetailsModal({
                           <Typography variant='body1' sx={{ fontWeight: 600 }}>
                             {jobInfo.role}
                           </Typography>
+                          <Divider orientation='vertical' flexItem />
+                          <Typography
+                            variant='subtitle2'
+                            sx={{ fontWeight: 600 }}
+                          >
+                            {jobInfo.source && jobInfo.target ? (
+                              <>
+                                {jobInfo.source.toUpperCase()} &rarr;{' '}
+                                {jobInfo.target.toUpperCase()}
+                              </>
+                            ) : (
+                              ''
+                            )}
+                          </Typography>
                         </Box>
-                        <Typography
-                          variant='subtitle2'
-                          sx={{ fontWeight: 600 }}
-                        >
-                          {jobInfo.source && jobInfo.target ? (
-                            <>
-                              {jobInfo.source} &rarr; {jobInfo.target}
-                            </>
-                          ) : (
-                            ''
-                          )}
-                        </Typography>
                       </Box>
-                      <Box sx={{ width: '292px' }}>
+                      {/* <Box sx={{ width: '292px' }}>
                         <Autocomplete
                           fullWidth
                           value={testStatus}
@@ -618,7 +628,7 @@ export default function TestDetailsModal({
                             <TextField {...params} label='Test status' />
                           )}
                         />
-                      </Box>
+                      </Box> */}
                     </Box>
                   </CardContent>
                 </Card>
@@ -634,7 +644,7 @@ export default function TestDetailsModal({
                         },
                       }}
                     >
-                      {/* <DataGrid
+                      <DataGrid
                         components={{
                           NoRowsOverlay: () => {
                             return (
@@ -673,20 +683,20 @@ export default function TestDetailsModal({
                         }}
                         columns={columns}
                         // rowHeight={70}
-                        rows={jobInfo.history ?? []}
+                        rows={history ?? []}
                         autoHeight
                         disableSelectionOnClick
                         pageSize={testHistoryPageSize}
                         rowsPerPageOptions={[5, 10, 25, 50]}
                         page={testHistoryPage}
-                        rowCount={jobInfo.history?.length}
+                        rowCount={history!.length}
                         onPageChange={(newPage: number) => {
                           setTestHistoryPage(newPage)
                         }}
                         onPageSizeChange={(newPageSize: number) =>
                           setTestHistoryPageSize(newPageSize)
                         }
-                      /> */}
+                      />
                     </Box>
                   </Card>
                 </Grid>
@@ -709,7 +719,7 @@ export default function TestDetailsModal({
                       variant='outlined'
                       disabled={!isAccepted}
                       color={isAccepted ? 'primary' : 'secondary'}
-                      // onClick={reassignReviewer}
+                      onClick={reassignReviewer}
                     >
                       Re-assign
                     </Button>

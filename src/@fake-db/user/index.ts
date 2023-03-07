@@ -3097,59 +3097,128 @@ import {
 //   },
 // ]
 
-// const reviewer: AssignReviewerType[] = [
-//   {
-//     id: 1,
-//     reviewerId: 1,
-//     firstName: 'Bon',
-//     middleName: 'Youjin',
-//     lastName: 'Kim',
-//     email: 'bon@naver.com',
-//     status: 'Requested',
-//     date: '2023-02-05T04:24:48Z',
-//   },
-//   {
-//     id: 2,
-//     reviewerId: 2,
-//     firstName: 'Winter',
-//     middleName: null,
-//     lastName: 'Lee',
-//     email: 'winter@naver.com',
-//     status: 'Not requested',
-//     date: '2023-02-05T04:34:48Z',
-//   },
-//   {
-//     id: 3,
-//     reviewerId: 3,
-//     firstName: 'Chole',
-//     middleName: null,
-//     lastName: 'Yu',
-//     email: 'chloe@glozinc.com',
-//     status: 'Request rejected',
-//     date: '2023-02-05T04:44:48Z',
-//   },
-//   {
-//     id: 4,
-//     reviewerId: 4,
-//     firstName: 'Risha',
-//     middleName: null,
-//     lastName: 'Park',
-//     email: 'risha@glozinc.com',
-//     status: 'Request accepted',
-//     // status: 'Not requested',
-//     date: '2023-02-05T05:44:48Z',
-//   },
-//   {
-//     id: 5,
-//     reviewerId: 5,
-//     firstName: 'Luke',
-//     middleName: null,
-//     lastName: 'Kim',
-//     email: 'luke@glozinc.com',
-//     status: 'Not requested',
-//     date: '2023-02-05T05:44:48Z',
-//   },
-// ]
+const history = [
+  {
+    id: 1,
+    status: 'Skill failed',
+    reviewer: {
+      firstName: 'Tammy',
+      middleName: null,
+      lastName: 'Na',
+      email: 'tammy@glozinc.com',
+    },
+    date: '2023-01-4T17:30:10Z',
+  },
+  {
+    id: 2,
+    status: 'Review completed',
+    reviewer: {
+      firstName: 'Bon',
+      middleName: 'Youjin',
+      lastName: 'Kim',
+      email: 'bon@naver.com',
+    },
+    date: '2023-01-13T10:12:10Z',
+  },
+  {
+    id: 3,
+    status: 'Reviewing',
+    reviewer: {
+      firstName: 'Bon',
+      middleName: 'Youjin',
+      lastName: 'Kim',
+      email: 'bon@naver.com',
+    },
+    date: '2023-01-03T09:20:10Z',
+  },
+  {
+    id: 4,
+    status: 'Reviewing',
+    reviewer: {
+      firstName: 'Haley',
+      middleName: null,
+      lastName: 'Park',
+      email: 'haley@naver.com',
+    },
+    date: '2023-01-03T09:20:10Z',
+  },
+  {
+    id: 5,
+    status: 'Skill submitted',
+    reviewer: {
+      firstName: '',
+      middleName: null,
+      lastName: '',
+      email: '',
+    },
+    date: '2023-01-01T13:35:10Z',
+  },
+  {
+    id: 6,
+    status: 'Skill in progress',
+    reviewer: {
+      firstName: '',
+      middleName: null,
+      lastName: '',
+      email: '',
+    },
+    date: '2022-12-31T17:22:10Z',
+  },
+]
+
+const reviewer = [
+  {
+    id: 1,
+    reviewerId: 1,
+    firstName: 'Bon',
+    middleName: 'Youjin',
+    lastName: 'Kim',
+    email: 'bon@naver.com',
+    status: 'Requested',
+    date: '2023-02-05T04:24:48Z',
+  },
+  {
+    id: 2,
+    reviewerId: 2,
+    firstName: 'Winter',
+    middleName: null,
+    lastName: 'Lee',
+    email: 'winter@naver.com',
+    status: 'Not requested',
+    date: '2023-02-05T04:34:48Z',
+  },
+  {
+    id: 3,
+    reviewerId: 3,
+    firstName: 'Chole',
+    middleName: null,
+    lastName: 'Yu',
+    email: 'chloe@glozinc.com',
+    status: 'Request rejected',
+    date: '2023-02-05T04:44:48Z',
+  },
+  {
+    id: 4,
+    reviewerId: 4,
+    firstName: 'Risha',
+    middleName: null,
+    lastName: 'Park',
+    email: 'risha@glozinc.com',
+    status: 'Request accepted',
+    // status: 'Not requested',
+    date: '2023-02-05T05:44:48Z',
+  },
+  {
+    id: 5,
+    reviewerId: 5,
+    firstName: 'Luke',
+    middleName: null,
+    lastName: 'Kim',
+    email: 'luke@glozinc.com',
+    status: 'Not requested',
+    date: '2023-02-05T05:44:48Z',
+  },
+]
 
 // mock.onGet('/api/pro/details').reply(request => {
 //   const { id } = request.params
@@ -3209,39 +3278,43 @@ import {
 //   return [200]
 // })
 
-// mock.onGet('/api/pro/details/reviewer').reply(() => {
-//   return [200, reviewer]
-// })
+mock.onGet('/api/pro/details/reviewer').reply(() => {
+  return [200, reviewer]
+})
 
-// mock.onPost('/api/pro/details/reviewer/action').reply(request => {
-//   const { id, status } = JSON.parse(request.data).data
+mock.onGet('/api/pro/details/history').reply(() => {
+  return [200, history]
+})
 
-//   const eventId = Number(id)
+mock.onPost('/api/pro/details/reviewer/action').reply(request => {
+  const { id, status } = JSON.parse(request.data).data
 
-//   const index = reviewer.findIndex(value => value.id === eventId)
+  const eventId = Number(id)
 
-//   const res = reviewer.map(value => {
-//     if (value.id === eventId) {
-//       return {
-//         ...value,
-//         status:
-//           status === 'Not requested'
-//             ? 'Requested'
-//             : status === 'Re assign' && value.status === 'Request accepted'
-//             ? 'Canceled'
-//             : value.status,
-//       }
-//     } else {
-//       return { ...value }
-//     }
-//   })
+  const index = reviewer.findIndex(value => value.id === eventId)
 
-//   reviewer.splice(index, 1, res[index])
+  const res = reviewer.map(value => {
+    if (value.id === eventId) {
+      return {
+        ...value,
+        status:
+          status === 'Not requested'
+            ? 'Requested'
+            : status === 'Re assign' && value.status === 'Request accepted'
+            ? 'Canceled'
+            : value.status,
+      }
+    } else {
+      return { ...value }
+    }
+  })
 
-//   reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
+  reviewer.splice(index, 1, res[index])
 
-//   return [200]
-// })
+  reviewer.map((value, idx) => (reviewer[idx] = res[idx]))
+
+  return [200]
+})
 
 // mock.onPost('/api/pro/details/test').reply(request => {
 //   const { userId, jobInfo }: { userId: number; jobInfo: AddRoleType } =
