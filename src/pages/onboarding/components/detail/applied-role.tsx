@@ -573,7 +573,7 @@ export default function AppliedRole({
                 )
               })
             : null}
-          {userInfo.length ? (
+          {userInfo && userInfo.length ? (
             <Grid item xs={12}>
               <CustomPagination
                 listCount={userInfo.length}
