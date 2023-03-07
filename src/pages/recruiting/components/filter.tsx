@@ -15,19 +15,15 @@ import {
   Checkbox,
   Grid,
   IconButton,
-  InputLabel,
-  OutlinedInput,
 } from '@mui/material'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
 // **values
-import {
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
-import { JobList, RoleList } from 'src/shared/const/common'
+import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RoleList } from 'src/shared/const/role/roles'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 

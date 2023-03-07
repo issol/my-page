@@ -72,7 +72,9 @@ import {
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
 // ** values
-import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RoleList } from 'src/shared/const/role/roles'
+import { RecruitingStatus } from 'src/shared/const/status/statuses'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { useMutation } from 'react-query'

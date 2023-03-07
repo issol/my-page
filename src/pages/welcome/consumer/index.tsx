@@ -46,11 +46,11 @@ import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
 import {
   ExperiencedYears,
-  JobList,
   Pronunciation,
-  RolePair,
   Specialties,
 } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
+import { ProRolePair } from 'src/shared/const/role/roles'
 import { useDropzone } from 'react-dropzone'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 
@@ -896,7 +896,7 @@ const PersonalInfoPro = () => {
                                     }
                                   >
                                     {/* @ts-ignore */}
-                                    {RolePair[item.jobType]?.map(
+                                    {ProRolePair[item.jobType]?.map(
                                       (item: any, idx: number) => (
                                         <MenuItem value={item.value} key={idx}>
                                           {item.label}

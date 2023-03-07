@@ -66,8 +66,9 @@ import {
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
-import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RecruitingStatus } from 'src/shared/const/status/statuses'
+import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'

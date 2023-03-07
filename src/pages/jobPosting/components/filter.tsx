@@ -29,7 +29,8 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import { JobList, RoleList } from 'src/shared/const/common'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RoleList } from 'src/shared/const/role/roles'
 import { ExperiencedYears } from 'src/shared/const/personalInfo'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
