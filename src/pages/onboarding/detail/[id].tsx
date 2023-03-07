@@ -106,6 +106,10 @@ function OnboardingDetail() {
     useState<OnboardingProDetailsType | null>(null)
   const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
+  const [appliedRoleList, setAppliedRoleList] = useState<
+    AppliedRoleType[] | null
+  >(appliedRole!)
+
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<AppliedRoleType | null>(null)
 
@@ -294,6 +298,7 @@ function OnboardingDetail() {
         : 0
 
     setRolePage(changedPage)
+    setSelectedJobInfo(null)
   }
 
   const handleChangeCommentsProPage = (direction: string) => {
@@ -317,27 +322,28 @@ function OnboardingDetail() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
-    if (selectedUserInfo) {
-      if (event.target.checked) {
-        let prevState = selectedUserInfo
 
-        const res = prevState.jobInfo.filter(
-          (value: any) =>
+    if (appliedRoleList) {
+      if (event.target.checked) {
+        let prevState = appliedRoleList
+
+        const res = prevState.filter(
+          (value: AppliedRoleType) =>
             !(
-              value.status === 'Test failed' ||
-              value.status === 'Basic failed' ||
-              value.status === 'Rejected' ||
-              value.status === 'Paused'
+              value.testStatus === 'Skill failed' ||
+              value.testStatus === 'Basic failed' ||
+              value.requestStatus === 'Rejected' ||
+              value.requestStatus === 'Paused'
             ),
         )
+        console.log(res)
 
-        prevState['jobInfo'] = res
-        setSelectedUserInfo(prevState)
+        prevState = res
+        setAppliedRoleList(prevState)
       } else {
-        let prevState = selectedUserInfo
+        let prevState = appliedRoleList
 
-        prevState['jobInfo'] = jobInfo
-        setSelectedUserInfo(prevState)
+        setAppliedRoleList(prevState)
       }
     }
   }
@@ -730,24 +736,8 @@ function OnboardingDetail() {
   }
 
   useEffect(() => {
-    let tempUserInfo = userInfo!
-
-    const res = userInfo!.jobInfo.map((value: any) => ({
-      ...value,
-      selected: value.id === actionId ? true : false,
-    }))
-
-    const selectedResult = res.filter((value: any) => value.id === actionId)
-
-    tempUserInfo['jobInfo'] = res
-
-    setSelectedUserInfo(tempUserInfo)
-    setJobInfo(res)
-    if (actionId) {
-      setSelectedJobInfo(selectedResult[0])
-    }
-    // setSelectedJobInfo(res)
-  }, [userInfo])
+    setAppliedRoleList(appliedRole!)
+  }, [appliedRole])
 
   const onClickFile = (file: {
     id: number
@@ -909,7 +899,7 @@ function OnboardingDetail() {
         <Grid item xs={12}>
           <Suspense>
             <AppliedRole
-              userInfo={appliedRole!}
+              userInfo={appliedRoleList!}
               hideFailedTest={hideFailedTest}
               handleHideFailedTestChange={handleHideFailedTestChange}
               selectedJobInfo={selectedJobInfo}
