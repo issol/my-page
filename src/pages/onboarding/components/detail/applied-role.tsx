@@ -399,7 +399,7 @@ export default function AppliedRole({
                   color: 'rgba(76, 78, 100, 0.6)',
                 }}
               >
-                Hide failed test
+                Hide inactive tests
               </Typography>
             }
             labelPlacement='start'

@@ -33,7 +33,9 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
   useGetCertifiedRole,
+  useGetHistory,
   useGetOnboardingProDetails,
+  useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
@@ -98,13 +100,12 @@ function OnboardingDetail() {
 
   const { data: appliedRole } = useGetAppliedRole(userInfo!.userId)
   const { data: certifiedRole } = useGetCertifiedRole(userInfo!.userId)
+  const { data: reviewerList } = useGetReviewerList()
+  const { data: history } = useGetHistory()
 
   const { user } = useContext(AuthContext)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
-  const [selectedUserInfo, setSelectedUserInfo] =
-    useState<OnboardingProDetailsType | null>(null)
-  const [jobInfo, setJobInfo] = useState(userInfo!.jobInfo)
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
@@ -340,7 +341,7 @@ function OnboardingDetail() {
         prevState = res
         setAppliedRoleList(prevState)
       } else {
-        let prevState = appliedRoleList
+        let prevState = appliedRole!
 
         setAppliedRoleList(prevState)
       }
@@ -531,7 +532,12 @@ function OnboardingDetail() {
 
   const onClickTestDetails = (jobInfo: AppliedRoleType, type: string) => {
     setModal(
-      <TestDetailsModal jobInfo={jobInfo} reviewerList={[]} type={type} />,
+      <TestDetailsModal
+        jobInfo={jobInfo}
+        reviewerList={reviewerList!}
+        history={history!}
+        type={type}
+      />,
     )
   }
 
