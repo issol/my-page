@@ -10,7 +10,8 @@ import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { useContext, useEffect, useState, Fragment } from 'react'
 import { AuthContext } from 'src/context/AuthContext'
 import Divider from '@mui/material/Divider'
-import { Writer } from '@src/@core/components/chip'
+import CustomChip from 'src/@core/components/mui/chip'
+
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { convertFromRaw, EditorState } from 'draft-js'
 import _ from 'lodash'
@@ -22,7 +23,7 @@ import { DataGrid } from '@mui/x-data-grid/DataGrid'
 import { CurrentTestType } from 'src/types/certification-test/detail'
 import Dialog from '@mui/material/Dialog'
 import Icon from 'src/@core/components/icon'
-import { FileType } from '@src/apis/client-guideline.api'
+
 import List from '@mui/material/List'
 import toast from 'react-hot-toast'
 import {
@@ -39,6 +40,7 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import { useMutation } from 'react-query'
 import { ModalContext } from 'src/context/ModalContext'
+import { FileType } from '@src/types/common/file.type'
 
 type CellType = {
   row: CurrentTestType
@@ -444,7 +446,12 @@ const CertificationTestDetail = () => {
                           alignItems: 'center',
                         }}
                       >
-                        <Writer label='Writer' size='small' />
+                        <CustomChip
+                          label='Writer'
+                          skin='light'
+                          color='error'
+                          size='small'
+                        />
                         {user?.username === currentRow.writer ? (
                           <Typography
                             sx={{ fontSize: '0.875rem', fontWeight: 500 }}
@@ -691,7 +698,12 @@ const CertificationTestDetail = () => {
                   <Box
                     sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                   >
-                    <Writer label='Writer' size='small' />
+                    <CustomChip
+                      label='Writer'
+                      skin='light'
+                      color='error'
+                      size='small'
+                    />
                     {user?.username === currentVersion?.writer ? (
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}

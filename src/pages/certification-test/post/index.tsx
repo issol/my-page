@@ -38,7 +38,8 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-import { Writer } from 'src/@core/components/chip'
+7
+import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -53,26 +54,10 @@ import { AuthContext } from 'src/context/AuthContext'
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
-import {
-  clientGuidelineSchema,
-  ClientGuidelineType,
-} from 'src/types/schema/client-guideline.schema'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import { postFiles } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
-import {
-  checkGuidelineExistence,
-  FilePostType,
-  FileType,
-  getGuidelineUploadPreSignedUrl,
-  postGuideline,
-} from 'src/apis/client-guideline.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -101,6 +86,7 @@ import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
+import { FileType } from '@src/types/common/file.type'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -635,8 +621,8 @@ const TestMaterialPost = () => {
       })
     } else {
       isFetched
-      ? patchTestMutation.mutate(patchValue)
-      : postTestMutation.mutate(finalValue)
+        ? patchTestMutation.mutate(patchValue)
+        : postTestMutation.mutate(finalValue)
       // guidelineMutation.mutate(finalValue)
     }
   }
@@ -916,7 +902,12 @@ const TestMaterialPost = () => {
                 <Box display='flex' justifyContent='space-between' mb='20px'>
                   <Typography variant='h6'>Test guideline*</Typography>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Writer label='Writer' size='small' />
+                    <CustomChip
+                      label='Writer'
+                      skin='light'
+                      color='error'
+                      size='small'
+                    />
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color='primary'
