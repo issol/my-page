@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from 'react'
 import { Grid } from '@mui/material'
-import { DefaultRolePair } from 'src/shared/const/onboarding'
+import { DefaultRolePair } from '@src/shared/const/onboarding'
 import { RoleSelectType } from 'src/types/onboarding/list'
 import { SelectType } from 'src/types/onboarding/list'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
@@ -81,9 +81,12 @@ const CertificationTest = () => {
 
   const onSubmit = (data: TestMaterialFilterType) => {
     const { jobType, role, source, target, testType } = data
+    console.log(source)
 
     const filter = {
-      testType: testType.map(value => value.label),
+      testType: testType.map(value =>
+        value.label === 'Basic test' ? 'basic' : 'skill',
+      ),
       jobType: jobType.map(value => value.value),
       role: role.map(value => value.value),
       source: source.map(value => value.value),
