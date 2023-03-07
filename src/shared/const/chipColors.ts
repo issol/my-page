@@ -46,6 +46,7 @@ export const TestStatusColor = {
   'Basic submitted': '#1A6BBA',
   'Basic failed': '#FF4D49',
   'Basic passed': '#72E128',
+  Skipped: '#72E128',
   'Skill in progress': '#D18A00',
   'Skill submitted': '#1A6BBA',
   Reviewing: '#21AEDB',

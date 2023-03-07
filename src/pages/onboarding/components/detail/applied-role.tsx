@@ -476,7 +476,11 @@ export default function AppliedRole({
                           ) &&
                           value.requestStatus !== 'Awaiting assignment' &&
                           value.requestStatus !== 'Paused' &&
-                          value.requestStatus !== 'Rejected' ? (
+                          value.requestStatus !== 'Rejected' &&
+                          value.test.find(data => data.testType === 'basic')!
+                            .status !== 'Basic failed' &&
+                          value.test.find(data => data.testType === 'skill')!
+                            .status !== 'Skill failed' ? (
                             <Button
                               variant='outlined'
                               size='small'
