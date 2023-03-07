@@ -8,7 +8,6 @@ import { JobList } from 'src/shared/const/personalInfo'
 import {
   TestMaterialFilterPayloadType,
   TestMaterialFilterType,
-  TestType,
 } from 'src/types/certification-test/list'
 import { useForm } from 'react-hook-form'
 import TestMaterialList from './components/list/list'
