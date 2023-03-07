@@ -70,6 +70,13 @@ const navigation = (): VerticalNavItemsType => {
         },
       ],
     },
+    {
+      title: 'Certification Test',
+      icon: 'mi:clipboard-check',
+      action: 'read',
+      subject: 'certification_test',
+      path: `/certification-test`,
+    },
   ]
 }
 

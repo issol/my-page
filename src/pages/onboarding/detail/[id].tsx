@@ -67,6 +67,7 @@ import {
   deleteCommentOnPro,
   editCommentOnPro,
   patchAppliedRole,
+  patchTestStatus,
 } from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
 import NegativeActionsTestModal from '../components/detail/modal/negative-actions-test-modal'
@@ -74,6 +75,11 @@ import CertifiedRole from '../components/detail/certified-role'
 import CertifyRoleModal from '../components/detail/modal/certify-role-modal'
 import ReasonModal from '../components/detail/modal/reason-modal'
 import ResumeTestModal from '../components/detail/modal/resume-test-modal'
+import TestAssignModal from '../components/detail/modal/test-assign-modal'
+import SkipBasicTestModal from '../components/detail/modal/basic-test-action-modal'
+
+import BasicTestActionModal from '../components/detail/modal/basic-test-action-modal'
+import SkillTestActionModal from '../components/detail/modal/skill-test-action-modal'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -186,30 +192,17 @@ function OnboardingDetail() {
 
   const queryClient = useQueryClient()
 
-  // const certifyRoleMutation = useMutation(
-  //   (value: { userId: number; jobInfoId: number }) =>
-  //     certifyRole(value.userId, value.jobInfoId),
-  //   {
-  //     onSuccess: (data, variables) => {
-  //       queryClient.invalidateQueries(`${variables.userId}`)
-  //       // displayUndoToast(variables.user, variables.payload.reply)
-  //     },
-  //   },
-  // )
-
   const appliedRoleActionMutation = useMutation(
     (value: {
       id: number
       reply: string
-      pauseReason?: string
-      rejectReason?: string
+      reason?: string
       messageToUser?: string
     }) =>
       patchAppliedRole(
         value.id,
         value.reply,
-        value.pauseReason,
-        value.rejectReason,
+        value.reason,
         value.messageToUser,
       ),
     {
@@ -220,15 +213,16 @@ function OnboardingDetail() {
     },
   )
 
-  // const testActionMutation = useMutation(
-  //   (value: { userId: number; jobInfoId: number; status: string }) =>
-  //     testAction(value.userId, value.jobInfoId, value.status),
-  //   {
-  //     onSuccess: (data, variables) => {
-  //       queryClient.invalidateQueries(`${variables.userId}`)
-  //     },
-  //   },
-  // )
+  const patchTestStatusMutation = useMutation(
+    (value: { id: number; status: string }) =>
+      patchTestStatus(value.id, value.status),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`applied-role-${userInfo?.userId}`)
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+      },
+    },
+  )
 
   const addTestMutation = useMutation(
     (jobInfo: AddRolePayloadType[]) => addCreatedAppliedRole(jobInfo),
@@ -359,6 +353,15 @@ function OnboardingDetail() {
     })
   }
 
+  const handleTestAssign = (id: number, status?: string) => {
+    status === 'none'
+      ? appliedRoleActionMutation.mutate({
+          id: id,
+          reply: 'assign_test',
+        })
+      : null
+  }
+
   const handleRejectRole = (
     id: number,
     rejectReason: string,
@@ -367,7 +370,7 @@ function OnboardingDetail() {
     appliedRoleActionMutation.mutate({
       id: id,
       reply: 'reject',
-      rejectReason: rejectReason,
+      reason: rejectReason,
       messageToUser: messageToUser,
     })
   }
@@ -380,7 +383,7 @@ function OnboardingDetail() {
     appliedRoleActionMutation.mutate({
       id: id,
       reply: 'pause',
-      pauseReason: pauseReason,
+      reason: pauseReason,
       messageToUser: messageToUser,
     })
   }
@@ -390,6 +393,14 @@ function OnboardingDetail() {
       id: id,
       reply: 'resume',
     })
+  }
+
+  const handleActionBasicTest = (id: number, type: string) => {
+    patchTestStatusMutation.mutate({ id: id, status: type })
+  }
+
+  const handleActionSkillTest = (id: number, status: string) => {
+    patchTestStatusMutation.mutate({ id: id, status: status })
   }
 
   const onClickRejectOrPause = (jobInfo: AppliedRoleType, type: string) => {
@@ -442,13 +453,44 @@ function OnboardingDetail() {
     )
   }
 
-  const onClickAction = (jobInfoId: number, status: string) => {
-    setActionId(jobInfoId)
-    // testActionMutation.mutate({
-    //   userId: Number(id),
-    //   jobInfoId: jobInfoId,
-    //   status: status,
-    // })
+  const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
+    setActionId(jobInfo.id)
+    setModal(
+      <TestAssignModal
+        open={true}
+        onClose={() => setModal(null)}
+        status={status ?? 'none'}
+        userInfo={jobInfo}
+        handleAssignRole={handleTestAssign}
+      />,
+    )
+  }
+
+  const onClickBasicTestAction = (jobInfo: AppliedRoleType, type: string) => {
+    setActionId(jobInfo.id)
+
+    setModal(
+      <BasicTestActionModal
+        open={true}
+        onClose={() => setModal(null)}
+        userInfo={jobInfo}
+        type={type}
+        handleActionBasicTest={handleActionBasicTest}
+      />,
+    )
+  }
+
+  const onClickSkillTestAction = (jobInfo: AppliedRoleType, type: string) => {
+    setActionId(jobInfo.id)
+    setModal(
+      <SkillTestActionModal
+        open={true}
+        onClose={() => setModal(null)}
+        userInfo={jobInfo}
+        type={type}
+        handleActionSkillTest={handleActionSkillTest}
+      />,
+    )
   }
 
   const onClickAddRole = () => {
@@ -482,8 +524,10 @@ function OnboardingDetail() {
     }
   }
 
-  const onClickTestDetails = (jobInfo: AppliedRoleType) => {
-    setModal(<TestDetailsModal jobInfo={jobInfo} reviewerList={[]} />)
+  const onClickTestDetails = (jobInfo: AppliedRoleType, type: string) => {
+    setModal(
+      <TestDetailsModal jobInfo={jobInfo} reviewerList={[]} type={type} />,
+    )
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
@@ -705,10 +749,6 @@ function OnboardingDetail() {
     // setSelectedJobInfo(res)
   }, [userInfo])
 
-  useEffect(() => {
-    console.log(selectedUserInfo)
-  }, [selectedUserInfo])
-
   const onClickFile = (file: {
     id: number
     uri: string
@@ -879,7 +919,7 @@ function OnboardingDetail() {
               handleChangePage={handleChangeRolePage}
               offset={roleOffset}
               onClickCertify={onClickCertify}
-              onClickAction={onClickAction}
+              onClickTestAssign={onClickTestAssign}
               onClickAddRole={onClickAddRole}
               onClickRejectOrPause={onClickRejectOrPause}
               onClickReason={onClickReason}
@@ -892,8 +932,10 @@ function OnboardingDetail() {
           <CertificationTest
             userInfo={userInfo!}
             selectedJobInfo={selectedJobInfo}
-            onClickAction={onClickAction}
+            onClickBasicTestAction={onClickBasicTestAction}
             onClickTestDetails={onClickTestDetails}
+            onClickCertify={onClickCertify}
+            onClickSkillTestAction={onClickSkillTestAction}
           />
         </Grid>
         <Grid item xs={12}>

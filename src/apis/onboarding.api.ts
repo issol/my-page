@@ -75,19 +75,24 @@ export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
 export const patchAppliedRole = async (
   id: number,
   reply: string,
-  pauseReason?: string,
-  rejectReason?: string,
+  reason?: string,
   messageToUser?: string,
 ) => {
   const params = {
     reply,
-    rejectReason,
+    reason,
     messageToUser,
   }
 
   console.log(params)
 
   await axios.patch(`/api/enough/cert/request/role/${id}`, params)
+}
+
+export const patchTestStatus = async (id: number, status: string) => {
+  const params = { status }
+
+  await axios.patch(`/api/enough/cert/test/${id}`)
 }
 
 export const getCertifiedRole = async (id: number) => {

@@ -65,9 +65,7 @@ export default function ReasonModal({
                 {/* {type}&nbsp; reason */}
                 Rejected reason
               </Typography>
-              <Typography variant='body1'>
-                {reason}Project is not confirmed yet.
-              </Typography>
+              <Typography variant='body1'>{reason}</Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='body1' sx={{ fontWeight: 600 }}>

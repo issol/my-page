@@ -22,13 +22,17 @@ import { TestStatusColor } from 'src/shared/const/chipColors'
 import {
   AppliedRoleType,
   OnboardingProDetailsType,
+  TestType,
 } from 'src/types/onboarding/details'
+import { useEffect, useState } from 'react'
 
 type Props = {
   userInfo: OnboardingProDetailsType
   selectedJobInfo: AppliedRoleType | null
-  onClickAction: (jobInfoId: number, status: string) => void
-  onClickTestDetails: (history: AppliedRoleType) => void
+  onClickBasicTestAction: (jobInfo: AppliedRoleType, type: string) => void
+  onClickTestDetails: (history: AppliedRoleType, type: string) => void
+  onClickCertify: (jobInfo: AppliedRoleType) => void
+  onClickSkillTestAction: (jobInfo: AppliedRoleType, type: string) => void
 }
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -44,35 +48,61 @@ const Timeline = styled(MuiTimeline)<TimelineProps>({
 export default function CertificationTest({
   userInfo,
   selectedJobInfo,
-  onClickAction,
+  onClickBasicTestAction,
+  onClickCertify,
   onClickTestDetails,
+  onClickSkillTestAction,
 }: Props) {
+  const [basicTest, setBasicTest] = useState<TestType | null>(null)
+  const [skillTest, setSkillTest] = useState<TestType | null>(null)
+
   const verifiedNoTest = (jobInfo: AppliedRoleType) => {
-    const noBasic = jobInfo!.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'basic',
-    )
-    const noSkill = jobInfo!.test.filter(
-      value => value.status === 'NO_TEST' && value.testType === 'skill',
-    )
+    const noBasic =
+      jobInfo.test.find(value => value.testType === 'basic')?.status ===
+      'NO_TEST'
+
+    const noSkill =
+      jobInfo.test.find(value => value.testType === 'skill')?.status ===
+      'NO_TEST'
+
+    console.log(noBasic)
+    console.log(noSkill)
+
     if ((noBasic && noSkill) || (!noBasic && noSkill)) {
       return true
     } else {
       return false
     }
   }
+
+  useEffect(() => {
+    if (selectedJobInfo) {
+      const basic = selectedJobInfo.test.find(
+        value => value.testType === 'basic',
+      )
+      const skill = selectedJobInfo.test.find(
+        value => value.testType === 'skill',
+      )
+      setBasicTest(basic!)
+      setSkillTest(skill!)
+    }
+  }, [selectedJobInfo])
   return (
     <Card
       sx={{
         padding: '20px',
         background:
-          selectedJobInfo && selectedJobInfo.testStatus === 'Paused'
+          selectedJobInfo && selectedJobInfo.requestStatus === 'Paused'
             ? 'rgba(76, 78, 100, 0.12);'
             : '#ffffff',
       }}
     >
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
       {selectedJobInfo &&
-      selectedJobInfo.testStatus !== 'Awaiting assignment' &&
+      basicTest &&
+      skillTest &&
+      selectedJobInfo.requestStatus !== 'Awaiting assignment' &&
+      selectedJobInfo.requestStatus !== 'Rejected' &&
       !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
@@ -81,287 +111,566 @@ export default function CertificationTest({
                 <TimelineDot color='warning' />
                 <TimelineConnector />
               </TimelineSeparator>
-              <TimelineContent
-                sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
-              >
-                <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                  Basic Test
-                </Typography>
-                <Card
-                  sx={{
-                    mt: 2,
-
-                    background:
-                      selectedJobInfo.testStatus === 'Skill in progress' ||
-                      selectedJobInfo.testStatus === 'Skill submitted' ||
-                      selectedJobInfo.testStatus === 'Reviewing' ||
-                      selectedJobInfo.testStatus === 'Skill failed' ||
-                      selectedJobInfo.testStatus === 'Review completed'
-                        ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
-                        : selectedJobInfo.testStatus === 'General failed'
-                        ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
-                        : 'rgba(76, 78, 100, 0.05)',
-                    boxShadow: 'none',
-                  }}
+              {basicTest ? (
+                <TimelineContent
+                  sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
                 >
-                  <CardContent>
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                      Basic Test
+                    </Typography>
+                    <Box sx={{ display: 'flex', gap: 4 }}>
+                      {basicTest!.status === 'Basic submitted' ? (
+                        <>
+                          <Typography
+                            sx={{
+                              fontWeight: 600,
+                              fontSize: '14px',
+                              lineHeight: '20px',
+                              letterSpacing: '.15px',
+                            }}
+                          >
+                            Score : {basicTest.score ?? 0}
+                          </Typography>
+                          <Divider
+                            orientation='vertical'
+                            variant='fullWidth'
+                            flexItem
+                          />
+                        </>
+                      ) : null}
+                      {basicTest!.status === 'Basic submitted' ? (
+                        <>
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              fontWeight: 500,
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                            }}
+                            // onClick={() => onClickTestDetails(selectedJobInfo)}
+                          >
+                            See response
+                          </Typography>
+                        </>
+                      ) : null}
+                    </Box>
+                  </Box>
+
+                  <Card
+                    sx={{
+                      mt: 2,
+
+                      background:
+                        basicTest!.status === 'Skipped' ||
+                        basicTest!.status === 'Basic passed'
+                          ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
+                          : basicTest!.status === 'Basic failed'
+                          ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;'
+                          : 'rgba(76, 78, 100, 0.05)',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                          {selectedJobInfo?.target ? (
+                            <>
+                              {selectedJobInfo?.target.toUpperCase()} (
+                              {languageHelper(
+                                selectedJobInfo?.target?.toLowerCase(),
+                              )}
+                              )
+                            </>
+                          ) : (
+                            '-'
+                          )}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {basicTest!.status === 'Test assigned' ? (
+                            <>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Skipped',
+                                  )
+                                }
+                                disabled={
+                                  selectedJobInfo!.requestStatus === 'Paused'
+                                }
+                              >
+                                Skip
+                              </Button>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic in progress',
+                                  )
+                                }
+                                disabled={
+                                  selectedJobInfo!.requestStatus === 'Paused'
+                                }
+                              >
+                                Proceed
+                              </Button>
+                            </>
+                          ) : (
+                            <Chip
+                              size='medium'
+                              type='testStatus'
+                              label={
+                                basicTest!.status === 'Basic in progress' ||
+                                basicTest!.status === 'Basic submitted' ||
+                                basicTest!.status === 'Basic failed' ||
+                                basicTest!.status === 'Basic passed' ||
+                                basicTest!.status === 'Skipped' ||
+                                basicTest!.status === 'NO_TEST'
+                                  ? basicTest!.status === 'NO_TEST'
+                                    ? 'No test'
+                                    : basicTest!.status
+                                  : '-'
+                              }
+                              /* @ts-ignore */
+                              customcolor={
+                                /* @ts-ignore */
+                                TestStatusColor[
+                                  basicTest!.status === 'Basic in progress' ||
+                                  basicTest!.status === 'Basic submitted' ||
+                                  basicTest!.status === 'Basic failed' ||
+                                  basicTest!.status === 'Basic passed' ||
+                                  basicTest!.status === 'Skipped' ||
+                                  basicTest!.status === 'NO_TEST'
+                                    ? basicTest!.status
+                                    : 'default'
+                                ] //@ts-ignore
+                              }
+                              sx={{
+                                '& .MuiChip-label': { lineHeight: '18px' },
+                                mr: 1,
+                              }}
+                            />
+                          )}
+
+                          {basicTest!.status === 'Basic submitted' ? (
+                            <Box sx={{ display: 'flex', gap: 2 }}>
+                              <Button
+                                variant='outlined'
+                                color='error'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic failed',
+                                  )
+                                }
+                              >
+                                Fail
+                              </Button>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic passed',
+                                  )
+                                }
+                              >
+                                Pass
+                              </Button>
+                            </Box>
+                          ) : null}
+                        </Box>
+                      </Box>
+                    </CardContent>
+                  </Card>
+                </TimelineContent>
+              ) : null}
+            </TimelineItem>
+
+            <TimelineItem>
+              {skillTest && basicTest ? (
+                <>
+                  <TimelineSeparator>
+                    <TimelineDot
+                      color={
+                        skillTest!.status === 'Skill in progress' ||
+                        skillTest!.status === 'Skill submitted' ||
+                        skillTest!.status === 'Skill failed' ||
+                        skillTest!.status === 'Reviewing' ||
+                        skillTest!.status === 'Review completed' ||
+                        skillTest!.status === 'Review canceled'
+                          ? 'primary'
+                          : 'grey'
+                      }
+                    />
+                    <TimelineConnector />
+                  </TimelineSeparator>
+                  <TimelineContent sx={{ mt: 0 }}>
                     <Box
                       sx={{
                         display: 'flex',
                         justifyContent: 'space-between',
-                        alignItems: 'center',
+                        paddingRight: '10px',
                       }}
                     >
                       <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                        {selectedJobInfo?.target ? (
-                          <>
-                            {selectedJobInfo?.target.toUpperCase()} (
-                            {languageHelper(
-                              selectedJobInfo?.target?.toLowerCase(),
-                            )}
-                            )
-                          </>
-                        ) : (
-                          '-'
-                        )}
+                        Skill Test
                       </Typography>
-                      <Box sx={{ display: 'flex', gap: '10px' }}>
-                        {selectedJobInfo.testStatus === 'Test assigned' ? (
+                      <Box sx={{ display: 'flex', gap: 4 }}>
+                        {skillTest!.status === 'Skill submitted' ||
+                        skillTest!.status === 'Reviewing' ||
+                        skillTest!.status === 'Skill failed' ? (
                           <>
-                            <Button
-                              variant='contained'
-                              onClick={() =>
-                                onClickAction(selectedJobInfo.id, 'Skipped')
-                              }
+                            {' '}
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 500,
+                                textDecoration: 'underline',
+                                cursor: 'pointer',
+                              }}
+                              // onClick={() => onClickTestDetails(selectedJobInfo)}
                             >
-                              Skip
-                            </Button>
-                            <Button
-                              variant='contained'
-                              onClick={() =>
-                                onClickAction(selectedJobInfo.id, 'Proceed')
-                              }
-                            >
-                              Proceed
-                            </Button>
+                              See response
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='fullWidth'
+                              flexItem
+                            />
                           </>
-                        ) : selectedJobInfo.testStatus ===
-                          'Basic in progress' ? (
-                          <Box sx={{ display: 'flex', gap: '8px' }}>
-                            <Typography
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '14px',
-                                lineHeight: '24px',
-                                letterSpacing: '0.4px',
-                                color: 'rgba(76, 78, 100, 0.87)',
-                              }}
-                            >
-                              In progress
-                            </Typography>
-                            <CircularProgress size={20} />
-                          </Box>
-                        ) : selectedJobInfo.testStatus === 'Basic failed' ? (
-                          <Box sx={{ display: 'flex', gap: '8px' }}>
-                            <Typography
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '14px',
-                                lineHeight: '24px',
-                                letterSpacing: '0.4px',
-                                color: 'rgba(76, 78, 100, 0.87)',
-                              }}
-                            >
-                              Failed
-                            </Typography>
-                            <img src='/images/icons/onboarding-icons/general-failed.svg' />
-                          </Box>
-                        ) : selectedJobInfo.testStatus === 'Test in progress' ||
-                          selectedJobInfo.testStatus === 'Test submitted' ||
-                          selectedJobInfo.testStatus === 'Reviewing' ||
-                          selectedJobInfo.testStatus === 'Test failed' ||
-                          selectedJobInfo.testStatus === 'Review completed' ? (
-                          <Box sx={{ display: 'flex', gap: '8px' }}>
-                            <Typography
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '14px',
-                                lineHeight: '24px',
-                                letterSpacing: '0.4px',
-                                color: 'rgba(76, 78, 100, 0.87)',
-                              }}
-                            >
-                              Passed
-                            </Typography>
+                        ) : null}
 
-                            <img src='/images/icons/onboarding-icons/general-passed.svg' />
-                          </Box>
-                        ) : selectedJobInfo.testStatus === 'General skipped' ? (
-                          <Box sx={{ display: 'flex', gap: '8px' }}>
-                            <Typography
-                              sx={{
-                                fontWeight: 500,
-                                fontSize: '14px',
-                                lineHeight: '24px',
-                                letterSpacing: '0.4px',
-                                color: 'rgba(76, 78, 100, 0.87)',
-                              }}
-                            >
-                              Skipped
-                            </Typography>
+                        {skillTest!.status === 'Skill in progress' ||
+                        skillTest!.status === 'Skill submitted' ||
+                        skillTest!.status === 'Skill failed' ||
+                        skillTest!.status === 'Reviewing' ||
+                        skillTest!.status === 'Review completed' ||
+                        skillTest!.status === 'Review canceled' ? (
+                          <Typography
+                            variant='body2'
+                            sx={{
+                              fontWeight: 500,
+                              textDecoration: 'underline',
+                              cursor: 'pointer',
+                            }}
+                            onClick={() =>
+                              onClickTestDetails(selectedJobInfo, 'detail')
+                            }
+                          >
+                            Details
+                          </Typography>
+                        ) : null}
+                      </Box>
+                    </Box>
+                    <Card
+                      sx={{
+                        mt: 2,
 
-                            <img src='/images/icons/onboarding-icons/general-skipped.svg' />
+                        background:
+                          skillTest!.status === 'Skill failed'
+                            ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
+                            : 'rgba(76, 78, 100, 0.05)',
+                        boxShadow: 'none',
+                      }}
+                    >
+                      <CardContent>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Box sx={{ display: 'flex', gap: '10px' }}>
+                            <Typography
+                              variant='body1'
+                              sx={{ fontWeight: 600 }}
+                            >
+                              {selectedJobInfo.jobType}
+                            </Typography>
+                            <Divider orientation='vertical' flexItem />
+                            <Typography
+                              variant='body1'
+                              sx={{ fontWeight: 600 }}
+                            >
+                              {selectedJobInfo.role}
+                            </Typography>
+                            <Divider orientation='vertical' flexItem />
+                            <Typography
+                              variant='subtitle2'
+                              sx={{ fontWeight: 600, fontSize: '14px' }}
+                            >
+                              {selectedJobInfo.source &&
+                              selectedJobInfo.target &&
+                              selectedJobInfo.source !== '' &&
+                              selectedJobInfo.target !== '' ? (
+                                <>
+                                  {selectedJobInfo.source.toUpperCase()} &rarr;{' '}
+                                  {selectedJobInfo.target.toUpperCase()}
+                                </>
+                              ) : (
+                                ''
+                              )}
+                            </Typography>
                           </Box>
-                        ) : selectedJobInfo.test.find(
-                            value => value.testType === 'basic',
-                          )?.status === 'NO_TEST' ? (
+
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '10px',
+                              alignItems: 'center',
+                            }}
+                          >
+                            {(basicTest!.status === 'Basic failed' ||
+                              basicTest!.status === 'Basic passed') &&
+                            skillTest!.status !== 'Cancelled' &&
+                            !(
+                              skillTest!.status === 'Skill in progress' ||
+                              skillTest!.status === 'Skill submitted' ||
+                              skillTest!.status === 'Skill failed' ||
+                              skillTest!.status === 'Reviewing' ||
+                              skillTest!.status === 'Review completed' ||
+                              skillTest!.status === 'Review canceled'
+                            ) ? null : (
+                              <Chip
+                                size='medium'
+                                type='testStatus'
+                                label={
+                                  skillTest!.status === 'Skill in progress' ||
+                                  skillTest!.status === 'Skill submitted' ||
+                                  skillTest!.status === 'Skill failed' ||
+                                  skillTest!.status === 'Reviewing' ||
+                                  skillTest!.status === 'Review completed' ||
+                                  skillTest!.status === 'Review canceled'
+                                    ? skillTest!.status
+                                    : '-'
+                                }
+                                /* @ts-ignore */
+                                customcolor={
+                                  /* @ts-ignore */
+                                  TestStatusColor[
+                                    skillTest!.status === 'Skill in progress' ||
+                                    skillTest!.status === 'Skill submitted' ||
+                                    skillTest!.status === 'Skill failed' ||
+                                    skillTest!.status === 'Reviewing' ||
+                                    skillTest!.status === 'Review completed' ||
+                                    skillTest!.status === 'Review canceled'
+                                      ? skillTest!.status
+                                      : 'default'
+                                  ] //@ts-ignore
+                                }
+                                sx={{
+                                  textTransform: 'capitalize',
+                                  '& .MuiChip-label': { lineHeight: '18px' },
+                                  mr: 1,
+                                }}
+                              />
+                            )}
+
+                            {skillTest!.status === 'Skill submitted' ? (
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickTestDetails(
+                                    selectedJobInfo,
+                                    'reviewer',
+                                  )
+                                }
+                              >
+                                Assign reviewer
+                              </Button>
+                            ) : skillTest!.status === 'Review completed' ? (
+                              <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button
+                                  variant='outlined'
+                                  color='error'
+                                  onClick={() =>
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Skill failed',
+                                    )
+                                  }
+                                >
+                                  Fail
+                                </Button>
+                                <Button
+                                  variant='contained'
+                                  onClick={() =>
+                                    onClickCertify(selectedJobInfo)
+                                  }
+                                >
+                                  Pass
+                                </Button>
+                              </Box>
+                            ) : null}
+                            {basicTest!.status === 'Basic failed' &&
+                            !(
+                              skillTest!.status === 'Cancelled' ||
+                              skillTest?.status === 'Skill in progress' ||
+                              skillTest!.status === 'Skill submitted' ||
+                              skillTest!.status === 'Reviewing' ||
+                              skillTest!.status === 'Skill failed' ||
+                              skillTest!.status === 'Review completed'
+                            ) ? (
+                              <Box sx={{ display: 'flex', gap: 2 }}>
+                                <Button
+                                  variant='outlined'
+                                  onClick={() =>
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Cancelled',
+                                    )
+                                  }
+                                >
+                                  Cancel
+                                </Button>
+                                <Button
+                                  variant='contained'
+                                  onClick={() =>
+                                    onClickSkillTestAction(
+                                      selectedJobInfo,
+                                      'Skill in progress',
+                                    )
+                                  }
+                                >
+                                  Proceed
+                                </Button>
+                              </Box>
+                            ) : basicTest!.status === 'Basic passed' &&
+                              !(
+                                skillTest!.status === 'Cancelled' ||
+                                skillTest?.status === 'Skill in progress' ||
+                                skillTest!.status === 'Skill submitted' ||
+                                skillTest!.status === 'Reviewing' ||
+                                skillTest!.status === 'Skill failed' ||
+                                skillTest!.status === 'Review completed'
+                              ) ? (
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickSkillTestAction(
+                                    selectedJobInfo,
+                                    'Skill in progress',
+                                  )
+                                }
+                              >
+                                Proceed
+                              </Button>
+                            ) : null}
+                          </Box>
+                        </Box>
+                      </CardContent>
+                    </Card>
+                  </TimelineContent>
+                </>
+              ) : null}
+            </TimelineItem>
+          </Timeline>
+        </CardContent>
+      ) : basicTest && basicTest!.status === 'NO_TEST' ? (
+        <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
+          <Timeline sx={{ my: 0, py: 0 }}>
+            <TimelineItem>
+              <TimelineSeparator>
+                <TimelineDot color='warning' />
+                <TimelineConnector />
+              </TimelineSeparator>
+              {basicTest ? (
+                <TimelineContent
+                  sx={{ mt: 0, mb: theme => `${theme.spacing(2)} !important` }}
+                >
+                  <Box
+                    sx={{ display: 'flex', justifyContent: 'space-between' }}
+                  >
+                    <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                      Basic Test
+                    </Typography>
+                  </Box>
+
+                  <Card
+                    sx={{
+                      mt: 2,
+                      marginBottom: '0px !important',
+                      background: 'rgba(76, 78, 100, 0.05)',
+                      boxShadow: 'none',
+                    }}
+                  >
+                    <CardContent>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                          {selectedJobInfo?.target ? (
+                            <>
+                              {selectedJobInfo?.target.toUpperCase()} (
+                              {languageHelper(
+                                selectedJobInfo?.target?.toLowerCase(),
+                              )}
+                              )
+                            </>
+                          ) : (
+                            '-'
+                          )}
+                        </Typography>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            alignItems: 'center',
+                          }}
+                        >
                           <Chip
-                            size='small'
+                            size='medium'
                             type='testStatus'
-                            label={'No test'}
+                            label={
+                              basicTest!.status === 'NO_TEST'
+                                ? basicTest!.status === 'NO_TEST'
+                                  ? 'No test'
+                                  : basicTest!.status
+                                : '-'
+                            }
                             /* @ts-ignore */
-                            customcolor={'#6D788D'}
+                            customcolor={
+                              /* @ts-ignore */
+                              TestStatusColor[
+                                basicTest!.status === 'NO_TEST'
+                                  ? basicTest!.status
+                                  : 'default'
+                              ] //@ts-ignore
+                            }
                             sx={{
                               '& .MuiChip-label': { lineHeight: '18px' },
                               mr: 1,
                             }}
                           />
-                        ) : null}
+                        </Box>
                       </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </TimelineContent>
-            </TimelineItem>
-
-            <TimelineItem>
-              <TimelineSeparator>
-                <TimelineDot
-                  color={
-                    selectedJobInfo.testStatus === 'Test in progress' ||
-                    selectedJobInfo.testStatus === 'Test submitted' ||
-                    selectedJobInfo.testStatus === 'Reviewing' ||
-                    selectedJobInfo.testStatus === 'Review completed' ||
-                    selectedJobInfo.testStatus === 'Test failed'
-                      ? 'primary'
-                      : 'grey'
-                  }
-                />
-                <TimelineConnector />
-              </TimelineSeparator>
-              <TimelineContent sx={{ mt: 0 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    paddingRight: '10px',
-                  }}
-                >
-                  <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                    Skill Test
-                  </Typography>
-                  {selectedJobInfo.testStatus === 'Test in progress' ||
-                  selectedJobInfo.testStatus === 'Test submitted' ||
-                  selectedJobInfo.testStatus === 'Reviewing' ||
-                  selectedJobInfo.testStatus === 'Test failed' ||
-                  selectedJobInfo.testStatus === 'Review completed' ? (
-                    <Typography
-                      variant='body2'
-                      sx={{
-                        fontWeight: 500,
-                        textDecoration: 'underline',
-                        cursor: 'pointer',
-                      }}
-                      onClick={() => onClickTestDetails(selectedJobInfo)}
-                    >
-                      Details
-                    </Typography>
-                  ) : null}
-                </Box>
-                <Card
-                  sx={{
-                    mt: 2,
-
-                    background:
-                      selectedJobInfo.testStatus === 'Test failed'
-                        ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
-                        : 'rgba(76, 78, 100, 0.05)',
-                    boxShadow: 'none',
-                  }}
-                >
-                  <CardContent>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        justifyContent: 'space-between',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Box sx={{ display: 'flex', gap: '10px' }}>
-                        <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                          {selectedJobInfo.jobType}
-                        </Typography>
-                        <Divider orientation='vertical' flexItem />
-                        <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                          {selectedJobInfo.role}
-                        </Typography>
-                        <Divider orientation='vertical' flexItem />
-                        <Typography
-                          variant='subtitle2'
-                          sx={{ fontWeight: 600, fontSize: '14px' }}
-                        >
-                          {selectedJobInfo.source &&
-                          selectedJobInfo.target &&
-                          selectedJobInfo.source !== '' &&
-                          selectedJobInfo.target !== '' ? (
-                            <>
-                              {selectedJobInfo.source.toUpperCase()} &rarr;{' '}
-                              {selectedJobInfo.target.toUpperCase()}
-                            </>
-                          ) : (
-                            ''
-                          )}
-                        </Typography>
-                      </Box>
-
-                      <Box sx={{ display: 'flex', gap: '10px' }}>
-                        <Chip
-                          size='medium'
-                          type='testStatus'
-                          label={
-                            selectedJobInfo.testStatus === 'Test in progress' ||
-                            selectedJobInfo.testStatus === 'Test submitted' ||
-                            selectedJobInfo.testStatus === 'Reviewing' ||
-                            selectedJobInfo.testStatus === 'Test failed' ||
-                            selectedJobInfo.testStatus === 'Review completed'
-                              ? selectedJobInfo.testStatus
-                              : '-'
-                          }
-                          /* @ts-ignore */
-                          customcolor={
-                            /* @ts-ignore */
-                            TestStatusColor[
-                              selectedJobInfo.testStatus ===
-                                'Test in progress' ||
-                              selectedJobInfo.testStatus === 'Test submitted' ||
-                              selectedJobInfo.testStatus === 'Reviewing' ||
-                              selectedJobInfo.testStatus === 'Test failed' ||
-                              selectedJobInfo.testStatus === 'Review completed'
-                                ? selectedJobInfo.testStatus
-                                : 'default'
-                            ] //@ts-ignore
-                          }
-                          sx={{
-                            textTransform: 'capitalize',
-                            '& .MuiChip-label': { lineHeight: '18px' },
-                            mr: 1,
-                          }}
-                        />
-                      </Box>
-                    </Box>
-                  </CardContent>
-                </Card>
-              </TimelineContent>
+                    </CardContent>
+                  </Card>
+                </TimelineContent>
+              ) : null}
             </TimelineItem>
           </Timeline>
         </CardContent>
