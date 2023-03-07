@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from 'react'
 import { Grid } from '@mui/material'
-import { DefaultRolePair } from '@src/shared/const/onboarding'
+import { DefaultRolePair } from 'src/shared/const/onboarding'
 import { RoleSelectType } from 'src/types/onboarding/list'
 import { SelectType } from 'src/types/onboarding/list'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
