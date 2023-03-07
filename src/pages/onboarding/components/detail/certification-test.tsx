@@ -201,38 +201,74 @@ export default function CertificationTest({
                             alignItems: 'center',
                           }}
                         >
-                          <Chip
-                            size='medium'
-                            type='testStatus'
-                            label={
-                              basicTest!.status === 'Basic in progress' ||
-                              basicTest!.status === 'Basic submitted' ||
-                              basicTest!.status === 'Basic failed' ||
-                              basicTest!.status === 'Basic passed' ||
-                              basicTest!.status === 'NO_TEST'
-                                ? basicTest!.status === 'NO_TEST'
-                                  ? 'No test'
-                                  : basicTest!.status
-                                : '-'
-                            }
-                            /* @ts-ignore */
-                            customcolor={
-                              /* @ts-ignore */
-                              TestStatusColor[
+                          {basicTest!.status === 'Test assigned' ? (
+                            <>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Skipped',
+                                  )
+                                }
+                                disabled={
+                                  selectedJobInfo!.requestStatus === 'Paused'
+                                }
+                              >
+                                Skip
+                              </Button>
+                              <Button
+                                variant='contained'
+                                onClick={() =>
+                                  onClickBasicTestAction(
+                                    selectedJobInfo,
+                                    'Basic in progress',
+                                  )
+                                }
+                                disabled={
+                                  selectedJobInfo!.requestStatus === 'Paused'
+                                }
+                              >
+                                Proceed
+                              </Button>
+                            </>
+                          ) : (
+                            <Chip
+                              size='medium'
+                              type='testStatus'
+                              label={
                                 basicTest!.status === 'Basic in progress' ||
                                 basicTest!.status === 'Basic submitted' ||
                                 basicTest!.status === 'Basic failed' ||
                                 basicTest!.status === 'Basic passed' ||
+                                basicTest!.status === 'Skipped' ||
                                 basicTest!.status === 'NO_TEST'
-                                  ? basicTest!.status
-                                  : 'default'
-                              ] //@ts-ignore
-                            }
-                            sx={{
-                              '& .MuiChip-label': { lineHeight: '18px' },
-                              mr: 1,
-                            }}
-                          />
+                                  ? basicTest!.status === 'NO_TEST'
+                                    ? 'No test'
+                                    : basicTest!.status
+                                  : '-'
+                              }
+                              /* @ts-ignore */
+                              customcolor={
+                                /* @ts-ignore */
+                                TestStatusColor[
+                                  basicTest!.status === 'Basic in progress' ||
+                                  basicTest!.status === 'Basic submitted' ||
+                                  basicTest!.status === 'Basic failed' ||
+                                  basicTest!.status === 'Basic passed' ||
+                                  basicTest!.status === 'Skipped' ||
+                                  basicTest!.status === 'NO_TEST'
+                                    ? basicTest!.status
+                                    : 'default'
+                                ] //@ts-ignore
+                              }
+                              sx={{
+                                '& .MuiChip-label': { lineHeight: '18px' },
+                                mr: 1,
+                              }}
+                            />
+                          )}
+
                           {basicTest!.status === 'Basic submitted' ? (
                             <Box sx={{ display: 'flex', gap: 2 }}>
                               <Button

@@ -54,7 +54,7 @@ export default function SkillTestActionModal({
         >
           <Image
             src={`/images/icons/alert/${
-              type === 'Awaiting assignment'
+              type === 'Awaiting assignment' || type === 'Skill failed'
                 ? 'alert-error-color'
                 : 'alert-success'
             }.svg`}
@@ -80,26 +80,55 @@ export default function SkillTestActionModal({
             }}
           >
             Are you sure you want to&nbsp;
-            {type === 'Awaiting assignment'
-              ? 'cancel'
-              : type === 'Skill in progress'
-              ? 'proceed'
-              : null}
-            &nbsp;this skill test?
-          </Typography>
-          <Typography
-            variant='body2'
-            sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
-          >
-            {userInfo.target && userInfo.target !== '' ? (
+            {type === 'Awaiting assignment' ? (
+              'cancel this skill test?'
+            ) : type === 'Skill in progress' ? (
+              'proceed this skill test?'
+            ) : type === 'Skill failed' ? (
               <>
-                {userInfo.target.toUpperCase()}&nbsp;
-                {`(${languageHelper(userInfo.target)})`}
+                <span
+                  style={{
+                    color: '#666CFF',
+                    fontWeight: 600,
+                    fontSize: '16px',
+                  }}
+                >
+                  fail
+                </span>
+                &nbsp;this Pro
               </>
-            ) : (
-              ''
-            )}
+            ) : null}
           </Typography>
+          {type === 'Skill failed' ? (
+            <Typography
+              variant='subtitle2'
+              sx={{ fontSize: '16px', fontWeight: 600, textAlign: 'center' }}
+            >
+              {userInfo.jobType}, {userInfo.role},&nbsp;
+              {userInfo.source && userInfo.target ? (
+                <>
+                  {userInfo.source.toUpperCase()} &rarr;{' '}
+                  {userInfo.target.toUpperCase()}
+                </>
+              ) : (
+                ''
+              )}
+            </Typography>
+          ) : (
+            <Typography
+              variant='body2'
+              sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
+            >
+              {userInfo.target && userInfo.target !== '' ? (
+                <>
+                  {userInfo.target.toUpperCase()}&nbsp;
+                  {`(${languageHelper(userInfo.target)})`}
+                </>
+              ) : (
+                ''
+              )}
+            </Typography>
+          )}
         </DialogContentText>
         <Box
           sx={{
@@ -120,6 +149,8 @@ export default function SkillTestActionModal({
               ? 'No'
               : type === 'Skill in progress'
               ? 'Cancel'
+              : type === 'Skill failed'
+              ? 'Cancel'
               : null}
           </Button>
           <Button
@@ -136,6 +167,8 @@ export default function SkillTestActionModal({
               ? 'Cancel'
               : type === 'Skill in progress'
               ? 'Proceed'
+              : type === 'Skill failed'
+              ? 'Fail'
               : null}
           </Button>
         </Box>
