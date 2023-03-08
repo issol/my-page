@@ -1,3 +1,4 @@
+// TODO : src/shared/const/pronunciation.ts의 Pronunciation
 export const Pronunciation = [
   { value: 'SHE', label: 'she/her/hers' },
   { value: 'HE', label: 'he/him/his' },
@@ -5,6 +6,7 @@ export const Pronunciation = [
   { value: 'NONE', label: 'Prefer not to answer' },
 ] as const
 
+// TODO : src/shared/const/job/jobs.ts의 JobList
 export const JobList = [
   { label: 'Documents/Text', value: 'Documents/Text' },
   { label: 'Dubbing', value: 'Dubbing' },
@@ -15,6 +17,7 @@ export const JobList = [
   { label: 'Webnovel', value: 'Webnovel' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
+// TODO : src/shared/const/role/roles.ts의 RoleList
 export const RolePair = {
   'Documents/Text': [
     { label: 'QCer', value: 'QCer' },
@@ -66,6 +69,7 @@ export const RolePair = {
   ],
 } as const
 
+// TODO : src/shared/const/experienced-years.ts의 ExperiencedYears
 export const ExperiencedYears = [
   { value: 'No experience', label: 'No experience' },
   { value: '1-2 year(s)', label: '1-2 year(s)' },
@@ -74,6 +78,7 @@ export const ExperiencedYears = [
   { value: '10+ years', label: '10+ years' },
 ] as const
 
+// TODO : src/shared/const/area-of-expertise/area-of-expertise.ts 의 AreaOfExpertiseList
 export const Specialties = [
   { label: 'Cooking/Food&Drink', value: 'Cooking/Food&Drink' },
   {
@@ -113,6 +118,7 @@ export const Specialties = [
   { label: 'Proofreading', value: 'Proofreading' },
 ]
 
+// TODO : src/shared/const/status/statuses.ts 의 TestStatus
 export const TestStatus = [
   {
     label: 'Awaiting assignment',

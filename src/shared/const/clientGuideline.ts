@@ -1,4 +1,4 @@
-//** TODO : 사용자가 client를 등록할 수 있게 되면 동적으로 값을 생성해야 함 */
+// TODO : src/shared/const/client/clients.ts 의 ClientList 변경
 export const ClientCategory = [
   { label: 'Naver', value: 'Naver' },
   { label: 'Tapytoon', value: 'Tapytoon' },
@@ -8,6 +8,7 @@ export const ClientCategory = [
   { label: 'RIDI', value: 'RIDI' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
+// TODO : src/shared/const/client/clients.ts 의 ClientListIncludeGloz 변경
 export const ClientCategoryIncludeGloz = [
   { label: 'Naver', value: 'Naver' },
   { label: 'Tapytoon', value: 'Tapytoon' },
@@ -18,6 +19,7 @@ export const ClientCategoryIncludeGloz = [
   { label: 'GloZ', value: 'GloZ' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
+// TODO : src/shared/const/category/categories.ts 의 CategoryList로 변경
 export const Category = [
   { label: 'No category', value: 'No category' },
   { label: 'Documents/Text', value: 'Documents/Text' },
@@ -27,7 +29,7 @@ export const Category = [
   { label: 'YouTube', value: 'YouTube' },
 ]
 
-// ** TODO : 값 확정되면 수정해야 함
+// TODO : src/shared/const/service-type/service-types.ts의 ServiceTypeList
 export const ServiceType = [
   { label: 'Admin task(Internal task)', value: 'Admin task(Internal task)' },
   { label: 'Copywriting', value: 'Copywriting' },
@@ -54,7 +56,7 @@ export const ServiceType = [
   { label: 'Video editing', value: 'Video editing' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
-// ** TODO : 값 확정되면 수정해야 함
+// TODO : src/shared/const/service-type/service-types.ts의 ServiceTypePair
 export const ServiceType2 = {
   'Documents/Text': [
     { label: 'Copywriting', value: 'Copywriting' },

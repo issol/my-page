@@ -12,11 +12,7 @@ import ClientGuideLineList from '../components/client-guideline/list'
 import { useGetGuideLines } from 'src/queries/client-guideline.query'
 
 // **values
-import {
-  ClientCategory,
-  ServiceType,
-  ServiceType2,
-} from 'src/shared/const/clientGuideline'
+import { ServiceType, ServiceType2 } from 'src/shared/const/clientGuideline'
 
 import isEqual from 'lodash/isEqual'
 
