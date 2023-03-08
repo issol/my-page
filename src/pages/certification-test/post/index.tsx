@@ -90,7 +90,7 @@ import {
   TestFormType,
 } from 'src/apis/certification-test.api'
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
-import { JobList } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
 import { DefaultRolePair } from 'src/shared/const/onboarding'
 import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'

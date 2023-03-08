@@ -6,7 +6,7 @@ import OnboardingList from './components/list/list'
 import { SyntheticEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
 import { DefaultRolePair } from 'src/shared/const/onboarding'
-import { JobList } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import {
   FilterType,

@@ -48,7 +48,7 @@ import {
   UseFormHandleSubmit,
   UseFormTrigger,
 } from 'react-hook-form'
-import { TestStatus } from 'src/shared/const/personalInfo'
+import { TestStatus } from 'src/shared/const/status/statuses'
 import { CardProps } from '../../list/filters'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 // import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'

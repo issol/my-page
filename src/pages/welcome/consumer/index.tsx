@@ -44,13 +44,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
-import {
-  ExperiencedYears,
-  Pronunciation,
-  Specialties,
-} from 'src/shared/const/personalInfo'
-import { JobList } from 'src/shared/const/job/jobs'
-import { ProRolePair } from 'src/shared/const/role/roles'
+
 import { useDropzone } from 'react-dropzone'
 import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 
@@ -61,6 +55,11 @@ import {
   PersonalInfo,
 } from 'src/types/sign/personalInfoTypes'
 import { FormErrors } from 'src/shared/const/formErrors'
+import { ExperiencedYears } from 'src/shared/const/experienced-years'
+import { Pronunciation } from 'src/shared/const/pronunciation'
+import { AreaOfExpertiseList } from 'src/shared/const/area-of-expertise/area-of-expertise'
+import { JobList } from 'src/shared/const/job/jobs'
+import { ProRolePair } from 'src/shared/const/role/roles'
 
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
@@ -1116,7 +1115,7 @@ const PersonalInfoPro = () => {
                                 ? []
                                 : getValues('specialties')
                             }
-                            options={Specialties}
+                            options={AreaOfExpertiseList}
                             onChange={(e, v: any, l) => {
                               if (
                                 v.length <= 1 &&

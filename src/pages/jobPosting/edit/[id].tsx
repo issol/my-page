@@ -78,7 +78,7 @@ import { JobPostingStatus } from 'src/shared/const/status/statuses'
 import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
-import { ExperiencedYears } from 'src/shared/const/personalInfo'
+import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
 
 export default function JobPostingEdit() {
