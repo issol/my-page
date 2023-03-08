@@ -54,7 +54,7 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 
 // ** fetches
 import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
@@ -148,7 +148,7 @@ export default function RecruitingEdit() {
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [
       { name: 'status', list: RecruitingStatus },
-      { name: 'client', list: ClientCategoryIncludeGloz },
+      { name: 'client', list: ClientListIncludeGloz },
       { name: 'role', list: RoleList },
       { name: 'jobType', list: JobList },
       { name: 'sourceLanguage', list: languageList },
@@ -432,7 +432,7 @@ export default function RecruitingEdit() {
                               autoHighlight
                               fullWidth
                               disabled={!isWriter}
-                              options={ClientCategoryIncludeGloz}
+                              options={ClientListIncludeGloz}
                               filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })

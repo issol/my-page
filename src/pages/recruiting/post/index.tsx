@@ -51,7 +51,7 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
@@ -315,7 +315,7 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={ClientCategoryIncludeGloz}
+                          options={ClientListIncludeGloz}
                           filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })

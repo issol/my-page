@@ -21,7 +21,8 @@ import {
 import Icon from 'src/@core/components/icon'
 
 // **values
-import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
+
 import { JobList } from 'src/shared/const/job/jobs'
 import { RoleList } from 'src/shared/const/role/roles'
 
@@ -87,14 +88,14 @@ export default function Filters({
                   <Autocomplete
                     autoHighlight
                     fullWidth
-                    value={filterValue(ClientCategoryIncludeGloz, 'client')}
+                    value={filterValue(ClientListIncludeGloz, 'client')}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
                         client: v?.value ?? '',
                       })
                     }
-                    options={ClientCategoryIncludeGloz}
+                    options={ClientListIncludeGloz}
                     filterSelectedOptions
                     id='client'
                     getOptionLabel={option => option.label}
