@@ -47,6 +47,8 @@ import {
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
 
+import { CategoryList } from 'src/shared/const/category/categories'
+
 import {
   ClientList,
   ClientListIncludeGloz,
@@ -522,7 +524,7 @@ const ClientGuidelineForm = () => {
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={ClientList}
+                        options={CategoryList}
                         value={value}
                         filterSelectedOptions
                         onChange={(e, v) => {

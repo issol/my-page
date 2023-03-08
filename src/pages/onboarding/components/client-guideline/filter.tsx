@@ -20,15 +20,12 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import {
-  ClientList,
-  ClientListIncludeGloz,
-} from 'src/shared/const/client/clients'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** types
 import { ConstType, FilterOmitType } from '../../client-guideline'
-import { useEffect } from 'react'
 
 type Props = {
   filter: FilterOmitType
@@ -106,8 +103,8 @@ export default function Filters({
                     autoHighlight
                     fullWidth
                     multiple
-                    options={ClientList}
-                    value={filterValue(ClientList, 'category')}
+                    options={CategoryList}
+                    value={filterValue(CategoryList, 'category')}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
