@@ -1,15 +1,12 @@
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { rest } from 'msw'
+import { BASEURL } from 'src/configs/axios'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
 import { v4 as uuidv4 } from 'uuid'
 
 import { Book, Review } from './types'
 import { role } from 'src/@fake-db/user'
-
-// 이 부분 글로벌 const로 빠져야 합니다.
-export const BASEURL =
-  process.env.NEXT_PUBLIC_API_DOMAIN || 'https://api-enough-dev.gloground.com'
 
 const languageList = getGloLanguage()
 

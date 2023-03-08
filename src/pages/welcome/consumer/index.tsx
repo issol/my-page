@@ -18,8 +18,8 @@ import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
+// ** styled components
+import FileItem from 'src/@core/components/fileItem'
 
 // ** Third Party Imports
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -65,6 +65,9 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { profileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 import styled from 'styled-components'
+
+// ** types
+import { FileType } from 'src/types/common/file.type'
 
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
@@ -114,12 +117,6 @@ const defaultValues = {
   specialties: [{ label: '', value: '' }],
 }
 
-interface FileProp {
-  name: string
-  type: string
-  size: number
-}
-
 const PersonalInfoPro = () => {
   const { setModal } = useContext(ModalContext)
 
@@ -166,31 +163,14 @@ const PersonalInfoPro = () => {
     }
   }, [auth])
 
-  const handleRemoveFile = (file: FileProp) => {
+  const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
-    const filtered = uploadedFiles.filter((i: FileProp) => i.name !== file.name)
+    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     setFiles([...filtered])
   }
 
-  const fileList = files.map((file: FileProp) => (
-    <FileList key={file.name}>
-      <div className='file-details'>
-        <div className='file-preview'>
-          <Icon icon='mdi:file-document-outline' />
-        </div>
-        <div>
-          <Typography className='file-name'>{file.name}</Typography>
-          <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-          </Typography>
-        </div>
-      </div>
-      <IconButton onClick={() => handleRemoveFile(file)}>
-        <Icon icon='mdi:close' fontSize={20} />
-      </IconButton>
-    </FileList>
+  const fileList = files.map((file: FileType) => (
+    <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
   ))
 
   const {
@@ -223,7 +203,7 @@ const PersonalInfoPro = () => {
     setValue('resume', files, { shouldDirty: true, shouldValidate: true })
 
     let result = 0
-    files.forEach((file: FileProp) => (result += file.size))
+    files.forEach((file: FileType) => (result += file.size))
 
     setFileSize(result)
   }, [files])
@@ -1296,38 +1276,6 @@ PersonalInfoPro.acl = {
 }
 
 export default PersonalInfoPro
-
-const FileList = styled.div`
-  display: flex;
-  margin-bottom: 8px;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px;
-  border: 1px solid rgba(76, 78, 100, 0.22);
-  background: #f9f8f9;
-  .file-details {
-    display: flex;
-    align-items: center;
-  }
-  .file-preview {
-    margin-right: 8px;
-    display: flex;
-  }
-
-  img {
-    width: 38px;
-    height: 38px;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(93, 89, 98, 0.14);
-  }
-
-  .file-name {
-    font-weight: 600;
-  }
-`
-
 const StepperImgWrapper = styled.div<{ step: number }>`
   img {
     opacity: ${({ step }) => (step === 1 ? 0.3 : 1)};

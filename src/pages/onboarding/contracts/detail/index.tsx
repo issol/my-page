@@ -24,9 +24,9 @@ import {
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
 import FallbackSpinner from 'src/@core/components/spinner'
-import { Writer } from 'src/@core/components/chip'
+import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
@@ -70,7 +70,6 @@ type CellType = {
   }
 }
 
-// ** TODO : api완료되면 mutation 파라미터 수정, detail 데이터 스키마 변경에 따라 변경해주기
 const ContractDetail = () => {
   const router = useRouter()
   const invalidate = useInvalidateContractQuery()
@@ -102,6 +101,12 @@ const ContractDetail = () => {
     type,
     language,
   })
+
+  useEffect(() => {
+    if (type && language) {
+      refetch()
+    }
+  }, [type, language])
 
   const { currentVersion: contract } = data || {
     documentId: null,
@@ -338,7 +343,7 @@ const ContractDetail = () => {
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
-      <StyledEditor style={{ margin: '0 70px' }}>
+      <StyledViewer style={{ margin: '0 70px' }}>
         <Grid container spacing={6}>
           <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
@@ -347,7 +352,12 @@ const ContractDetail = () => {
 
                 <Box display='flex' flexDirection='column' gap='8px'>
                   <Box display='flex' alignItems='center' gap='8px'>
-                    <Writer label='Writer' size='small' />
+                    <CustomChip
+                      label='Writer'
+                      skin='light'
+                      color='error'
+                      size='small'
+                    />
                     <Typography
                       sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       color={`${
@@ -428,7 +438,7 @@ const ContractDetail = () => {
           onClose={() => setOpenDetail(false)}
           maxWidth='md'
         >
-          <StyledEditor maxHeight={true}>
+          <StyledViewer maxHeight={true}>
             <Grid
               container
               /* xs={12} */
@@ -441,7 +451,12 @@ const ContractDetail = () => {
 
                   <Box display='flex' flexDirection='column' gap='8px'>
                     <Box display='flex' alignItems='center' gap='8px'>
-                      <Writer label='Writer' size='small' />
+                      <CustomChip
+                        label='Writer'
+                        skin='light'
+                        color='error'
+                        size='small'
+                      />
                       <Typography
                         sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                       >
@@ -481,9 +496,9 @@ const ContractDetail = () => {
                 )}
               </ModalButtonGroup>
             </Grid>
-          </StyledEditor>
+          </StyledViewer>
         </Dialog>
-      </StyledEditor>
+      </StyledViewer>
     </Suspense>
   )
 }
@@ -494,16 +509,3 @@ ContractDetail.acl = {
   action: 'read',
   subject: 'contract',
 }
-
-const StyledEditor = styled(EditorWrapper)<{
-  error?: boolean
-  maxHeight?: boolean
-}>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
-  }
-  .rdw-editor-toolbar {
-    display: none;
-  }
-`

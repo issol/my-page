@@ -130,16 +130,6 @@ export const DefaultRolePair: Array<RoleSelectType> = [
     jobType: ['Dubbing'],
   },
   {
-    label: 'Dubbing script translator',
-    value: 'Dubbing script translator',
-    jobType: ['Dubbing'],
-  },
-  {
-    label: 'Dubbing voice artist',
-    value: 'Dubbing voice artist',
-    jobType: ['Dubbing'],
-  },
-  {
     label: 'Editor',
     value: 'Editor',
     jobType: ['Misc.'],

@@ -334,7 +334,6 @@ function OnboardingDetail() {
               value.requestStatus === 'Paused'
             ),
         )
-        console.log(res)
 
         prevState = res
         setAppliedRoleList(prevState)

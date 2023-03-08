@@ -1,5 +1,3 @@
-import { FileType } from 'src/apis/client-guideline.api'
-
 export type CurrentTestType = {
   id: number
   userId: number

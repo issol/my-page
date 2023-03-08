@@ -16,13 +16,13 @@ import { toast } from 'react-hot-toast'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledEditor } from 'src/@core/components/editor/customEditor'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import styled from 'styled-components'
-import { Writer } from 'src/@core/components/chip'
+import CustomChip from 'src/@core/components/mui/chip'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -194,7 +194,12 @@ const ContractForm = () => {
                 <Typography variant='h6'>{getTitle()}</Typography>
 
                 <Box display='flex' alignItems='center' gap='8px'>
-                  <Writer label='Writer' size='small' />
+                  <CustomChip
+                    label='Writer'
+                    skin='light'
+                    color='error'
+                    size='small'
+                  />
                   <Typography
                     sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                     color='primary'
@@ -268,9 +273,3 @@ ContractForm.acl = {
   action: 'create',
   subject: 'contract',
 }
-
-const StyledEditor = styled(EditorWrapper)<{ error: boolean }>`
-  .rdw-editor-main {
-    border: ${({ error }) => (error ? '1px solid #FF4D49 !important' : '')};
-  }
-`

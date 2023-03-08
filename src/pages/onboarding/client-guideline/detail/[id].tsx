@@ -1,7 +1,7 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import { Button, Card, CardHeader, Chip, IconButton, List } from '@mui/material'
+import { Button, Card, CardHeader, List } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 import Dialog from '@mui/material/Dialog'
@@ -17,14 +17,17 @@ import { convertFromRaw, EditorState } from 'draft-js'
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
-import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
+import { StyledViewer } from 'src/@core/components/editor/customEditor'
 import { toast } from 'react-hot-toast'
-import { Writer } from 'src/@core/components/chip'
+import FileItem from 'src/@core/components/fileItem'
+
+// ** Custom Components Imports
+import CustomChip from 'src/@core/components/mui/chip'
+import EmptyPost from 'src/@core/components/page/empty-post'
 
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
@@ -52,6 +55,10 @@ import { useMutation } from 'react-query'
 // ** helpers
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 
+// ** types
+import { FileType } from 'src/types/common/file.type'
+import FallbackSpinner from '@src/@core/components/spinner'
+
 type CellType = {
   row: {
     id: number
@@ -68,11 +75,9 @@ type CellType = {
   }
 }
 
-type FileType = { name: string; size: number }
-
 const ClientGuidelineDetail = () => {
   const router = useRouter()
-  const { id } = router.query
+  const id = Number(router.query?.id)
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [historyContent, setHistoryContent] = useState(
@@ -99,7 +104,13 @@ const ClientGuidelineDetail = () => {
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
 
-  const { data, refetch } = useGetGuideLineDetail(Number(id))
+  const { data, refetch, isError } = useGetGuideLineDetail(id)
+
+  useEffect(() => {
+    if (!Number.isNaN(id)) {
+      refetch()
+    }
+  }, [id])
 
   const { currentVersion } = data || {
     id: null,
@@ -246,24 +257,7 @@ const ClientGuidelineDetail = () => {
   function fileList(files: Array<FileType> | []) {
     if (!files.length) return null
     return files.map(file => (
-      <FileList key={file.name} onClick={() => downloadOneFile(file.name)}>
-        <div className='file-details'>
-          <div className='file-preview'>
-            <Icon
-              icon='material-symbols:file-present-outline'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            />
-          </div>
-          <div>
-            <Typography className='file-name'>{file.name}</Typography>
-            <Typography className='file-size' variant='body2'>
-              {Math.round(file.size / 100) / 10 > 1000
-                ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-                : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
-            </Typography>
-          </div>
-        </div>
-      </FileList>
+      <FileItem key={file.name} file={file} onClick={downloadOneFile} />
     ))
   }
 
@@ -296,7 +290,7 @@ const ClientGuidelineDetail = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              deleteMutation.mutate(Number(id))
+              deleteMutation.mutate(id)
             }}
           >
             Delete
@@ -391,272 +385,169 @@ const ClientGuidelineDetail = () => {
   }
 
   return (
-    <StyledEditor style={{ margin: '0 70px' }}>
-      <Grid container spacing={6}>
-        <Grid item md={9} xs={12}>
-          <Card sx={{ padding: '30px 20px 20px' }}>
-            <Box display='flex' justifyContent='space-between' mb='26px'>
-              <Typography
-                variant='h6'
-                sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-              >
-                <Icon
-                  icon='mdi:chevron-left'
-                  cursor='pointer'
-                  onClick={() => router.back()}
-                />
-                {currentVersion?.title}
-              </Typography>
-
-              <Box display='flex' flexDirection='column' gap='8px'>
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <Writer label='Writer' size='small' />
+    <>
+      {!data ? (
+        <FallbackSpinner />
+      ) : isError ? (
+        <EmptyPost />
+      ) : (
+        <StyledViewer style={{ margin: '0 70px' }}>
+          <Grid container spacing={6}>
+            <Grid item md={9} xs={12}>
+              <Card sx={{ padding: '30px 20px 20px' }}>
+                <Box display='flex' justifyContent='space-between' mb='26px'>
                   <Typography
-                    sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                    color={`${
-                      user?.id === currentVersion?.userId ? 'primary' : ''
-                    }`}
+                    variant='h6'
+                    sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
                   >
-                    {currentVersion?.writer}
+                    <Icon
+                      icon='mdi:chevron-left'
+                      cursor='pointer'
+                      onClick={() => router.back()}
+                    />
+                    {currentVersion?.title}
                   </Typography>
-                  <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>
-                    {currentVersion?.email}
-                  </Typography>
-                </Box>
-                <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                  {FullDateTimezoneHelper(currentVersion?.updatedAt)}
-                </Typography>
-              </Box>
-            </Box>
-            <Grid container>
-              <Grid item xs={2} mb='10px'>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Client
-                </Typography>
-              </Grid>
-              <Grid item xs={2} mb='10px'>
-                <Typography variant='body2'>
-                  {currentVersion?.client}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container mb='10px'>
-              <Grid item xs={2}>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Category
-                </Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant='body2'>
-                  {currentVersion?.category}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Grid container mb='10px'>
-              <Grid item xs={2}>
-                <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
-                  Service type
-                </Typography>
-              </Grid>
-              <Grid item xs={2}>
-                <Typography variant='body2'>
-                  {currentVersion?.serviceType}
-                </Typography>
-              </Grid>
-            </Grid>
-            <Divider />
-            <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
-          </Card>
 
-          <Card sx={{ marginTop: '24px', width: '100%' }}>
-            <CardHeader title='Version history' />
-            <Box sx={{ height: '100%' }}>
-              <DataGrid
-                components={{
-                  NoRowsOverlay: () => noHistory(),
-                  NoResultsOverlay: () => noHistory(),
-                }}
-                sx={{
-                  '& .MuiDataGrid-row': { cursor: 'pointer' },
-                }}
-                autoHeight
-                columns={columns}
-                pageSize={pageSize}
-                onPageSizeChange={setPageSize}
-                rowsPerPageOptions={[5, 15, 30]}
-                rowCount={versionHistory?.length || 0}
-                rows={versionHistory || []}
-                onRowClick={onRowClick}
-              />
-            </Box>
-          </Card>
-        </Grid>
-        <Grid item md={3} xs={12}>
-          <Card style={{ height: '565px', overflow: 'scroll' }}>
-            <Box
-              sx={{
-                padding: '20px',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '12px',
-              }}
-            >
-              <Box display='flex' justifyContent='space-between'>
-                <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                  Attached file
-                </Typography>
-                <Typography variant='body2'>
-                  {Math.round(getFileSize(currentVersion?.files) / 100) / 10 >
-                  1000
-                    ? `${(
-                        Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10000
-                      ).toFixed(1)} mb`
-                    : `${(
-                        Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10
-                      ).toFixed(1)} kb`}
-                  /50mb
-                </Typography>
-              </Box>
-              <Button
-                variant='outlined'
-                startIcon={<Icon icon='mdi:download' />}
-                onClick={() => downloadAllFiles(currentVersion?.files)}
-              >
-                Download all
-              </Button>
-              {currentVersion?.files?.length ? (
-                <Fragment>
-                  <List>{fileList(currentVersion?.files)}</List>
-                </Fragment>
-              ) : null}
-            </Box>
-          </Card>
-          {isEditable(Number(id)) && (
-            <Card style={{ marginTop: '24px' }}>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  startIcon={<Icon icon='mdi:delete-outline' />}
-                  onClick={onDelete}
-                >
-                  Delete
-                </Button>
-                <Button
-                  variant='contained'
-                  startIcon={<Icon icon='mdi:pencil-outline' />}
-                  onClick={onEdit}
-                >
-                  Edit
-                </Button>
-              </Box>
-            </Card>
-          )}
-        </Grid>
-      </Grid>
-      <Dialog
-        open={openDetail}
-        onClose={() => setOpenDetail(false)}
-        maxWidth='lg'
-      >
-        <StyledEditor maxHeight={true}>
-          <Grid
-            container
-            sx={{ padding: '50px 60px 50px' }}
-            justifyContent='center'
-          >
-            <Grid container spacing={6}>
-              <Grid item xs={12} md={8}>
-                <Card sx={{ padding: '20px', width: '100%' }}>
-                  <Box display='flex' justifyContent='space-between' mb='26px'>
-                    <Typography variant='h6'>{currentRow?.title}</Typography>
-
-                    <Box display='flex' flexDirection='column' gap='8px'>
-                      <Box display='flex' alignItems='center' gap='8px'>
-                        <Writer label='Writer' size='small' />
-                        <Typography
-                          sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                        >
-                          {currentRow?.writer}
-                        </Typography>
-                        <Divider
-                          orientation='vertical'
-                          variant='middle'
-                          flexItem
-                        />
-                        <Typography variant='body2'>
-                          {currentRow?.email}
-                        </Typography>
-                      </Box>
+                  <Box display='flex' flexDirection='column' gap='8px'>
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <CustomChip
+                        label='Writer'
+                        skin='light'
+                        color='error'
+                        size='small'
+                      />
                       <Typography
-                        variant='body2'
-                        sx={{ alignSelf: 'flex-end' }}
+                        sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                        color={`${
+                          user?.id === currentVersion?.userId ? 'primary' : ''
+                        }`}
                       >
-                        {FullDateTimezoneHelper(new Date())}
+                        {currentVersion?.writer}
+                      </Typography>
+                      <Divider
+                        orientation='vertical'
+                        variant='middle'
+                        flexItem
+                      />
+                      <Typography variant='body2'>
+                        {currentVersion?.email}
                       </Typography>
                     </Box>
+                    <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
+                      {FullDateTimezoneHelper(currentVersion?.updatedAt)}
+                    </Typography>
                   </Box>
-                  <Grid container>
-                    <Grid item xs={2} mb='10px'>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Client
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={2} mb='10px'>
-                      <Typography variant='body2'>
-                        {currentRow?.client}
-                      </Typography>
-                    </Grid>
+                </Box>
+                <Grid container>
+                  <Grid item xs={2} mb='10px'>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                      Client
+                    </Typography>
                   </Grid>
-                  <Grid container mb='10px'>
-                    <Grid item xs={2}>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Category
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Typography variant='body2'>
-                        {currentRow?.category}
-                      </Typography>
-                    </Grid>
+                  <Grid item xs={2} mb='10px'>
+                    <Typography variant='body2'>
+                      {currentVersion?.client}
+                    </Typography>
                   </Grid>
-                  <Grid container mb='10px'>
-                    <Grid item xs={2}>
-                      <Typography
-                        sx={{ fontWeight: 600, fontSize: '0.875rem' }}
-                      >
-                        Service type
-                      </Typography>
-                    </Grid>
-                    <Grid item xs={2}>
-                      <Typography variant='body2'>
-                        {currentRow?.serviceType}
-                      </Typography>
-                    </Grid>
+                </Grid>
+                <Grid container mb='10px'>
+                  <Grid item xs={2}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                      Category
+                    </Typography>
                   </Grid>
-                  <Divider />
-                  <ReactDraftWysiwyg
-                    editorState={historyContent}
-                    readOnly={true}
+                  <Grid item xs={2}>
+                    <Typography variant='body2'>
+                      {currentVersion?.category}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Grid container mb='10px'>
+                  <Grid item xs={2}>
+                    <Typography sx={{ fontWeight: 600, fontSize: '0.875rem' }}>
+                      Service type
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={2}>
+                    <Typography variant='body2'>
+                      {currentVersion?.serviceType}
+                    </Typography>
+                  </Grid>
+                </Grid>
+                <Divider />
+                <ReactDraftWysiwyg editorState={mainContent} readOnly={true} />
+              </Card>
+
+              <Card sx={{ marginTop: '24px', width: '100%' }}>
+                <CardHeader title='Version history' />
+                <Box sx={{ height: '100%' }}>
+                  <DataGrid
+                    components={{
+                      NoRowsOverlay: () => noHistory(),
+                      NoResultsOverlay: () => noHistory(),
+                    }}
+                    sx={{
+                      '& .MuiDataGrid-row': { cursor: 'pointer' },
+                    }}
+                    autoHeight
+                    columns={columns}
+                    pageSize={pageSize}
+                    onPageSizeChange={setPageSize}
+                    rowsPerPageOptions={[5, 15, 30]}
+                    rowCount={versionHistory?.length || 0}
+                    rows={versionHistory || []}
+                    onRowClick={onRowClick}
                   />
-                </Card>
-              </Grid>
-              <Grid item xs={12} md={4}>
-                <Card style={{ height: '100%', overflow: 'scroll' }}>
+                </Box>
+              </Card>
+            </Grid>
+            <Grid item md={3} xs={12}>
+              <Card style={{ height: '565px', overflow: 'scroll' }}>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  <Box display='flex' justifyContent='space-between'>
+                    <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                      Attached file
+                    </Typography>
+                    <Typography variant='body2'>
+                      {Math.round(getFileSize(currentVersion?.files) / 100) /
+                        10 >
+                      1000
+                        ? `${(
+                            Math.round(
+                              getFileSize(currentVersion?.files) / 100,
+                            ) / 10000
+                          ).toFixed(1)} mb`
+                        : `${(
+                            Math.round(
+                              getFileSize(currentVersion?.files) / 100,
+                            ) / 10
+                          ).toFixed(1)} kb`}
+                      /50mb
+                    </Typography>
+                  </Box>
+                  <Button
+                    variant='outlined'
+                    startIcon={<Icon icon='mdi:download' />}
+                    onClick={() => downloadAllFiles(currentVersion?.files)}
+                  >
+                    Download all
+                  </Button>
+                  {currentVersion?.files?.length ? (
+                    <Fragment>
+                      <List>{fileList(currentVersion?.files)}</List>
+                    </Fragment>
+                  ) : null}
+                </Box>
+              </Card>
+              {isEditable(Number(currentVersion?.userId)) && (
+                <Card style={{ marginTop: '24px' }}>
                   <Box
                     sx={{
                       padding: '20px',
@@ -665,63 +556,202 @@ const ClientGuidelineDetail = () => {
                       gap: '12px',
                     }}
                   >
-                    <Box display='flex' justifyContent='space-between'>
-                      <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                        Attached file
-                      </Typography>
-                      <Typography variant='body2'>
-                        {Math.round(getFileSize(currentRow?.files) / 100) / 10 >
-                        1000
-                          ? `${(
-                              Math.round(getFileSize(currentRow?.files) / 100) /
-                              10000
-                            ).toFixed(1)} mb`
-                          : `${(
-                              Math.round(getFileSize(currentRow?.files) / 100) /
-                              10
-                            ).toFixed(1)} kb`}
-                        /50mb
-                      </Typography>
-                    </Box>
                     <Button
                       variant='outlined'
-                      startIcon={<Icon icon='mdi:download' />}
-                      onClick={() => downloadAllFiles(currentRow?.files)}
+                      color='secondary'
+                      startIcon={<Icon icon='mdi:delete-outline' />}
+                      onClick={onDelete}
                     >
-                      Download all
+                      Delete
                     </Button>
-                    {currentRow?.files?.length ? (
-                      <Fragment>
-                        <List>{fileList(currentRow?.files)}</List>
-                      </Fragment>
-                    ) : null}
+                    <Button
+                      variant='contained'
+                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                      onClick={onEdit}
+                    >
+                      Edit
+                    </Button>
                   </Box>
                 </Card>
-              </Grid>
-            </Grid>
-            <ModalButtonGroup style={{ marginTop: '24px' }}>
-              <Button
-                onClick={() => setOpenDetail(false)}
-                variant='outlined'
-                color='secondary'
-                sx={{ width: '226px' }}
-              >
-                Close
-              </Button>
-              {isEditable(Number(currentRow?.userId!)) && (
-                <Button
-                  variant='contained'
-                  onClick={onRestore}
-                  sx={{ width: '226px' }}
-                >
-                  Restore this version
-                </Button>
               )}
-            </ModalButtonGroup>
+            </Grid>
           </Grid>
-        </StyledEditor>
-      </Dialog>
-    </StyledEditor>
+          <Dialog
+            open={openDetail}
+            onClose={() => setOpenDetail(false)}
+            maxWidth='lg'
+          >
+            <StyledViewer maxHeight={true}>
+              <Grid
+                container
+                sx={{ padding: '50px 60px 50px' }}
+                justifyContent='center'
+              >
+                <Grid container spacing={6}>
+                  <Grid item xs={12} md={8}>
+                    <Card sx={{ padding: '20px', width: '100%' }}>
+                      <Box
+                        display='flex'
+                        justifyContent='space-between'
+                        mb='26px'
+                      >
+                        <Typography variant='h6'>
+                          {currentRow?.title}
+                        </Typography>
+
+                        <Box display='flex' flexDirection='column' gap='8px'>
+                          <Box display='flex' alignItems='center' gap='8px'>
+                            <CustomChip
+                              label='Writer'
+                              skin='light'
+                              color='error'
+                              size='small'
+                            />
+                            <Typography
+                              sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                            >
+                              {currentRow?.writer}
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='middle'
+                              flexItem
+                            />
+                            <Typography variant='body2'>
+                              {currentRow?.email}
+                            </Typography>
+                          </Box>
+                          <Typography
+                            variant='body2'
+                            sx={{ alignSelf: 'flex-end' }}
+                          >
+                            {FullDateTimezoneHelper(new Date())}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Grid container>
+                        <Grid item xs={2} mb='10px'>
+                          <Typography
+                            sx={{ fontWeight: 600, fontSize: '0.875rem' }}
+                          >
+                            Client
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2} mb='10px'>
+                          <Typography variant='body2'>
+                            {currentRow?.client}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid container mb='10px'>
+                        <Grid item xs={2}>
+                          <Typography
+                            sx={{ fontWeight: 600, fontSize: '0.875rem' }}
+                          >
+                            Category
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant='body2'>
+                            {currentRow?.category}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Grid container mb='10px'>
+                        <Grid item xs={2}>
+                          <Typography
+                            sx={{ fontWeight: 600, fontSize: '0.875rem' }}
+                          >
+                            Service type
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={2}>
+                          <Typography variant='body2'>
+                            {currentRow?.serviceType}
+                          </Typography>
+                        </Grid>
+                      </Grid>
+                      <Divider />
+                      <ReactDraftWysiwyg
+                        editorState={historyContent}
+                        readOnly={true}
+                      />
+                    </Card>
+                  </Grid>
+                  <Grid item xs={12} md={4}>
+                    <Card style={{ height: '100%', overflow: 'scroll' }}>
+                      <Box
+                        sx={{
+                          padding: '20px',
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '12px',
+                        }}
+                      >
+                        <Box display='flex' justifyContent='space-between'>
+                          <Typography
+                            sx={{ fontWeight: 600, fontSize: '14px' }}
+                          >
+                            Attached file
+                          </Typography>
+                          <Typography variant='body2'>
+                            {Math.round(getFileSize(currentRow?.files) / 100) /
+                              10 >
+                            1000
+                              ? `${(
+                                  Math.round(
+                                    getFileSize(currentRow?.files) / 100,
+                                  ) / 10000
+                                ).toFixed(1)} mb`
+                              : `${(
+                                  Math.round(
+                                    getFileSize(currentRow?.files) / 100,
+                                  ) / 10
+                                ).toFixed(1)} kb`}
+                            /50mb
+                          </Typography>
+                        </Box>
+                        <Button
+                          variant='outlined'
+                          startIcon={<Icon icon='mdi:download' />}
+                          onClick={() => downloadAllFiles(currentRow?.files)}
+                        >
+                          Download all
+                        </Button>
+                        {currentRow?.files?.length ? (
+                          <Fragment>
+                            <List>{fileList(currentRow?.files)}</List>
+                          </Fragment>
+                        ) : null}
+                      </Box>
+                    </Card>
+                  </Grid>
+                </Grid>
+                <ModalButtonGroup style={{ marginTop: '24px' }}>
+                  <Button
+                    onClick={() => setOpenDetail(false)}
+                    variant='outlined'
+                    color='secondary'
+                    sx={{ width: '226px' }}
+                  >
+                    Close
+                  </Button>
+                  {isEditable(Number(currentRow?.userId!)) && (
+                    <Button
+                      variant='contained'
+                      onClick={onRestore}
+                      sx={{ width: '226px' }}
+                    >
+                      Restore this version
+                    </Button>
+                  )}
+                </ModalButtonGroup>
+              </Grid>
+            </StyledViewer>
+          </Dialog>
+        </StyledViewer>
+      )}
+    </>
   )
 }
 
@@ -731,47 +761,3 @@ ClientGuidelineDetail.acl = {
   action: 'read',
   subject: 'client_guideline',
 }
-
-const StyledEditor = styled(EditorWrapper)<{
-  error?: boolean
-  maxHeight?: boolean
-}>`
-  .rdw-editor-main {
-    border: none !important;
-    max-height: ${({ maxHeight }) => (maxHeight ? `300px` : '800px')};
-  }
-  .rdw-editor-toolbar {
-    display: none;
-  }
-`
-const FileList = styled.div`
-  display: flex;
-  cursor: pointer;
-  margin-bottom: 8px;
-  justify-content: space-between;
-  border-radius: 8px;
-  padding: 8px;
-  border: 1px solid rgba(76, 78, 100, 0.22);
-  background: #f9f8f9;
-  .file-details {
-    display: flex;
-    align-items: center;
-  }
-  .file-preview {
-    margin-right: 8px;
-    display: flex;
-  }
-
-  img {
-    width: 38px;
-    height: 38px;
-
-    padding: 8px 12px;
-    border-radius: 8px;
-    border: 1px solid rgba(93, 89, 98, 0.14);
-  }
-
-  .file-name {
-    font-weight: 600;
-  }
-`

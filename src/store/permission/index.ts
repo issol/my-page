@@ -35,21 +35,28 @@ export const getPermission = createAsyncThunk(
       //     subject: 'personalInfo_manager',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
-      //   /* TODO: 임시 permission */
       //   {
       //     subject: 'dashboards',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
-      //   // {
-      //   //   subject: 'onboarding',
-      //   //   can: ['read', 'create', 'update', 'delete'],
-      //   // },
+      //   {
+      //     subject: 'onboarding',
+      //     can: ['read', 'create', 'update', 'delete'],
+      //   },
       //   {
       //     subject: 'client_guideline',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
       //   {
       //     subject: 'contract',
+      //     can: ['read', 'create', 'update', 'delete'],
+      //   },
+      //   {
+      //     subject: 'recruiting',
+      //     can: ['read', 'create', 'update', 'delete'],
+      //   },
+      //   {
+      //     subject: 'job_posting',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
       // ]
