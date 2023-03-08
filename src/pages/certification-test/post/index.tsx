@@ -57,11 +57,6 @@ import {
   clientGuidelineSchema,
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
 
 // ** fetches
 import { postFiles } from 'src/apis/common.api'
@@ -635,8 +630,8 @@ const TestMaterialPost = () => {
       })
     } else {
       isFetched
-      ? patchTestMutation.mutate(patchValue)
-      : postTestMutation.mutate(finalValue)
+        ? patchTestMutation.mutate(patchValue)
+        : postTestMutation.mutate(finalValue)
       // guidelineMutation.mutate(finalValue)
     }
   }

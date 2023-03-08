@@ -12,7 +12,10 @@ import ClientGuideLineList from '../components/client-guideline/list'
 import { useGetGuideLines } from 'src/queries/client-guideline.query'
 
 // **values
-import { ServiceType, ServiceType2 } from 'src/shared/const/clientGuideline'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from 'src/shared/const/service-type/service-types'
 
 import isEqual from 'lodash/isEqual'
 
@@ -67,9 +70,9 @@ export default function ClientGuidLines() {
     let category: Array<ConstType> = []
     if (filter.category?.length) {
       filter.category.forEach(item => {
-        if (!ServiceType2[item as keyof typeof ServiceType2]) return
+        if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
         category = category.concat(
-          ServiceType2[item as keyof typeof ServiceType2],
+          ServiceTypePair[item as keyof typeof ServiceTypePair],
         )
       })
     }
@@ -85,7 +88,7 @@ export default function ClientGuidLines() {
       )
       return result
     }
-    return ServiceType
+    return ServiceTypeList
   }
 
   useEffect(() => {
