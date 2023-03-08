@@ -1,4 +1,5 @@
 import axios from 'src/configs/axios'
+import axiosDefault from 'axios'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import {
   AddRolePayloadType,
@@ -75,13 +76,12 @@ export const addCreatedAppliedRole = async (payload: AddRolePayloadType[]) => {
 export const patchAppliedRole = async (
   id: number,
   reply: string,
-  pauseReason?: string,
-  rejectReason?: string,
+  reason?: string,
   messageToUser?: string,
 ) => {
   const params = {
     reply,
-    rejectReason,
+    reason,
     messageToUser,
   }
 
@@ -90,8 +90,35 @@ export const patchAppliedRole = async (
   await axios.patch(`/api/enough/cert/request/role/${id}`, params)
 }
 
+export const patchTestStatus = async (id: number, status: string) => {
+  const params = { status }
+
+  await axios.patch(`/api/enough/cert/test/${id}`)
+}
+
 export const getCertifiedRole = async (id: number) => {
   const data = await axios.get(`/api/enough/cert/certificate?userId=${id}`)
 
   return data.data
+}
+
+export const getReviewer = async () => {
+  const data = await axiosDefault.get('/api/pro/details/reviewer')
+
+  return data.data
+}
+
+export const getHistory = async () => {
+  const data = await axiosDefault.get('/api/pro/details/history')
+  return data.data
+}
+
+export const assignReviewer = async (id: number, status: string) => {
+  try {
+    const data = await axiosDefault.post('/api/pro/details/reviewer/action', {
+      data: { id: id, status: status },
+    })
+
+    return data
+  } catch (e) {}
 }

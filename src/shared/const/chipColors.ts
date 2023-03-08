@@ -43,9 +43,10 @@ export const TestStatusColor = {
   'Awaiting assignment': '#6D788D',
   'Test assigned': '#8232C0',
   'Basic in progress': '#FDB528',
-  'Basic submitted': '#00237D',
+  'Basic submitted': '#1A6BBA',
   'Basic failed': '#FF4D49',
   'Basic passed': '#72E128',
+  Skipped: '#72E128',
   'Skill in progress': '#D18A00',
   'Skill submitted': '#1A6BBA',
   Reviewing: '#21AEDB',
@@ -56,6 +57,6 @@ export const TestStatusColor = {
 }
 
 export const TestTypeColor = {
-  'Basic test': '#FDB528',
-  'Skill test': '#666CFF',
+  basic: '#FDB528',
+  skill: '#666CFF',
 }
