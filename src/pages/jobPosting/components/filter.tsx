@@ -295,6 +295,5 @@ export default function Filters({
 }
 
 const CustomDatePicker = styled(DatePicker)`
-  z-index: 100000;
   width: 100%;
 `
