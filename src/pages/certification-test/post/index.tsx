@@ -87,7 +87,7 @@ import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
-import { FileType } from '@src/types/common/file.type'
+import { FileType } from 'src/types/common/file.type'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -733,18 +733,18 @@ const TestMaterialPost = () => {
         : postTestMutation.mutate(finalValue)
       // guidelineMutation.mutate(finalValue)
     }
-    if (deletedFiles.length) {
-      deletedFiles.forEach(item =>
-        deleteTestFile(item.id!).catch(err =>
-          toast.error(
-            'Something went wrong while deleting files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
-          ),
-        ),
-      )
-    }
+    // if (deletedFiles.length) {
+    //   deletedFiles.forEach(item =>
+    //     deleteTestFile(item.id!).catch(err =>
+    //       toast.error(
+    //         'Something went wrong while deleting files. Please try again.',
+    //         {
+    //           position: 'bottom-left',
+    //         },
+    //       ),
+    //     ),
+    //   )
+    // }
   }
 
   return (
@@ -776,6 +776,18 @@ const TestMaterialPost = () => {
                           onChange={(event, item) => {
                             onChange(item)
                             setSelectedTestType(item)
+                            setValue('source', { label: '', value: '' })
+                            setValue('target', { label: '', value: '' })
+                            setValue('jobType', { label: '', value: '' })
+                            setValue('role', { label: '', value: '' })
+                            setValue('googleFormLink', '')
+                            // reset({
+                            //   source: { label: '', value: '' },
+                            //   target: { label: '', value: '' },
+                            //   googleFormLink: '',
+                            //   jobType: { label: '', value: '' },
+                            //   role: { label: '', value: '' },
+                            // })
                           }}
                         >
                           {testType.map(value => {
