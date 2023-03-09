@@ -1,14 +1,16 @@
 import { Card, Grid, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid } from '@mui/x-data-grid'
+import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 // ** Data Import
 
 import { Dispatch, SetStateAction } from 'react'
 
-import { columns } from '@src/pages/onboarding/components/onboarding-columns'
-import { OnboardingListType } from 'src/types/onboarding/list'
+import {
+  OnboardingFilterType,
+  OnboardingListType,
+} from 'src/types/onboarding/list'
 
 type Props = {
   onboardingListPage: number
@@ -17,6 +19,9 @@ type Props = {
   setOnboardingListPageSize: Dispatch<SetStateAction<number>>
   onboardingProList: OnboardingListType[]
   onboardingProListCount: number
+  setFilters: Dispatch<SetStateAction<OnboardingFilterType>>
+  columns: GridColumns<OnboardingListType>
+  isLoading: boolean
 }
 
 export default function OnboardingList({
@@ -26,6 +31,9 @@ export default function OnboardingList({
   setOnboardingListPageSize,
   onboardingProList,
   onboardingProListCount,
+  setFilters,
+  columns,
+  isLoading,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -80,19 +88,29 @@ export default function OnboardingList({
               },
             }}
             columns={columns}
+            loading={isLoading}
             rows={onboardingProList ?? []}
             autoHeight
             disableSelectionOnClick
+            paginationMode='server'
             pageSize={onboardingListPageSize}
             rowsPerPageOptions={[5, 10, 25, 50]}
             page={onboardingListPage}
             rowCount={onboardingProListCount}
             onPageChange={(newPage: number) => {
+              setFilters((prevState: OnboardingFilterType) => ({
+                ...prevState,
+                skip: newPage * onboardingListPageSize,
+              }))
               setOnboardingListPage(newPage)
             }}
-            onPageSizeChange={(newPageSize: number) =>
+            onPageSizeChange={(newPageSize: number) => {
+              setFilters((prevState: OnboardingFilterType) => ({
+                ...prevState,
+                take: newPageSize,
+              }))
               setOnboardingListPageSize(newPageSize)
-            }
+            }}
           />
         </Box>
       </Card>

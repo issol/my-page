@@ -439,7 +439,8 @@ export default function CertificationTest({
                             }}
                           >
                             {(basicTest!.status === 'Basic failed' ||
-                              basicTest!.status === 'Basic passed') &&
+                              basicTest!.status === 'Basic passed' ||
+                              basicTest!.status === 'NO_TEST') &&
                             skillTest!.status !== 'Cancelled' &&
                             !(
                               skillTest!.status === 'Skill in progress' ||
@@ -553,7 +554,8 @@ export default function CertificationTest({
                                   Proceed
                                 </Button>
                               </Box>
-                            ) : basicTest!.status === 'Basic passed' &&
+                            ) : (basicTest!.status === 'Basic passed' ||
+                                basicTest!.status === 'NO_TEST') &&
                               !(
                                 skillTest!.status === 'Cancelled' ||
                                 skillTest?.status === 'Skill in progress' ||

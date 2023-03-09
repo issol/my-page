@@ -49,7 +49,7 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
           <LabelTitle>Timezone:</LabelTitle>
-          <Label>{getGmtTime(userInfo.timezone.code) || '-'}</Label>
+          <Label>{getGmtTime(userInfo.timezone?.code) || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />

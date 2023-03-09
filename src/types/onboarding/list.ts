@@ -152,8 +152,9 @@ export type OnboardingFilterType = {
   role?: string[]
   jobType?: string[]
   search?: string
-  source: string[]
-  target: string[]
-  experience: string[]
-  testStatus: string[]
+  source?: string[]
+  target?: string[]
+  experience?: string[]
+  testStatus?: string[]
+  order?: string
 }
