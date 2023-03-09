@@ -38,6 +38,7 @@ const CertificationTest = () => {
     take: testMaterialListPageSize,
     skip: testMaterialListPageSize * testMaterialListPage,
     userCompany: 'GloZ',
+    sort: 'desc',
   })
 
   const { data: testMaterialList } = useGetTestMaterialList(filters)
@@ -76,6 +77,7 @@ const CertificationTest = () => {
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
       userCompany: 'GloZ',
+      sort: 'desc',
     })
   }
 
@@ -94,6 +96,7 @@ const CertificationTest = () => {
       userCompany: 'GloZ',
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
+      sort: 'desc',
     }
 
     setFilters(filter)
