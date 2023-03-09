@@ -18,7 +18,10 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { ChangeEvent, useEffect, useState } from 'react'
-import { PauseReason, RejectReason } from 'src/shared/const/onboarding'
+import {
+  PauseReason,
+  RejectReason,
+} from '@src/pages/onboarding/components/onboarding-columns'
 import { v4 as uuidv4 } from 'uuid'
 import TextField from '@mui/material/TextField'
 import {

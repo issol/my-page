@@ -7,7 +7,7 @@ import CardHeader from '@mui/material/CardHeader'
 
 import { Dispatch, SetStateAction } from 'react'
 
-import { columns } from 'src/shared/const/onboarding'
+import { columns } from '@src/pages/onboarding/components/onboarding-columns'
 import { OnboardingListType } from 'src/types/onboarding/list'
 
 type Props = {

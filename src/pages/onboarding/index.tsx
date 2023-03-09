@@ -5,7 +5,7 @@ import Filters from './components/list/filters'
 import OnboardingList from './components/list/list'
 import { SyntheticEvent, useState } from 'react'
 import { useForm } from 'react-hook-form'
-import { DefaultRolePair } from 'src/shared/const/onboarding'
+
 import { JobList } from 'src/shared/const/job/jobs'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import {
@@ -19,6 +19,7 @@ import {
   useGetStatistic,
   useGetOnboardingStatistic,
 } from 'src/queries/onboarding/onboarding-query'
+import { OnboardingListRolePair, RoleList } from '@src/shared/const/role/roles'
 
 const defaultValues: FilterType = {
   jobType: [],
@@ -49,8 +50,9 @@ export default function Onboarding() {
   const { data: totalStatistics } = useGetStatistic()
   const { data: onboardingStatistic } = useGetOnboardingStatistic()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
-  const [roleOptions, setRoleOptions] =
-    useState<RoleSelectType[]>(DefaultRolePair)
+  const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
+    OnboardingListRolePair,
+  )
 
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
@@ -64,7 +66,7 @@ export default function Onboarding() {
   console.log(onboardingProList)
 
   const onClickResetButton = () => {
-    setRoleOptions(DefaultRolePair)
+    setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
     reset({
       jobType: [],

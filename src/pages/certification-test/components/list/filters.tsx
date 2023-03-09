@@ -24,7 +24,7 @@ import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { JobList, RolePair } from 'src/shared/const/personalInfo'
-import { DefaultRolePair } from 'src/shared/const/onboarding'
+
 import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
 import _ from 'lodash'
 
@@ -35,6 +35,7 @@ import {
   TestMaterialFilterType,
   TestType,
 } from 'src/types/certification-test/list'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -294,8 +295,8 @@ export default function TestMaterialFilters({
 
                                 /* @ts-ignore */
                                 const rolePair = RolePair[jobTypeValue]
-                                const res = DefaultRolePair.filter(value =>
-                                  value.jobType.includes(jobTypeValue),
+                                const res = OnboardingListRolePair.filter(
+                                  value => value.jobType.includes(jobTypeValue),
                                 )
 
                                 arr.push(...res)
@@ -304,7 +305,7 @@ export default function TestMaterialFilters({
                               })
                               setRoleOptions(arr)
                             } else {
-                              setRoleOptions(DefaultRolePair)
+                              setRoleOptions(OnboardingListRolePair)
                             }
                           }}
                           value={value}

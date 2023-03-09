@@ -82,12 +82,13 @@ import {
 } from 'src/apis/certification-test.api'
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
-import { DefaultRolePair } from 'src/shared/const/onboarding'
+
 import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
 import { FileType } from 'src/types/common/file.type'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -124,8 +125,9 @@ const TestMaterialPost = () => {
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
-  const [roleOptions, setRoleOptions] =
-    useState<RoleSelectType[]>(DefaultRolePair)
+  const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
+    OnboardingListRolePair,
+  )
   const [postFormError, setPostFormError] = useState(false)
 
   // ** file values
@@ -898,13 +900,14 @@ const TestMaterialPost = () => {
                               value={value}
                               onChange={(e, v) => {
                                 if (!v) {
-                                  setRoleOptions(DefaultRolePair)
+                                  setRoleOptions(OnboardingListRolePair)
                                   onChange({ value: '', label: '' })
                                   setJobTypeSelected(false)
                                 } else {
                                   const jobTypeValue = v.value
-                                  const res = DefaultRolePair.filter(value =>
-                                    value.jobType.includes(jobTypeValue),
+                                  const res = OnboardingListRolePair.filter(
+                                    value =>
+                                      value.jobType.includes(jobTypeValue),
                                   )
                                   setRoleOptions(res)
                                   setJobTypeSelected(true)
