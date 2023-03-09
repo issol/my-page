@@ -11,7 +11,6 @@ import HorizontalLayout from './HorizontalLayout'
 const Layout = (props: LayoutProps) => {
   // ** Props
   const { hidden, children, settings, saveSettings } = props
-
   // ** Ref
   const isCollapsed = useRef(settings.navCollapsed)
 
@@ -39,11 +38,11 @@ const Layout = (props: LayoutProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [hidden])
 
-  if (settings.layout === 'horizontal') {
-    return <HorizontalLayout {...props}>{children}</HorizontalLayout>
-  }
-
-  return <VerticalLayout {...props}>{children}</VerticalLayout>
+  // if (settings.layout === 'horizontal') {
+  //   return <HorizontalLayout {...props}>{children}</HorizontalLayout>
+  // }
+  return <HorizontalLayout {...props}>{children}</HorizontalLayout>
+  // return <VerticalLayout {...props}>{children}</VerticalLayout>
 }
 
 export default Layout

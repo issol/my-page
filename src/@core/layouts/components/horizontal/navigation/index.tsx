@@ -13,7 +13,9 @@ import HorizontalNavItems from './HorizontalNavItems'
 // ** Types
 interface Props {
   settings: LayoutProps['settings']
-  horizontalNavItems: NonNullable<NonNullable<LayoutProps['horizontalLayoutProps']>['navMenu']>['navItems']
+  horizontalNavItems: NonNullable<
+    NonNullable<LayoutProps['horizontalLayoutProps']>['navMenu']
+  >['navItems']
 }
 
 const Navigation = (props: Props) => {
@@ -26,8 +28,8 @@ const Navigation = (props: Props) => {
         alignItems: 'center',
         '& > *': {
           '&:not(:last-child)': { mr: 2 },
-          ...(themeConfig.menuTextTruncate && { maxWidth: 220 })
-        }
+          ...(themeConfig.menuTextTruncate && { maxWidth: 220 }),
+        },
       }}
     >
       <HorizontalNavItems {...props} />
