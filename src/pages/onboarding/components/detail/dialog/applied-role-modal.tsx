@@ -39,6 +39,7 @@ import TextField from '@mui/material/TextField'
 import { FormControlLabel } from '@mui/material'
 import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import _ from 'lodash'
+import { AssignJobType } from 'src/shared/const/onboarding'
 
 const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   '& .MuiTabs-indicator': {
@@ -633,7 +634,7 @@ export default function AppliedRoleModal({
                                     }
                                   >
                                     {/* @ts-ignore */}
-                                    {RolePair[item.jobType]?.map(
+                                    {AssignJobType[item.jobType]?.map(
                                       (item: any, idx: number) => (
                                         <MenuItem value={item.value} key={idx}>
                                           {item.label}

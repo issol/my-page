@@ -226,6 +226,80 @@ export const DefaultRolePair: Array<RoleSelectType> = [
   },
 ]
 
+export const AssignJobType = {
+  'Documents/Text': [
+    { label: 'Localization engineer', value: 'Localization engineer' },
+    { label: 'Reviewer', value: 'Reviewer' },
+  ],
+  Dubbing: [{ label: 'Reviewer', value: 'Reviewer' }],
+  Interpretation: [{ label: 'Reviewer', value: 'Reviewer' }],
+  'Misc.': [
+    { label: 'Content LQA reviewer', value: 'Content LQA reviewer' },
+    { label: 'DTT reviewer', value: 'DTT reviewer' },
+    { label: 'Language manager', value: 'Language manager' },
+    { label: 'Reviewer', value: 'Reviewer' },
+    { label: 'Vendor LM', value: 'Vendor LM' },
+  ],
+
+  'OTT/Subtitle': [
+    { label: 'Content LQA reviewer', value: 'Content LQA reviewer' },
+    { label: 'DTT reviewer', value: 'DTT reviewer' },
+    { label: 'Language manager', value: 'Language manager' },
+    { label: 'Reviewer', value: 'Reviewer' },
+    { label: 'Vendor LM', value: 'Vendor LM' },
+  ],
+  Webcomics: [
+    { label: 'Localization engineer', value: 'Localization engineer' },
+    { label: 'Reviewer', value: 'Reviewer' },
+  ],
+  Webnovel: [
+    { label: 'Localization engineer', value: 'Localization engineer' },
+    { label: 'Reviewer', value: 'Reviewer' },
+  ],
+} as const
+
+const AssignRolePair = [
+  {
+    value: 'Content LQA reviewer',
+    label: 'Content LQA reviewer',
+    jobType: ['Misc.', ' OTT/Subtitle'],
+  },
+  {
+    value: 'DTT reviewer',
+    label: 'DTT reviewer',
+    jobType: ['Misc.', 'OTT/Subtitle'],
+  },
+  {
+    value: 'Language manager',
+    label: 'Language manager',
+    jobType: ['Misc.', 'OTT/Subtitle'],
+  },
+
+  {
+    value: 'Localization engineer',
+    label: 'Localization engineer',
+    jobType: [
+      'Documents/Text',
+      'Webcomics',
+      'Webnovel',
+      'Misc.',
+      'OTT/Subtitle',
+      'Webcomics',
+      'Webnovel',
+    ],
+  },
+  {
+    value: 'Reviewer',
+    label: 'Reviewer',
+    jobType: ['Documents/Text', 'Dubbing', 'Interpretation'],
+  },
+  {
+    value: 'Vendor LM',
+    label: 'Vendor LM',
+    jobType: ['Misc.', 'OTT/Subtitle'],
+  },
+]
+
 export const RejectReason = {
   'Pro does not have enough experience for this role.':
     'Thank you for your interest!\nUnfortunately, your listed years of experience do not meet the required years of experience for this role, and thus cannot proceed any further.\nShould you have any questions or concerns, please do not hesitate to contact tad@glozinc.com.\n- TAD Onboarding Team',
