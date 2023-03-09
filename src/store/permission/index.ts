@@ -83,11 +83,13 @@ export const getRole = createAsyncThunk(
 )
 
 const initialState: {
+  isLoading: boolean
   permission: PermissionObjectType
   role: Array<RoleType>
 } = {
-  permission: [{ subject: 'none', can: ['read'] }],
+  permission: [],
   role: [],
+  isLoading: false,
 }
 
 export const permissionSlice = createSlice({
@@ -97,9 +99,15 @@ export const permissionSlice = createSlice({
   extraReducers: builder => {
     builder.addCase(getPermission.fulfilled, (state, action) => {
       state.permission = action.payload
+      state.isLoading = false
+    })
+    builder.addCase(getPermission.pending, (state, action) => {
+      state.permission = initialState.permission
+      state.isLoading = true
     })
     builder.addCase(getPermission.rejected, (state, action) => {
       state.permission = initialState.permission
+      state.isLoading = false
     })
     builder.addCase(getRole.fulfilled, (state, action) => {
       state.role = action.payload.roles

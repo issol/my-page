@@ -1,10 +1,4 @@
-export const Pronunciation = [
-  { value: 'SHE', label: 'she/her/hers' },
-  { value: 'HE', label: 'he/him/his' },
-  { value: 'THEY', label: 'they/them/their' },
-  { value: 'NONE', label: 'Prefer not to answer' },
-] as const
-
+// TODO : src/shared/const/job/jobs.ts의 JobList
 export const JobList = [
   { label: 'Documents/Text', value: 'Documents/Text' },
   { label: 'Dubbing', value: 'Dubbing' },
@@ -15,6 +9,7 @@ export const JobList = [
   { label: 'Webnovel', value: 'Webnovel' },
 ].sort((a, b) => a.label.localeCompare(b.label))
 
+// TODO : src/shared/const/role/roles.ts의 ProRolePair
 export const RolePair = {
   'Documents/Text': [
     { label: 'QCer', value: 'QCer' },
@@ -65,107 +60,3 @@ export const RolePair = {
     { label: 'Webnovel translator', value: 'Webnovel translator' },
   ],
 } as const
-
-export const ExperiencedYears = [
-  { value: 'No experience', label: 'No experience' },
-  { value: '1-2 year(s)', label: '1-2 year(s)' },
-  { value: '3-5 years', label: '3-5 years' },
-  { value: '6-9 years', label: '6-9 years' },
-  { value: '10+ years', label: '10+ years' },
-] as const
-
-export const Specialties = [
-  { label: 'Cooking/Food&Drink', value: 'Cooking/Food&Drink' },
-  {
-    label: 'Health(Mental and physical)',
-    value: 'Health(Mental and physical)',
-  },
-  { label: 'Sports', value: 'Sports' },
-  { label: 'Beauty/Fashion', value: 'Beauty/Fashion' },
-  { label: 'Movies', value: 'Movies' },
-  { label: 'Drama', value: 'Drama' },
-  { label: 'Documents', value: 'Documents' },
-  { label: 'Finance', value: 'Finance' },
-  { label: 'Education/Teaching', value: 'Education/Teaching' },
-  { label: 'Music/Entertainment', value: 'Music/Entertainment' },
-  { label: 'Animals/Pets', value: 'Animals/Pets' },
-  { label: 'Nature', value: 'Nature' },
-  { label: 'Travel', value: 'Travel' },
-  {
-    label: 'Vehicles(Planes, Trains and Automobiles)',
-    value: 'Vehicles(Planes, Trains and Automobiles)',
-  },
-  { label: 'Science/Engineering', value: 'Science/Engineering' },
-  { label: 'Computers/Tech', value: 'Computers/Tech' },
-  { label: 'Legal', value: 'Legal' },
-  { label: 'Medical', value: 'Medical' },
-  { label: 'Political', value: 'Political' },
-  { label: 'Police/Military', value: 'Police/Military' },
-  { label: 'Non-profit/Activism', value: 'Non-profit/Activism' },
-  { label: 'Gaming', value: 'Gaming' },
-  { label: 'Webcomics', value: 'Webcomics' },
-  { label: 'Webnovel/Books/E-books', value: 'Webnovel/Books/E-books' },
-  { label: 'Subtitling', value: 'Subtitling' },
-  { label: 'Interpreting', value: 'Interpreting' },
-  { label: 'Dubbing script translating', value: 'Dubbing script translating' },
-  { label: 'YouTube', value: 'YouTube' },
-  { label: 'Transcription', value: 'Transcription' },
-  { label: 'Proofreading', value: 'Proofreading' },
-]
-
-export const TestStatus = [
-  {
-    label: 'Awaiting assignment',
-    value: 'Awaiting assignment',
-  },
-  { label: 'Test assigned', value: 'Test assigned' },
-  {
-    label: 'Basic in progress',
-    value: 'Basic in progress',
-  },
-  {
-    label: 'Basic submitted',
-    value: 'Basic submitted',
-  },
-  {
-    label: 'Basic failed',
-    value: 'Basic failed',
-  },
-  {
-    label: 'Basic passed',
-    value: 'Basic passed',
-  },
-  {
-    label: 'Skill in progress',
-    value: 'Skill in progress',
-  },
-  {
-    label: 'Skill submitted',
-    value: 'Skill submitted',
-  },
-  {
-    label: 'Reviewing',
-    value: 'Reviewing',
-  },
-  {
-    label: 'Review canceled',
-    value: 'Review canceled',
-  },
-
-  {
-    label: 'Review completed',
-    value: 'Review completed',
-  },
-  {
-    label: 'Skill failed',
-    value: 'Skill failed',
-  },
-  {
-    label: 'Paused',
-    value: 'Paused',
-  },
-  {
-    label: 'Rejected',
-    value: 'Rejected',
-  },
-]

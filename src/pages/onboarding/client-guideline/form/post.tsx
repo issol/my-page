@@ -11,10 +11,6 @@ import {
 } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import IconButton from '@mui/material/IconButton'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 
 // ** React Imports
 import { Fragment, useContext, useEffect, useState } from 'react'
@@ -37,7 +33,6 @@ import { StyledEditor } from 'src/@core/components/editor/customEditor'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
@@ -51,11 +46,14 @@ import {
   clientGuidelineSchema,
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
+
+import { CategoryList } from 'src/shared/const/category/categories'
+
 import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
+  ClientList,
+  ClientListIncludeGloz,
+} from 'src/shared/const/client/clients'
+import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
 import { postFiles } from 'src/apis/common.api'
@@ -488,7 +486,7 @@ const ClientGuidelineForm = () => {
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={ClientCategoryIncludeGloz}
+                        options={ClientListIncludeGloz}
                         filterSelectedOptions
                         onChange={(e, v) => {
                           checkGuideline()
@@ -526,7 +524,7 @@ const ClientGuidelineForm = () => {
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={Category}
+                        options={CategoryList}
                         value={value}
                         filterSelectedOptions
                         onChange={(e, v) => {
@@ -565,7 +563,7 @@ const ClientGuidelineForm = () => {
                     <Autocomplete
                       autoHighlight
                       fullWidth
-                      options={ServiceType}
+                      options={ServiceTypeList}
                       value={value}
                       filterSelectedOptions
                       onChange={(e, v) => {

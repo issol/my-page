@@ -29,8 +29,9 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import { JobList, RoleList } from 'src/shared/const/common'
-import { ExperiencedYears } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RoleList } from 'src/shared/const/role/roles'
+import { ExperiencedYears } from 'src/shared/const/experienced-years'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
@@ -294,6 +295,5 @@ export default function Filters({
 }
 
 const CustomDatePicker = styled(DatePicker)`
-  z-index: 100000;
   width: 100%;
 `

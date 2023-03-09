@@ -20,16 +20,12 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-  ServiceType2,
-} from 'src/shared/const/clientGuideline'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
+import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
+import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** types
 import { ConstType, FilterOmitType } from '../../client-guideline'
-import { useEffect } from 'react'
 
 type Props = {
   filter: FilterOmitType
@@ -76,11 +72,11 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
-                  value={filterValue(ClientCategoryIncludeGloz, 'client')}
+                  value={filterValue(ClientListIncludeGloz, 'client')}
                   onChange={(e, v) =>
                     setFilter({ ...filter, client: v.map(item => item.value) })
                   }
-                  options={ClientCategoryIncludeGloz}
+                  options={ClientListIncludeGloz}
                   filterSelectedOptions
                   id='client'
                   getOptionLabel={option => option.label}
@@ -107,8 +103,8 @@ export default function Filters({
                     autoHighlight
                     fullWidth
                     multiple
-                    options={Category}
-                    value={filterValue(Category, 'category')}
+                    options={CategoryList}
+                    value={filterValue(CategoryList, 'category')}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -142,7 +138,7 @@ export default function Filters({
                   fullWidth
                   multiple
                   options={serviceType || []}
-                  value={filterValue(ServiceType, 'serviceType')}
+                  value={filterValue(ServiceTypeList, 'serviceType')}
                   onChange={(e, v) =>
                     setFilter({
                       ...filter,
