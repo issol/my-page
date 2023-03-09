@@ -130,10 +130,7 @@ export default function AppliedRole({
           </>
         )
       }
-    } else if (
-      jobInfo.testStatus === 'Skill failed' ||
-      jobInfo.testStatus === 'Basic failed'
-    ) {
+    } else if (jobInfo.testStatus === 'Skill failed') {
       return (
         <Button
           fullWidth
@@ -158,6 +155,7 @@ export default function AppliedRole({
       basicTest &&
       (basicTest!.status === 'Basic in progress' ||
         basicTest!.status === 'Basic submitted' ||
+        basicTest!.status === 'Basic failed' ||
         basicTest!.status === 'Basic passed')
     ) {
       return (

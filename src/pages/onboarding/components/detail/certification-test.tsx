@@ -122,7 +122,9 @@ export default function CertificationTest({
                       Basic Test
                     </Typography>
                     <Box sx={{ display: 'flex', gap: 4 }}>
-                      {basicTest!.status === 'Basic submitted' ? (
+                      {basicTest!.status === 'Basic submitted' ||
+                      basicTest!.status === 'Basic failed' ||
+                      basicTest!.status === 'Basic passed' ? (
                         <>
                           <Typography
                             sx={{
@@ -139,10 +141,6 @@ export default function CertificationTest({
                             variant='fullWidth'
                             flexItem
                           />
-                        </>
-                      ) : null}
-                      {basicTest!.status === 'Basic submitted' ? (
-                        <>
                           <Typography
                             variant='body2'
                             sx={{
@@ -336,6 +334,7 @@ export default function CertificationTest({
                       <Box sx={{ display: 'flex', gap: 4 }}>
                         {skillTest!.status === 'Skill submitted' ||
                         skillTest!.status === 'Reviewing' ||
+                        skillTest!.status === 'Review completed' ||
                         skillTest!.status === 'Skill failed' ? (
                           <>
                             {' '}
