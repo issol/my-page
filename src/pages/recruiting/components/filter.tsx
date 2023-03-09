@@ -15,19 +15,16 @@ import {
   Checkbox,
   Grid,
   IconButton,
-  InputLabel,
-  OutlinedInput,
 } from '@mui/material'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
 // **values
-import {
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
-import { JobList, RoleList } from 'src/shared/const/common'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
+
+import { JobList } from 'src/shared/const/job/jobs'
+import { RoleList } from 'src/shared/const/role/roles'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
@@ -91,14 +88,14 @@ export default function Filters({
                   <Autocomplete
                     autoHighlight
                     fullWidth
-                    value={filterValue(ClientCategoryIncludeGloz, 'client')}
+                    value={filterValue(ClientListIncludeGloz, 'client')}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
                         client: v?.value ?? '',
                       })
                     }
-                    options={ClientCategoryIncludeGloz}
+                    options={ClientListIncludeGloz}
                     filterSelectedOptions
                     id='client'
                     getOptionLabel={option => option.label}

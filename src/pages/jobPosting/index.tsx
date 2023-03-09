@@ -7,7 +7,8 @@ import PageHeader from 'src/@core/components/page-header'
 import isEqual from 'lodash/isEqual'
 
 // ** values
-import { ProJobPair, ProRolePair } from 'src/shared/const/common'
+import { ProRolePair } from 'src/shared/const/role/roles'
+import { ProJobPair } from 'src/shared/const/job/jobs'
 import Filters from './components/filter'
 
 // ** fetch

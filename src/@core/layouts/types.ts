@@ -128,5 +128,4 @@ export type LayoutProps = {
   saveSettings: (values: Settings) => void
   verticalLayoutProps: VerticalLayoutProps
   horizontalLayoutProps?: HorizontalLayoutProps
-  roleButton?: ReactNode
 }

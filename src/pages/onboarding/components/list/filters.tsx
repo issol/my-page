@@ -16,12 +16,10 @@ import {
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import {
-  JobList,
-  RolePair,
-  ExperiencedYears,
-  TestStatus,
-} from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
+import { ProRolePair } from 'src/shared/const/role/roles'
+import { TestStatus } from 'src/shared/const/status/statuses'
+import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import { DefaultRolePair } from 'src/shared/const/onboarding'
 import {
   useState,
@@ -174,7 +172,7 @@ export default function Filters({
                                 console.log(jobTypeValue)
 
                                 /* @ts-ignore */
-                                const rolePair = RolePair[jobTypeValue]
+                                const rolePair = ProRolePair[jobTypeValue]
                                 const res = DefaultRolePair.filter(value =>
                                   value.jobType.includes(jobTypeValue),
                                 )

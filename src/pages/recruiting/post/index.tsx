@@ -51,7 +51,7 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ClientCategoryIncludeGloz } from 'src/shared/const/clientGuideline'
+import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
@@ -66,8 +66,9 @@ import {
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
 // ** values
-import { FormErrors } from 'src/shared/const/formErrors'
-import { JobList, RecruitingStatus, RoleList } from 'src/shared/const/common'
+import { JobList } from 'src/shared/const/job/jobs'
+import { RecruitingStatus } from 'src/shared/const/status/statuses'
+import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
@@ -314,7 +315,7 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={ClientCategoryIncludeGloz}
+                          options={ClientListIncludeGloz}
                           filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })

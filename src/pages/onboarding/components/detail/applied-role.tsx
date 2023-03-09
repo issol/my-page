@@ -16,8 +16,6 @@ import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
-import { TestStatus } from 'src/shared/const/personalInfo'
-import { useState, useEffect } from 'react'
 
 type Props = {
   userInfo: Array<AppliedRoleType>

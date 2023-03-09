@@ -48,11 +48,13 @@ import {
   clientGuidelineSchema,
   ClientGuidelineType,
 } from 'src/types/schema/client-guideline.schema'
+
+import { CategoryList } from 'src/shared/const/category/categories'
 import {
-  Category,
-  ClientCategoryIncludeGloz,
-  ServiceType,
-} from 'src/shared/const/clientGuideline'
+  ClientList,
+  ClientListIncludeGloz,
+} from 'src/shared/const/client/clients'
+import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
 import { useMutation } from 'react-query'
@@ -153,17 +155,17 @@ const ClientGuidelineEdit = () => {
 
       initializeValue(
         'client',
-        ClientCategoryIncludeGloz.filter(
+        ClientListIncludeGloz.filter(
           item => item.value === currentVersion.client,
         )[0],
       )
       initializeValue(
         'category',
-        Category.filter(item => item.value === currentVersion.category)[0],
+        ClientList.filter(item => item.value === currentVersion.category)[0],
       )
       initializeValue(
         'serviceType',
-        ServiceType.filter(
+        ServiceTypeList.filter(
           item => item.value === currentVersion.serviceType,
         )[0],
       )
@@ -521,7 +523,7 @@ const ClientGuidelineEdit = () => {
                               autoHighlight
                               fullWidth
                               disabled
-                              options={ClientCategoryIncludeGloz}
+                              options={ClientListIncludeGloz}
                               filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -557,7 +559,7 @@ const ClientGuidelineEdit = () => {
                             <Autocomplete
                               autoHighlight
                               fullWidth
-                              options={Category}
+                              options={CategoryList}
                               value={value}
                               filterSelectedOptions
                               onChange={(e, v) => {
@@ -594,7 +596,7 @@ const ClientGuidelineEdit = () => {
                           <Autocomplete
                             autoHighlight
                             fullWidth
-                            options={ServiceType}
+                            options={ServiceTypeList}
                             value={value}
                             filterSelectedOptions
                             onChange={(e, v) => {

@@ -73,7 +73,6 @@ const HorizontalLayout = (props: LayoutProps) => {
     saveSettings,
     contentHeightFixed,
     horizontalLayoutProps,
-    roleButton,
   } = props
 
   // ** Vars
@@ -95,7 +94,7 @@ const HorizontalLayout = (props: LayoutProps) => {
         sx={{ ...(contentHeightFixed && { maxHeight: '100vh' }) }}
       >
         {/* Navbar (or AppBar) and Navigation Menu Wrapper */}
-        {roleButton}
+
         <AppBar
           color='default'
           elevation={skin === 'bordered' ? 0 : 3}
@@ -187,7 +186,7 @@ const HorizontalLayout = (props: LayoutProps) => {
                         horizontalLayoutProps as NonNullable<
                           LayoutProps['horizontalLayoutProps']
                         >
-                      ).navMenu?.navItems
+                      )?.navMenu?.navItems
                     }
                   />
                 )}
@@ -197,6 +196,7 @@ const HorizontalLayout = (props: LayoutProps) => {
         </AppBar>
 
         {/* Content */}
+
         <ContentWrapper
           className='layout-page-content'
           sx={{
