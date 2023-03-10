@@ -21,6 +21,7 @@ import {
   CertifiedRoleType,
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
+import { Dispatch, SetStateAction } from 'react'
 
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
@@ -36,7 +37,11 @@ export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   )
 }
 
-export const useGetOnboardingProDetails = (userId: string | string[]) => {
+export const useGetOnboardingProDetails = (
+  userId: string | string[],
+  validUser: boolean,
+  setValidUser: Dispatch<SetStateAction<boolean>>,
+) => {
   const id = typeof userId === 'string' ? userId : ''
   return useQuery<OnboardingProDetailsType, Error, OnboardingProDetailsType>(
     `${userId}`,
@@ -44,6 +49,10 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
+      useErrorBoundary: (error: any) => error.response?.status >= 400,
+      onSuccess: data => {
+        setValidUser(true)
+      },
       select: (data: OnboardingProDetailsType) => {
         const resume = [
           {
@@ -133,6 +142,8 @@ export const useGetOnboardingStatistic = () => {
 }
 
 export const useGetAppliedRole = (id: number) => {
+  console.log(id)
+
   return useQuery<Array<AppliedRoleType>>(
     `applied-role-${id}`,
     () => getAppliedRole(id),

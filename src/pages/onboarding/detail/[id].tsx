@@ -93,10 +93,16 @@ const OnboardingDetails = () => (
 function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
-  const { data: userInfo } = useGetOnboardingProDetails(id!)
+  const [validUser, setValidUser] = useState(false)
+  const {
+    data: userInfo,
+    isError,
+    isFetched,
+  } = useGetOnboardingProDetails(id!, validUser, setValidUser)
 
-  const { data: appliedRole } = useGetAppliedRole(userInfo!.userId)
-  const { data: certifiedRole } = useGetCertifiedRole(userInfo!.userId)
+  const userId = isFetched && !isError ? userInfo!.userId : undefined
+  const { data: appliedRole } = useGetAppliedRole(userId!)
+  const { data: certifiedRole } = useGetCertifiedRole(userId!)
   const { data: reviewerList } = useGetReviewerList()
   const { data: history } = useGetHistory()
 
@@ -821,151 +827,162 @@ function OnboardingDetail() {
           onCloseModal('role')
         }}
       />
-      <Grid item xs={12}>
-        <DesignedCard>
-          <Card sx={{ padding: '24px' }}>
-            <Box sx={{ position: 'relative', display: 'flex', gap: '30px' }}>
-              <Card>
-                <img
-                  width={110}
-                  height={110}
-                  src={getProfileImg('TAD')}
-                  alt=''
-                />
-              </Card>
-              <Box sx={{ alignSelf: 'self-end' }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-                  <Typography variant='h5'>
-                    {getLegalName(userInfo!)}
-                  </Typography>
-                  <img
-                    width={32}
-                    height={32}
-                    src={
-                      userInfo!.isOnboarded && userInfo!.isActive
-                        ? `/images/icons/onboarding-icons/pro-active.png`
-                        : !userInfo!.isOnboarded
-                        ? `/images/icons/onboarding-icons/pro-onboarding.png`
-                        : userInfo!.isOnboarded && !userInfo!.isActive
-                        ? `/images/icons/onboarding-icons/pro-inactive.png`
-                        : ''
-                    }
-                    alt='onboarding'
-                  />
-                </Box>
-                <Typography
-                  sx={{
-                    fontSize: '1rem',
-                    fontWeight: 600,
-                    color: 'rgba(76, 78, 100, 0.6)',
-                  }}
+      {isFetched && !isError ? (
+        <>
+          <Grid item xs={12}>
+            <DesignedCard>
+              <Card sx={{ padding: '24px' }}>
+                <Box
+                  sx={{ position: 'relative', display: 'flex', gap: '30px' }}
                 >
-                  {userInfo!.legalNamePronunciation
-                    ? userInfo!.legalNamePronunciation
-                    : '-'}
-                </Typography>
-              </Box>
-            </Box>
-          </Card>
-        </DesignedCard>
-      </Grid>
-      <Grid
-        item
-        xs={5}
-        gap='24px'
-        display='flex'
-        direction='column'
-        height='100%'
-      >
-        <Grid item xs={12}>
-          <About userInfo={userInfo!} />
-        </Grid>
-        <Grid item xs={12}>
-          <CertifiedRole userInfo={certifiedRole!} />
-        </Grid>
-        <Grid item xs={12}>
-          <NoteFromPro userInfo={userInfo!} />
-        </Grid>
-      </Grid>
-
-      <Grid item xs={7} display='flex' gap='24px' direction='column'>
-        <Grid item xs={12} display='flex' gap='24px'>
-          <Grid item xs={6}>
-            <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+                  <Card>
+                    <img
+                      width={110}
+                      height={110}
+                      src={getProfileImg('TAD')}
+                      alt=''
+                    />
+                  </Card>
+                  <Box sx={{ alignSelf: 'self-end' }}>
+                    <Box
+                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
+                    >
+                      <Typography variant='h5'>
+                        {getLegalName(userInfo!)}
+                      </Typography>
+                      <img
+                        width={32}
+                        height={32}
+                        src={
+                          userInfo!.isOnboarded && userInfo!.isActive
+                            ? `/images/icons/onboarding-icons/pro-active.png`
+                            : !userInfo!.isOnboarded
+                            ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                            : userInfo!.isOnboarded && !userInfo!.isActive
+                            ? `/images/icons/onboarding-icons/pro-inactive.png`
+                            : ''
+                        }
+                        alt='onboarding'
+                      />
+                    </Box>
+                    <Typography
+                      sx={{
+                        fontSize: '1rem',
+                        fontWeight: 600,
+                        color: 'rgba(76, 78, 100, 0.6)',
+                      }}
+                    >
+                      {userInfo!.legalNamePronunciation
+                        ? userInfo!.legalNamePronunciation
+                        : '-'}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Card>
+            </DesignedCard>
           </Grid>
-          <Grid item xs={6}>
-            <Experience userInfo={userInfo!} />
+          <Grid
+            item
+            xs={5}
+            gap='24px'
+            display='flex'
+            direction='column'
+            height='100%'
+          >
+            <Grid item xs={12}>
+              <About userInfo={userInfo!} />
+            </Grid>
+            <Grid item xs={12}>
+              <CertifiedRole userInfo={certifiedRole!} />
+            </Grid>
+            <Grid item xs={12}>
+              <NoteFromPro userInfo={userInfo!} />
+            </Grid>
           </Grid>
-        </Grid>
 
-        <Grid item xs={12}>
-          <Suspense>
-            <AppliedRole
-              userInfo={appliedRoleList!}
-              hideFailedTest={hideFailedTest}
-              handleHideFailedTestChange={handleHideFailedTestChange}
-              selectedJobInfo={selectedJobInfo}
-              handleClickRoleCard={handleClickRoleCard}
-              page={rolePage}
-              rowsPerPage={roleRowsPerPage}
-              handleChangePage={handleChangeRolePage}
-              offset={roleOffset}
-              onClickCertify={onClickCertify}
-              onClickTestAssign={onClickTestAssign}
-              onClickAddRole={onClickAddRole}
-              onClickRejectOrPause={onClickRejectOrPause}
-              onClickReason={onClickReason}
-              onClickResumeTest={onClickResumeTest}
-            />
-          </Suspense>
-        </Grid>
+          <Grid item xs={7} display='flex' gap='24px' direction='column'>
+            <Grid item xs={12} display='flex' gap='24px'>
+              <Grid item xs={6}>
+                <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+              </Grid>
+              <Grid item xs={6}>
+                <Experience userInfo={userInfo!} />
+              </Grid>
+            </Grid>
 
-        <Grid item xs={12}>
-          <CertificationTest
-            userInfo={userInfo!}
-            selectedJobInfo={selectedJobInfo}
-            onClickBasicTestAction={onClickBasicTestAction}
-            onClickTestDetails={onClickTestDetails}
-            onClickCertify={onClickCertify}
-            onClickSkillTestAction={onClickSkillTestAction}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <CommentsAboutPro
-            userInfo={userInfo!.commentsOnPro!}
-            user={userInfo}
-            page={commentsProPage}
-            rowsPerPage={commentsProRowsPerPage}
-            handleChangePage={handleChangeCommentsProPage}
-            offset={commentsProOffset}
-            userId={user!.id}
-            onClickEditConfirmComment={onClickEditConfirmComment}
-            setClickedEditComment={setClickedEditComment}
-            clickedEditComment={clickedEditComment}
-            onClickEditComment={onClickEditComment}
-            selectedComment={selectedComment}
-            handleCommentChange={handleCommentChange}
-            onClickEditCancelComment={onClickEditCancelComment}
-            comment={comment}
-            onClickAddComment={onClickAddComment}
-            clickedAddComment={clickedAddComment}
-            onClickAddConfirmComment={onClickAddConfirmComment}
-            onClickAddCancelComment={onClickAddCancelComment}
-            handleAddCommentChange={handleAddCommentChange}
-            onClickDeleteComment={onClickDeleteComment}
-            addComment={addComment}
-          />
-        </Grid>
+            <Grid item xs={12}>
+              <Suspense>
+                <AppliedRole
+                  userInfo={appliedRoleList!}
+                  hideFailedTest={hideFailedTest}
+                  handleHideFailedTestChange={handleHideFailedTestChange}
+                  selectedJobInfo={selectedJobInfo}
+                  handleClickRoleCard={handleClickRoleCard}
+                  page={rolePage}
+                  rowsPerPage={roleRowsPerPage}
+                  handleChangePage={handleChangeRolePage}
+                  offset={roleOffset}
+                  onClickCertify={onClickCertify}
+                  onClickTestAssign={onClickTestAssign}
+                  onClickAddRole={onClickAddRole}
+                  onClickRejectOrPause={onClickRejectOrPause}
+                  onClickReason={onClickReason}
+                  onClickResumeTest={onClickResumeTest}
+                />
+              </Suspense>
+            </Grid>
 
-        <Grid item xs={12} display='flex' gap='24px'>
-          <Grid item xs={6}>
-            <Contracts userInfo={userInfo!} onClickContracts={onClickFile} />
+            <Grid item xs={12}>
+              <CertificationTest
+                userInfo={userInfo!}
+                selectedJobInfo={selectedJobInfo}
+                onClickBasicTestAction={onClickBasicTestAction}
+                onClickTestDetails={onClickTestDetails}
+                onClickCertify={onClickCertify}
+                onClickSkillTestAction={onClickSkillTestAction}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <CommentsAboutPro
+                userInfo={userInfo!.commentsOnPro!}
+                user={userInfo}
+                page={commentsProPage}
+                rowsPerPage={commentsProRowsPerPage}
+                handleChangePage={handleChangeCommentsProPage}
+                offset={commentsProOffset}
+                userId={user!.id}
+                onClickEditConfirmComment={onClickEditConfirmComment}
+                setClickedEditComment={setClickedEditComment}
+                clickedEditComment={clickedEditComment}
+                onClickEditComment={onClickEditComment}
+                selectedComment={selectedComment}
+                handleCommentChange={handleCommentChange}
+                onClickEditCancelComment={onClickEditCancelComment}
+                comment={comment}
+                onClickAddComment={onClickAddComment}
+                clickedAddComment={clickedAddComment}
+                onClickAddConfirmComment={onClickAddConfirmComment}
+                onClickAddCancelComment={onClickAddCancelComment}
+                handleAddCommentChange={handleAddCommentChange}
+                onClickDeleteComment={onClickDeleteComment}
+                addComment={addComment}
+              />
+            </Grid>
+
+            <Grid item xs={12} display='flex' gap='24px'>
+              <Grid item xs={6}>
+                <Contracts
+                  userInfo={userInfo!}
+                  onClickContracts={onClickFile}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Specialties userInfo={userInfo!} />
+              </Grid>
+            </Grid>
           </Grid>
-          <Grid item xs={6}>
-            <Specialties userInfo={userInfo!} />
-          </Grid>
-        </Grid>
-      </Grid>
+        </>
+      ) : null}
     </Grid>
   )
 }
