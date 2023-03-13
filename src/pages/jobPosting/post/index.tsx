@@ -245,10 +245,18 @@ export default function JobPostingPost() {
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       postLink: data.postLink,
-      content: convertToRaw(content.getCurrentContent()),
+      content:
+        content.getCurrentContent().getPlainText('\u0001') === ''
+          ? ''
+          : convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    postMutation.mutate(finalForm)
+
+    const filteredForm = Object.fromEntries(
+      Object.entries(finalForm).filter(([_, value]) => value !== ''),
+    )
+    // @ts-ignore
+    postMutation.mutate(filteredForm)
   }
 
   return (

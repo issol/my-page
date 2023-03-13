@@ -86,7 +86,11 @@ export default function RecruitingPost() {
     data: list,
     refetch,
     isLoading,
-  } = useGetJobPostingList({ skip, pageSize }, search, setSearch)
+  } = useGetJobPostingList(
+    { skip: skip * pageSize, take: pageSize },
+    search,
+    setSearch,
+  )
 
   useEffect(() => {
     if (openDialog) setSearch(true)
@@ -233,10 +237,17 @@ export default function RecruitingPost() {
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       jobPostLink: data.jobPostLink,
-      content: convertToRaw(content.getCurrentContent()),
+      content:
+        content.getCurrentContent().getPlainText('\u0001') === ''
+          ? ''
+          : convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    postMutation.mutate(finalForm)
+    const filteredForm = Object.fromEntries(
+      Object.entries(finalForm).filter(([_, value]) => value !== ''),
+    )
+    // @ts-ignore
+    postMutation.mutate(filteredForm)
   }
 
   return (

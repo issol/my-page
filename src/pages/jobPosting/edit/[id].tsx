@@ -320,7 +320,12 @@ export default function JobPostingEdit() {
       content: convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    updateMutation.mutate(finalForm)
+
+    const filteredForm = Object.fromEntries(
+      Object.entries(finalForm).filter(([_, value]) => value !== ''),
+    )
+    // @ts-ignore
+    updateMutation.mutate(filteredForm)
   }
 
   return (
