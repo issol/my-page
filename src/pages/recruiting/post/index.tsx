@@ -108,7 +108,7 @@ export default function RecruitingPost() {
     role: { value: '', label: '' },
     sourceLanguage: { value: '', label: '' },
     targetLanguage: { value: '', label: '' },
-    numberOfLinguist: undefined,
+    openings: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
@@ -229,7 +229,7 @@ export default function RecruitingPost() {
       role: data.role.value,
       sourceLanguage: data.sourceLanguage.value,
       targetLanguage: data.targetLanguage.value,
-      numberOfLinguist: data.numberOfLinguist ?? 0,
+      openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       jobPostLink: data.jobPostLink,
@@ -503,7 +503,7 @@ export default function RecruitingPost() {
                 >
                   <Grid item xs={4}>
                     <Controller
-                      name='numberOfLinguist'
+                      name='openings'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -515,7 +515,7 @@ export default function RecruitingPost() {
                             else return
                           }}
                           value={value}
-                          error={Boolean(errors.numberOfLinguist)}
+                          error={Boolean(errors.openings)}
                           label='Number of linguist'
                           placeholder='Number of linguist'
                           InputProps={{
@@ -524,9 +524,9 @@ export default function RecruitingPost() {
                         />
                       )}
                     />
-                    {errors.numberOfLinguist && (
+                    {errors.openings && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.numberOfLinguist?.message}
+                        {errors.openings?.message}
                       </FormHelperText>
                     )}
                   </Grid>

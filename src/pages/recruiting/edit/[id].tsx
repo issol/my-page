@@ -133,7 +133,7 @@ export default function RecruitingEdit() {
     role: '',
     sourceLanguage: '',
     targetLanguage: '',
-    numberOfLinguist: null,
+    openings: null,
     dueDate: '',
     dueDateTimezone: '',
     jobPostLink: '',
@@ -153,7 +153,7 @@ export default function RecruitingEdit() {
       { name: 'jobType', list: JobList },
       { name: 'sourceLanguage', list: languageList },
       { name: 'targetLanguage', list: languageList },
-      { name: 'numberOfLinguist' },
+      { name: 'openings' },
       { name: 'dueDate' },
       { name: 'dueDateTimezone', list: countries },
       { name: 'jobPostLink' },
@@ -203,7 +203,7 @@ export default function RecruitingEdit() {
     role: { value: '', label: '' },
     sourceLanguage: { value: '', label: '' },
     targetLanguage: { value: '', label: '' },
-    numberOfLinguist: undefined,
+    openings: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
@@ -329,7 +329,7 @@ export default function RecruitingEdit() {
       role: data.role.value,
       sourceLanguage: data.sourceLanguage.value,
       targetLanguage: data.targetLanguage.value,
-      numberOfLinguist: data.numberOfLinguist ?? 0,
+      openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       jobPostLink: data.jobPostLink,
@@ -624,7 +624,7 @@ export default function RecruitingEdit() {
                     >
                       <Grid item xs={4}>
                         <Controller
-                          name='numberOfLinguist'
+                          name='openings'
                           control={control}
                           rules={{ required: true }}
                           render={({ field: { value, onChange, onBlur } }) => (
@@ -637,7 +637,7 @@ export default function RecruitingEdit() {
                                 else return
                               }}
                               value={value}
-                              error={Boolean(errors.numberOfLinguist)}
+                              error={Boolean(errors.openings)}
                               label='Number of linguist'
                               placeholder='Number of linguist'
                               InputProps={{
@@ -646,9 +646,9 @@ export default function RecruitingEdit() {
                             />
                           )}
                         />
-                        {errors.numberOfLinguist && (
+                        {errors.openings && (
                           <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.numberOfLinguist?.message}
+                            {errors.openings?.message}
                           </FormHelperText>
                         )}
                       </Grid>

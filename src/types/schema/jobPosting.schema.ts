@@ -12,7 +12,7 @@ export type JobPostingFormType = {
   targetLanguage: { label: string; value: string }
   postLink: Array<LinkType>
   yearsOfExperience?: { label: string; value: string }
-  numberOfLinguist?: number
+  openings?: number
   dueDate?: string
   dueDateTimezone?: CountryType
 }
@@ -62,7 +62,7 @@ export const jobPostingFormSchema = yup.object().shape({
       value: yup.string().nullable(),
     })
     .nullable(),
-  numberOfLinguist: yup.number().max(15).nullable(),
+  openings: yup.number().max(15).nullable(),
   dueDate: yup.string().nullable(),
   dueDateTimezone: yup.object().shape({
     code: yup.string().nullable(),

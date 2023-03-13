@@ -149,11 +149,11 @@ export default function JobPostingList({
     {
       flex: 0.1,
       minWidth: 40,
-      field: 'numberOfLinguist',
+      field: 'openings',
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.numberOfLinguist}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.openings}</Box>
       ),
     },
     {

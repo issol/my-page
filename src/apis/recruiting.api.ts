@@ -41,7 +41,7 @@ export type RecruitingDataType = {
   writer: string
   dueDate: string
   dueDateTimezone: string
-  numberOfLinguist: number
+  openings: number
   jobStatus: string
   isHide: boolean
 }
@@ -68,7 +68,7 @@ export const getRecruitingList = async (
     //       targetLanguage: 'en',
     //       writer: 'Bon Kim',
     //       dueDate: Date(),
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       jobStatus: 'Paused',
     //       dueDateTimezone: 'KR',
     //       isHide: true,
@@ -84,7 +84,7 @@ export const getRecruitingList = async (
     //       writer: 'Bon Kim',
     //       dueDate: Date(),
     //       dueDateTimezone: 'KR',
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       jobStatus: 'Paused',
     //       isHide: false,
     //     },
@@ -99,7 +99,7 @@ export const getRecruitingList = async (
     //       writer: 'Bon Kim',
     //       dueDate: Date(),
     //       dueDateTimezone: 'KR',
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       jobStatus: 'Not started',
     //       isHide: false,
     //     },
@@ -126,7 +126,7 @@ export type CurrentHistoryType = {
   role: string
   sourceLanguage: string
   targetLanguage: string
-  numberOfLinguist: number
+  openings: number
   dueDate: string | null
   dueDateTimezone: string | null
   jobPostLink: string // short url
@@ -156,7 +156,7 @@ export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
     //     role: 'DTPer',
     //     sourceLanguage: 'en',
     //     targetLanguage: 'ko',
-    //     numberOfLinguist: 3,
+    //     openings: 3,
     //     dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
     //     dueDateTimezone: 'KR',
     //     jobPostLink: 'wwww.example.com',
@@ -198,7 +198,7 @@ export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
     //       role: 'DTPer',
     //       sourceLanguage: 'en',
     //       targetLanguage: 'ko',
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
     //       dueDateTimezone: 'KR',
     //       jobPostLink: 'wwww.example.com',
@@ -241,7 +241,7 @@ export type FormType = {
   role: string
   sourceLanguage: string
   targetLanguage: string
-  numberOfLinguist?: number
+  openings?: number
   dueDate?: string
   dueDateTimezone?: string
   jobPostLink?: string

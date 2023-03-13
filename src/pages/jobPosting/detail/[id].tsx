@@ -320,7 +320,7 @@ const JobPostingDetail = () => {
                 <Divider />
                 <Grid container spacing={12} pt='10px'>
                   <Grid item xs={5}>
-                    {renderTable('Number of linguist', data?.numberOfLinguist)}
+                    {renderTable('Number of linguist', data?.openings)}
                     {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>

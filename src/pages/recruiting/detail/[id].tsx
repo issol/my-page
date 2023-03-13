@@ -82,7 +82,7 @@ const RecruitingDetail = () => {
     role: '',
     sourceLanguage: '',
     targetLanguage: '',
-    numberOfLinguist: null,
+    openings: null,
     dueDate: '',
     dueDateTimezone: '',
     jobPostLink: '',
@@ -385,7 +385,7 @@ const RecruitingDetail = () => {
                   <Grid item xs={5}>
                     {renderTable(
                       'Number of linguist',
-                      currentVersion?.numberOfLinguist,
+                      currentVersion?.openings,
                     )}
                     {renderTable(
                       'Due date',
@@ -557,7 +557,7 @@ const RecruitingDetail = () => {
                         <Grid item xs={5}>
                           {renderTable(
                             'Number of linguist',
-                            currentRow?.numberOfLinguist,
+                            currentRow?.openings,
                           )}
                           {renderTable(
                             'Due date',

@@ -159,11 +159,11 @@ export default function RecruitingList({
     {
       flex: 0.15,
       minWidth: 40,
-      field: 'numberOfLinguist',
+      field: 'openings',
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.numberOfLinguist}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.openings}</Box>
       ),
     },
     {

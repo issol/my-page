@@ -10,7 +10,7 @@ export type JobPostingDataType = {
   role: string
   sourceLanguage: string
   targetLanguage: string
-  numberOfLinguist: number
+  openings: number
   yearsOfExperience: string
   writer: string
   email: string
@@ -45,7 +45,7 @@ export const getJobPostingList = async (
     //       writer: 'Bon Kim',
     //       email: 'bon@glozinc.com',
     //       dueDate: Date(),
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       yearsOfExperience: '1-2 year(s)',
     //       dueDateTimezone: 'KR',
     //       jobPostLink: 'www.bon.com',
@@ -61,7 +61,7 @@ export const getJobPostingList = async (
     //       writer: 'Bon Kim',
     //       email: 'bon@glozinc.com',
     //       dueDate: Date(),
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       yearsOfExperience: '1-2 year(s)',
     //       dueDateTimezone: 'KR',
     //       jobPostLink: 'www.bon.com/2',
@@ -77,7 +77,7 @@ export const getJobPostingList = async (
     //       writer: 'Bon Kim',
     //       email: 'bon@glozinc.com',
     //       dueDate: Date(),
-    //       numberOfLinguist: 3,
+    //       openings: 3,
     //       yearsOfExperience: '1-2 year(s)',
     //       jobPostLink: 'www.bon.com/1',
     //       dueDateTimezone: 'KR',
@@ -104,7 +104,7 @@ export type JobPostingDetailType = {
   sourceLanguage: string
   targetLanguage: string
   dueDate: string
-  numberOfLinguist: number
+  openings: number
   dueDateTimezone: string
   yearsOfExperience: string
   postLink: Array<{ id: number; category: string; link: string }> // postLink로 보낸 값
@@ -129,7 +129,7 @@ export const getJobPostingDetail = async (
     //   sourceLanguage: 'en',
     //   targetLanguage: 'ko',
     //   dueDate: Date(),
-    //   numberOfLinguist: 5,
+    //   openings: 5,
     //   dueDateTimezone: 'KR',
     //   yearsOfExperience: '1-2 year(s)',
     //   postLink: [{ id: 1, category: '알바천국', link: 'www.bon.com' }],
@@ -172,7 +172,7 @@ export type FormType = {
   sourceLanguage: string
   targetLanguage: string
   yearsOfExperience: string
-  numberOfLinguist?: number
+  openings?: number
   dueDate?: string
   dueDateTimezone?: string
   postLink: Array<{ category: string; link: string }>
