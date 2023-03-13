@@ -17,7 +17,7 @@ export const getPermission = createAsyncThunk(
   async (): Promise<PermissionObjectType> => {
     try {
       const { data } = await axios.get(`/api/enough/a/role/map`)
-      // console.log('permission : ', data)
+      return data
       // return [
       //   {
       //     subject: 'members',
@@ -59,8 +59,7 @@ export const getPermission = createAsyncThunk(
       //     subject: 'job_posting',
       //     can: ['read', 'create', 'update', 'delete'],
       //   },
-      // ]
-      return data
+      //   ]
     } catch (e: any) {
       throw new Error('getPermission error : ', e)
     }

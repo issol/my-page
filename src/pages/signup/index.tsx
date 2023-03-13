@@ -331,7 +331,7 @@ const SignUpPage = () => {
       switch (value) {
         case Roles.LPM:
         case Roles.TAD:
-          validateRole('Gloz', getValues('email')).then(res => {
+          validateRole('GloZ', getValues('email')).then(res => {
             if (res) setRole([...filtered, value])
             else {
               setModal(

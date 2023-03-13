@@ -22,7 +22,7 @@ import {
   ProRolePair,
 } from 'src/shared/const/role/roles'
 import { TestStatus } from 'src/shared/const/status/statuses'
-import { ExperiencedYears } from 'src/shared/const/experienced-years'
+import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
 
 import {
   useState,
@@ -375,7 +375,7 @@ export default function Filters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={ExperiencedYears}
+                          options={ExperiencedYearsForFilter}
                           id='experience'
                           getOptionLabel={option => option.label}
                           renderInput={params => (

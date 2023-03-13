@@ -31,7 +31,7 @@ import Icon from 'src/@core/components/icon'
 // **values
 import { JobList } from 'src/shared/const/job/jobs'
 import { RoleList } from 'src/shared/const/role/roles'
-import { ExperiencedYears } from 'src/shared/const/experienced-years'
+import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
 
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
@@ -162,8 +162,11 @@ export default function Filters({
                   <Autocomplete
                     autoHighlight
                     fullWidth
-                    options={ExperiencedYears}
-                    value={filterValue(ExperiencedYears, 'yearsOfExperience')}
+                    options={ExperiencedYearsForFilter}
+                    value={filterValue(
+                      ExperiencedYearsForFilter,
+                      'yearsOfExperience',
+                    )}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,

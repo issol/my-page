@@ -50,7 +50,7 @@ export default function jobPosting() {
     refetch,
     isLoading,
   } = useGetJobPostingList({ ...filter, skip, pageSize }, search, setSearch)
-  console.log('잡포스팅 index :: ', list)
+
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
   ): Array<{ value: string; label: string }> {
