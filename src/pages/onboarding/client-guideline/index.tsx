@@ -31,10 +31,10 @@ export type FilterType = {
   title?: string
   content?: string
   skip: number
-  pageSize: number
+  take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'pageSize'>
+export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
 
 export const initialFilter: FilterOmitType = {
   client: [],
@@ -48,7 +48,7 @@ export default function ClientGuidLines() {
     ...initialFilter,
   })
   const [skip, setSkip] = useState(1)
-  const [pageSize, setPageSize] = useState(10)
+  const [pageSize, setPageSize] = useState(2)
   const [search, setSearch] = useState(true)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
 
@@ -56,7 +56,11 @@ export default function ClientGuidLines() {
     data: list,
     refetch,
     isLoading,
-  } = useGetGuideLines({ ...filter, skip, pageSize }, search, setSearch)
+  } = useGetGuideLines(
+    { ...filter, skip: skip * pageSize, take: pageSize },
+    search,
+    setSearch,
+  )
 
   useEffect(() => {
     refetch()
