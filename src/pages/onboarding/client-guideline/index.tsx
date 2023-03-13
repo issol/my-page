@@ -47,7 +47,7 @@ export default function ClientGuidLines() {
   const [filter, setFilter] = useState<FilterOmitType>({
     ...initialFilter,
   })
-  const [skip, setSkip] = useState(1)
+  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])

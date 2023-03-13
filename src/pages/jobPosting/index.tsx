@@ -41,7 +41,7 @@ export default function jobPosting() {
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
-  const [skip, setSkip] = useState(1)
+  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 

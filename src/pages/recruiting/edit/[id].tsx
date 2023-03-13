@@ -90,7 +90,7 @@ export default function RecruitingEdit() {
 
   /* dialog states */
   const [openDialog, setOpenDialog] = useState(false)
-  const [skip, setSkip] = useState(1)
+  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(5)
   const [search, setSearch] = useState(false)
   const { data: list, isLoading } = useGetJobPostingList(
