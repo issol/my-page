@@ -48,7 +48,7 @@ export default function ClientGuidLines() {
     ...initialFilter,
   })
   const [skip, setSkip] = useState(1)
-  const [pageSize, setPageSize] = useState(2)
+  const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
 
