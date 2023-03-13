@@ -155,7 +155,7 @@ const RecruitingDetail = () => {
             sx={{ display: 'flex', alignItems: 'center' }}
           >
             {value ?? '-'}
-            {label === 'Job posting link' && (
+            {label === 'Job posting link' && !!value && (
               <IconButton
                 onClick={() => {
                   if (typeof window === 'object') {
