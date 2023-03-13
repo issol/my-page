@@ -82,8 +82,8 @@ export type OnboardingUserType = {
   preferredName?: string | null
   preferredNamePronunciation?: string | null
   timezone: CountryType
-  mobile?: string | null
-  phone?: string | null
+  mobilePhone?: string | null
+  telephone?: string | null
   resume?: Array<{
     id: number
     uri: string
