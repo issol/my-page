@@ -146,14 +146,20 @@ export default function RecruitingList({
       headerName: 'Due date',
       renderHeader: () => <Box>Due date</Box>,
       renderCell: ({ row }: CellType) => (
-        <Tooltip
-          placement='bottom'
-          title={`${FullDateHelper(row.dueDate)} (${row.dueDateTimezone})`}
-        >
-          <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-            {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
-          </Typography>
-        </Tooltip>
+        <>
+          {!row.dueDate ? (
+            '-'
+          ) : (
+            <Tooltip
+              placement='bottom'
+              title={`${FullDateHelper(row.dueDate)} (${row.dueDateTimezone})`}
+            >
+              <Typography sx={{ overflow: 'scroll' }} variant='body2'>
+                {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
+              </Typography>
+            </Tooltip>
+          )}
+        </>
       ),
     },
     {
@@ -163,7 +169,7 @@ export default function RecruitingList({
       headerName: 'Openings',
       renderHeader: () => <Box>Openings</Box>,
       renderCell: ({ row }: CellType) => (
-        <Box sx={{ overflowX: 'scroll' }}>{row.openings}</Box>
+        <Box sx={{ overflowX: 'scroll' }}>{row.openings ?? '-'}</Box>
       ),
     },
     {
