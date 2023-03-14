@@ -70,7 +70,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   }
 
   const NextArrow = (props: any) => {
-    const { onClick, slideCount, currentSlide } = props
+    const { onClick, slideCount } = props
 
     return !(Math.min(6 * (page + 1), slideCount) === slideCount) ? (
       <IconButton
@@ -91,11 +91,6 @@ export default function Resume({ userInfo, onClickResume }: Props) {
         onClick={() => {
           onClick()
           setPage(prevState => prevState + 1)
-          // currentSlide > 0 && currentSlide % 6 === 0
-          //   ? setVisibleNextButton(false)
-          //   : setVisiblePrevButton(true)
-
-          // onClickArrow(length)
         }}
       >
         <Icon icon='mdi:chevron-right' color='black' />
@@ -103,8 +98,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     ) : null
   }
   const PrevButton = (props: any) => {
-    const { onClick, slideCount, currentSlide } = props
-    // console.log(currentSlide)
+    const { onClick } = props
 
     return page ? (
       <IconButton
@@ -134,7 +128,12 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   const settings = {
     dots: true,
     speed: 500,
-    slidesToShow: 6,
+    slidesToShow:
+      userInfo.resume && userInfo.resume.length && userInfo.resume.length < 6
+        ? userInfo.resume.length
+        : userInfo.resume?.length === 0
+        ? 1
+        : 6,
     slidesToScroll: 6,
     nextArrow: <NextArrow />,
     prevArrow: <PrevButton />,

@@ -12,6 +12,9 @@ import TypoGraphy from '@mui/material/Typography'
 import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+import Slider from 'react-slick'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -23,6 +26,119 @@ type Props = {
 }
 
 export default function Contracts({ userInfo, onClickContracts }: Props) {
+  const [page, setPage] = useState(0)
+
+  const DownloadAllFile = (
+    file:
+      | {
+          url: string
+          fileName: string
+          fileExtension: string
+        }[]
+      | null,
+  ) => {
+    if (file) {
+      file.map(value => {
+        fetch(value.url, { method: 'GET' })
+          .then(res => {
+            return res.blob()
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${value.fileName}.${value.fileExtension}`
+            document.body.appendChild(a)
+            a.click()
+            setTimeout((_: any) => {
+              window.URL.revokeObjectURL(url)
+            }, 60000)
+            a.remove()
+            // onClose()
+          })
+          .catch(error =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
+  }
+
+  const NextArrow = (props: any) => {
+    const { onClick, slideCount } = props
+
+    return !(Math.min(6 * (page + 1), slideCount) === slideCount) ? (
+      <IconButton
+        sx={{
+          fontSize: 0,
+          lineHeight: 0,
+
+          position: 'absolute',
+          top: '50%',
+          right: '-17px',
+          display: 'block',
+
+          width: '24px',
+          height: '24px',
+          padding: 0,
+          transform: 'translate(0, -50%)',
+        }}
+        onClick={() => {
+          onClick()
+          setPage(prevState => prevState + 1)
+        }}
+      >
+        <Icon icon='mdi:chevron-right' color='black' />
+      </IconButton>
+    ) : null
+  }
+  const PrevButton = (props: any) => {
+    const { onClick } = props
+
+    return page ? (
+      <IconButton
+        sx={{
+          fontSize: 0,
+          lineHeight: 0,
+
+          position: 'absolute',
+          top: '50%',
+          left: '-22px',
+          display: 'block',
+
+          width: '24px',
+          height: '24px',
+          padding: 0,
+          transform: 'translate(0, -50%)',
+        }}
+        onClick={() => {
+          onClick()
+          setPage(prevState => prevState - 1)
+        }}
+      >
+        <Icon icon='mdi:chevron-left' color='black' />
+      </IconButton>
+    ) : null
+  }
+  const settings = {
+    dots: true,
+    speed: 500,
+    slidesToShow:
+      userInfo.contracts &&
+      userInfo.contracts.length &&
+      userInfo.contracts.length < 6
+        ? userInfo.contracts.length
+        : userInfo.contracts?.length === 0
+        ? 1
+        : 6,
+    slidesToScroll: 6,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevButton />,
+  }
   return (
     <Card sx={{ padding: '20px', height: '100%' }}>
       <TypoGraphy
@@ -35,7 +151,16 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
         }}
       >
         Contracts
-        <IconButton sx={{ padding: 0 }}>
+        <IconButton
+          sx={{ padding: 0 }}
+          onClick={() =>
+            DownloadAllFile(
+              userInfo.contracts && userInfo.contracts.length
+                ? userInfo.contracts
+                : null,
+            )
+          }
+        >
           <img src='/images/icons/file-icons/download.svg' alt='download'></img>
         </IconButton>
       </TypoGraphy>
@@ -43,42 +168,42 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
       <CardContent sx={{ padding: 0 }}>
         <Box
           sx={{
-            display: 'flex',
-            gap: '16px',
-            flexWrap: 'wrap',
+            margin: 1,
           }}
         >
-          {userInfo.contracts && userInfo.contracts.length ? (
-            userInfo.contracts?.map(value => {
-              return (
-                <Box
-                  key={uuidv4()}
-                  sx={{
-                    width: '53px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '5px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => onClickContracts(value)}
-                >
-                  <img
-                    src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
-                    style={{
-                      width: '40px',
-                      height: '40px',
+          <Slider {...settings}>
+            {userInfo.contracts && userInfo.contracts.length ? (
+              userInfo.contracts?.map(value => {
+                return (
+                  <Box
+                    key={uuidv4()}
+                    sx={{
+                      width: '53px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignItems: 'center',
+                      gap: '5px',
+                      cursor: 'pointer',
                     }}
-                    alt='contracts'
-                  ></img>
-                  <ContractsFileName>{value.fileName}</ContractsFileName>
-                </Box>
-              )
-            })
-          ) : (
-            <Box>-</Box>
-          )}
+                    onClick={() => onClickContracts(value)}
+                  >
+                    <img
+                      src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
+                      style={{
+                        width: '40px',
+                        height: '40px',
+                      }}
+                      alt='contracts'
+                    ></img>
+                    <ContractsFileName>{value.fileName}</ContractsFileName>
+                  </Box>
+                )
+              })
+            ) : (
+              <Box>-</Box>
+            )}
+          </Slider>
         </Box>
       </CardContent>
     </Card>
