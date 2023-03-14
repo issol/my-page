@@ -10,6 +10,13 @@ const navigation = (): VerticalNavItemsType => {
       subject: 'members',
       path: `/dashboards`,
     },
+    {
+      title: 'Pro',
+      icon: 'ic:baseline-people-outline',
+      action: 'read',
+      subject: 'pro',
+      path: `/pro`,
+    },
 
     {
       title: 'Recruiting',
