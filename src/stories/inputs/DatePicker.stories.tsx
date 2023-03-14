@@ -82,69 +82,69 @@ const testData: Data = {
     4: [{ start: Date(), end: Date() }],
   },
 }
-export const Test = () => {
-  function getYear(date: any) {
-    return date.getFullYear()
-  }
-  function getMonth(date: any) {
-    return date.getMonth() + 1
-  }
+// export const Test = () => {
+//   function getYear(date: any) {
+//     return date.getFullYear()
+//   }
+//   function getMonth(date: any) {
+//     return date.getMonth() + 1
+//   }
 
-  const isWeekday = (date: Date) => {
-    const day = getDay(date)
-    return day !== 0 && day !== 6
-  }
+//   const isWeekday = (date: Date) => {
+//     const day = getDay(date)
+//     return day !== 0 && day !== 6
+//   }
 
-  const [highlight, setHighlight] = useState<any>([])
+//   const [highlight, setHighlight] = useState<any>([])
 
-  function getSelectedDays(year: number, month: number) {
-    if (testData[year] && testData[year][month]) {
-      testData[year][month].forEach(date => {
-        // let currentDate = new Date(date.start)
-        // const end = new Date(date.end)
-        // while (currentDate <= end) {
-        //   const dateWithoutTime = new Date(currentDate.setHours(0, 0, 0, 0))
-        //   // highlight.push(new Date(dateWithoutTime.toDateString()))
-        //   setHighlight([...highlight, dateWithoutTime.toDateString()])
-        //   currentDate.setDate(currentDate.getDate() + 1)
-        //   console.log(highlight)
-        // }
+//   function getSelectedDays(year: number, month: number) {
+//     if (testData[year] && testData[year][month]) {
+//       testData[year][month].forEach(date => {
+//         // let currentDate = new Date(date.start)
+//         // const end = new Date(date.end)
+//         // while (currentDate <= end) {
+//         //   const dateWithoutTime = new Date(currentDate.setHours(0, 0, 0, 0))
+//         //   // highlight.push(new Date(dateWithoutTime.toDateString()))
+//         //   setHighlight([...highlight, dateWithoutTime.toDateString()])
+//         //   currentDate.setDate(currentDate.getDate() + 1)
+//         //   console.log(highlight)
+//         // }
 
-        const start = new Date('Mon Mar 8 2023 15:07:44 GMT+0900')
-        const end = new Date('Mon Mar 13 2023 15:07:44 GMT+0900')
+//         const start = new Date('Mon Mar 8 2023 15:07:44 GMT+0900')
+//         const end = new Date('Mon Mar 13 2023 15:07:44 GMT+0900')
 
-        const dates = []
+//         const dates = []
 
-        let currentDate = new Date(start)
-        while (currentDate <= end) {
-          const dateWithoutTime = new Date(currentDate.setHours(0, 0, 0, 0))
-          dates.push(dateWithoutTime.toDateString())
+//         let currentDate = new Date(start)
+//         while (currentDate <= end) {
+//           const dateWithoutTime = new Date(currentDate.setHours(0, 0, 0, 0))
+//           dates.push(dateWithoutTime.toDateString())
 
-          currentDate.setDate(currentDate.getDate() + 1)
-        }
-        setHighlight(highlight.concat(dates))
-        console.log(dates)
-      })
-    }
-  }
-  console.log(highlight)
-  return (
-    <DatePickerWrapper>
-      <DatePicker
-        inline
-        selected={new Date()}
-        endDate={new Date('Mon Mar 31 2023 15:07:44 GMT+0900')}
-        // selected={selectedYear ? testData[selectedYear][selectedMonth].start}
-        filterDate={isWeekday}
-        onMonthChange={date => {
-          getSelectedDays(getYear(date), getMonth(date))
-        }}
-        id='basic-input'
-        readOnly
-        highlightDates={
-          highlight.length ? highlight.map(item => new Date(item)) : []
-        }
-      />
-    </DatePickerWrapper>
-  )
-}
+//           currentDate.setDate(currentDate.getDate() + 1)
+//         }
+//         setHighlight(highlight.concat(dates))
+//         console.log(dates)
+//       })
+//     }
+//   }
+//   console.log(highlight)
+//   return (
+//     <DatePickerWrapper>
+//       <DatePicker
+//         inline
+//         selected={new Date()}
+//         endDate={new Date('Mon Mar 31 2023 15:07:44 GMT+0900')}
+//         // selected={selectedYear ? testData[selectedYear][selectedMonth].start}
+//         filterDate={isWeekday}
+//         onMonthChange={date => {
+//           getSelectedDays(getYear(date), getMonth(date))
+//         }}
+//         id='basic-input'
+//         readOnly
+//         highlightDates={
+//           highlight.length ? highlight.map(item => new Date(item)) : []
+//         }
+//       />
+//     </DatePickerWrapper>
+//   )
+// }
