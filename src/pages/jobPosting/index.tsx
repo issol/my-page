@@ -23,10 +23,10 @@ export type FilterType = {
   target?: string
   dueDate?: string | undefined
   skip?: number
-  pageSize?: number
+  take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'pageSize'>
+export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
 
 export const initialFilter: FilterOmitType = {
   jobType: '',
@@ -41,7 +41,7 @@ export default function jobPosting() {
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
-  const [skip, setSkip] = useState(1)
+  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 
@@ -49,7 +49,11 @@ export default function jobPosting() {
     data: list,
     refetch,
     isLoading,
-  } = useGetJobPostingList({ ...filter, skip, pageSize }, search, setSearch)
+  } = useGetJobPostingList(
+    { ...filter, skip: skip * pageSize, take: pageSize },
+    search,
+    setSearch,
+  )
 
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',

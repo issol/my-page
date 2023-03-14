@@ -357,7 +357,7 @@ export const handlers = [
         sourceLanguage: 'en',
         targetLanguage: 'ko',
         dueDate: '02/02/2023, 06:20 PM',
-        numberOfLinguist: 5,
+        openings: 5,
         dueDateTimezone: '?',
         yearsOfExperience: '3~5 years',
         postLink: [
@@ -416,7 +416,7 @@ export const handlers = [
         req.body?.sourceLanguage &&
         req.body?.targetLanguage &&
         req.body?.yearsOfExperience &&
-        req.body?.numberOfLinguist &&
+        req.body?.openings &&
         req.body?.dueDate &&
         req.body?.dueDateTimezone &&
         req.body?.postLink &&
@@ -443,7 +443,7 @@ export const handlers = [
         req.body?.sourceLanguage &&
         req.body?.targetLanguage &&
         req.body?.yearsOfExperience &&
-        req.body?.numberOfLinguist &&
+        req.body?.openings &&
         req.body?.dueDate &&
         req.body?.dueDateTimezone &&
         req.body?.postLink &&
@@ -483,7 +483,7 @@ export const handlers = [
           targetLanguage: 'ko',
           writer: 'Tammy Na',
           dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 2,
+          openings: 2,
           jobStatus: 'Ongoing',
           dueDateTimezone: 'KST',
           isHide: false,
@@ -498,7 +498,7 @@ export const handlers = [
           targetLanguage: 'fr',
           writer: 'Jay Cha',
           dueDate: '02/02/2023, 06:20 PM',
-          numberOfLinguist: 2,
+          openings: 2,
           dueDateTimezone: 'KST',
           jobStatus: 'Ongoing',
           isHide: false,
@@ -533,7 +533,7 @@ export const handlers = [
         role: 'Translator',
         sourceLanguage: 'ko',
         targetLanguage: 'en',
-        numberOfLinguist: 3,
+        openings: 3,
         dueDate: '02/02/2023, 06:20 PM',
         dueDateTimezone: null,
         jobPostLink: 'https://gloz.io/short1', // short url
@@ -575,7 +575,7 @@ export const handlers = [
           role: 'Translator',
           sourceLanguage: 'ko',
           targetLanguage: 'en',
-          numberOfLinguist: 3,
+          openings: 3,
           dueDate: '02/02/2023, 06:20 PM',
           dueDateTimezone: null,
           jobPostLink: 'https://gloz.io/short1', // short url
@@ -616,7 +616,7 @@ export const handlers = [
           role: 'Translator',
           sourceLanguage: 'ko',
           targetLanguage: 'en',
-          numberOfLinguist: 3,
+          openings: 3,
           dueDate: '02/02/2023, 06:20 PM',
           dueDateTimezone: null,
           jobPostLink: 'https://gloz.io/short1', // short url
@@ -702,7 +702,7 @@ export const handlers = [
       // req.body?.role &&
       // req.body?.sourceLanguage &&
       // req.body?.targetLanguage &&
-      // req.body?.numberOfLinguist &&
+      // req.body?.openings &&
       // req.body?.dueDate &&
       // req.body?.dueDateTimezone &&
       // req.body?.jobPostLink &&

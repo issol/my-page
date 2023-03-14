@@ -79,14 +79,18 @@ export default function RecruitingPost() {
 
   /* dialog states */
   const [openDialog, setOpenDialog] = useState(false)
-  const [skip, setSkip] = useState(1)
+  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(5)
   const [search, setSearch] = useState(false)
   const {
     data: list,
     refetch,
     isLoading,
-  } = useGetJobPostingList({ skip, pageSize }, search, setSearch)
+  } = useGetJobPostingList(
+    { skip: skip * pageSize, take: pageSize },
+    search,
+    setSearch,
+  )
 
   useEffect(() => {
     if (openDialog) setSearch(true)
@@ -108,7 +112,7 @@ export default function RecruitingPost() {
     role: { value: '', label: '' },
     sourceLanguage: { value: '', label: '' },
     targetLanguage: { value: '', label: '' },
-    numberOfLinguist: undefined,
+    openings: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
@@ -229,14 +233,21 @@ export default function RecruitingPost() {
       role: data.role.value,
       sourceLanguage: data.sourceLanguage.value,
       targetLanguage: data.targetLanguage.value,
-      numberOfLinguist: data.numberOfLinguist ?? 0,
+      openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       jobPostLink: data.jobPostLink,
-      content: convertToRaw(content.getCurrentContent()),
+      content:
+        content.getCurrentContent().getPlainText('\u0001') === ''
+          ? ''
+          : convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    postMutation.mutate(finalForm)
+    const filteredForm = Object.fromEntries(
+      Object.entries(finalForm).filter(([_, value]) => value !== ''),
+    )
+    // @ts-ignore
+    postMutation.mutate(filteredForm)
   }
 
   return (
@@ -503,7 +514,7 @@ export default function RecruitingPost() {
                 >
                   <Grid item xs={4}>
                     <Controller
-                      name='numberOfLinguist'
+                      name='openings'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -515,7 +526,7 @@ export default function RecruitingPost() {
                             else return
                           }}
                           value={value}
-                          error={Boolean(errors.numberOfLinguist)}
+                          error={Boolean(errors.openings)}
                           label='Number of linguist'
                           placeholder='Number of linguist'
                           InputProps={{
@@ -524,9 +535,9 @@ export default function RecruitingPost() {
                         />
                       )}
                     />
-                    {errors.numberOfLinguist && (
+                    {errors.openings && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.numberOfLinguist?.message}
+                        {errors.openings?.message}
                       </FormHelperText>
                     )}
                   </Grid>

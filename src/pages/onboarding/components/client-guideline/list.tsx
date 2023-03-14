@@ -15,6 +15,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 
 // ** nextJS
 import { useRouter } from 'next/router'
+import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 type CellType = {
   row: {
@@ -66,25 +67,6 @@ export default function ClientGuideLineList({
   isLoading,
 }: Props) {
   const router = useRouter()
-  /* TODO: 값 업데이트 되어서 수정해야 할 수 있음 */
-  function getChipColor(type: string): ChipColorType {
-    switch (type) {
-      case 'Documents/Text':
-        return 'orange'
-      case 'Dubbing':
-        return 'yellow'
-      case 'OTT/Subtitle':
-        return 'blue'
-      case 'Webcomics':
-        return 'green'
-      case 'Webnovel':
-        return 'pink'
-      case 'YouTube':
-        return 'purple'
-      default:
-        return 'black'
-    }
-  }
 
   function moveToDetail(id: number) {
     router.push(`/onboarding/client-guideline/detail/${id}`)
@@ -124,11 +106,7 @@ export default function ClientGuideLineList({
       headerName: 'Category',
       renderHeader: () => <Box>Category</Box>,
       renderCell: ({ row }: CellType) => (
-        <CategoryChip
-          cl={getChipColor(row.category)}
-          size='small'
-          label={row.category}
-        />
+        <JobTypeChip type={row.category} label={row.category} size='small' />
       ),
     },
     {
@@ -218,24 +196,6 @@ export default function ClientGuideLineList({
   )
 }
 
-const CategoryChip = styled(Chip)<{ cl: ChipColorType }>`
-  background: ${({ cl }) =>
-    cl === 'orange'
-      ? '#FF9E90'
-      : cl === 'yellow'
-      ? '#FFF387'
-      : cl === 'blue'
-      ? '#A9E0FF'
-      : cl === 'green'
-      ? '#BEEFAE'
-      : cl === 'pink'
-      ? '#FFBFE9'
-      : cl === 'purple'
-      ? '#CCBFFF'
-      : 'rgba(76, 78, 100, 0.26)'};
-
-  color: #111111;
-`
 const ServiceType = styled(Chip)`
   background: linear-gradient(
       0deg,
