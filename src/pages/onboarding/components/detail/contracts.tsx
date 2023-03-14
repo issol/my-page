@@ -16,16 +16,15 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 type Props = {
   userInfo: OnboardingProDetailsType
   onClickContracts: (file: {
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }) => void
 }
 
 export default function Contracts({ userInfo, onClickContracts }: Props) {
   return (
-    <Card sx={{ padding: '20px' }}>
+    <Card sx={{ padding: '20px', height: '100%' }}>
       <TypoGraphy
         variant='h6'
         sx={{
@@ -37,7 +36,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
       >
         Contracts
         <IconButton sx={{ padding: 0 }}>
-          <img src='/images/icons/file-icons/download.svg'></img>
+          <img src='/images/icons/file-icons/download.svg' alt='download'></img>
         </IconButton>
       </TypoGraphy>
 
@@ -66,7 +65,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
                   onClick={() => onClickContracts(value)}
                 >
                   <img
-                    src={`/images/icons/file-icons/${value.fileType}-file.svg`}
+                    src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
                     style={{
                       width: '40px',
                       height: '40px',

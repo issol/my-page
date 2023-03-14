@@ -13,19 +13,134 @@ import Box from '@mui/material/Box'
 import { v4 as uuidv4 } from 'uuid'
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 
+import Slider from 'react-slick'
+import { useState } from 'react'
+import toast from 'react-hot-toast'
+
 type Props = {
   userInfo: OnboardingProDetailsType
   onClickResume: (file: {
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }) => void
 }
 
 export default function Resume({ userInfo, onClickResume }: Props) {
+  const [page, setPage] = useState(0)
+
+  const DownloadAllFile = (
+    file:
+      | {
+          url: string
+          fileName: string
+          fileExtension: string
+        }[]
+      | null,
+  ) => {
+    if (file) {
+      file.map(value => {
+        fetch(value.url, { method: 'GET' })
+          .then(res => {
+            return res.blob()
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${value.fileName}.${value.fileExtension}`
+            document.body.appendChild(a)
+            a.click()
+            setTimeout((_: any) => {
+              window.URL.revokeObjectURL(url)
+            }, 60000)
+            a.remove()
+            // onClose()
+          })
+          .catch(error =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
+  }
+
+  const NextArrow = (props: any) => {
+    const { onClick, slideCount, currentSlide } = props
+
+    return !(Math.min(6 * (page + 1), slideCount) === slideCount) ? (
+      <IconButton
+        sx={{
+          fontSize: 0,
+          lineHeight: 0,
+
+          position: 'absolute',
+          top: '50%',
+          right: '-17px',
+          display: 'block',
+
+          width: '24px',
+          height: '24px',
+          padding: 0,
+          transform: 'translate(0, -50%)',
+        }}
+        onClick={() => {
+          onClick()
+          setPage(prevState => prevState + 1)
+          // currentSlide > 0 && currentSlide % 6 === 0
+          //   ? setVisibleNextButton(false)
+          //   : setVisiblePrevButton(true)
+
+          // onClickArrow(length)
+        }}
+      >
+        <Icon icon='mdi:chevron-right' color='black' />
+      </IconButton>
+    ) : null
+  }
+  const PrevButton = (props: any) => {
+    const { onClick, slideCount, currentSlide } = props
+    // console.log(currentSlide)
+
+    return page ? (
+      <IconButton
+        sx={{
+          fontSize: 0,
+          lineHeight: 0,
+
+          position: 'absolute',
+          top: '50%',
+          left: '-22px',
+          display: 'block',
+
+          width: '24px',
+          height: '24px',
+          padding: 0,
+          transform: 'translate(0, -50%)',
+        }}
+        onClick={() => {
+          onClick()
+          setPage(prevState => prevState - 1)
+        }}
+      >
+        <Icon icon='mdi:chevron-left' color='black' />
+      </IconButton>
+    ) : null
+  }
+  const settings = {
+    dots: true,
+    speed: 500,
+    slidesToShow: 6,
+    slidesToScroll: 6,
+    nextArrow: <NextArrow />,
+    prevArrow: <PrevButton />,
+  }
   return (
-    <Card sx={{ padding: '20px' }}>
+    <Card sx={{ padding: '20px 20px 0 20px' }}>
       <TypoGraphy
         variant='h6'
         sx={{
@@ -36,42 +151,64 @@ export default function Resume({ userInfo, onClickResume }: Props) {
         }}
       >
         Resume
-        <IconButton sx={{ padding: 0 }}>
-          <img src='/images/icons/file-icons/download.svg'></img>
+        <IconButton
+          sx={{ padding: 0 }}
+          onClick={() =>
+            DownloadAllFile(
+              userInfo.resume && userInfo.resume.length
+                ? userInfo.resume
+                : null,
+            )
+          }
+        >
+          <img src='/images/icons/file-icons/download.svg' alt='download'></img>
         </IconButton>
       </TypoGraphy>
       <CardContent sx={{ padding: 0 }}>
-        <Box sx={{ display: 'flex', gap: '16px', flexWrap: 'wrap' }}>
-          {userInfo.resume && userInfo.resume.length ? (
-            userInfo.resume?.map(value => {
-              return (
-                <Box
-                  key={uuidv4()}
-                  sx={{
-                    width: '53px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    gap: '5px',
-                    cursor: 'pointer',
-                  }}
-                  onClick={() => onClickResume(value)}
-                >
-                  <img
-                    src={`/images/icons/file-icons/${value.fileType}-file.svg`}
-                    style={{
-                      width: '40px',
-                      height: '40px',
+        <Box sx={{ margin: 1 }}>
+          <Slider {...settings}>
+            {userInfo.resume && userInfo.resume.length ? (
+              userInfo.resume?.map(value => {
+                return (
+                  <Box
+                    key={uuidv4()}
+                    sx={{
+                      width: '53px',
+                      maxWidth: '53px',
+                      display: 'flex',
+                      flexDirection: 'column',
+
+                      alignItems: 'center',
+                      gap: '5px',
+                      cursor: 'pointer',
                     }}
-                  ></img>
-                  <ResumeFileName>{value.fileName}</ResumeFileName>
-                </Box>
-              )
-            })
-          ) : (
-            <Box>-</Box>
-          )}
+                    onClick={() => onClickResume(value)}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+
+                        justifyContent: 'center',
+                      }}
+                    >
+                      <img
+                        src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                        }}
+                        alt='file'
+                      ></img>
+                    </Box>
+
+                    <ResumeFileName>{value.fileName}</ResumeFileName>
+                  </Box>
+                )
+              })
+            ) : (
+              <Box>-</Box>
+            )}
+          </Slider>
         </Box>
       </CardContent>
     </Card>
@@ -87,7 +224,7 @@ const ResumeFileName = styled.div`
   font-size: 12px;
   // line-height: 14px;
 
-  text-align: center;
+  // text-align: center;
   letter-spacing: 0.4px;
 
   color: rgba(76, 78, 100, 0.6);

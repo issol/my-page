@@ -29,7 +29,7 @@ import { log } from 'console'
 type Props = {
   open: boolean
   onClose: any
-  docs: { uri: string; fileName: string; fileType: string }[]
+  docs: { url: string; fileName: string; fileExtension: string }[]
 }
 export default function FilePreviewDownloadModal({
   open,
@@ -66,11 +66,11 @@ export default function FilePreviewDownloadModal({
   }
 
   const downloadFile = (file: {
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }) => {
-    fetch(file.uri, { method: 'GET' })
+    fetch(file.url, { method: 'GET' })
       .then(res => {
         return res.blob()
       })
@@ -78,7 +78,7 @@ export default function FilePreviewDownloadModal({
         const url = window.URL.createObjectURL(blob)
         const a = document.createElement('a')
         a.href = url
-        a.download = `${file.fileName}.${file.fileType}`
+        a.download = `${file.fileName}.${file.fileExtension}`
         document.body.appendChild(a)
         a.click()
         setTimeout((_: any) => {
@@ -137,7 +137,11 @@ export default function FilePreviewDownloadModal({
         >
           {docs !== null ? (
             <DocViewer
-              documents={docs}
+              documents={docs.map(value => ({
+                uri: value.url,
+                fileType: value.fileExtension,
+                fileName: value.fileName,
+              }))}
               pluginRenderers={[
                 PDFRenderer,
                 MSDocRenderer,

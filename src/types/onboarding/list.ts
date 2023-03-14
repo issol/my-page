@@ -85,16 +85,14 @@ export type OnboardingUserType = {
   mobilePhone?: string | null
   telephone?: string | null
   resume?: Array<{
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }>
   contracts?: Array<{
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }>
   specialties?: Array<string>
   commentsOnPro?: Array<CommentsOnProType>

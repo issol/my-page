@@ -748,10 +748,9 @@ function OnboardingDetail() {
   }, [appliedRole])
 
   const onClickFile = (file: {
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }) => {
     setModal(
       <FilePreviewDownloadModal
@@ -883,7 +882,7 @@ function OnboardingDetail() {
           </Grid>
           <Grid
             item
-            xs={5}
+            xs={4}
             gap='24px'
             display='flex'
             direction='column'
@@ -900,86 +899,92 @@ function OnboardingDetail() {
             </Grid>
           </Grid>
 
-          <Grid item xs={7} display='flex' gap='24px' direction='column'>
-            <Grid item xs={12} display='flex' gap='24px'>
-              <Grid item xs={6}>
-                <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+          <Grid item xs={8}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+                width: '100%',
+              }}
+            >
+              <Grid item xs={12} display='flex' gap='24px'>
+                <Grid item xs={6}>
+                  <Resume userInfo={userInfo!} onClickResume={onClickFile} />
+                </Grid>
+                <Grid item xs={6}>
+                  <Experience userInfo={userInfo!} />
+                </Grid>
               </Grid>
-              <Grid item xs={6}>
-                <Experience userInfo={userInfo!} />
+              <Grid item xs={12}>
+                <Suspense>
+                  <AppliedRole
+                    userInfo={appliedRoleList!}
+                    hideFailedTest={hideFailedTest}
+                    handleHideFailedTestChange={handleHideFailedTestChange}
+                    selectedJobInfo={selectedJobInfo}
+                    handleClickRoleCard={handleClickRoleCard}
+                    page={rolePage}
+                    rowsPerPage={roleRowsPerPage}
+                    handleChangePage={handleChangeRolePage}
+                    offset={roleOffset}
+                    onClickCertify={onClickCertify}
+                    onClickTestAssign={onClickTestAssign}
+                    onClickAddRole={onClickAddRole}
+                    onClickRejectOrPause={onClickRejectOrPause}
+                    onClickReason={onClickReason}
+                    onClickResumeTest={onClickResumeTest}
+                  />
+                </Suspense>
               </Grid>
-            </Grid>
-
-            <Grid item xs={12}>
-              <Suspense>
-                <AppliedRole
-                  userInfo={appliedRoleList!}
-                  hideFailedTest={hideFailedTest}
-                  handleHideFailedTestChange={handleHideFailedTestChange}
-                  selectedJobInfo={selectedJobInfo}
-                  handleClickRoleCard={handleClickRoleCard}
-                  page={rolePage}
-                  rowsPerPage={roleRowsPerPage}
-                  handleChangePage={handleChangeRolePage}
-                  offset={roleOffset}
-                  onClickCertify={onClickCertify}
-                  onClickTestAssign={onClickTestAssign}
-                  onClickAddRole={onClickAddRole}
-                  onClickRejectOrPause={onClickRejectOrPause}
-                  onClickReason={onClickReason}
-                  onClickResumeTest={onClickResumeTest}
-                />
-              </Suspense>
-            </Grid>
-
-            <Grid item xs={12}>
-              <CertificationTest
-                userInfo={userInfo!}
-                selectedJobInfo={selectedJobInfo}
-                onClickBasicTestAction={onClickBasicTestAction}
-                onClickTestDetails={onClickTestDetails}
-                onClickCertify={onClickCertify}
-                onClickSkillTestAction={onClickSkillTestAction}
-              />
-            </Grid>
-            <Grid item xs={12}>
-              <CommentsAboutPro
-                userInfo={userInfo!.commentsOnPro!}
-                user={userInfo}
-                page={commentsProPage}
-                rowsPerPage={commentsProRowsPerPage}
-                handleChangePage={handleChangeCommentsProPage}
-                offset={commentsProOffset}
-                userId={user!.id}
-                onClickEditConfirmComment={onClickEditConfirmComment}
-                setClickedEditComment={setClickedEditComment}
-                clickedEditComment={clickedEditComment}
-                onClickEditComment={onClickEditComment}
-                selectedComment={selectedComment}
-                handleCommentChange={handleCommentChange}
-                onClickEditCancelComment={onClickEditCancelComment}
-                comment={comment}
-                onClickAddComment={onClickAddComment}
-                clickedAddComment={clickedAddComment}
-                onClickAddConfirmComment={onClickAddConfirmComment}
-                onClickAddCancelComment={onClickAddCancelComment}
-                handleAddCommentChange={handleAddCommentChange}
-                onClickDeleteComment={onClickDeleteComment}
-                addComment={addComment}
-              />
-            </Grid>
-
-            <Grid item xs={12} display='flex' gap='24px'>
-              <Grid item xs={6}>
-                <Contracts
+              <Grid item xs={12}>
+                <CertificationTest
                   userInfo={userInfo!}
-                  onClickContracts={onClickFile}
+                  selectedJobInfo={selectedJobInfo}
+                  onClickBasicTestAction={onClickBasicTestAction}
+                  onClickTestDetails={onClickTestDetails}
+                  onClickCertify={onClickCertify}
+                  onClickSkillTestAction={onClickSkillTestAction}
                 />
               </Grid>
-              <Grid item xs={6}>
-                <Specialties userInfo={userInfo!} />
+              <Grid item xs={12}>
+                <CommentsAboutPro
+                  userInfo={userInfo!.commentsOnPro!}
+                  user={userInfo}
+                  page={commentsProPage}
+                  rowsPerPage={commentsProRowsPerPage}
+                  handleChangePage={handleChangeCommentsProPage}
+                  offset={commentsProOffset}
+                  userId={user!.id}
+                  onClickEditConfirmComment={onClickEditConfirmComment}
+                  setClickedEditComment={setClickedEditComment}
+                  clickedEditComment={clickedEditComment}
+                  onClickEditComment={onClickEditComment}
+                  selectedComment={selectedComment}
+                  handleCommentChange={handleCommentChange}
+                  onClickEditCancelComment={onClickEditCancelComment}
+                  comment={comment}
+                  onClickAddComment={onClickAddComment}
+                  clickedAddComment={clickedAddComment}
+                  onClickAddConfirmComment={onClickAddConfirmComment}
+                  onClickAddCancelComment={onClickAddCancelComment}
+                  handleAddCommentChange={handleAddCommentChange}
+                  onClickDeleteComment={onClickDeleteComment}
+                  addComment={addComment}
+                />
               </Grid>
-            </Grid>
+              <Grid item xs={12} display='flex' gap='24px'>
+                <Grid item xs={6}>
+                  <Contracts
+                    userInfo={userInfo!}
+                    onClickContracts={onClickFile}
+                  />
+                </Grid>
+                <Grid item xs={6}>
+                  <Specialties userInfo={userInfo!} />
+                </Grid>
+              </Grid>
+            </Box>
           </Grid>
         </>
       ) : null}

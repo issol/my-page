@@ -78,10 +78,9 @@ const DetailNoUser = () => {
           src='/images/pages/misc-under-maintenance.png'
         />
         <Button
-          href='/onboarding'
-          component={Link}
           variant='contained'
           sx={{ px: 5.5 }}
+          onClick={() => (window.location.href = '/onboarding')}
         >
           Back to Onboarding list
         </Button>
