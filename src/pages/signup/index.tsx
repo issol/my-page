@@ -201,7 +201,6 @@ const SignUpPage = () => {
     resolver: yupResolver(schema),
   })
 
-  console.log(email)
   useEffect(() => {
     if (email) {
       const emailAsString: string = email as string
