@@ -178,7 +178,9 @@ export default function RecruitingList({
       field: 'jobStatus',
       headerName: 'Job posting',
       renderHeader: () => <Box>Job posting</Box>,
-      renderCell: ({ row }: CellType) => renderStatusChip(row.jobStatus),
+      renderCell: ({ row }: CellType) => (
+        <>{!row.jobStatus ? '-' : renderStatusChip(row.jobStatus)}</>
+      ),
     },
   ]
 
