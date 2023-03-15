@@ -136,7 +136,7 @@ const PersonalInfoManager = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          router.push('/dashboards')
+          router.push('/home')
         })
       },
       onError: () => {
