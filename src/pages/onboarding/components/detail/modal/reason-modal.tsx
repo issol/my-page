@@ -13,6 +13,8 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import { AddRoleType } from 'src/types/onboarding/list'
+import IconButton from '@mui/material/IconButton'
+import Icon from 'src/@core/components/icon'
 type Props = {
   open: boolean
   onClose: any
@@ -42,12 +44,20 @@ export default function ReasonModal({
           display: 'flex',
           flexDirection: 'column',
           gap: 1,
+          position: 'relative',
         }}
       >
+        <IconButton
+          sx={{ position: 'absolute', top: '20px', right: '20px' }}
+          onClick={onClose}
+        >
+          <Icon icon='mdi:close'></Icon>
+        </IconButton>
         <Box
           sx={{
             display: 'flex',
             justifyContent: 'center',
+            marginBottom: '8px',
           }}
         >
           <Image
