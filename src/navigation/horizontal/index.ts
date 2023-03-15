@@ -10,7 +10,13 @@ const navigation = (): HorizontalNavItemsType => {
       subject: 'members',
       path: `/dashboards`,
     },
-
+    {
+      title: 'Pro',
+      icon: 'ic:baseline-people-outline',
+      action: 'read',
+      subject: 'pro',
+      path: `/pro`,
+    },
     {
       title: 'Recruiting',
       icon: 'material-symbols:person-search-outline',
