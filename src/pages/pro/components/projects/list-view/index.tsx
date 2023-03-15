@@ -25,7 +25,7 @@ export const initialFilter: FilterOmitType = {
   experience: [],
 }
 
-export function ProjectListView() {
+export default function ProjectListView() {
   type FilterState = Array<{ value: string; label: string }>
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [skip, setSkip] = useState(0)
