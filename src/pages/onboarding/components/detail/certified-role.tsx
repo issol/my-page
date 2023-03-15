@@ -20,7 +20,7 @@ export default function CertifiedRole({ userInfo }: Props) {
       <CardHeader title='Certified roles' sx={{ padding: 0 }}></CardHeader>
       <Divider sx={{ my: theme => `${theme.spacing(7)} !important` }} />
       <CardContent sx={{ padding: 0 }}>
-        {userInfo.length ? (
+        {userInfo && userInfo.length ? (
           <Box sx={{ display: 'flex', gap: '24px', flexDirection: 'column' }}>
             {userInfo.map((value, index) => {
               return (

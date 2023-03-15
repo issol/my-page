@@ -69,6 +69,8 @@ import 'src/iconify-bundle/icons-bundle-react'
 
 // ** Global css styles
 import '../../styles/globals.css'
+import '../../styles/slick.css'
+import '../../styles/slick-theme.css'
 
 import { QueryClient, QueryClientProvider } from 'react-query'
 import ErrorBoundary from 'src/@core/components/error/error-boundary'

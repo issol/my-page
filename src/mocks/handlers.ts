@@ -739,155 +739,162 @@ export const handlers = [
   }),
 
   // 시험지 리스트
-  // rest.get(BASEURL + '/api/enough/cert/test/paper', (req, res, ctx) => {
-  //   interface Data {
-  //     testType: string
-  //     jobType: string
-  //     role: string
-  //     source: string
-  //     target: string
-  //   }
-  //   const f_Skip = Number(req.url.searchParams.get('skip')) || 0
-  //   const f_Take = Number(req.url.searchParams.get('take')) || 10
+  rest.get(BASEURL + '/api/enough/cert/test/paper', (req, res, ctx) => {
+    interface Data {
+      testType: string
+      jobType: string
+      role: string
+      source: string
+      target: string
+    }
+    const f_Skip = Number(req.url.searchParams.get('skip')) || 0
+    const f_Take = Number(req.url.searchParams.get('take')) || 10
 
-  //   const f_TestType = req.url.searchParams.getAll('testType')
-  //     ? req.url.searchParams.getAll('testType')
-  //     : []
+    const f_TestType = req.url.searchParams.getAll('testType')
+      ? req.url.searchParams.getAll('testType')
+      : []
 
-  //   const f_JobType = req.url.searchParams.getAll('jobType')
-  //     ? req.url.searchParams.getAll('jobType')
-  //     : []
-  //   const f_Role = req.url.searchParams.getAll('role')
-  //     ? req.url.searchParams.getAll('role')
-  //     : []
-  //   const f_Source = req.url.searchParams.getAll('source')
-  //     ? req.url.searchParams.getAll('source')
-  //     : []
-  //   const f_Target = req.url.searchParams.getAll('target')
-  //     ? req.url.searchParams.getAll('target')
-  //     : []
+    const f_JobType = req.url.searchParams.getAll('jobType')
+      ? req.url.searchParams.getAll('jobType')
+      : []
+    const f_Role = req.url.searchParams.getAll('role')
+      ? req.url.searchParams.getAll('role')
+      : []
+    const f_Source = req.url.searchParams.getAll('source')
+      ? req.url.searchParams.getAll('source')
+      : []
+    const f_Target = req.url.searchParams.getAll('target')
+      ? req.url.searchParams.getAll('target')
+      : []
 
-  //   const testTypes = ['Basic test', 'Skill test']
-  //   const jobTypes = [
-  //     'Documents/Text',
-  //     'Dubbing',
-  //     'Interpretation',
-  //     'Misc.',
-  //     'OTT/Subtitle',
-  //     'Webcomics',
-  //     'Webnovel',
-  //   ]
-  //   const roleTypes = [
-  //     'Audio describer',
-  //     'Audio description QCer',
-  //     'Copywriter',
-  //     'DTPer',
-  //     'DTP QCer',
-  //     'Dubbing audio QCer',
-  //     'Dubbing script QCer',
-  //     'Dubbing script translator',
-  //     'Dubbing voice artist',
-  //     'Editor',
-  //     'Interpreter',
-  //     'Proofreader',
-  //     'QCer',
-  //     'SDH author',
-  //     'SDH QCer',
-  //     'Subtitle author',
-  //     'Subtitle QCer',
-  //     'Supp author',
-  //     'Supp QCer',
-  //     'Template author',
-  //     'Template QCer',
-  //     'Transcriber',
-  //     'Translator',
-  //     'Video editor',
-  //     'Webcomics QCer',
-  //     'Webcomics translator',
-  //     'Webnovel QCer',
-  //     'Webnovel translator',
-  //   ]
+    const testTypes = ['basic', 'skill']
+    const jobTypes = [
+      'Documents/Text',
+      'Dubbing',
+      'Interpretation',
+      'Misc.',
+      'OTT/Subtitle',
+      'Webcomics',
+      'Webnovel',
+    ]
+    const roleTypes = [
+      'Audio describer',
+      'Audio description QCer',
+      'Copywriter',
+      'DTPer',
+      'DTP QCer',
+      'Dubbing audio QCer',
+      'Dubbing script QCer',
+      'Dubbing script translator',
+      'Dubbing voice artist',
+      'Editor',
+      'Interpreter',
+      'Proofreader',
+      'QCer',
+      'SDH author',
+      'SDH QCer',
+      'Subtitle author',
+      'Subtitle QCer',
+      'Supp author',
+      'Supp QCer',
+      'Template author',
+      'Template QCer',
+      'Transcriber',
+      'Translator',
+      'Video editor',
+      'Webcomics QCer',
+      'Webcomics translator',
+      'Webnovel QCer',
+      'Webnovel translator',
+    ]
 
-  //   const languages = languageList.map(value => value.value.toUpperCase())
+    const languages = languageList.map(value => value.value.toUpperCase())
 
-  //   function getRandomDate() {
-  //     const start = new Date('2022-01-01')
-  //     const end = new Date('2023-12-31')
-  //     return new Date(
-  //       start.getTime() + Math.random() * (end.getTime() - start.getTime()),
-  //     ).toISOString()
-  //   }
-  //   function generateRandomData() {
-  //     const data = []
-  //     for (let i = 0; i < 20; i++) {
-  //       // 20개의 랜덤 데이터 생성
-  //       const testType = testTypes[Math.floor(Math.random() * testTypes.length)]
-  //       const jobType = jobTypes[Math.floor(Math.random() * jobTypes.length)]
-  //       const role = roleTypes[Math.floor(Math.random() * roleTypes.length)]
-  //       const source =
-  //         testType === 'Basic Test'
-  //           ? ''
-  //           : languages[Math.floor(Math.random() * languages.length)]
-  //       const target = languages[Math.floor(Math.random() * languages.length)]
+    function getRandomDate() {
+      const start = new Date('2022-01-01')
+      const end = new Date('2023-12-31')
+      return new Date(
+        start.getTime() + Math.random() * (end.getTime() - start.getTime()),
+      ).toISOString()
+    }
+    function generateRandomData() {
+      const data = []
+      for (let i = 0; i < 20; i++) {
+        // 20개의 랜덤 데이터 생성
+        const testType = testTypes[Math.floor(Math.random() * testTypes.length)]
 
-  //       const createdAt = getRandomDate()
-  //       const updatedAt = getRandomDate()
-  //       const id = i + 1
-  //       data.push({
-  //         id,
-  //         testType,
-  //         jobType,
-  //         role,
-  //         source,
-  //         target,
-  //         createdAt,
-  //         updatedAt,
-  //       })
-  //     }
-  //     return data
-  //   }
+        const jobType =
+          testType === 'basic'
+            ? ''
+            : jobTypes[Math.floor(Math.random() * jobTypes.length)]
+        const role =
+          testType === 'basic'
+            ? ''
+            : roleTypes[Math.floor(Math.random() * roleTypes.length)]
+        const source =
+          testType === 'basic'
+            ? ''
+            : languages[Math.floor(Math.random() * languages.length)]
+        const target = languages[Math.floor(Math.random() * languages.length)]
 
-  //   function filterData(
-  //     take: number,
-  //     skip: number,
-  //     testType: Array<string>,
-  //     jobType: Array<string>,
-  //     role: Array<string>,
-  //     source: Array<string>,
-  //     target: Array<string>,
-  //   ): Data[] {
-  //     return sampleList
-  //       .filter(
-  //         item =>
-  //           (testType?.length === 0 || testType?.includes(item.testType)) &&
-  //           (jobType?.length === 0 || jobType?.includes(item.jobType)) &&
-  //           (role?.length === 0 || role?.includes(item.role)) &&
-  //           (source?.length === 0 || source?.includes(item.source)) &&
-  //           (target?.length === 0 || target?.includes(item.target)),
-  //       )
-  //       .slice(skip, skip + take)
-  //   }
+        const createdAt = getRandomDate()
+        const updatedAt = getRandomDate()
+        const id = i + 1
+        data.push({
+          id,
+          testType,
+          jobType,
+          role,
+          source,
+          target,
+          createdAt,
+          updatedAt,
+        })
+      }
+      return data
+    }
 
-  //   const sampleList: Data[] = generateRandomData()
-  //   const finalList = filterData(
-  //     f_Take,
-  //     f_Skip,
+    function filterData(
+      take: number,
+      skip: number,
+      testType: Array<string>,
+      jobType: Array<string>,
+      role: Array<string>,
+      source: Array<string>,
+      target: Array<string>,
+    ): Data[] {
+      return sampleList
+        .filter(
+          item =>
+            (testType?.length === 0 || testType?.includes(item.testType)) &&
+            (jobType?.length === 0 || jobType?.includes(item.jobType)) &&
+            (role?.length === 0 || role?.includes(item.role)) &&
+            (source?.length === 0 || source?.includes(item.source)) &&
+            (target?.length === 0 || target?.includes(item.target)),
+        )
+        .slice(skip, skip + take)
+    }
 
-  //     f_TestType,
-  //     f_JobType,
-  //     f_Role,
-  //     f_Source,
-  //     f_Target,
-  //   )
-  //   return res(
-  //     ctx.status(200),
-  //     ctx.json({
-  //       data: finalList,
-  //       count: sampleList.length,
-  //     }),
-  //   )
-  //   // return res(ctx.status(200), ctx.json())
-  // }),
+    const sampleList: Data[] = generateRandomData()
+    const finalList = filterData(
+      f_Take,
+      f_Skip,
+
+      f_TestType,
+      f_JobType,
+      f_Role,
+      f_Source,
+      f_Target,
+    )
+    return res(
+      ctx.status(200),
+      ctx.json({
+        data: finalList,
+        count: sampleList.length,
+      }),
+    )
+    // return res(ctx.status(200), ctx.json())
+  }),
 
   // rest.get(BASEURL + '/api/enough/cert/test/paper/:id', (req, res, ctx) => {
   //   const id = req.params.id

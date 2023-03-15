@@ -82,12 +82,13 @@ import {
 } from 'src/apis/certification-test.api'
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
-import { DefaultRolePair } from 'src/shared/const/onboarding'
+
 import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
-import { FileType } from '@src/types/common/file.type'
+import { FileType } from 'src/types/common/file.type'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -124,8 +125,9 @@ const TestMaterialPost = () => {
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
-  const [roleOptions, setRoleOptions] =
-    useState<RoleSelectType[]>(DefaultRolePair)
+  const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
+    OnboardingListRolePair,
+  )
   const [postFormError, setPostFormError] = useState(false)
 
   // ** file values
@@ -134,7 +136,7 @@ const TestMaterialPost = () => {
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<
-    Array<{ name: string; size: number }> | []
+    Array<{ name: string; size: number; fileKey: string }> | []
   >([])
   const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
@@ -644,8 +646,8 @@ const TestMaterialPost = () => {
   }, [watch])
 
   useEffect(() => {
-    console.log(errors)
-  }, [errors])
+    console.log(savedFiles)
+  }, [savedFiles])
 
   const onSubmit = (edit: boolean) => {
     const data = getValues()
@@ -672,6 +674,33 @@ const TestMaterialPost = () => {
       content: formContent,
       text: content.getCurrentContent().getPlainText(`\u0001`),
     }
+
+    const fileInfo: Array<{ name: string; size: number; fileKey: string }> = []
+    const language =
+      data.testType === 'Basic test'
+        ? `${data.target.value}`
+        : `${data.source.value}-${data.target.value}`
+
+    isFetched
+      ? savedFiles?.map(file => {
+          fileInfo.push({
+            name: file.name,
+            size: file.size,
+            fileKey: getFilePath(
+              [
+                'testPaper',
+                data.testType === 'Basic test' ? 'basic' : 'skill',
+                data.jobType.value,
+                data.role.value,
+                language,
+                `V${testDetail?.currentVersion.version!}`,
+              ],
+              file.name,
+            ),
+          })
+        })
+      : null
+
     // file upload
     if (data.file.length) {
       const formData = new FormData()
@@ -708,8 +737,11 @@ const TestMaterialPost = () => {
         Promise.all(promiseArr)
           .then(res => {
             console.log('upload client guideline file success :', res)
+
             finalValue.files = fileInfo
             patchValue.files = fileInfo
+            console.log(patchValue)
+
             isFetched
               ? patchTestMutation.mutate(patchValue)
               : postTestMutation.mutate(finalValue)
@@ -728,23 +760,24 @@ const TestMaterialPost = () => {
           })
       })
     } else {
+      // finalValue.files = fileInfo
+      patchValue.files = fileInfo
       isFetched
         ? patchTestMutation.mutate(patchValue)
         : postTestMutation.mutate(finalValue)
-      // guidelineMutation.mutate(finalValue)
     }
-    if (deletedFiles.length) {
-      deletedFiles.forEach(item =>
-        deleteTestFile(item.id!).catch(err =>
-          toast.error(
-            'Something went wrong while deleting files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
-          ),
-        ),
-      )
-    }
+    // if (deletedFiles.length) {
+    //   deletedFiles.forEach(item =>
+    //     deleteTestFile(item.id!).catch(err =>
+    //       toast.error(
+    //         'Something went wrong while deleting files. Please try again.',
+    //         {
+    //           position: 'bottom-left',
+    //         },
+    //       ),
+    //     ),
+    //   )
+    // }
   }
 
   return (
@@ -776,6 +809,18 @@ const TestMaterialPost = () => {
                           onChange={(event, item) => {
                             onChange(item)
                             setSelectedTestType(item)
+                            setValue('source', { label: '', value: '' })
+                            setValue('target', { label: '', value: '' })
+                            setValue('jobType', { label: '', value: '' })
+                            setValue('role', { label: '', value: '' })
+                            setValue('googleFormLink', '')
+                            // reset({
+                            //   source: { label: '', value: '' },
+                            //   target: { label: '', value: '' },
+                            //   googleFormLink: '',
+                            //   jobType: { label: '', value: '' },
+                            //   role: { label: '', value: '' },
+                            // })
                           }}
                         >
                           {testType.map(value => {
@@ -886,13 +931,14 @@ const TestMaterialPost = () => {
                               value={value}
                               onChange={(e, v) => {
                                 if (!v) {
-                                  setRoleOptions(DefaultRolePair)
+                                  setRoleOptions(OnboardingListRolePair)
                                   onChange({ value: '', label: '' })
                                   setJobTypeSelected(false)
                                 } else {
                                   const jobTypeValue = v.value
-                                  const res = DefaultRolePair.filter(value =>
-                                    value.jobType.includes(jobTypeValue),
+                                  const res = OnboardingListRolePair.filter(
+                                    value =>
+                                      value.jobType.includes(jobTypeValue),
                                   )
                                   setRoleOptions(res)
                                   setJobTypeSelected(true)
