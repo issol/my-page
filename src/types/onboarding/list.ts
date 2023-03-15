@@ -82,19 +82,17 @@ export type OnboardingUserType = {
   preferredName?: string | null
   preferredNamePronunciation?: string | null
   timezone: CountryType
-  mobile?: string | null
-  phone?: string | null
+  mobilePhone?: string | null
+  telephone?: string | null
   resume?: Array<{
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }>
   contracts?: Array<{
-    id: number
-    uri: string
+    url: string
     fileName: string
-    fileType: string
+    fileExtension: string
   }>
   specialties?: Array<string>
   commentsOnPro?: Array<CommentsOnProType>
@@ -152,8 +150,9 @@ export type OnboardingFilterType = {
   role?: string[]
   jobType?: string[]
   search?: string
-  source: string[]
-  target: string[]
-  experience: string[]
-  testStatus: string[]
+  source?: string[]
+  target?: string[]
+  experience?: string[]
+  testStatus?: string[]
+  order?: string
 }
