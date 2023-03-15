@@ -43,7 +43,9 @@ export const JobTypeChip = styled(Chip)<{ type: string }>`
       ? '#A9E0FF'
       : type === 'Webcomics'
       ? '#BEEFAE'
-      : '#FFBFE9'};
+      : type === 'Webcomics'
+      ? '#FFBFE9'
+      : 'rgba(76, 78, 100, 0.26)'};
 
   color: #111111;
 `

@@ -10,7 +10,7 @@ export type RecruitingFormType = {
   role: { label: string; value: string }
   sourceLanguage: { label: string; value: string }
   targetLanguage: { label: string; value: string }
-  numberOfLinguist?: number
+  openings?: number
   dueDate?: string
   dueDateTimezone?: CountryType
   jobPostLink?: string
@@ -47,7 +47,7 @@ export const recruitingFormSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     value: yup.string().required(FormErrors.required),
   }),
-  numberOfLinguist: yup.number().max(15).nullable(),
+  openings: yup.number().max(15).nullable(),
   dueDate: yup.string().nullable(),
   //   dueDateTimezone: yup.string().nullable(),
   dueDateTimezone: yup.object().shape({

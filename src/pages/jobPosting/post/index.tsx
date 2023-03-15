@@ -93,7 +93,7 @@ export default function JobPostingPost() {
     targetLanguage: { value: '', label: '' },
     yearsOfExperience: { value: '', label: '' },
     postLink: [],
-    numberOfLinguist: undefined,
+    openings: undefined,
     dueDate: '',
     dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
@@ -241,14 +241,22 @@ export default function JobPostingPost() {
       sourceLanguage: data.sourceLanguage.value,
       targetLanguage: data.targetLanguage.value,
       yearsOfExperience: data?.yearsOfExperience?.value ?? '',
-      numberOfLinguist: data.numberOfLinguist ?? 0,
+      openings: data.openings ?? 0,
       dueDate: data.dueDate ?? '',
       dueDateTimezone: data.dueDateTimezone?.code ?? '',
       postLink: data.postLink,
-      content: convertToRaw(content.getCurrentContent()),
+      content:
+        content.getCurrentContent().getPlainText('\u0001') === ''
+          ? ''
+          : convertToRaw(content.getCurrentContent()),
       text: content.getCurrentContent().getPlainText('\u0001'),
     }
-    postMutation.mutate(finalForm)
+
+    const filteredForm = Object.fromEntries(
+      Object.entries(finalForm).filter(([_, value]) => value !== ''),
+    )
+    // @ts-ignore
+    postMutation.mutate(filteredForm)
   }
 
   return (
@@ -480,7 +488,7 @@ export default function JobPostingPost() {
                 >
                   <Grid item xs={6}>
                     <Controller
-                      name='numberOfLinguist'
+                      name='openings'
                       control={control}
                       rules={{ required: true }}
                       render={({ field: { value, onChange, onBlur } }) => (
@@ -492,7 +500,7 @@ export default function JobPostingPost() {
                             else return
                           }}
                           value={value}
-                          error={Boolean(errors.numberOfLinguist)}
+                          error={Boolean(errors.openings)}
                           label='Number of linguist'
                           placeholder='Number of linguist'
                           InputProps={{
@@ -501,9 +509,9 @@ export default function JobPostingPost() {
                         />
                       )}
                     />
-                    {errors.numberOfLinguist && (
+                    {errors.openings && (
                       <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.numberOfLinguist?.message}
+                        {errors.openings?.message}
                       </FormHelperText>
                     )}
                   </Grid>
