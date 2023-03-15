@@ -17,6 +17,7 @@ export type TestMaterialFilterPayloadType = {
   testType?: string[]
   source: string[]
   target: string[]
+  sort: string
 }
 
 export type BasicTestExistencePayloadType = {

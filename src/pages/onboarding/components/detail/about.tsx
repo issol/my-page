@@ -49,24 +49,24 @@ export default function About({ userInfo }: Props) {
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
           <LabelTitle>Timezone:</LabelTitle>
-          <Label>{getGmtTime(userInfo.timezone.code) || '-'}</Label>
+          <Label>{getGmtTime(userInfo.timezone?.code) || '-'}</Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />
           <LabelTitle>Mobile phone:</LabelTitle>
           <Label>
-            {!userInfo.mobile
+            {!userInfo.mobilePhone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.mobile}
+              : '+' + userInfo.timezone.phone + ') ' + userInfo.mobilePhone}
           </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:phone' style={{ opacity: '0.7' }} />
           <LabelTitle>Telephone:</LabelTitle>
           <Label>
-            {!userInfo.phone
+            {!userInfo.telephone
               ? '-'
-              : '+' + userInfo.timezone.phone + ') ' + userInfo.phone}
+              : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
           </Label>
         </Box>
       </Box>

@@ -33,7 +33,7 @@ import {
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 import { JobList } from 'src/shared/const/job/jobs'
-import { ProRolePair } from 'src/shared/const/role/roles'
+import { AssignJobType, ProRolePair } from 'src/shared/const/role/roles'
 import FormHelperText from '@mui/material/FormHelperText'
 import Autocomplete from '@mui/material/Autocomplete'
 import TextField from '@mui/material/TextField'
@@ -634,7 +634,7 @@ export default function AppliedRoleModal({
                                     }
                                   >
                                     {/* @ts-ignore */}
-                                    {ProRolePair[item.jobType]?.map(
+                                    {AssignJobType[item.jobType]?.map(
                                       (item: any, idx: number) => (
                                         <MenuItem value={item.value} key={idx}>
                                           {item.label}

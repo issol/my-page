@@ -1,6 +1,6 @@
 import { SyntheticEvent, useState } from 'react'
 import { Grid } from '@mui/material'
-import { DefaultRolePair } from '@src/shared/const/onboarding'
+
 import { RoleSelectType } from 'src/types/onboarding/list'
 import { SelectType } from 'src/types/onboarding/list'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
@@ -14,6 +14,7 @@ import TestMaterialList from './components/list/list'
 import { useGetTestMaterialList } from 'src/queries/certification-test/ceritification-test-list.query'
 import TestMaterialFilters from './components/list/filters'
 import { useRouter } from 'next/router'
+import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -38,13 +39,15 @@ const CertificationTest = () => {
     take: testMaterialListPageSize,
     skip: testMaterialListPageSize * testMaterialListPage,
     userCompany: 'GloZ',
+    sort: 'desc',
   })
 
   const { data: testMaterialList } = useGetTestMaterialList(filters)
 
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
-  const [roleOptions, setRoleOptions] =
-    useState<RoleSelectType[]>(DefaultRolePair)
+  const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
+    OnboardingListRolePair,
+  )
 
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
@@ -57,7 +60,7 @@ const CertificationTest = () => {
     })
 
   const onClickResetButton = () => {
-    setRoleOptions(DefaultRolePair)
+    setRoleOptions(OnboardingListRolePair)
     setJobTypeOptions(JobList)
     reset({
       testType: [],
@@ -76,6 +79,7 @@ const CertificationTest = () => {
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
       userCompany: 'GloZ',
+      sort: 'desc',
     })
   }
 
@@ -94,6 +98,7 @@ const CertificationTest = () => {
       userCompany: 'GloZ',
       take: testMaterialListPageSize,
       skip: testMaterialListPageSize * testMaterialListPage,
+      sort: 'desc',
     }
 
     setFilters(filter)

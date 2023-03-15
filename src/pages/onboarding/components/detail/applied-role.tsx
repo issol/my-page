@@ -128,10 +128,7 @@ export default function AppliedRole({
           </>
         )
       }
-    } else if (
-      jobInfo.testStatus === 'Skill failed' ||
-      jobInfo.testStatus === 'Basic failed'
-    ) {
+    } else if (jobInfo.testStatus === 'Skill failed') {
       return (
         <Button
           fullWidth
@@ -156,6 +153,7 @@ export default function AppliedRole({
       basicTest &&
       (basicTest!.status === 'Basic in progress' ||
         basicTest!.status === 'Basic submitted' ||
+        basicTest!.status === 'Basic failed' ||
         basicTest!.status === 'Basic passed')
     ) {
       return (
@@ -349,8 +347,7 @@ export default function AppliedRole({
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
-          padding: 0,
-          paddingBottom: '24px',
+          alignItems: 'center',
         }}
       >
         <Box
@@ -358,7 +355,6 @@ export default function AppliedRole({
             display: 'flex',
             gap: '16px',
             alignItems: 'center',
-            // justifyContent: 'space-between',
           }}
         >
           Applied Role
@@ -374,7 +370,7 @@ export default function AppliedRole({
             ></img>
           </IconButton>
         </Box>
-        {userInfo.length ? (
+        {userInfo && userInfo.length ? (
           <FormControlLabel
             value='start'
             control={
@@ -405,12 +401,7 @@ export default function AppliedRole({
         ) : null}
       </Typography>
 
-      <CardContent
-        sx={{
-          padding: 0,
-          paddingBottom: userInfo.length ? '1.25rem' : '0px !important',
-        }}
-      >
+      <Box sx={{ minHeight: 22 }}>
         <Grid container spacing={6} xs={12}>
           {userInfo && userInfo.length
             ? userInfo.slice(offset, offset + rowsPerPage).map(value => {
@@ -582,7 +573,7 @@ export default function AppliedRole({
             </Grid>
           ) : null}
         </Grid>
-      </CardContent>
+      </Box>
     </Card>
   )
 }

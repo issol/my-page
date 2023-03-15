@@ -828,7 +828,7 @@ export default function RecruitingEdit() {
                         onClick={onUpload}
                         disabled={!isValid}
                       >
-                        Add
+                        Save
                       </Button>
                     </Box>
                   </Card>
