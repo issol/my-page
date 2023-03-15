@@ -270,7 +270,7 @@ export const updateRecruiting = async (
   form: FormType,
 ): Promise<{ id: number }> => {
   try {
-    const { data } = await axios.post(`/api/enough/recruiting/${id}`, form)
+    const { data } = await axios.patch(`/api/enough/recruiting/${id}`, form)
     return data
   } catch (e: any) {
     throw new Error(e)
