@@ -1057,8 +1057,8 @@ export const handlers = [
           code: 'KR',
           label: 'Asia/Seoul',
         },
-        mobile: '01038088637',
-        phone: '63377335',
+        telephone: '01038088637',
+        // phone: '63377335',
         specialties: [
           'Cooking/Food&Drink',
           'Health(Mental and physical)',
