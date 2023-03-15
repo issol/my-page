@@ -136,7 +136,7 @@ const TestMaterialPost = () => {
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<
-    Array<{ name: string; size: number }> | []
+    Array<{ name: string; size: number; fileKey: string }> | []
   >([])
   const [deletedFiles, setDeletedFiles] = useState<Array<FileType> | []>([])
 
@@ -646,8 +646,8 @@ const TestMaterialPost = () => {
   }, [watch])
 
   useEffect(() => {
-    console.log(errors)
-  }, [errors])
+    console.log(savedFiles)
+  }, [savedFiles])
 
   const onSubmit = (edit: boolean) => {
     const data = getValues()
@@ -674,6 +674,33 @@ const TestMaterialPost = () => {
       content: formContent,
       text: content.getCurrentContent().getPlainText(`\u0001`),
     }
+
+    const fileInfo: Array<{ name: string; size: number; fileKey: string }> = []
+    const language =
+      data.testType === 'Basic test'
+        ? `${data.target.value}`
+        : `${data.source.value}-${data.target.value}`
+
+    isFetched
+      ? savedFiles?.map(file => {
+          fileInfo.push({
+            name: file.name,
+            size: file.size,
+            fileKey: getFilePath(
+              [
+                'testPaper',
+                data.testType === 'Basic test' ? 'basic' : 'skill',
+                data.jobType.value,
+                data.role.value,
+                language,
+                `V${testDetail?.currentVersion.version!}`,
+              ],
+              file.name,
+            ),
+          })
+        })
+      : null
+
     // file upload
     if (data.file.length) {
       const formData = new FormData()
@@ -710,8 +737,11 @@ const TestMaterialPost = () => {
         Promise.all(promiseArr)
           .then(res => {
             console.log('upload client guideline file success :', res)
+
             finalValue.files = fileInfo
             patchValue.files = fileInfo
+            console.log(patchValue)
+
             isFetched
               ? patchTestMutation.mutate(patchValue)
               : postTestMutation.mutate(finalValue)
@@ -730,10 +760,11 @@ const TestMaterialPost = () => {
           })
       })
     } else {
+      // finalValue.files = fileInfo
+      patchValue.files = fileInfo
       isFetched
         ? patchTestMutation.mutate(patchValue)
         : postTestMutation.mutate(finalValue)
-      // guidelineMutation.mutate(finalValue)
     }
     // if (deletedFiles.length) {
     //   deletedFiles.forEach(item =>
