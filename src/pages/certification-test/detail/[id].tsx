@@ -592,7 +592,7 @@ const CertificationTestDetail = () => {
                       '&::-webkit-scrollbar': { display: 'none' },
                     }}
                   >
-                    {currentVersion?.files?.length ? (
+                    {currentRow?.files?.length ? (
                       <Fragment>
                         <List
                           sx={{
@@ -601,7 +601,7 @@ const CertificationTestDetail = () => {
                             gap: '12px',
                           }}
                         >
-                          {fileList(currentVersion?.files)}
+                          {fileList(currentRow?.files)}
                         </List>
                       </Fragment>
                     ) : null}
@@ -833,6 +833,8 @@ const CertificationTestDetail = () => {
                     onPageSizeChange={setPageSize}
                     rowsPerPageOptions={[5, 15, 30]}
                     onCellClick={params => {
+                      console.log(params.row)
+
                       setOpenDetail(true)
                       setCurrentRow(params.row)
                       console.log(params.row)

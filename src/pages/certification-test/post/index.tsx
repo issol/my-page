@@ -212,7 +212,7 @@ const TestMaterialPost = () => {
   })
 
   useEffect(() => {
-    if (isDuplicated && !Boolean(edit!)) {
+    if (isDuplicated && !isFetched) {
       setModal(
         <ModalContainer>
           <Box
@@ -230,9 +230,10 @@ const TestMaterialPost = () => {
               alt='The guide line is already exist.'
             />
             <Typography variant='body2'>
-              The guideline for this client/category/
-              <br />
-              service type already exists.
+              <span style={{ fontWeight: 700 }}>
+                {languageHelper(getValues('target.value'))}&nbsp;
+              </span>
+              {selectedTestType.toLowerCase()} has already been created.
             </Typography>
           </Box>
           <ModalButtonGroup>
