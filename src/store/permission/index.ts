@@ -63,6 +63,10 @@ export const getPermission = createAsyncThunk(
           subject: 'pro',
           can: ['read', 'create', 'update', 'delete'],
         },
+        {
+          subject: 'certification_test',
+          can: ['read', 'create', 'update', 'delete'],
+        },
       ]
     } catch (e: any) {
       throw new Error('getPermission error : ', e)
