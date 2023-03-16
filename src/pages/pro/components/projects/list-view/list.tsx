@@ -193,9 +193,13 @@ export default function ProjectsList({
                 </TableRow>
               </TableHead>
               <TableBody>
-                {list.data?.map(row => (
-                  <Row key={row.id} row={row} />
-                ))}
+                {!list.data.length ? (
+                  <TableCell colSpan={7} align='center'>
+                    <Typography>There are no work lists</Typography>
+                  </TableCell>
+                ) : (
+                  list.data?.map(row => <Row key={row.id} row={row} />)
+                )}
               </TableBody>
             </Table>
           </TableContainer>
