@@ -117,9 +117,10 @@ export default function AppliedRole({
                 fullWidth
                 variant='contained'
                 onClick={() => {
-                  basicTest!.status === 'NO_TEST'
-                    ? onClickTestAssign(jobInfo, 'Skill in progress')
-                    : onClickTestAssign(jobInfo)
+                  onClickTestAssign(jobInfo)
+                  // basicTest!.status === 'NO_TEST'
+                  //   ? onClickTestAssign(jobInfo, 'Skill in progress')
+                  //   : onClickTestAssign(jobInfo)
                 }}
               >
                 Assign test
@@ -200,12 +201,6 @@ export default function AppliedRole({
               color: '#666CFF',
             },
           }}
-          // startIcon={
-          //   <img
-          //     src='/images/icons/onboarding-icons/test-in-progress.svg'
-          //     alt='in-progress'
-          //   />
-          // }
         >
           Skill test in progress
         </Button>
@@ -224,12 +219,6 @@ export default function AppliedRole({
               color: '#64C623',
             },
           }}
-          // startIcon={
-          //   <img
-          //     src='/images/icons/onboarding-icons/test-assigned.svg'
-          //     alt='test-assigned'
-          //   />
-          // }
         >
           Test assigned
         </Button>
@@ -341,7 +330,14 @@ export default function AppliedRole({
   }
 
   return (
-    <Card sx={{ padding: '20px' }}>
+    <Card
+      sx={{
+        padding: '20px',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '24px',
+      }}
+    >
       <Typography
         variant='h6'
         sx={{
