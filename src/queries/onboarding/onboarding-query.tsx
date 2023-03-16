@@ -142,8 +142,6 @@ export const useGetOnboardingStatistic = () => {
 }
 
 export const useGetAppliedRole = (id: number) => {
-  console.log(id)
-
   return useQuery<Array<AppliedRoleType>>(
     `applied-role-${id}`,
     () => getAppliedRole(id!),

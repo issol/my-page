@@ -12,8 +12,6 @@ export const getOnboardingProList = async (filters: OnboardingFilterType) => {
     `/api/enough/onboard/user/al?${makeQuery(filters)}`,
   )
 
-  console.log(data)
-
   return data.data
 }
 
@@ -84,8 +82,6 @@ export const patchAppliedRole = async (
     reason,
     messageToUser,
   }
-
-  console.log(params)
 
   await axios.patch(`/api/enough/cert/request/role/${id}`, params)
 }
