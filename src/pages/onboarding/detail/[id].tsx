@@ -363,6 +363,8 @@ function OnboardingDetail() {
   }
 
   const handleTestAssign = (id: number, status?: string) => {
+    console.log(id)
+
     status === 'none'
       ? appliedRoleActionMutation.mutate({
           id: id,
@@ -463,6 +465,8 @@ function OnboardingDetail() {
   }
 
   const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
+    console.log(status)
+
     setActionId(jobInfo.id)
     setModal(
       <TestAssignModal
@@ -546,6 +550,7 @@ function OnboardingDetail() {
 
   const onClickAssignTest = (data: AddRoleType) => {
     console.log(data)
+
     setAssignTestJobInfo(data)
     setAssignTestModalOpen(true)
   }
@@ -563,6 +568,8 @@ function OnboardingDetail() {
       source: value.source,
       target: value.target,
     }))
+
+    console.log(res)
 
     //** TODO : Assign 연결 */
 
