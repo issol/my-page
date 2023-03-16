@@ -18,10 +18,7 @@ import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControlLabel from '@mui/material/FormControlLabel'
 import { ChangeEvent, useEffect, useState } from 'react'
-import {
-  PauseReason,
-  RejectReason,
-} from '@src/pages/onboarding/components/onboarding-columns'
+
 import { v4 as uuidv4 } from 'uuid'
 import TextField from '@mui/material/TextField'
 import {
@@ -30,6 +27,7 @@ import {
 } from 'src/types/onboarding/details'
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import { Pause } from '@mui/icons-material'
+import { RejectReason, PauseReason } from '@src/shared/const/reason/reason'
 
 type Props = {
   open: boolean

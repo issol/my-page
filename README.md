@@ -36,9 +36,9 @@
 **접근제어 관리**
 
 - `src/configs/acl.ts`
-  - 유저의 ability 인스턴스를 함수가 위치 (유저의 can, cannot 정의)
+  - 유저의 ability 인스턴스가 함수가 위치 (유저의 can, cannot 정의)
 - `src/@core/components/auth/AclGuard.tsx`
-  - `acl.ts`의 ability를 정의하는 함수를 사용하고, 정의된 ability 객체를 context로 제공하고 있는 부분.
+  - `src/@core/components/auth/AclGuard.tsx`의 ability를 정의하는 함수를 사용하고, 정의된 ability 객체를 context로 제공하고 있는 부분.
 - `src/layouts/components/acl/CanViewNavGroup.tsx`
   - 유저의 ability를 검사해 해당 유저가 접근할 수 있는 Nav메뉴만 보여주는 작업을 하는 곳.
 

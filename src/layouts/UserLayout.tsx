@@ -53,7 +53,7 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
         return
       }
       if (router.pathname === '/') {
-        router.push(`/dashboards`)
+        router.push(`/home`)
       }
     }
   }, [userAccess])

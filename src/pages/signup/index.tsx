@@ -202,15 +202,17 @@ const SignUpPage = () => {
   })
 
   useEffect(() => {
-    const emailAsString: string = email as string
-    const replacedEmail = emailAsString?.replace('%40', '@')
-    setValue('email', replacedEmail, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-    watch('email')
-    setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
-    setStep(2)
+    if (email) {
+      const emailAsString: string = email as string
+      const replacedEmail = emailAsString?.replace('%40', '@')
+      setValue('email', replacedEmail, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+      watch('email')
+      setValue('type', 'sns', { shouldDirty: true, shouldValidate: true })
+      setStep(2)
+    }
   }, [email])
 
   const verifyEmail = useMutation(
@@ -331,54 +333,63 @@ const SignUpPage = () => {
       switch (value) {
         case Roles.LPM:
         case Roles.TAD:
-          validateRole('GloZ', getValues('email')).then(res => {
-            if (res) setRole([...filtered, value])
-            else {
-              setModal(
-                <Box
-                  sx={{
-                    padding: '24px',
-                    textAlign: 'center',
-                    background: '#ffffff',
-                    borderRadius: '14px',
-                  }}
-                >
+          validateRole('GloZ', getValues('email'))
+            .then(res => {
+              if (res) setRole([...filtered, value])
+              else {
+                setModal(
                   <Box
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
-                      gap: '12px',
+                      padding: '24px',
+                      textAlign: 'center',
+                      background: '#ffffff',
+                      borderRadius: '14px',
                     }}
                   >
-                    <img
-                      src='/images/icons/project-icons/status-alert-error.png'
-                      width={60}
-                      height={60}
-                      alt='role select error'
-                    />
-                    <Typography variant='body2'>
-                      Please use the company email only.
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: '8px' }} mt={4}>
-                    <Button variant='contained' onClick={() => setModal(null)}>
-                      Cancel
-                    </Button>
-                    <Button
-                      variant='outlined'
-                      onClick={() => {
-                        setStep(1)
-                        setModal(null)
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        alignItems: 'center',
+                        gap: '12px',
                       }}
                     >
-                      Move to sign up
-                    </Button>
-                  </Box>
-                </Box>,
-              )
-            }
-          })
+                      <img
+                        src='/images/icons/project-icons/status-alert-error.png'
+                        width={60}
+                        height={60}
+                        alt='role select error'
+                      />
+                      <Typography variant='body2'>
+                        Please use the company email only.
+                      </Typography>
+                    </Box>
+                    <Box sx={{ display: 'flex', gap: '8px' }} mt={4}>
+                      <Button
+                        variant='contained'
+                        onClick={() => setModal(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant='outlined'
+                        onClick={() => {
+                          setStep(1)
+                          setModal(null)
+                        }}
+                      >
+                        Move to sign up
+                      </Button>
+                    </Box>
+                  </Box>,
+                )
+              }
+            })
+            .catch((e: any) => {
+              toast.error('Something went wrong. Please try again.', {
+                position: 'bottom-left',
+              })
+            })
 
           break
 
