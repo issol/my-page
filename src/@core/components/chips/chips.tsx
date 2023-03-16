@@ -113,3 +113,53 @@ export const RoleChip = styled(Chip)<{ type: string }>`
 
   color: #111111;
 `
+
+export const ServiceTypeChip = styled(Chip)`
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #666cff;
+  border: 1px solid rgba(102, 108, 255, 0.5);
+`
+
+export function WorkStatusChip(status: string) {
+  const color =
+    status === 'Approved'
+      ? '#64C623'
+      : status === 'Assigned-waiting'
+      ? '#6D788D'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Delivered'
+      ? '#1A6BBA'
+      : status === 'In progress'
+      ? '#FDB528'
+      : status === 'Invoice accepted'
+      ? '#9B6CD8'
+      : status === 'Invoice created'
+      ? '#F572D8'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Paid'
+      ? '#1B8332'
+      : status === 'Requested'
+      ? '#A81988'
+      : status === 'Without invoice'
+      ? '#75571C'
+      : ''
+
+  // ** TODO : OverDue일 경우 아이콘 붙이기 (아이콘 다운이 안 돼서 못함)
+  return (
+    <CustomChip
+      label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}

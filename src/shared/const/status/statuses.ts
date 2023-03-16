@@ -110,3 +110,50 @@ export const ProStatus = [
     label: 'Do not Contact',
   },
 ]
+
+export const WorkStatus = [
+  {
+    value: 'Approved',
+    label: 'Approved',
+  },
+  {
+    value: 'Assigned-waiting',
+    label: 'Assigned-waiting',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+  {
+    value: 'Delivered',
+    label: 'Delivered',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Invoice accepted',
+    label: 'Invoice accepted',
+  },
+  {
+    value: 'Invoice created',
+    label: 'Invoice created',
+  },
+  {
+    value: 'Overdue',
+    label: 'Overdue',
+  },
+  {
+    value: 'Paid',
+    label: 'Paid',
+  },
+  {
+    value: 'Requested',
+    label: 'Requested',
+  },
+  {
+    value: 'Without invoice',
+    label: 'Without invoice',
+  },
+]

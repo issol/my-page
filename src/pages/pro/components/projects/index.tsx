@@ -7,7 +7,10 @@ import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Grid } from '@mui/material'
 import { Box } from '@mui/system'
+
+// ** components
 import Filters from './list-view/filter'
+import ProjectsList from './list-view/list'
 
 // ** third parties
 import isEqual from 'lodash/isEqual'
@@ -42,7 +45,30 @@ export default function ProjectsDetail() {
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
-  console.log(filter)
+
+  //임시 데이터
+  const list = {
+    data: [
+      {
+        id: 1,
+        workName: 'Red Wood',
+        role: 'Copywriter',
+        client: 'Sandbox',
+        sourceLanguage: 'en',
+        targetLanguage: 'ko',
+        dueDate: Date(),
+        status: 'Invoice created',
+        timezone: 'KST',
+        projectName: 'Red wood..',
+        orderDate: Date(),
+        description: '알라깔라 똑깔라비',
+        category: 'Dubbing',
+        projectId: 'AAA-XXX',
+      },
+    ],
+    count: 3,
+  }
+
   function onReset() {
     setFilter({ ...initialFilter })
   }
@@ -86,6 +112,14 @@ export default function ProjectsDetail() {
               setFilter={setFilter}
               onReset={onReset}
               search={() => setSearch(true)}
+            />
+            <ProjectsList
+              skip={skip}
+              setSkip={setSkip}
+              pageSize={pageSize}
+              setPageSize={setPageSize}
+              isLoading={false}
+              list={list}
             />
           </Grid>
         ) : (

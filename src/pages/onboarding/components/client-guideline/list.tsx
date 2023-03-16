@@ -15,7 +15,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 
 // ** nextJS
 import { useRouter } from 'next/router'
-import { JobTypeChip } from '@src/@core/components/chips/chips'
+import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
 
 type CellType = {
   row: {
@@ -116,7 +116,7 @@ export default function ClientGuideLineList({
       headerName: 'Service type',
       renderHeader: () => <Box>Service type</Box>,
       renderCell: ({ row }: CellType) => {
-        return <ServiceType label={row.serviceType} size='small' />
+        return <ServiceTypeChip label={row.serviceType} size='small' />
       },
     },
     {
@@ -195,16 +195,6 @@ export default function ClientGuideLineList({
     </Grid>
   )
 }
-
-const ServiceType = styled(Chip)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #666cff;
-  border: 1px solid rgba(102, 108, 255, 0.5);
-`
 
 const Title = styled(Typography)`
   font-weight: 600;
