@@ -103,6 +103,9 @@ export default function CertificationTest({
       skillTest &&
       selectedJobInfo.requestStatus !== 'Awaiting assignment' &&
       selectedJobInfo.requestStatus !== 'Rejected' &&
+      selectedJobInfo.role !== 'DTPer' &&
+      selectedJobInfo.role !== 'DTP QCer' &&
+      selectedJobInfo.jobType !== 'Interpretation' &&
       !verifiedNoTest(selectedJobInfo) ? (
         <CardContent sx={{ padding: 0, mt: '24px' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
@@ -586,7 +589,11 @@ export default function CertificationTest({
             </TimelineItem>
           </Timeline>
         </CardContent>
-      ) : basicTest && basicTest!.status === 'NO_TEST' ? (
+      ) : basicTest &&
+        basicTest!.status === 'NO_TEST' &&
+        selectedJobInfo!.role !== 'DTPer' &&
+        selectedJobInfo!.role !== 'DTP QCer' &&
+        selectedJobInfo!.jobType !== 'Interpretation' ? (
         <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>
