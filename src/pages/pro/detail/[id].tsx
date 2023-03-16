@@ -23,6 +23,7 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 // ** types
 import { RoleType } from '@src/context/types'
+import ProjectsDetail from '../components/projects'
 
 export default function ProDetail() {
   const [value, setValue] = useState<string>('1')
@@ -30,6 +31,7 @@ export default function ProDetail() {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
   // const { data: userInfo } = useGetOnboardingProDetails(id!)
   const userInfo = {
     legalNamePronunciation: 'hi',
@@ -105,11 +107,7 @@ export default function ProDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <Typography>
-            Cake apple pie chupa chups biscuit liquorice tootsie roll liquorice
-            sugar plum. Cotton candy wafer wafer jelly cake caramels brownie
-            gummies.
-          </Typography>
+          <ProjectsDetail />
         </TabPanel>
         <TabPanel value='2'>Overview 자리</TabPanel>
         <TabPanel value='3'>
