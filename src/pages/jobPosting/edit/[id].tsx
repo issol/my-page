@@ -780,14 +780,14 @@ export default function JobPostingEdit() {
                         color='secondary'
                         onClick={onDiscard}
                       >
-                        Discard
+                        Cancel
                       </Button>
                       <Button
                         variant='contained'
                         onClick={onUpload}
                         disabled={!isValid}
                       >
-                        Add
+                        Save
                       </Button>
                     </Box>
                   </Card>
