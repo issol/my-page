@@ -194,8 +194,6 @@ export default function RecruitingEdit() {
     }
   }, [isSuccess])
 
-  type LinkModeType = 'insert' | 'find'
-  const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
     client: { value: '', label: '' },
@@ -724,66 +722,33 @@ export default function RecruitingEdit() {
                       <Grid item xs={12}>
                         <Box display='flex' gap='8px'>
                           <Select
-                            disabled={!isWriter}
+                            disabled
                             id='job post link'
                             labelId='select job post link'
-                            defaultValue='insert'
-                            onChange={e =>
-                              setLinkMode(e.target.value as LinkModeType)
-                            }
+                            defaultValue='find'
                           >
                             <MenuItem value='insert'>Insert link</MenuItem>
                             <MenuItem value='find'>Find link</MenuItem>
                           </Select>
-                          {linkMode === 'insert' ? (
-                            <Controller
-                              name='jobPostLink'
-                              control={control}
-                              rules={{ required: true }}
-                              render={({
-                                field: { value, onChange, onBlur },
-                              }) => (
-                                <OutlinedInput
-                                  fullWidth
-                                  disabled={!isWriter}
-                                  value={value}
-                                  id='jobPostLink'
-                                  onChange={onChange}
-                                  placeholder='Job posting link'
-                                  endAdornment={
-                                    <InputAdornment position='end'>
-                                      <IconButton edge='end'>
-                                        <Icon
-                                          icon='material-symbols:open-in-new'
-                                          opacity={0.7}
-                                        />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  }
-                                />
-                              )}
-                            />
-                          ) : (
-                            <OutlinedInput
-                              fullWidth
-                              disabled={!isWriter}
-                              readOnly
-                              value={watch('jobPostLink')}
-                              id='jobPostLink'
-                              onClick={() => isWriter && setOpenDialog(true)}
-                              placeholder='Job posting link'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon
-                                      icon='material-symbols:open-in-new'
-                                      opacity={0.7}
-                                    />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
-                            />
-                          )}
+                          <OutlinedInput
+                            fullWidth
+                            disabled={!isWriter}
+                            readOnly
+                            value={watch('jobPostLink')}
+                            id='jobPostLink'
+                            onClick={() => isWriter && setOpenDialog(true)}
+                            placeholder='Job posting link'
+                            endAdornment={
+                              <InputAdornment position='end'>
+                                <IconButton edge='end'>
+                                  <Icon
+                                    icon='material-symbols:open-in-new'
+                                    opacity={0.7}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                          />
                         </Box>
                       </Grid>
                     </Grid>
