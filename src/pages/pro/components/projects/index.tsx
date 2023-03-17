@@ -1,4 +1,4 @@
-import { MouseEventHandler, SyntheticEvent, useEffect, useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -11,6 +11,7 @@ import { Box } from '@mui/system'
 // ** components
 import Filters from './list-view/filter'
 import ProjectsList from './list-view/list'
+import CalendarContainer from './calendar-view/calendar-container'
 
 // ** third parties
 import isEqual from 'lodash/isEqual'
@@ -40,7 +41,6 @@ export const initialFilter: FilterOmitType = {
 type MenuType = 'list' | 'calendar'
 export default function ProjectsDetail() {
   const [menu, setMenu] = useState<MenuType>('list')
-  type FilterState = Array<{ value: string; label: string }>
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -123,7 +123,7 @@ export default function ProjectsDetail() {
             />
           </Grid>
         ) : (
-          '캘린더~'
+          <CalendarContainer />
         )}
       </Box>
     </Box>
