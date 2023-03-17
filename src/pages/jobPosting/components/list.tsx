@@ -142,10 +142,15 @@ export default function JobPostingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateHelper(row.dueDate)} (${row.dueDateTimezone})`}
+              title={`${FullDateHelper(row.dueDate)} (${
+                row.dueDateTimezone ?? '-'
+              })`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
+                <>
+                  {FullDateHelper(row.dueDate)}{' '}
+                  {row.dueDateTimezone ? `(${row.dueDateTimezone})` : ''}
+                </>
               </Typography>
             </Tooltip>
           )}
