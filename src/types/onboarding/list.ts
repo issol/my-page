@@ -70,7 +70,7 @@ export type OnboardingUserType = {
   userId: number
   email: string
   firstName: string
-  middleName: string | null
+  middleName?: string
   lastName: string
   experience: string
   jobInfo: Array<OnboardingJobInfoType>

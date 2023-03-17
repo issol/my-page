@@ -5,7 +5,19 @@ import Link from 'next/link'
 import Typography from '@mui/material/Typography'
 import { OnboardingListCellType } from 'src/types/onboarding/list'
 
-const LegalNameEmail = ({ row }: OnboardingListCellType) => {
+const LegalNameEmail = ({
+  row,
+}: {
+  row: {
+    id: string
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string
+    lastName: string
+    email: string
+  }
+}) => {
   return (
     <Box
       sx={{

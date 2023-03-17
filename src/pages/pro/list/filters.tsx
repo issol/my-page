@@ -16,7 +16,7 @@ import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
 import { JobList } from 'src/shared/const/job/jobs'
 import { OnboardingListRolePair } from 'src/shared/const/role/roles'
-import { TestStatus } from 'src/shared/const/status/statuses'
+import { ProStatus, TestStatus } from 'src/shared/const/status/statuses'
 import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
 
 import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
@@ -31,6 +31,7 @@ import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import { ProFilterType } from '@src/types/pro/list'
+import { ClientList } from '@src/shared/const/client/clients'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -133,6 +134,163 @@ export default function ProListFilters({
                   rowSpacing={4}
                   sx={{ padding: '0 20px 20px' }}
                 >
+                  <Grid item xs={3}>
+                    <Controller
+                      control={control}
+                      name='status'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={ProStatus}
+                          id='status'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Status' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Controller
+                      control={control}
+                      name='clients'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={ClientList}
+                          id='clients'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Clients' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+
+                  <Grid item xs={3}>
+                    <Controller
+                      control={control}
+                      name='source'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={_.uniqBy(languageList, 'value')}
+                          id='source'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Source' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
+                  <Grid item xs={3}>
+                    <Controller
+                      control={control}
+                      name='target'
+                      render={({ field: { onChange, value } }) => (
+                        <Autocomplete
+                          multiple
+                          fullWidth
+                          onClose={() => {
+                            setInputStyle(false)
+                          }}
+                          onOpen={() => {
+                            setInputStyle(true)
+                          }}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
+                          value={value}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.value === newValue.value
+                          }}
+                          disableCloseOnSelect
+                          limitTags={1}
+                          options={_.uniqBy(languageList, 'value')}
+                          id='target'
+                          getOptionLabel={option => option.label}
+                          renderInput={params => (
+                            <TextField {...params} label='Target' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
+                          )}
+                        />
+                      )}
+                    />
+                  </Grid>
                   <Grid item xs={3}>
                     <Controller
                       control={control}
@@ -266,84 +424,6 @@ export default function ProListFilters({
                   <Grid item xs={3}>
                     <Controller
                       control={control}
-                      name='source'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onClose={() => {
-                            setInputStyle(false)
-                          }}
-                          onOpen={() => {
-                            setInputStyle(true)
-                          }}
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={_.uniqBy(languageList, 'value')}
-                          id='source'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField {...params} label='Source' />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='target'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onClose={() => {
-                            setInputStyle(false)
-                          }}
-                          onOpen={() => {
-                            setInputStyle(true)
-                          }}
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={_.uniqBy(languageList, 'value')}
-                          id='target'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField {...params} label='Target' />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
                       name='experience'
                       render={({ field: { onChange, value } }) => (
                         <Autocomplete
@@ -368,7 +448,10 @@ export default function ProListFilters({
                           id='experience'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Experience' />
+                            <TextField
+                              {...params}
+                              label='Years of experience'
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -380,46 +463,8 @@ export default function ProListFilters({
                       )}
                     />
                   </Grid>
+
                   <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='status'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onClose={() => {
-                            setInputStyle(false)
-                          }}
-                          onOpen={() => {
-                            setInputStyle(true)
-                          }}
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={TestStatus}
-                          id='status'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField {...params} label='Status' />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-                  <Grid item xs={6}>
                     <FormControl fullWidth>
                       <Controller
                         control={control}
@@ -427,16 +472,10 @@ export default function ProListFilters({
                         render={({ field: { onChange, value } }) => (
                           <>
                             <InputLabel htmlFor='icons-adornment-password'>
-                              {onFocused
-                                ? 'Search Pros'
-                                : 'Search the legal name and email'}
+                              Search Pros
                             </InputLabel>
                             <OutlinedInput
-                              label={
-                                onFocused
-                                  ? 'Search Pros'
-                                  : 'Search the legal name and email'
-                              }
+                              label={'Search Pros'}
                               value={value}
                               id='icons-adornment-password'
                               onFocus={onFocusSearchInput}

@@ -87,3 +87,26 @@ export const TestStatus = [
     value: 'Rejected',
   },
 ]
+
+export const ProStatus = [
+  {
+    label: 'Onboard',
+    value: 'Onboard',
+  },
+  {
+    label: 'Off-board',
+    value: 'Off-board',
+  },
+  {
+    label: 'On-hold',
+    value: 'On-hold',
+  },
+  {
+    label: 'Do not contact',
+    value: 'Do not contact',
+  },
+  {
+    label: 'Netflix-Onboard',
+    value: 'Netflix-Onboard',
+  },
+]
