@@ -11,10 +11,7 @@ import { StyledNextLink } from 'src/@core/components/customLink'
 import styled from 'styled-components'
 
 // ** helpers
-import {
-  FullDateHelper,
-  FullDateTimezoneHelper,
-} from 'src/shared/helpers/date.helper'
+import { FullDateHelper } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
@@ -152,10 +149,15 @@ export default function RecruitingList({
           ) : (
             <Tooltip
               placement='bottom'
-              title={`${FullDateHelper(row.dueDate)} (${row.dueDateTimezone})`}
+              title={`${FullDateHelper(row.dueDate)} (${
+                row.dueDateTimezone ?? '-'
+              })`}
             >
               <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-                {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
+                <>
+                  {FullDateHelper(row.dueDate)}{' '}
+                  {row.dueDateTimezone ? `(${row.dueDateTimezone})` : ''}
+                </>
               </Typography>
             </Tooltip>
           )}

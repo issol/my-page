@@ -312,7 +312,7 @@ const RecruitingDetail = () => {
                 <Icon
                   icon='material-symbols:arrow-back-ios-new'
                   style={{ cursor: 'pointer' }}
-                  onClick={() => router.back()}
+                  onClick={() => router.push('/recruiting')}
                 />
                 <Typography variant='h5'>Recruiting info</Typography>
               </Box>
