@@ -11,14 +11,16 @@ type Props = {
 export function LinkItem({ link, onClick, onClear }: Props) {
   return (
     <Tooltip title={`${link.category} / ${link.link}`} placement='left-end'>
-      <FileList onClick={() => onClick && onClick(link)}>
+      <FileList>
         <Typography className='file-name'>{link.category}</Typography>
         <div className='file-details'>
           <div className='file-preview'>
-            <Icon
-              icon='mdi:pencil-outline'
-              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
-            />
+            <IconButton onClick={() => onClick && onClick(link)}>
+              <Icon
+                icon='mdi:pencil-outline'
+                style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+              />
+            </IconButton>
           </div>
 
           {onClear && (
