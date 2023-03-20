@@ -121,7 +121,7 @@ const BoxFeature = styled(Box)<{ bg: string }>`
   color: rgba(76, 78, 100, 0.87);
   font-size: 1rem;
   background: ${({ bg }) => bg ?? ''};
-  cursor: pointer;
+  /* cursor: pointer; */
 `
 const MoreBtn = styled(Button)`
   text-transform: none;

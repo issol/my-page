@@ -76,11 +76,13 @@ const CalendarContainer = ({ id }: Props) => {
   useEffect(() => {
     if (data?.data.length && hideFilter) {
       setEvent(data.data.filter(item => item.status !== 'Delivered'))
+    } else if (data?.data.length && !hideFilter) {
+      setEvent([...data.data])
     }
   }, [data, hideFilter])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-
+  console.log(event)
   return (
     <Box>
       <CalendarWrapper
@@ -144,7 +146,11 @@ const CalendarContainer = ({ id }: Props) => {
         pageSize={pageSize}
         setPageSize={setPageSize}
         isLoading={false}
-        list={data || { data: [], count: 0 }}
+        list={
+          event?.length
+            ? { data: event, count: event?.length }
+            : { data: [], count: 0 }
+        }
       />
     </Box>
   )
