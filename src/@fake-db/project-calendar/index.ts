@@ -15,7 +15,18 @@ export function generateRandomCalendarData(
   numOfData: number,
 ): ProjectCalendarData {
   let calendarData: ProjectCalendarData = { id: 0, events: [] }
-
+  const status = [
+    // 'Approved',
+    // 'Assigned-waiting',
+    'Canceled',
+    'Delivered',
+    'In progress',
+    // 'Invoice accepted',
+    // 'Overdue',
+    // 'Paid',
+    // 'Requested',
+    // 'Without invoice',
+  ]
   for (let i = 0; i < numOfData; i++) {
     const numOfEvents = Math.ceil(Math.random() * 10)
     const events: Array<CalendarEventType> = []
@@ -28,8 +39,10 @@ export function generateRandomCalendarData(
       )
       const end = getRandomDate(start, new Date(year, month, 31))
       events.push({
-        id: Math.random(),
+        id: j,
         title,
+        // status: status[j],
+        status: status[j % status.length],
         start: start.toISOString(),
         end: end.toISOString(),
       })

@@ -1,29 +1,59 @@
-// ** MUI Imports
-import Button from '@mui/material/Button'
-import Drawer from '@mui/material/Drawer'
-import Checkbox from '@mui/material/Checkbox'
-import Typography from '@mui/material/Typography'
-import FormControlLabel from '@mui/material/FormControlLabel'
+import { useEffect, useState } from 'react'
 
-// ** Types
-import { ThemeColor } from 'src/@core/layouts/types'
-import {
-  SidebarLeftType,
-  CalendarFiltersType,
-} from 'src/types/apps/calendarTypes'
+// ** MUI Imports
+import Drawer from '@mui/material/Drawer'
+import Typography from '@mui/material/Typography'
+import Box from '@mui/material/Box'
+
+// ** styles
+import styled from 'styled-components'
+import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
+
+// ** types
+import { Button } from '@mui/material'
+import { CalendarEventType } from '@src/apis/pro-projects.api'
 
 type Props = {
+  event: Array<CalendarEventType>
+  month: number
   mdAbove: boolean
   leftSidebarWidth: number
   leftSidebarOpen: boolean
   handleLeftSidebarToggle: () => void
 }
 export default function CalendarSideBar({
+  event,
   mdAbove,
+  month,
   leftSidebarWidth,
   leftSidebarOpen,
   handleLeftSidebarToggle,
 }: Props) {
+  const bgColors = UseBgColor()
+
+  const colors: UseBgColorType = {
+    primary: { ...bgColors.primaryLight },
+    secondary: { ...bgColors.secondaryLight },
+    success: { ...bgColors.successLight },
+    error: { ...bgColors.errorLight },
+    warning: { ...bgColors.warningLight },
+    info: { ...bgColors.infoLight },
+  }
+
+  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
+    new Date(new Date().getFullYear(), month),
+  )
+
+  const [currEvent, setCurrEvent] = useState<typeof event>([])
+
+  useEffect(() => {
+    setCurrEvent(event.slice(0, 10))
+  }, [event])
+
+  function onMoreClick() {
+    setCurrEvent([...event])
+  }
+
   return (
     <Drawer
       open={leftSidebarOpen}
@@ -58,22 +88,43 @@ export default function CalendarSideBar({
     >
       <Typography
         variant='body2'
-        sx={{ mt: 7, mb: 2.5, textTransform: 'uppercase' }}
+        sx={{ mt: 7, mb: 2.5, textTransform: 'none', fontWeight: 'bold' }}
       >
-        Calendars
+        Projects in {monthName}
       </Typography>
-      {/* <FormControlLabel
-      label='View All'
-      sx={{ mr: 0, mb: 0.5 }}
-      control={
-        <Checkbox
-          color='secondary'
-          checked={store.selectedCalendars.length === colorsArr.length}
-          onChange={e => dispatch(handleAllCalendars(e.target.checked))}
-        />
-      }
-    /> */}
-      {/* {renderFilters} */}
+
+      {currEvent.length
+        ? currEvent?.map((item: any) => {
+            return (
+              <BoxFeature
+                key={item.id}
+                bg={colors[item?.extendedProps?.calendar]?.backgroundColor}
+              >
+                {item.title}
+              </BoxFeature>
+            )
+          })
+        : ''}
+      {currEvent.length < event.length ? (
+        <MoreBtn onClick={onMoreClick}>+More</MoreBtn>
+      ) : (
+        ''
+      )}
     </Drawer>
   )
 }
+
+const BoxFeature = styled(Box)<{ bg: string }>`
+  width: 100%;
+  margin-bottom: 10px;
+  padding: 4px 10px;
+  color: rgba(76, 78, 100, 0.87);
+  font-size: 1rem;
+  background: ${({ bg }) => bg ?? ''};
+  cursor: pointer;
+`
+const MoreBtn = styled(Button)`
+  text-transform: none;
+  padding: 0;
+  color: rgba(76, 78, 100, 0.87);
+`

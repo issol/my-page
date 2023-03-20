@@ -29,7 +29,9 @@ export type CalendarEventType = {
   title: string
   start: string
   end: string
-  status?: string
+  status: string
+  extendedProps?: { calendar: string }
+  allDay?: boolean
 }
 
 export const getProjectCalendarData = async (
@@ -37,10 +39,25 @@ export const getProjectCalendarData = async (
   year: number,
   month: number,
 ): Promise<ProjectCalendarData> => {
+  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
+
   try {
     // const { data } = await axios.get(`/api${id}&year=${year}&month=${month}`)
     // return data
-    return generateRandomCalendarData(year, month, 10)
+    const result = generateRandomCalendarData(year, month, 10)
+    return {
+      id: result.id,
+      events: result.events.map((item: any, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar: colors[idx % colors.length],
+          },
+          allDay: true,
+        }
+      }),
+    }
+    // return generateRandomCalendarData(year, month, 10)
   } catch (e: any) {
     throw new Error(e)
   }

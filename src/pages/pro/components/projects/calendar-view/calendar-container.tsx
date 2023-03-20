@@ -17,50 +17,22 @@ import CalendarSideBar from './sidebar'
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
 
-// ** Types
-import { RootState, AppDispatch } from 'src/store'
-import {
-  CalendarColors,
-  CalendarFiltersType,
-} from 'src/types/apps/calendarTypes'
-
 // ** FullCalendar & App Components Imports
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
-// ** Actions
-import {
-  addEvent,
-  fetchEvents,
-  deleteEvent,
-  updateEvent,
-  handleSelectEvent,
-  handleAllCalendars,
-  handleCalendarsUpdate,
-} from 'src/store/apps/calendar'
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/calendar.query'
-
-// ** CalendarColors
-const calendarsColor: CalendarColors = {
-  Personal: 'error',
-  Business: 'primary',
-  Family: 'warning',
-  Holiday: 'success',
-  ETC: 'info',
-}
+import { CalendarEventType } from '@src/apis/pro-projects.api'
 
 type Props = { id: number }
 
 const CalendarContainer = ({ id }: Props) => {
   // ** States
-  const [calendarApi, setCalendarApi] = useState<null | any>(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [hideFilter, setHideFilter] = useState(false)
 
   // ** Hooks
   const { settings } = useSettings()
-  const dispatch = useDispatch<AppDispatch>()
-  const store = useSelector((state: RootState) => state.calendar)
 
   // ** Vars
   const leftSidebarWidth = 260
@@ -72,32 +44,36 @@ const CalendarContainer = ({ id }: Props) => {
 
   const { data, refetch } = useGetProjectCalendarData(id, year, month)
 
-  useEffect(() => {
-    dispatch(fetchEvents(store.selectedCalendars as CalendarFiltersType[]))
-  }, [dispatch, store.selectedCalendars])
+  const [event, setEvent] = useState<Array<CalendarEventType>>([])
 
   useEffect(() => {
     refetch()
   }, [year, month])
 
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-
-  const [event, setEvent] = useState<any[]>([])
-
   useEffect(() => {
     if (data?.events?.length) {
-      setEvent(
-        data.events.map((item: any, idx: number) => {
-          return {
-            ...item,
-            extendedProps: { calendar: colors[idx % colors.length] },
-          }
-        }),
-      )
+      setEvent([...data.events])
+    } else {
+      setEvent([
+        {
+          id: 0,
+          title: '',
+          start: '',
+          end: '',
+          status: '',
+          extendedProps: {
+            calendar: 'primary',
+          },
+        },
+      ])
     }
   }, [data])
 
-  console.log('events : ', event)
+  useEffect(() => {
+    if (data?.events.length && hideFilter) {
+      setEvent(data.events.filter(item => item.status !== 'Delivered'))
+    }
+  }, [data, hideFilter])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
@@ -112,6 +88,8 @@ const CalendarContainer = ({ id }: Props) => {
       }}
     >
       <CalendarSideBar
+        event={event}
+        month={month}
         mdAbove={mdAbove}
         leftSidebarWidth={leftSidebarWidth}
         leftSidebarOpen={leftSidebarOpen}
@@ -147,10 +125,9 @@ const CalendarContainer = ({ id }: Props) => {
           />
         </Box>
         <ProjectCalendar
+          event={event}
           setYear={setYear}
           setMonth={setMonth}
-          event={event}
-          dispatch={dispatch}
           direction={direction}
         />
       </Box>
