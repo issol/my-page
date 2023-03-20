@@ -31,9 +31,6 @@ import Icon from 'src/@core/components/icon'
 // ** helpers
 import { FullDateHelper } from 'src/shared/helpers/date.helper'
 import {
-  JobTypeChip,
-  renderStatusChip,
-  RoleChip,
   ServiceTypeChip,
   WorkStatusChip,
 } from 'src/@core/components/chips/chips'
@@ -42,6 +39,7 @@ import {
 import { ProProjectType } from '@src/apis/pro-projects.api'
 
 type Props = {
+  isCardHeader?: boolean
   skip: number
   pageSize: number
   setSkip: (num: number) => void
@@ -54,6 +52,7 @@ type Props = {
 }
 
 export default function ProjectsList({
+  isCardHeader,
   skip,
   pageSize,
   setSkip,
@@ -81,7 +80,7 @@ export default function ProjectsList({
             </IconButton>
           </TableCell>
           <TableCell component='th' scope='row'>
-            {row.workName}
+            {row.title}
           </TableCell>
           <TableCell align='left'>
             <ServiceTypeChip label={row.role} size='small' />
@@ -144,15 +143,20 @@ export default function ProjectsList({
   return (
     <Grid item xs={12} mt='24px'>
       <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>
-                Work list ({list?.count | 0})
-              </Typography>
-            </Box>
-          }
-        />
+        {isCardHeader ? (
+          <CardHeader
+            title={
+              <Box display='flex' justifyContent='space-between'>
+                <Typography variant='h6'>
+                  Work list ({list?.count | 0})
+                </Typography>
+              </Box>
+            }
+          />
+        ) : (
+          ''
+        )}
+
         <Box
           sx={{
             '& .hide': {

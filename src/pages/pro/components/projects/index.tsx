@@ -16,8 +16,11 @@ import CalendarContainer from './calendar-view/calendar-container'
 // ** third parties
 import isEqual from 'lodash/isEqual'
 
+// ** fetch
+import { useGetProjectList } from '@src/queries/pro-project/project.query'
+
 export type FilterType = {
-  workName?: Array<{ value: string; label: string }>
+  title?: Array<{ value: string; label: string }>
   role?: Array<{ value: string; label: string }>
   status?: Array<{ value: string; label: string }>
   source?: Array<{ value: string; label: string }>
@@ -30,7 +33,7 @@ export type FilterType = {
 export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
 
 export const initialFilter: FilterOmitType = {
-  workName: [],
+  title: [],
   role: [],
   status: [],
   source: [],
@@ -48,27 +51,28 @@ export default function ProjectsDetail({ id }: Props) {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 
-  //임시 데이터
-  const list = {
-    data: [
-      {
-        id: 1,
-        workName: 'Red Wood',
-        role: 'Copywriter',
-        client: 'Sandbox',
-        sourceLanguage: 'en',
-        targetLanguage: 'ko',
-        dueDate: Date(),
-        status: 'Invoice created',
-        timezone: 'KST',
-        projectName: 'Red wood..',
-        orderDate: Date(),
-        description: '알라깔라 똑깔라비',
-        category: 'Dubbing',
-        projectId: 'AAA-XXX',
-      },
-    ],
-    count: 3,
+  // console.log(filter)
+  const { data: list, refetch } = useGetProjectList(
+    id,
+    {
+      title: getFilter('title'),
+      role: getFilter('role'),
+      status: getFilter('status'),
+      source: getFilter('source'),
+      target: getFilter('target'),
+      client: getFilter('client'),
+      skip: skip * pageSize,
+      take: pageSize,
+    },
+    search,
+    setSearch,
+  )
+
+  function getFilter(name: keyof FilterOmitType) {
+    if (filter[name] && filter[name]?.length) {
+      return filter[name]?.map(item => item.value)
+    }
+    return []
   }
 
   function onReset() {
@@ -77,7 +81,7 @@ export default function ProjectsDetail({ id }: Props) {
 
   useEffect(() => {
     if (isEqual(initialFilter, filter)) {
-      // refetch()
+      refetch()
     }
   }, [filter])
 
@@ -116,12 +120,13 @@ export default function ProjectsDetail({ id }: Props) {
               search={() => setSearch(true)}
             />
             <ProjectsList
+              isCardHeader={true}
               skip={skip}
               setSkip={setSkip}
               pageSize={pageSize}
               setPageSize={setPageSize}
               isLoading={false}
-              list={list}
+              list={list || { data: [], count: 0 }}
             />
           </Grid>
         ) : (

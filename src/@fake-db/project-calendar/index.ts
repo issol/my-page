@@ -1,7 +1,4 @@
-import {
-  CalendarEventType,
-  ProjectCalendarData,
-} from '@src/apis/pro-projects.api'
+import { ProProjectType } from '@src/apis/pro-projects.api'
 
 function getRandomDate(start: Date, end: Date): Date {
   const randomMs =
@@ -13,8 +10,8 @@ export function generateRandomCalendarData(
   year: number,
   month: number,
   numOfData: number,
-): ProjectCalendarData {
-  let calendarData: ProjectCalendarData = { id: 0, events: [] }
+): Array<ProProjectType> {
+  let calendarData: Array<ProProjectType> = []
   const status = [
     // 'Approved',
     // 'Assigned-waiting',
@@ -29,7 +26,7 @@ export function generateRandomCalendarData(
   ]
   for (let i = 0; i < numOfData; i++) {
     const numOfEvents = Math.ceil(Math.random() * 10)
-    const events: Array<CalendarEventType> = []
+    const events: Array<ProProjectType> = []
 
     for (let j = 0; j < numOfEvents; j++) {
       const title = `Event ${j + 1}`
@@ -41,13 +38,21 @@ export function generateRandomCalendarData(
       events.push({
         id: j,
         title,
-        // status: status[j],
+        role: 'Audio describer',
+        client: 'GloZ',
+        sourceLanguage: 'en',
+        targetLanguage: 'ko',
         status: status[j % status.length],
-        start: start.toISOString(),
-        end: end.toISOString(),
+        timezone: 'KST',
+        projectName: title,
+        orderDate: start.toISOString(),
+        description: `${j}번째 이야기`,
+        category: 'Webnovel',
+        projectId: `${i}-XXX`,
+        dueDate: end.toISOString(),
       })
     }
-    calendarData = { id: i, events }
+    calendarData = events
   }
 
   return calendarData

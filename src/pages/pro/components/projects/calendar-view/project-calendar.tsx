@@ -21,14 +21,21 @@ type Props = {
 const ProjectCalendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction } = props
-  console.log(event)
+
+  const finalEvent = event.map(item => {
+    return {
+      ...item,
+      start: item.orderDate,
+      end: item.dueDate,
+    }
+  })
 
   // ** Refs
   const calendarRef = useRef()
 
   if (event.length) {
     const calendarOptions = {
-      events: event,
+      events: finalEvent,
       plugins: [dayGridPlugin],
       initialView: 'dayGridMonth',
       headerToolbar: {

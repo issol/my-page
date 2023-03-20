@@ -21,8 +21,9 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
-import { useGetProjectCalendarData } from '@src/queries/pro-project/calendar.query'
+import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 import { CalendarEventType } from '@src/apis/pro-projects.api'
+import ProjectsList from '../list-view/list'
 
 type Props = { id: number }
 
@@ -34,32 +35,35 @@ const CalendarContainer = ({ id }: Props) => {
   // ** Hooks
   const { settings } = useSettings()
 
-  // ** Vars
+  // ** calendar values
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-
   const { data, refetch } = useGetProjectCalendarData(id, year, month)
-
   const [event, setEvent] = useState<Array<CalendarEventType>>([])
+
+  // ** list values
+  const [skip, setSkip] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
 
   useEffect(() => {
     refetch()
   }, [year, month])
 
   useEffect(() => {
-    if (data?.events?.length) {
-      setEvent([...data.events])
+    if (data?.data?.length) {
+      setEvent([...data.data])
     } else {
       setEvent([
+        //@ts-ignore
         {
           id: 0,
           title: '',
-          start: '',
-          end: '',
+          orderDate: '',
+          dueDate: '',
           status: '',
           extendedProps: {
             calendar: 'primary',
@@ -70,68 +74,79 @@ const CalendarContainer = ({ id }: Props) => {
   }, [data])
 
   useEffect(() => {
-    if (data?.events.length && hideFilter) {
-      setEvent(data.events.filter(item => item.status !== 'Delivered'))
+    if (data?.data.length && hideFilter) {
+      setEvent(data.data.filter(item => item.status !== 'Delivered'))
     }
   }, [data, hideFilter])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
   return (
-    <CalendarWrapper
-      className='app-calendar'
-      sx={{
-        boxShadow: skin === 'bordered' ? 0 : 6,
-        ...(skin === 'bordered' && {
-          border: theme => `1px solid ${theme.palette.divider}`,
-        }),
-      }}
-    >
-      <CalendarSideBar
-        event={event}
-        month={month}
-        mdAbove={mdAbove}
-        leftSidebarWidth={leftSidebarWidth}
-        leftSidebarOpen={leftSidebarOpen}
-        handleLeftSidebarToggle={handleLeftSidebarToggle}
-      />
-      <Box
+    <Box>
+      <CalendarWrapper
+        className='app-calendar'
         sx={{
-          px: 5,
-          pt: 3.75,
-          flexGrow: 1,
-          borderRadius: 1,
-          boxShadow: 'none',
-          backgroundColor: 'background.paper',
-          ...(mdAbove
-            ? { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
-            : {}),
+          boxShadow: skin === 'bordered' ? 0 : 6,
+          ...(skin === 'bordered' && {
+            border: theme => `1px solid ${theme.palette.divider}`,
+          }),
         }}
       >
+        <CalendarSideBar
+          event={event}
+          month={month}
+          mdAbove={mdAbove}
+          leftSidebarWidth={leftSidebarWidth}
+          leftSidebarOpen={leftSidebarOpen}
+          handleLeftSidebarToggle={handleLeftSidebarToggle}
+        />
         <Box
-          display='flex'
-          alignItems='center'
-          gap='8px'
-          justifyContent='right'
-          padding='0 0 22px'
-          position='absolute'
-          right='0'
+          sx={{
+            px: 5,
+            pt: 3.75,
+            flexGrow: 1,
+            borderRadius: 1,
+            boxShadow: 'none',
+            backgroundColor: 'background.paper',
+            ...(mdAbove
+              ? { borderTopLeftRadius: 0, borderBottomLeftRadius: 0 }
+              : {}),
+          }}
         >
-          <Typography>Hide completed projects</Typography>
-          <Typography variant='body2'>(As of yesterday)</Typography>
-          <Switch
-            checked={hideFilter}
-            onChange={e => setHideFilter(e.target.checked)}
+          <Box
+            display='flex'
+            alignItems='center'
+            gap='8px'
+            justifyContent='right'
+            padding='0 0 22px'
+            position='absolute'
+            right='0'
+          >
+            <Typography>Hide completed projects</Typography>
+            <Typography variant='body2'>(As of yesterday)</Typography>
+            <Switch
+              checked={hideFilter}
+              onChange={e => setHideFilter(e.target.checked)}
+            />
+          </Box>
+          <ProjectCalendar
+            event={event}
+            setYear={setYear}
+            setMonth={setMonth}
+            direction={direction}
           />
         </Box>
-        <ProjectCalendar
-          event={event}
-          setYear={setYear}
-          setMonth={setMonth}
-          direction={direction}
-        />
-      </Box>
-    </CalendarWrapper>
+      </CalendarWrapper>
+
+      <ProjectsList
+        skip={skip}
+        setSkip={setSkip}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+        isLoading={false}
+        list={data || { data: [], count: 0 }}
+      />
+    </Box>
   )
 }
 
