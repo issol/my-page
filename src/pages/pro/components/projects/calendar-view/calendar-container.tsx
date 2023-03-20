@@ -5,6 +5,7 @@ import { useEffect, useState } from 'react'
 import Box from '@mui/material/Box'
 import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
+import Switch from '@mui/material/Switch'
 
 // ** Redux Imports
 import { useDispatch, useSelector } from 'react-redux'
@@ -24,10 +25,7 @@ import {
 } from 'src/types/apps/calendarTypes'
 
 // ** FullCalendar & App Components Imports
-import Calendar from 'src/views/apps/calendar/Calendar'
-import SidebarLeft from 'src/views/apps/calendar/SidebarLeft'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
-import AddEventSidebar from 'src/views/apps/calendar/AddEventSidebar'
 
 // ** Actions
 import {
@@ -39,6 +37,8 @@ import {
   handleAllCalendars,
   handleCalendarsUpdate,
 } from 'src/store/apps/calendar'
+import { Typography } from '@mui/material'
+import { useGetProjectCalendarData } from '@src/queries/pro-project/calendar.query'
 
 // ** CalendarColors
 const calendarsColor: CalendarColors = {
@@ -49,11 +49,13 @@ const calendarsColor: CalendarColors = {
   ETC: 'info',
 }
 
-const CalendarContainer = () => {
+type Props = { id: number }
+
+const CalendarContainer = ({ id }: Props) => {
   // ** States
   const [calendarApi, setCalendarApi] = useState<null | any>(null)
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-  const [addEventSidebarOpen, setAddEventSidebarOpen] = useState<boolean>(false)
+  const [hideFilter, setHideFilter] = useState(false)
 
   // ** Hooks
   const { settings } = useSettings()
@@ -62,18 +64,42 @@ const CalendarContainer = () => {
 
   // ** Vars
   const leftSidebarWidth = 260
-  const addEventSidebarWidth = 400
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  const [year, setYear] = useState(new Date().getFullYear())
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+
+  const { data, refetch } = useGetProjectCalendarData(id, year, month)
 
   useEffect(() => {
     dispatch(fetchEvents(store.selectedCalendars as CalendarFiltersType[]))
   }, [dispatch, store.selectedCalendars])
 
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
+  useEffect(() => {
+    refetch()
+  }, [year, month])
 
-  const handleAddEventSidebarToggle = () =>
-    setAddEventSidebarOpen(!addEventSidebarOpen)
+  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
+
+  const [event, setEvent] = useState<any[]>([])
+
+  useEffect(() => {
+    if (data?.events?.length) {
+      setEvent(
+        data.events.map((item: any, idx: number) => {
+          return {
+            ...item,
+            extendedProps: { calendar: colors[idx % colors.length] },
+          }
+        }),
+      )
+    }
+  }, [data])
+
+  console.log('events : ', event)
+
+  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
   return (
     <CalendarWrapper
@@ -85,7 +111,12 @@ const CalendarContainer = () => {
         }),
       }}
     >
-      <CalendarSideBar leftSidebarWidth={leftSidebarWidth} mdAbove={mdAbove} />
+      <CalendarSideBar
+        mdAbove={mdAbove}
+        leftSidebarWidth={leftSidebarWidth}
+        leftSidebarOpen={leftSidebarOpen}
+        handleLeftSidebarToggle={handleLeftSidebarToggle}
+      />
       <Box
         sx={{
           px: 5,
@@ -99,17 +130,28 @@ const CalendarContainer = () => {
             : {}),
         }}
       >
+        <Box
+          display='flex'
+          alignItems='center'
+          gap='8px'
+          justifyContent='right'
+          padding='0 0 22px'
+          position='absolute'
+          right='0'
+        >
+          <Typography>Hide completed projects</Typography>
+          <Typography variant='body2'>(As of yesterday)</Typography>
+          <Switch
+            checked={hideFilter}
+            onChange={e => setHideFilter(e.target.checked)}
+          />
+        </Box>
         <ProjectCalendar
-          store={store}
+          setYear={setYear}
+          setMonth={setMonth}
+          event={event}
           dispatch={dispatch}
           direction={direction}
-          updateEvent={updateEvent}
-          calendarApi={calendarApi}
-          calendarsColor={calendarsColor}
-          setCalendarApi={setCalendarApi}
-          handleSelectEvent={handleSelectEvent}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          handleAddEventSidebarToggle={handleAddEventSidebarToggle}
         />
       </Box>
     </CalendarWrapper>

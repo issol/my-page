@@ -26,6 +26,9 @@ import { RoleType } from '@src/context/types'
 import ProjectsDetail from '../components/projects'
 
 export default function ProDetail() {
+  const router = useRouter()
+  const id = Number(router.query.id)
+
   const [value, setValue] = useState<string>('1')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
@@ -107,7 +110,7 @@ export default function ProDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <ProjectsDetail />
+          <ProjectsDetail id={id} />
         </TabPanel>
         <TabPanel value='2'>Overview 자리</TabPanel>
         <TabPanel value='3'>

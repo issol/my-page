@@ -15,12 +15,19 @@ import {
 type Props = {
   mdAbove: boolean
   leftSidebarWidth: number
+  leftSidebarOpen: boolean
+  handleLeftSidebarToggle: () => void
 }
-export default function CalendarSideBar({ mdAbove, leftSidebarWidth }: Props) {
+export default function CalendarSideBar({
+  mdAbove,
+  leftSidebarWidth,
+  leftSidebarOpen,
+  handleLeftSidebarToggle,
+}: Props) {
   return (
     <Drawer
-      open={true}
-      // onClose={handleLeftSidebarToggle}
+      open={leftSidebarOpen}
+      onClose={handleLeftSidebarToggle}
       variant={mdAbove ? 'permanent' : 'temporary'}
       ModalProps={{
         disablePortal: true,

@@ -38,8 +38,10 @@ export const initialFilter: FilterOmitType = {
   client: [],
 }
 
+type Props = { id: number }
 type MenuType = 'list' | 'calendar'
-export default function ProjectsDetail() {
+
+export default function ProjectsDetail({ id }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [skip, setSkip] = useState(0)
@@ -90,13 +92,13 @@ export default function ProjectsDetail() {
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'
-            focus={menu === 'list'}
+            $focus={menu === 'list'}
             onClick={e => setMenu(e.currentTarget.value as MenuType)}
           >
             List view
           </CustomBtn>
           <CustomBtn
-            focus={menu === 'calendar'}
+            $focus={menu === 'calendar'}
             value='calendar'
             onClick={e => setMenu(e.currentTarget.value as MenuType)}
           >
@@ -123,14 +125,14 @@ export default function ProjectsDetail() {
             />
           </Grid>
         ) : (
-          <CalendarContainer />
+          <CalendarContainer id={id} />
         )}
       </Box>
     </Box>
   )
 }
 
-const CustomBtn = styled(Button)<{ focus: boolean }>`
+const CustomBtn = styled(Button)<{ $focus: boolean }>`
   width: 145px;
-  background: ${({ focus }) => (focus ? 'rgba(102, 108, 255, 0.08)' : '')};
+  background: ${({ $focus }) => ($focus ? 'rgba(102, 108, 255, 0.08)' : '')};
 `
