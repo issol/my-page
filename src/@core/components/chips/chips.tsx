@@ -150,10 +150,9 @@ export function WorkStatusChip(status: string) {
       ? '#75571C'
       : ''
 
-  // ** TODO : OverDue일 경우 아이콘 붙이기 (아이콘 다운이 안 돼서 못함)
   return (
     <CustomChip
-      label={status}
+      label={status === 'Overdue' ? `🔴 ${status}` : status}
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

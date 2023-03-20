@@ -19,7 +19,7 @@ export function generateRandomCalendarData(
     'Delivered',
     'In progress',
     // 'Invoice accepted',
-    // 'Overdue',
+    'Overdue',
     // 'Paid',
     // 'Requested',
     // 'Without invoice',

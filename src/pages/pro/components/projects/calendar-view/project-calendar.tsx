@@ -52,11 +52,6 @@ const ProjectCalendar = (props: Props) => {
         const colorName = calendarEvent._def.extendedProps.calendar
         return [`bg-${colorName}`]
       },
-
-      eventClick({ event: clickedEvent }: any) {
-        /* TODO : event detail 받아오기 */
-        // console.log(clickedEvent)
-      },
     }
 
     async function handleMonthChange(payload: DatesSetArg) {
