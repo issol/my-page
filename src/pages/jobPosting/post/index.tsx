@@ -654,6 +654,7 @@ export default function JobPostingPost() {
                   <Button
                     variant='outlined'
                     fullWidth
+                    disabled={watch('postLink').length >= 15}
                     onClick={openAddLinkModal}
                   >
                     <Icon icon='material-symbols:add' opacity={0.7} />
@@ -696,7 +697,7 @@ export default function JobPostingPost() {
                     onClick={onUpload}
                     disabled={!isValid}
                   >
-                    Add
+                    Post
                   </Button>
                 </Box>
               </Card>
