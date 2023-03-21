@@ -7,6 +7,12 @@ import {
 } from 'src/types/sign/personalInfoTypes'
 
 export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
+export type UserType = 'Master' | 'Manager' | 'General'
+
+export type UserRoleType = {
+  name: RoleType
+  type: UserType
+}
 
 // export type ErrCallbackType = (err: { [key: string]: string }) => void
 export type ErrCallbackType = any

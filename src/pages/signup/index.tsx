@@ -260,7 +260,14 @@ const SignUpPage = () => {
   }
 
   const signUpMutation = useMutation(
-    () => signUp(getValues('email'), role, getValues('password')),
+    () =>
+      signUp(
+        getValues('email'),
+        role.map(item => {
+          return { name: item, type: 'General' }
+        }),
+        getValues('password'),
+      ),
     {
       onSuccess(data: loginResType) {
         signUpOnsuccess(data)
@@ -273,7 +280,13 @@ const SignUpPage = () => {
   )
 
   const snsSignUpMutation = useMutation(
-    () => snsSignUp(getValues('email'), role),
+    () =>
+      snsSignUp(
+        getValues('email'),
+        role.map(item => {
+          return { name: item, type: 'General' }
+        }),
+      ),
     {
       onSuccess(data: loginResType) {
         signUpOnsuccess(data)
