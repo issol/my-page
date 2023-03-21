@@ -23,7 +23,9 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 // ** types
 import { RoleType } from '@src/context/types'
+
 import ProjectsDetail from '../components/projects'
+import PaymentInfo from '../components/payment-info'
 
 export default function ProDetail() {
   const router = useRouter()
@@ -114,10 +116,7 @@ export default function ProDetail() {
         </TabPanel>
         <TabPanel value='2'>Overview 자리</TabPanel>
         <TabPanel value='3'>
-          <Typography>
-            Danish tiramisu jujubes cupcake chocolate bar cake cheesecake chupa
-            chups. Macaroon ice cream tootsie roll carrot cake gummi bears.
-          </Typography>
+          <PaymentInfo />
         </TabPanel>
       </TabContext>
     </div>
