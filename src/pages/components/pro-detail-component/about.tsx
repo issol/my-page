@@ -74,7 +74,7 @@ export default function About({
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />
+            <Icon icon='mdi:calendar-blank' style={{ opacity: '0.7' }} />
             <LabelTitle>Date of Birth:</LabelTitle>
             <Label>{MMDDYYYYHelper(userInfo.dateOfBirth) || '-'}</Label>
           </Box>
@@ -97,7 +97,7 @@ export default function About({
         </Box>
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
-            <Icon icon='mdi:earth' style={{ opacity: '0.7' }} />
+            <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
             <LabelTitle>Residence:</LabelTitle>
             <Label>{userInfo.residence || '-'}</Label>
           </Box>
