@@ -25,6 +25,7 @@ export type ProProjectType = {
   timezone: string
   projectName: string
   orderDate: string
+  deliveredDate?: string | null
   description: string
   category: string
   projectId: string
@@ -90,24 +91,27 @@ export const getProjectCalendarData = async (
   month: number,
 ): Promise<ProjectCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
+  const color_overdue = 'overdue'
 
   try {
     // const { data } = await axios.get(`/api${id}&year=${year}&month=${month}`)
     // return data
     const result = generateRandomCalendarData(year, month, 10)
     return {
-      data: result.map((item: any, idx: number) => {
+      data: result.map((item: ProProjectType, idx: number) => {
         return {
           ...item,
           extendedProps: {
-            calendar: colors[idx % colors.length],
+            calendar:
+              item.status === 'Overdue'
+                ? color_overdue
+                : colors[idx % colors.length],
           },
           allDay: true,
         }
       }),
       count: result.length,
     }
-    // return generateRandomCalendarData(year, month, 10)
   } catch (e: any) {
     throw new Error(e)
   }

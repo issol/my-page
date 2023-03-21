@@ -26,7 +26,7 @@ const ProjectCalendar = (props: Props) => {
     return {
       ...item,
       start: item.orderDate,
-      end: item.dueDate,
+      end: item?.deliveredDate ? item?.deliveredDate : item.dueDate,
     }
   })
 

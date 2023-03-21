@@ -200,6 +200,15 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
               color: theme.palette.info.main,
             },
           },
+          //** TODO: color, backgroundColor 수정하기  */
+          '&.bg-overdue': {
+            borderColor: 'transparent',
+            color: '#ac8880',
+            backgroundColor: '#cdd0bd73',
+            '& .fc-event-title, & .fc-event-time': {
+              color: '#ac8880',
+            },
+          },
         },
         '&.bg-primary': {
           '& .fc-list-event-dot': {
@@ -253,6 +262,16 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           },
           '&:hover td': {
             backgroundColor: hexToRGBA(theme.palette.info.light, 0.1),
+          },
+        },
+        //** TODO :borderColor, backgroundColor 수정하기
+        '&.bg-overdue': {
+          '& .fc-list-event-dot': {
+            borderColor: '#ac8880',
+            backgroundColor: '#ac8880',
+          },
+          '&:hover td': {
+            backgroundColor: hexToRGBA('#ac8880', 0.1),
           },
         },
         '&.fc-daygrid-event': {

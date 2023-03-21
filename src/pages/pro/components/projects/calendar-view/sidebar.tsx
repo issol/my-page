@@ -38,6 +38,8 @@ export default function CalendarSideBar({
     error: { ...bgColors.errorLight },
     warning: { ...bgColors.warningLight },
     info: { ...bgColors.infoLight },
+    // ** TODO : 여기 컬러 수정하기
+    overdue: { color: '#ac8880', backgroundColor: '#cdd0bd73' },
   }
 
   const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
