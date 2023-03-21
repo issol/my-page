@@ -223,7 +223,7 @@ const ResumeFileName = styled.div`
   font-size: 12px;
   // line-height: 14px;
 
-  // text-align: center;
+  text-align: center;
   letter-spacing: 0.4px;
 
   color: rgba(76, 78, 100, 0.6);
