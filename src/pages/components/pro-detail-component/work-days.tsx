@@ -1,7 +1,7 @@
 import DatePicker, { CalendarContainer } from 'react-datepicker'
 import { Box, Card, CardHeader, TextField, Typography } from '@mui/material'
 import { DateType } from '@src/types/forms/reactDatepickerTypes'
-import { addMonths, format, intlFormat, subMonths } from 'date-fns'
+import { addMonths, format, intlFormat, subDays, subMonths } from 'date-fns'
 import { forwardRef, ReactNode, useState } from 'react'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -13,11 +13,17 @@ import TimelineDot from '@src/@core/components/mui/timeline-dot'
 
 type Props = {
   timezone: CountryType
-  workDays: any
+  available: Array<Date>
+  off: Array<Date>
 }
 
-const WorkDays = ({ timezone, workDays }: Props) => {
+const WorkDays = ({ timezone, available, off }: Props) => {
   const [startDate, setStartDate] = useState<Date | null>(new Date())
+  console.log(startDate)
+  const excludeWeekends = (date: Date) => {
+    const day = date.getDay()
+    return day !== 0 && day !== 6
+  }
 
   return (
     <Card sx={{ padding: '20px' }}>
@@ -27,13 +33,17 @@ const WorkDays = ({ timezone, workDays }: Props) => {
         sx={{ display: 'flex', justifyContent: 'center', margin: '24px 0' }}
       >
         <DatePicker
-          selected={startDate}
+          // selected={startDate}
+
           onChange={(date: Date) => setStartDate(date)}
           inline
           readOnly
           disabledKeyboardNavigation
           minDate={subMonths(new Date(), 12)}
           maxDate={addMonths(new Date(), 12)}
+          excludeDates={off}
+          // includeDates={available}
+          // filterDate={excludeWeekends}
           // calendarContainer={CustomCalendarContainer}
           // customInput={<CustomInput />}
           // popperContainer={props => <CalendarContainer {...props} />}

@@ -23,6 +23,9 @@ import {
 } from 'src/types/onboarding/details'
 import { Dispatch, SetStateAction } from 'react'
 import { DetailUserType } from '@src/types/common/detail-user.type'
+import { format } from 'date-fns'
+import dayjs from 'dayjs'
+import _ from 'lodash'
 
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
@@ -82,6 +85,59 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
           },
         ]
 
+        // 배열의 길이
+        const arrLength = 300
+
+        // 시작일과 종료일 설정
+        const startDate = new Date(2022, 0, 1) // 2000년 1월 1일
+        const endDate = new Date(2024, 3, 21) // 현재 날짜
+
+        // 랜덤한 날짜 생성
+        const generateRandomDate = (
+          startDate: Date,
+          endDate: Date,
+          usedDates: any,
+        ) => {
+          let randomDate
+          do {
+            const timeRange = endDate.getTime() - startDate.getTime()
+            const randomTime = Math.floor(Math.random() * timeRange)
+            randomDate = new Date(startDate.getTime() + randomTime)
+          } while (usedDates.has(randomDate.getTime()))
+          return randomDate
+        }
+
+        // 랜덤한 날짜를 yyyy-MM-dd 포맷의 문자열로 변환
+        const formatDate = (date: Date) => {
+          const year = date.getFullYear()
+          const month = String(date.getMonth() + 1).padStart(2, '0')
+          const day = String(date.getDate()).padStart(2, '0')
+          return `${year}-${month}-${day}`
+        }
+
+        // 랜덤한 날짜를 생성하여 배열에 추가
+        const dates: Date[] = []
+        const off: Date[] = []
+        const usedDates = new Set()
+        for (let i = 0; i < arrLength; i++) {
+          const randomDate = generateRandomDate(startDate, endDate, usedDates)
+          usedDates.add(randomDate.getTime())
+          const formattedDate = new Date(formatDate(randomDate))
+          dates.push(formattedDate)
+        }
+
+        for (let j = 0; j < arrLength; j++) {
+          const randomDate = generateRandomDate(startDate, endDate, usedDates)
+
+          usedDates.add(randomDate.getTime())
+          const formattedDate = new Date(formatDate(randomDate))
+          off.push(formattedDate)
+        }
+
+        // 배열 출력
+
+        res['offDate'] = off
+        res['availableDate'] = dates
         res['resume'] = resume
         res['contracts'] = resume
         res['dateOfBirth'] = '2023-03-05T09:38:00.564Z'

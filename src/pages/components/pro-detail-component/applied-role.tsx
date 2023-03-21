@@ -56,6 +56,8 @@ export default function AppliedRole({
   onClickReason,
   type,
 }: Props) {
+  console.log(userInfo)
+
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')

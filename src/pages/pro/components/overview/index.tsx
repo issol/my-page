@@ -145,6 +145,8 @@ function ProDetailOverview() {
 
   const [status, setStatus] = useState(userInfo?.status)
 
+  console.log(userInfo)
+
   const languageList = getGloLanguage()
 
   const {
@@ -865,7 +867,11 @@ function ProDetailOverview() {
               />
             </Grid>
             <Grid item xs={12}>
-              <WorkDays timezone={userInfo?.timezone!} workDays={'none'} />
+              <WorkDays
+                timezone={userInfo?.timezone!}
+                available={userInfo?.availableDate!}
+                off={userInfo?.offDate!}
+              />
               {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>
@@ -893,7 +899,7 @@ function ProDetailOverview() {
               <Grid item xs={12}>
                 <Suspense>
                   <AppliedRole
-                    userInfo={appliedRoleList!}
+                    userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}
                     selectedJobInfo={selectedJobInfo}
