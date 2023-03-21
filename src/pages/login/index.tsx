@@ -327,13 +327,13 @@ const LoginPage = () => {
                         }}
                       />
                     }
-                    label='Remember Me'
+                    label='Remember me'
                   />
                   <Link
                     href='/forgot-password'
                     style={{ textDecoration: 'none' }}
                   >
-                    <Typography color='primary'>Forgot Password?</Typography>
+                    <Typography color='primary'>Forgot password?</Typography>
                   </Link>
                 </Box>
               </FormControl>

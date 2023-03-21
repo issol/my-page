@@ -81,6 +81,7 @@ import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function RecruitingEdit() {
   const router = useRouter()
@@ -693,7 +694,7 @@ export default function RecruitingEdit() {
                               disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props}>
-                                  {option.label} ({option.code}) +{option.phone}
+                                  {getGmtTime(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (

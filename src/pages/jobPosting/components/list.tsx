@@ -46,6 +46,7 @@ export default function JobPostingList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  console.log(list)
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/jobPosting/detail/${row.id}`)

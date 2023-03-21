@@ -72,6 +72,7 @@ import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function RecruitingPost() {
   const router = useRouter()
@@ -567,31 +568,33 @@ export default function RecruitingPost() {
                     <Controller
                       name='dueDateTimezone'
                       control={control}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          value={value}
-                          options={countries as CountryType[]}
-                          onChange={(e, v) => onChange(v)}
-                          disableClearable
-                          renderOption={(props, option) => (
-                            <Box component='li' {...props}>
-                              {option.label} ({option.code}) +{option.phone}
-                            </Box>
-                          )}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Due date timezone'
-                              error={Boolean(errors.dueDateTimezone)}
-                              inputProps={{
-                                ...params.inputProps,
-                              }}
-                            />
-                          )}
-                        />
-                      )}
+                      render={({ field: { value, onChange, onBlur } }) => {
+                        return (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            value={value}
+                            options={countries as CountryType[]}
+                            onChange={(e, v) => onChange(v)}
+                            disableClearable
+                            renderOption={(props, option) => (
+                              <Box component='li' {...props}>
+                                {getGmtTime(option.code)}
+                              </Box>
+                            )}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='Due date timezone'
+                                error={Boolean(errors.dueDateTimezone)}
+                                inputProps={{
+                                  ...params.inputProps,
+                                }}
+                              />
+                            )}
+                          />
+                        )
+                      }}
                     />
                     {errors.dueDateTimezone && (
                       <FormHelperText sx={{ color: 'error.main' }}>
