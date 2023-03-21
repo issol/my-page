@@ -43,7 +43,7 @@ const WorkDays = ({ timezone, available, off }: Props) => {
           maxDate={addMonths(new Date(), 12)}
           excludeDates={off}
           // includeDates={available}
-          // filterDate={excludeWeekends}
+          filterDate={excludeWeekends}
           // calendarContainer={CustomCalendarContainer}
           // customInput={<CustomInput />}
           // popperContainer={props => <CalendarContainer {...props} />}

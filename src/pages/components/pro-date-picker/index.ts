@@ -126,11 +126,14 @@ const ProDatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
         lineHeight: '2.25rem',
         // color: theme.palette.text.primary,
         '&.react-datepicker__day--excluded': {
-          background: 'rgba(76, 78, 100, 0.12)',
+          background: 'rgba(76, 78, 100, 0.12) !important',
         },
         '&.react-datepicker__day--selected': {
           // border: '1px solid red',
           backgroundColor: '#ffffff !important',
+        },
+        '&.react-datepicker__day--disabled': {
+          backgroundColor: '#ffffff',
         },
         // '&.react-datepicker__day--keyboard-selected:not(.react-datepicker__day--in-range)':
         //   {
