@@ -7,6 +7,7 @@ import { OnboardingListCellType } from 'src/types/onboarding/list'
 
 const LegalNameEmail = ({
   row,
+  link,
 }: {
   row: {
     id: string
@@ -17,6 +18,7 @@ const LegalNameEmail = ({
     lastName: string
     email: string
   }
+  link: string
 }) => {
   return (
     <Box
@@ -59,10 +61,7 @@ const LegalNameEmail = ({
           textOverflow: 'ellipsis',
         }}
       >
-        <Link
-          href={`/onboarding/detail/${row.id}`}
-          style={{ textDecoration: 'none' }}
-        >
+        <Link href={link} style={{ textDecoration: 'none' }}>
           <Typography
             sx={{
               fontWeight: '600',

@@ -11,7 +11,36 @@ export const getGmtTime = (code: string | null | undefined) => {
   if (!code) return '-'
   /* @ts-ignore */
   const timezoneName = timezones.countries[code]?.zones[0]
+  console.log(timezoneName)
+
   return `(GMT${moment.tz(timezoneName).format('Z')}) ${timezoneName}`
+}
+
+export const getGmtTimeEng = (code: string | null | undefined) => {
+  if (!code) return '-'
+  const timeZoneCode = 'AF'
+  /* @ts-ignore */
+  const timeZone = timezones.countries[code]?.zones[0]
+  console.log(timeZone)
+
+  const formatter = new Intl.DateTimeFormat('en', {
+    timeZone: timeZone,
+    timeZoneName: 'long',
+  })
+
+  console.log(formatter.formatToParts(new Date()))
+
+  const timeZoneName = formatter
+    .formatToParts(new Date())
+    .find(part => part.type === 'timeZoneName')!.value
+
+  console.log(timeZoneName)
+
+  const formattedTimeZone = `GMT(${moment
+    .tz(timeZone)
+    .format('Z')}) ${timeZoneName} - ${timeZone}`
+
+  return formattedTimeZone
 }
 
 export function getTimezone(value: any) {

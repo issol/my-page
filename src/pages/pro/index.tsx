@@ -31,8 +31,9 @@ import {
 } from '@src/@core/components/chips/chips'
 import { rows } from '@src/@fake-db/table/static-data'
 import ListResume from './list/list-resume'
-import FilePreviewDownloadModal from '../onboarding/components/detail/modal/file-preview-download-modal'
+
 import { ModalContext } from '@src/context/ModalContext'
+import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -216,6 +217,7 @@ const Pro = () => {
               lastName: row.lastName,
               email: row.email,
             }}
+            link={`/pro/detail/${row.id}`}
           />
         )
       },

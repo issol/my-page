@@ -22,6 +22,7 @@ import {
   OnboardingProDetailsType,
 } from 'src/types/onboarding/details'
 import { Dispatch, SetStateAction } from 'react'
+import { DetailUserType } from '@src/types/common/detail-user.type'
 
 export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   return useQuery<{ data: OnboardingListType[]; totalCount: number }>(
@@ -37,21 +38,22 @@ export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   )
 }
 
-export const useGetOnboardingProDetails = (
-  userId: string | string[],
-  validUser: boolean,
-  setValidUser: Dispatch<SetStateAction<boolean>>,
-) => {
+export const useGetOnboardingProDetails = (userId: string | string[]) => {
   const id = typeof userId === 'string' ? userId : ''
-  return useQuery<OnboardingProDetailsType, Error, OnboardingProDetailsType>(
+  return useQuery<DetailUserType, Error, DetailUserType>(
     `${userId}`,
     () => getOnboardingProDetails(id),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
       useErrorBoundary: (error: any) => error.response?.status >= 400,
-      onSuccess: data => {
-        setValidUser(true)
+      select: (data: DetailUserType) => {
+        const res = data
+        res['dateOfBirth'] = '2023-03-05T09:38:00.564Z'
+        res['status'] = 'On-hold'
+        res['residence'] = 'South Korea (Seoul)'
+
+        return res
       },
       // select: (data: OnboardingProDetailsType) => {
       //   const resume = [

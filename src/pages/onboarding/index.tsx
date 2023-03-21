@@ -192,6 +192,7 @@ export default function Onboarding() {
               lastName: row.lastName,
               email: row.email,
             }}
+            link={`/onboarding/detail/${row.id}`}
           />
         )
       },

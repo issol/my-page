@@ -87,7 +87,7 @@ import {
 } from 'src/shared/sentry-provider'
 
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
+if (process.env.NEXT_PUBLIC_API_MOCKING === '') {
   require('../mocks')
 }
 
