@@ -1001,7 +1001,6 @@ function OnboardingDetail() {
   )
 }
 
-// ** TODO : 렐,백엔드와 논의 후 수정
 OnboardingDetails.acl = {
   subject: 'onboarding',
   action: 'read',

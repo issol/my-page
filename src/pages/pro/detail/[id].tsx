@@ -27,8 +27,12 @@ import { useGetOnboardingProDetails } from '@src/queries/onboarding/onboarding-q
 import Overview from '@src/@core/components/card-statistics/card-overview'
 import ProDetailOverviews from '../components/overview'
 
+import ProjectsDetail from '../components/projects'
+import PaymentInfo from '../components/payment-info'
+
 export default function ProDetail() {
   const router = useRouter()
+
   const { id } = router.query
   const [value, setValue] = useState<string>('1')
 
@@ -110,20 +114,13 @@ export default function ProDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <Typography>
-            Cake apple pie chupa chups biscuit liquorice tootsie roll liquorice
-            sugar plum. Cotton candy wafer wafer jelly cake caramels brownie
-            gummies.
-          </Typography>
+          <ProjectsDetail id={Number(id)} />
         </TabPanel>
         <TabPanel value='2'>
           <ProDetailOverviews />
         </TabPanel>
         <TabPanel value='3'>
-          <Typography>
-            Danish tiramisu jujubes cupcake chocolate bar cake cheesecake chupa
-            chups. Macaroon ice cream tootsie roll carrot cake gummi bears.
-          </Typography>
+          <PaymentInfo />
         </TabPanel>
       </TabContext>
     </div>
