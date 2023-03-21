@@ -85,6 +85,7 @@ export type OnboardingUserType = {
   mobilePhone?: string | null
   telephone?: string | null
   resume?: Array<{
+    id: number
     url: string
     fileName: string
     fileExtension: string
