@@ -43,7 +43,7 @@ export const JobTypeChip = styled(Chip)<{ type: string }>`
       ? '#A9E0FF'
       : type === 'Webcomics'
       ? '#BEEFAE'
-      : type === 'Webcomics'
+      : type === 'Webnovel'
       ? '#FFBFE9'
       : 'rgba(76, 78, 100, 0.26)'};
 
@@ -162,3 +162,19 @@ export function WorkStatusChip(status: string) {
     />
   )
 }
+export const ProStatusChip = styled(Chip)<{ status: string }>`
+  border: none;
+  ${({ status }) =>
+    status === 'Onboard'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
+      : status === 'Off-board'
+      ? `background: #929292; color :#ffffff;`
+      : status === 'On-hold'
+      ? `background: rgba(76, 78, 100, 0.05);
+      border: 1px solid rgba(76, 78, 100, 0.38); color : rgba(76, 78, 100, 0.38);`
+      : status === 'Do not contact'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : status === 'Netflix-onboard'
+      ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color:#666CFF;'
+      : null};
+`

@@ -139,7 +139,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     prevArrow: <PrevButton />,
   }
   return (
-    <Card sx={{ padding: '20px 20px 0 20px' }}>
+    <Card sx={{ padding: '20px 20px 0 20px', height: '100%' }}>
       <TypoGraphy
         variant='h6'
         sx={{

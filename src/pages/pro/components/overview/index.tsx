@@ -1,4 +1,4 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Card, Grid, SelectChangeEvent, Typography } from '@mui/material'
 
 import { useRouter } from 'next/router'
 
@@ -19,7 +19,7 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 
 import { ModalContext } from 'src/context/ModalContext'
-import TestDetailsModal from '../../components/pro-detail-modal/dialog/test-details-modal'
+
 import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
@@ -28,7 +28,7 @@ import {
   useGetOnboardingProDetails,
   useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
-import AppliedRoleModal from '../../components/pro-detail-modal/dialog/applied-role-modal'
+
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import Button from '@mui/material/Button'
@@ -50,8 +50,25 @@ import {
   patchTestStatus,
 } from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
-import modal from '@src/@core/components/modal'
-
+import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
+import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
+import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
+import AppliedRoleModal from '@src/pages/components/pro-detail-modal/dialog/applied-role-modal'
+import TestDetailsModal from '@src/pages/components/pro-detail-modal/dialog/test-details-modal'
+import AssignRoleModal from '@src/pages/components/pro-detail-modal/modal/assign-role-modal'
+import AssignTestModal from '@src/pages/components/pro-detail-modal/modal/assign-test.modal'
+import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
+import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
+import CancelRoleModal from '@src/pages/components/pro-detail-modal/modal/cancel-role-modal'
+import CancelTestModal from '@src/pages/components/pro-detail-modal/modal/cancel-test-modal'
+import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
+import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
+import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
+import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
+import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
+import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
+import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/skill-test-action-modal'
+import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
 import About from '@src/pages/components/pro-detail-component/about'
 import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
 import CertifiedRole from '@src/pages/components/pro-detail-component/certified-role'
@@ -60,37 +77,21 @@ import Experience from '@src/pages/components/pro-detail-component/experience'
 import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
 import Resume from '@src/pages/components/pro-detail-component/resume'
 import Specialties from '@src/pages/components/pro-detail-component/specialities'
-import AssignRoleModal from '@src/pages/components/pro-detail-modal/modal/assign-role-modal'
-import AssignTestModal from '@src/pages/components/pro-detail-modal/modal/assign-test.modal'
-import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
-import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
-import CancelRoleModal from '@src/pages/components/pro-detail-modal/modal/cancel-role-modal'
-import CancelTestModal from '@src/pages/components/pro-detail-modal/modal/cancel-test-modal'
-import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
-import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
-import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
-import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
-import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
-import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
-import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
-import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
-import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
-import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/skill-test-action-modal'
-import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
+import WorkDays from '@src/pages/components/pro-detail-component/work-days'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
 }
 
-const OnboardingDetails = () => (
+export const ProDetailOverviews = () => (
   <Suspense fallback={<FallbackSpinner />}>
-    <OnboardingDetail />
+    <ProDetailOverview />
   </Suspense>
 )
 
-function OnboardingDetail() {
+function ProDetailOverview() {
   const router = useRouter()
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
@@ -141,6 +142,8 @@ function OnboardingDetail() {
     useState<AddRoleType>(defaultValues)
   const [assignRoleJobInfo, setAssignRoleJobInfo] =
     useState<AddRoleType>(defaultValues)
+
+  const [status, setStatus] = useState(userInfo?.status)
 
   const languageList = getGloLanguage()
 
@@ -287,6 +290,11 @@ function OnboardingDetail() {
       },
     },
   )
+
+  const handleChangeStatus = (event: SelectChangeEvent) => {
+    // TODO Api연결
+    setStatus(event.target.value as string)
+  }
   const handleChangeRolePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
 
@@ -743,6 +751,10 @@ function OnboardingDetail() {
     setAppliedRoleList(appliedRole!)
   }, [appliedRole])
 
+  useEffect(() => {
+    setStatus(userInfo?.status)
+  }, [userInfo])
+
   const onClickFile = (file: {
     url: string
     fileName: string
@@ -824,61 +836,9 @@ function OnboardingDetail() {
       />
       {isFetched && !isError ? (
         <>
-          <Grid item xs={12}>
-            <DesignedCard>
-              <Card sx={{ padding: '24px' }}>
-                <Box
-                  sx={{ position: 'relative', display: 'flex', gap: '30px' }}
-                >
-                  <Card>
-                    <img
-                      width={110}
-                      height={110}
-                      src={getProfileImg('TAD')}
-                      alt=''
-                    />
-                  </Card>
-                  <Box sx={{ alignSelf: 'self-end' }}>
-                    <Box
-                      sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}
-                    >
-                      <Typography variant='h5'>
-                        {getLegalName(userInfo!)}
-                      </Typography>
-                      <img
-                        width={32}
-                        height={32}
-                        src={
-                          userInfo!.isOnboarded && userInfo!.isActive
-                            ? `/images/icons/onboarding-icons/pro-active.png`
-                            : !userInfo!.isOnboarded
-                            ? `/images/icons/onboarding-icons/pro-onboarding.png`
-                            : userInfo!.isOnboarded && !userInfo!.isActive
-                            ? `/images/icons/onboarding-icons/pro-inactive.png`
-                            : ''
-                        }
-                        alt='onboarding'
-                      />
-                    </Box>
-                    <Typography
-                      sx={{
-                        fontSize: '1rem',
-                        fontWeight: 600,
-                        color: 'rgba(76, 78, 100, 0.6)',
-                      }}
-                    >
-                      {userInfo!.legalNamePronunciation
-                        ? userInfo!.legalNamePronunciation
-                        : '-'}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Card>
-            </DesignedCard>
-          </Grid>
           <Grid
             item
-            xs={4}
+            xs={3.6}
             gap='24px'
             display='flex'
             direction='column'
@@ -895,19 +855,25 @@ function OnboardingDetail() {
                   timezone: userInfo?.timezone!,
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
+                  dateOfBirth: userInfo?.dateOfBirth!,
+                  status: userInfo?.status!,
+                  residence: userInfo?.residence!,
                 }}
-                type='onboarding'
+                type={'pro'}
+                handleChangeStatus={handleChangeStatus}
+                status={status}
               />
             </Grid>
             <Grid item xs={12}>
-              <CertifiedRole userInfo={certifiedRole!} />
+              <WorkDays timezone={userInfo?.timezone!} workDays={'none'} />
+              {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>
               <NoteFromPro userInfo={userInfo!} />
             </Grid>
           </Grid>
 
-          <Grid item xs={8}>
+          <Grid item xs={8.4}>
             <Box
               sx={{
                 display: 'flex',
@@ -942,7 +908,7 @@ function OnboardingDetail() {
                     onClickRejectOrPause={onClickRejectOrPause}
                     onClickReason={onClickReason}
                     onClickResumeTest={onClickResumeTest}
-                    type='onboarding'
+                    type='pro'
                   />
                 </Suspense>
               </Grid>
@@ -1001,8 +967,9 @@ function OnboardingDetail() {
   )
 }
 
-OnboardingDetails.acl = {
-  subject: 'onboarding',
+// ** TODO : 렐,백엔드와 논의 후 수정
+ProDetailOverview.acl = {
+  subject: 'pro',
   action: 'read',
 }
 
@@ -1024,4 +991,4 @@ const DesignedCard = styled(Card)`
   }
 `
 
-export default OnboardingDetails
+export default ProDetailOverviews

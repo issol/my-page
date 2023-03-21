@@ -5,7 +5,21 @@ import Link from 'next/link'
 import Typography from '@mui/material/Typography'
 import { OnboardingListCellType } from 'src/types/onboarding/list'
 
-const LegalNameEmail = ({ row }: OnboardingListCellType) => {
+const LegalNameEmail = ({
+  row,
+  link,
+}: {
+  row: {
+    id: string
+    isOnboarded: boolean
+    isActive: boolean
+    firstName: string
+    middleName?: string
+    lastName: string
+    email: string
+  }
+  link: string
+}) => {
   return (
     <Box
       sx={{
@@ -47,10 +61,7 @@ const LegalNameEmail = ({ row }: OnboardingListCellType) => {
           textOverflow: 'ellipsis',
         }}
       >
-        <Link
-          href={`/onboarding/detail/${row.id}`}
-          style={{ textDecoration: 'none' }}
-        >
+        <Link href={link} style={{ textDecoration: 'none' }}>
           <Typography
             sx={{
               fontWeight: '600',
