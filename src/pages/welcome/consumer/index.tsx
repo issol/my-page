@@ -71,7 +71,6 @@ import { FileType } from 'src/types/common/file.type'
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
 import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
-import { useAppSelector } from 'src/hooks/useRedux'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -119,9 +118,6 @@ const defaultValues = {
 const PersonalInfoPro = () => {
   const { setModal } = useContext(ModalContext)
 
-  // ** redux
-  const userAccess = useAppSelector(state => state.userAccess)
-
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -157,7 +153,6 @@ const PersonalInfoPro = () => {
 
   useEffect(() => {
     if (auth.user?.firstName) {
-      const role = userAccess?.role?.length ? userAccess.role[0] : null
       router.replace(`/`)
     }
   }, [auth])
@@ -226,7 +221,7 @@ const PersonalInfoPro = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          router.push('/dashboards')
+          router.push('/home')
         })
       },
       onError: () => {

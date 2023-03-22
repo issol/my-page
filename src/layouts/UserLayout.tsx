@@ -41,19 +41,17 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
 
   useEffect(() => {
     if (userAccess.role.length) {
+      const roles = userAccess.role.map(item => item.name)
       if (!auth.user?.firstName) {
-        if (userAccess.role?.includes('PRO')) {
+        if (roles?.includes('PRO')) {
           router.replace('/welcome/consumer')
-        } else if (
-          userAccess.role?.includes('TAD') ||
-          userAccess.role?.includes('LPM')
-        ) {
+        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
           router.replace('/welcome/manager')
         }
         return
       }
       if (router.pathname === '/') {
-        router.push(`/dashboards`)
+        router.push(`/home`)
       }
     }
   }, [userAccess])

@@ -181,7 +181,20 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Legal name / Email</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
-        return <LegalNameEmail row={row} />
+        return (
+          <LegalNameEmail
+            row={{
+              isOnboarded: row.isOnboarded,
+              isActive: row.isActive,
+              id: row.id,
+              firstName: row.firstName,
+              middleName: row.middleName,
+              lastName: row.lastName,
+              email: row.email,
+            }}
+            link={`/onboarding/detail/${row.id}`}
+          />
+        )
       },
     },
     {

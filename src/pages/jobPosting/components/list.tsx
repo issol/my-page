@@ -46,6 +46,7 @@ export default function JobPostingList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  console.log(list)
 
   function moveToDetail(row: GridRowParams) {
     router.push(`/jobPosting/detail/${row.id}`)
@@ -136,14 +137,25 @@ export default function JobPostingList({
       headerName: 'Due date',
       renderHeader: () => <Box>Due date</Box>,
       renderCell: ({ row }: CellType) => (
-        <Tooltip
-          placement='bottom'
-          title={`${FullDateHelper(row.dueDate)} (${row.dueDateTimezone})`}
-        >
-          <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-            {FullDateHelper(row.dueDate)} ({row.dueDateTimezone})
-          </Typography>
-        </Tooltip>
+        <>
+          {!row.dueDate ? (
+            '-'
+          ) : (
+            <Tooltip
+              placement='bottom'
+              title={`${FullDateHelper(row.dueDate)} (${
+                row.dueDateTimezone ?? '-'
+              })`}
+            >
+              <Typography sx={{ overflow: 'scroll' }} variant='body2'>
+                <>
+                  {FullDateHelper(row.dueDate)}{' '}
+                  {row.dueDateTimezone ? `(${row.dueDateTimezone})` : ''}
+                </>
+              </Typography>
+            </Tooltip>
+          )}
+        </>
       ),
     },
     {

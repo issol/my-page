@@ -23,19 +23,28 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 // ** types
 import { RoleType } from '@src/context/types'
+import { useGetOnboardingProDetails } from '@src/queries/onboarding/onboarding-query'
+import Overview from '@src/@core/components/card-statistics/card-overview'
+import ProDetailOverviews from '../components/overview'
+
+import ProjectsDetail from '../components/projects'
+import PaymentInfo from '../components/payment-info'
 
 export default function ProDetail() {
+  const router = useRouter()
+
+  const { id } = router.query
   const [value, setValue] = useState<string>('1')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  // const { data: userInfo } = useGetOnboardingProDetails(id!)
-  const userInfo = {
-    legalNamePronunciation: 'hi',
-    firstName: 'kim',
-    lastName: 'bon',
-  }
+  const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
+  // const userInfo = {
+  //   legalNamePronunciation: 'hi',
+  //   firstName: 'kim',
+  //   lastName: 'bon',
+  // }
 
   function getProfileImg(role: RoleType) {
     return `/images/signup/role-${role.toLowerCase()}.png`
@@ -105,18 +114,13 @@ export default function ProDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <Typography>
-            Cake apple pie chupa chups biscuit liquorice tootsie roll liquorice
-            sugar plum. Cotton candy wafer wafer jelly cake caramels brownie
-            gummies.
-          </Typography>
+          <ProjectsDetail id={Number(id)} />
         </TabPanel>
-        <TabPanel value='2'>Overview 자리</TabPanel>
+        <TabPanel value='2'>
+          <ProDetailOverviews />
+        </TabPanel>
         <TabPanel value='3'>
-          <Typography>
-            Danish tiramisu jujubes cupcake chocolate bar cake cheesecake chupa
-            chups. Macaroon ice cream tootsie roll carrot cake gummi bears.
-          </Typography>
+          <PaymentInfo />
         </TabPanel>
       </TabContext>
     </div>

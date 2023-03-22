@@ -35,6 +35,7 @@ type Props = {
   onClickAddRole: () => void
   onClickRejectOrPause: (jobInfo: AppliedRoleType, type: string) => void
   onClickReason: (type: string, message: string, reason: string) => void
+  type: string
 }
 
 export default function AppliedRole({
@@ -53,7 +54,10 @@ export default function AppliedRole({
   onClickAddRole,
   onClickRejectOrPause,
   onClickReason,
+  type,
 }: Props) {
+  console.log(userInfo)
+
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -353,7 +357,8 @@ export default function AppliedRole({
             alignItems: 'center',
           }}
         >
-          Applied Role
+          {type === 'onboarding' ? 'Applied Role' : `Pro's role and Applied`}
+
           <IconButton
             sx={{
               padding: 0,

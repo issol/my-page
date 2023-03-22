@@ -72,6 +72,7 @@ import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function RecruitingPost() {
   const router = useRouter()
@@ -103,8 +104,6 @@ export default function RecruitingPost() {
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
 
-  type LinkModeType = 'insert' | 'find'
-  const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
     client: { value: '', label: '' },
@@ -569,31 +568,33 @@ export default function RecruitingPost() {
                     <Controller
                       name='dueDateTimezone'
                       control={control}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          value={value}
-                          options={countries as CountryType[]}
-                          onChange={(e, v) => onChange(v)}
-                          disableClearable
-                          renderOption={(props, option) => (
-                            <Box component='li' {...props}>
-                              {option.label} ({option.code}) +{option.phone}
-                            </Box>
-                          )}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Due date timezone'
-                              error={Boolean(errors.dueDateTimezone)}
-                              inputProps={{
-                                ...params.inputProps,
-                              }}
-                            />
-                          )}
-                        />
-                      )}
+                      render={({ field: { value, onChange, onBlur } }) => {
+                        return (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            value={value}
+                            options={countries as CountryType[]}
+                            onChange={(e, v) => onChange(v)}
+                            disableClearable
+                            renderOption={(props, option) => (
+                              <Box component='li' {...props}>
+                                {getGmtTime(option.code)}
+                              </Box>
+                            )}
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='Due date timezone'
+                                error={Boolean(errors.dueDateTimezone)}
+                                inputProps={{
+                                  ...params.inputProps,
+                                }}
+                              />
+                            )}
+                          />
+                        )
+                      }}
                     />
                     {errors.dueDateTimezone && (
                       <FormHelperText sx={{ color: 'error.main' }}>
@@ -607,59 +608,29 @@ export default function RecruitingPost() {
                       <Select
                         id='job post link'
                         labelId='select job post link'
-                        defaultValue='insert'
-                        onChange={e =>
-                          setLinkMode(e.target.value as LinkModeType)
-                        }
+                        defaultValue='find'
+                        disabled
                       >
-                        <MenuItem value='insert'>Insert link</MenuItem>
                         <MenuItem value='find'>Find link</MenuItem>
                       </Select>
-                      {linkMode === 'insert' ? (
-                        <Controller
-                          name='jobPostLink'
-                          control={control}
-                          rules={{ required: true }}
-                          render={({ field: { value, onChange, onBlur } }) => (
-                            <OutlinedInput
-                              fullWidth
-                              value={value}
-                              id='jobPostLink'
-                              onChange={onChange}
-                              placeholder='Job posting link'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon
-                                      icon='material-symbols:open-in-new'
-                                      opacity={0.7}
-                                    />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
-                            />
-                          )}
-                        />
-                      ) : (
-                        <OutlinedInput
-                          fullWidth
-                          readOnly
-                          value={watch('jobPostLink')}
-                          id='jobPostLink'
-                          onClick={() => setOpenDialog(true)}
-                          placeholder='Job posting link'
-                          endAdornment={
-                            <InputAdornment position='end'>
-                              <IconButton edge='end'>
-                                <Icon
-                                  icon='material-symbols:open-in-new'
-                                  opacity={0.7}
-                                />
-                              </IconButton>
-                            </InputAdornment>
-                          }
-                        />
-                      )}
+                      <OutlinedInput
+                        fullWidth
+                        readOnly
+                        value={watch('jobPostLink')}
+                        id='jobPostLink'
+                        onClick={() => setOpenDialog(true)}
+                        placeholder='Job posting link'
+                        endAdornment={
+                          <InputAdornment position='end'>
+                            <IconButton edge='end'>
+                              <Icon
+                                icon='material-symbols:open-in-new'
+                                opacity={0.7}
+                              />
+                            </IconButton>
+                          </InputAdornment>
+                        }
+                      />
                     </Box>
                   </Grid>
                 </Grid>

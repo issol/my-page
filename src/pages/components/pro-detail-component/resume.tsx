@@ -139,7 +139,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     prevArrow: <PrevButton />,
   }
   return (
-    <Card sx={{ padding: '20px 20px 0 20px' }}>
+    <Card sx={{ padding: '20px 20px 0 20px', height: '100%' }}>
       <TypoGraphy
         variant='h6'
         sx={{
@@ -223,7 +223,7 @@ const ResumeFileName = styled.div`
   font-size: 12px;
   // line-height: 14px;
 
-  // text-align: center;
+  text-align: center;
   letter-spacing: 0.4px;
 
   color: rgba(76, 78, 100, 0.6);

@@ -179,23 +179,31 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
                     key={uuidv4()}
                     sx={{
                       width: '53px',
+                      maxWidth: '53px',
                       display: 'flex',
                       flexDirection: 'column',
-                      justifyContent: 'center',
                       alignItems: 'center',
                       gap: '5px',
                       cursor: 'pointer',
                     }}
                     onClick={() => onClickContracts(value)}
                   >
-                    <img
-                      src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
-                      style={{
-                        width: '40px',
-                        height: '40px',
+                    <Box
+                      sx={{
+                        display: 'flex',
+
+                        justifyContent: 'center',
                       }}
-                      alt='contracts'
-                    ></img>
+                    >
+                      <img
+                        src={`/images/icons/file-icons/${value.fileExtension}-file.svg`}
+                        style={{
+                          width: '40px',
+                          height: '40px',
+                        }}
+                        alt='contracts'
+                      ></img>
+                    </Box>
                     <ContractsFileName>{value.fileName}</ContractsFileName>
                   </Box>
                 )

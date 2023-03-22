@@ -87,7 +87,7 @@ import {
 } from 'src/shared/sentry-provider'
 
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING === '') {
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'enabled') {
   require('../mocks')
 }
 
@@ -208,8 +208,6 @@ const App = (props: ExtendedAppProps) => {
   // pushNotification?.fireNotificationWithTimeout('Welcome to TAD DEMO', 50000, {
   //   body: `Welcome to TAD DEMO`,
   // })
-
-  //** TODO: QA동안 유지하고 삭제하기 */
 
   return (
     <QueryClientProvider client={queryClient}>

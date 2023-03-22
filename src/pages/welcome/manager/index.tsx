@@ -90,9 +90,6 @@ const defaultValues = {
 const PersonalInfoManager = () => {
   const { setModal } = useContext(ModalContext)
 
-  // ** redux
-  const userAccess = useAppSelector(state => state.userAccess)
-
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -107,7 +104,6 @@ const PersonalInfoManager = () => {
 
   useEffect(() => {
     if (auth.user?.firstName) {
-      const role = userAccess.role.length ? userAccess.role[0] : null
       router.replace(`/`)
     }
   }, [auth])
@@ -136,7 +132,7 @@ const PersonalInfoManager = () => {
             userId: auth?.user!.id,
             email: auth?.user!.email,
           })
-          router.push('/dashboards')
+          router.push('/home')
         })
       },
       onError: () => {

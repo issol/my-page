@@ -80,6 +80,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function JobPostingEdit() {
   const router = useRouter()
@@ -167,11 +168,11 @@ export default function JobPostingEdit() {
       setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
     })
   }
-
+  console.log(data)
   useEffect(() => {
     if (isSuccess) {
       initializeValues(data)
-      setLink(data.postLink)
+      setLink(data?.postLink || [])
       if (data?.content) {
         const editorState = EditorState.createWithContent(
           convertFromRaw(data?.content as any),
@@ -273,7 +274,7 @@ export default function JobPostingEdit() {
     setLink([...itemToDelete, itemToAdd])
   }
   function addLink(item: LinkType) {
-    if (link.length >= 15) return
+    if (link?.length >= 15) return
     const itemToAdd = { ...item, id: uuidv4() }
     setLink([...link, itemToAdd])
   }
@@ -674,7 +675,7 @@ export default function JobPostingEdit() {
                               disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props}>
-                                  {option.label} ({option.code}) +{option.phone}
+                                  {getGmtTime(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (
@@ -745,6 +746,7 @@ export default function JobPostingEdit() {
                       <Button
                         variant='outlined'
                         fullWidth
+                        disabled={watch('postLink')?.length >= 15}
                         onClick={openAddLinkModal}
                       >
                         <Icon icon='material-symbols:add' opacity={0.7} />
@@ -780,14 +782,14 @@ export default function JobPostingEdit() {
                         color='secondary'
                         onClick={onDiscard}
                       >
-                        Discard
+                        Cancel
                       </Button>
                       <Button
                         variant='contained'
                         onClick={onUpload}
                         disabled={!isValid}
                       >
-                        Add
+                        Save
                       </Button>
                     </Box>
                   </Card>

@@ -70,7 +70,7 @@ export type OnboardingUserType = {
   userId: number
   email: string
   firstName: string
-  middleName: string | null
+  middleName?: string
   lastName: string
   experience: string
   jobInfo: Array<OnboardingJobInfoType>
@@ -85,6 +85,7 @@ export type OnboardingUserType = {
   mobilePhone?: string | null
   telephone?: string | null
   resume?: Array<{
+    id: number
     url: string
     fileName: string
     fileExtension: string

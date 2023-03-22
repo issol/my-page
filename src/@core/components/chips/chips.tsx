@@ -43,7 +43,7 @@ export const JobTypeChip = styled(Chip)<{ type: string }>`
       ? '#A9E0FF'
       : type === 'Webcomics'
       ? '#BEEFAE'
-      : type === 'Webcomics'
+      : type === 'Webnovel'
       ? '#FFBFE9'
       : 'rgba(76, 78, 100, 0.26)'};
 
@@ -112,4 +112,69 @@ export const RoleChip = styled(Chip)<{ type: string }>`
       : '#FFBFE9'};
 
   color: #111111;
+`
+
+export const ServiceTypeChip = styled(Chip)`
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #666cff;
+  border: 1px solid rgba(102, 108, 255, 0.5);
+`
+
+export function WorkStatusChip(status: string) {
+  const color =
+    status === 'Approved'
+      ? '#64C623'
+      : status === 'Assigned-waiting'
+      ? '#6D788D'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Delivered'
+      ? '#1A6BBA'
+      : status === 'In progress'
+      ? '#FDB528'
+      : status === 'Invoice accepted'
+      ? '#9B6CD8'
+      : status === 'Invoice created'
+      ? '#F572D8'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Paid'
+      ? '#1B8332'
+      : status === 'Requested'
+      ? '#A81988'
+      : status === 'Without invoice'
+      ? '#75571C'
+      : ''
+
+  return (
+    <CustomChip
+      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+export const ProStatusChip = styled(Chip)<{ status: string }>`
+  border: none;
+  ${({ status }) =>
+    status === 'Onboard'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
+      : status === 'Off-board'
+      ? `background: #929292; color :#ffffff;`
+      : status === 'On-hold'
+      ? `background: rgba(76, 78, 100, 0.05);
+      border: 1px solid rgba(76, 78, 100, 0.38); color : rgba(76, 78, 100, 0.38);`
+      : status === 'Do not contact'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : status === 'Netflix-onboard'
+      ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color:#666CFF;'
+      : null};
 `

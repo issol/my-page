@@ -87,3 +87,73 @@ export const TestStatus = [
     value: 'Rejected',
   },
 ]
+
+export const ProStatus = [
+  {
+    value: 'Onboard',
+    label: 'Onboard',
+  },
+  {
+    value: 'Netflix Onboard',
+    label: 'Netflix Onboard',
+  },
+  {
+    value: 'Off-board',
+    label: 'Off-board',
+  },
+  {
+    value: 'On-hold Do not assign',
+    label: 'On-hold Do not assign',
+  },
+  {
+    value: 'Do not Contact',
+    label: 'Do not Contact',
+  },
+]
+
+export const WorkStatus = [
+  {
+    value: 'Approved',
+    label: 'Approved',
+  },
+  {
+    value: 'Assigned-waiting',
+    label: 'Assigned-waiting',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+  {
+    value: 'Delivered',
+    label: 'Delivered',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Invoice accepted',
+    label: 'Invoice accepted',
+  },
+  {
+    value: 'Invoice created',
+    label: 'Invoice created',
+  },
+  {
+    value: 'Overdue',
+    label: 'Overdue',
+  },
+  {
+    value: 'Paid',
+    label: 'Paid',
+  },
+  {
+    value: 'Requested',
+    label: 'Requested',
+  },
+  {
+    value: 'Without invoice',
+    label: 'Without invoice',
+  },
+]

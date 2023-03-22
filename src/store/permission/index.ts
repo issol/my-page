@@ -4,12 +4,7 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
 
 // ** Axios Imports
 import axios from 'src/configs/axios'
-import { PermissionObjectType, RoleType } from 'src/context/types'
-
-interface Redux {
-  getState: any
-  dispatch: Dispatch<any>
-}
+import { PermissionObjectType, UserRoleType } from 'src/context/types'
 
 /* TODO : 개발 후 Test data 지우기 */
 export const getPermission = createAsyncThunk(
@@ -81,7 +76,6 @@ export const getRole = createAsyncThunk(
       const { data } = await axios.get(
         `/api/enough/a/role/rels?userId=${userId}`,
       )
-      // return { roles: ['TAD', 'MASTER'] }
       return data
     } catch (e: any) {
       throw new Error('getRole error : ', e)
@@ -92,7 +86,7 @@ export const getRole = createAsyncThunk(
 const initialState: {
   isLoading: boolean
   permission: PermissionObjectType
-  role: Array<RoleType>
+  role: Array<UserRoleType>
 } = {
   permission: [],
   role: [],

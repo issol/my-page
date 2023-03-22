@@ -7,15 +7,6 @@ import { Box } from '@mui/system'
 import styled from 'styled-components'
 import toast from 'react-hot-toast'
 
-import About from '../components/detail/about'
-import AppliedRole from '../components/detail/applied-role'
-import CertificationTest from '../components/detail/certification-test'
-import NoteFromPro from '../components/detail/note-pro'
-import Specialties from '../components/detail/specialities'
-import Contracts from '../components/detail/contracts'
-import CommentsAboutPro from '../components/detail/comments-pro'
-import Resume from '../components/detail/resume'
-import Experience from '../components/detail/experience'
 import { ChangeEvent, Suspense, useContext, useEffect, useState } from 'react'
 
 import _ from 'lodash'
@@ -28,7 +19,7 @@ import {
 import { useMutation, useQueryClient } from 'react-query'
 
 import { ModalContext } from 'src/context/ModalContext'
-import TestDetailsModal from '../components/detail/dialog/test-details-modal'
+import TestDetailsModal from '../../components/pro-detail-modal/dialog/test-details-modal'
 import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
@@ -37,22 +28,12 @@ import {
   useGetOnboardingProDetails,
   useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
-import AppliedRoleModal from '../components/detail/dialog/applied-role-modal'
+import AppliedRoleModal from '../../components/pro-detail-modal/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import Button from '@mui/material/Button'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { assignTestSchema } from 'src/types/schema/onboarding.schema'
-import AssignTestModal from '../components/detail/modal/assign-test.modal'
-import CancelTestModal from '../components/detail/modal/cancel-test-modal'
-import AssignRoleModal from '../components/detail/modal/assign-role-modal'
-import CancelRoleModal from '../components/detail/modal/cancel-role-modal'
-import EditCommentModal from '../components/detail/modal/edit-comment-modal'
-import CancelEditCommentModal from '../components/detail/modal/edit-cancel-comment-modal'
-import CancelSaveCommentModal from '../components/detail/modal/cancel-comment-modal'
-import SaveCommentModal from '../components/detail/modal/save-comment-modal'
-import DeleteCommentModal from '../components/detail/modal/delete-comment-modal'
-import FilePreviewDownloadModal from '../components/detail/modal/file-preview-download-modal'
 
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import FallbackSpinner from 'src/@core/components/spinner'
@@ -69,16 +50,35 @@ import {
   patchTestStatus,
 } from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
-import NegativeActionsTestModal from '../components/detail/modal/negative-actions-test-modal'
-import CertifiedRole from '../components/detail/certified-role'
-import CertifyRoleModal from '../components/detail/modal/certify-role-modal'
-import ReasonModal from '../components/detail/modal/reason-modal'
-import ResumeTestModal from '../components/detail/modal/resume-test-modal'
-import TestAssignModal from '../components/detail/modal/test-assign-modal'
-import SkipBasicTestModal from '../components/detail/modal/basic-test-action-modal'
+import modal from '@src/@core/components/modal'
 
-import BasicTestActionModal from '../components/detail/modal/basic-test-action-modal'
-import SkillTestActionModal from '../components/detail/modal/skill-test-action-modal'
+import About from '@src/pages/components/pro-detail-component/about'
+import AppliedRole from '@src/pages/components/pro-detail-component/applied-role'
+import CertifiedRole from '@src/pages/components/pro-detail-component/certified-role'
+import CommentsAboutPro from '@src/pages/components/pro-detail-component/comments-pro'
+import Experience from '@src/pages/components/pro-detail-component/experience'
+import NoteFromPro from '@src/pages/components/pro-detail-component/note-pro'
+import Resume from '@src/pages/components/pro-detail-component/resume'
+import Specialties from '@src/pages/components/pro-detail-component/specialities'
+import AssignRoleModal from '@src/pages/components/pro-detail-modal/modal/assign-role-modal'
+import AssignTestModal from '@src/pages/components/pro-detail-modal/modal/assign-test.modal'
+import BasicTestActionModal from '@src/pages/components/pro-detail-modal/modal/basic-test-action-modal'
+import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
+import CancelRoleModal from '@src/pages/components/pro-detail-modal/modal/cancel-role-modal'
+import CancelTestModal from '@src/pages/components/pro-detail-modal/modal/cancel-test-modal'
+import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
+import DeleteCommentModal from '@src/pages/components/pro-detail-modal/modal/delete-comment-modal'
+import CancelEditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-cancel-comment-modal'
+import EditCommentModal from '@src/pages/components/pro-detail-modal/modal/edit-comment-modal'
+import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
+import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
+import ReasonModal from '@src/pages/components/pro-detail-modal/modal/reason-modal'
+import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
+import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-comment-modal'
+import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/skill-test-action-modal'
+import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
+import Contracts from '@src/pages/components/pro-detail-component/contracts'
+import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -94,11 +94,7 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
-  const {
-    data: userInfo,
-    isError,
-    isFetched,
-  } = useGetOnboardingProDetails(id!, validUser, setValidUser)
+  const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   const { data: appliedRole } = useGetAppliedRole(userId!)
@@ -896,7 +892,19 @@ function OnboardingDetail() {
             height='100%'
           >
             <Grid item xs={12}>
-              <About userInfo={userInfo!} />
+              <About
+                userInfo={{
+                  preferredName: userInfo?.preferredName!,
+                  preferredNamePronunciation:
+                    userInfo?.preferredNamePronunciation!,
+                  pronounce: userInfo?.pronounce!,
+                  email: userInfo?.email!,
+                  timezone: userInfo?.timezone!,
+                  mobilePhone: userInfo?.mobilePhone!,
+                  telephone: userInfo?.telephone!,
+                }}
+                type='onboarding'
+              />
             </Grid>
             <Grid item xs={12}>
               <CertifiedRole userInfo={certifiedRole!} />
@@ -941,6 +949,7 @@ function OnboardingDetail() {
                     onClickRejectOrPause={onClickRejectOrPause}
                     onClickReason={onClickReason}
                     onClickResumeTest={onClickResumeTest}
+                    type='onboarding'
                   />
                 </Suspense>
               </Grid>
@@ -999,7 +1008,6 @@ function OnboardingDetail() {
   )
 }
 
-// ** TODO : 렐,백엔드와 논의 후 수정
 OnboardingDetails.acl = {
   subject: 'onboarding',
   action: 'read',

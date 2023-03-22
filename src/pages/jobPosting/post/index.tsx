@@ -72,6 +72,7 @@ import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import { ExperiencedYears } from 'src/shared/const/experienced-years'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function JobPostingPost() {
   const router = useRouter()
@@ -583,7 +584,7 @@ export default function JobPostingPost() {
                           disableClearable
                           renderOption={(props, option) => (
                             <Box component='li' {...props}>
-                              {option.label} ({option.code}) +{option.phone}
+                              {getGmtTime(option.code)}
                             </Box>
                           )}
                           renderInput={params => (
@@ -654,6 +655,7 @@ export default function JobPostingPost() {
                   <Button
                     variant='outlined'
                     fullWidth
+                    disabled={watch('postLink').length >= 15}
                     onClick={openAddLinkModal}
                   >
                     <Icon icon='material-symbols:add' opacity={0.7} />
@@ -696,7 +698,7 @@ export default function JobPostingPost() {
                     onClick={onUpload}
                     disabled={!isValid}
                   >
-                    Add
+                    Post
                   </Button>
                 </Box>
               </Card>

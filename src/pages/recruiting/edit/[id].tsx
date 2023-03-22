@@ -81,6 +81,7 @@ import { useMutation } from 'react-query'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 export default function RecruitingEdit() {
   const router = useRouter()
@@ -194,8 +195,6 @@ export default function RecruitingEdit() {
     }
   }, [isSuccess])
 
-  type LinkModeType = 'insert' | 'find'
-  const [linkMode, setLinkMode] = useState<LinkModeType>('insert')
   const defaultValues = {
     status: { value: '' as StatusType, label: '' as StatusType },
     client: { value: '', label: '' },
@@ -647,9 +646,6 @@ export default function RecruitingEdit() {
                               error={Boolean(errors.openings)}
                               label='Number of linguist'
                               placeholder='Number of linguist'
-                              InputProps={{
-                                type: 'number',
-                              }}
                             />
                           )}
                         />
@@ -698,7 +694,7 @@ export default function RecruitingEdit() {
                               disableClearable
                               renderOption={(props, option) => (
                                 <Box component='li' {...props}>
-                                  {option.label} ({option.code}) +{option.phone}
+                                  {getGmtTime(option.code)}
                                 </Box>
                               )}
                               renderInput={params => (
@@ -706,8 +702,12 @@ export default function RecruitingEdit() {
                                   {...params}
                                   label='Due date timezone'
                                   error={Boolean(errors.dueDateTimezone)}
-                                  inputProps={{
-                                    ...params.inputProps,
+                                  InputProps={{
+                                    sx: {
+                                      background: !isWriter
+                                        ? 'rgba(76, 78, 100, 0.12)'
+                                        : '',
+                                    },
                                   }}
                                 />
                               )}
@@ -724,66 +724,33 @@ export default function RecruitingEdit() {
                       <Grid item xs={12}>
                         <Box display='flex' gap='8px'>
                           <Select
-                            disabled={!isWriter}
+                            disabled
                             id='job post link'
                             labelId='select job post link'
-                            defaultValue='insert'
-                            onChange={e =>
-                              setLinkMode(e.target.value as LinkModeType)
-                            }
+                            defaultValue='find'
                           >
                             <MenuItem value='insert'>Insert link</MenuItem>
                             <MenuItem value='find'>Find link</MenuItem>
                           </Select>
-                          {linkMode === 'insert' ? (
-                            <Controller
-                              name='jobPostLink'
-                              control={control}
-                              rules={{ required: true }}
-                              render={({
-                                field: { value, onChange, onBlur },
-                              }) => (
-                                <OutlinedInput
-                                  fullWidth
-                                  disabled={!isWriter}
-                                  value={value}
-                                  id='jobPostLink'
-                                  onChange={onChange}
-                                  placeholder='Job posting link'
-                                  endAdornment={
-                                    <InputAdornment position='end'>
-                                      <IconButton edge='end'>
-                                        <Icon
-                                          icon='material-symbols:open-in-new'
-                                          opacity={0.7}
-                                        />
-                                      </IconButton>
-                                    </InputAdornment>
-                                  }
-                                />
-                              )}
-                            />
-                          ) : (
-                            <OutlinedInput
-                              fullWidth
-                              disabled={!isWriter}
-                              readOnly
-                              value={watch('jobPostLink')}
-                              id='jobPostLink'
-                              onClick={() => isWriter && setOpenDialog(true)}
-                              placeholder='Job posting link'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton edge='end'>
-                                    <Icon
-                                      icon='material-symbols:open-in-new'
-                                      opacity={0.7}
-                                    />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
-                            />
-                          )}
+                          <OutlinedInput
+                            fullWidth
+                            disabled={!isWriter}
+                            readOnly
+                            value={watch('jobPostLink')}
+                            id='jobPostLink'
+                            onClick={() => isWriter && setOpenDialog(true)}
+                            placeholder='Job posting link'
+                            endAdornment={
+                              <InputAdornment position='end'>
+                                <IconButton edge='end'>
+                                  <Icon
+                                    icon='material-symbols:open-in-new'
+                                    opacity={0.7}
+                                  />
+                                </IconButton>
+                              </InputAdornment>
+                            }
+                          />
                         </Box>
                       </Grid>
                     </Grid>
@@ -828,7 +795,7 @@ export default function RecruitingEdit() {
                         onClick={onUpload}
                         disabled={!isValid}
                       >
-                        Add
+                        Save
                       </Button>
                     </Box>
                   </Card>
