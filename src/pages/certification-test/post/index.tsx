@@ -703,7 +703,7 @@ const TestMaterialPost = () => {
       : null
 
     // file upload
-    if (data.file.length) {
+    if (data.file?.length) {
       const formData = new FormData()
       const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
         []
