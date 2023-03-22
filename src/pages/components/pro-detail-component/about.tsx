@@ -1,12 +1,12 @@
 import {
   Card,
-  FormControl,
   InputLabel,
   MenuItem,
-  Select,
   SelectChangeEvent,
   Typography,
 } from '@mui/material'
+import FormControl from '@mui/material/FormControl'
+import Select from '@mui/material/Select'
 import Divider from '@mui/material/Divider'
 import Box from '@mui/material/Box'
 import { UserInfoResType } from 'src/apis/user.api'

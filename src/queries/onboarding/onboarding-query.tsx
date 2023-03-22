@@ -141,7 +141,7 @@ export const useGetOnboardingProDetails = (userId: string | string[]) => {
         res['resume'] = resume
         res['contracts'] = resume
         res['dateOfBirth'] = '2023-03-05T09:38:00.564Z'
-        res['status'] = 'On-hold'
+        res['status'] = 'Onboard'
         res['residence'] = 'South Korea (Seoul)'
 
         return res
