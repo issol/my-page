@@ -23,3 +23,26 @@ code:not([class*='language-']):after {
 code[class*='language-'] {
   padding: 0;
 }
+
+/* OutlinedInput disabled design */
+.css-1wxwjf-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
+  background: rgba(76, 78, 100, 0.12);
+}
+.css-z08spr-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  background: rgba(76, 78, 100, 0.12);
+}
+/* Select component disabled design */
+.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+  background: rgba(76, 78, 100, 0.12);
+}
+
+/* TextField disabled design */
+.css-127u85g-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
+  background: rgba(76, 78, 100, 0.12);
+}
+
+/* CustomInput disabled design */
+.css-d5up4r-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
+  background: rgba(76, 78, 100, 0.12);
+}

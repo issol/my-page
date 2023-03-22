@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import { loginResType } from 'src/types/sign/signInTypes'
-import { RoleType } from 'src/context/types'
+import { UserRoleType } from 'src/context/types'
 
 export const login = async (
   email: string,
@@ -78,7 +78,7 @@ export const verifyPinCode = async (
 
 export const signUp = async (
   email: string,
-  roles: Array<RoleType>,
+  roles: Array<UserRoleType>,
   password?: string,
 ): Promise<loginResType> => {
   const body = !password ? { email, roles } : { email, password, roles }
@@ -91,7 +91,7 @@ export const signUp = async (
 }
 export const snsSignUp = async (
   email: string,
-  roles: Array<RoleType>,
+  roles: Array<UserRoleType>,
 ): Promise<loginResType> => {
   try {
     const { data } = await axios.post(`/api/enough/a/google/signup`, {

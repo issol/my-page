@@ -162,7 +162,7 @@ const UserDropdown = (props: Props) => {
                 }}
               >
                 {role?.map((value, index) => {
-                  return <Box key={index}>{value}</Box>
+                  return <Fragment key={index}>{value?.name} </Fragment>
                 })}
               </Typography>
             </Box>

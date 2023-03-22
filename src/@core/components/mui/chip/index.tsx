@@ -27,7 +27,7 @@ const Chip = (props: CustomChipProps) => {
     info: { ...bgColors.infoLight },
   }
 
-  console.log(customcolor)
+  // console.log(customcolor)
 
   const getSx = () => {
     if (skin === 'light' && color) {
