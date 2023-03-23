@@ -79,4 +79,5 @@ export type AuthValuesType = {
 export type PermissionObjectType = Array<{
   subject: string
   can: Array<'all' | 'create' | 'read' | 'update' | 'delete'>
+  option?: { [key: string]: any }
 }>

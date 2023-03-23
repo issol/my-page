@@ -120,34 +120,38 @@ export default function About({
               : '+' + userInfo.timezone.phone + ') ' + userInfo.telephone}
           </Label>
         </Box>
-        <Divider />
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            flexDirection: 'column',
-          }}
-        >
-          <FormControl fullWidth>
-            <InputLabel id='controlled-select-label'>Status</InputLabel>
-            <Select
-              value={status}
-              defaultValue={status}
-              label='Status'
-              id='controlled-select'
-              onChange={handleChangeStatus}
-              labelId='controlled-select-label'
-            >
-              {Object.values(ProStatus).map(value => {
-                return (
-                  <MenuItem key={uuidv4()} value={value.value}>
-                    {value.label}
-                  </MenuItem>
-                )
-              })}
-            </Select>
-          </FormControl>
-        </Box>
+
+        <>
+          <Divider />
+          <Box
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              flexDirection: 'column',
+            }}
+          >
+            <FormControl fullWidth>
+              <InputLabel id='controlled-select-label'>Status</InputLabel>
+              <Select
+                value={status}
+                defaultValue={status}
+                label='Status'
+                id='controlled-select'
+                onChange={handleChangeStatus}
+                labelId='controlled-select-label'
+                disabled={type === 'onboarding'}
+              >
+                {Object.values(ProStatus).map(value => {
+                  return (
+                    <MenuItem key={uuidv4()} value={value.value}>
+                      {value.label}
+                    </MenuItem>
+                  )
+                })}
+              </Select>
+            </FormControl>
+          </Box>
+        </>
       </Box>
     </Card>
   )
