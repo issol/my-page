@@ -23,10 +23,14 @@ export type PolicyType = {
 
 const defineRulesFor = (userPermission: PermissionObjectType) => {
   const { can, rules } = new AbilityBuilder(AppAbility)
-  can(['read'], 'home')
+  can('read', 'home')
   if (userPermission.length) {
     userPermission.forEach(permission => {
-      can(permission.can, permission.subject)
+      if (permission?.option) {
+        can(permission.can, permission.subject, { ...permission.option })
+      } else {
+        can(permission.can, permission.subject)
+      }
     })
   }
   return rules
@@ -38,7 +42,7 @@ export const buildAbilityFor = (
   return new AppAbility(defineRulesFor(userPermission), {
     // https://casl.js.org/v5/en/guide/subject-type-detection
     // @ts-ignore
-    detectSubjectType: object => object!.type,
+    // detectSubjectType: object => object!.type,
   })
 }
 
