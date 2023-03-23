@@ -21,14 +21,16 @@ import Chip from 'src/@core/components/mui/chip'
 import { Dispatch, SetStateAction, ChangeEvent } from 'react'
 import TextField from '@mui/material/TextField'
 import { log } from 'console'
+import { UserDataType } from '@src/context/types'
+import { DetailUserType } from '@src/types/common/detail-user.type'
 type Props = {
-  userInfo: CommentsOnProType[]
-  user: any
+  userInfo: DetailUserType
+  user: UserDataType
   page: number
   rowsPerPage: number
   offset: number
   handleChangePage: (direction: string) => void
-  userId: number
+
   onClickEditConfirmComment: () => void
   setClickedEditComment: Dispatch<SetStateAction<boolean>>
   clickedEditComment: boolean
@@ -53,7 +55,7 @@ export default function CommentsAboutPro({
   rowsPerPage,
   offset,
   handleChangePage,
-  userId,
+
   onClickEditConfirmComment,
   setClickedEditComment,
   clickedEditComment,
@@ -70,7 +72,11 @@ export default function CommentsAboutPro({
   addComment,
   onClickDeleteComment,
 }: Props) {
-  function getLegalName(row: CommentsOnProType) {
+  function getLegalName(row: {
+    firstName: string
+    middleName: string
+    lastName: string
+  }) {
     return !row.firstName || !row.lastName
       ? '-'
       : row.firstName +
@@ -112,7 +118,7 @@ export default function CommentsAboutPro({
           </Button>
         )}
       </Typography>
-      {userInfo && userInfo.length ? (
+      {userInfo.commentsOnPro && userInfo.commentsOnPro.length ? (
         <Divider sx={{ my: theme => `${theme.spacing(4)} !important` }} />
       ) : null}
 
@@ -148,7 +154,11 @@ export default function CommentsAboutPro({
                     color: '#666CFF',
                   }}
                 >
-                  {getLegalName(user)}
+                  {getLegalName({
+                    firstName: user.firstName!,
+                    middleName: user.middleName!,
+                    lastName: user.lastName!,
+                  })}
                 </Typography>
                 <Divider orientation='vertical' variant='middle' flexItem />
                 <Typography
@@ -202,163 +212,172 @@ export default function CommentsAboutPro({
                   Confirm
                 </Button>
               </Box>
-              {userInfo && userInfo.length ? (
-                <Divider
-                  sx={{ my: theme => `${theme.spacing(4)} !important` }}
-                />
-              ) : null}
+              {
+                (userInfo.commentsOnPro && userInfo.commentsOnPro,
+                length ? (
+                  <Divider
+                    sx={{ my: theme => `${theme.spacing(4)} !important` }}
+                  />
+                ) : null)
+              }
             </Box>
           </Box>
         ) : null}
-        {userInfo && userInfo.length ? (
-          userInfo.slice(offset, offset + rowsPerPage).map(value => {
-            return (
-              <>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '14px',
-                  }}
-                >
+        {userInfo.commentsOnPro && userInfo.commentsOnPro.length ? (
+          userInfo.commentsOnPro
+            .slice(offset, offset + rowsPerPage)
+            .map(value => {
+              return (
+                <>
                   <Box
                     sx={{
                       display: 'flex',
-                      justifyContent: 'space-between',
-                      alignItems: 'center',
+                      flexDirection: 'column',
+                      gap: '14px',
                     }}
                   >
-                    <Box sx={{ display: 'flex', gap: '8px' }}>
-                      <Chip
-                        size='small'
-                        skin='light'
-                        label={'Writer'}
-                        color='error'
-                        sx={{
-                          textTransform: 'capitalize',
-                          '& .MuiChip-label': { lineHeight: '18px' },
-                          mr: 1,
-                        }}
-                      />
-                      <Typography
-                        variant='body1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 500,
-                          lineHeight: '21px',
-                          letterSpacing: '0.1px',
-                          color:
-                            value.userId === userId
-                              ? '#666CFF'
-                              : 'rgba(76, 78, 100, 0.87)',
-                        }}
-                      >
-                        {getLegalName(value)}
-                      </Typography>
-                      <Divider
-                        orientation='vertical'
-                        variant='middle'
-                        flexItem
-                      />
-                      <Typography
-                        variant='body2'
-                        sx={{
-                          fontSize: '14px',
-
-                          lineHeight: '21px',
-                          letterSpacing: '0.15px',
-                        }}
-                      >
-                        {value.email}
-                      </Typography>
-                    </Box>
-                    <Box sx={{ display: 'flex' }}>
-                      {selectedComment && selectedComment?.id === value.id ? (
-                        <></>
-                      ) : (
-                        <>
-                          {value.userId === userId ? (
-                            <>
-                              <IconButton
-                                sx={{ padding: 1 }}
-                                onClick={() => onClickEditComment(value)}
-                              >
-                                <Icon icon='mdi:pencil-outline' />
-                              </IconButton>
-                            </>
-                          ) : null}
-                          <IconButton
-                            sx={{ padding: 1 }}
-                            onClick={() => onClickDeleteComment(value)}
-                          >
-                            <Icon icon='mdi:delete-outline' />
-                          </IconButton>
-                        </>
-                      )}
-                    </Box>
-                  </Box>
-                  <Box>
-                    <Typography variant='body2'>
-                      {FullDateTimezoneHelper(value.updatedAt)}
-                    </Typography>
-                  </Box>
-                  {selectedComment && selectedComment?.id === value.id ? (
                     <Box
                       sx={{
                         display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
                       }}
                     >
-                      <TextField
-                        fullWidth
-                        rows={4}
-                        value={comment}
-                        onChange={handleCommentChange}
-                        multiline
-                        id='textarea-outlined-static'
-                      />
+                      <Box sx={{ display: 'flex', gap: '8px' }}>
+                        <Chip
+                          size='small'
+                          skin='light'
+                          label={'Writer'}
+                          color='error'
+                          sx={{
+                            textTransform: 'capitalize',
+                            '& .MuiChip-label': { lineHeight: '18px' },
+                            mr: 1,
+                          }}
+                        />
+                        <Typography
+                          variant='body1'
+                          sx={{
+                            fontSize: '14px',
+                            fontWeight: 500,
+                            lineHeight: '21px',
+                            letterSpacing: '0.1px',
+                            color:
+                              value.userId === user.id
+                                ? '#666CFF'
+                                : 'rgba(76, 78, 100, 0.87)',
+                          }}
+                        >
+                          {getLegalName({
+                            firstName: value.firstName,
+                            middleName: value.middleName!,
+                            lastName: value.lastName,
+                          })}
+                        </Typography>
+                        <Divider
+                          orientation='vertical'
+                          variant='middle'
+                          flexItem
+                        />
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            fontSize: '14px',
+
+                            lineHeight: '21px',
+                            letterSpacing: '0.15px',
+                          }}
+                        >
+                          {value.email}
+                        </Typography>
+                      </Box>
+                      <Box sx={{ display: 'flex' }}>
+                        {selectedComment && selectedComment?.id === value.id ? (
+                          <></>
+                        ) : (
+                          <>
+                            {value.userId === user.id ? (
+                              <>
+                                <IconButton
+                                  sx={{ padding: 1 }}
+                                  onClick={() => onClickEditComment(value)}
+                                >
+                                  <Icon icon='mdi:pencil-outline' />
+                                </IconButton>
+                              </>
+                            ) : null}
+                            <IconButton
+                              sx={{ padding: 1 }}
+                              onClick={() => onClickDeleteComment(value)}
+                            >
+                              <Icon icon='mdi:delete-outline' />
+                            </IconButton>
+                          </>
+                        )}
+                      </Box>
+                    </Box>
+                    <Box>
+                      <Typography variant='body2'>
+                        {FullDateTimezoneHelper(value.updatedAt, user.timezone)}
+                      </Typography>
+                    </Box>
+                    {selectedComment && selectedComment?.id === value.id ? (
                       <Box
                         sx={{
                           display: 'flex',
-                          gap: '8px',
-                          justifyContent: 'end',
+                          flexDirection: 'column',
+                          gap: '12px',
                         }}
                       >
-                        <Button
-                          variant='outlined'
-                          size='small'
-                          onClick={onClickEditCancelComment}
+                        <TextField
+                          fullWidth
+                          rows={4}
+                          value={comment}
+                          onChange={handleCommentChange}
+                          multiline
+                          id='textarea-outlined-static'
+                        />
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            justifyContent: 'end',
+                          }}
                         >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant='contained'
-                          size='small'
-                          onClick={onClickEditConfirmComment}
-                        >
-                          Confirm
-                        </Button>
+                          <Button
+                            variant='outlined'
+                            size='small'
+                            onClick={onClickEditCancelComment}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant='contained'
+                            size='small'
+                            onClick={onClickEditConfirmComment}
+                          >
+                            Confirm
+                          </Button>
+                        </Box>
                       </Box>
-                    </Box>
-                  ) : (
-                    <Box>{value.comment}</Box>
-                  )}
-                </Box>
+                    ) : (
+                      <Box>{value.comment}</Box>
+                    )}
+                  </Box>
 
-                <Divider
-                  sx={{ my: theme => `${theme.spacing(4)} !important` }}
-                />
-              </>
-            )
-          })
+                  <Divider
+                    sx={{ my: theme => `${theme.spacing(4)} !important` }}
+                  />
+                </>
+              )
+            })
         ) : clickedAddComment ? null : (
           <Box>-</Box>
         )}
-        {userInfo && userInfo.length ? (
+        {userInfo.commentsOnPro && userInfo.commentsOnPro.length ? (
           <Grid item xs={12}>
             <CustomPagination
-              listCount={userInfo.length}
+              listCount={userInfo.commentsOnPro.length}
               page={page}
               handleChangePage={handleChangePage}
               rowsPerPage={rowsPerPage}
