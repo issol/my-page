@@ -1489,9 +1489,9 @@ export const handlers = [
   //   )
   // }),
 
-  rest.get(BASEURL + '/api/enough/cert/request/role', (req, res, ctx) => {
-    return res(ctx.status(200), ctx.json([]))
-  }),
+  // rest.get(BASEURL + '/api/enough/cert/request/role', (req, res, ctx) => {
+  //   return res(ctx.status(200), ctx.json([]))
+  // }),
 
   rest.get(BASEURL + '/api/enough/pro/user/al', (req, res, ctx) => {
     interface Data {
