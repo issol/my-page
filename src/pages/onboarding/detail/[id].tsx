@@ -93,6 +93,7 @@ const OnboardingDetails = () => (
 function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
+
   const [validUser, setValidUser] = useState(false)
   const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
 
@@ -540,6 +541,7 @@ function OnboardingDetail() {
         reviewerList={reviewerList!}
         history={history!}
         type={type}
+        user={user!}
       />,
     )
   }
@@ -965,13 +967,12 @@ function OnboardingDetail() {
               </Grid>
               <Grid item xs={12}>
                 <CommentsAboutPro
-                  userInfo={userInfo!.commentsOnPro!}
-                  user={userInfo}
+                  userInfo={userInfo!}
+                  user={user!}
                   page={commentsProPage}
                   rowsPerPage={commentsProRowsPerPage}
                   handleChangePage={handleChangeCommentsProPage}
                   offset={commentsProOffset}
-                  userId={user!.id}
                   onClickEditConfirmComment={onClickEditConfirmComment}
                   setClickedEditComment={setClickedEditComment}
                   clickedEditComment={clickedEditComment}

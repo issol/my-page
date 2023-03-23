@@ -16,6 +16,7 @@ import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 // ** nextJS
 import { useRouter } from 'next/router'
 import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
+import { UserDataType } from '@src/context/types'
 
 type CellType = {
   row: {
@@ -33,6 +34,7 @@ type Props = {
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
+  user: UserDataType
   list: {
     data:
       | Array<{
@@ -65,6 +67,7 @@ export default function ClientGuideLineList({
   setPageSize,
   list,
   isLoading,
+  user,
 }: Props) {
   const router = useRouter()
 
@@ -127,7 +130,7 @@ export default function ClientGuideLineList({
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.createdAt)}
+          {FullDateTimezoneHelper(row.createdAt, user.timezone!)}
         </Box>
       ),
     },

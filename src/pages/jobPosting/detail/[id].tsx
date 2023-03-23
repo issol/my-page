@@ -185,7 +185,7 @@ const JobPostingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt)}
+            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
           </Box>
         )
       },
@@ -295,7 +295,7 @@ const JobPostingDetail = () => {
                       <Typography variant='body2'>{data?.email}</Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(data?.createdAt)}
+                      {FullDateTimezoneHelper(data?.createdAt, user?.timezone!)}
                     </Typography>
                   </Box>
                 </Box>

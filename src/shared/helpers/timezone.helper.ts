@@ -1,3 +1,4 @@
+import logger from '@src/@core/utils/logger'
 import moment from 'moment-timezone'
 import { timezones } from 'src/@fake-db/autocomplete'
 
@@ -45,11 +46,30 @@ export const getGmtTimeEng = (code: string | null | undefined) => {
   return formattedTimeZone
 }
 
-export function getTimezone(value: any) {
+// export function getTimezone(value: any) {
+//   if (!value) return ''
+//   const timeZone = moment.tz.guess()
+//   /* @ts-ignore */
+
+//   let date
+//   //this is for safari response
+//   if (isNaN(new Date(value).valueOf())) {
+//     date = new Date(value.replace(/-/g, '/'))
+//   } else {
+//     date = new Date(value)
+//   }
+
+//   const timeZoneOffset = date.getTimezoneOffset()
+//   const timeZoneAbbr = moment.tz.zone(timeZone)!.abbr(timeZoneOffset)
+//   return timeZoneAbbr
+// }
+
+export const getTimezone = (value: any, code: string) => {
   if (!value) return ''
-  const timeZone = moment.tz.guess()
+  /* @ts-ignore */
+  const timeZone = timezones.countries[code]?.zones[0]
+
   let date
-  //this is for safari response
   if (isNaN(new Date(value).valueOf())) {
     date = new Date(value.replace(/-/g, '/'))
   } else {
