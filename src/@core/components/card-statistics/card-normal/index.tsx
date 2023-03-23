@@ -6,10 +6,10 @@ import Typography from '@mui/material/Typography'
 import CardContent from '@mui/material/CardContent'
 
 // ** Custom Components Imports
-import CustomChip from 'src/@core/components/mui/chip'
+import CustomChip from '@src/@core/components/mui/chip'
 
 // ** Types Imports
-import { CardNormalProps } from 'src/@core/components/card-statistics/types'
+import { CardNormalProps } from '@src/@core/components/card-statistics/types'
 
 interface Props {
   data: CardNormalProps
@@ -20,7 +20,7 @@ const CardNormal = ({ data }: Props) => {
   const { title, titleColor, src, stats } = data
 
   return (
-    <Card sx={{ overflow: 'scroll', position: 'relative' }}>
+    <Card sx={{ position: 'relative' }}>
       <CardContent sx={{ pb: '0 !important' }}>
         <Grid container>
           <Grid
