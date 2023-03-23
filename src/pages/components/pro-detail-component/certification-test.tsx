@@ -65,9 +65,6 @@ export default function CertificationTest({
       jobInfo.test.find(value => value.testType === 'skill')?.status ===
       'NO_TEST'
 
-    console.log(noBasic)
-    console.log(noSkill)
-
     if ((noBasic && noSkill) || (!noBasic && noSkill)) {
       return true
     } else {
