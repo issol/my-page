@@ -155,6 +155,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           '&.bg-primary': {
             borderColor: 'transparent',
             color: theme.palette.primary.main,
+            borderLeft: `6px solid ${theme.palette.primary.main}`,
+            borderRight: `6px solid ${theme.palette.primary.main}`,
             backgroundColor: bgColors.primaryLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.primary.main,
@@ -163,6 +165,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           '&.bg-secondary': {
             borderColor: 'transparent',
             color: theme.palette.secondary.main,
+            borderLeft: `6px solid ${theme.palette.secondary.main}`,
+            borderRight: `6px solid ${theme.palette.secondary.main}`,
             backgroundColor: bgColors.secondaryLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.secondary.main,
@@ -171,14 +175,19 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           '&.bg-success': {
             borderColor: 'transparent',
             color: theme.palette.success.main,
+            borderLeft: `6px solid ${theme.palette.success.main}`,
+            borderRight: `6px solid ${theme.palette.success.main}`,
             backgroundColor: bgColors.successLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.success.main,
             },
           },
+          //** TODO: color, backgroundColor 수정하기  */
           '&.bg-error': {
             borderColor: 'transparent',
             color: theme.palette.error.main,
+            borderLeft: `6px solid ${theme.palette.error.main}`,
+            borderRight: `6px solid ${theme.palette.error.main}`,
             backgroundColor: bgColors.errorLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.error.main,
@@ -187,6 +196,8 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           '&.bg-warning': {
             borderColor: 'transparent',
             color: theme.palette.warning.main,
+            borderLeft: `6px solid ${theme.palette.warning.main}`,
+            borderRight: `6px solid ${theme.palette.warning.main}`,
             backgroundColor: bgColors.warningLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.warning.main,
@@ -195,18 +206,25 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
           '&.bg-info': {
             borderColor: 'transparent',
             color: theme.palette.info.main,
+            borderLeft: `6px solid ${theme.palette.info.main}`,
+            borderRight: `6px solid ${theme.palette.info.main}`,
             backgroundColor: bgColors.infoLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
               color: theme.palette.info.main,
             },
           },
-          //** TODO: color, backgroundColor 수정하기  */
+
           '&.bg-overdue': {
             borderColor: 'transparent',
-            color: '#ac8880',
-            backgroundColor: '#cdd0bd73',
+            color: theme.palette.error.main,
+            backgroundColor: bgColors.errorLight.backgroundColor,
+            borderLeft: `6px solid ${theme.palette.error.main}`,
+            borderRight: `6px solid ${theme.palette.error.main}`,
+            background:
+              'linear-gradient(135deg, rgba(255, 77, 73, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 77, 73, 0.2) 50%, rgba(255, 77, 73, 0.2) 75%, transparent 75%, transparent)',
+            backgroundSize: '5px 5px',
             '& .fc-event-title, & .fc-event-time': {
-              color: '#ac8880',
+              color: theme.palette.error.main,
             },
           },
         },
@@ -237,6 +255,7 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
             backgroundColor: hexToRGBA(theme.palette.success.light, 0.1),
           },
         },
+        //** TODO :borderColor, backgroundColor 수정하기
         '&.bg-error': {
           '& .fc-list-event-dot': {
             borderColor: theme.palette.error.main,
@@ -264,14 +283,14 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
             backgroundColor: hexToRGBA(theme.palette.info.light, 0.1),
           },
         },
-        //** TODO :borderColor, backgroundColor 수정하기
+
         '&.bg-overdue': {
           '& .fc-list-event-dot': {
-            borderColor: '#ac8880',
-            backgroundColor: '#ac8880',
+            borderColor: theme.palette.error.main,
+            backgroundColor: theme.palette.error.main,
           },
           '&:hover td': {
-            backgroundColor: hexToRGBA('#ac8880', 0.1),
+            backgroundColor: hexToRGBA(theme.palette.error.main, 0.1),
           },
         },
         '&.fc-daygrid-event': {
