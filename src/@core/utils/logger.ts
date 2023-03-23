@@ -26,7 +26,11 @@ const logger = {
 
 function log(level: LogLevel, ...args: any[]) {
   const prefix = `[${LogLevel[level].toUpperCase()}]`;
-  console[level === LogLevel.ERROR ? 'error' : 'log'](prefix, ...args);
+  const error = new Error();
+  const callerLine = error.stack?.split('\n')[3];
+  const caller = callerLine ? callerLine.trim().replace(/^\w+:\/\/[^/]+/, '') : '';
+  // console[level === LogLevel.ERROR ? 'error' : 'log'](prefix, `${caller}:`, ...args);
+  console[level === LogLevel.ERROR ? 'error' : 'log'](prefix, ...args, `\n${caller}`);
 }
 
 export default logger;
