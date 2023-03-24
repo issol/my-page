@@ -797,7 +797,9 @@ const CertificationTestDetail = () => {
                         variant='middle'
                         flexItem
                       />
-                      <Typography variant='body2'>{user?.email}</Typography>
+                      <Typography variant='body2'>
+                        {currentVersion?.email}
+                      </Typography>
                     </Box>
                   </Box>
                   <Box
