@@ -855,7 +855,9 @@ const TestMaterialPost = () => {
                           isOptionEqualToValue={(option, newValue) => {
                             return option.value === newValue.value
                           }}
-                          disabled={selectedTestType === 'Basic test'}
+                          disabled={
+                            isFetched || selectedTestType === 'Basic test'
+                          }
                           options={_.uniqBy(languageList, 'value')}
                           id='source'
                           getOptionLabel={option => option.label}
