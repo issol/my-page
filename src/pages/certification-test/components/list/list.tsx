@@ -115,7 +115,7 @@ export default function TestMaterialList({
             rows={testMaterialList.data ?? []}
             paginationMode={'server'}
             autoHeight
-            // disableSelectionOnClick
+            disableSelectionOnClick
             pageSize={testMaterialListPageSize}
             rowsPerPageOptions={[10, 25, 50]}
             page={testMaterialListPage}
