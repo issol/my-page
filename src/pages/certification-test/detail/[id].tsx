@@ -141,7 +141,9 @@ const CertificationTestDetail = () => {
       disableColumnMenu: true,
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Box>{FullDateTimezoneHelper(row.updatedAt)}</Box>
+        return (
+          <Box>{FullDateTimezoneHelper(row.updatedAt, user?.timezone!)}</Box>
+        )
       },
     },
   ]
@@ -525,7 +527,10 @@ const CertificationTestDetail = () => {
                       }}
                     >
                       <Typography variant='body2'>
-                        {FullDateTimezoneHelper(currentRow.updatedAt)}
+                        {FullDateTimezoneHelper(
+                          currentRow.updatedAt,
+                          user?.timezone!,
+                        )}
                       </Typography>
                     </Box>
                     <Divider />
@@ -803,7 +808,10 @@ const CertificationTestDetail = () => {
                     }}
                   >
                     <Typography variant='body2'>
-                      {FullDateTimezoneHelper(currentVersion?.updatedAt)}
+                      {FullDateTimezoneHelper(
+                        currentVersion?.updatedAt,
+                        user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                   <Divider />

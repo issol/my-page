@@ -60,6 +60,7 @@ import {
   useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 import { assignReviewer } from 'src/apis/onboarding.api'
+import { UserDataType } from '@src/context/types'
 
 // type AssignReviewerType = {
 //   jobType: { label: string; value: string }
@@ -81,6 +82,7 @@ type Props = {
   reviewerList: AssignReviewerType[]
   type: string
   history: any
+  user: UserDataType
 }
 
 const defaultValues = {
@@ -111,6 +113,7 @@ export default function TestDetailsModal({
   reviewerList,
   type,
   history,
+  user,
 }: Props) {
   const { setModal } = useContext(ModalContext)
   const [info, setInfo] = useState<AppliedRoleType>(jobInfo)
@@ -346,7 +349,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.date)}
+          {FullDateTimezoneHelper(row.date, user.timezone)}
         </Box>
       ),
     },
@@ -504,7 +507,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.date)}
+          {FullDateTimezoneHelper(row.date, user.timezone)}
         </Box>
       ),
     },

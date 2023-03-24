@@ -204,7 +204,7 @@ const RecruitingDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.createdAt)}
+            {FullDateTimezoneHelper(row.createdAt, user?.timezone!)}
           </Box>
         )
       },
@@ -356,7 +356,10 @@ const RecruitingDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(currentVersion?.createdAt)}
+                      {FullDateTimezoneHelper(
+                        currentVersion?.createdAt,
+                        user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -528,7 +531,10 @@ const RecruitingDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(new Date())}
+                            {FullDateTimezoneHelper(
+                              new Date(),
+                              user?.timezone!,
+                            )}
                           </Typography>
                         </Box>
                       </Box>

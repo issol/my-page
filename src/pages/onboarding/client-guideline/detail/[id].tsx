@@ -188,7 +188,7 @@ const ClientGuidelineDetail = () => {
       renderCell: ({ row }: CellType) => {
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {FullDateTimezoneHelper(row.updatedAt)}
+            {FullDateTimezoneHelper(row.updatedAt, user?.timezone!)}
           </Box>
         )
       },
@@ -434,7 +434,10 @@ const ClientGuidelineDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(currentVersion?.updatedAt)}
+                      {FullDateTimezoneHelper(
+                        currentVersion?.updatedAt,
+                        user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -625,7 +628,10 @@ const ClientGuidelineDetail = () => {
                             variant='body2'
                             sx={{ alignSelf: 'flex-end' }}
                           >
-                            {FullDateTimezoneHelper(new Date())}
+                            {FullDateTimezoneHelper(
+                              new Date(),
+                              user?.timezone!,
+                            )}
                           </Typography>
                         </Box>
                       </Box>
