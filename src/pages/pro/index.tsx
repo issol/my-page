@@ -34,6 +34,8 @@ import ListResume from './list/list-resume'
 
 import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
+import { AuthContext } from '@src/context/AuthContext'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -63,6 +65,7 @@ const Pro = () => {
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
+  const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
 
   // const { data: totalStatistics } = useGetStatistic()
@@ -217,7 +220,7 @@ const Pro = () => {
               lastName: row.lastName,
               email: row.email,
             }}
-            link={`/pro/detail/${row.id}`}
+            link={`/pro/detail/${row.userId}`}
           />
         )
       },
@@ -376,7 +379,11 @@ const Pro = () => {
       sortable: false,
       renderHeader: () => <Box>Date of onboarded</Box>,
       renderCell: ({ row }: ProListCellType) => {
-        return <Typography variant='body1'>{row.onboardedAt}</Typography>
+        return (
+          <Typography variant='body1'>
+            {FullDateTimezoneHelper(row.onboardedAt, user?.timezone!)}
+          </Typography>
+        )
       },
     },
   ]
