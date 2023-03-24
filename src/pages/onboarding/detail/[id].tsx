@@ -94,12 +94,14 @@ function OnboardingDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const [validUser, setValidUser] = useState(false)
-  const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
+  const {
+    data: userInfo,
+    isError,
+    isFetched,
+  } = useGetOnboardingProDetails(Number(id!))
 
-  const userId = isFetched && !isError ? userInfo!.userId : undefined
-  const { data: appliedRole } = useGetAppliedRole(userId!)
-  const { data: certifiedRole } = useGetCertifiedRole(userId!)
+  const { data: appliedRole } = useGetAppliedRole(Number(id!))
+  const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
   const { data: reviewerList } = useGetReviewerList()
   const { data: history } = useGetHistory()
 
