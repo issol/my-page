@@ -51,7 +51,7 @@ export const getUserPaymentInfo = async (
         identificationFile: '123-******', //주민등록증
         businessLicense: '123-******',
       },
-      type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
+      type: 'PayPal', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
       bankInfo: {
         accountName: 'ABA',
         email: 'bon@glozinc.com',

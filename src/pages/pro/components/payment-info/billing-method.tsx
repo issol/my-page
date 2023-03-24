@@ -33,7 +33,7 @@ export default function BillingMethod({
             <Button
               variant='outlined'
               color='secondary'
-              disabled={!isAccountManager}
+              disabled={!isAccountManager || !info.type}
             >
               Detail
             </Button>
@@ -43,7 +43,20 @@ export default function BillingMethod({
       {!info.type ? (
         <div></div>
       ) : info.type === 'PayPal' ? (
-        <BankBox></BankBox>
+        <BankBox>
+          <Box display='flex' alignItems='center' gap='8px'>
+            <Typography variant='h6'>PayPal</Typography>
+            <img src='/images/misc/icon_paypal.png' alt='PayPal' />
+          </Box>
+          <Grid item xs={6}>
+            <ContentGrid>
+              <Typography sx={{ fontWeight: 'bold' }}>Email address</Typography>
+              <Typography variant='body2'>
+                {replaceDots(info.bankInfo?.email ?? '')}
+              </Typography>
+            </ContentGrid>
+          </Grid>
+        </BankBox>
       ) : (
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>

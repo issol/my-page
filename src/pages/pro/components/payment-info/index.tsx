@@ -24,12 +24,11 @@ type Props = {
 
 export default function PaymentInfo({ id }: Props) {
   const ability = useContext(AbilityContext)
+  const isAccountManager = ability.can('read', 'account_manage')
 
   const clipboard = useClipboard()
 
   const { data } = useGetUserPaymentInfo(id)
-
-  const isAccountManager = ability.can('read', 'account_manage')
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
@@ -42,6 +41,10 @@ export default function PaymentInfo({ id }: Props) {
     if (!value) return '-'
     return value.replaceAll('*', '●')
   }
+
+  //download social security number / business license
+
+  //get detail
 
   return (
     <Grid container spacing={6} mt='6px'>
