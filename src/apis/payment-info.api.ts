@@ -5,7 +5,7 @@ export type UserPaymentInfoType = {
   userInfo: {
     userId: number | null
     identificationNumber?: string //social security number
-    IdentificationFile?: string //주민등록증
+    identificationFile?: string //주민등록증
     businessLicense?: string
   }
   type:
@@ -48,7 +48,7 @@ export const getUserPaymentInfo = async (
       userInfo: {
         userId: 1,
         identificationNumber: '123-******', //social security number
-        IdentificationFile: '123-******', //주민등록증
+        identificationFile: '123-******', //주민등록증
         businessLicense: '123-******',
       },
       type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
@@ -79,7 +79,7 @@ export const getUserPaymentInfo = async (
       userInfo: {
         userId: null,
         identificationNumber: '',
-        IdentificationFile: '',
+        identificationFile: '',
         businessLicense: '',
       },
       type: '',

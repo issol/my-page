@@ -10,9 +10,15 @@ import { ContentGrid } from '.'
 
 type Props = {
   info: UserPaymentInfoType
+  isAccountManager: boolean
+  replaceDots: (value: string) => string
 }
 
-export default function BillingMethod({ info }: Props) {
+export default function BillingMethod({
+  info,
+  isAccountManager,
+  replaceDots,
+}: Props) {
   logger.debug(info)
   return (
     <Card>
@@ -24,13 +30,19 @@ export default function BillingMethod({ info }: Props) {
             alignItems='center'
           >
             <Typography variant='h6'>Billing Method (Account)</Typography>
-            <Button variant='outlined' color='secondary'>
+            <Button
+              variant='outlined'
+              color='secondary'
+              disabled={!isAccountManager}
+            >
               Detail
             </Button>
           </Box>
         }
       />
-      {info.type === 'PayPal' ? (
+      {!info.type ? (
+        <div></div>
+      ) : info.type === 'PayPal' ? (
         <BankBox></BankBox>
       ) : (
         <BankBox>
@@ -40,7 +52,7 @@ export default function BillingMethod({ info }: Props) {
             </Typography>
             <CustomChip
               rounded
-              label='International wire'
+              label={info?.type}
               skin='light'
               color='info'
               size='small'
@@ -60,21 +72,29 @@ export default function BillingMethod({ info }: Props) {
                 <Typography sx={{ fontWeight: 'bold' }}>
                   Account number
                 </Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(info.bankInfo?.accountNumber ?? '')}
+                </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>
                   Routing number
                 </Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(info.bankInfo?.routingNumber ?? '')}
+                </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>SWIFT code</Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(info.bankInfo?.swiftCode ?? '')}
+                </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>IBN number</Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(info.bankInfo?.ibnNumber ?? '')}
+                </Typography>
               </ContentGrid>
             </Grid>
 
@@ -86,17 +106,26 @@ export default function BillingMethod({ info }: Props) {
                 <Typography sx={{ fontWeight: 'bold' }}>
                   Account number
                 </Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(info.correspondentBankInfo?.accountNumber ?? '')}
+                </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>
                   SWIFT code / BIC
                 </Typography>
-                <Typography variant='body2'>BOF●●●●●</Typography>
+                <Typography variant='body2'>
+                  {replaceDots(
+                    info.correspondentBankInfo?.bankIdentifierCode ?? '',
+                  )}
+                </Typography>
               </ContentGrid>
               <ContentGrid>
+                {/* ** TODO : 키값 정해지면 수정 */}
                 <Typography sx={{ fontWeight: 'bold' }}>Others</Typography>
-                <Typography variant='body2'>123●●●●●</Typography>
+                <Typography variant='body2'>
+                  {/* {replaceDots(info.correspondentBankInfo?.accountNumber ?? '')} */}
+                </Typography>
               </ContentGrid>
             </Grid>
           </Grid>

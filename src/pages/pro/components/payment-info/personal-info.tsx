@@ -11,10 +11,17 @@ type Props = {
     IdentificationFile?: string //주민등록증
     businessLicense?: string
   }
-  onCopy: any
+  onCopy: (info: string) => void
+  isAccountManager: boolean
+  replaceDots: (value: string) => string
 }
 
-export default function PersonalInfo({ info, onCopy }: any) {
+export default function PersonalInfo({
+  info,
+  onCopy,
+  isAccountManager,
+  replaceDots,
+}: Props) {
   return (
     <Card>
       <CardHeader title='Personal Info' />
@@ -30,12 +37,16 @@ export default function PersonalInfo({ info, onCopy }: any) {
           Social Security number
         </Typography>
         <Typography variant='body2'>
-          123-4567890
-          <IconButton onClick={onCopy}>
+          {replaceDots(info?.identificationNumber ?? '')}
+          <IconButton onClick={() => onCopy(info?.identificationNumber ?? '')}>
             <Icon icon='mdi:content-copy' fontSize={20} />
           </IconButton>
         </Typography>
-        <Button variant='outlined' sx={{ marginTop: '15px' }}>
+        <Button
+          variant='outlined'
+          sx={{ marginTop: '15px' }}
+          disabled={!isAccountManager}
+        >
           Download
         </Button>
       </CardBox>
@@ -52,7 +63,11 @@ export default function PersonalInfo({ info, onCopy }: any) {
           W8/ W9/ Business license
         </Typography>
 
-        <Button variant='outlined' sx={{ marginTop: '15px' }}>
+        <Button
+          variant='outlined'
+          sx={{ marginTop: '15px' }}
+          disabled={!isAccountManager}
+        >
           Download
         </Button>
       </CardBox>
