@@ -86,8 +86,10 @@ import {
   StatusCode,
 } from 'src/shared/sentry-provider'
 
+import logger from '@src/@core/utils/logger'
+
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING) {
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
   require('../mocks')
 }
 
