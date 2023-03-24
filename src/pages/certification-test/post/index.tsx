@@ -211,60 +211,6 @@ const TestMaterialPost = () => {
     },
   })
 
-  useEffect(() => {
-    if (isDuplicated && !isFetched) {
-      setModal(
-        <ModalContainer>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='The guide line is already exist.'
-            />
-            {selectedTestType === 'Basic' ? (
-              <Typography variant='body2'>
-                <span style={{ fontWeight: 700 }}>
-                  {languageHelper(getValues('target.value'))}&nbsp;
-                </span>
-                {selectedTestType.toLowerCase()} has already been created.
-              </Typography>
-            ) : (
-              <Typography variant='body2'>
-                <span style={{ fontWeight: 700 }}>
-                  {`${getValues('jobType.label')}, ${getValues(
-                    'role.label',
-                  )}, ${getValues('source.value').toUpperCase()}`}
-                  &rarr;{getValues('target.value').toUpperCase()}
-                </span>
-                <br />
-                {selectedTestType.toLowerCase()} has already been created.
-              </Typography>
-            )}
-          </Box>
-          <ModalButtonGroup>
-            <Button
-              variant='contained'
-              onClick={() => {
-                setModal(null)
-                resetFormSelection()
-              }}
-            >
-              Okay
-            </Button>
-          </ModalButtonGroup>
-        </ModalContainer>,
-      )
-    }
-  }, [isDuplicated])
-
   function resetFormSelection() {
     reset({
       source: { label: '', value: '' },
@@ -274,6 +220,8 @@ const TestMaterialPost = () => {
       jobType: { label: '', value: '' },
       role: { label: '', value: '' },
     })
+    setIsDuplicated(false)
+    setSelectedTestType('Basic test')
   }
 
   const handleRemoveFile = (file: FileProp) => {
@@ -611,6 +559,8 @@ const TestMaterialPost = () => {
   )
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
+      console.log(value)
+
       if (value.testType === 'Basic test') {
         if (value.target && value.target.value !== '') {
           const filters: BasicTestExistencePayloadType = {
@@ -742,7 +692,6 @@ const TestMaterialPost = () => {
             isFetched
               ? patchTestMutation.mutate(patchValue)
               : postTestMutation.mutate(finalValue)
-            // guidelineMutation.mutate(finalValue)
           })
           .catch(err => {
             isFetched
@@ -757,25 +706,66 @@ const TestMaterialPost = () => {
           })
       })
     } else {
-      // finalValue.files = fileInfo
       patchValue.files = fileInfo
       isFetched
         ? patchTestMutation.mutate(patchValue)
         : postTestMutation.mutate(finalValue)
     }
-    // if (deletedFiles.length) {
-    //   deletedFiles.forEach(item =>
-    //     deleteTestFile(item.id!).catch(err =>
-    //       toast.error(
-    //         'Something went wrong while deleting files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     ),
-    //   )
-    // }
   }
+
+  useEffect(() => {
+    if (isDuplicated && !isFetched) {
+      setModal(
+        <ModalContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='The guide line is already exist.'
+            />
+            {selectedTestType === 'Basic' ? (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {languageHelper(getValues('target.value'))}&nbsp;
+                </span>
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            ) : (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {`${getValues('jobType.label')}, ${getValues(
+                    'role.label',
+                  )}, ${getValues('source.value').toUpperCase()}`}
+                  &rarr;{getValues('target.value').toUpperCase()}
+                </span>
+                <br />
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            )}
+          </Box>
+          <ModalButtonGroup>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setModal(null)
+                resetFormSelection()
+              }}
+            >
+              Okay
+            </Button>
+          </ModalButtonGroup>
+        </ModalContainer>,
+      )
+    }
+  }, [isDuplicated])
 
   return (
     <Box sx={{ display: 'flex', gap: 4, flexDirection: 'column' }}>
