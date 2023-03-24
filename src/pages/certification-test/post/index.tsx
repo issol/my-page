@@ -229,12 +229,25 @@ const TestMaterialPost = () => {
               height={60}
               alt='The guide line is already exist.'
             />
-            <Typography variant='body2'>
-              <span style={{ fontWeight: 700 }}>
-                {languageHelper(getValues('target.value'))}&nbsp;
-              </span>
-              {selectedTestType.toLowerCase()} has already been created.
-            </Typography>
+            {selectedTestType === 'Basic' ? (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {languageHelper(getValues('target.value'))}&nbsp;
+                </span>
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            ) : (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {`${getValues('jobType.label')}, ${getValues(
+                    'role.label',
+                  )}, ${getValues('source.value').toUpperCase()}`}
+                  &rarr;{getValues('target.value').toUpperCase()}
+                </span>
+                <br />
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            )}
           </Box>
           <ModalButtonGroup>
             <Button
@@ -251,8 +264,6 @@ const TestMaterialPost = () => {
       )
     }
   }, [isDuplicated])
-
-  type FormSelectKey = 'source' | 'target' | 'googleFormLink' | 'testType'
 
   function resetFormSelection() {
     reset({
@@ -404,17 +415,6 @@ const TestMaterialPost = () => {
     mode: 'onChange',
     resolver: yupResolver(certificationTestSchema),
   })
-
-  // const isValid = !watch(['source', 'target', 'googleFormLink', '']).includes(null)
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (isFetched) {
-        console.log(value, name, type)
-      }
-      // console.log(value, name, type)
-    })
-    return () => subscription.unsubscribe()
-  }, [watch, isFetched])
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
@@ -645,10 +645,6 @@ const TestMaterialPost = () => {
     })
     return () => subscription.unsubscribe()
   }, [watch])
-
-  useEffect(() => {
-    console.log(savedFiles)
-  }, [savedFiles])
 
   const onSubmit = (edit: boolean) => {
     const data = getValues()
