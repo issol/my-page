@@ -40,11 +40,6 @@ export default function ProDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
-  // const userInfo = {
-  //   legalNamePronunciation: 'hi',
-  //   firstName: 'kim',
-  //   lastName: 'bon',
-  // }
 
   function getProfileImg(role: RoleType) {
     return `/images/signup/role-${role.toLowerCase()}.png`
@@ -114,14 +109,12 @@ export default function ProDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <ProjectsDetail id={Number(id)} />
+          {id && <ProjectsDetail id={Number(id)} />}
         </TabPanel>
         <TabPanel value='2'>
           <ProDetailOverviews />
         </TabPanel>
-        <TabPanel value='3'>
-          <PaymentInfo />
-        </TabPanel>
+        <TabPanel value='3'>{id && <PaymentInfo id={Number(id)} />}</TabPanel>
       </TabContext>
     </div>
   )
