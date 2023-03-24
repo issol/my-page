@@ -18,6 +18,7 @@ import { googleAuth } from 'src/apis/sign.api'
 // ** third party
 import jwt_decode from 'jwt-decode'
 import { toast } from 'react-hot-toast'
+import logger from '@src/@core/utils/logger'
 
 export default function GoogleButton() {
   const router = useRouter()
@@ -34,7 +35,7 @@ export default function GoogleButton() {
     (credential: string) => googleAuth(credential),
     {
       onSuccess: res => {
-        console.log('google auth success res : ', res)
+        logger.info('google auth success res : ', res)
         auth.updateUserInfo(res)
         router.replace('/')
       },

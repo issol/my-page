@@ -149,7 +149,7 @@ const ContractDetail = () => {
   useEffect(() => {
     refetch()
   }, [])
-  console.log(contract)
+
   useEffect(() => {
     // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 사용하기
     if (contract?.content) {

@@ -58,6 +58,7 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 // ** types
 import { FileType } from 'src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
+import logger from '@src/@core/utils/logger'
 
 type CellType = {
   row: {
@@ -217,7 +218,7 @@ const ClientGuidelineDetail = () => {
           },
         })
         .then(res => {
-          console.log('upload client guideline file success :', res)
+          logger.info('upload client guideline file success :', res)
           const url = window.URL.createObjectURL(new Blob([res.data]))
           const link = document.createElement('a')
           link.href = url

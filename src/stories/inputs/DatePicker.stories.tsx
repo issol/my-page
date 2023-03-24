@@ -107,7 +107,7 @@ const testData: Data = {
 //         //   // highlight.push(new Date(dateWithoutTime.toDateString()))
 //         //   setHighlight([...highlight, dateWithoutTime.toDateString()])
 //         //   currentDate.setDate(currentDate.getDate() + 1)
-//         //   console.log(highlight)
+//         //
 //         // }
 
 //         const start = new Date('Mon Mar 8 2023 15:07:44 GMT+0900')
@@ -123,11 +123,9 @@ const testData: Data = {
 //           currentDate.setDate(currentDate.getDate() + 1)
 //         }
 //         setHighlight(highlight.concat(dates))
-//         console.log(dates)
 //       })
 //     }
 //   }
-//   console.log(highlight)
 //   return (
 //     <DatePickerWrapper>
 //       <DatePicker

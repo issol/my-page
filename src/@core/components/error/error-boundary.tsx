@@ -1,3 +1,4 @@
+import logger from '@src/@core/utils/logger'
 import React from 'react'
 import DetailNoUser from './detail-no-user'
 interface Props {
@@ -19,25 +20,22 @@ class ErrorBoundary extends React.Component<Props, State> {
     this.state = { hasError: false, errorCode: null, from: '' }
   }
   static getDerivedStateFromError() {
-    console.log('hi')
-
     // Update state so the next render will show the fallback UI
     return { hasError: true }
   }
 
   componentDidCatch(error: any, errorInfo: any) {
     // You can use your own error logging service here
-    console.log(error.response.status)
 
     this.setState({
       errorCode: error.response.status,
       from: error.request.responseURL,
     })
 
-    console.log({ error, errorInfo })
+    logger.debug({ error, errorInfo })
   }
   render() {
-    console.log(
+    logger.debug(
       this.state.hasError,
       this.state.errorCode === 400,
       this.state.from.includes('/api/enough/onboard/user'),

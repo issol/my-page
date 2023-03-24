@@ -53,7 +53,11 @@ const usePushNotification = () => {
   }
 
   // 어떤 알림을 보낼 것인지, 몇 초마다 알림을 보낼 것인지에 대한 함수
-  const fireNotificationWithTimeout = (title: any, timeout: any, options = {}) => {
+  const fireNotificationWithTimeout = (
+    title: any,
+    timeout: any,
+    options = {},
+  ) => {
     // 만약 유저가 푸시 알림을 꺼놓았다면 함수가 실행되지 않게 미리 return을 해준다.
     // 그런데 가드를 세워놨음에도 불구하고, Safari에서 실행되지 않는 문제점이 있었다. 이 문제는 해결중이다 ㅜㅜ!
     if (Notification.permission !== 'granted') return
@@ -63,7 +67,7 @@ const usePushNotification = () => {
     const newOption = {
       badge: '/image/logo/logo.svg',
       icon: '/image/logo/logo.svg',
-      ...options
+      ...options,
     }
 
     // 만약 notificationRef가 아직 초기화되지 않았다면, 타이머가 아직 동작하고 있는거니까 notificationRef가 없을 때에만 새로운 알림을 만든다.
@@ -80,7 +84,6 @@ const usePushNotification = () => {
     }
   }
 
-  //   console.log('fireNotificationWithTimeout : ', fireNotificationWithTimeout)
   return { fireNotificationWithTimeout }
 }
 

@@ -76,8 +76,6 @@ const renderStats = (data: DataType[]) => {
 }
 
 const Overview = ({ onboardingStatistic }: Props) => {
-  console.log(Object.entries(onboardingStatistic))
-
   const data: DataType[] = Object.entries(onboardingStatistic).map(
     (key, value) => {
       return {

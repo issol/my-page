@@ -291,7 +291,6 @@ export default function TestMaterialFilters({
                               }[] = []
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
-                                console.log(jobTypeValue)
 
                                 /* @ts-ignore */
                                 const rolePair = RolePair[jobTypeValue]
@@ -359,7 +358,6 @@ export default function TestMaterialFilters({
                                 label: string
                                 value: string
                               }[] = []
-                              console.log(item)
 
                               item.map((data, idx) => {
                                 data.jobType.map(value => {

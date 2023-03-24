@@ -27,7 +27,7 @@ const sources = {
 
     // Custom file with only few icons
 
-/* 
+    /* 
      {
       filename: require.resolve('@iconify/json/json/line-md.json'),
       icons: ['home-twotone-alt', 'github', 'document-list', 'document-code', 'image-twotone']
@@ -38,7 +38,7 @@ const sources = {
     // 'json/gg.json'
   ],
 
-/* 
+  /* 
    icons: [
     'bx:basket',
     'bi:airplane-engines',
@@ -52,15 +52,15 @@ const sources = {
     {
       dir: 'src/iconify-bundle/svg',
       monotone: false,
-      prefix: 'custom'
-    }
+      prefix: 'custom',
+    },
 
     /* {
           dir: 'src/iconify-bundle/emojis',
           monotone: false,
           prefix: 'emoji'
         } */
-  ]
+  ],
 }
 
 // Iconify component (this changes import statement in generated file)
@@ -81,7 +81,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
   const dir = (0, path_1.dirname)(target)
   try {
     await fs_1.promises.mkdir(dir, {
-      recursive: true
+      recursive: true,
     })
   } catch (err) {
     //
@@ -99,7 +99,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
       const filename = require.resolve(`@iconify/json/json/${prefix}.json`)
       sourcesJSON.push({
         filename,
-        icons: organizedList[prefix]
+        icons: organizedList[prefix],
       })
     }
   }
@@ -141,7 +141,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
 
       // Import icons
       const iconSet = await (0, tools_1.importDirectory)(source.dir, {
-        prefix: source.prefix
+        prefix: source.prefix,
       })
 
       // Validate, clean up, fix palette and optimise
@@ -169,8 +169,10 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
             await (0, tools_1.parseColors)(svg, {
               defaultColor: 'currentColor',
               callback: (attr, colorStr, color) => {
-                return !color || (0, tools_1.isEmptyColor)(color) ? colorStr : 'currentColor'
-              }
+                return !color || (0, tools_1.isEmptyColor)(color)
+                  ? colorStr
+                  : 'currentColor'
+              },
             })
           }
 
@@ -206,7 +208,14 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
  * Remove metadata from icon set
  */
 function removeMetaData(iconSet) {
-  const props = ['info', 'chars', 'categories', 'themes', 'prefixes', 'suffixes']
+  const props = [
+    'info',
+    'chars',
+    'categories',
+    'themes',
+    'prefixes',
+    'suffixes',
+  ]
   props.forEach(prop => {
     delete iconSet[prop]
   })

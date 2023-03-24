@@ -24,7 +24,6 @@ export default function ContractForm() {
   function onButtonClick({ type, language }: ContractParam) {
     getContractDetail({ type, language })
       .then(res => {
-        console.log(res)
         if (res) {
           router.push({
             pathname: '/onboarding/contracts/detail',
