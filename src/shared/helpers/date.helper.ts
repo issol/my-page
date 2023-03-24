@@ -1,12 +1,23 @@
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 import { getTimezone } from './timezone.helper'
 
 // output ex : 01/31/2023, 12:40 AM (KR)
-export function FullDateTimezoneHelper(value: any): string | undefined {
+// export function FullDateTimezoneHelper(value: any): string | undefined {
+//   if (value === undefined || value === null) return '-'
+//   const rtn: any = dayjs(value).format('MM/DD/YYYY, hh:mm A')
+
+//   return `${rtn} (${getTimezone(value)})`
+// }
+
+export function FullDateTimezoneHelper(
+  value: any,
+  timezone: CountryType,
+): string | undefined {
   if (value === undefined || value === null) return '-'
   const rtn: any = dayjs(value).format('MM/DD/YYYY, hh:mm A')
 
-  return `${rtn} (${getTimezone(value)})`
+  return `${rtn} (${getTimezone(value, timezone.code)})`
 }
 
 // output ex : 01/31/2023

@@ -11,8 +11,9 @@ import {
   TestMaterialFilterPayloadType,
   TestMaterialListType,
 } from 'src/types/certification-test/list'
-import { materialColumns } from 'src/shared/const/certification-test'
+import { getColumns } from 'src/shared/const/certification-test'
 import { NextRouter } from 'next/router'
+import { UserDataType } from '@src/context/types'
 
 type Props = {
   testMaterialListPage: number
@@ -22,6 +23,7 @@ type Props = {
   testMaterialList: { data: TestMaterialListType[]; count: number }
   setFilters: any
   router: NextRouter
+  user: UserDataType
 }
 
 export default function TestMaterialList({
@@ -32,6 +34,7 @@ export default function TestMaterialList({
   testMaterialList,
   setFilters,
   router,
+  user,
 }: Props) {
   return (
     <Grid item xs={12}>
@@ -108,7 +111,7 @@ export default function TestMaterialList({
                 )
               },
             }}
-            columns={materialColumns}
+            columns={getColumns(user.timezone)}
             rows={testMaterialList.data ?? []}
             paginationMode={'server'}
             autoHeight

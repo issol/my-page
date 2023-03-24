@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** mui
 import { Grid, Typography } from '@mui/material'
@@ -18,6 +18,7 @@ import {
 } from 'src/shared/const/service-type/service-types'
 
 import isEqual from 'lodash/isEqual'
+import { AuthContext } from '@src/context/AuthContext'
 
 export type ConstType = {
   label: string
@@ -51,6 +52,7 @@ export default function ClientGuidLines() {
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
+  const { user } = useContext(AuthContext)
 
   const {
     data: list,
@@ -132,6 +134,7 @@ export default function ClientGuidLines() {
         setPageSize={setPageSize}
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
+        user={user!}
       />
     </Grid>
   )

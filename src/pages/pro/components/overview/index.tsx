@@ -546,6 +546,7 @@ function ProDetailOverview() {
         reviewerList={reviewerList!}
         history={history!}
         type={type}
+        user={user!}
       />,
     )
   }
@@ -930,13 +931,12 @@ function ProDetailOverview() {
               </Grid>
               <Grid item xs={12}>
                 <CommentsAboutPro
-                  userInfo={userInfo!.commentsOnPro!}
-                  user={userInfo}
+                  userInfo={userInfo!}
+                  user={user!}
                   page={commentsProPage}
                   rowsPerPage={commentsProRowsPerPage}
                   handleChangePage={handleChangeCommentsProPage}
                   offset={commentsProOffset}
-                  userId={user!.id}
                   onClickEditConfirmComment={onClickEditConfirmComment}
                   setClickedEditComment={setClickedEditComment}
                   clickedEditComment={clickedEditComment}

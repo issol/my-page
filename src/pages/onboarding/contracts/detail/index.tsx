@@ -209,7 +209,7 @@ const ContractDetail = () => {
       renderHeader: () => <Box>Date & Time</Box>,
       renderCell: ({ row }: CellType) => (
         <Box sx={{ overflowX: 'scroll' }}>
-          {FullDateTimezoneHelper(row.updatedAt)}
+          {FullDateTimezoneHelper(row.updatedAt, user?.timezone!)}
         </Box>
       ),
     },
@@ -370,7 +370,10 @@ const ContractDetail = () => {
                     <Typography variant='body2'>{contract?.email}</Typography>
                   </Box>
                   <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                    {FullDateTimezoneHelper(contract?.updatedAt)}
+                    {FullDateTimezoneHelper(
+                      contract?.updatedAt,
+                      user?.timezone!,
+                    )}
                   </Typography>
                 </Box>
               </Box>
@@ -472,7 +475,10 @@ const ContractDetail = () => {
                       </Typography>
                     </Box>
                     <Typography variant='body2' sx={{ alignSelf: 'flex-end' }}>
-                      {FullDateTimezoneHelper(currentRow?.updatedAt)}
+                      {FullDateTimezoneHelper(
+                        currentRow?.updatedAt,
+                        user?.timezone!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>

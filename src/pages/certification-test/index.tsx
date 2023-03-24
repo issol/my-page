@@ -1,4 +1,4 @@
-import { SyntheticEvent, useState } from 'react'
+import { SyntheticEvent, useContext, useState } from 'react'
 import { Grid } from '@mui/material'
 
 import { RoleSelectType } from 'src/types/onboarding/list'
@@ -15,6 +15,7 @@ import { useGetTestMaterialList } from 'src/queries/certification-test/ceritific
 import TestMaterialFilters from './components/list/filters'
 import { useRouter } from 'next/router'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import { AuthContext } from '@src/context/AuthContext'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -26,6 +27,7 @@ const defaultValues: TestMaterialFilterType = {
 
 const CertificationTest = () => {
   const router = useRouter()
+  const { user } = useContext(AuthContext)
   const [testMaterialListPage, setTestMaterialListPage] = useState<number>(0)
   const [testMaterialListPageSize, setTestMaterialListPageSize] =
     useState<number>(10)
@@ -132,6 +134,7 @@ const CertificationTest = () => {
         setTestMaterialListPageSize={setTestMaterialListPageSize}
         setFilters={setFilters}
         router={router}
+        user={user!}
       />
     </Grid>
   )
