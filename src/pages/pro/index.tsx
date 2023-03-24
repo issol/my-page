@@ -220,7 +220,7 @@ const Pro = () => {
               lastName: row.lastName,
               email: row.email,
             }}
-            link={`/pro/detail/${row.id}`}
+            link={`/pro/detail/${row.userId}`}
           />
         )
       },
