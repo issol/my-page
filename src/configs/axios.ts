@@ -1,3 +1,4 @@
+import { ApiErrorHandler } from '@src/shared/sentry-provider'
 import axios, { AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import authConfig from 'src/configs/auth'
 import {
@@ -111,6 +112,7 @@ instance.interceptors.response.use(
 
       return retryOriginalRequest
     } else {
+      ApiErrorHandler(error)
       // ApiErrorHandler(error, localStorage.getItem('email') ?? 'not logged-in')
     }
     return Promise.reject(error)
