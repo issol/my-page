@@ -1042,10 +1042,11 @@ const TestMaterialPost = () => {
                                   <IconButton
                                     edge='end'
                                     aria-label='toggle password visibility'
-                                    onClick={() =>
-                                      googleFormLink !== '' &&
-                                      window.open(googleFormLink, '_blank')
-                                    }
+                                    onClick={() => {
+                                      googleFormLink &&
+                                        !errors.googleFormLink &&
+                                        window.open(googleFormLink, '_blank')
+                                    }}
                                   >
                                     <OpenInNewIcon />
                                   </IconButton>
