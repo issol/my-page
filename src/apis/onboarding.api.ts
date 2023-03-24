@@ -16,7 +16,7 @@ export const getOnboardingProList = async (filters: OnboardingFilterType) => {
 }
 
 export const getOnboardingProDetails = async (
-  userId: string,
+  userId: number,
 ): Promise<OnboardingProDetailsType> => {
   const { data } = await axios.get<OnboardingProDetailsType>(
     `/api/enough/onboard/user/${userId}`,
@@ -63,6 +63,8 @@ export const getStatistic = async () => {
 
 export const getAppliedRole = async (id: number) => {
   const data = await axios.get(`/api/enough/cert/request/role?userId=${id}`)
+
+  console.log(data)
 
   return data.data
 }
