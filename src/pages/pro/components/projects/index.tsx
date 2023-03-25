@@ -17,7 +17,12 @@ import CalendarContainer from './calendar-view/calendar-container'
 import isEqual from 'lodash/isEqual'
 
 // ** fetch
-import { useGetProjectList } from '@src/queries/pro-project/project.query'
+import {
+  useGetProjectList,
+  useGetWorkNameList,
+} from '@src/queries/pro-project/project.query'
+import { SortingType } from '@src/apis/pro-projects.api'
+import logger from '@src/@core/utils/logger'
 
 export type FilterType = {
   title?: Array<{ value: string; label: string }>
@@ -26,11 +31,12 @@ export type FilterType = {
   source?: Array<{ value: string; label: string }>
   target?: Array<{ value: string; label: string }>
   client?: Array<{ value: string; label: string }>
+  sort?: SortingType
   skip?: number
   take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
+export type FilterOmitType = Omit<FilterType, 'skip' | 'take' | 'sort'>
 
 export const initialFilter: FilterOmitType = {
   title: [],
@@ -47,14 +53,17 @@ type MenuType = 'list' | 'calendar'
 export default function ProjectsDetail({ id }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
   const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
+  const [sort, setSort] = useState<SortingType>('DESC')
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [search, setSearch] = useState(true)
 
-  // console.log(filter)
+  const { data: workName } = useGetWorkNameList(id)
+
   const { data: list, refetch } = useGetProjectList(
     id,
     {
+      sort,
       title: getFilter('title'),
       role: getFilter('role'),
       status: getFilter('status'),
@@ -78,6 +87,10 @@ export default function ProjectsDetail({ id }: Props) {
   function onReset() {
     setFilter({ ...initialFilter })
   }
+
+  useEffect(() => {
+    refetch()
+  }, [sort])
 
   useEffect(() => {
     if (isEqual(initialFilter, filter)) {
@@ -114,6 +127,7 @@ export default function ProjectsDetail({ id }: Props) {
         {menu === 'list' ? (
           <Grid>
             <Filters
+              workName={!workName?.length ? [] : workName}
               filter={filter}
               setFilter={setFilter}
               onReset={onReset}
@@ -122,6 +136,8 @@ export default function ProjectsDetail({ id }: Props) {
             <ProjectsList
               isCardHeader={true}
               skip={skip}
+              sort={sort}
+              setSort={setSort}
               setSkip={setSkip}
               pageSize={pageSize}
               setPageSize={setPageSize}

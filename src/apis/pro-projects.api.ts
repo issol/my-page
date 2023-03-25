@@ -2,6 +2,7 @@ import { generateRandomCalendarData } from '@src/@fake-db/project-calendar'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
+export type SortingType = 'DESC' | 'ASC'
 export type FilterType = {
   title?: Array<string>
   role?: Array<string>
@@ -9,6 +10,7 @@ export type FilterType = {
   source?: Array<string>
   target?: Array<string>
   client?: Array<string>
+  sort?: SortingType
   skip: number
   take: number
 }

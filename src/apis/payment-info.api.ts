@@ -1,6 +1,19 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 
+export const getWorkNameFilterList = async (
+  id: number,
+): Promise<Array<{ value: string; label: string }>> => {
+  try {
+    return [
+      { value: '제목', label: '제목' },
+      { value: '제목2', label: '제목2' },
+    ]
+  } catch (e: any) {
+    return [{ value: '', label: '' }]
+  }
+}
+
 export type UserPaymentInfoType = {
   userInfo: {
     userId: number | null
