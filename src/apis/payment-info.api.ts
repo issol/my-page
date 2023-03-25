@@ -38,6 +38,17 @@ export type UserPaymentInfoType = {
   }
 }
 
+export const getPaymentInfoRequest = async (
+  id: number,
+  isManagerRequest: boolean,
+) => {
+  if (!isManagerRequest) {
+    return getUserPaymentInfo(id)
+  } else {
+    return getUserPaymentInfoForManager(id)
+  }
+}
+
 export const getUserPaymentInfo = async (
   id: number,
 ): Promise<UserPaymentInfoType> => {

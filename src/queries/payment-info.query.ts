@@ -1,35 +1,21 @@
+import { getPaymentInfoRequest } from './../apis/payment-info.api'
 import { useQuery } from 'react-query'
 import { toast } from 'react-hot-toast'
-import {
-  getUserPaymentInfo,
-  getUserPaymentInfoForManager,
-} from '@src/apis/payment-info.api'
 
 export const useGetUserPaymentInfo = (
   id: number,
-  detailId: number | null,
-  setDetailId: (val: number | null) => void,
+  isManagerRequest: boolean,
 ) => {
   return useQuery(
     'get-payment-info',
     () => {
-      console.log(detailId)
-      if (!detailId) {
-        console.log('일반')
-        return getUserPaymentInfo(id)
-      } else {
-        console.log('전부')
-        return getUserPaymentInfoForManager(detailId)
-      }
+      return getPaymentInfoRequest(id, isManagerRequest)
     },
     {
       cacheTime: 0,
       keepPreviousData: false,
       suspense: true,
       useErrorBoundary: true,
-      onSuccess: () => {
-        setDetailId(null)
-      },
     },
   )
 }

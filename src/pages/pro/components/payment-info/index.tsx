@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material'
 
 // ** context
-import { useContext, useState } from 'react'
+import { Suspense, useContext, useState } from 'react'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** Hooks
@@ -22,6 +22,8 @@ import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
 import axios from 'axios'
 
 import logger from '@src/@core/utils/logger'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { useEffect } from 'react'
 
 type Props = {
   id: number
@@ -30,10 +32,12 @@ type Props = {
 export default function PaymentInfo({ id }: Props) {
   const ability = useContext(AbilityContext)
   const isAccountManager = ability.can('read', 'account_manage')
-  const [detailId, setDetailId] = useState<null | number>(null)
+
   const clipboard = useClipboard()
 
-  const { data, refetch } = useGetUserPaymentInfo(id, detailId, setDetailId)
+  const [isManagerRequest, setIsManagerRequest] = useState(false)
+
+  const { data, refetch } = useGetUserPaymentInfo(id, isManagerRequest)
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
@@ -82,36 +86,40 @@ export default function PaymentInfo({ id }: Props) {
     fetchFile(name)
   }
 
-  //get detail
-  function getDetail() {
-    setDetailId(1)
+  useEffect(() => {
     refetch()
+  }, [isManagerRequest])
+
+  function getDetail() {
+    setIsManagerRequest(true)
   }
 
   return (
-    <Grid container spacing={6} mt='6px'>
-      <Grid item xs={4}>
-        <PersonalInfo
-          onCopy={onCopy}
-          info={data?.userInfo!}
-          isAccountManager={isAccountManager}
-          replaceDots={replaceDots}
-          downloadFile={downloadFile}
-        />
+    <Suspense fallback={<FallbackSpinner />}>
+      <Grid container spacing={6} mt='6px'>
+        <Grid item xs={4}>
+          <PersonalInfo
+            onCopy={onCopy}
+            info={data?.userInfo!}
+            isAccountManager={isAccountManager}
+            replaceDots={replaceDots}
+            downloadFile={downloadFile}
+          />
+        </Grid>
+        <Grid item xs={8}>
+          <BillingMethod
+            info={data!}
+            isAccountManager={isAccountManager}
+            replaceDots={replaceDots}
+            getDetail={getDetail}
+          />
+          <BillingAddress
+            info={data?.billingAddress!}
+            replaceDots={replaceDots}
+          />
+        </Grid>
       </Grid>
-      <Grid item xs={8}>
-        <BillingMethod
-          info={data!}
-          isAccountManager={isAccountManager}
-          replaceDots={replaceDots}
-          getDetail={getDetail}
-        />
-        <BillingAddress
-          info={data?.billingAddress!}
-          replaceDots={replaceDots}
-        />
-      </Grid>
-    </Grid>
+    </Suspense>
   )
 }
 
