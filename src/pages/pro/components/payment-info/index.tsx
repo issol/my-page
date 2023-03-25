@@ -41,7 +41,7 @@ export default function PaymentInfo({ id }: Props) {
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
-    toast.success('The source code has been copied to your clipboard.', {
+    toast.success('The text has been copied to your clipboard.', {
       duration: 2000,
     })
   }
@@ -52,34 +52,35 @@ export default function PaymentInfo({ id }: Props) {
   }
 
   function fetchFile(fileName: string) {
-    getFilePresinedUrl(fileName).then(res => {
-      axios
-        .get(res[0], {
-          headers: {
-            Authorization:
-              'Bearer ' + typeof window === 'object'
-                ? getUserTokenFromBrowser()
-                : null,
-          },
-        })
-        .then(res => {
-          logger.info('upload client guideline file success :', res)
-          const url = window.URL.createObjectURL(new Blob([res.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', `${fileName}`)
-          document.body.appendChild(link)
-          link.click()
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
+    getFilePresinedUrl(fileName)
+      .then(res => {
+        axios
+          .get(res[0], {
+            headers: {
+              Authorization:
+                'Bearer ' + typeof window === 'object'
+                  ? getUserTokenFromBrowser()
+                  : null,
             },
-          ),
-        )
-    })
+          })
+          .then(res => {
+            logger.info('upload client guideline file success :', res)
+            const url = window.URL.createObjectURL(new Blob([res.data]))
+            const link = document.createElement('a')
+            link.href = url
+            link.setAttribute('download', `${fileName}`)
+            document.body.appendChild(link)
+            link.click()
+          })
+      })
+      .catch(err =>
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
+          },
+        ),
+      )
   }
 
   function downloadFile(name: string) {
