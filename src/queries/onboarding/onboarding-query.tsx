@@ -41,11 +41,11 @@ export const useGetOnboardingProList = (filters: OnboardingFilterType) => {
   )
 }
 
-export const useGetOnboardingProDetails = (userId: string | string[]) => {
-  const id = typeof userId === 'string' ? userId : ''
+export const useGetOnboardingProDetails = (userId: number) => {
+  const id = typeof userId === 'number' ? userId : 0
   return useQuery<DetailUserType, Error, DetailUserType>(
     `${userId}`,
-    () => getOnboardingProDetails(id),
+    () => getOnboardingProDetails(id!),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
@@ -234,7 +234,8 @@ export const useGetOnboardingStatistic = () => {
   )
 }
 
-export const useGetAppliedRole = (id: number) => {
+export const useGetAppliedRole = (userId: number) => {
+  const id = typeof userId === 'number' ? userId : 0
   return useQuery<Array<AppliedRoleType>>(
     `applied-role-${id}`,
     () => getAppliedRole(id!),

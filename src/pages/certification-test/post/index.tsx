@@ -57,7 +57,7 @@ import { useDropzone } from 'react-dropzone'
 
 // ** fetches
 import { postFiles } from 'src/apis/common.api'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -89,6 +89,8 @@ import { useGetTestDetail } from 'src/queries/certification-test/certification-t
 import languageHelper from 'src/shared/helpers/language.helper'
 import { FileType } from 'src/types/common/file.type'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
+import FallbackSpinner from '@src/@core/components/spinner'
+import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
@@ -113,6 +115,7 @@ const TestMaterialPost = () => {
   const { user } = useContext(AuthContext)
   const { edit } = router.query
   const { id } = router.query
+  const queryClient = useQueryClient()
 
   const { setModal } = useContext(ModalContext)
 
@@ -211,49 +214,6 @@ const TestMaterialPost = () => {
     },
   })
 
-  useEffect(() => {
-    if (isDuplicated && !isFetched) {
-      setModal(
-        <ModalContainer>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              alignItems: 'center',
-              gap: '12px',
-            }}
-          >
-            <img
-              src='/images/icons/project-icons/status-alert-error.png'
-              width={60}
-              height={60}
-              alt='The guide line is already exist.'
-            />
-            <Typography variant='body2'>
-              <span style={{ fontWeight: 700 }}>
-                {languageHelper(getValues('target.value'))}&nbsp;
-              </span>
-              {selectedTestType.toLowerCase()} has already been created.
-            </Typography>
-          </Box>
-          <ModalButtonGroup>
-            <Button
-              variant='contained'
-              onClick={() => {
-                setModal(null)
-                resetFormSelection()
-              }}
-            >
-              Okay
-            </Button>
-          </ModalButtonGroup>
-        </ModalContainer>,
-      )
-    }
-  }, [isDuplicated])
-
-  type FormSelectKey = 'source' | 'target' | 'googleFormLink' | 'testType'
-
   function resetFormSelection() {
     reset({
       source: { label: '', value: '' },
@@ -263,6 +223,8 @@ const TestMaterialPost = () => {
       jobType: { label: '', value: '' },
       role: { label: '', value: '' },
     })
+    setIsDuplicated(false)
+    setSelectedTestType('Basic test')
   }
 
   const handleRemoveFile = (file: FileProp) => {
@@ -405,16 +367,16 @@ const TestMaterialPost = () => {
     resolver: yupResolver(certificationTestSchema),
   })
 
-  // const isValid = !watch(['source', 'target', 'googleFormLink', '']).includes(null)
-  useEffect(() => {
-    const subscription = watch((value, { name, type }) => {
-      if (isFetched) {
-        console.log(value, name, type)
-      }
-      // console.log(value, name, type)
-    })
-    return () => subscription.unsubscribe()
-  }, [watch, isFetched])
+  const getValid = () => {
+    if (isFetched) {
+      return (
+        !getValues('googleFormLink') ||
+        !content.getCurrentContent().getPlainText('\u0001')
+      )
+    } else {
+      return !isValid && !content.getCurrentContent().getPlainText('\u0001')
+    }
+  }
 
   useEffect(() => {
     setValue('file', files, { shouldDirty: true, shouldValidate: true })
@@ -580,13 +542,13 @@ const TestMaterialPost = () => {
   const postTestMutation = useMutation((form: TestFormType) => postTest(form), {
     onSuccess: data => {
       router.replace(`/certification-test/detail/${data.id}`)
-      toast.success(`Success${data.id}`, {
+      queryClient.invalidateQueries('test-material-list')
+      queryClient.invalidateQueries(`test-detail-${id}-${edit}`)
+      toast.success(`Success`, {
         position: 'bottom-left',
       })
     },
     onError: error => {
-      console.log(error)
-
       toast.error('Something went wrong. Please try again.', {
         position: 'bottom-left',
       })
@@ -598,6 +560,8 @@ const TestMaterialPost = () => {
     {
       onSuccess: data => {
         router.push(`/certification-test/detail/${data?.id}`)
+        queryClient.invalidateQueries('test-material-list')
+        queryClient.invalidateQueries(`test-detail-${id}-${edit}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
@@ -611,6 +575,8 @@ const TestMaterialPost = () => {
   )
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
+      console.log(value)
+
       if (value.testType === 'Basic test') {
         if (value.target && value.target.value !== '') {
           const filters: BasicTestExistencePayloadType = {
@@ -645,10 +611,6 @@ const TestMaterialPost = () => {
     })
     return () => subscription.unsubscribe()
   }, [watch])
-
-  useEffect(() => {
-    console.log(savedFiles)
-  }, [savedFiles])
 
   const onSubmit = (edit: boolean) => {
     const data = getValues()
@@ -737,16 +699,12 @@ const TestMaterialPost = () => {
         })
         Promise.all(promiseArr)
           .then(res => {
-            console.log('upload client guideline file success :', res)
-
             finalValue.files = fileInfo
             patchValue.files = fileInfo
-            console.log(patchValue)
 
             isFetched
               ? patchTestMutation.mutate(patchValue)
               : postTestMutation.mutate(finalValue)
-            // guidelineMutation.mutate(finalValue)
           })
           .catch(err => {
             isFetched
@@ -761,220 +719,173 @@ const TestMaterialPost = () => {
           })
       })
     } else {
-      // finalValue.files = fileInfo
       patchValue.files = fileInfo
       isFetched
         ? patchTestMutation.mutate(patchValue)
         : postTestMutation.mutate(finalValue)
     }
-    // if (deletedFiles.length) {
-    //   deletedFiles.forEach(item =>
-    //     deleteTestFile(item.id!).catch(err =>
-    //       toast.error(
-    //         'Something went wrong while deleting files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     ),
-    //   )
-    // }
   }
 
-  return (
-    <Box sx={{ display: 'flex', gap: 4, flexDirection: 'column' }}>
-      <Typography variant='h6'>Create test</Typography>
-      <form>
-        <Box sx={{ display: 'flex', gap: 4 }}>
-          <Grid xs={9.55} container>
-            <Box
-              sx={{
-                display: 'flex',
-                flexDirection: 'column',
-                gap: 4,
+  useEffect(() => {
+    if (isDuplicated && !isFetched) {
+      setModal(
+        <ModalContainer>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '12px',
+            }}
+          >
+            <img
+              src='/images/icons/project-icons/status-alert-error.png'
+              width={60}
+              height={60}
+              alt='The guide line is already exist.'
+            />
+            {selectedTestType === 'Basic test' ? (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {languageHelper(getValues('target.value'))}&nbsp;
+                </span>
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            ) : (
+              <Typography variant='body2'>
+                <span style={{ fontWeight: 700 }}>
+                  {`${getValues('jobType.label')}, ${getValues(
+                    'role.label',
+                  )}, ${getValues('source.value').toUpperCase()}`}
+                  &rarr;{getValues('target.value').toUpperCase()}
+                </span>
+                <br />
+                {selectedTestType.toLowerCase()} has already been created.
+              </Typography>
+            )}
+          </Box>
+          <ModalButtonGroup>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setModal(null)
+                resetFormSelection()
               }}
             >
-              <Card sx={{ padding: '20px', width: '100%' }}>
-                <Grid container xs={12} spacing={6}>
-                  <Grid item xs={12}>
-                    <Controller
-                      name='testType'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange, onBlur } }) => (
-                        <RadioGroup
-                          row
-                          aria-label='controlled'
-                          name='controlled'
-                          value={value}
-                          onChange={(event, item) => {
-                            onChange(item)
-                            setSelectedTestType(item)
-                            setValue('source', { label: '', value: '' })
-                            setValue('target', { label: '', value: '' })
-                            setValue('jobType', { label: '', value: '' })
-                            setValue('role', { label: '', value: '' })
-                            setValue('googleFormLink', '')
-                            // reset({
-                            //   source: { label: '', value: '' },
-                            //   target: { label: '', value: '' },
-                            //   googleFormLink: '',
-                            //   jobType: { label: '', value: '' },
-                            //   role: { label: '', value: '' },
-                            // })
-                          }}
-                        >
-                          {testType.map(value => {
-                            return (
-                              <FormControlLabel
-                                key={uuidv4()}
-                                disabled={isFetched}
-                                value={value}
-                                control={<Radio />}
-                                label={value}
-                              />
-                            )
-                          })}
-                        </RadioGroup>
-                      )}
-                    />
-                  </Grid>
+              Okay
+            </Button>
+          </ModalButtonGroup>
+        </ModalContainer>,
+      )
+    }
+  }, [isDuplicated])
 
-                  <Grid item xs={6}>
-                    <Controller
-                      control={control}
-                      name='source'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          fullWidth
-                          value={value}
-                          onChange={(e, v) => {
-                            if (!v) onChange({ value: '', label: '' })
-                            else onChange(v)
-                          }}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disabled={selectedTestType === 'Basic test'}
-                          options={_.uniqBy(languageList, 'value')}
-                          id='source'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              error={Boolean(errors.source)}
-                              label={
-                                isFetched || selectedTestType === 'Basic test'
-                                  ? 'Source'
-                                  : 'Source*'
-                              }
-                              // placeholder='Source*'
-                            />
+  return (
+    <>
+      {patchTestMutation.isLoading || postTestMutation.isLoading ? (
+        <OverlaySpinner />
+      ) : (
+        <Box sx={{ display: 'flex', gap: 4, flexDirection: 'column' }}>
+          <Typography variant='h6'>Create test</Typography>
+
+          <form>
+            <Box sx={{ display: 'flex', gap: 4 }}>
+              <Grid xs={9.55} container>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: 4,
+                  }}
+                >
+                  <Card sx={{ padding: '20px', width: '100%' }}>
+                    <Grid container xs={12} spacing={6}>
+                      <Grid item xs={12}>
+                        <Controller
+                          name='testType'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <RadioGroup
+                              row
+                              aria-label='controlled'
+                              name='controlled'
+                              value={value}
+                              onChange={(event, item) => {
+                                onChange(item)
+                                setSelectedTestType(item)
+                                setValue('source', { label: '', value: '' })
+                                setValue('target', { label: '', value: '' })
+                                setValue('jobType', { label: '', value: '' })
+                                setValue('role', { label: '', value: '' })
+                                setValue('googleFormLink', '')
+                              }}
+                            >
+                              {testType.map(value => {
+                                return (
+                                  <FormControlLabel
+                                    key={uuidv4()}
+                                    disabled={isFetched}
+                                    value={value}
+                                    control={<Radio />}
+                                    label={value}
+                                  />
+                                )
+                              })}
+                            </RadioGroup>
                           )}
                         />
-                      )}
-                    />
-                    {errors.source && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.source?.label?.message ||
-                          errors.source?.value?.message}
-                      </FormHelperText>
-                    )}
-                  </Grid>
+                      </Grid>
 
-                  <Grid item xs={6}>
-                    <Controller
-                      control={control}
-                      name='target'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          fullWidth
-                          filterSelectedOptions
-                          value={value}
-                          onChange={(e, v) => {
-                            if (!v) onChange({ value: '', label: '' })
-                            else onChange(v)
-                          }}
-                          options={_.uniqBy(languageList, 'value')}
-                          id='target'
-                          disabled={isFetched}
-                          getOptionLabel={option => option.label}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              error={Boolean(errors.target)}
-                              label='Target*'
-                              // placeholder='Target*'
-                            />
-                          )}
-                        />
-                      )}
-                    />
-                    {errors.target && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.target?.label?.message ||
-                          errors.target?.value?.message}
-                      </FormHelperText>
-                    )}
-                  </Grid>
-                  {selectedTestType === 'Skill test' ? (
-                    <>
                       <Grid item xs={6}>
                         <Controller
                           control={control}
-                          name='jobType'
+                          name='source'
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
                               value={value}
                               onChange={(e, v) => {
-                                if (!v) {
-                                  setRoleOptions(OnboardingListRolePair)
-                                  onChange({ value: '', label: '' })
-                                  setJobTypeSelected(false)
-                                } else {
-                                  const jobTypeValue = v.value
-                                  const res = OnboardingListRolePair.filter(
-                                    value =>
-                                      value.jobType.includes(jobTypeValue),
-                                  )
-                                  setRoleOptions(res)
-                                  setJobTypeSelected(true)
-                                  onChange(v)
-                                }
+                                if (!v) onChange({ value: '', label: '' })
+                                else onChange(v)
                               }}
                               isOptionEqualToValue={(option, newValue) => {
                                 return option.value === newValue.value
                               }}
-                              disabled={isFetched}
-                              options={jobTypeOptions}
-                              id='jobType'
+                              disabled={
+                                isFetched || selectedTestType === 'Basic test'
+                              }
+                              options={_.uniqBy(languageList, 'value')}
+                              id='source'
                               getOptionLabel={option => option.label}
                               renderInput={params => (
                                 <TextField
                                   {...params}
-                                  error={Boolean(errors.jobType)}
-                                  label='Job type*'
-                                  // placeholder='Job type*'
+                                  error={Boolean(errors.source)}
+                                  label={
+                                    isFetched ||
+                                    selectedTestType === 'Basic test'
+                                      ? 'Source'
+                                      : 'Source*'
+                                  }
+                                  // placeholder='Source*'
                                 />
                               )}
                             />
                           )}
                         />
-                        {errors.jobType && (
+                        {errors.source && (
                           <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.jobType?.label?.message ||
-                              errors.jobType?.value?.message}
+                            {errors.source?.label?.message ||
+                              errors.source?.value?.message}
                           </FormHelperText>
                         )}
                       </Grid>
+
                       <Grid item xs={6}>
                         <Controller
                           control={control}
-                          name='role'
+                          name='target'
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
@@ -984,9 +895,9 @@ const TestMaterialPost = () => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
                               }}
-                              options={roleOptions}
-                              disabled={!jobTypeSelected || isFetched}
-                              id='role'
+                              options={_.uniqBy(languageList, 'value')}
+                              id='target'
+                              disabled={isFetched}
                               getOptionLabel={option => option.label}
                               isOptionEqualToValue={(option, newValue) => {
                                 return option.value === newValue.value
@@ -994,266 +905,370 @@ const TestMaterialPost = () => {
                               renderInput={params => (
                                 <TextField
                                   {...params}
-                                  error={Boolean(errors.role)}
-                                  label='Role*'
+                                  error={Boolean(errors.target)}
+                                  label='Target*'
                                   // placeholder='Target*'
                                 />
                               )}
                             />
                           )}
                         />
-                        {errors.role && (
+                        {errors.target && (
                           <FormHelperText sx={{ color: 'error.main' }}>
-                            {errors.role?.label?.message ||
-                              errors.role?.value?.message}
+                            {errors.target?.label?.message ||
+                              errors.target?.value?.message}
                           </FormHelperText>
                         )}
                       </Grid>
-                    </>
-                  ) : null}
-
-                  <Grid item xs={12} mb='20px'>
-                    <Controller
-                      name='googleFormLink'
-                      control={control}
-                      rules={{ required: true }}
-                      render={({ field: { value, onChange, onBlur } }) => (
+                      {selectedTestType === 'Skill test' ? (
                         <>
-                          <FormControl fullWidth>
-                            <InputLabel
-                              htmlFor='icons-adornment-password'
-                              error={!!errors.googleFormLink}
-                            >
-                              Google form link*
-                            </InputLabel>
-                            <OutlinedInput
-                              label='Google form link*'
-                              value={value}
-                              id='icons-adornment-password'
-                              onChange={event => {
-                                onChange(event.target.value)
-                                setGoogleFormLink(event.target.value)
-                              }}
-                              error={!!errors.googleFormLink}
-                              type='text'
-                              placeholder='https://docs.google.com/forms'
-                              endAdornment={
-                                <InputAdornment position='end'>
-                                  <IconButton
-                                    edge='end'
-                                    aria-label='toggle password visibility'
-                                    onClick={() =>
-                                      googleFormLink !== '' &&
-                                      window.open(googleFormLink, '_blank')
+                          <Grid item xs={6}>
+                            <Controller
+                              control={control}
+                              name='jobType'
+                              render={({ field: { onChange, value } }) => (
+                                <Autocomplete
+                                  fullWidth
+                                  value={value}
+                                  onChange={(e, v) => {
+                                    if (!v) {
+                                      setRoleOptions(OnboardingListRolePair)
+                                      onChange({ value: '', label: '' })
+                                      setJobTypeSelected(false)
+                                    } else {
+                                      const jobTypeValue = v.value
+                                      const res = OnboardingListRolePair.filter(
+                                        value =>
+                                          value.jobType.includes(jobTypeValue),
+                                      )
+                                      setRoleOptions(res)
+                                      setJobTypeSelected(true)
+                                      onChange(v)
                                     }
-                                  >
-                                    <OpenInNewIcon />
-                                  </IconButton>
-                                </InputAdornment>
-                              }
+                                  }}
+                                  isOptionEqualToValue={(option, newValue) => {
+                                    return option.value === newValue.value
+                                  }}
+                                  disabled={isFetched}
+                                  options={jobTypeOptions}
+                                  id='jobType'
+                                  getOptionLabel={option => option.label}
+                                  renderInput={params => (
+                                    <TextField
+                                      {...params}
+                                      error={Boolean(errors.jobType)}
+                                      label='Job type*'
+                                      // placeholder='Job type*'
+                                    />
+                                  )}
+                                />
+                              )}
                             />
-                          </FormControl>
+                            {errors.jobType && (
+                              <FormHelperText sx={{ color: 'error.main' }}>
+                                {errors.jobType?.label?.message ||
+                                  errors.jobType?.value?.message}
+                              </FormHelperText>
+                            )}
+                          </Grid>
+                          <Grid item xs={6}>
+                            <Controller
+                              control={control}
+                              name='role'
+                              render={({ field: { onChange, value } }) => (
+                                <Autocomplete
+                                  fullWidth
+                                  filterSelectedOptions
+                                  value={value}
+                                  onChange={(e, v) => {
+                                    if (!v) onChange({ value: '', label: '' })
+                                    else onChange(v)
+                                  }}
+                                  options={roleOptions}
+                                  disabled={!jobTypeSelected || isFetched}
+                                  id='role'
+                                  getOptionLabel={option => option.label}
+                                  isOptionEqualToValue={(option, newValue) => {
+                                    return option.value === newValue.value
+                                  }}
+                                  renderInput={params => (
+                                    <TextField
+                                      {...params}
+                                      error={Boolean(errors.role)}
+                                      label='Role*'
+                                      // placeholder='Target*'
+                                    />
+                                  )}
+                                />
+                              )}
+                            />
+                            {errors.role && (
+                              <FormHelperText sx={{ color: 'error.main' }}>
+                                {errors.role?.label?.message ||
+                                  errors.role?.value?.message}
+                              </FormHelperText>
+                            )}
+                          </Grid>
                         </>
+                      ) : null}
+
+                      <Grid item xs={12} mb='20px'>
+                        <Controller
+                          name='googleFormLink'
+                          control={control}
+                          rules={{ required: true }}
+                          render={({ field: { value, onChange, onBlur } }) => (
+                            <>
+                              <FormControl fullWidth>
+                                <InputLabel
+                                  htmlFor='icons-adornment-password'
+                                  error={!!errors.googleFormLink}
+                                >
+                                  Google form link*
+                                </InputLabel>
+                                <OutlinedInput
+                                  label='Google form link*'
+                                  value={value}
+                                  id='icons-adornment-password'
+                                  onChange={event => {
+                                    onChange(event.target.value)
+                                    setGoogleFormLink(event.target.value)
+                                  }}
+                                  error={!!errors.googleFormLink}
+                                  type='text'
+                                  placeholder='https://docs.google.com/forms'
+                                  endAdornment={
+                                    <InputAdornment position='end'>
+                                      <IconButton
+                                        edge='end'
+                                        aria-label='toggle password visibility'
+                                        onClick={() => {
+                                          googleFormLink &&
+                                            !errors.googleFormLink &&
+                                            window.open(
+                                              googleFormLink,
+                                              '_blank',
+                                            )
+                                        }}
+                                      >
+                                        <OpenInNewIcon />
+                                      </IconButton>
+                                    </InputAdornment>
+                                  }
+                                />
+                              </FormControl>
+                            </>
+                          )}
+                        />
+                        {errors.googleFormLink && (
+                          <FormHelperText sx={{ color: 'error.main' }}>
+                            {errors.googleFormLink?.message}
+                          </FormHelperText>
+                        )}
+                      </Grid>
+                    </Grid>
+                  </Card>
+
+                  <Card sx={{ padding: '20px' }}>
+                    <Box
+                      display='flex'
+                      justifyContent='space-between'
+                      mb='20px'
+                    >
+                      <Typography variant='h6'>Test guideline*</Typography>
+                      <Box display='flex' alignItems='center' gap='8px'>
+                        <CustomChip
+                          label='Writer'
+                          skin='light'
+                          color='error'
+                          size='small'
+                        />
+                        <Typography
+                          sx={{ fontSize: '0.875rem', fontWeight: 500 }}
+                          color='primary'
+                        >
+                          {user?.username}
+                        </Typography>
+                        <Divider
+                          orientation='vertical'
+                          variant='middle'
+                          flexItem
+                        />
+                        <Typography variant='body2'>{user?.email}</Typography>
+                      </Box>
+                    </Box>
+                    <Divider sx={{ mb: 2 }} />
+                    <StyledEditor
+                      error={
+                        !content.getCurrentContent().getPlainText('\u0001') &&
+                        showError
+                      }
+                      minHeight={17}
+                    >
+                      <ReactDraftWysiwyg
+                        editorState={content}
+                        placeholder={`Write down a test guideline or attach it as a file. \n This guideline will be delivered to Pros when they take the test.`}
+                        onEditorStateChange={data => {
+                          console.log(data)
+
+                          setShowError(true)
+                          setContent(data)
+                        }}
+                      />
+                      {!content.getCurrentContent().getPlainText('\u0001') &&
+                      showError ? (
+                        <Typography
+                          color='error'
+                          sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
+                          mt='8px'
+                        >
+                          {FormErrors.required}
+                        </Typography>
+                      ) : (
+                        ''
                       )}
-                    />
-                    {errors.googleFormLink && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {errors.googleFormLink?.message}
-                      </FormHelperText>
-                    )}
-                  </Grid>
-                </Grid>
-              </Card>
-
-              <Card sx={{ padding: '20px' }}>
-                <Box display='flex' justifyContent='space-between' mb='20px'>
-                  <Typography variant='h6'>Test guideline*</Typography>
-                  <Box display='flex' alignItems='center' gap='8px'>
-                    <CustomChip
-                      label='Writer'
-                      skin='light'
-                      color='error'
-                      size='small'
-                    />
-                    <Typography
-                      sx={{ fontSize: '0.875rem', fontWeight: 500 }}
-                      color='primary'
-                    >
-                      {user?.username}
-                    </Typography>
-                    <Divider orientation='vertical' variant='middle' flexItem />
-                    <Typography variant='body2'>{user?.email}</Typography>
-                  </Box>
+                    </StyledEditor>
+                  </Card>
                 </Box>
-                <Divider sx={{ mb: 2 }} />
-                <StyledEditor
-                  error={
-                    !content.getCurrentContent().getPlainText('\u0001') &&
-                    showError
-                  }
-                  minHeight={17}
-                >
-                  <ReactDraftWysiwyg
-                    editorState={content}
-                    placeholder={`Write down a test guideline or attach it as a file. \n This guideline will be delivered to Pros when they take the test.`}
-                    onEditorStateChange={data => {
-                      console.log(data)
-
-                      setShowError(true)
-                      setContent(data)
-                    }}
-                  />
-                  {!content.getCurrentContent().getPlainText('\u0001') &&
-                  showError ? (
-                    <Typography
-                      color='error'
-                      sx={{ fontSize: '0.75rem', marginLeft: '12px' }}
-                      mt='8px'
-                    >
-                      {FormErrors.required}
-                    </Typography>
-                  ) : (
-                    ''
-                  )}
-                </StyledEditor>
-              </Card>
-            </Box>
-          </Grid>
-          <Grid container xs={2.45}>
-            <Box sx={{ width: '100%' }}>
-              <Card>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  <Box display='flex' justifyContent='space-between'>
-                    <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                      Test guideline file
-                    </Typography>
-                    <Typography variant='body2'>
-                      {fileSize === 0
-                        ? 0
-                        : Math.round(fileSize / 100) / 10 > 1000
-                        ? `${(Math.round(fileSize / 100) / 10000).toFixed(
-                            1,
-                          )} mb`
-                        : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                      /50mb
-                    </Typography>
-                  </Box>
-                  <div {...getRootProps({ className: 'dropzone' })}>
-                    <Button variant='outlined' fullWidth>
-                      <input {...getInputProps()} />
-                      Upload files
-                    </Button>
-                  </div>
-                </Box>
-                <Box
-                  sx={{
-                    padding: '0 20px',
-                    overflow: 'scroll',
-
-                    height: '454px',
-
-                    marginBottom: '12px',
-
-                    '&::-webkit-scrollbar': { display: 'none' },
-                  }}
-                >
-                  {testDetail?.currentVersion?.files?.length ? (
-                    <List
+              </Grid>
+              <Grid container xs={2.45}>
+                <Box sx={{ width: '100%' }}>
+                  <Card>
+                    <Box
                       sx={{
-                        paddingBottom: 0,
+                        padding: '20px',
                         display: 'flex',
                         flexDirection: 'column',
                         gap: '12px',
-                        marginBottom: 1,
                       }}
                     >
-                      {savedFileList}
-                    </List>
-                  ) : null}
-                  {files.length ? (
-                    <Fragment>
-                      <List
-                        sx={{
-                          display: 'flex',
-                          flexDirection: 'column',
-                          gap: '12px',
-                        }}
-                      >
-                        {fileList}
-                      </List>
-                    </Fragment>
-                  ) : null}
-                </Box>
-              </Card>
-              {errors.file && (
-                <FormHelperText sx={{ color: 'error.main' }} id=''>
-                  {errors.file.message}
-                </FormHelperText>
-              )}
-              <Card style={{ marginTop: '24px' }}>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isFetched ? (
-                    <>
-                      <Button
-                        variant='outlined'
-                        color='secondary'
-                        onClick={() => onDiscard(true)}
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant='contained'
-                        onClick={() => onUpload(true)}
-                        disabled={
-                          !isValid ||
-                          !content.getCurrentContent().getPlainText('\u0001')
-                        }
-                      >
-                        Save
-                      </Button>
-                    </>
-                  ) : (
-                    <>
-                      <Button
-                        variant='outlined'
-                        color='secondary'
-                        onClick={() => onDiscard(false)}
-                      >
-                        Discard
-                      </Button>
-                      <Button
-                        variant='contained'
-                        onClick={() => onUpload(false)}
-                        disabled={
-                          !isValid ||
-                          !content.getCurrentContent().getPlainText('\u0001')
-                        }
-                      >
-                        Upload
-                      </Button>
-                    </>
+                      <Box display='flex' justifyContent='space-between'>
+                        <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                          Test guideline file
+                        </Typography>
+                        <Typography variant='body2'>
+                          {fileSize === 0
+                            ? 0
+                            : Math.round(fileSize / 100) / 10 > 1000
+                            ? `${(Math.round(fileSize / 100) / 10000).toFixed(
+                                1,
+                              )} mb`
+                            : `${(Math.round(fileSize / 100) / 10).toFixed(
+                                1,
+                              )} kb`}
+                          /50mb
+                        </Typography>
+                      </Box>
+                      <div {...getRootProps({ className: 'dropzone' })}>
+                        <Button variant='outlined' fullWidth>
+                          <input {...getInputProps()} />
+                          Upload files
+                        </Button>
+                      </div>
+                    </Box>
+                    <Box
+                      sx={{
+                        padding: '0 20px',
+                        overflow: 'scroll',
+
+                        height: '454px',
+
+                        marginBottom: '12px',
+
+                        '&::-webkit-scrollbar': { display: 'none' },
+                      }}
+                    >
+                      {testDetail?.currentVersion?.files?.length ? (
+                        <List
+                          sx={{
+                            paddingBottom: 0,
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '12px',
+                            marginBottom: 1,
+                          }}
+                        >
+                          {savedFileList}
+                        </List>
+                      ) : null}
+                      {files.length ? (
+                        <Fragment>
+                          <List
+                            sx={{
+                              display: 'flex',
+                              flexDirection: 'column',
+                              gap: '12px',
+                            }}
+                          >
+                            {fileList}
+                          </List>
+                        </Fragment>
+                      ) : null}
+                    </Box>
+                  </Card>
+                  {errors.file && (
+                    <FormHelperText sx={{ color: 'error.main' }} id=''>
+                      {errors.file.message}
+                    </FormHelperText>
                   )}
+                  <Card style={{ marginTop: '24px' }}>
+                    <Box
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      {isFetched ? (
+                        <>
+                          <Button
+                            variant='outlined'
+                            color='secondary'
+                            onClick={() => onDiscard(true)}
+                          >
+                            Cancel
+                          </Button>
+                          <Button
+                            variant='contained'
+                            onClick={() => onUpload(true)}
+                            disabled={getValid()}
+                          >
+                            Save
+                          </Button>
+                        </>
+                      ) : (
+                        <>
+                          <Button
+                            variant='outlined'
+                            color='secondary'
+                            onClick={() => onDiscard(false)}
+                          >
+                            Discard
+                          </Button>
+                          <Button
+                            variant='contained'
+                            onClick={() => onUpload(false)}
+                            disabled={
+                              !isValid ||
+                              !content
+                                .getCurrentContent()
+                                .getPlainText('\u0001')
+                            }
+                          >
+                            Upload
+                          </Button>
+                        </>
+                      )}
+                    </Box>
+                  </Card>
                 </Box>
-              </Card>
+              </Grid>
             </Box>
-          </Grid>
+          </form>
         </Box>
-      </form>
-    </Box>
+      )}
+    </>
   )
 }
 

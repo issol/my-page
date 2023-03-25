@@ -39,7 +39,16 @@ export default function ProDetail() {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  const { data: userInfo, isError, isFetched } = useGetOnboardingProDetails(id!)
+  const {
+    data: userInfo,
+    isError,
+    isFetched,
+  } = useGetOnboardingProDetails(Number(id!))
+  // const userInfo = {
+  //   legalNamePronunciation: 'hi',
+  //   firstName: 'kim',
+  //   lastName: 'bon',
+  // }
 
   function getProfileImg(role: RoleType) {
     return `/images/signup/role-${role.toLowerCase()}.png`
