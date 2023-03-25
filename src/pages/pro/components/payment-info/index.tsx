@@ -1,7 +1,7 @@
 import { Grid } from '@mui/material'
 
 // ** context
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** Hooks
@@ -17,6 +17,11 @@ import BillingAddress from './billing-address'
 
 // ** actions
 import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
+import { getFilePresinedUrl } from '@src/apis/payment-info.api'
+import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
+import axios from 'axios'
+
+import logger from '@src/@core/utils/logger'
 
 type Props = {
   id: number
@@ -25,10 +30,10 @@ type Props = {
 export default function PaymentInfo({ id }: Props) {
   const ability = useContext(AbilityContext)
   const isAccountManager = ability.can('read', 'account_manage')
-
+  const [detailId, setDetailId] = useState<null | number>(null)
   const clipboard = useClipboard()
 
-  const { data } = useGetUserPaymentInfo(id)
+  const { data, refetch } = useGetUserPaymentInfo(id, detailId, setDetailId)
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
@@ -42,9 +47,46 @@ export default function PaymentInfo({ id }: Props) {
     return value.replaceAll('*', '●')
   }
 
-  //download social security number / business license
+  function fetchFile(fileName: string) {
+    getFilePresinedUrl(fileName).then(res => {
+      axios
+        .get(res[0], {
+          headers: {
+            Authorization:
+              'Bearer ' + typeof window === 'object'
+                ? getUserTokenFromBrowser()
+                : null,
+          },
+        })
+        .then(res => {
+          logger.info('upload client guideline file success :', res)
+          const url = window.URL.createObjectURL(new Blob([res.data]))
+          const link = document.createElement('a')
+          link.href = url
+          link.setAttribute('download', `${fileName}`)
+          document.body.appendChild(link)
+          link.click()
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
+    })
+  }
+
+  function downloadFile(name: string) {
+    fetchFile(name)
+  }
 
   //get detail
+  function getDetail() {
+    setDetailId(1)
+    refetch()
+  }
 
   return (
     <Grid container spacing={6} mt='6px'>
@@ -54,6 +96,7 @@ export default function PaymentInfo({ id }: Props) {
           info={data?.userInfo!}
           isAccountManager={isAccountManager}
           replaceDots={replaceDots}
+          downloadFile={downloadFile}
         />
       </Grid>
       <Grid item xs={8}>
@@ -61,6 +104,7 @@ export default function PaymentInfo({ id }: Props) {
           info={data!}
           isAccountManager={isAccountManager}
           replaceDots={replaceDots}
+          getDetail={getDetail}
         />
         <BillingAddress
           info={data?.billingAddress!}

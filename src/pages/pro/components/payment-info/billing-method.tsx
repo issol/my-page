@@ -12,14 +12,15 @@ type Props = {
   info: UserPaymentInfoType
   isAccountManager: boolean
   replaceDots: (value: string) => string
+  getDetail: () => void
 }
 
 export default function BillingMethod({
   info,
   isAccountManager,
   replaceDots,
+  getDetail,
 }: Props) {
-  logger.debug(info)
   return (
     <Card>
       <CardHeader
@@ -34,6 +35,7 @@ export default function BillingMethod({
               variant='outlined'
               color='secondary'
               disabled={!isAccountManager || !info.type}
+              onClick={getDetail}
             >
               Detail
             </Button>

@@ -8,12 +8,13 @@ type Props = {
   info: {
     userId: number | null
     identificationNumber?: string //social security number
-    IdentificationFile?: string //주민등록증
+    identificationFile?: string //주민등록증
     businessLicense?: string
   }
   onCopy: (info: string) => void
   isAccountManager: boolean
   replaceDots: (value: string) => string
+  downloadFile: (value: string) => void
 }
 
 export default function PersonalInfo({
@@ -21,6 +22,7 @@ export default function PersonalInfo({
   onCopy,
   isAccountManager,
   replaceDots,
+  downloadFile,
 }: Props) {
   return (
     <Card>
@@ -45,7 +47,8 @@ export default function PersonalInfo({
         <Button
           variant='outlined'
           sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager}
+          disabled={!isAccountManager || !info?.identificationFile}
+          onClick={() => downloadFile(info?.identificationFile!)}
         >
           Download
         </Button>
@@ -66,7 +69,8 @@ export default function PersonalInfo({
         <Button
           variant='outlined'
           sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager}
+          disabled={!isAccountManager || !info?.businessLicense}
+          onClick={() => downloadFile(info?.businessLicense!)}
         >
           Download
         </Button>

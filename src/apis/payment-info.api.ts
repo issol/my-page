@@ -51,7 +51,7 @@ export const getUserPaymentInfo = async (
         identificationFile: '123-******', //주민등록증
         businessLicense: '123-******',
       },
-      type: 'PayPal', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
+      type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
       bankInfo: {
         accountName: 'ABA',
         email: 'bon@glozinc.com',
@@ -105,5 +105,89 @@ export const getUserPaymentInfo = async (
         zip: 0,
       },
     }
+  }
+}
+
+export const getUserPaymentInfoForManager = async (
+  id: number,
+): Promise<UserPaymentInfoType> => {
+  try {
+    //   const data = await axios.get(`/api/enough/pro/user/al?${id}`)
+    //   return data.data
+    return {
+      userInfo: {
+        userId: 1,
+        identificationNumber: '123-123123123', //social security number
+        identificationFile: '123-123123123', //주민등록증
+        businessLicense: '123-123123123',
+      },
+      type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
+      bankInfo: {
+        accountName: 'ABA',
+        email: 'bon@glozinc.com',
+        accountNumber: '123-123123123',
+        routingNumber: '123-123123123',
+        swiftCode: '123123',
+        ibnNumber: '123-123123123',
+      },
+      correspondentBankInfo: {
+        accountNumber: '123-123123123',
+        bankIdentifierCode: '123-123123123', //SWIFT, BIC
+        others: '123-123123123',
+      },
+
+      billingAddress: {
+        street: { 1: 'Enpyugn', 2: 'Somewhrere' },
+        city: 'Seoul',
+        state: 'Seoul',
+        country: 'Korea',
+        zip: 303030,
+      },
+    }
+  } catch (e: any) {
+    return {
+      userInfo: {
+        userId: null,
+        identificationNumber: '',
+        identificationFile: '',
+        businessLicense: '',
+      },
+      type: '',
+      bankInfo: {
+        accountName: '',
+        email: '',
+        accountNumber: '',
+        routingNumber: '',
+        swiftCode: '',
+        ibnNumber: '',
+      },
+      correspondentBankInfo: {
+        accountNumber: '',
+        bankIdentifierCode: '',
+        others: '',
+      },
+
+      billingAddress: {
+        street: { 1: '', 2: '' },
+        city: '',
+        state: '',
+        country: '',
+        zip: 0,
+      },
+    }
+  }
+}
+
+export const getFilePresinedUrl = async (path: string): Promise<string> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/onboard/guideline/download-file`,
+      {
+        path,
+      },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
