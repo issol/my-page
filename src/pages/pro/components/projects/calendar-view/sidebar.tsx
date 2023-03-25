@@ -12,6 +12,7 @@ import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 // ** types
 import { Button } from '@mui/material'
 import { CalendarEventType } from '@src/apis/pro-projects.api'
+import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 
 type Props = {
   event: Array<CalendarEventType>
@@ -35,12 +36,14 @@ export default function CalendarSideBar({
     primary: { ...bgColors.primaryLight },
     secondary: { ...bgColors.secondaryLight },
     success: { ...bgColors.successLight },
-    // ** TODO : 여기 컬러 수정하기
-    error: { ...bgColors.errorLight },
+    error: {
+      color: 'rgba(76, 78, 100, 0.87)',
+      backgroundColor: hexToRGBA('#8C3131', 0.12),
+    },
     warning: { ...bgColors.warningLight },
     info: { ...bgColors.infoLight },
     overdue: {
-      color: '#ac8880',
+      color: bgColors.errorLight.color,
       backgroundColor:
         'linear-gradient(135deg, rgba(255, 77, 73, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 77, 73, 0.2) 50%, rgba(255, 77, 73, 0.2) 75%, transparent 75%, transparent)',
       backgroundSize: '5px 5px',
@@ -107,8 +110,14 @@ export default function CalendarSideBar({
                 key={item.id}
                 bg={colors[item?.extendedProps?.calendar]?.backgroundColor}
                 bgSize={colors[item?.extendedProps?.calendar]?.backgroundSize}
+                color={
+                  item.status === 'Overdue'
+                    ? colors[item?.extendedProps?.calendar]?.color
+                    : ''
+                }
               >
-                {item.title}
+                {/* {item.title} */}
+                {item.status === 'Overdue' ? `🔴 ${item.title}` : item.title}
               </BoxFeature>
             )
           })
@@ -122,11 +131,11 @@ export default function CalendarSideBar({
   )
 }
 
-const BoxFeature = styled(Box)<{ bg: string; bgSize?: string }>`
+const BoxFeature = styled(Box)<{ bg: string; bgSize?: string; color?: string }>`
   width: 100%;
   margin-bottom: 10px;
   padding: 4px 10px;
-  color: rgba(76, 78, 100, 0.87);
+  color: ${({ color }) => color ?? 'rgba(76, 78, 100, 0.87)'};
   font-size: 1rem;
   background: ${({ bg }) => bg ?? ''};
   ${({ bgSize }) => (bgSize ? `background-size : ${bgSize}` : '')}

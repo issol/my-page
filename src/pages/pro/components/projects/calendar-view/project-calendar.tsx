@@ -1,12 +1,9 @@
 // ** React Import
-import { useEffect, useRef, useState } from 'react'
+import { useRef } from 'react'
 
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
-import listPlugin from '@fullcalendar/list'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import timeGridPlugin from '@fullcalendar/timegrid'
-import interactionPlugin from '@fullcalendar/interaction'
 
 // ** types
 import { CalendarEventType } from '@src/apis/pro-projects.api'

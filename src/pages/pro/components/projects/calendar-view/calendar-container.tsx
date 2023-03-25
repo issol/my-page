@@ -7,9 +7,6 @@ import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Switch from '@mui/material/Switch'
 
-// ** Redux Imports
-import { useDispatch, useSelector } from 'react-redux'
-
 // ** components
 import ProjectCalendar from './project-calendar'
 import CalendarSideBar from './sidebar'

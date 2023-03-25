@@ -154,63 +154,62 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
         '&:not(.fc-list-event)': {
           '&.bg-primary': {
             borderColor: 'transparent',
-            color: theme.palette.primary.main,
+            color: 'rgba(76, 78, 100, 0.87)',
             borderLeft: `6px solid ${theme.palette.primary.main}`,
             borderRight: `6px solid ${theme.palette.primary.main}`,
             backgroundColor: bgColors.primaryLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.primary.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
           '&.bg-secondary': {
             borderColor: 'transparent',
-            color: theme.palette.secondary.main,
+            color: 'rgba(76, 78, 100, 0.87)',
             borderLeft: `6px solid ${theme.palette.secondary.main}`,
             borderRight: `6px solid ${theme.palette.secondary.main}`,
             backgroundColor: bgColors.secondaryLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.secondary.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
           '&.bg-success': {
             borderColor: 'transparent',
-            color: theme.palette.success.main,
+            color: 'rgba(76, 78, 100, 0.87)',
             borderLeft: `6px solid ${theme.palette.success.main}`,
             borderRight: `6px solid ${theme.palette.success.main}`,
             backgroundColor: bgColors.successLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.success.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
-          //** TODO: color, backgroundColor 수정하기  */
           '&.bg-error': {
             borderColor: 'transparent',
-            color: theme.palette.error.main,
-            borderLeft: `6px solid ${theme.palette.error.main}`,
-            borderRight: `6px solid ${theme.palette.error.main}`,
-            backgroundColor: bgColors.errorLight.backgroundColor,
+            color: 'rgba(76, 78, 100, 0.87)',
+            borderLeft: `6px solid ${'#8C3131'}`,
+            borderRight: `6px solid ${'#8C3131'}`,
+            backgroundColor: hexToRGBA('#8C3131', 0.12),
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.error.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
           '&.bg-warning': {
             borderColor: 'transparent',
-            color: theme.palette.warning.main,
+            color: 'rgba(76, 78, 100, 0.87)',
             borderLeft: `6px solid ${theme.palette.warning.main}`,
             borderRight: `6px solid ${theme.palette.warning.main}`,
             backgroundColor: bgColors.warningLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.warning.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
           '&.bg-info': {
             borderColor: 'transparent',
-            color: theme.palette.info.main,
+            color: 'rgba(76, 78, 100, 0.87)',
             borderLeft: `6px solid ${theme.palette.info.main}`,
             borderRight: `6px solid ${theme.palette.info.main}`,
             backgroundColor: bgColors.infoLight.backgroundColor,
             '& .fc-event-title, & .fc-event-time': {
-              color: theme.palette.info.main,
+              color: 'rgba(76, 78, 100, 0.87)',
             },
           },
 
@@ -255,14 +254,13 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
             backgroundColor: hexToRGBA(theme.palette.success.light, 0.1),
           },
         },
-        //** TODO :borderColor, backgroundColor 수정하기
         '&.bg-error': {
           '& .fc-list-event-dot': {
-            borderColor: theme.palette.error.main,
-            backgroundColor: theme.palette.error.main,
+            borderColor: '#8C3131',
+            backgroundColor: '#8C3131',
           },
           '&:hover td': {
-            backgroundColor: hexToRGBA(theme.palette.error.light, 0.1),
+            backgroundColor: hexToRGBA('#8C3131', 0.1),
           },
         },
         '&.bg-warning': {
