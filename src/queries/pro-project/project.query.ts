@@ -40,15 +40,11 @@ export const useGetProjectList = (
   )
 }
 
-export const useGetProjectCalendarData = (
-  id: number,
-  year: number,
-  month: number,
-) => {
+export const useGetProjectCalendarData = (id: number, date: string) => {
   return useQuery(
     'get-project-calendar',
     () => {
-      return getProjectCalendarData(id, year, month)
+      return getProjectCalendarData(id, date)
     },
     {
       suspense: true,

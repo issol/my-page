@@ -146,7 +146,7 @@ export default function ProjectsDetail({ id }: Props) {
             />
           </Grid>
         ) : (
-          <CalendarContainer id={id} />
+          <CalendarContainer id={id} sort={sort} setSort={setSort} />
         )}
       </Box>
     </Box>
