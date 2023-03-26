@@ -275,7 +275,6 @@ const SignUpPage = () => {
       onError: (e: any) => {
         signUpOnError(e)
       },
-      retry: 1,
     },
   )
 

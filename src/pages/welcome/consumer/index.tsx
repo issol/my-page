@@ -1266,7 +1266,7 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
 PersonalInfoPro.guestGuard = false
 
 PersonalInfoPro.acl = {
-  action: 'read',
+  action: 'update',
   subject: 'personalInfo_pro',
 }
 

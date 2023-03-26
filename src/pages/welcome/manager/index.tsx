@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, ReactNode, useEffect, useContext } from 'react'
+import { ReactNode, useEffect, useContext } from 'react'
 
 // ** MUI Components
 import Button from '@mui/material/Button'
@@ -18,7 +18,7 @@ import isEmpty from 'lodash/isEmpty'
 
 // ** Third Party Imports
 
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 import Cleave from 'cleave.js/react'
@@ -36,7 +36,6 @@ import { countries } from 'src/@fake-db/autocomplete'
 
 // ** Third Party Components
 import { useRouter } from 'next/router'
-import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 import {
   CountryType,
   ManagerInfo,
@@ -532,7 +531,7 @@ PersonalInfoManager.getLayout = (page: ReactNode) => (
 
 PersonalInfoManager.acl = {
   subject: 'personalInfo_manager',
-  action: 'read',
+  action: 'update',
 }
 
 PersonalInfoManager.guestGuard = false
