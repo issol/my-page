@@ -76,7 +76,7 @@ export const getPermission = createAsyncThunk(
           subject: 'recruiting',
           can: 'update',
           option: {
-            authorId: 2,
+            authorId: 5,
           },
         },
         {

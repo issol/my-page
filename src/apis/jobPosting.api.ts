@@ -96,6 +96,7 @@ export const getJobPostingList = async (
 
 export type JobPostingDetailType = {
   id: number
+  userId: number
   status: StatusType
   writer: string
   email: string
