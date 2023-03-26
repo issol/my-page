@@ -109,7 +109,7 @@ export default function CalendarSideBar({
               <BoxFeature
                 key={item.id}
                 bg={colors[item?.extendedProps?.calendar]?.backgroundColor}
-                bgSize={colors[item?.extendedProps?.calendar]?.backgroundSize}
+                $bgSize={colors[item?.extendedProps?.calendar]?.backgroundSize}
                 color={
                   item.status === 'Overdue'
                     ? colors[item?.extendedProps?.calendar]?.color
@@ -131,14 +131,18 @@ export default function CalendarSideBar({
   )
 }
 
-const BoxFeature = styled(Box)<{ bg: string; bgSize?: string; color?: string }>`
+const BoxFeature = styled(Box)<{
+  bg: string
+  $bgSize?: string
+  color?: string
+}>`
   width: 100%;
   margin-bottom: 10px;
   padding: 4px 10px;
   color: ${({ color }) => color ?? 'rgba(76, 78, 100, 0.87)'};
   font-size: 1rem;
   background: ${({ bg }) => bg ?? ''};
-  ${({ bgSize }) => (bgSize ? `background-size : ${bgSize}` : '')}
+  ${({ $bgSize }) => ($bgSize ? `background-size : ${$bgSize}` : '')}
 `
 const MoreBtn = styled(Button)`
   text-transform: none;

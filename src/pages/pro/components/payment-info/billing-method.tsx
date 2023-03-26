@@ -136,10 +136,9 @@ export default function BillingMethod({
                 </Typography>
               </ContentGrid>
               <ContentGrid>
-                {/* ** TODO : 키값 정해지면 수정 */}
                 <Typography sx={{ fontWeight: 'bold' }}>Others</Typography>
                 <Typography variant='body2'>
-                  {/* {replaceDots(info.correspondentBankInfo?.accountNumber ?? '')} */}
+                  {replaceDots(info.correspondentBankInfo?.others ?? '')}
                 </Typography>
               </ContentGrid>
             </Grid>
