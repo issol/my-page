@@ -13,12 +13,7 @@ import { Suspense, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import {
-  ContentState,
-  convertFromRaw,
-  convertToRaw,
-  EditorState,
-} from 'draft-js'
+import { convertFromRaw, EditorState } from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -31,7 +26,6 @@ import CustomChip from 'src/@core/components/mui/chip'
 // ** Styles
 import 'react-draft-wysiwyg/dist/react-draft-wysiwyg.css'
 import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
-import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // ** contexts
@@ -77,6 +71,10 @@ const ContractDetail = () => {
   const ability = useContext(AbilityContext)
   const type = router.query.type as ContractType
   const language = router.query.language as LangType
+
+  const isMaster =
+    ability.can('update', 'contract') &&
+    !ability.possibleRulesFor('update', 'contract')[0]?.conditions
 
   const [openDetail, setOpenDetail] = useState(false)
 
@@ -271,9 +269,12 @@ const ContractDetail = () => {
     })
   }
 
-  function isEditable(id: number) {
+  function isAuthor(id: number) {
     if (contract) {
-      return ability.can('update', 'contract') || id === user?.id!
+      return (
+        ability.possibleRulesFor('update', 'contract')[0]?.conditions
+          ?.authorId === id
+      )
     }
   }
 
@@ -344,6 +345,7 @@ const ContractDetail = () => {
   return (
     <Suspense fallback={<FallbackSpinner />}>
       <StyledViewer style={{ margin: '0 70px' }}>
+        <Grid></Grid>
         <Grid container spacing={6}>
           <Grid item xs={9}>
             <Card sx={{ padding: '30px 20px 20px', width: '100%' }}>
@@ -404,37 +406,47 @@ const ContractDetail = () => {
               </Box>
             </Card>
           </Grid>
-          {isEditable(contract?.userId) && (
-            <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-              <Card>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
+          <>
+            {isAuthor ||
+              (isMaster ? (
+                <Grid
+                  item
+                  xs={3}
+                  className='match-height'
+                  sx={{ height: '152px' }}
                 >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    startIcon={<Icon icon='mdi:delete-outline' />}
-                    onClick={onDelete}
-                  >
-                    Delete
-                  </Button>
+                  <Card>
+                    <Box
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
+                    >
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
 
-                  <Button
-                    variant='contained'
-                    onClick={onEdit}
-                    startIcon={<Icon icon='mdi:pencil-outline' />}
-                  >
-                    Edit
-                  </Button>
-                </Box>
-              </Card>
-            </Grid>
-          )}
+                      <Button
+                        variant='contained'
+                        onClick={onEdit}
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                      >
+                        Edit
+                      </Button>
+                    </Box>
+                  </Card>
+                </Grid>
+              ) : (
+                ''
+              ))}
+          </>
         </Grid>
         <Dialog
           open={openDetail}
@@ -495,11 +507,12 @@ const ContractDetail = () => {
                 >
                   Close
                 </Button>
-                {isEditable(Number(currentRow?.userId)) && (
-                  <Button variant='contained' onClick={onRestore}>
-                    Restore this version
-                  </Button>
-                )}
+                {isMaster ||
+                  (isAuthor(Number(currentRow?.userId)) && (
+                    <Button variant='contained' onClick={onRestore}>
+                      Restore this version
+                    </Button>
+                  ))}
               </ModalButtonGroup>
             </Grid>
           </StyledViewer>
