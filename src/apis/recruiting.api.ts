@@ -116,6 +116,7 @@ export const getRecruitingList = async (
 
 export type CurrentHistoryType = {
   id: number
+  userId: number
   version: number
   writer: string
   email: string

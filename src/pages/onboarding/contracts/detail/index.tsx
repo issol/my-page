@@ -407,7 +407,7 @@ const ContractDetail = () => {
             </Card>
           </Grid>
           <>
-            {isAuthor ||
+            {isAuthor(contract?.userId) ||
               (isMaster ? (
                 <Grid
                   item
