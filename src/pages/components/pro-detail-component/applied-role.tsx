@@ -26,6 +26,7 @@ type Props = {
   selectedJobInfo: AppliedRoleType | null
   handleClickRoleCard: (jobInfo: AppliedRoleType) => void
   page: number
+  totalCount: number
   rowsPerPage: number
   offset: number
   handleChangePage: (direction: string) => void
@@ -55,7 +56,10 @@ export default function AppliedRole({
   onClickRejectOrPause,
   onClickReason,
   type,
+  totalCount,
 }: Props) {
+  console.log(totalCount)
+
   console.log(userInfo)
 
   const getStatusButton = (jobInfo: AppliedRoleType) => {
@@ -372,7 +376,7 @@ export default function AppliedRole({
             ></img>
           </IconButton>
         </Box>
-        {userInfo && userInfo.length ? (
+        {totalCount ? (
           <FormControlLabel
             value='start'
             control={

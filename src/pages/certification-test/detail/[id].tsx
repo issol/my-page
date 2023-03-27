@@ -41,6 +41,9 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import { useMutation } from 'react-query'
 import { ModalContext } from 'src/context/ModalContext'
 import { FileType } from '@src/types/common/file.type'
+import { certification_test } from '@src/shared/const/permission-class/certification-test'
+import { useAppSelector } from '@src/hooks/useRedux'
+import logger from '@src/@core/utils/logger'
 
 type CellType = {
   row: CurrentTestType
@@ -52,6 +55,7 @@ const CertificationTestDetail = () => {
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
+  const { role } = useAppSelector(state => state.userAccess)
 
   const { data } = useGetTestDetail(Number(id!), true)
   const [pageSize, setPageSize] = useState(5)
@@ -94,6 +98,10 @@ const CertificationTestDetail = () => {
     content: null,
     files: [],
   }
+  const permission = new certification_test(data?.currentVersion.userId!)
+
+  logger.debug(ability.can('update', permission))
+  logger.debug(ability.can('delete', permission))
 
   const versionHistory = data?.versionHistory || []
 
@@ -867,8 +875,23 @@ const CertificationTestDetail = () => {
             </Box>
           </Grid>
           <Grid container xs={2.45}>
-            <Box sx={{ width: '100%' }}>
-              <Card>
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '24px',
+              }}
+            >
+              <Card
+                sx={{
+                  height:
+                    ability.can('update', permission) &&
+                    ability.can('delete', permission)
+                      ? 'auto'
+                      : '100%',
+                }}
+              >
                 <Box
                   sx={{
                     padding: '20px',
@@ -934,41 +957,43 @@ const CertificationTestDetail = () => {
                   ) : null}
                 </Box>
               </Card>
-
-              <Card style={{ marginTop: '24px' }}>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    startIcon={<Icon icon='mdi:delete-outline' />}
-                    onClick={onDelete}
-                  >
-                    Delete
-                  </Button>
-                  <Button
-                    variant='contained'
-                    startIcon={<Icon icon='mdi:edit-outline' />}
-                    onClick={() => {
-                      router.push({
-                        pathname: '/certification-test/post',
-                        query: {
-                          edit: JSON.stringify(true),
-                          id: id,
-                        },
-                      })
+              {ability.can('update', permission) &&
+              ability.can('delete', permission) ? (
+                <Card>
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
                     }}
                   >
-                    Edit
-                  </Button>
-                </Box>
-              </Card>
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      startIcon={<Icon icon='mdi:delete-outline' />}
+                      onClick={onDelete}
+                    >
+                      Delete
+                    </Button>
+                    <Button
+                      variant='contained'
+                      startIcon={<Icon icon='mdi:edit-outline' />}
+                      onClick={() => {
+                        router.push({
+                          pathname: '/certification-test/post',
+                          query: {
+                            edit: JSON.stringify(true),
+                            id: id,
+                          },
+                        })
+                      }}
+                    >
+                      Edit
+                    </Button>
+                  </Box>
+                </Card>
+              ) : null}
             </Box>
           </Grid>
         </Box>
