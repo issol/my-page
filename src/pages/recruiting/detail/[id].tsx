@@ -453,7 +453,7 @@ const RecruitingDetail = () => {
                       startIcon={<Icon icon='clarity:eye-hide-line' />}
                       onClick={onHide}
                     >
-                      Hide
+                      {currentVersion?.isHide ? 'Re-post' : 'Hide'}
                     </Button>
                   )}
                   {isMaster && (
