@@ -904,6 +904,7 @@ function ProDetailOverview() {
               <Grid item xs={12}>
                 <Suspense>
                   <AppliedRole
+                    totalCount={appliedRole?.length!}
                     userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}

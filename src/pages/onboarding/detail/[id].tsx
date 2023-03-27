@@ -939,6 +939,7 @@ function OnboardingDetail() {
                 <Suspense>
                   <AppliedRole
                     userInfo={appliedRoleList!}
+                    totalCount={appliedRole?.length!}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}
                     selectedJobInfo={selectedJobInfo}
