@@ -82,6 +82,7 @@ import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { recruiting } from '@src/shared/const/permission-class'
 
 export default function RecruitingEdit() {
   const router = useRouter()
@@ -143,10 +144,9 @@ export default function RecruitingEdit() {
   }
 
   const ability = useContext(AbilityContext)
-
-  const isWriter =
-    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-      ?.authorId === currData?.userId
+  const writer = new recruiting(currData?.userId!)
+  //only writer can edit all fields, master only can edit 'status' of the post
+  const isWriter = ability.can('update', writer)
 
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [

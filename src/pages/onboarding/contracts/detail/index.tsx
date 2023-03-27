@@ -51,6 +51,7 @@ import {
 } from 'src/apis/contract.api'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
+import { contract as Contract } from '@src/shared/const/permission-class'
 
 type CellType = {
   row: {
@@ -71,10 +72,6 @@ const ContractDetail = () => {
   const ability = useContext(AbilityContext)
   const type = router.query.type as ContractType
   const language = router.query.language as LangType
-
-  const isMaster =
-    ability.can('update', 'contract') &&
-    !ability.possibleRulesFor('update', 'contract')[0]?.conditions
 
   const [openDetail, setOpenDetail] = useState(false)
 
@@ -269,12 +266,10 @@ const ContractDetail = () => {
     })
   }
 
-  function isAuthor(id: number) {
+  function isAuthor(can: 'update' | 'delete', id: number) {
+    const writer = new Contract(id)
     if (contract) {
-      return (
-        ability.possibleRulesFor('update', 'contract')[0]?.conditions
-          ?.authorId === id
-      )
+      return ability.can(can, writer)
     }
   }
 
@@ -407,45 +402,43 @@ const ContractDetail = () => {
             </Card>
           </Grid>
           <>
-            {isAuthor(contract?.userId) ||
-              (isMaster ? (
-                <Grid
-                  item
-                  xs={3}
-                  className='match-height'
-                  sx={{ height: '152px' }}
+            <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
+              <Card>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
                 >
-                  <Card>
-                    <Box
-                      sx={{
-                        padding: '20px',
-                        display: 'flex',
-                        flexDirection: 'column',
-                        gap: '12px',
-                      }}
+                  {isAuthor('delete', contract?.userId) ? (
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      startIcon={<Icon icon='mdi:delete-outline' />}
+                      onClick={onDelete}
                     >
-                      <Button
-                        variant='outlined'
-                        color='secondary'
-                        startIcon={<Icon icon='mdi:delete-outline' />}
-                        onClick={onDelete}
-                      >
-                        Delete
-                      </Button>
+                      Delete
+                    </Button>
+                  ) : (
+                    ''
+                  )}
 
-                      <Button
-                        variant='contained'
-                        onClick={onEdit}
-                        startIcon={<Icon icon='mdi:pencil-outline' />}
-                      >
-                        Edit
-                      </Button>
-                    </Box>
-                  </Card>
-                </Grid>
-              ) : (
-                ''
-              ))}
+                  {isAuthor('update', contract?.userId) ? (
+                    <Button
+                      variant='contained'
+                      onClick={onEdit}
+                      startIcon={<Icon icon='mdi:pencil-outline' />}
+                    >
+                      Edit
+                    </Button>
+                  ) : (
+                    ''
+                  )}
+                </Box>
+              </Card>
+            </Grid>
           </>
         </Grid>
         <Dialog
@@ -507,12 +500,14 @@ const ContractDetail = () => {
                 >
                   Close
                 </Button>
-                {isMaster ||
-                  (isAuthor(Number(currentRow?.userId)) && (
-                    <Button variant='contained' onClick={onRestore}>
-                      Restore this version
-                    </Button>
-                  ))}
+
+                {isAuthor('update', Number(currentRow?.userId)) ? (
+                  <Button variant='contained' onClick={onRestore}>
+                    Restore this version
+                  </Button>
+                ) : (
+                  ''
+                )}
               </ModalButtonGroup>
             </Grid>
           </StyledViewer>

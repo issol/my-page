@@ -54,6 +54,7 @@ import {
   hideRecruiting,
 } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { recruiting } from '@src/shared/const/permission-class'
 
 // ** types
 
@@ -97,10 +98,6 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const isMaster =
-    ability.can('update', 'recruiting') &&
-    !ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
@@ -118,9 +115,9 @@ const RecruitingDetail = () => {
 
   const versionHistory = data?.versionHistory || []
 
-  const isWriter =
-    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-      ?.authorId === currentVersion?.userId
+  const writer = new recruiting(currentVersion?.userId!)
+  const isWriter = ability.can('update', writer) //writer can edit, hide the post
+  const isMaster = ability.can('delete', writer) //master can edit, delete the post
 
   const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {
