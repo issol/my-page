@@ -83,6 +83,7 @@ const JobPostingDetail = () => {
   const isWriter =
     ability.possibleRulesFor('update', 'job_posting')[0]?.conditions
       ?.authorId === data?.userId
+
   const isMaster =
     ability.can('delete', 'job_posting') &&
     !ability.possibleRulesFor('delete', 'job_posting')[0]?.conditions
