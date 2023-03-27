@@ -11,8 +11,6 @@ type Props = {
 }
 
 const TestTypeChip = ({ testType }: Props) => {
-  console.log(testType)
-
   return (
     <Box sx={{ display: 'flex', gap: '8px' }}>
       <Chip

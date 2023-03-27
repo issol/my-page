@@ -58,6 +58,7 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 // ** types
 import { FileType } from 'src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
+import logger from '@src/@core/utils/logger'
 
 type CellType = {
   row: {
@@ -103,6 +104,10 @@ const ClientGuidelineDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+
+  const isMaster =
+    ability.can('delete', 'client_guideline') &&
+    !ability.possibleRulesFor('delete', 'client_guideline')[0]?.conditions
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
 
@@ -217,7 +222,7 @@ const ClientGuidelineDetail = () => {
           },
         })
         .then(res => {
-          console.log('upload client guideline file success :', res)
+          logger.info('upload client guideline file success :', res)
           const url = window.URL.createObjectURL(new Blob([res.data]))
           const link = document.createElement('a')
           link.href = url
@@ -370,8 +375,11 @@ const ClientGuidelineDetail = () => {
     )
   }
 
-  function isEditable(id: number) {
-    return ability.can('update', 'client_guideline') || id === user?.id!
+  function isAuthor(id: number) {
+    return (
+      ability.possibleRulesFor('update', 'client_guideline')[0]?.conditions
+        ?.authorId === id
+    )
   }
 
   function onRowClick(e: any) {
@@ -549,34 +557,35 @@ const ClientGuidelineDetail = () => {
                   ) : null}
                 </Box>
               </Card>
-              {isEditable(Number(currentVersion?.userId)) && (
-                <Card style={{ marginTop: '24px' }}>
-                  <Box
-                    sx={{
-                      padding: '20px',
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '12px',
-                    }}
-                  >
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
+              {isMaster ||
+                (isAuthor(Number(currentVersion?.userId)) && (
+                  <Card style={{ marginTop: '24px' }}>
+                    <Box
+                      sx={{
+                        padding: '20px',
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '12px',
+                      }}
                     >
-                      Delete
-                    </Button>
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  </Box>
-                </Card>
-              )}
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    </Box>
+                  </Card>
+                ))}
             </Grid>
           </Grid>
           <Dialog
@@ -742,15 +751,16 @@ const ClientGuidelineDetail = () => {
                   >
                     Close
                   </Button>
-                  {isEditable(Number(currentRow?.userId!)) && (
-                    <Button
-                      variant='contained'
-                      onClick={onRestore}
-                      sx={{ width: '226px' }}
-                    >
-                      Restore this version
-                    </Button>
-                  )}
+                  {isMaster ||
+                    (isAuthor(Number(currentRow?.userId!)) && (
+                      <Button
+                        variant='contained'
+                        onClick={onRestore}
+                        sx={{ width: '226px' }}
+                      >
+                        Restore this version
+                      </Button>
+                    ))}
                 </ModalButtonGroup>
               </Grid>
             </StyledViewer>

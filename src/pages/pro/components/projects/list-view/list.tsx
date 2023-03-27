@@ -36,7 +36,7 @@ import {
 } from 'src/@core/components/chips/chips'
 
 // ** types
-import { ProProjectType } from '@src/apis/pro-projects.api'
+import { ProProjectType, SortingType } from '@src/apis/pro-projects.api'
 
 type Props = {
   isCardHeader?: boolean
@@ -44,6 +44,8 @@ type Props = {
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
+  sort: SortingType
+  setSort: (val: SortingType) => void
   list: {
     data: Array<ProProjectType> | []
     count: number
@@ -58,6 +60,8 @@ export default function ProjectsList({
   setSkip,
   setPageSize,
   list,
+  sort,
+  setSort,
   isLoading,
 }: Props) {
   const Row = (props: { row: ProProjectType }) => {
@@ -192,7 +196,24 @@ export default function ProjectsList({
                   <TableCell align='left'>Item name</TableCell>
                   <TableCell align='left'>Clients</TableCell>
                   <TableCell align='left'>Language</TableCell>
-                  <TableCell align='left'>Due date</TableCell>
+                  <TableCell align='left'>
+                    <Box>
+                      Due date
+                      <IconButton
+                        onClick={() =>
+                          setSort(sort === 'DESC' ? 'ASC' : 'DESC')
+                        }
+                      >
+                        <Icon
+                          icon={`material-symbols:arrow-${
+                            sort === 'DESC' ? 'downward' : 'upward'
+                          }-rounded`}
+                          opacity={0.7}
+                          fontSize={20}
+                        />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
                   <TableCell align='left'>Status</TableCell>
                 </TableRow>
               </TableHead>

@@ -71,6 +71,7 @@ import { FileType } from 'src/types/common/file.type'
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
 import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
+import logger from '@src/@core/utils/logger'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -279,8 +280,8 @@ const PersonalInfoPro = () => {
           const formData = new FormData()
           formData.append('files', file)
           postFiles(res, formData)
-            .then(res => console.log('upload resume success :', res))
-            .catch(err => console.log('upload resume failed : ', err))
+            .then(res => logger.info('upload resume success :', res))
+            .catch(err => logger.error('upload resume failed : ', err))
         })
       })
 
@@ -1265,7 +1266,7 @@ PersonalInfoPro.getLayout = (page: ReactNode) => (
 PersonalInfoPro.guestGuard = false
 
 PersonalInfoPro.acl = {
-  action: 'read',
+  action: 'update',
   subject: 'personalInfo_pro',
 }
 

@@ -1,23 +1,12 @@
 // ** MUI Imports
 import Grid from '@mui/material/Grid'
 import Typography from '@mui/material/Typography'
-import {
-  Button,
-  Card,
-  CardHeader,
-  IconButton,
-  List,
-  TableBody,
-  TableCell,
-  TableRow,
-} from '@mui/material'
+import { Button, Card, IconButton } from '@mui/material'
 import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
-import Dialog from '@mui/material/Dialog'
-import { DataGrid } from '@mui/x-data-grid'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** Third Party Imports
 import { convertFromRaw, EditorState } from 'draft-js'
@@ -92,8 +81,12 @@ const JobPostingDetail = () => {
   }, [id])
 
   const isWriter =
-    ability.can('update', 'job_posting') && data?.email === user?.email!
-  const isMaster = ability.can('delete', 'job_posting')
+    ability.possibleRulesFor('update', 'job_posting')[0]?.conditions
+      ?.authorId === data?.userId
+
+  const isMaster =
+    ability.can('delete', 'job_posting') &&
+    !ability.possibleRulesFor('delete', 'job_posting')[0]?.conditions
 
   const deleteMutation = useMutation((id: number) => deleteJobPosting(id), {
     onSuccess: () => {

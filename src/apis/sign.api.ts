@@ -1,6 +1,7 @@
 import axios from 'src/configs/axios'
 import { loginResType } from 'src/types/sign/signInTypes'
 import { UserRoleType } from 'src/context/types'
+import logger from '@src/@core/utils/logger'
 
 export const login = async (
   email: string,
@@ -122,6 +123,6 @@ export const logout = async () => {
   try {
     await axios.post(`/api/enough/a/logout`)
   } catch (e: any) {
-    console.log(e)
+    logger.debug(e)
   }
 }

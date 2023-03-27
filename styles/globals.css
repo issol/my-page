@@ -33,9 +33,10 @@ code[class*='language-'] {
   background: rgba(76, 78, 100, 0.12);
 }
 /* Select component disabled design */
-.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input {
+.css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
   background: rgba(76, 78, 100, 0.12);
 }
+*/
 
 /* TextField disabled design */
 .css-127u85g-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {

@@ -97,6 +97,10 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
+  const isMaster =
+    ability.can('update', 'recruiting') &&
+    !ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
+
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
@@ -115,9 +119,8 @@ const RecruitingDetail = () => {
   const versionHistory = data?.versionHistory || []
 
   const isWriter =
-    ability.can('update', 'recruiting') &&
-    currentVersion?.email === user?.email!
-  const isMaster = ability.can('delete', 'recruiting')
+    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
+      ?.authorId === currentVersion?.userId
 
   const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {

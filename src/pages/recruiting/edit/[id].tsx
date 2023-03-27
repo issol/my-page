@@ -143,8 +143,10 @@ export default function RecruitingEdit() {
   }
 
   const ability = useContext(AbilityContext)
+
   const isWriter =
-    ability.can('update', 'recruiting') && user?.email === currData?.email
+    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
+      ?.authorId === currData?.userId
 
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [

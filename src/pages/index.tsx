@@ -18,7 +18,6 @@ const Home = () => {
   const auth = useAuth()
   const router = useRouter()
   const { permission, isLoading } = useAppSelector(state => state.userAccess)
-  console.log('permission : ', permission)
 
   useEffect(() => {
     router.replace('/home')

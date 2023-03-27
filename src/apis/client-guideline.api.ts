@@ -20,7 +20,6 @@ export const getGuidelines = async (
     | []
   count: number
 }> => {
-  // console.log(makeQuery(filters))
   try {
     const { data } = await axios.get(
       `/api/enough/onboard/guideline?${makeQuery(filters)}`,

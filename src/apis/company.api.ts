@@ -46,8 +46,6 @@ export const getMembers = async () => {
 }
 
 export const approveMembers = async (user: MembersType) => {
-  console.log(user)
-
   const { data } = await axios.post('/api/company/approve-members', {
     user,
   })
@@ -67,8 +65,6 @@ export const undoMembers = async (user: MembersType) => {
 }
 
 export const requestAction = async (params: RequestActionType) => {
-  console.log(makeQuery(params))
-
   const { data } = await axiosDefault.get(
     `/api/enough/a/r-req/reply?${makeQuery(params)}`,
   )

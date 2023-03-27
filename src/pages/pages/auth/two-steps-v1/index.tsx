@@ -95,9 +95,6 @@ const TwoStepsV1 = () => {
       // @ts-ignore
       const form = event.target.form
       const index = [...form].indexOf(event.target)
-      console.log('form : ', form)
-      console.log('index : ', index)
-      console.log('form[index].value : ', form[index].value)
       if (form[index].value && form[index].value.length) {
         form.elements[index + 1].focus()
       }

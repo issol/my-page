@@ -401,7 +401,6 @@ export const handlers = [
 
   // 잡포스팅 리스트 가져오기
   rest.get(BASEURL + '/api/enough/recruiting/jobposting', (req, res, ctx) => {
-    console.log('req :::::::', req)
     const jobpostingList = {
       data: [
         {
@@ -1212,7 +1211,6 @@ export const handlers = [
 
   //onboarding list
   // rest.get(BASEURL + '/api/enough/onboard/user/al', (req, res, ctx) => {
-  //   console.log(req)
 
   //   interface Data {
   //     id: string
@@ -1582,7 +1580,6 @@ export const handlers = [
           const id = k + 1
           const client =
             clientsList[Math.floor(Math.random() * clientsList.length)]
-          console.log(client)
 
           clients.push({
             id,
@@ -1644,9 +1641,6 @@ export const handlers = [
       status: Array<string>,
       clients: Array<string>,
     ): Data[] {
-      console.log(source)
-      console.log(sampleList)
-
       return sampleList
         .filter(
           item =>

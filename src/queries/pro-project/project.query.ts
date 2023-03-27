@@ -2,6 +2,19 @@ import { FilterType, getProProjectList } from './../../apis/pro-projects.api'
 import { getProjectCalendarData } from '@src/apis/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
+import { getWorkNameFilterList } from '@src/apis/payment-info.api'
+
+export const useGetWorkNameList = (id: number) => {
+  return useQuery(
+    'get-project/workname',
+    () => {
+      return getWorkNameFilterList(id)
+    },
+    {
+      suspense: true,
+    },
+  )
+}
 
 export const useGetProjectList = (
   id: number,
@@ -27,15 +40,11 @@ export const useGetProjectList = (
   )
 }
 
-export const useGetProjectCalendarData = (
-  id: number,
-  year: number,
-  month: number,
-) => {
+export const useGetProjectCalendarData = (id: number, date: string) => {
   return useQuery(
     'get-project-calendar',
     () => {
-      return getProjectCalendarData(id, year, month)
+      return getProjectCalendarData(id, date)
     },
     {
       suspense: true,

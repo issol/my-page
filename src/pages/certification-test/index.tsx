@@ -87,7 +87,6 @@ const CertificationTest = () => {
 
   const onSubmit = (data: TestMaterialFilterType) => {
     const { jobType, role, source, target, testType } = data
-    console.log(source)
 
     const filter = {
       testType: testType.map(value =>

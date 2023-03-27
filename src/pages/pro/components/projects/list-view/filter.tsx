@@ -32,15 +32,29 @@ import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 import { FilterOmitType } from '../index'
 
 type Props = {
+  workName: Array<{ value: string; label: string }> | []
   filter: FilterOmitType
   setFilter: <T extends FilterOmitType>(v: T) => void
   search: () => void
   onReset: () => void
 }
 
-export default function Filters({ filter, setFilter, search, onReset }: Props) {
+export default function Filters({
+  workName,
+  filter,
+  setFilter,
+  search,
+  onReset,
+}: Props) {
   const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
+
+  const commonOptions = {
+    autoHighlight: true,
+    fullWidth: true,
+    filterSelectedOptions: true,
+    getOptionLabel: (val: { label: string; value: string }) => val.label,
+  }
 
   return (
     <Grid item xs={12}>
@@ -64,29 +78,26 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
         <Collapse in={collapsed}>
           <CardContent>
             <Grid container spacing={6} rowSpacing={4}>
-              {/* TODO : work name 필터는 백엔드와 논의 후 넣기 */}
-              {/* <Grid item xs={12} sm={6} md={4}>
+              <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <FormControl fullWidth>
                     <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      options={!jobTypeOption.length ? JobList : jobTypeOption}
-                      value={filterValue(JobList, 'jobType')}
+                      {...commonOptions}
+                      multiple
+                      options={workName}
+                      value={filter.title}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          jobType: v?.value ?? '',
+                          title: v,
                         })
                       }
-                      filterSelectedOptions
-                      id='jobType'
-                      getOptionLabel={option => option.label}
+                      id='workName'
                       renderInput={params => (
                         <TextField
                           {...params}
-                          label='Job type'
-                          placeholder='Job type'
+                          label='Work name'
+                          placeholder='Work name'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -98,12 +109,11 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                     />
                   </FormControl>
                 </FormControl>
-              </Grid> */}
+              </Grid>
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
-                    autoHighlight
-                    fullWidth
+                    {...commonOptions}
                     multiple
                     options={RoleList}
                     value={filter.role}
@@ -113,7 +123,6 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                         role: v,
                       })
                     }
-                    filterSelectedOptions
                     id='role'
                     renderInput={params => (
                       <TextField
@@ -134,8 +143,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
-                    autoHighlight
-                    fullWidth
+                    {...commonOptions}
                     multiple
                     options={ProStatus}
                     value={filter.status}
@@ -145,7 +153,6 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                         status: v,
                       })
                     }
-                    filterSelectedOptions
                     id='status'
                     renderInput={params => (
                       <TextField
@@ -166,8 +173,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
-                    autoHighlight
-                    fullWidth
+                    {...commonOptions}
                     multiple
                     options={languageList}
                     value={filter.source}
@@ -177,9 +183,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                         source: v,
                       })
                     }}
-                    filterSelectedOptions
                     id='source'
-                    getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -199,8 +203,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
-                    autoHighlight
-                    fullWidth
+                    {...commonOptions}
                     multiple
                     options={languageList}
                     value={filter.target}
@@ -210,9 +213,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                         target: v,
                       })
                     }
-                    filterSelectedOptions
                     id='target'
-                    getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -232,8 +233,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
                   <Autocomplete
-                    autoHighlight
-                    fullWidth
+                    {...commonOptions}
                     multiple
                     options={ClientListIncludeGloz}
                     value={filter.client}
@@ -243,9 +243,7 @@ export default function Filters({ filter, setFilter, search, onReset }: Props) {
                         client: v,
                       })
                     }
-                    filterSelectedOptions
                     id='client'
-                    getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}

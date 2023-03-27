@@ -7,9 +7,6 @@ import { Theme } from '@mui/material/styles'
 import useMediaQuery from '@mui/material/useMediaQuery'
 import Switch from '@mui/material/Switch'
 
-// ** Redux Imports
-import { useDispatch, useSelector } from 'react-redux'
-
 // ** components
 import ProjectCalendar from './project-calendar'
 import CalendarSideBar from './sidebar'
@@ -22,12 +19,16 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
-import { CalendarEventType } from '@src/apis/pro-projects.api'
+import { CalendarEventType, SortingType } from '@src/apis/pro-projects.api'
 import ProjectsList from '../list-view/list'
 
-type Props = { id: number }
+type Props = {
+  id: number
+  sort: SortingType
+  setSort: (val: SortingType) => void
+}
 
-const CalendarContainer = ({ id }: Props) => {
+const CalendarContainer = ({ id, sort, setSort }: Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [hideFilter, setHideFilter] = useState(false)
@@ -42,7 +43,7 @@ const CalendarContainer = ({ id }: Props) => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch } = useGetProjectCalendarData(id, year, month)
+  const { data, refetch } = useGetProjectCalendarData(id, `${year}-${month}`)
   const [event, setEvent] = useState<Array<CalendarEventType>>([])
 
   // ** list values
@@ -82,7 +83,7 @@ const CalendarContainer = ({ id }: Props) => {
   }, [data, hideFilter])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-  console.log(event)
+
   return (
     <Box>
       <CalendarWrapper
@@ -141,6 +142,8 @@ const CalendarContainer = ({ id }: Props) => {
       </CalendarWrapper>
 
       <ProjectsList
+        sort={sort}
+        setSort={setSort}
         skip={skip}
         setSkip={setSkip}
         pageSize={pageSize}

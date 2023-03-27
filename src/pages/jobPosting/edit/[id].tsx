@@ -168,7 +168,7 @@ export default function JobPostingEdit() {
       setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
     })
   }
-  console.log(data)
+
   useEffect(() => {
     if (isSuccess) {
       initializeValues(data)

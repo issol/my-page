@@ -74,6 +74,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 
 // ** helpers
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
+import logger from '@src/@core/utils/logger'
 
 const defaultValues = {
   title: '',
@@ -398,7 +399,7 @@ const ClientGuidelineForm = () => {
         })
         Promise.all(promiseArr)
           .then(res => {
-            console.log('upload client guideline file success :', res)
+            logger.info('upload client guideline file success :', res)
             finalValue.files = fileInfo
             guidelineMutation.mutate(finalValue)
           })

@@ -1,3 +1,4 @@
+import logger from '@src/@core/utils/logger'
 import { initializeApp } from 'firebase/app'
 import { getMessaging, getToken, onMessage } from 'firebase/messaging'
 import { useEffect } from 'react'
@@ -9,14 +10,14 @@ export default function PushAlarm() {
     projectId: 'glohub-dev',
     storageBucket: 'glohub-dev.appspot.com',
     messagingSenderId: '556457157900',
-    appId: '1:556457157900:web:36822c3ed67be8a682d529'
+    appId: '1:556457157900:web:36822c3ed67be8a682d529',
   }
 
   initializeApp(firebaseConfig)
   const messaging = getMessaging()
 
   onMessage(messaging, payload => {
-    console.log('Message received. ', payload)
+    logger.info('Message received. ', payload)
   })
 
   function isTokenSentToServer() {
@@ -32,7 +33,10 @@ export default function PushAlarm() {
       //Todo : 서버로 토큰일 전송하는 로직 추가
       setTokenSentToServer(true)
     } else {
-      console.log("Token already sent to server so won't send it again " + 'unless it changes')
+      logger.info(
+        "Token already sent to server so won't send it again " +
+          'unless it changes',
+      )
     }
   }
 
@@ -40,24 +44,27 @@ export default function PushAlarm() {
     //알림 권한 신청
     Notification.requestPermission().then(permission => {
       if (permission === 'granted') {
-        console.log('Notification permission granted.')
+        logger.info('Notification permission granted.')
       }
     })
 
     getToken(messaging, {
-      vapidKey: 'BHIR--Holaz_RXxfktN8jRvOuF_uoSaM_SyGdLDnO9yKQQSLv-PIEIlr3L2e2xyquyN0_6GuTN9pAb7Qv2uJecA'
+      vapidKey:
+        'BHIR--Holaz_RXxfktN8jRvOuF_uoSaM_SyGdLDnO9yKQQSLv-PIEIlr3L2e2xyquyN0_6GuTN9pAb7Qv2uJecA',
     })
       .then(currentToken => {
         if (currentToken) {
-          console.log(currentToken)
+          logger.info(currentToken)
           sendTokenToServer(currentToken)
         } else {
-          console.log('No registration token available. Request permission to generate one.')
+          logger.info(
+            'No registration token available. Request permission to generate one.',
+          )
           setTokenSentToServer(false)
         }
       })
       .catch(err => {
-        console.log('error : ', err)
+        logger.error('error : ', err)
       })
   }
 
