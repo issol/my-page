@@ -37,6 +37,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 // ** helpers
 import {
+  convertDateByTimezone,
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -53,6 +54,7 @@ import { useMutation } from 'react-query'
 // ** types
 import { CurrentHistoryType } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { job_posting } from '@src/shared/const/permission-class'
 
 type CellType = {
   row: CurrentHistoryType
@@ -80,13 +82,10 @@ const JobPostingDetail = () => {
     }
   }, [id])
 
-  const isWriter =
-    ability.possibleRulesFor('update', 'job_posting')[0]?.conditions
-      ?.authorId === data?.userId
-
-  const isMaster =
-    ability.can('delete', 'job_posting') &&
-    !ability.possibleRulesFor('delete', 'job_posting')[0]?.conditions
+  const writer = new job_posting(data?.userId!)
+  //writer can update the post, master can update / delete the post
+  const isUpdatable = ability.can('update', writer)
+  const isDeletable = ability.can('delete', writer)
 
   const deleteMutation = useMutation((id: number) => deleteJobPosting(id), {
     onSuccess: () => {
@@ -314,7 +313,14 @@ const JobPostingDetail = () => {
                 <Grid container spacing={12} pt='10px'>
                   <Grid item xs={5}>
                     {renderTable('Number of linguist', data?.openings)}
-                    {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
+                    {renderTable(
+                      'Due date',
+                      convertDateByTimezone(
+                        data?.dueDate,
+                        data?.dueDateTimezone!,
+                        user?.timezone.code!,
+                      ),
+                    )}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>
                   <Grid item xs={7}>
@@ -324,7 +330,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(data?.dueDateTimezone),
+                      getGmtTime(user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
@@ -379,7 +385,7 @@ const JobPostingDetail = () => {
                     gap: '12px',
                   }}
                 >
-                  {isMaster && (
+                  {isDeletable && (
                     <Button
                       variant='outlined'
                       color='secondary'
@@ -390,7 +396,7 @@ const JobPostingDetail = () => {
                     </Button>
                   )}
 
-                  {isMaster || isWriter ? (
+                  {isUpdatable ? (
                     <Button
                       variant='contained'
                       startIcon={<Icon icon='mdi:pencil-outline' />}

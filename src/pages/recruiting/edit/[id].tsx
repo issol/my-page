@@ -82,6 +82,8 @@ import JobPostingListModal from '../components/jobPosting-modal'
 import { useGetJobPostingList } from '@src/queries/jobPosting.query'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { recruiting } from '@src/shared/const/permission-class'
+import logger from '@src/@core/utils/logger'
 
 export default function RecruitingEdit() {
   const router = useRouter()
@@ -143,10 +145,9 @@ export default function RecruitingEdit() {
   }
 
   const ability = useContext(AbilityContext)
-
-  const isWriter =
-    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-      ?.authorId === currData?.userId
+  const writer = new recruiting(currData?.userId!)
+  //only writer can edit all fields, master only can edit 'status' of the post
+  const isWriter = ability.can('update', writer)
 
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [
@@ -221,6 +222,21 @@ export default function RecruitingEdit() {
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema),
   })
+
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  const currDueDate = watch('dueDate')
+
+  useEffect(() => {
+    if (!currDueDate) {
+      setValue(
+        'dueDateTimezone',
+        { code: '', label: '', phone: '' },
+        setValueOptions,
+      )
+    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
+      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+    }
+  }, [currDueDate])
 
   function addLink(link: string) {
     setValue('jobPostLink', link, { shouldDirty: true, shouldValidate: true })
@@ -703,14 +719,8 @@ export default function RecruitingEdit() {
                                 <TextField
                                   {...params}
                                   label='Due date timezone'
+                                  disabled={!currDueDate}
                                   error={Boolean(errors.dueDateTimezone)}
-                                  InputProps={{
-                                    sx: {
-                                      background: !isWriter
-                                        ? 'rgba(76, 78, 100, 0.12)'
-                                        : '',
-                                    },
-                                  }}
                                 />
                               )}
                             />
