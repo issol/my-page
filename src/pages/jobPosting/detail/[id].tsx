@@ -37,6 +37,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 // ** helpers
 import {
+  convertDateByTimezone,
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -312,7 +313,14 @@ const JobPostingDetail = () => {
                 <Grid container spacing={12} pt='10px'>
                   <Grid item xs={5}>
                     {renderTable('Number of linguist', data?.openings)}
-                    {renderTable('Due date', MMDDYYYYHelper(data?.dueDate))}
+                    {renderTable(
+                      'Due date',
+                      convertDateByTimezone(
+                        data?.dueDate,
+                        data?.dueDateTimezone!,
+                        user?.timezone.code!,
+                      ),
+                    )}
                     {renderTable('Job post link', data?.jobPostLink)}
                   </Grid>
                   <Grid item xs={7}>
@@ -322,7 +330,7 @@ const JobPostingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(data?.dueDateTimezone),
+                      getGmtTime(user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>

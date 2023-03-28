@@ -400,7 +400,7 @@ const RecruitingDetail = () => {
                       'Due date',
                       currentVersion?.dueDate
                         ? convertDateByTimezone(
-                            Date(),
+                            currentVersion?.dueDate,
                             currentVersion?.dueDateTimezone!,
                             user?.timezone?.code!,
                           )
@@ -581,6 +581,16 @@ const RecruitingDetail = () => {
                             'Due date',
                             MMDDYYYYHelper(currentRow?.dueDate),
                           )}
+                          {renderTable(
+                            'Due date',
+                            currentRow?.dueDate
+                              ? convertDateByTimezone(
+                                  currentRow?.dueDate,
+                                  currentRow?.dueDateTimezone!,
+                                  user?.timezone?.code!,
+                                )
+                              : '',
+                          )}
                         </Grid>
                         <Grid item xs={7}>
                           {renderTable(
@@ -589,7 +599,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTime(currentRow?.dueDateTimezone),
+                            getGmtTime(user?.timezone?.code),
                           )}
                         </Grid>
                       </Grid>

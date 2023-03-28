@@ -16,6 +16,8 @@ export function convertDateByTimezone(date: string, from: string, to: string) {
     ? new Date(FullDateTimezoneHelper(date, from))
     : new Date(date)
 
+  if (!date || !fromDate) return '-'
+
   const convertedDate = new Intl.DateTimeFormat('en-US', {
     year: 'numeric',
     month: '2-digit',
@@ -24,7 +26,7 @@ export function convertDateByTimezone(date: string, from: string, to: string) {
     minute: '2-digit',
     second: '2-digit',
     timeZone: toTimezone,
-  }).format(fromDate)
+  })?.format(fromDate)
 
   return FullDateHelper(convertedDate)
 }
