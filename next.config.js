@@ -15,6 +15,17 @@ const withTM = require('next-transpile-modules')([
 module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      }),
+    ],
+  },
   experimental: {
     esmExternals: false,
     styledComponents: true,

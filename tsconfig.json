@@ -14,7 +14,6 @@
     "forceConsistentCasingInFileNames": true,
     "noEmit": true,
     "esModuleInterop": true,
-    "sourceMap": false,
     "module": "esnext",
     "moduleResolution": "node",
     "resolveJsonModule": true,
