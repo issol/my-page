@@ -41,9 +41,10 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import { useMutation } from 'react-query'
 import { ModalContext } from 'src/context/ModalContext'
 import { FileType } from '@src/types/common/file.type'
-import { certification_test } from '@src/shared/const/permission-class/certification-test'
+
 import { useAppSelector } from '@src/hooks/useRedux'
 import logger from '@src/@core/utils/logger'
+import certification_test from '@src/shared/const/permission-class/certification-test'
 
 type CellType = {
   row: CurrentTestType
