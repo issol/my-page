@@ -11,14 +11,6 @@ export type UserInfoResType = Omit<
   UserDataType,
   'id' | 'role' | 'permission' | 'company' | 'username'
 >
-export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/pu?email=${email}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
 
 export const getProDetails = async (userId: number) => {
   try {
@@ -32,9 +24,7 @@ export const getProDetails = async (userId: number) => {
   }
 }
 
-export const getUserInfoWithResumeFile = async (
-  userId: number,
-): Promise<UserInfoResType> => {
+export const getUserInfo = async (userId: number): Promise<UserInfoResType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
     return data
