@@ -49,7 +49,7 @@ export default function TestMaterialList({
           }}
         >
           <Typography variant='h6'>
-            {`Test materials (${testMaterialList.count})`}
+            {`Test materials (${testMaterialList?.count ?? 0})`}
           </Typography>
           <Button
             variant='contained'
@@ -112,14 +112,14 @@ export default function TestMaterialList({
               },
             }}
             columns={getColumns(user.timezone)}
-            rows={testMaterialList.data ?? []}
+            rows={testMaterialList?.data ?? []}
             paginationMode={'server'}
             autoHeight
             disableSelectionOnClick
             pageSize={testMaterialListPageSize}
             rowsPerPageOptions={[10, 25, 50]}
             page={testMaterialListPage}
-            rowCount={testMaterialList.count}
+            rowCount={testMaterialList?.count ?? 0}
             onCellClick={params => {
               router.push(`/certification-test/detail/${params.row.id}`)
             }}

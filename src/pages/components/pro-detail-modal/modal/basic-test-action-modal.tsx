@@ -13,12 +13,12 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import { AddRoleType } from 'src/types/onboarding/list'
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
 import languageHelper from 'src/shared/helpers/language.helper'
 type Props = {
   open: boolean
   onClose: any
-  userInfo: AppliedRoleType
+  userInfo: TestType
   type: string
   handleActionBasicTest: (id: number, type: string) => void
 }
@@ -93,10 +93,10 @@ export default function BasicTestActionModal({
             variant='body2'
             sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
           >
-            {userInfo.target && userInfo.target !== '' ? (
+            {userInfo.targetLanguage && userInfo.targetLanguage !== '' ? (
               <>
-                {userInfo.target.toUpperCase()}&nbsp;
-                {`(${languageHelper(userInfo.target)})`}
+                {userInfo.targetLanguage.toUpperCase()}&nbsp;
+                {`(${languageHelper(userInfo.targetLanguage)})`}
               </>
             ) : (
               ''
@@ -127,7 +127,7 @@ export default function BasicTestActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleActionBasicTest(userInfo.id, type)
+              handleActionBasicTest(userInfo.testId, type)
             }}
           >
             {type === 'Skipped'
