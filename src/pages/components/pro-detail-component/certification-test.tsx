@@ -29,7 +29,7 @@ import { useEffect, useState } from 'react'
 type Props = {
   userInfo: OnboardingProDetailsType
   selectedJobInfo: AppliedRoleType | null
-  onClickBasicTestAction: (jobInfo: AppliedRoleType, type: string) => void
+  onClickBasicTestAction: (jobInfo: TestType, type: string) => void
   onClickTestDetails: (history: AppliedRoleType, type: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
   onClickSkillTestAction: (jobInfo: AppliedRoleType, type: string) => void
@@ -55,6 +55,7 @@ export default function CertificationTest({
 }: Props) {
   const [basicTest, setBasicTest] = useState<TestType | null>(null)
   const [skillTest, setSkillTest] = useState<TestType | null>(null)
+  const [paused, setPaused] = useState<boolean>(false)
 
   const verifiedNoTest = (jobInfo: AppliedRoleType) => {
     const noBasic =
@@ -80,8 +81,10 @@ export default function CertificationTest({
       const skill = selectedJobInfo.test.find(
         value => value.testType === 'skill',
       )
+      const paused = selectedJobInfo.requestStatus === 'Paused'
       setBasicTest(basic!)
       setSkillTest(skill!)
+      setPaused(paused)
     }
   }, [selectedJobInfo])
   return (
@@ -199,19 +202,14 @@ export default function CertificationTest({
                             alignItems: 'center',
                           }}
                         >
-                          {basicTest!.status === 'Test assigned' ? (
+                          {basicTest!.status === 'Awaiting assignment' ? (
                             <>
                               <Button
                                 variant='contained'
                                 onClick={() =>
-                                  onClickBasicTestAction(
-                                    selectedJobInfo,
-                                    'Skipped',
-                                  )
+                                  onClickBasicTestAction(basicTest, 'Skipped')
                                 }
-                                disabled={
-                                  selectedJobInfo!.requestStatus === 'Paused'
-                                }
+                                disabled={paused}
                               >
                                 Skip
                               </Button>
@@ -219,13 +217,11 @@ export default function CertificationTest({
                                 variant='contained'
                                 onClick={() =>
                                   onClickBasicTestAction(
-                                    selectedJobInfo,
+                                    basicTest,
                                     'Basic in progress',
                                   )
                                 }
-                                disabled={
-                                  selectedJobInfo!.requestStatus === 'Paused'
-                                }
+                                disabled={paused}
                               >
                                 Proceed
                               </Button>
@@ -274,7 +270,7 @@ export default function CertificationTest({
                                 color='error'
                                 onClick={() =>
                                   onClickBasicTestAction(
-                                    selectedJobInfo,
+                                    basicTest,
                                     'Basic failed',
                                   )
                                 }
@@ -285,7 +281,7 @@ export default function CertificationTest({
                                 variant='contained'
                                 onClick={() =>
                                   onClickBasicTestAction(
-                                    selectedJobInfo,
+                                    basicTest,
                                     'Basic passed',
                                   )
                                 }
