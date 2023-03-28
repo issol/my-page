@@ -225,7 +225,7 @@ const initialState: {
   permission: PermissionObjectType
   role: Array<UserRoleType>
 } = {
-  permission: [],
+  permission: [{ subject: 'none', can: 'read' }],
   role: [],
   isLoading: false,
 }
