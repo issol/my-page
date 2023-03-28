@@ -17,6 +17,7 @@ module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
   mode: 'development',
+  env: 'development',
   optimization: {
     minimize: true,
     minimizer: [

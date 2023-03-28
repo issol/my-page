@@ -49,7 +49,7 @@ import certification_test from '@src/shared/const/permission-class/certification
 type CellType = {
   row: CurrentTestType
 }
-
+/* eslint-disable */
 const CertificationTestDetail = () => {
   const router = useRouter()
   const { id } = router.query
