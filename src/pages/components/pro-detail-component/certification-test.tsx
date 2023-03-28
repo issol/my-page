@@ -29,8 +29,13 @@ import { useEffect, useState } from 'react'
 type Props = {
   userInfo: OnboardingProDetailsType
   selectedJobInfo: AppliedRoleType | null
-  onClickBasicTestAction: (jobInfo: TestType, type: string) => void
-  onClickTestDetails: (history: AppliedRoleType, type: string) => void
+  onClickBasicTestAction: (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => void
+  onClickTestDetails: (skillTest: TestType, type: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
   onClickSkillTestAction: (jobInfo: AppliedRoleType, type: string) => void
 }
@@ -207,7 +212,12 @@ export default function CertificationTest({
                               <Button
                                 variant='contained'
                                 onClick={() =>
-                                  onClickBasicTestAction(basicTest, 'Skipped')
+                                  onClickBasicTestAction(
+                                    selectedJobInfo.id,
+                                    basicTest,
+                                    skillTest,
+                                    'Skipped',
+                                  )
                                 }
                                 disabled={paused}
                               >
@@ -217,7 +227,9 @@ export default function CertificationTest({
                                 variant='contained'
                                 onClick={() =>
                                   onClickBasicTestAction(
+                                    selectedJobInfo.id,
                                     basicTest,
+                                    skillTest,
                                     'Basic in progress',
                                   )
                                 }
@@ -270,7 +282,9 @@ export default function CertificationTest({
                                 color='error'
                                 onClick={() =>
                                   onClickBasicTestAction(
+                                    selectedJobInfo.id,
                                     basicTest,
+                                    skillTest,
                                     'Basic failed',
                                   )
                                 }
@@ -281,7 +295,9 @@ export default function CertificationTest({
                                 variant='contained'
                                 onClick={() =>
                                   onClickBasicTestAction(
+                                    selectedJobInfo.id,
                                     basicTest,
+                                    skillTest,
                                     'Basic passed',
                                   )
                                 }
@@ -367,7 +383,7 @@ export default function CertificationTest({
                               cursor: 'pointer',
                             }}
                             onClick={() =>
-                              onClickTestDetails(selectedJobInfo, 'detail')
+                              onClickTestDetails(skillTest, 'detail')
                             }
                           >
                             Details
@@ -485,10 +501,7 @@ export default function CertificationTest({
                               <Button
                                 variant='contained'
                                 onClick={() =>
-                                  onClickTestDetails(
-                                    selectedJobInfo,
-                                    'reviewer',
-                                  )
+                                  onClickTestDetails(skillTest, 'reviewer')
                                 }
                               >
                                 Assign reviewer
@@ -584,9 +597,9 @@ export default function CertificationTest({
         </CardContent>
       ) : basicTest &&
         basicTest!.status === 'NO_TEST' &&
-        selectedJobInfo!.role !== 'DTPer' &&
-        selectedJobInfo!.role !== 'DTP QCer' &&
-        selectedJobInfo!.jobType !== 'Interpretation' ? (
+        selectedJobInfo?.role !== 'DTPer' &&
+        selectedJobInfo?.role !== 'DTP QCer' &&
+        selectedJobInfo?.jobType !== 'Interpretation' ? (
         <CardContent sx={{ padding: 0, mt: '24px', pb: '0 !important' }}>
           <Timeline sx={{ my: 0, py: 0 }}>
             <TimelineItem>

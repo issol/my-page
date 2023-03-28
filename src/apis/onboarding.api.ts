@@ -100,14 +100,16 @@ export const getCertifiedRole = async (id: number) => {
   return data.data
 }
 
-export const getReviewer = async () => {
-  const data = await axiosDefault.get('/api/pro/details/reviewer')
+export const getReviewer = async (testId: number) => {
+  const data = await axios.get(
+    `/api/enough/cert/request/review/candidate/list?testId=${testId}`,
+  )
 
   return data.data
 }
 
-export const getHistory = async () => {
-  const data = await axiosDefault.get('/api/pro/details/history')
+export const getHistory = async (testId: number) => {
+  const data = await axios.get(`/api/enough/cert/test/history/${testId}`)
   return data.data
 }
 

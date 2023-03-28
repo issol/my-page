@@ -33,7 +33,7 @@ import CardHeader from '@mui/material/CardHeader'
 import Checkbox from '@mui/material/Checkbox'
 import Autocomplete from '@mui/material/Autocomplete'
 import Icon from 'src/@core/components/icon'
-
+import { v4 as uuidv4 } from 'uuid'
 import TextField from '@mui/material/TextField'
 import Grid from '@mui/material/Grid'
 import Chip from 'src/@core/components/mui/chip'
@@ -52,14 +52,15 @@ import { TestStatus } from 'src/shared/const/status/statuses'
 import { CardProps } from '../../../onboarding/components/list/filters'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 // import { useGetReviewerList } from 'src/queries/onboarding/onboarding-query'
-import { useMutation, useQueryClient } from 'react-query'
+import { useMutation, useQuery, useQueryClient } from 'react-query'
 
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+
 import {
-  useGetHistory,
-  useGetReviewerList,
-} from 'src/queries/onboarding/onboarding-query'
-import { assignReviewer } from 'src/apis/onboarding.api'
+  assignReviewer,
+  getHistory,
+  getReviewer,
+} from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
 
 // type AssignReviewerType = {
@@ -74,14 +75,27 @@ type CellType = {
 }
 
 type ReviewerCellType = {
-  row: AssignReviewerType
+  row: {
+    firstName: string
+    jobType: string
+    lastName: string
+    middleName: string
+    role: string
+    source: string
+    status: string | null
+    target: string
+    testId: number | null
+    updatedAt: string | null
+    userEmail: string
+    userId: number
+  }
 }
 
 type Props = {
-  jobInfo: AppliedRoleType
-  reviewerList: AssignReviewerType[]
+  skillTest: TestType
+  // reviewerList: AssignReviewerType[]
   type: string
-  history: any
+  // history: any
   user: UserDataType
 }
 
@@ -109,21 +123,51 @@ const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
   },
 }))
 export default function TestDetailsModal({
-  jobInfo,
-  reviewerList,
+  skillTest,
+  // reviewerList,
   type,
-  history,
+  // history,
   user,
 }: Props) {
   const { setModal } = useContext(ModalContext)
-  const [info, setInfo] = useState<AppliedRoleType>(jobInfo)
-  const { data: reviewerList1 } = useGetReviewerList()
-  const { data: history1 } = useGetHistory()
+  const [info, setInfo] = useState<TestType>(skillTest)
+  // const { data: reviewerList1 } = useGetReviewerList()
+  // const { data: history1 } = useGetHistory(skillTest.testId)
+  const history = useQuery<{
+    history: Array<any>
+    jobType: string
+    role: string
+    source: string
+    target: string
+  }>(`test-history-${skillTest.testId}`, () => getHistory(skillTest.testId))
+
+  const reviewer = useQuery<
+    Array<{
+      firstName: string
+      jobType: string
+      lastName: string
+      middleName: string
+      role: string
+      source: string
+      status: string | null
+      target: string
+      testId: number | null
+      updatedAt: string | null
+      userEmail: string
+      userId: number
+    }>
+  >(`test-reviewer-${skillTest.testId}`, () => getReviewer(skillTest.testId), {
+    select: data => {
+      const res = data.map(value => ({ ...value, id: uuidv4() }))
+      return res
+    },
+  })
+
   const [selectedReviewer, setSelectedReviewer] =
     useState<AssignReviewerType | null>(null)
-  const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
+  // const [reviewers, setReviewers] = useState<AssignReviewerType[]>(reviewerList)
   const [value, setValue] = useState<string>(type === 'detail' ? '1' : '2')
-  const [inputStyle, setInputStyle] = useState<boolean>(true)
+
   const [testHistoryPage, setTestHistoryPage] = useState<number>(0)
   const [testHistoryPageSize, setTestHistoryPageSize] = useState<number>(10)
   const queryClient = useQueryClient()
@@ -152,18 +196,7 @@ export default function TestDetailsModal({
     },
   )
 
-  // const {
-  //   control,
-  //   handleSubmit,
-  //   watch,
-  //   trigger,
-  //   reset,
-  //   formState: { errors, dirtyFields },
-  // } = useForm<AssignReviewerType>({
-  //   // defaultValues,
-  //   mode: 'onChange',
-  //   // resolver: yupResolver(profileSchema),
-  // })
+  console.log(reviewer)
 
   const onChangeTestStatus = (
     event: SyntheticEvent,
@@ -189,7 +222,7 @@ export default function TestDetailsModal({
   ) => {
     console.log(reviewer)
     assignReviewerMutation.mutate({
-      id: reviewer?.id!,
+      id: reviewer?.userId!,
       status: status,
     })
   }
@@ -207,57 +240,57 @@ export default function TestDetailsModal({
   }
 
   useEffect(() => {
-    setInfo(jobInfo)
-    setTestStatus({ value: jobInfo.testStatus, label: jobInfo.testStatus })
-  }, [jobInfo])
+    setInfo(skillTest)
+    // setTestStatus({ value: skillTest.testStatus, label: jobInfo.testStatus })
+  }, [skillTest])
 
-  useEffect(() => {
-    const accepted = reviewerList1.find(
-      (value: any) => value.status === 'Request accepted',
-    )
-    const acceptedId = reviewerList1.findIndex(
-      (value: any) => value.status === 'Request accepted',
-    )
-    if (accepted) {
-      setAcceptedId(reviewerList1[acceptedId].id)
-      setIsAccepted(true)
-      const res = reviewerList1.map((value: any) => {
-        if (value.status === 'Request accepted') {
-          return { ...value }
-        } else {
-          return { ...value, status: '-' }
-        }
-      })
-      setReviewers(res)
-    } else {
-      setIsAccepted(false)
-      setReviewers(reviewerList1)
-    }
-  }, [reviewerList1])
+  // useEffect(() => {
+  //   const accepted = reviewerList1.find(
+  //     (value: any) => value.status === 'Request accepted',
+  //   )
+  //   const acceptedId = reviewerList1.findIndex(
+  //     (value: any) => value.status === 'Request accepted',
+  //   )
+  //   if (accepted) {
+  //     setAcceptedId(reviewerList1[acceptedId].id)
+  //     setIsAccepted(true)
+  //     const res = reviewerList1.map((value: any) => {
+  //       if (value.status === 'Request accepted') {
+  //         return { ...value }
+  //       } else {
+  //         return { ...value, status: '-' }
+  //       }
+  //     })
+  //     setReviewers(res)
+  //   } else {
+  //     setIsAccepted(false)
+  //     setReviewers(reviewerList1)
+  //   }
+  // }, [reviewerList1])
 
-  useEffect(() => {
-    const accepted = reviewerList.find(
-      value => value.status === 'Request accepted',
-    )
-    const acceptedId = reviewerList.findIndex(
-      (value: any) => value.status === 'Request accepted',
-    )
-    if (accepted) {
-      setIsAccepted(true)
-      setAcceptedId(reviewerList[acceptedId].id)
-      const res = reviewerList.map(value => {
-        if (value.status === 'Request accepted') {
-          return { ...value }
-        } else {
-          return { ...value, status: '-' }
-        }
-      })
-      setReviewers(res)
-    } else {
-      setIsAccepted(false)
-      setReviewers(reviewerList)
-    }
-  }, [reviewerList])
+  // useEffect(() => {
+  //   const accepted = reviewerList.find(
+  //     value => value.status === 'Request accepted',
+  //   )
+  //   const acceptedId = reviewerList.findIndex(
+  //     (value: any) => value.status === 'Request accepted',
+  //   )
+  //   if (accepted) {
+  //     setIsAccepted(true)
+  //     setAcceptedId(reviewerList[acceptedId].id)
+  //     const res = reviewerList.map(value => {
+  //       if (value.status === 'Request accepted') {
+  //         return { ...value }
+  //       } else {
+  //         return { ...value, status: '-' }
+  //       }
+  //     })
+  //     setReviewers(res)
+  //   } else {
+  //     setIsAccepted(false)
+  //     setReviewers(reviewerList)
+  //   }
+  // }, [reviewerList])
 
   const columns = [
     {
@@ -403,7 +436,7 @@ export default function TestDetailsModal({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {row.email}
+                {row.userEmail}
               </Typography>
             </Box>
           </Box>
@@ -507,7 +540,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.date, user.timezone)}
+          {FullDateTimezoneHelper(row.updatedAt, user.timezone)}
         </Box>
       ),
     },
@@ -594,21 +627,22 @@ export default function TestDetailsModal({
                       <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                         <Box sx={{ display: 'flex', gap: '10px' }}>
                           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                            {jobInfo.jobType}
+                            {skillTest.jobType}
                           </Typography>
                           <Divider orientation='vertical' flexItem />
                           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                            {jobInfo.role}
+                            {skillTest.role}
                           </Typography>
                           <Divider orientation='vertical' flexItem />
                           <Typography
                             variant='subtitle2'
                             sx={{ fontWeight: 600 }}
                           >
-                            {jobInfo.source && jobInfo.target ? (
+                            {skillTest.sourceLanguage &&
+                            skillTest.targetLanguage ? (
                               <>
-                                {jobInfo.source.toUpperCase()} &rarr;{' '}
-                                {jobInfo.target.toUpperCase()}
+                                {skillTest.sourceLanguage.toUpperCase()} &rarr;{' '}
+                                {skillTest.targetLanguage.toUpperCase()}
                               </>
                             ) : (
                               ''
@@ -635,74 +669,75 @@ export default function TestDetailsModal({
                     </Box>
                   </CardContent>
                 </Card>
-
-                <Grid item xs={12}>
-                  <Card>
-                    <CardHeader title='Certification test history'></CardHeader>
-                    <Box
-                      sx={{
-                        width: '100%',
-                        '& .MuiDataGrid-columnHeaderTitle': {
-                          textTransform: 'none',
-                        },
-                      }}
-                    >
-                      <DataGrid
-                        components={{
-                          NoRowsOverlay: () => {
-                            return (
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <Typography variant='subtitle1'>
-                                  There are no History
-                                </Typography>
-                              </Box>
-                            )
-                          },
-                          NoResultsOverlay: () => {
-                            return (
-                              <Box
-                                sx={{
-                                  width: '100%',
-                                  height: '100%',
-                                  display: 'flex',
-                                  justifyContent: 'center',
-                                  alignItems: 'center',
-                                }}
-                              >
-                                <Typography variant='subtitle1'>
-                                  There are no History
-                                </Typography>
-                              </Box>
-                            )
+                {history.data ? (
+                  <Grid item xs={12}>
+                    <Card>
+                      <CardHeader title='Certification test history'></CardHeader>
+                      <Box
+                        sx={{
+                          width: '100%',
+                          '& .MuiDataGrid-columnHeaderTitle': {
+                            textTransform: 'none',
                           },
                         }}
-                        columns={columns}
-                        // rowHeight={70}
-                        rows={history ?? []}
-                        autoHeight
-                        disableSelectionOnClick
-                        pageSize={testHistoryPageSize}
-                        rowsPerPageOptions={[5, 10, 25, 50]}
-                        page={testHistoryPage}
-                        rowCount={history!.length}
-                        onPageChange={(newPage: number) => {
-                          setTestHistoryPage(newPage)
-                        }}
-                        onPageSizeChange={(newPageSize: number) =>
-                          setTestHistoryPageSize(newPageSize)
-                        }
-                      />
-                    </Box>
-                  </Card>
-                </Grid>
+                      >
+                        <DataGrid
+                          components={{
+                            NoRowsOverlay: () => {
+                              return (
+                                <Box
+                                  sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Typography variant='subtitle1'>
+                                    There are no History
+                                  </Typography>
+                                </Box>
+                              )
+                            },
+                            NoResultsOverlay: () => {
+                              return (
+                                <Box
+                                  sx={{
+                                    width: '100%',
+                                    height: '100%',
+                                    display: 'flex',
+                                    justifyContent: 'center',
+                                    alignItems: 'center',
+                                  }}
+                                >
+                                  <Typography variant='subtitle1'>
+                                    There are no History
+                                  </Typography>
+                                </Box>
+                              )
+                            },
+                          }}
+                          columns={columns}
+                          // rowHeight={70}
+                          rows={history.data.history! ?? []}
+                          autoHeight
+                          disableSelectionOnClick
+                          pageSize={testHistoryPageSize}
+                          rowsPerPageOptions={[5, 10, 25, 50]}
+                          page={testHistoryPage}
+                          rowCount={history!.data.history.length}
+                          onPageChange={(newPage: number) => {
+                            setTestHistoryPage(newPage)
+                          }}
+                          onPageSizeChange={(newPageSize: number) =>
+                            setTestHistoryPageSize(newPageSize)
+                          }
+                        />
+                      </Box>
+                    </Card>
+                  </Grid>
+                ) : null}
               </Box>
             </TabPanel>
             <TabPanel value='2'>
@@ -774,14 +809,15 @@ export default function TestDetailsModal({
                         },
                       }}
                       columns={reviewerColumns}
+                      loading={reviewer.isLoading}
                       // rowHeight={70}
-                      rows={reviewers ?? []}
+                      rows={reviewer.data ?? []}
                       autoHeight
                       disableSelectionOnClick
                       pageSize={assignReviewerPageSize}
                       rowsPerPageOptions={[5, 10, 25, 50]}
                       page={assignReviewerPage}
-                      rowCount={reviewers?.length}
+                      rowCount={reviewer.data?.length}
                       onPageChange={(newPage: number) => {
                         setAssignReviewerPage(newPage)
                       }}

@@ -24,7 +24,6 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
   useGetCertifiedRole,
-  useGetHistory,
   useGetOnboardingProDetails,
   useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
@@ -105,7 +104,6 @@ function ProDetailOverview() {
   const { data: appliedRole } = useGetAppliedRole(userId!)
 
   const { data: reviewerList } = useGetReviewerList()
-  const { data: history } = useGetHistory()
 
   const { user } = useContext(AuthContext)
 
@@ -485,14 +483,20 @@ function ProDetailOverview() {
     )
   }
 
-  const onClickBasicTestAction = (jobInfo: TestType, type: string) => {
-    // setActionId(jobInfo.id)
+  const onClickBasicTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
 
     setModal(
       <BasicTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
       />,
@@ -543,12 +547,12 @@ function ProDetailOverview() {
     }
   }
 
-  const onClickTestDetails = (jobInfo: AppliedRoleType, type: string) => {
+  const onClickTestDetails = (skillTest: TestType, type: string) => {
     setModal(
       <TestDetailsModal
-        jobInfo={jobInfo}
+        skillTest={skillTest}
         reviewerList={reviewerList!}
-        history={history!}
+        // history={history!}
         type={type}
         user={user!}
       />,

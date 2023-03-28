@@ -24,7 +24,6 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
   useGetCertifiedRole,
-  useGetHistory,
   useGetOnboardingProDetails,
   useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
@@ -79,6 +78,7 @@ import SkillTestActionModal from '@src/pages/components/pro-detail-modal/modal/s
 import TestAssignModal from '@src/pages/components/pro-detail-modal/modal/test-assign-modal'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
+import logger from '@src/@core/utils/logger'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -102,8 +102,8 @@ function OnboardingDetail() {
 
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
   const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
-  const { data: reviewerList } = useGetReviewerList()
-  const { data: history } = useGetHistory()
+  // const { data: reviewerList } = useGetReviewerList()
+  // const { data: history } = useGetHistory()
 
   const { user } = useContext(AuthContext)
 
@@ -405,10 +405,28 @@ function OnboardingDetail() {
     })
   }
 
-  const handleActionBasicTest = (id: number, type: string) => {
-    console.log(type)
-
-    patchTestStatusMutation.mutate({ id: id, status: type })
+  const handleActionBasicTest = (
+    id: number,
+    type: string,
+    skillTestId?: number,
+    skillTestStatus?: string,
+  ) => {
+    patchTestStatusMutation.mutate(
+      {
+        id: id,
+        status: type,
+      },
+      {
+        onSuccess: data => {
+          if (skillTestId && skillTestStatus) {
+            patchTestStatusMutation.mutate({
+              id: skillTestId,
+              status: skillTestStatus,
+            })
+          }
+        },
+      },
+    )
   }
 
   const handleActionSkillTest = (id: number, status: string) => {
@@ -416,6 +434,7 @@ function OnboardingDetail() {
   }
 
   const onClickRejectOrPause = (jobInfo: AppliedRoleType, type: string) => {
+    setActionId(jobInfo.id)
     setModal(
       <NegativeActionsTestModal
         open={true}
@@ -480,14 +499,20 @@ function OnboardingDetail() {
     )
   }
 
-  const onClickBasicTestAction = (jobInfo: TestType, type: string) => {
-    // setActionId(jobInfo.id)
+  const onClickBasicTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
 
     setModal(
       <BasicTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
       />,
@@ -538,12 +563,12 @@ function OnboardingDetail() {
     }
   }
 
-  const onClickTestDetails = (jobInfo: AppliedRoleType, type: string) => {
+  const onClickTestDetails = (skillTest: TestType, type: string) => {
     setModal(
       <TestDetailsModal
-        jobInfo={jobInfo}
-        reviewerList={reviewerList!}
-        history={history!}
+        skillTest={skillTest}
+        // reviewerList={reviewerList!}
+        // history={history!}
         type={type}
         user={user!}
       />,
@@ -754,6 +779,12 @@ function OnboardingDetail() {
 
   useEffect(() => {
     setAppliedRoleList(appliedRole!)
+    if (actionId > 0) {
+      const res = appliedRole?.find(value => value.id === actionId)
+      console.log(res)
+
+      handleClickRoleCard(res!)
+    }
   }, [appliedRole])
 
   const onClickFile = (file: {

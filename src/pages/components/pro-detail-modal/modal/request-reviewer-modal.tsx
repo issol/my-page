@@ -99,7 +99,7 @@ export default function RequestReviewerModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            {reviewer?.email}
+            {reviewer?.userEmail}
           </Typography>
         </DialogContentText>
         <Box
