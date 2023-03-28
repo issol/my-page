@@ -216,7 +216,7 @@ const PersonalInfoPro = () => {
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        getUserInfo(auth.user?.email as string).then(res => {
+        getUserInfo(auth.user?.id!).then(res => {
           /* @ts-ignore */
           auth.updateUserInfo({
             userId: auth?.user!.id,

@@ -91,7 +91,7 @@ export const patchAppliedRole = async (
 export const patchTestStatus = async (id: number, status: string) => {
   const params = { status }
 
-  await axios.patch(`/api/enough/cert/test/${id}`)
+  await axios.patch(`/api/enough/cert/test/${id}`, params)
 }
 
 export const getCertifiedRole = async (id: number) => {

@@ -40,7 +40,7 @@ import FallbackSpinner from 'src/@core/components/spinner'
 import Icon from 'src/@core/components/icon'
 import IconButton from '@mui/material/IconButton'
 
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
 import {
   addCommentOnPro,
   addCreatedAppliedRole,
@@ -406,6 +406,8 @@ function OnboardingDetail() {
   }
 
   const handleActionBasicTest = (id: number, type: string) => {
+    console.log(type)
+
     patchTestStatusMutation.mutate({ id: id, status: type })
   }
 
@@ -478,8 +480,8 @@ function OnboardingDetail() {
     )
   }
 
-  const onClickBasicTestAction = (jobInfo: AppliedRoleType, type: string) => {
-    setActionId(jobInfo.id)
+  const onClickBasicTestAction = (jobInfo: TestType, type: string) => {
+    // setActionId(jobInfo.id)
 
     setModal(
       <BasicTestActionModal
