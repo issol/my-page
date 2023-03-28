@@ -100,8 +100,8 @@ const CertificationTestDetail = () => {
   }
   const permission = new certification_test(data?.currentVersion.userId!)
 
-  logger.debug(ability.can('update', permission))
-  logger.debug(ability.can('delete', permission))
+  console.log(ability.can('update', permission))
+  console.log(ability.can('delete', permission))
 
   const versionHistory = data?.versionHistory || []
 
