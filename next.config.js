@@ -17,15 +17,7 @@ module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
   optimization: {
-    minimize: true,
-    minimizer: [
-      new TerserPlugin({
-        terserOptions: {
-          keep_classnames: true,
-          keep_fnames: true,
-        },
-      }),
-    ],
+    minimize: false,
   },
   experimental: {
     esmExternals: false,
