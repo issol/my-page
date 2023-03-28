@@ -18,7 +18,16 @@ module.exports = withTM({
   reactStrictMode: false,
   mode: 'development',
   optimization: {
-    minimize: false,
+    minimize: true,
+    minimizer: [
+      // ... 다른 minimizer 설정
+      new TerserPlugin({
+        terserOptions: {
+          keep_classnames: true, // 클래스 이름 유지
+          keep_fnames: true, // 함수 이름 유지
+        },
+      }),
+    ],
   },
   experimental: {
     esmExternals: false,
