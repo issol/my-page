@@ -55,23 +55,12 @@ export const updateConsumerUserInfo = async (
   }
 }
 
-// export const getPresignedUrl = async (userId: number, fileName: string) => {
-//   try {
-//     const { data } = await axios.get(
-//       `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
-//     )
-//     return data
-//   } catch (e: any) {
-//     throw new Error(e)
-//   }
-// }
-
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (
   userInfo: ManagerUserInfoType & { userId: number },
 ) => {
   try {
-    await axios.put(`/api/enough/u/pu/edit`, userInfo)
+    await axios.put(`/api/enough/u/pu/member/edit`, userInfo)
   } catch (e: any) {
     throw new Error(e)
   }
