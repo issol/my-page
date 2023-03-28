@@ -37,6 +37,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 // ** helpers
 import {
+  convertDateByTimezone,
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -152,7 +153,11 @@ const RecruitingDetail = () => {
         <Grid item xs={6}>
           <Typography
             variant='body2'
-            sx={{ display: 'flex', alignItems: 'center' }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              wordBreak: 'break-all',
+            }}
           >
             {value ?? '-'}
             {label === 'Job posting link' && !!value && (
@@ -390,9 +395,16 @@ const RecruitingDetail = () => {
                       'Number of linguist',
                       currentVersion?.openings,
                     )}
+
                     {renderTable(
                       'Due date',
-                      MMDDYYYYHelper(currentVersion?.dueDate),
+                      currentVersion?.dueDate
+                        ? convertDateByTimezone(
+                            Date(),
+                            currentVersion?.dueDateTimezone!,
+                            user?.timezone?.code!,
+                          )
+                        : '',
                     )}
                   </Grid>
                   <Grid item xs={7}>
@@ -402,7 +414,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(currentVersion?.dueDateTimezone),
+                      getGmtTime(user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
