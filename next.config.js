@@ -20,11 +20,13 @@ module.exports = withTM({
   optimization: {
     minimize: true,
     minimizer: [
-      // ... 다른 minimizer 설정
       new TerserPlugin({
         terserOptions: {
-          keep_classnames: true, // 클래스 이름 유지
-          keep_fnames: true, // 함수 이름 유지
+          // 난독화 설정
+          mangle: true,
+          // 이름 난독화 비활성화
+          keep_classnames: true,
+          keep_fnames: true,
         },
       }),
     ],
