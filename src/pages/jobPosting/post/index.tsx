@@ -112,6 +112,21 @@ export default function JobPostingPost() {
     resolver: yupResolver(jobPostingFormSchema),
   })
 
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  const currDueDate = watch('dueDate')
+
+  useEffect(() => {
+    if (!currDueDate) {
+      setValue(
+        'dueDateTimezone',
+        { code: '', label: '', phone: '' },
+        setValueOptions,
+      )
+    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
+      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+    }
+  }, [currDueDate])
+
   function onDiscard() {
     setModal(
       <ModalContainer>
@@ -216,7 +231,7 @@ export default function JobPostingPost() {
   }
 
   useEffect(() => {
-    setValue('postLink', link, { shouldDirty: true, shouldValidate: true })
+    setValue('postLink', link, setValueOptions)
   }, [link])
 
   const postMutation = useMutation((form: FormType) => postJobPosting(form), {
@@ -591,6 +606,7 @@ export default function JobPostingPost() {
                             <TextField
                               {...params}
                               label='Due date timezone'
+                              disabled={!currDueDate}
                               error={Boolean(errors.dueDateTimezone)}
                               inputProps={{
                                 ...params.inputProps,

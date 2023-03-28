@@ -124,16 +124,28 @@ export default function JobPostingEdit() {
     control,
     getValues,
     setValue,
-    setError,
-    clearErrors,
     watch,
-    trigger,
     formState: { errors, isValid },
   } = useForm<JobPostingFormType>({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(jobPostingFormSchema),
   })
+
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  const currDueDate = watch('dueDate')
+
+  useEffect(() => {
+    if (!currDueDate) {
+      setValue(
+        'dueDateTimezone',
+        { code: '', label: '', phone: '' },
+        setValueOptions,
+      )
+    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
+      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+    }
+  }, [currDueDate])
 
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [
@@ -150,6 +162,7 @@ export default function JobPostingEdit() {
 
     values.forEach(({ name, list = null }) => {
       const value = data[name]
+
       let itemValue = null
       if (!value) {
         return
@@ -165,7 +178,7 @@ export default function JobPostingEdit() {
       } else {
         itemValue = value
       }
-      setValue(name, itemValue, { shouldDirty: true, shouldValidate: true })
+      setValue(name, itemValue, setValueOptions)
     })
   }
 
@@ -302,11 +315,12 @@ export default function JobPostingEdit() {
   )
 
   useEffect(() => {
-    setValue('postLink', link, { shouldDirty: true, shouldValidate: true })
+    setValue('postLink', link, setValueOptions)
   }, [link])
 
   const onSubmit = () => {
     const data = getValues()
+
     const finalForm = {
       status: data.status.value,
       jobType: data.jobType.value,
@@ -325,6 +339,7 @@ export default function JobPostingEdit() {
     const filteredForm = Object.fromEntries(
       Object.entries(finalForm).filter(([_, value]) => value !== ''),
     )
+
     // @ts-ignore
     updateMutation.mutate(filteredForm)
   }
@@ -682,6 +697,7 @@ export default function JobPostingEdit() {
                                 <TextField
                                   {...params}
                                   label='Due date timezone'
+                                  disabled={!currDueDate}
                                   error={Boolean(errors.dueDateTimezone)}
                                   inputProps={{
                                     ...params.inputProps,
