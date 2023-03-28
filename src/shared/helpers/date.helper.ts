@@ -5,7 +5,7 @@ import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
 export function convertDateByTimezone(date: string, from: string, to: string) {
   /**
    * from이 US, to가 KR일 경우, date를 US시간(미국)에서 KR시간(한국)으로 convert한다.
-   * output ex : 03/28/2023, 02:04 AM
+   * @returns ex : 03/28/2023, 02:04 AM
    * @param date Date형태의 string
    * @param from KR, US와 같은 country code
    * @param to KR, US와 같은 country code
@@ -40,7 +40,7 @@ export function FullDateTimezoneHelper(
     return `${rtn} (${getTimezone(value, timezone.code)})`
   else if (typeof timezone === 'string')
     return `${rtn} (${getTimezone(value, timezone)})`
-  return '-'
+  return rtn
 }
 
 // output ex : 01/31/2023
