@@ -24,7 +24,7 @@ module.exports = withTM({
       new TerserPlugin({
         terserOptions: {
           // 난독화 설정
-          mangle: true,
+          mangle: false,
           // 이름 난독화 비활성화
           keep_classnames: true,
           keep_fnames: true,
