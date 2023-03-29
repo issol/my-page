@@ -597,6 +597,7 @@ export default function JobPostingPost() {
                           options={countries as CountryType[]}
                           onChange={(e, v) => onChange(v)}
                           disableClearable
+                          disabled={!currDueDate}
                           renderOption={(props, option) => (
                             <Box component='li' {...props}>
                               {getGmtTime(option.code)}
@@ -606,7 +607,6 @@ export default function JobPostingPost() {
                             <TextField
                               {...params}
                               label='Due date timezone'
-                              disabled={!currDueDate}
                               error={Boolean(errors.dueDateTimezone)}
                               inputProps={{
                                 ...params.inputProps,

@@ -705,7 +705,7 @@ export default function RecruitingEdit() {
                             <Autocomplete
                               autoHighlight
                               fullWidth
-                              disabled={!isWriter}
+                              disabled={!isWriter || !currDueDate}
                               value={value}
                               options={countries as CountryType[]}
                               onChange={(e, v) => onChange(v)}
@@ -719,7 +719,6 @@ export default function RecruitingEdit() {
                                 <TextField
                                   {...params}
                                   label='Due date timezone'
-                                  disabled={!currDueDate}
                                   error={Boolean(errors.dueDateTimezone)}
                                 />
                               )}
