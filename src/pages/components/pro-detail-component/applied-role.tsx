@@ -160,10 +160,10 @@ export default function AppliedRole({
       )
     } else if (
       basicTest &&
-      (basicTest!.status === 'Basic in progress' ||
-        basicTest!.status === 'Basic submitted' ||
-        basicTest!.status === 'Basic failed' ||
-        basicTest!.status === 'Basic passed')
+      (jobInfo!.testStatus === 'Basic in progress' ||
+        jobInfo!.testStatus === 'Basic submitted' ||
+        jobInfo!.testStatus === 'Basic failed' ||
+        jobInfo!.testStatus === 'Basic passed')
     ) {
       return (
         <Button
@@ -190,11 +190,11 @@ export default function AppliedRole({
       )
     } else if (
       skillTest &&
-      (skillTest!.status === 'Skill in progress' ||
-        skillTest!.status === 'Skill submitted' ||
-        skillTest!.status === 'Reviewing' ||
-        skillTest!.status === 'Review completed' ||
-        skillTest!.status === 'Review canceled')
+      (jobInfo!.testStatus === 'Skill in progress' ||
+        jobInfo!.testStatus === 'Skill submitted' ||
+        jobInfo!.testStatus === 'Reviewing' ||
+        jobInfo!.testStatus === 'Review completed' ||
+        jobInfo!.testStatus === 'Review canceled')
     ) {
       return (
         <Button
