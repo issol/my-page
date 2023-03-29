@@ -521,7 +521,7 @@ export default function AppliedRole({
                                   onClick={event => {
                                     event.stopPropagation()
                                     onClickReason(
-                                      value.testStatus,
+                                      value.requestStatus,
                                       value.messageToUser!,
                                       value.reason!,
                                     )
