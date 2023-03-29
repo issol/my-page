@@ -41,14 +41,15 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 import { useMutation } from 'react-query'
 import { ModalContext } from 'src/context/ModalContext'
 import { FileType } from '@src/types/common/file.type'
-import { certification_test } from '@src/shared/const/permission-class/certification-test'
+
 import { useAppSelector } from '@src/hooks/useRedux'
 import logger from '@src/@core/utils/logger'
+import certification_test from '@src/shared/const/permission-class/certification-test'
 
 type CellType = {
   row: CurrentTestType
 }
-
+/* eslint-disable */
 const CertificationTestDetail = () => {
   const router = useRouter()
   const { id } = router.query
@@ -100,8 +101,8 @@ const CertificationTestDetail = () => {
   }
   const permission = new certification_test(data?.currentVersion.userId!)
 
-  logger.debug(ability.can('update', permission))
-  logger.debug(ability.can('delete', permission))
+  console.log(ability.can('update', permission))
+  console.log(ability.can('delete', permission))
 
   const versionHistory = data?.versionHistory || []
 

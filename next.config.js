@@ -1,5 +1,6 @@
 /* eslint-disable @typescript-eslint/no-var-requires */
 const path = require('path')
+const TerserPlugin = require('terser-webpack-plugin')
 
 /** @type {import('next').NextConfig} */
 
@@ -15,6 +16,22 @@ const withTM = require('next-transpile-modules')([
 module.exports = withTM({
   trailingSlash: true,
   reactStrictMode: false,
+  mode: 'development',
+  env: 'development',
+  optimization: {
+    minimize: true,
+    minimizer: [
+      new TerserPlugin({
+        terserOptions: {
+          // 난독화 설정
+          mangle: false,
+          // 이름 난독화 비활성화
+          keep_classnames: true,
+          keep_fnames: true,
+        },
+      }),
+    ],
+  },
   experimental: {
     esmExternals: false,
     styledComponents: true,

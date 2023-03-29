@@ -11,14 +11,6 @@ export type UserInfoResType = Omit<
   UserDataType,
   'id' | 'role' | 'permission' | 'company' | 'username'
 >
-export const getUserInfo = async (email: string): Promise<UserInfoResType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/pu?email=${email}`)
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
 
 export const getProDetails = async (userId: number) => {
   try {
@@ -32,9 +24,7 @@ export const getProDetails = async (userId: number) => {
   }
 }
 
-export const getUserInfoWithResumeFile = async (
-  userId: number,
-): Promise<UserInfoResType> => {
+export const getUserInfo = async (userId: number): Promise<UserInfoResType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/pu/profile/${userId}`)
     return data
@@ -65,23 +55,12 @@ export const updateConsumerUserInfo = async (
   }
 }
 
-// export const getPresignedUrl = async (userId: number, fileName: string) => {
-//   try {
-//     const { data } = await axios.get(
-//       `/api/enough/u/pu/ps-url?userId=${userId}&fileName=${fileName}`,
-//     )
-//     return data
-//   } catch (e: any) {
-//     throw new Error(e)
-//   }
-// }
-
 /* TAD, LPM 전용 프로필 업데이트 */
 export const updateManagerUserInfo = async (
   userInfo: ManagerUserInfoType & { userId: number },
 ) => {
   try {
-    await axios.put(`/api/enough/u/pu/edit`, userInfo)
+    await axios.put(`/api/enough/u/pu/member/edit`, userInfo)
   } catch (e: any) {
     throw new Error(e)
   }

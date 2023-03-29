@@ -108,7 +108,7 @@ const AuthProvider = ({ children }: Props) => {
     if (response?.accessToken) {
       saveUserTokenToBrowser(response.accessToken)
     }
-    getUserInfo(response.email)
+    getUserInfo(response.userId)
       .then(value => {
         const profile = value
         const userInfo = {

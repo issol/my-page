@@ -1,5 +1,5 @@
 import { useQuery } from 'react-query'
-import { getUserInfoWithResumeFile, getProDetails } from 'src/apis/user.api'
+import { getProDetails } from 'src/apis/user.api'
 
 export const useGetUserInfoWithResume = (
   userId: string | string[] | undefined,
