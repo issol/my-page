@@ -55,14 +55,18 @@ export type TestHistoryType = {
 }
 
 export type AssignReviewerType = {
-  id: number
-  reviewerId: number
   firstName: string
-  middleName?: string | null
+  jobType: string
   lastName: string
-  email: string
-  status: string
-  date: string
+  middleName: string
+  role: string
+  source: string
+  status: string | null
+  target: string
+  testId: number | null
+  updatedAt: string | null
+  userEmail: string
+  userId: number
 }
 
 export type OnboardingUserType = {

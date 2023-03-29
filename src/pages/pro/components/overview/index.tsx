@@ -24,9 +24,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import {
   useGetAppliedRole,
   useGetCertifiedRole,
-  useGetHistory,
   useGetOnboardingProDetails,
-  useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 
 import { RoleType } from 'src/context/types'
@@ -103,9 +101,6 @@ function ProDetailOverview() {
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   const { data: appliedRole } = useGetAppliedRole(userId!)
-
-  const { data: reviewerList } = useGetReviewerList()
-  const { data: history } = useGetHistory()
 
   const { user } = useContext(AuthContext)
 
@@ -485,33 +480,44 @@ function ProDetailOverview() {
     )
   }
 
-  const onClickBasicTestAction = (jobInfo: TestType, type: string) => {
-    // setActionId(jobInfo.id)
+  const onClickBasicTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
 
     setModal(
       <BasicTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionBasicTest={handleActionBasicTest}
       />,
     )
   }
 
-  const onClickSkillTestAction = (jobInfo: AppliedRoleType, type: string) => {
-    setActionId(jobInfo.id)
+  const onClickSkillTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
     setModal(
       <SkillTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
       />,
     )
   }
-
   const onClickAddRole = () => {
     setAppliedRoleModalOpen(true)
   }
@@ -543,12 +549,12 @@ function ProDetailOverview() {
     }
   }
 
-  const onClickTestDetails = (jobInfo: AppliedRoleType, type: string) => {
+  const onClickTestDetails = (skillTest: TestType, type: string) => {
     setModal(
       <TestDetailsModal
-        jobInfo={jobInfo}
-        reviewerList={reviewerList!}
-        history={history!}
+        skillTest={skillTest}
+        // reviewerList={reviewerList!}
+        // history={history!}
         type={type}
         user={user!}
       />,

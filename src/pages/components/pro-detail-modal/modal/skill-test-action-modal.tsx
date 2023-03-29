@@ -13,19 +13,21 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 
 import { AddRoleType } from 'src/types/onboarding/list'
-import { AppliedRoleType } from 'src/types/onboarding/details'
+import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
 import languageHelper from 'src/shared/helpers/language.helper'
 type Props = {
   open: boolean
   onClose: any
-  userInfo: AppliedRoleType
+  skillTest: TestType
+  basicTest: TestType
   type: string
   handleActionSkillTest: (id: number, type: string) => void
 }
 export default function SkillTestActionModal({
   open,
   onClose,
-  userInfo,
+  skillTest,
+  basicTest,
   type,
   handleActionSkillTest,
 }: Props) {
@@ -104,11 +106,11 @@ export default function SkillTestActionModal({
               variant='subtitle2'
               sx={{ fontSize: '16px', fontWeight: 600, textAlign: 'center' }}
             >
-              {userInfo.jobType}, {userInfo.role},&nbsp;
-              {userInfo.source && userInfo.target ? (
+              {skillTest.jobType}, {skillTest.role},&nbsp;
+              {skillTest.sourceLanguage && skillTest.targetLanguage ? (
                 <>
-                  {userInfo.source.toUpperCase()} &rarr;{' '}
-                  {userInfo.target.toUpperCase()}
+                  {skillTest.sourceLanguage.toUpperCase()} &rarr;{' '}
+                  {skillTest.targetLanguage.toUpperCase()}
                 </>
               ) : (
                 ''
@@ -119,10 +121,10 @@ export default function SkillTestActionModal({
               variant='body2'
               sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
             >
-              {userInfo.target && userInfo.target !== '' ? (
+              {skillTest.targetLanguage && skillTest.targetLanguage !== '' ? (
                 <>
-                  {userInfo.target.toUpperCase()}&nbsp;
-                  {`(${languageHelper(userInfo.target)})`}
+                  {skillTest.targetLanguage.toUpperCase()}&nbsp;
+                  {`(${languageHelper(skillTest.targetLanguage)})`}
                 </>
               ) : (
                 ''
@@ -160,7 +162,7 @@ export default function SkillTestActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleActionSkillTest(userInfo.id, type)
+              handleActionSkillTest(skillTest.testId, type)
             }}
           >
             {type === 'Awaiting assignment'

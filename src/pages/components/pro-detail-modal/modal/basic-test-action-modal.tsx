@@ -18,14 +18,23 @@ import languageHelper from 'src/shared/helpers/language.helper'
 type Props = {
   open: boolean
   onClose: any
-  userInfo: TestType
+  basicTest: TestType
+  skillTest: TestType
   type: string
-  handleActionBasicTest: (id: number, type: string) => void
+
+  handleActionBasicTest: (
+    id: number,
+    type: string,
+    skillTestId?: number,
+    skillTestStatus?: string,
+  ) => void
 }
 export default function BasicTestActionModal({
   open,
   onClose,
-  userInfo,
+  basicTest,
+  skillTest,
+
   type,
   handleActionBasicTest,
 }: Props) {
@@ -93,10 +102,10 @@ export default function BasicTestActionModal({
             variant='body2'
             sx={{ fontWeight: 600, fontSize: '16px', textAlign: 'center' }}
           >
-            {userInfo.targetLanguage && userInfo.targetLanguage !== '' ? (
+            {basicTest.targetLanguage && basicTest.targetLanguage !== '' ? (
               <>
-                {userInfo.targetLanguage.toUpperCase()}&nbsp;
-                {`(${languageHelper(userInfo.targetLanguage)})`}
+                {basicTest.targetLanguage.toUpperCase()}&nbsp;
+                {`(${languageHelper(basicTest.targetLanguage)})`}
               </>
             ) : (
               ''
@@ -127,7 +136,16 @@ export default function BasicTestActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              handleActionBasicTest(userInfo.testId, type)
+              if (type === 'Skipped') {
+                handleActionBasicTest(
+                  basicTest.testId,
+                  type,
+                  skillTest.testId,
+                  'Skill in progress',
+                )
+              } else {
+                handleActionBasicTest(basicTest.testId, type)
+              }
             }}
           >
             {type === 'Skipped'

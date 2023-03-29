@@ -259,34 +259,18 @@ export const useGetCertifiedRole = (id: number) => {
   )
 }
 
-export const useGetReviewerList = () => {
-  return useQuery(
-    'reviewers',
-    () => {
-      return getReviewer()
-    },
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
+// export const useGetHistory = (testId: number) => {
+//   return useQuery(
+//     'history',
+//     () => {
+//       return getHistory(testId)
+//     },
+//     {
+//       staleTime: 60 * 1000, // 1
+//       keepPreviousData: true,
+//       suspense: true,
 
-      useErrorBoundary: (error: any) => error.response?.status >= 500,
-    },
-  )
-}
-
-export const useGetHistory = () => {
-  return useQuery(
-    'history',
-    () => {
-      return getHistory()
-    },
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
-
-      useErrorBoundary: (error: any) => error.response?.status >= 500,
-    },
-  )
-}
+//       useErrorBoundary: (error: any) => error.response?.status >= 500,
+//     },
+//   )
+// }
