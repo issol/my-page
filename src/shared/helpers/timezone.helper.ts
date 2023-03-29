@@ -22,6 +22,12 @@ export const getGmtTime = (code: string | null | undefined) => {
   return `(GMT${moment.tz(timezoneName).format('Z')}) ${countryName(code)}`
 }
 
+export function convertCountryCodeToTimezone(code: string) {
+  /* @ts-ignore */
+  const timezoneName = timezones.countries[code]?.zones[0] || ''
+  return timezoneName
+}
+
 export const getGmtTimeEng = (code: string | null | undefined) => {
   if (!code) return '-'
   const timeZoneCode = 'AF'
@@ -32,8 +38,6 @@ export const getGmtTimeEng = (code: string | null | undefined) => {
     timeZone: timeZone,
     timeZoneName: 'long',
   })
-
-  console.log(formatter.formatToParts(new Date()))
 
   const timeZoneName = formatter
     .formatToParts(new Date())

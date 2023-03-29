@@ -37,6 +37,7 @@ import { AuthContext } from 'src/context/AuthContext'
 
 // ** helpers
 import {
+  convertDateByTimezone,
   FullDateTimezoneHelper,
   MMDDYYYYHelper,
 } from 'src/shared/helpers/date.helper'
@@ -54,6 +55,7 @@ import {
   hideRecruiting,
 } from 'src/apis/recruiting.api'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { recruiting } from '@src/shared/const/permission-class'
 
 // ** types
 
@@ -97,10 +99,6 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const isMaster =
-    ability.can('update', 'recruiting') &&
-    !ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
@@ -118,9 +116,9 @@ const RecruitingDetail = () => {
 
   const versionHistory = data?.versionHistory || []
 
-  const isWriter =
-    ability.possibleRulesFor('update', 'recruiting')[0]?.conditions
-      ?.authorId === currentVersion?.userId
+  const writer = new recruiting(currentVersion?.userId!)
+  const isWriter = ability.can('update', writer) //writer can edit, hide the post
+  const isMaster = ability.can('delete', writer) //master can edit, delete the post
 
   const deleteMutation = useMutation((id: number) => deleteRecruiting(id), {
     onSuccess: () => {
@@ -155,7 +153,11 @@ const RecruitingDetail = () => {
         <Grid item xs={6}>
           <Typography
             variant='body2'
-            sx={{ display: 'flex', alignItems: 'center' }}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              wordBreak: 'break-all',
+            }}
           >
             {value ?? '-'}
             {label === 'Job posting link' && !!value && (
@@ -393,9 +395,16 @@ const RecruitingDetail = () => {
                       'Number of linguist',
                       currentVersion?.openings,
                     )}
+
                     {renderTable(
                       'Due date',
-                      MMDDYYYYHelper(currentVersion?.dueDate),
+                      currentVersion?.dueDate
+                        ? convertDateByTimezone(
+                            currentVersion?.dueDate,
+                            currentVersion?.dueDateTimezone!,
+                            user?.timezone?.code!,
+                          )
+                        : '',
                     )}
                   </Grid>
                   <Grid item xs={7}>
@@ -405,7 +414,7 @@ const RecruitingDetail = () => {
                     )}
                     {renderTable(
                       'Due date timezone',
-                      getGmtTime(currentVersion?.dueDateTimezone),
+                      getGmtTime(user?.timezone?.code),
                     )}
                   </Grid>
                 </Grid>
@@ -572,6 +581,16 @@ const RecruitingDetail = () => {
                             'Due date',
                             MMDDYYYYHelper(currentRow?.dueDate),
                           )}
+                          {renderTable(
+                            'Due date',
+                            currentRow?.dueDate
+                              ? convertDateByTimezone(
+                                  currentRow?.dueDate,
+                                  currentRow?.dueDateTimezone!,
+                                  user?.timezone?.code!,
+                                )
+                              : '',
+                          )}
                         </Grid>
                         <Grid item xs={7}>
                           {renderTable(
@@ -580,7 +599,7 @@ const RecruitingDetail = () => {
                           )}
                           {renderTable(
                             'Due date timezone',
-                            getGmtTime(currentRow?.dueDateTimezone),
+                            getGmtTime(user?.timezone?.code),
                           )}
                         </Grid>
                       </Grid>

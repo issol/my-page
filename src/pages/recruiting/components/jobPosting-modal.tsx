@@ -1,10 +1,7 @@
 // ** mui
 import {
   Button,
-  Card,
-  Chip,
   Dialog,
-  DialogTitle,
   Grid,
   IconButton,
   Radio,
@@ -12,25 +9,16 @@ import {
   Typography,
 } from '@mui/material'
 import { Box } from '@mui/system'
-import { DataGrid, GridRowParams } from '@mui/x-data-grid'
+import { DataGrid } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 
-// ** custom component
-import { StyledNextLink } from 'src/@core/components/customLink'
-
-// ** third party
-import styled from 'styled-components'
-
 // ** helpers
-import { FullDateHelper } from 'src/shared/helpers/date.helper'
+import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import {
   JobTypeChip,
   renderStatusChip,
   RoleChip,
 } from 'src/@core/components/chips/chips'
-
-// ** nextJS
-import { useRouter } from 'next/router'
 
 // ** types
 import { JobPostingDataType } from 'src/apis/jobPosting.api'
@@ -165,15 +153,10 @@ export default function JobPostingListModal({
       renderCell: ({ row }: CellType) => (
         <Tooltip
           placement='bottom'
-          title={`${FullDateHelper(row.dueDate)} (${
-            row.dueDateTimezone ?? '-'
-          })`}
+          title={`${FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}`}
         >
           <Typography sx={{ overflow: 'scroll' }} variant='body2'>
-            <>
-              {FullDateHelper(row.dueDate)}{' '}
-              {row.dueDateTimezone ? `(${row.dueDateTimezone})` : ''}
-            </>
+            <>{FullDateTimezoneHelper(row.dueDate, row.dueDateTimezone)}</>
           </Typography>
         </Tooltip>
       ),

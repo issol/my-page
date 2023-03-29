@@ -128,8 +128,8 @@ export type CurrentHistoryType = {
   sourceLanguage: string
   targetLanguage: string
   openings: number
-  dueDate: string | null
-  dueDateTimezone: string | null
+  dueDate?: string | null
+  dueDateTimezone?: string
   jobPostLink: string // short url
   content: any
   isHide: boolean

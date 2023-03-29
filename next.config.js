@@ -14,6 +14,7 @@ const withTM = require('next-transpile-modules')([
 ])
 
 module.exports = withTM({
+  productionBrowserSourceMaps: true,
   trailingSlash: true,
   reactStrictMode: false,
   mode: 'development',

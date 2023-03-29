@@ -73,6 +73,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import logger from '@src/@core/utils/logger'
 
 export default function RecruitingPost() {
   const router = useRouter()
@@ -128,9 +129,23 @@ export default function RecruitingPost() {
     mode: 'onChange',
     resolver: yupResolver(recruitingFormSchema),
   })
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  const currDueDate = watch('dueDate')
+
+  useEffect(() => {
+    if (!currDueDate) {
+      setValue(
+        'dueDateTimezone',
+        { code: '', label: '', phone: '' },
+        setValueOptions,
+      )
+    } else if (currDueDate && !watch('dueDateTimezone')?.code) {
+      setValue('dueDateTimezone', user?.timezone, setValueOptions)
+    }
+  }, [currDueDate])
 
   function addLink(link: string) {
-    setValue('jobPostLink', link, { shouldDirty: true, shouldValidate: true })
+    setValue('jobPostLink', link, setValueOptions)
   }
   function onDiscard() {
     setModal(
@@ -550,7 +565,6 @@ export default function RecruitingPost() {
                         <DatePicker
                           selected={value ? new Date(value) : null}
                           id='dueDate'
-                          // popperPlacement={popperPlacement}
                           onChange={onChange}
                           placeholderText='Due date'
                           customInput={<CustomInput icon='calendar' />}
@@ -586,6 +600,7 @@ export default function RecruitingPost() {
                               <TextField
                                 {...params}
                                 label='Due date timezone'
+                                disabled={!currDueDate}
                                 error={Boolean(errors.dueDateTimezone)}
                                 inputProps={{
                                   ...params.inputProps,
