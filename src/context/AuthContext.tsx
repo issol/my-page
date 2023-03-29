@@ -40,6 +40,7 @@ import {
 /* redux */
 import { getPermission, getRole } from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -81,6 +82,25 @@ const AuthProvider = ({ children }: Props) => {
       dispatch(getPermission())
     }
   }, [user])
+
+  const userAccess = useAppSelector(state => state.userAccess)
+
+  useEffect(() => {
+    if (userAccess.role.length) {
+      const roles = userAccess.role.map(item => item.name)
+      if (!user?.firstName) {
+        if (roles?.includes('PRO')) {
+          router.replace('/welcome/consumer')
+        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
+          router.replace('/welcome/manager')
+        }
+        return
+      }
+      if (router.pathname === '/') {
+        router.push(`/home`)
+      }
+    }
+  }, [userAccess.role, user])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
