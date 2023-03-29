@@ -534,6 +534,9 @@ export default function CertificationTest({
                                 onClick={() =>
                                   onClickTestDetails(skillTest, 'reviewer')
                                 }
+                                disabled={
+                                  selectedJobInfo.requestStatus === 'Paused'
+                                }
                               >
                                 Assign reviewer
                               </Button>
