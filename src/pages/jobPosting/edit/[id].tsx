@@ -685,6 +685,7 @@ export default function JobPostingEdit() {
                               autoHighlight
                               fullWidth
                               value={value}
+                              disabled={!currDueDate}
                               options={countries as CountryType[]}
                               onChange={(e, v) => onChange(v)}
                               disableClearable
@@ -697,7 +698,6 @@ export default function JobPostingEdit() {
                                 <TextField
                                   {...params}
                                   label='Due date timezone'
-                                  disabled={!currDueDate}
                                   error={Boolean(errors.dueDateTimezone)}
                                   inputProps={{
                                     ...params.inputProps,

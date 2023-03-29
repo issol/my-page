@@ -1,5 +1,5 @@
 // ** React Imports
-import { ReactNode, useEffect, useState } from 'react'
+import { ReactNode } from 'react'
 
 // ** MUI Imports
 import { Theme } from '@mui/material/styles'
@@ -23,38 +23,14 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
-import { useAuth } from 'src/hooks/useAuth'
-import { useRouter } from 'next/router'
-import { useAppSelector } from 'src/hooks/useRedux'
-
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
 }
 
 const UserLayout = ({ children, contentHeightFixed }: Props) => {
-  const auth = useAuth()
-  const router = useRouter()
   // ** Hooks
-  const userAccess = useAppSelector(state => state.userAccess)
   const { settings, saveSettings } = useSettings()
-
-  useEffect(() => {
-    if (userAccess.role.length) {
-      const roles = userAccess.role.map(item => item.name)
-      if (!auth.user?.firstName) {
-        if (roles?.includes('PRO')) {
-          router.replace('/welcome/consumer')
-        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
-          router.replace('/welcome/manager')
-        }
-        return
-      }
-      if (router.pathname === '/') {
-        router.push(`/home`)
-      }
-    }
-  }, [userAccess])
 
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()

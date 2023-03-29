@@ -5,8 +5,6 @@ import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Axios
-// import axios from 'src/configs/axios-client'
-// import axiosDefault from 'axios'
 import axios from 'axios'
 
 // ** Config
@@ -42,6 +40,7 @@ import {
 /* redux */
 import { getPermission, getRole } from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -83,6 +82,25 @@ const AuthProvider = ({ children }: Props) => {
       dispatch(getPermission())
     }
   }, [user])
+
+  const userAccess = useAppSelector(state => state.userAccess)
+
+  useEffect(() => {
+    if (userAccess.role.length) {
+      const roles = userAccess.role.map(item => item.name)
+      if (!user?.firstName) {
+        if (roles?.includes('PRO')) {
+          router.replace('/welcome/consumer')
+        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
+          router.replace('/welcome/manager')
+        }
+        return
+      }
+      if (router.pathname === '/') {
+        router.push(`/home`)
+      }
+    }
+  }, [userAccess.role, user])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
@@ -137,17 +155,20 @@ const AuthProvider = ({ children }: Props) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        updateUserInfo(response).then(() => {
-          if (successCallback) {
-            successCallback()
-          } else {
-            router.replace('/')
-          }
-        })
+        if (!response.accessToken) {
+          setOpenModal(true)
+        } else {
+          updateUserInfo(response).then(() => {
+            if (successCallback) {
+              successCallback()
+            } else {
+              router.replace('/')
+            }
+          })
 
-        params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
-
-        saveUserTokenToBrowser(response.accessToken)
+          params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
+          saveUserTokenToBrowser(response.accessToken)
+        }
 
         // const returnUrl = router.query.returnUrl
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
