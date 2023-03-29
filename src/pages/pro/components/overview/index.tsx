@@ -25,7 +25,6 @@ import {
   useGetAppliedRole,
   useGetCertifiedRole,
   useGetOnboardingProDetails,
-  useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 
 import { RoleType } from 'src/context/types'
@@ -102,8 +101,6 @@ function ProDetailOverview() {
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   const { data: appliedRole } = useGetAppliedRole(userId!)
-
-  const { data: reviewerList } = useGetReviewerList()
 
   const { user } = useContext(AuthContext)
 
@@ -503,19 +500,24 @@ function ProDetailOverview() {
     )
   }
 
-  const onClickSkillTestAction = (jobInfo: AppliedRoleType, type: string) => {
-    setActionId(jobInfo.id)
+  const onClickSkillTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
     setModal(
       <SkillTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
       />,
     )
   }
-
   const onClickAddRole = () => {
     setAppliedRoleModalOpen(true)
   }
@@ -551,7 +553,7 @@ function ProDetailOverview() {
     setModal(
       <TestDetailsModal
         skillTest={skillTest}
-        reviewerList={reviewerList!}
+        // reviewerList={reviewerList!}
         // history={history!}
         type={type}
         user={user!}

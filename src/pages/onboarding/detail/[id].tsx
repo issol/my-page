@@ -25,7 +25,6 @@ import {
   useGetAppliedRole,
   useGetCertifiedRole,
   useGetOnboardingProDetails,
-  useGetReviewerList,
 } from 'src/queries/onboarding/onboarding-query'
 import AppliedRoleModal from '../../components/pro-detail-modal/dialog/applied-role-modal'
 import { RoleType } from 'src/context/types'
@@ -485,8 +484,6 @@ function OnboardingDetail() {
   }
 
   const onClickTestAssign = (jobInfo: AppliedRoleType, status?: string) => {
-    console.log(status)
-
     setActionId(jobInfo.id)
     setModal(
       <TestAssignModal
@@ -519,13 +516,19 @@ function OnboardingDetail() {
     )
   }
 
-  const onClickSkillTestAction = (jobInfo: AppliedRoleType, type: string) => {
-    setActionId(jobInfo.id)
+  const onClickSkillTestAction = (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => {
+    setActionId(id)
     setModal(
       <SkillTestActionModal
         open={true}
         onClose={() => setModal(null)}
-        userInfo={jobInfo}
+        skillTest={skillTest}
+        basicTest={basicTest}
         type={type}
         handleActionSkillTest={handleActionSkillTest}
       />,

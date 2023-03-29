@@ -37,7 +37,12 @@ type Props = {
   ) => void
   onClickTestDetails: (skillTest: TestType, type: string) => void
   onClickCertify: (jobInfo: AppliedRoleType) => void
-  onClickSkillTestAction: (jobInfo: AppliedRoleType, type: string) => void
+  onClickSkillTestAction: (
+    id: number,
+    basicTest: TestType,
+    skillTest: TestType,
+    type: string,
+  ) => void
 }
 const Timeline = styled(MuiTimeline)<TimelineProps>({
   paddingLeft: 0,
@@ -513,7 +518,9 @@ export default function CertificationTest({
                                   color='error'
                                   onClick={() =>
                                     onClickSkillTestAction(
-                                      selectedJobInfo,
+                                      selectedJobInfo.id,
+                                      basicTest,
+                                      skillTest,
                                       'Skill failed',
                                     )
                                   }
@@ -544,7 +551,9 @@ export default function CertificationTest({
                                   variant='outlined'
                                   onClick={() =>
                                     onClickSkillTestAction(
-                                      selectedJobInfo,
+                                      selectedJobInfo.id,
+                                      basicTest,
+                                      skillTest,
                                       'Cancelled',
                                     )
                                   }
@@ -555,7 +564,9 @@ export default function CertificationTest({
                                   variant='contained'
                                   onClick={() =>
                                     onClickSkillTestAction(
-                                      selectedJobInfo,
+                                      selectedJobInfo.id,
+                                      basicTest,
+                                      skillTest,
                                       'Skill in progress',
                                     )
                                   }
@@ -577,7 +588,9 @@ export default function CertificationTest({
                                 variant='contained'
                                 onClick={() =>
                                   onClickSkillTestAction(
-                                    selectedJobInfo,
+                                    selectedJobInfo.id,
+                                    basicTest,
+                                    skillTest,
                                     'Skill in progress',
                                   )
                                 }
