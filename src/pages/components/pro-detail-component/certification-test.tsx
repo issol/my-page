@@ -25,6 +25,7 @@ import {
   TestType,
 } from 'src/types/onboarding/details'
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -161,7 +162,18 @@ export default function CertificationTest({
                               textDecoration: 'underline',
                               cursor: 'pointer',
                             }}
-                            // onClick={() => onClickTestDetails(selectedJobInfo)}
+                            onClick={() => {
+                              if (basicTest.testResponseUrl) {
+                                window.open(basicTest.testResponseUrl, '_blank')
+                              } else {
+                                toast.error(
+                                  'Something went wrong. Please try again.',
+                                  {
+                                    position: 'bottom-left',
+                                  },
+                                )
+                              }
+                            }}
                           >
                             See response
                           </Typography>
@@ -362,7 +374,21 @@ export default function CertificationTest({
                                 textDecoration: 'underline',
                                 cursor: 'pointer',
                               }}
-                              // onClick={() => onClickTestDetails(selectedJobInfo)}
+                              onClick={() => {
+                                if (skillTest.testResponseUrl) {
+                                  window.open(
+                                    skillTest.testResponseUrl,
+                                    '_blank',
+                                  )
+                                } else {
+                                  toast.error(
+                                    'Something went wrong. Please try again.',
+                                    {
+                                      position: 'bottom-left',
+                                    },
+                                  )
+                                }
+                              }}
                             >
                               See response
                             </Typography>

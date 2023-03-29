@@ -43,15 +43,15 @@ export type CommentsOnProType = {
 }
 
 export type TestHistoryType = {
-  status: string
-  date: string
+  createdAt: string
   id: number
-  reviewer: {
-    firstName: string
-    middleName?: string | null
-    lastName: string
+  operator: {
     email: string
+    firstName: string
+    middleName: string
+    lastName: string
   }
+  testStatus: string
 }
 
 export type AssignReviewerType = {

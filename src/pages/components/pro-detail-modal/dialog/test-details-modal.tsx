@@ -60,6 +60,7 @@ import {
   assignReviewer,
   getHistory,
   getReviewer,
+  requestReviewer,
 } from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
 
@@ -134,7 +135,7 @@ export default function TestDetailsModal({
   // const { data: reviewerList1 } = useGetReviewerList()
   // const { data: history1 } = useGetHistory(skillTest.testId)
   const history = useQuery<{
-    history: Array<any>
+    history: Array<TestHistoryType>
     jobType: string
     role: string
     source: string
@@ -187,16 +188,24 @@ export default function TestDetailsModal({
   } | null>(null)
 
   const assignReviewerMutation = useMutation(
-    (value: { id: number; status: string }) =>
-      assignReviewer(value.id, value.status),
+    (value: { reviewerId: number; testId: number; status: string }) =>
+      assignReviewer(value.reviewerId, value.testId, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries('reviewers')
+        queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
       },
     },
   )
 
-  console.log(reviewer)
+  const requestReviewerMutation = useMutation(
+    (value: { reviewerId: number; testId: number }) =>
+      requestReviewer(value.testId, value.reviewerId),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
+      },
+    },
+  )
 
   const onChangeTestStatus = (
     event: SyntheticEvent,
@@ -220,18 +229,18 @@ export default function TestDetailsModal({
     reviewer: AssignReviewerType | null,
     status: string,
   ) => {
-    console.log(reviewer)
-    assignReviewerMutation.mutate({
-      id: reviewer?.userId!,
-      status: status,
+    console.log(reviewer?.userId, skillTest.testId, status)
+    requestReviewerMutation.mutate({
+      reviewerId: reviewer?.userId!,
+      testId: skillTest.testId,
     })
   }
 
   const reassignReviewer = () => {
-    assignReviewerMutation.mutate({
-      id: acceptedId,
-      status: 'Re assign',
-    })
+    // assignReviewerMutation.mutate({
+    //   id: acceptedId,
+    //   status: 'Re assign',
+    // })
   }
 
   const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
@@ -303,11 +312,11 @@ export default function TestDetailsModal({
           <Chip
             size='medium'
             type='testStatus'
-            label={row.status}
+            label={row.testStatus}
             /* @ts-ignore */
-            customcolor={TestStatusColor[row.status]}
+            customcolor={TestStatusColor[row.testStatus]}
             sx={{
-              textTransform: 'capitalize',
+              // textTransform: 'capitalize',
               '& .MuiChip-label': { lineHeight: '18px' },
               mr: 1,
             }}
@@ -350,7 +359,7 @@ export default function TestDetailsModal({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {getLegalName(row.reviewer)}
+                {getLegalName(row.operator)}
               </Typography>
 
               <Typography
@@ -361,7 +370,7 @@ export default function TestDetailsModal({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {row.reviewer.email}
+                {row.operator.email}
               </Typography>
             </Box>
           </Box>
@@ -382,7 +391,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.date, user.timezone)}
+          {FullDateTimezoneHelper(row.createdAt, user.timezone)}
         </Box>
       ),
     },
@@ -459,7 +468,7 @@ export default function TestDetailsModal({
               Request review
             </Button>
           )
-        } else if (row.status === 'Requested') {
+        } else if (row.status === 'NO_REPLY') {
           return (
             <Button
               fullWidth
@@ -480,10 +489,7 @@ export default function TestDetailsModal({
               Requested
             </Button>
           )
-        } else if (
-          row.status === 'Request rejected' ||
-          row.status === 'Canceled'
-        ) {
+        } else if (row.status === 'Rejected' || row.status === 'Canceled') {
           return (
             <Button
               fullWidth
@@ -502,7 +508,7 @@ export default function TestDetailsModal({
               {row.status}
             </Button>
           )
-        } else if (row.status === 'Request accepted') {
+        } else if (row.status === 'Accepted') {
           return (
             <Button
               fullWidth
