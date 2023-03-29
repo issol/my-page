@@ -5,8 +5,6 @@ import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Axios
-// import axios from 'src/configs/axios-client'
-// import axiosDefault from 'axios'
 import axios from 'axios'
 
 // ** Config
@@ -137,17 +135,20 @@ const AuthProvider = ({ children }: Props) => {
     // axios
     login(params.email, params.password)
       .then(async response => {
-        updateUserInfo(response).then(() => {
-          if (successCallback) {
-            successCallback()
-          } else {
-            router.replace('/')
-          }
-        })
+        if (!response.accessToken) {
+          setOpenModal(true)
+        } else {
+          updateUserInfo(response).then(() => {
+            if (successCallback) {
+              successCallback()
+            } else {
+              router.replace('/')
+            }
+          })
 
-        params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
-
-        saveUserTokenToBrowser(response.accessToken)
+          params.rememberMe ? saveRememberMe(params.email) : removeRememberMe()
+          saveUserTokenToBrowser(response.accessToken)
+        }
 
         // const returnUrl = router.query.returnUrl
         // const redirectURL = returnUrl && returnUrl !== '/' ? returnUrl : '/'
