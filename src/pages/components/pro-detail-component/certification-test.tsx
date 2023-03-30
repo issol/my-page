@@ -177,7 +177,7 @@ export default function CertificationTest({
                               }
                             }}
                           >
-                            See response
+                            See responses
                           </Typography>
                         </>
                       ) : null}
@@ -368,6 +368,7 @@ export default function CertificationTest({
                         {skillTest!.status === 'Skill submitted' ||
                         skillTest!.status === 'Reviewing' ||
                         skillTest!.status === 'Review completed' ||
+                        skillTest!.status === 'Review canceled' ||
                         skillTest!.status === 'Skill failed' ? (
                           <>
                             <Typography
@@ -395,7 +396,7 @@ export default function CertificationTest({
                                 }
                               }}
                             >
-                              See response
+                              See responses
                             </Typography>
                             <Divider
                               orientation='vertical'
@@ -491,7 +492,7 @@ export default function CertificationTest({
                             {(basicTest!.status === 'Basic failed' ||
                               basicTest!.status === 'Basic passed' ||
                               basicTest!.status === 'NO_TEST') &&
-                            skillTest!.status !== 'Cancelled' &&
+                            skillTest!.status !== 'Canceled' &&
                             !(
                               skillTest!.status === 'Skill in progress' ||
                               skillTest!.status === 'Skill submitted' ||
