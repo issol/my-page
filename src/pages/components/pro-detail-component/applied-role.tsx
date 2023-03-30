@@ -160,6 +160,7 @@ export default function AppliedRole({
       )
     } else if (
       basicTest &&
+      jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Basic in progress' ||
         jobInfo!.testStatus === 'Basic submitted' ||
         jobInfo!.testStatus === 'Basic failed' ||
@@ -178,18 +179,13 @@ export default function AppliedRole({
               color: '#DF9F23',
             },
           }}
-          // startIcon={
-          //   <img
-          //     src='/images/icons/onboarding-icons/general-in-progress.svg'
-          //     alt='in-progress'
-          //   />
-          // }
         >
           Basic test in progress
         </Button>
       )
     } else if (
       skillTest &&
+      jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Skill in progress' ||
         jobInfo!.testStatus === 'Skill submitted' ||
         jobInfo!.testStatus === 'Reviewing' ||
