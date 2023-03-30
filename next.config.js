@@ -29,6 +29,9 @@ module.exports = withTM({
           // 이름 난독화 비활성화
           keep_classnames: true,
           keep_fnames: true,
+          compress: {
+            drop_console: true,
+          },
         },
       }),
     ],
