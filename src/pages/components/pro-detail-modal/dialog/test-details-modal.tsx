@@ -308,6 +308,9 @@ export default function TestDetailsModal({
       flex: 0.15,
       field: 'status',
       minWidth: 120,
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test status',
       renderCell: ({ row }: CellType) => {
         return (
@@ -330,6 +333,9 @@ export default function TestDetailsModal({
       flex: 0.17,
       minWidth: 200,
       field: 'reviewer',
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test reviewer / TAD',
 
       renderCell: ({ row }: CellType) => {
@@ -384,7 +390,7 @@ export default function TestDetailsModal({
       minWidth: 100,
       field: 'date',
       headerName: 'Date&Time',
-
+      disableColumnMenu: true,
       renderCell: ({ row }: CellType) => (
         <Box
           sx={{
@@ -404,6 +410,9 @@ export default function TestDetailsModal({
       flex: 0.17,
       minWidth: 200,
       field: 'reviewer',
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test reviewer / TAD',
 
       renderCell: ({ row }: ReviewerCellType) => {
@@ -458,9 +467,15 @@ export default function TestDetailsModal({
       flex: 0.15,
       field: 'action',
       minWidth: 120,
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Action',
       renderCell: ({ row }: ReviewerCellType) => {
         if (row.status === 'Not requested') {
+          if (isAccepted) {
+            return <Box>-</Box>
+          }
           return (
             <Button
               variant='contained'
@@ -539,7 +554,7 @@ export default function TestDetailsModal({
       minWidth: 100,
       field: 'date',
       headerName: 'Date&Time',
-
+      disableColumnMenu: true,
       renderCell: ({ row }: ReviewerCellType) => (
         <Box
           sx={{

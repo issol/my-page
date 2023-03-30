@@ -365,6 +365,25 @@ export default function CertificationTest({
                         Skill Test
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 4 }}>
+                        {skillTest!.status === 'Review completed' ? (
+                          <>
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: '13px',
+                                color: '#666CFF',
+                              }}
+                            >
+                              Top {30}%
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='fullWidth'
+                              flexItem
+                            />
+                          </>
+                        ) : null}
                         {skillTest!.status === 'Skill submitted' ||
                         skillTest!.status === 'Reviewing' ||
                         skillTest!.status === 'Review completed' ||
