@@ -160,18 +160,26 @@ export default function CertificationTest({
                             sx={{
                               fontWeight: 500,
                               textDecoration: 'underline',
-                              cursor: 'pointer',
+                              cursor:
+                                selectedJobInfo.requestStatus === 'Paused'
+                                  ? 'unset'
+                                  : 'pointer',
                             }}
                             onClick={() => {
-                              if (basicTest.testResponseUrl) {
-                                window.open(basicTest.testResponseUrl, '_blank')
-                              } else {
-                                toast.error(
-                                  'Something went wrong. Please try again.',
-                                  {
-                                    position: 'bottom-left',
-                                  },
-                                )
+                              if (selectedJobInfo.requestStatus !== 'Paused') {
+                                if (basicTest.testResponseUrl) {
+                                  window.open(
+                                    basicTest.testResponseUrl,
+                                    '_blank',
+                                  )
+                                } else {
+                                  toast.error(
+                                    'Something went wrong. Please try again.',
+                                    {
+                                      position: 'bottom-left',
+                                    },
+                                  )
+                                }
                               }
                             }}
                           >
@@ -297,6 +305,9 @@ export default function CertificationTest({
                               <Button
                                 variant='outlined'
                                 color='error'
+                                disabled={
+                                  selectedJobInfo.requestStatus === 'Paused'
+                                }
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
@@ -310,6 +321,9 @@ export default function CertificationTest({
                               </Button>
                               <Button
                                 variant='contained'
+                                disabled={
+                                  selectedJobInfo.requestStatus === 'Paused'
+                                }
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
