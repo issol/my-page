@@ -69,7 +69,7 @@ export default function About({
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:label-variant' style={{ opacity: '0.7' }} />
-          <LabelTitle>Pronunciation:</LabelTitle>
+          <LabelTitle>Pronouns:</LabelTitle>
           <Label>{userInfo.pronounce || '-'}</Label>
         </Box>
         {type === 'pro' ? (
