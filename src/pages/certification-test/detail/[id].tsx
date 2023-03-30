@@ -787,7 +787,7 @@ const CertificationTestDetail = () => {
                         color='error'
                         size='small'
                       />
-                      {user?.username === currentVersion?.writer ? (
+                      {user?.userId === currentVersion?.userId ? (
                         <Typography
                           sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                           color='primary'
