@@ -417,16 +417,16 @@ function OnboardingDetail() {
         id: id,
         status: type,
       },
-      {
-        onSuccess: data => {
-          if (skillTestId && skillTestStatus) {
-            patchTestStatusMutation.mutate({
-              id: skillTestId,
-              status: skillTestStatus,
-            })
-          }
-        },
-      },
+      // {
+      //   onSuccess: data => {
+      //     if (skillTestId && skillTestStatus) {
+      //       patchTestStatusMutation.mutate({
+      //         id: skillTestId,
+      //         status: skillTestStatus,
+      //       })
+      //     }
+      //   },
+      // },
     )
   }
 
@@ -901,7 +901,7 @@ function OnboardingDetail() {
                           userInfo!.isOnboarded && userInfo!.isActive
                             ? `/images/icons/onboarding-icons/pro-active.png`
                             : !userInfo!.isOnboarded
-                            ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                            ? `/images/icons/onboarding-icons/pro-onboarding.svg`
                             : userInfo!.isOnboarded && !userInfo!.isActive
                             ? `/images/icons/onboarding-icons/pro-inactive.png`
                             : ''
