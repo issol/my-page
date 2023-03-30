@@ -277,29 +277,31 @@ export default function TestDetailsModal({
   //   }
   // }, [reviewerList1])
 
-  // useEffect(() => {
-  //   const accepted = reviewerList.find(
-  //     value => value.status === 'Request accepted',
-  //   )
-  //   const acceptedId = reviewerList.findIndex(
-  //     (value: any) => value.status === 'Request accepted',
-  //   )
-  //   if (accepted) {
-  //     setIsAccepted(true)
-  //     setAcceptedId(reviewerList[acceptedId].id)
-  //     const res = reviewerList.map(value => {
-  //       if (value.status === 'Request accepted') {
-  //         return { ...value }
-  //       } else {
-  //         return { ...value, status: '-' }
-  //       }
-  //     })
-  //     setReviewers(res)
-  //   } else {
-  //     setIsAccepted(false)
-  //     setReviewers(reviewerList)
-  //   }
-  // }, [reviewerList])
+  useEffect(() => {
+    if (reviewer.data) {
+      const accepted = reviewer.data.find(value => value.status === 'Accepted')
+      console.log(accepted)
+
+      const acceptedId = reviewer.data.findIndex(
+        (value: any) => value.status === 'Accepted',
+      )
+      if (accepted) {
+        setIsAccepted(true)
+        // setAcceptedId(reviewer.data[acceptedId].id)
+        // const res = reviewer.data.map(value => {
+        //   if (value.status === 'Request accepted') {
+        //     return { ...value }
+        //   } else {
+        //     return { ...value, status: '-' }
+        //   }
+        // })
+        // setReviewers(res)
+      } else {
+        setIsAccepted(false)
+        // setReviewers(reviewer)
+      }
+    }
+  }, [reviewer])
 
   const columns = [
     {

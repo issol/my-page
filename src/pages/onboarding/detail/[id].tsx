@@ -324,6 +324,8 @@ function OnboardingDetail() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+    setActionId(0)
+    setSelectedJobInfo(null)
 
     if (appliedRoleList) {
       if (event.target.checked) {
