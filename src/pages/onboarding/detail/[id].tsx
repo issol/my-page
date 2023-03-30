@@ -46,6 +46,7 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
+  setCertifiedRole,
 } from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
 import modal from '@src/@core/components/modal'
@@ -239,6 +240,15 @@ function OnboardingDetail() {
     },
   )
 
+  const addRoleMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
+      },
+    },
+  )
+
   const deleteCommentMutation = useMutation(
     (value: { commentId: number }) => deleteCommentOnPro(value.commentId),
     {
@@ -324,6 +334,8 @@ function OnboardingDetail() {
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideFailedTest(event.target.checked)
+    setActionId(0)
+    setSelectedJobInfo(null)
 
     if (appliedRoleList) {
       if (event.target.checked) {
@@ -415,16 +427,16 @@ function OnboardingDetail() {
         id: id,
         status: type,
       },
-      {
-        onSuccess: data => {
-          if (skillTestId && skillTestStatus) {
-            patchTestStatusMutation.mutate({
-              id: skillTestId,
-              status: skillTestStatus,
-            })
-          }
-        },
-      },
+      // {
+      //   onSuccess: data => {
+      //     if (skillTestId && skillTestStatus) {
+      //       patchTestStatusMutation.mutate({
+      //         id: skillTestId,
+      //         status: skillTestStatus,
+      //       })
+      //     }
+      //   },
+      // },
     )
   }
 
@@ -590,7 +602,7 @@ function OnboardingDetail() {
   }
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
-    const res = jobInfo.jobInfo.map(value => ({
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
       jobType: value.jobType,
@@ -615,7 +627,20 @@ function OnboardingDetail() {
   }
 
   const handelAssignRole = (jobInfo: AddRoleType) => {
-    console.log(jobInfo)
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      userEmail: userInfo!.email,
+      firstName: userInfo!.firstName,
+      middleName: userInfo!.middleName,
+      lastName: userInfo!.lastName,
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
+    addRoleMutation.mutate(res)
   }
 
   const onCloseModal = (type: string) => {
@@ -899,7 +924,7 @@ function OnboardingDetail() {
                           userInfo!.isOnboarded && userInfo!.isActive
                             ? `/images/icons/onboarding-icons/pro-active.png`
                             : !userInfo!.isOnboarded
-                            ? `/images/icons/onboarding-icons/pro-onboarding.png`
+                            ? `/images/icons/onboarding-icons/pro-onboarding.svg`
                             : userInfo!.isOnboarded && !userInfo!.isActive
                             ? `/images/icons/onboarding-icons/pro-inactive.png`
                             : ''

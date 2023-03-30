@@ -160,10 +160,11 @@ export default function AppliedRole({
       )
     } else if (
       basicTest &&
-      (basicTest!.status === 'Basic in progress' ||
-        basicTest!.status === 'Basic submitted' ||
-        basicTest!.status === 'Basic failed' ||
-        basicTest!.status === 'Basic passed')
+      jobInfo!.requestStatus === 'Test in progress' &&
+      (jobInfo!.testStatus === 'Basic in progress' ||
+        jobInfo!.testStatus === 'Basic submitted' ||
+        jobInfo!.testStatus === 'Basic failed' ||
+        jobInfo!.testStatus === 'Basic passed')
     ) {
       return (
         <Button
@@ -178,23 +179,18 @@ export default function AppliedRole({
               color: '#DF9F23',
             },
           }}
-          // startIcon={
-          //   <img
-          //     src='/images/icons/onboarding-icons/general-in-progress.svg'
-          //     alt='in-progress'
-          //   />
-          // }
         >
           Basic test in progress
         </Button>
       )
     } else if (
       skillTest &&
-      (skillTest!.status === 'Skill in progress' ||
-        skillTest!.status === 'Skill submitted' ||
-        skillTest!.status === 'Reviewing' ||
-        skillTest!.status === 'Review completed' ||
-        skillTest!.status === 'Review canceled')
+      jobInfo!.requestStatus === 'Test in progress' &&
+      (jobInfo!.testStatus === 'Skill in progress' ||
+        jobInfo!.testStatus === 'Skill submitted' ||
+        jobInfo!.testStatus === 'Reviewing' ||
+        jobInfo!.testStatus === 'Review completed' ||
+        jobInfo!.testStatus === 'Review canceled')
     ) {
       return (
         <Button
@@ -474,8 +470,14 @@ export default function AppliedRole({
                             value.requestStatus !== 'Awaiting assignment' &&
                             value.requestStatus !== 'Paused' &&
                             value.requestStatus !== 'Rejected' &&
-                            value.test.find(data => data.testType === 'basic')!
-                              .status !== 'Basic failed' &&
+                            !(
+                              value.test.find(
+                                data => data.testType === 'basic',
+                              )!.status === 'Basic failed' &&
+                              value.test.find(
+                                data => data.testType === 'skill',
+                              )!.status === 'Awaiting assignment'
+                            ) &&
                             value.test.find(data => data.testType === 'skill')!
                               .status !== 'Skill failed' ? (
                               <Button
@@ -515,7 +517,7 @@ export default function AppliedRole({
                                   onClick={event => {
                                     event.stopPropagation()
                                     onClickReason(
-                                      value.testStatus,
+                                      value.requestStatus,
                                       value.messageToUser!,
                                       value.reason!,
                                     )

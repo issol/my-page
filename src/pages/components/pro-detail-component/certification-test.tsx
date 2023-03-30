@@ -25,6 +25,7 @@ import {
   TestType,
 } from 'src/types/onboarding/details'
 import { useEffect, useState } from 'react'
+import toast from 'react-hot-toast'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -101,10 +102,7 @@ export default function CertificationTest({
     <Card
       sx={{
         padding: '20px',
-        background:
-          selectedJobInfo && selectedJobInfo.requestStatus === 'Paused'
-            ? 'rgba(76, 78, 100, 0.12);'
-            : '#ffffff',
+        background: paused ? 'rgba(76, 78, 100, 0.12);' : '#ffffff',
       }}
     >
       <CardHeader title='Certification Test' sx={{ padding: 0 }}></CardHeader>
@@ -159,11 +157,27 @@ export default function CertificationTest({
                             sx={{
                               fontWeight: 500,
                               textDecoration: 'underline',
-                              cursor: 'pointer',
+                              cursor: paused ? 'unset' : 'pointer',
                             }}
-                            // onClick={() => onClickTestDetails(selectedJobInfo)}
+                            onClick={() => {
+                              if (!paused) {
+                                if (basicTest.testResponseUrl) {
+                                  window.open(
+                                    basicTest.testResponseUrl,
+                                    '_blank',
+                                  )
+                                } else {
+                                  toast.error(
+                                    'Something went wrong. Please try again.',
+                                    {
+                                      position: 'bottom-left',
+                                    },
+                                  )
+                                }
+                              }
+                            }}
                           >
-                            See response
+                            See responses
                           </Typography>
                         </>
                       ) : null}
@@ -285,6 +299,7 @@ export default function CertificationTest({
                               <Button
                                 variant='outlined'
                                 color='error'
+                                disabled={paused}
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
@@ -298,6 +313,7 @@ export default function CertificationTest({
                               </Button>
                               <Button
                                 variant='contained'
+                                disabled={paused}
                                 onClick={() =>
                                   onClickBasicTestAction(
                                     selectedJobInfo.id,
@@ -349,22 +365,57 @@ export default function CertificationTest({
                         Skill Test
                       </Typography>
                       <Box sx={{ display: 'flex', gap: 4 }}>
+                        {skillTest!.status === 'Review completed' ? (
+                          <>
+                            <Typography
+                              variant='body2'
+                              sx={{
+                                fontWeight: 500,
+                                fontSize: '13px',
+                                color: '#666CFF',
+                              }}
+                            >
+                              Top {30}%
+                            </Typography>
+                            <Divider
+                              orientation='vertical'
+                              variant='fullWidth'
+                              flexItem
+                            />
+                          </>
+                        ) : null}
                         {skillTest!.status === 'Skill submitted' ||
                         skillTest!.status === 'Reviewing' ||
                         skillTest!.status === 'Review completed' ||
+                        skillTest!.status === 'Review canceled' ||
                         skillTest!.status === 'Skill failed' ? (
                           <>
-                            {' '}
                             <Typography
                               variant='body2'
                               sx={{
                                 fontWeight: 500,
                                 textDecoration: 'underline',
-                                cursor: 'pointer',
+                                cursor: paused ? 'unset' : 'pointer',
                               }}
-                              // onClick={() => onClickTestDetails(selectedJobInfo)}
+                              onClick={() => {
+                                if (!paused) {
+                                  if (skillTest.testResponseUrl) {
+                                    window.open(
+                                      skillTest.testResponseUrl,
+                                      '_blank',
+                                    )
+                                  } else {
+                                    toast.error(
+                                      'Something went wrong. Please try again.',
+                                      {
+                                        position: 'bottom-left',
+                                      },
+                                    )
+                                  }
+                                }
+                              }}
                             >
-                              See response
+                              See responses
                             </Typography>
                             <Divider
                               orientation='vertical'
@@ -385,11 +436,13 @@ export default function CertificationTest({
                             sx={{
                               fontWeight: 500,
                               textDecoration: 'underline',
-                              cursor: 'pointer',
+                              cursor: paused ? 'unset' : 'pointer',
                             }}
-                            onClick={() =>
-                              onClickTestDetails(skillTest, 'detail')
-                            }
+                            onClick={() => {
+                              if (!paused) {
+                                onClickTestDetails(skillTest, 'detail')
+                              }
+                            }}
                           >
                             Details
                           </Typography>
@@ -458,7 +511,7 @@ export default function CertificationTest({
                             {(basicTest!.status === 'Basic failed' ||
                               basicTest!.status === 'Basic passed' ||
                               basicTest!.status === 'NO_TEST') &&
-                            skillTest!.status !== 'Cancelled' &&
+                            skillTest!.status !== 'Canceled' &&
                             !(
                               skillTest!.status === 'Skill in progress' ||
                               skillTest!.status === 'Skill submitted' ||
@@ -508,6 +561,7 @@ export default function CertificationTest({
                                 onClick={() =>
                                   onClickTestDetails(skillTest, 'reviewer')
                                 }
+                                disabled={paused}
                               >
                                 Assign reviewer
                               </Button>
@@ -516,6 +570,7 @@ export default function CertificationTest({
                                 <Button
                                   variant='outlined'
                                   color='error'
+                                  disabled={paused}
                                   onClick={() =>
                                     onClickSkillTestAction(
                                       selectedJobInfo.id,
@@ -529,6 +584,7 @@ export default function CertificationTest({
                                 </Button>
                                 <Button
                                   variant='contained'
+                                  disabled={paused}
                                   onClick={() =>
                                     onClickCertify(selectedJobInfo)
                                   }
@@ -549,6 +605,7 @@ export default function CertificationTest({
                               <Box sx={{ display: 'flex', gap: 2 }}>
                                 <Button
                                   variant='outlined'
+                                  disabled={paused}
                                   onClick={() =>
                                     onClickSkillTestAction(
                                       selectedJobInfo.id,
@@ -562,6 +619,7 @@ export default function CertificationTest({
                                 </Button>
                                 <Button
                                   variant='contained'
+                                  disabled={paused}
                                   onClick={() =>
                                     onClickSkillTestAction(
                                       selectedJobInfo.id,
@@ -586,6 +644,7 @@ export default function CertificationTest({
                               ) ? (
                               <Button
                                 variant='contained'
+                                disabled={paused}
                                 onClick={() =>
                                   onClickSkillTestAction(
                                     selectedJobInfo.id,

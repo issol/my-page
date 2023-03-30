@@ -125,7 +125,7 @@ export default function RequestReviewerModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              requestReview(reviewer, reviewer?.status!)
+              requestReview(reviewer, 'Requested')
               onClose()
               // approveSignUpRequest(user)
             }}

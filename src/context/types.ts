@@ -55,6 +55,7 @@ export type UserDataType = {
   specialties?: Array<string>
   jobTitle?: string
   fax?: string
+  userId: number
 }
 
 export type LoginSuccessResponse = {

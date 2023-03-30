@@ -60,6 +60,7 @@ import {
   assignReviewer,
   getHistory,
   getReviewer,
+  requestReviewer,
 } from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
 
@@ -134,7 +135,7 @@ export default function TestDetailsModal({
   // const { data: reviewerList1 } = useGetReviewerList()
   // const { data: history1 } = useGetHistory(skillTest.testId)
   const history = useQuery<{
-    history: Array<any>
+    history: Array<TestHistoryType>
     jobType: string
     role: string
     source: string
@@ -187,16 +188,24 @@ export default function TestDetailsModal({
   } | null>(null)
 
   const assignReviewerMutation = useMutation(
-    (value: { id: number; status: string }) =>
-      assignReviewer(value.id, value.status),
+    (value: { reviewerId: number; testId: number; status: string }) =>
+      assignReviewer(value.reviewerId, value.testId, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries('reviewers')
+        queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
       },
     },
   )
 
-  console.log(reviewer)
+  const requestReviewerMutation = useMutation(
+    (value: { reviewerId: number; testId: number }) =>
+      requestReviewer(value.testId, value.reviewerId),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
+      },
+    },
+  )
 
   const onChangeTestStatus = (
     event: SyntheticEvent,
@@ -220,18 +229,18 @@ export default function TestDetailsModal({
     reviewer: AssignReviewerType | null,
     status: string,
   ) => {
-    console.log(reviewer)
-    assignReviewerMutation.mutate({
-      id: reviewer?.userId!,
-      status: status,
+    console.log(reviewer?.userId, skillTest.testId, status)
+    requestReviewerMutation.mutate({
+      reviewerId: reviewer?.userId!,
+      testId: skillTest.testId,
     })
   }
 
   const reassignReviewer = () => {
-    assignReviewerMutation.mutate({
-      id: acceptedId,
-      status: 'Re assign',
-    })
+    // assignReviewerMutation.mutate({
+    //   id: acceptedId,
+    //   status: 'Re assign',
+    // })
   }
 
   const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
@@ -268,46 +277,51 @@ export default function TestDetailsModal({
   //   }
   // }, [reviewerList1])
 
-  // useEffect(() => {
-  //   const accepted = reviewerList.find(
-  //     value => value.status === 'Request accepted',
-  //   )
-  //   const acceptedId = reviewerList.findIndex(
-  //     (value: any) => value.status === 'Request accepted',
-  //   )
-  //   if (accepted) {
-  //     setIsAccepted(true)
-  //     setAcceptedId(reviewerList[acceptedId].id)
-  //     const res = reviewerList.map(value => {
-  //       if (value.status === 'Request accepted') {
-  //         return { ...value }
-  //       } else {
-  //         return { ...value, status: '-' }
-  //       }
-  //     })
-  //     setReviewers(res)
-  //   } else {
-  //     setIsAccepted(false)
-  //     setReviewers(reviewerList)
-  //   }
-  // }, [reviewerList])
+  useEffect(() => {
+    if (reviewer.data) {
+      const accepted = reviewer.data.find(value => value.status === 'Accepted')
+      console.log(accepted)
+
+      const acceptedId = reviewer.data.findIndex(
+        (value: any) => value.status === 'Accepted',
+      )
+      if (accepted) {
+        setIsAccepted(true)
+        // setAcceptedId(reviewer.data[acceptedId].id)
+        // const res = reviewer.data.map(value => {
+        //   if (value.status === 'Request accepted') {
+        //     return { ...value }
+        //   } else {
+        //     return { ...value, status: '-' }
+        //   }
+        // })
+        // setReviewers(res)
+      } else {
+        setIsAccepted(false)
+        // setReviewers(reviewer)
+      }
+    }
+  }, [reviewer])
 
   const columns = [
     {
       flex: 0.15,
       field: 'status',
       minWidth: 120,
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test status',
       renderCell: ({ row }: CellType) => {
         return (
           <Chip
             size='medium'
             type='testStatus'
-            label={row.status}
+            label={row.testStatus}
             /* @ts-ignore */
-            customcolor={TestStatusColor[row.status]}
+            customcolor={TestStatusColor[row.testStatus]}
             sx={{
-              textTransform: 'capitalize',
+              // textTransform: 'capitalize',
               '& .MuiChip-label': { lineHeight: '18px' },
               mr: 1,
             }}
@@ -319,6 +333,9 @@ export default function TestDetailsModal({
       flex: 0.17,
       minWidth: 200,
       field: 'reviewer',
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test reviewer / TAD',
 
       renderCell: ({ row }: CellType) => {
@@ -350,7 +367,7 @@ export default function TestDetailsModal({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {getLegalName(row.reviewer)}
+                {getLegalName(row.operator)}
               </Typography>
 
               <Typography
@@ -361,7 +378,7 @@ export default function TestDetailsModal({
                   textOverflow: 'ellipsis',
                 }}
               >
-                {row.reviewer.email}
+                {row.operator.email}
               </Typography>
             </Box>
           </Box>
@@ -373,7 +390,7 @@ export default function TestDetailsModal({
       minWidth: 100,
       field: 'date',
       headerName: 'Date&Time',
-
+      disableColumnMenu: true,
       renderCell: ({ row }: CellType) => (
         <Box
           sx={{
@@ -382,7 +399,7 @@ export default function TestDetailsModal({
             alignItems: 'center',
           }}
         >
-          {FullDateTimezoneHelper(row.date, user.timezone)}
+          {FullDateTimezoneHelper(row.createdAt, user.timezone)}
         </Box>
       ),
     },
@@ -393,6 +410,9 @@ export default function TestDetailsModal({
       flex: 0.17,
       minWidth: 200,
       field: 'reviewer',
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Test reviewer / TAD',
 
       renderCell: ({ row }: ReviewerCellType) => {
@@ -447,9 +467,15 @@ export default function TestDetailsModal({
       flex: 0.15,
       field: 'action',
       minWidth: 120,
+      disableColumnMenu: true,
+      hideSortIcons: true,
+      sortable: false,
       headerName: 'Action',
       renderCell: ({ row }: ReviewerCellType) => {
         if (row.status === 'Not requested') {
+          if (isAccepted) {
+            return <Box>-</Box>
+          }
           return (
             <Button
               variant='contained'
@@ -459,7 +485,7 @@ export default function TestDetailsModal({
               Request review
             </Button>
           )
-        } else if (row.status === 'Requested') {
+        } else if (row.status === 'NO_REPLY') {
           return (
             <Button
               fullWidth
@@ -480,10 +506,7 @@ export default function TestDetailsModal({
               Requested
             </Button>
           )
-        } else if (
-          row.status === 'Request rejected' ||
-          row.status === 'Canceled'
-        ) {
+        } else if (row.status === 'Rejected' || row.status === 'Canceled') {
           return (
             <Button
               fullWidth
@@ -502,7 +525,7 @@ export default function TestDetailsModal({
               {row.status}
             </Button>
           )
-        } else if (row.status === 'Request accepted') {
+        } else if (row.status === 'Accepted') {
           return (
             <Button
               fullWidth
@@ -531,7 +554,7 @@ export default function TestDetailsModal({
       minWidth: 100,
       field: 'date',
       headerName: 'Date&Time',
-
+      disableColumnMenu: true,
       renderCell: ({ row }: ReviewerCellType) => (
         <Box
           sx={{

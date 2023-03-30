@@ -1,5 +1,9 @@
 // ** Next Import
-import { GetStaticPaths, GetStaticProps, GetStaticPropsContext } from 'next/types'
+import {
+  GetStaticPaths,
+  GetStaticProps,
+  GetStaticPropsContext,
+} from 'next/types'
 
 // ** Third Party Imports
 import axios from 'axios'
@@ -19,20 +23,22 @@ export const getStaticPaths: GetStaticPaths = async () => {
   const data: MailType[] = await res.data.emails
 
   const paths = data.map((mail: MailType) => ({
-    params: { folder: mail.folder }
+    params: { folder: mail.folder },
   }))
 
   return {
     paths,
-    fallback: false
+    fallback: false,
   }
 }
 
-export const getStaticProps: GetStaticProps = ({ params }: GetStaticPropsContext) => {
+export const getStaticProps: GetStaticProps = ({
+  params,
+}: GetStaticPropsContext) => {
   return {
     props: {
-      folder: params?.folder
-    }
+      folder: params?.folder,
+    },
   }
 }
 

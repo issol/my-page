@@ -72,8 +72,7 @@ export default function ReasonModal({
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                {/* {type}&nbsp; reason */}
-                Rejected reason
+                {type}&nbsp; reason
               </Typography>
               <Typography variant='body1'>{reason}</Typography>
             </Box>

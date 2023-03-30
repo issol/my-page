@@ -1,8 +1,9 @@
 import axios from 'src/configs/axios'
-import axiosDefault from 'axios'
+
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import {
   AddRolePayloadType,
+  AddRoleType,
   OnboardingFilterType,
 } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -100,6 +101,10 @@ export const getCertifiedRole = async (id: number) => {
   return data.data
 }
 
+export const setCertifiedRole = async (payload: AddRolePayloadType[]) => {
+  await axios.post(`/api/enough/cert/certificate`, { data: payload })
+}
+
 export const getReviewer = async (testId: number) => {
   const data = await axios.get(
     `/api/enough/cert/request/review/candidate/list?testId=${testId}`,
@@ -113,10 +118,27 @@ export const getHistory = async (testId: number) => {
   return data.data
 }
 
-export const assignReviewer = async (id: number, status: string) => {
+export const assignReviewer = async (
+  reviewerId: number,
+  testId: number,
+  status: string,
+) => {
   try {
-    const data = await axiosDefault.post('/api/pro/details/reviewer/action', {
-      data: { id: id, status: status },
+    const data = await axios.patch('/api/enough/cert/request/review/reply', {
+      reviewerId: reviewerId,
+      testId: testId,
+      reply: status,
+    })
+
+    return data
+  } catch (e) {}
+}
+
+export const requestReviewer = async (testId: number, reviewerId: number) => {
+  try {
+    const data = await axios.post('/api/enough/cert/request/review', {
+      reviewerId: reviewerId,
+      testId: testId,
     })
 
     return data

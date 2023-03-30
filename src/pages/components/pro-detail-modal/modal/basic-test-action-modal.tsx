@@ -136,7 +136,7 @@ export default function BasicTestActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              if (type === 'Skipped') {
+              if (type === 'Skipped' || type === 'Basic passed') {
                 handleActionBasicTest(
                   basicTest.testId,
                   type,
