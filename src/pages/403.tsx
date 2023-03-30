@@ -70,7 +70,6 @@ const Error403 = () => {
           variant='contained'
           sx={{ px: 5.5 }}
           onClick={() => {
-            removeUserTokenFromBrowser()
             window.location.href = '/'
           }}
         >
