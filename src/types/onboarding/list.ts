@@ -124,6 +124,10 @@ export interface AddRolePayloadType {
   role: string
   source: string
   target: string
+  firstName?: string
+  middleName?: string
+  lastName?: string
+  userEmail?: string
 }
 
 export type FilterType = {

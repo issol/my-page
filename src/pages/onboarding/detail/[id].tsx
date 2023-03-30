@@ -46,6 +46,7 @@ import {
   editCommentOnPro,
   patchAppliedRole,
   patchTestStatus,
+  setCertifiedRole,
 } from 'src/apis/onboarding.api'
 import { AuthContext } from 'src/context/AuthContext'
 import modal from '@src/@core/components/modal'
@@ -235,6 +236,15 @@ function OnboardingDetail() {
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`applied-role-${variables[0].userId}`)
+      },
+    },
+  )
+
+  const addRoleMutation = useMutation(
+    (jobInfo: AddRolePayloadType[]) => setCertifiedRole(jobInfo),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`certified-role-${userInfo?.userId}`)
       },
     },
   )
@@ -592,7 +602,7 @@ function OnboardingDetail() {
   }
 
   const handleAssignTest = (jobInfo: AddRoleType) => {
-    const res = jobInfo.jobInfo.map(value => ({
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
       userId: userInfo!.userId,
       userCompany: 'GloZ',
       jobType: value.jobType,
@@ -617,7 +627,20 @@ function OnboardingDetail() {
   }
 
   const handelAssignRole = (jobInfo: AddRoleType) => {
-    console.log(jobInfo)
+    const res: AddRolePayloadType[] = jobInfo.jobInfo.map(value => ({
+      userId: userInfo!.userId,
+      userCompany: 'GloZ',
+      userEmail: userInfo!.email,
+      firstName: userInfo!.firstName,
+      middleName: userInfo!.middleName,
+      lastName: userInfo!.lastName,
+      jobType: value.jobType,
+      role: value.role,
+      source: value.source,
+      target: value.target,
+    }))
+
+    addRoleMutation.mutate(res)
   }
 
   const onCloseModal = (type: string) => {

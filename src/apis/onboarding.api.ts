@@ -1,8 +1,9 @@
 import axios from 'src/configs/axios'
-import axiosDefault from 'axios'
+
 import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import {
   AddRolePayloadType,
+  AddRoleType,
   OnboardingFilterType,
 } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -98,6 +99,10 @@ export const getCertifiedRole = async (id: number) => {
   const data = await axios.get(`/api/enough/cert/certificate?userId=${id}`)
 
   return data.data
+}
+
+export const setCertifiedRole = async (payload: AddRolePayloadType[]) => {
+  await axios.post(`/api/enough/cert/certificate`, { data: payload })
 }
 
 export const getReviewer = async (testId: number) => {
