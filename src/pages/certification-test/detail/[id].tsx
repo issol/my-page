@@ -503,7 +503,7 @@ const CertificationTestDetail = () => {
                           color='error'
                           size='small'
                         />
-                        {user?.username === currentRow.writer ? (
+                        {user?.userId === currentRow.userId ? (
                           <Typography
                             sx={{ fontSize: '0.875rem', fontWeight: 500 }}
                             color='primary'
