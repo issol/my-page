@@ -51,6 +51,7 @@ export const TestStatusColor = {
   'Skill submitted': '#1A6BBA',
   Reviewing: '#21AEDB',
   'Review completed': '#2B6603',
+  'Review canceled': '#FF4D49',
   'Skill failed': '#FF4D49',
   Paused: '#6D788D',
   Rejected: '#FF4D49',
