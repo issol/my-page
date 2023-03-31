@@ -667,7 +667,10 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'DTP'}
+                                  disabled={
+                                    item.role === 'DTPer' ||
+                                    item.role === 'DTP QCer'
+                                  }
                                   value={
                                     languageList.filter(
                                       l => l.value === item.source,
@@ -728,7 +731,10 @@ export default function AppliedRoleModal({
                                   fullWidth
                                   {...field}
                                   disableClearable
-                                  disabled={item.jobType === 'DTP'}
+                                  disabled={
+                                    item.role === 'DTPer' ||
+                                    item.role === 'DTP QCer'
+                                  }
                                   value={
                                     languageList.filter(
                                       l => l.value === item.target,
