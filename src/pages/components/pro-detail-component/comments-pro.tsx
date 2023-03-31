@@ -124,7 +124,14 @@ export default function CommentsAboutPro({
 
       <CardContent sx={{ padding: 0 }}>
         {clickedAddComment ? (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '14px',
+              marginTop: '14px',
+            }}
+          >
             <Box
               sx={{
                 display: 'flex',
@@ -186,6 +193,7 @@ export default function CommentsAboutPro({
                 fullWidth
                 rows={4}
                 value={addComment}
+                placeholder='What is your comment on this Pro?'
                 onChange={handleAddCommentChange}
                 multiline
                 id='textarea-outlined-static'
