@@ -1,10 +1,9 @@
 import Card from '@mui/material/Card'
-import Divider from '@mui/material/Divider'
-import CardHeader from '@mui/material/CardHeader'
+
 import CardContent from '@mui/material/CardContent'
-import { OnboardingJobInfoType } from 'src/types/onboarding/list'
+
 import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+
 import Typography from '@mui/material/Typography'
 import Switch from '@mui/material/Switch'
 import Box from '@mui/material/Box'
@@ -15,7 +14,7 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomPagination from 'src/pages/components/custom-pagination'
 
 import FormControlLabel from '@mui/material/FormControlLabel'
-import { AppliedRoleType, TestType } from 'src/types/onboarding/details'
+import { AppliedRoleType } from 'src/types/onboarding/details'
 
 type Props = {
   userInfo: Array<AppliedRoleType>
@@ -58,10 +57,6 @@ export default function AppliedRole({
   type,
   totalCount,
 }: Props) {
-  console.log(totalCount)
-
-  console.log(userInfo)
-
   const getStatusButton = (jobInfo: AppliedRoleType) => {
     const basicTest = jobInfo.test.find(value => value.testType === 'basic')
     const skillTest = jobInfo.test.find(value => value.testType === 'skill')
@@ -151,9 +146,6 @@ export default function AppliedRole({
               color: '#E04440',
             },
           }}
-          // startIcon={
-          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
-          // }
         >
           Failed
         </Button>
@@ -300,9 +292,6 @@ export default function AppliedRole({
               color: '#E04440',
             },
           }}
-          // startIcon={
-          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
-          // }
         >
           Rejected
         </Button>
@@ -321,11 +310,30 @@ export default function AppliedRole({
               color: '#E04440',
             },
           }}
-          // startIcon={
-          //   <img src='/images/icons/onboarding-icons/failed.svg' alt='failed' />
-          // }
         >
           Paused
+        </Button>
+      )
+    } else if (jobInfo.requestStatus === 'Certified') {
+      return (
+        <Button
+          sx={{
+            display: 'flex',
+            gap: '8px',
+            cursor: 'unset',
+            width: '100%',
+            justifyContent: 'flex-start',
+            paddingLeft: 0,
+          }}
+          disabled
+        >
+          <img
+            src='/images/icons/onboarding-icons/certified-role.svg'
+            alt='certified'
+          />
+          <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+            Certified
+          </Typography>
         </Button>
       )
     } else {
