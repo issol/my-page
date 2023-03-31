@@ -23,6 +23,8 @@ import TextField from '@mui/material/TextField'
 import { log } from 'console'
 import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
+import pro_comment from '@src/shared/const/permission-class/pro-comment'
+import { AnyAbility } from '@casl/ability'
 type Props = {
   userInfo: DetailUserType
   user: UserDataType
@@ -46,6 +48,7 @@ type Props = {
   handleAddCommentChange: (event: ChangeEvent<HTMLInputElement>) => void
   addComment: string
   onClickDeleteComment: (comment: CommentsOnProType) => void
+  ability: AnyAbility
 }
 
 export default function CommentsAboutPro({
@@ -71,6 +74,7 @@ export default function CommentsAboutPro({
   handleAddCommentChange,
   addComment,
   onClickDeleteComment,
+  ability,
 }: Props) {
   function getLegalName(row: {
     firstName: string
@@ -130,6 +134,7 @@ export default function CommentsAboutPro({
               flexDirection: 'column',
               gap: '14px',
               marginTop: '14px',
+              marginBottom: '14px',
             }}
           >
             <Box
@@ -220,14 +225,11 @@ export default function CommentsAboutPro({
                   Confirm
                 </Button>
               </Box>
-              {
-                (userInfo.commentsOnPro && userInfo.commentsOnPro,
-                length ? (
-                  <Divider
-                    sx={{ my: theme => `${theme.spacing(4)} !important` }}
-                  />
-                ) : null)
-              }
+              {userInfo.commentsOnPro && userInfo.commentsOnPro.length ? (
+                <Divider
+                  sx={{ my: theme => `${theme.spacing(4)} !important` }}
+                />
+              ) : null}
             </Box>
           </Box>
         ) : null}
@@ -304,22 +306,28 @@ export default function CommentsAboutPro({
                           <></>
                         ) : (
                           <>
-                            {value.userId === user.id ? (
-                              <>
-                                <IconButton
-                                  sx={{ padding: 1 }}
-                                  onClick={() => onClickEditComment(value)}
-                                >
-                                  <Icon icon='mdi:pencil-outline' />
-                                </IconButton>
-                              </>
+                            {ability.can(
+                              'update',
+                              new pro_comment(value.userId),
+                            ) && value.userId === user.userId ? (
+                              <IconButton
+                                sx={{ padding: 1 }}
+                                onClick={() => onClickEditComment(value)}
+                              >
+                                <Icon icon='mdi:pencil-outline' />
+                              </IconButton>
                             ) : null}
-                            <IconButton
-                              sx={{ padding: 1 }}
-                              onClick={() => onClickDeleteComment(value)}
-                            >
-                              <Icon icon='mdi:delete-outline' />
-                            </IconButton>
+                            {ability.can(
+                              'delete',
+                              new pro_comment(value.userId),
+                            ) ? (
+                              <IconButton
+                                sx={{ padding: 1 }}
+                                onClick={() => onClickDeleteComment(value)}
+                              >
+                                <Icon icon='mdi:delete-outline' />
+                              </IconButton>
+                            ) : null}
                           </>
                         )}
                       </Box>

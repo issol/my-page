@@ -80,6 +80,8 @@ import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 import logger from '@src/@core/utils/logger'
 
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
 }
@@ -102,10 +104,9 @@ function OnboardingDetail() {
 
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
   const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
-  // const { data: reviewerList } = useGetReviewerList()
-  // const { data: history } = useGetHistory()
 
   const { user } = useContext(AuthContext)
+  const ability = useContext(AbilityContext)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
 
@@ -300,8 +301,6 @@ function OnboardingDetail() {
     },
   )
   const handleChangeRolePage = (direction: string) => {
-    // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-
     const changedPage =
       direction === 'prev'
         ? Math.max(rolePage - 1, 0)
@@ -314,8 +313,6 @@ function OnboardingDetail() {
   }
 
   const handleChangeCommentsProPage = (direction: string) => {
-    // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
-
     const changedPage =
       direction === 'prev'
         ? Math.max(commentsProPage - 1, 0)
@@ -373,8 +370,6 @@ function OnboardingDetail() {
   }
 
   const handleTestAssign = (id: number, status?: string) => {
-    console.log(id)
-
     status === 'none'
       ? appliedRoleActionMutation.mutate({
           id: id,
@@ -422,22 +417,10 @@ function OnboardingDetail() {
     skillTestId?: number,
     skillTestStatus?: string,
   ) => {
-    patchTestStatusMutation.mutate(
-      {
-        id: id,
-        status: type,
-      },
-      // {
-      //   onSuccess: data => {
-      //     if (skillTestId && skillTestStatus) {
-      //       patchTestStatusMutation.mutate({
-      //         id: skillTestId,
-      //         status: skillTestStatus,
-      //       })
-      //     }
-      //   },
-      // },
-    )
+    patchTestStatusMutation.mutate({
+      id: id,
+      status: type,
+    })
   }
 
   const handleActionSkillTest = (id: number, status: string) => {
@@ -591,8 +574,6 @@ function OnboardingDetail() {
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
-    console.log(data)
-
     setAssignTestJobInfo(data)
     setAssignTestModalOpen(true)
   }
@@ -1052,6 +1033,7 @@ function OnboardingDetail() {
                   handleAddCommentChange={handleAddCommentChange}
                   onClickDeleteComment={onClickDeleteComment}
                   addComment={addComment}
+                  ability={ability}
                 />
               </Grid>
               <Grid item xs={12} display='flex' gap='24px'>

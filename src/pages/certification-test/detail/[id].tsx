@@ -101,9 +101,6 @@ const CertificationTestDetail = () => {
   }
   const permission = new certification_test(data?.currentVersion.userId!)
 
-  console.log(ability.can('update', permission))
-  console.log(ability.can('delete', permission))
-
   const versionHistory = data?.versionHistory || []
 
   const deleteMutation = useMutation((id: number) => deleteTest(id), {
