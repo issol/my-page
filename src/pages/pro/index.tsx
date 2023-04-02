@@ -29,7 +29,6 @@ import {
   ProStatusChip,
   RoleChip,
 } from '@src/@core/components/chips/chips'
-import { rows } from '@src/@fake-db/table/static-data'
 import ListResume from './list/list-resume'
 
 import { ModalContext } from '@src/context/ModalContext'

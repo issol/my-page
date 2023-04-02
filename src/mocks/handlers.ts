@@ -5,7 +5,6 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
 
 import { Book, Review } from './types'
-import { role } from 'src/@fake-db/user'
 
 const languageList = getGloLanguage()
 
