@@ -10,7 +10,6 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
-import AnalyticsTotalRevenue from 'src/views/dashboards/analytics/AnalyticsTotalRevenue'
 
 const palette = DefaultPalette('light', 'default')
 const series = [
@@ -146,10 +145,6 @@ export const Default = (args: typeof ReactApexcharts) => {
       </CardSnippet>
     </Grid>
   )
-}
-
-export const Example = () => {
-  return <AnalyticsTotalRevenue />
 }
 
 const source = (

@@ -1,7 +1,6 @@
 import React from 'react'
 import { ComponentMeta, ComponentStory } from '@storybook/react'
 
-import AnalyticsTotalTransactions from 'src/views/dashboards/analytics/AnalyticsTotalTransactions'
 import { Alert, Grid } from '@mui/material'
 import CardSnippet from 'src/@core/components/card-snippet'
 
@@ -11,7 +10,6 @@ import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 import DefaultPalette from 'src/@core/theme/palette'
-import AnalyticsOverview from 'src/views/dashboards/analytics/AnalyticsOverview'
 
 const palette = DefaultPalette('light', 'default')
 
@@ -127,10 +125,6 @@ export const Default = (args: typeof ReactApexcharts) => {
       </CardSnippet>
     </Grid>
   )
-}
-
-export const Example = () => {
-  return <AnalyticsOverview />
 }
 
 const source = (

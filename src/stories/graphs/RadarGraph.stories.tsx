@@ -3,8 +3,6 @@ import { ComponentMeta, ComponentStory } from '@storybook/react'
 
 import { Alert, Grid } from '@mui/material'
 import CardSnippet from 'src/@core/components/card-snippet'
-import AnalyticsPerformance from 'src/views/dashboards/analytics/AnalyticsPerformance'
-
 // ** Custom Components Imports
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 
@@ -150,10 +148,6 @@ export const Default = (args: typeof ReactApexcharts) => {
       </CardSnippet>
     </Grid>
   )
-}
-
-export const Example = () => {
-  return <AnalyticsPerformance />
 }
 
 const source = (
