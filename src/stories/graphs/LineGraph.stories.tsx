@@ -7,7 +7,6 @@ import CardSnippet from 'src/@core/components/card-snippet'
 
 import ReactApexcharts from 'src/@core/components/react-apexcharts'
 import { ApexOptions } from 'apexcharts'
-import AnalyticsSessions from 'src/views/dashboards/analytics/AnalyticsSessions'
 
 const series = [{ data: [50, 20, 5, 30, 15, 45] }]
 const options: ApexOptions = {
@@ -136,10 +135,6 @@ export const Default = (args: typeof ReactApexcharts) => {
       </CardSnippet>
     </Grid>
   )
-}
-
-export const Example = () => {
-  return <AnalyticsSessions />
 }
 
 const source = (

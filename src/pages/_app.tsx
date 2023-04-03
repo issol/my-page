@@ -139,10 +139,10 @@ Sentry.init({
 })
 
 const clientSideEmotionCache = createEmotionCache()
-const PushAlarm = dynamic<any>(
-  () => import('../views/components/push-alarm').then(m => m),
-  { ssr: false },
-)
+// const PushAlarm = dynamic<any>(
+//   () => import('../views/components/push-alarm').then(m => m),
+//   { ssr: false },
+// )
 
 // ** Pace Loader
 if (themeConfig.routingLoader) {
