@@ -41,29 +41,31 @@ export const getProProjectList = async (
   totalCount: number
 }> => {
   try {
-    // const { data } = await axios.get(`/api${id}?${makeQuery({ ...filters, company: 'GloZ' })}`)
-    // return data
-    return {
-      data: [
-        {
-          id: 1,
-          title: 'Red Wood',
-          role: 'Copywriter',
-          client: 'Sandbox',
-          sourceLanguage: 'en',
-          targetLanguage: 'ko',
-          dueDate: Date(),
-          status: 'Invoice created',
-          timezone: 'KST',
-          projectName: 'Red wood..',
-          orderDate: Date(),
-          description: '알라깔라 똑깔라비',
-          category: 'Dubbing',
-          projectId: 'AAA-XXX',
-        },
-      ],
-      totalCount: 3,
-    }
+    const { data } = await axios.get(
+      `/enough/pro/${id}/project?${makeQuery({ ...filters, company: 'GloZ' })}`,
+    )
+    return data
+    // return {
+    //   data: [
+    //     {
+    //       id: 1,
+    //       title: 'Red Wood',
+    //       role: 'Copywriter',
+    //       client: 'Sandbox',
+    //       sourceLanguage: 'en',
+    //       targetLanguage: 'ko',
+    //       dueDate: Date(),
+    //       status: 'Invoice created',
+    //       timezone: 'KST',
+    //       projectName: 'Red wood..',
+    //       orderDate: Date(),
+    //       description: '알라깔라 똑깔라비',
+    //       category: 'Dubbing',
+    //       projectId: 'AAA-XXX',
+    //     },
+    //   ],
+    //   totalCount: 3,
+    // }
   } catch (e: any) {
     return {
       data: [],
@@ -90,13 +92,10 @@ export const getProjectCalendarData = async (
   const color_overdue = 'overdue'
 
   try {
-    // const { data } = await axios.get(`/api${id}&year=${year}&month=${month}`)
+    const { data } = await axios.get(`/enough/pro/${id}/project?date=${date}`)
     // return data
-
-    const [year, month] = date.split('-')
-    const result = generateRandomCalendarData(Number(year), Number(month), 10)
     return {
-      data: result.map((item: ProProjectType, idx: number) => {
+      data: data?.map((item: ProProjectType, idx: number) => {
         return {
           ...item,
           extendedProps: {
@@ -108,8 +107,26 @@ export const getProjectCalendarData = async (
           allDay: true,
         }
       }),
-      totalCount: result.length,
+      totalCount: data?.totalCount ?? 0,
     }
+
+    const [year, month] = date.split('-')
+    const result = generateRandomCalendarData(Number(year), Number(month), 10)
+    // return {
+    //   data: result.map((item: ProProjectType, idx: number) => {
+    //     return {
+    //       ...item,
+    //       extendedProps: {
+    //         calendar:
+    //           item.status === 'Overdue'
+    //             ? color_overdue
+    //             : colors[idx % colors.length],
+    //       },
+    //       allDay: true,
+    //     }
+    //   }),
+    //   totalCount: result.length,
+    // }
   } catch (e: any) {
     throw new Error(e)
   }
