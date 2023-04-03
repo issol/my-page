@@ -151,8 +151,8 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
         isLoading={false}
         list={
           event?.length
-            ? { data: event, count: event?.length }
-            : { data: [], count: 0 }
+            ? { data: event, totalCount: event?.length }
+            : { data: [], totalCount: 0 }
         }
       />
     </Box>

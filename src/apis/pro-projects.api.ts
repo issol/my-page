@@ -38,7 +38,7 @@ export const getProProjectList = async (
   filters: FilterType,
 ): Promise<{
   data: Array<ProProjectType> | []
-  count: number
+  totalCount: number
 }> => {
   try {
     // const { data } = await axios.get(`/api${id}?${makeQuery({ ...filters, company: 'GloZ' })}`)
@@ -62,19 +62,19 @@ export const getProProjectList = async (
           projectId: 'AAA-XXX',
         },
       ],
-      count: 3,
+      totalCount: 3,
     }
   } catch (e: any) {
     return {
       data: [],
-      count: 0,
+      totalCount: 0,
     }
   }
 }
 
 export type ProjectCalendarData = {
   data: Array<CalendarEventType>
-  count: number
+  totalCount: number
 }
 
 export type CalendarEventType = ProProjectType & {
@@ -108,7 +108,7 @@ export const getProjectCalendarData = async (
           allDay: true,
         }
       }),
-      count: result.length,
+      totalCount: result.length,
     }
   } catch (e: any) {
     throw new Error(e)
@@ -121,14 +121,14 @@ export const getProProjectListMyPeriod = async (
   year: number,
 ): Promise<{
   data: Array<ProProjectType> | []
-  count: number
+  totalCount: number
 }> => {
   try {
     // const { data } = await axios.get(`/api${id}`)
     // return data
     return {
       data: [],
-      count: 0,
+      totalCount: 0,
     }
   } catch (e: any) {
     throw new Error(e)

@@ -142,7 +142,7 @@ export default function ProjectsDetail({ id }: Props) {
               pageSize={pageSize}
               setPageSize={setPageSize}
               isLoading={false}
-              list={list || { data: [], count: 0 }}
+              list={list || { data: [], totalCount: 0 }}
             />
           </Grid>
         ) : (

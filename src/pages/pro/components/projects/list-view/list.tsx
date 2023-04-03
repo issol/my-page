@@ -48,7 +48,7 @@ type Props = {
   setSort: (val: SortingType) => void
   list: {
     data: Array<ProProjectType> | []
-    count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -152,7 +152,7 @@ export default function ProjectsList({
             title={
               <Box display='flex' justifyContent='space-between'>
                 <Typography variant='h6'>
-                  Work list ({list?.count | 0})
+                  Work list ({list?.totalCount | 0})
                 </Typography>
               </Box>
             }
@@ -231,7 +231,7 @@ export default function ProjectsList({
           <TablePagination
             page={skip}
             component='div'
-            count={list.count}
+            count={list.totalCount}
             rowsPerPage={pageSize}
             onPageChange={(e, page) => setSkip(page)}
             rowsPerPageOptions={[10, 25, 50]}
