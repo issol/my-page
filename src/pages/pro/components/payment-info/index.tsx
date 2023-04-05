@@ -87,7 +87,7 @@ export default function PaymentInfo({ id }: Props) {
   return (
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='6px'>
-        <Grid item xs={4}>
+        <Grid item xs={12} md={4} lg={4}>
           <PersonalInfo
             onCopy={onCopy}
             info={data?.userInfo!}
@@ -96,7 +96,7 @@ export default function PaymentInfo({ id }: Props) {
             downloadFile={downloadFile}
           />
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={12} md={8} lg={8}>
           <BillingMethod
             info={data!}
             isAccountManager={isAccountManager}
