@@ -6,7 +6,6 @@ import {
   Button,
   Card,
   Checkbox,
-  Grid,
   TablePagination,
   Tooltip,
   Typography,
@@ -18,10 +17,11 @@ import TableRow from '@mui/material/TableRow'
 import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
-import IconButton from '@mui/material/IconButton'
 import TableContainer from '@mui/material/TableContainer'
 import { PriceUnitDataType, PriceUnitType } from '@src/apis/price-units.api'
 import Switch from '@mui/material/Switch'
+
+import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -66,7 +66,6 @@ export default function PriceUnitTable({
   const Row = (props: { row: PriceUnitType }) => {
     // ** Props
     const { row } = props
-
     return (
       <Fragment>
         <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
@@ -77,7 +76,9 @@ export default function PriceUnitTable({
             <Typography sx={{ fontWeight: 'bold' }}>{row.priceUnit}</Typography>
           </TableCell>
           <TableCell align='left'>{row.unit ?? '-'}</TableCell>
-          <TableCell align='left'>{row.weighting ?? '-'}</TableCell>
+          <TableCell align='left'>
+            {row.weighting ? `${row.weighting}%` : '-'}
+          </TableCell>
           <TableCell align='left'>
             <Switch checked={row.isActive} />
           </TableCell>
@@ -89,12 +90,29 @@ export default function PriceUnitTable({
             />
           </TableCell>
         </TableRow>
+        {row.subPrice?.map(subItem => (
+          <TableRow
+            sx={{ '& > *': { borderBottom: 'unset' } }}
+            key={subItem.id}
+          >
+            <TableCell component='th' scope='row'></TableCell>
+            <TableCell align='left'>
+              <Typography sx={{ paddingLeft: '40px' }}>
+                {subItem.priceUnit}
+              </Typography>
+            </TableCell>
+            <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
+            <TableCell align='left'>
+              {subItem.weighting ? `${subItem.weighting}%` : '-'}
+            </TableCell>
+            <TableCell align='left'>
+              <Switch checked={subItem.isActive} />
+            </TableCell>
+            <TableCell align='left'></TableCell>
+          </TableRow>
+        ))}
       </Fragment>
     )
-  }
-
-  function onAdd(data: any) {
-    console.log(data)
   }
 
   return (
@@ -103,16 +121,24 @@ export default function PriceUnitTable({
         <Table aria-label='price unit list'>
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
             <TableRow>
-              <TableCell>Base price</TableCell>
-              <TableCell align='left'>Price unit</TableCell>
-              <TableCell align='left'>Unit</TableCell>
-              <TableCell align='left'>Weighting (%)</TableCell>
-              <TableCell align='left'>Active</TableCell>
+              <HeaderCell align='left' sx={{ minWidth: '100px' }}>
+                Base price
+              </HeaderCell>
+              <HeaderCell align='left' sx={{ minWidth: '230px' }}>
+                Price unit
+              </HeaderCell>
+              <HeaderCell align='left'>Unit</HeaderCell>
+              <HeaderCell align='left'>Weighting (%)</HeaderCell>
+              <HeaderCell align='left'>Active</HeaderCell>
               <TableCell align='left'></TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
             <AddMode />
+            <TableCell colSpan={6} style={{ padding: 0 }}>
+              <Divider />
+            </TableCell>
+
             {!list.data?.length ? (
               <TableCell colSpan={6} align='center'>
                 <Typography>There are no price units</Typography>
@@ -135,3 +161,23 @@ export default function PriceUnitTable({
     </Box>
   )
 }
+
+const Divider = styled.div`
+  width: 100%;
+  height: 10px;
+  background: #f5f5f7;
+`
+
+const HeaderCell = styled(TableCell)`
+  height: 20px;
+  position: relative;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    width: 2px;
+    height: 30%;
+    background: rgba(76, 78, 100, 0.12);
+  }
+`

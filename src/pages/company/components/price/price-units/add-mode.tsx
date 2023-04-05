@@ -23,9 +23,10 @@ import Icon from 'src/@core/components/icon'
 import { ModalContext } from '@src/context/ModalContext'
 
 //** Components
-import CancelModal from './cancel-modal'
-import AddModal from './add-modal'
+
 import logger from '@src/@core/utils/logger'
+import CancelModal from './modal/cancel-baseprice-modal'
+import AddModal from './modal/add-modal'
 
 /** TODO
  * onAdd에 api연결하기
@@ -51,10 +52,10 @@ export default function AddMode() {
     formState: { errors, isValid },
   } = useForm<PriceFormType>({
     defaultValues,
-    mode: 'onChange',
+    mode: 'onBlur',
     resolver: yupResolver(priceUnitSchema),
   })
-
+  console.log(errors)
   const {
     fields: subPrices,
     append,
@@ -162,7 +163,7 @@ export default function AddMode() {
           <Controller
             name='priceUnit'
             control={control}
-            render={({ field: { value, onChange } }) => (
+            render={({ field: { value, onChange, onBlur } }) => (
               <TextField
                 fullWidth
                 id='price-unit'
@@ -170,6 +171,7 @@ export default function AddMode() {
                 placeholder='0-80 cuts'
                 value={value}
                 onChange={onChange}
+                onBlur={onBlur}
                 inputProps={{ maxLength: 100 }}
               />
             )}
@@ -181,7 +183,7 @@ export default function AddMode() {
             control={control}
             render={({ field: { value, onChange } }) => (
               <Autocomplete
-                sx={{ minWidth: 250 }}
+                sx={{ minWidth: 200 }}
                 fullWidth
                 options={PriceUnits}
                 placeholder='Fixed rate'
