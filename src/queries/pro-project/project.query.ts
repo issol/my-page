@@ -1,8 +1,11 @@
-import { FilterType, getProProjectList } from './../../apis/pro-projects.api'
+import {
+  FilterType,
+  getProProjectList,
+  getWorkNameFilterList,
+} from './../../apis/pro-projects.api'
 import { getProjectCalendarData } from '@src/apis/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { getWorkNameFilterList } from '@src/apis/payment-info.api'
 
 export const useGetWorkNameList = (id: number) => {
   return useQuery(
