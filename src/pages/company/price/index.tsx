@@ -11,10 +11,17 @@ import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import StandardPrices from '@src/pages/components/standard-prices'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
+  const { data: standardPrices, isLoading } = useGetStandardPrices()
+  const [standardClientPriceListPage, setStandardClientPriceListPage] =
+    useState<number>(0)
+  const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
+    useState<number>(10)
 
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
@@ -64,11 +71,17 @@ export default function Price() {
         />
       </TabList>
       <TabPanel value='1'>
-        <Typography>
-          Cake apple pie chupa chups biscuit liquorice tootsie roll liquorice
-          sugar plum. Cotton candy wafer wafer jelly cake caramels brownie
-          gummies.
-        </Typography>
+        <StandardPrices
+          list={standardPrices?.data!}
+          isLoading={isLoading}
+          listCount={standardPrices?.totalCount!}
+          standardClientPriceListPage={standardClientPriceListPage}
+          setStandardClientPriceListPage={setStandardClientPriceListPage}
+          standardClientPriceListPageSize={standardClientPriceListPageSize}
+          setStandardClientPriceListPageSize={
+            setStandardClientPriceListPageSize
+          }
+        />
       </TabPanel>
       <TabPanel value='2'>
         <Typography>

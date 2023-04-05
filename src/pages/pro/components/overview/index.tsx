@@ -78,6 +78,7 @@ import Specialties from '@src/pages/components/pro-detail-component/specialities
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 import WorkDays from '@src/pages/components/pro-detail-component/work-days'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -143,8 +144,7 @@ function ProDetailOverview() {
     useState<AddRoleType>(defaultValues)
 
   const [status, setStatus] = useState(userInfo?.status)
-
-  console.log(userInfo)
+  const ability = useContext(AbilityContext)
 
   const languageList = getGloLanguage()
 
@@ -942,6 +942,7 @@ function ProDetailOverview() {
               </Grid>
               <Grid item xs={12}>
                 <CommentsAboutPro
+                  ability={ability}
                   userInfo={userInfo!}
                   user={user!}
                   page={commentsProPage}
