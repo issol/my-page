@@ -22,6 +22,8 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Divider from '@mui/material/Divider'
+import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
+import TablePagination from '@mui/material/TablePagination'
 
 function Row(props: { row: StandardPriceListType }) {
   const { row } = props
@@ -102,7 +104,7 @@ function Row(props: { row: StandardPriceListType }) {
           }}
           size='small'
         >
-          {row.category}
+          <JobTypeChip type={row.category} label={row.category} />
         </TableCell>
         <TableCell
           sx={{
@@ -126,7 +128,7 @@ function Row(props: { row: StandardPriceListType }) {
           }}
           size='small'
         >
-          {row.serviceType}
+          <ServiceTypeChip label={row.serviceType} />
         </TableCell>
         <TableCell
           sx={{
@@ -204,17 +206,6 @@ function Row(props: { row: StandardPriceListType }) {
               <Typography variant='h6' gutterBottom component='div'>
                 History
               </Typography>
-              <Table size='small' aria-label='purchases'>
-                <TableHead>
-                  <TableRow>
-                    <TableCell>Date</TableCell>
-                    <TableCell>Customer</TableCell>
-                    <TableCell align='right'>Amount</TableCell>
-                    <TableCell align='right'>Total price ($)</TableCell>
-                  </TableRow>
-                </TableHead>
-                <TableBody>"hi"</TableBody>
-              </Table>
             </Box>
           </Collapse>
         </TableCell>
@@ -475,6 +466,17 @@ const StandardPrices = ({
               </TableBody>
             </Table>
           </TableContainer>
+          <TablePagination
+            page={standardClientPriceListPage}
+            component='div'
+            count={listCount}
+            rowsPerPage={standardClientPriceListPageSize}
+            onPageChange={(e, page) => setStandardClientPriceListPage(page)}
+            rowsPerPageOptions={[10, 25, 50]}
+            onRowsPerPageChange={e =>
+              setStandardClientPriceListPageSize(Number(e.target.value))
+            }
+          />
           {/* <Box
             sx={{
               '& .MuiDataGrid-columnHeaderTitle': {
