@@ -89,10 +89,10 @@ import {
 import logger from '@src/@core/utils/logger'
 
 /* msw mock server */
-if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
-  require('../mocks')
-}
-
+// if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
+//   require('../mocks')
+// }
+require('../mocks')
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage
