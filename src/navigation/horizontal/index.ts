@@ -39,14 +39,6 @@ const navigation = (): HorizontalNavItemsType => {
         },
       ],
     },
-
-    {
-      title: 'Company',
-      icon: 'mdi:briefcase-outline',
-      action: 'update',
-      subject: 'permission_request',
-      path: `/company`,
-    },
     {
       title: 'Account',
       icon: 'mdi:account-outline',
@@ -82,6 +74,28 @@ const navigation = (): HorizontalNavItemsType => {
       action: 'read',
       subject: 'certification_test',
       path: `/certification-test`,
+    },
+    {
+      title: 'Company',
+      icon: 'mdi:briefcase-outline',
+      action: 'update',
+      subject: 'permission_request',
+      children: [
+        {
+          title: 'Members',
+          path: `/company`,
+          action: 'update',
+          icon: 'material-symbols:person',
+          subject: 'permission_request',
+        },
+        {
+          title: 'Standard prices',
+          path: `/company/price`,
+          action: 'read',
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'company_price',
+        },
+      ],
     },
   ]
 }

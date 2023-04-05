@@ -14,10 +14,10 @@ export const getPermission = createAsyncThunk(
       const { data } = await axios.get(`/api/enough/a/role/map`)
       return data
       // return [
-      // {
-      //   subject: 'permission_request',
-      //   can: 'read',
-      // },
+      //   {
+      //     subject: 'permission_request',
+      //     can: 'read',
+      //   },
       //   {
       //     subject: 'permission_request',
       //     can: 'update',
@@ -198,6 +198,22 @@ export const getPermission = createAsyncThunk(
       //   {
       //     subject: 'account_manage',
       //     can: 'read',
+      //   },
+      //   {
+      //     subject: 'company_price',
+      //     can: 'read',
+      //   },
+      //   {
+      //     subject: 'company_price',
+      //     can: 'create',
+      //   },
+      //   {
+      //     subject: 'company_price',
+      //     can: 'update',
+      //   },
+      //   {
+      //     subject: 'company_price',
+      //     can: 'delete',
       //   },
       // ]
     } catch (e: any) {
