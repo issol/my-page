@@ -4,7 +4,7 @@ import { Grid } from '@mui/material'
 import { RoleSelectType } from 'src/types/onboarding/list'
 import { SelectType } from 'src/types/onboarding/list'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { JobList } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
 import {
   TestMaterialFilterPayloadType,
   TestMaterialFilterType,
