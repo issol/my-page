@@ -1,13 +1,15 @@
 // ** react
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
 
 // ** mui
-import { Button, Checkbox, IconButton } from '@mui/material'
+import { Button, Checkbox, IconButton, Switch } from '@mui/material'
 import { Box } from '@mui/system'
 import TableRow from '@mui/material/TableRow'
 import TableCell from '@mui/material/TableCell'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
+
+// ** const values
 import { PriceUnits } from '@src/shared/const/price/price-unit'
 
 // ** Third Party Imports
@@ -22,16 +24,28 @@ import {
 import Icon from 'src/@core/components/icon'
 import { ModalContext } from '@src/context/ModalContext'
 
-//** Components
-
+// ** logger
 import logger from '@src/@core/utils/logger'
+
+// ** Components
 import CancelModal from './modal/cancel-baseprice-modal'
-import AddModal from './modal/add-modal'
+
+// ** type
+import { PriceUnitType } from '@src/apis/price-units.api'
 
 /** TODO
  * onAdd에 api연결하기
  */
-export default function PriceUnitForm() {
+
+type Props = {
+  data?: PriceUnitType
+  mutation: (value: any) => void
+  showModal: (title: string, onAdd: () => void) => void
+  onEditCancel?: () => void
+}
+
+export default function PriceUnitForm(props: Props) {
+  const { mutation, showModal } = props
   const { setModal } = useContext(ModalContext)
 
   const defaultValues = {
@@ -40,6 +54,7 @@ export default function PriceUnitForm() {
     subPrice: [],
     unit: '',
     weighting: null,
+    isActive: true,
   }
 
   const {
@@ -55,7 +70,7 @@ export default function PriceUnitForm() {
     mode: 'onBlur',
     resolver: yupResolver(priceUnitSchema),
   })
-  console.log(errors)
+
   const {
     fields: subPrices,
     append,
@@ -68,12 +83,16 @@ export default function PriceUnitForm() {
 
   const isBasePrice = watch('isBasePrice')
   const unit = watch('unit')
-  const settingOptions = { shouldDirty: true, shouldValidate: true }
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   useEffect(() => {
-    onCancel()
-  }, [])
+    if (props.data) {
+      const { data } = props
+      reset(data)
+    }
+  }, [props?.data])
 
+  console.log(errors)
   // ** Desc : sub price는 base price의 unit을 따라가야 하므로, base price의 unit이 변경되면 sub price자동 업데이트하는 코드
   useEffect(() => {
     updateSubPrice()
@@ -85,6 +104,7 @@ export default function PriceUnitForm() {
       priceUnit: getValues('priceUnit'),
       unit: unit,
       weighting: getValues('weighting'),
+      isActive: true,
     })
   }
 
@@ -104,28 +124,27 @@ export default function PriceUnitForm() {
   }
 
   function onCancelBasePrice() {
-    setValue('weighting', null, settingOptions)
-    setValue('isBasePrice', false, settingOptions)
+    setValue('weighting', null, setValueOptions)
+    setValue('isBasePrice', false, setValueOptions)
     remove()
   }
 
   function onCancel() {
-    reset()
-    reset({ subPrice: [] })
+    if (!props?.data) {
+      reset()
+      reset({ subPrice: [] })
+    } else {
+      props?.onEditCancel && props.onEditCancel()
+    }
   }
 
   function onAddClick() {
-    setModal(
-      <AddModal
-        title={getValues('priceUnit')}
-        onAdd={onAdd}
-        onClose={() => setModal(null)}
-      />,
-    )
+    showModal(getValues('priceUnit'), onAdd)
   }
 
   function onAdd() {
     logger.info(getValues())
+    mutation(getValues())
   }
 
   return (
@@ -148,7 +167,7 @@ export default function PriceUnitForm() {
                     )
                   } else {
                     //@ts-ignore
-                    setValue('weighting', 100, settingOptions)
+                    setValue('weighting', 100, setValueOptions)
                     addSubPrice()
                     onChange(v)
                   }
@@ -217,7 +236,19 @@ export default function PriceUnitForm() {
             )}
           />
         </TableCell>
-        <TableCell align='left'></TableCell>
+        <TableCell align='left'>
+          {!props?.data ? (
+            ''
+          ) : (
+            <Controller
+              name='isActive'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <Switch checked={value} onChange={onChange} />
+              )}
+            />
+          )}
+        </TableCell>
         <TableCell align='left'>
           <Box display='flex' gap='10px'>
             <Button variant='outlined' onClick={onCancel}>
@@ -228,100 +259,111 @@ export default function PriceUnitForm() {
               disabled={!isValid}
               onClick={onAddClick}
             >
-              Add
+              {props.data ? 'Save' : 'Add'}
             </Button>
           </Box>
         </TableCell>
       </TableRow>
       {isBasePrice ? (
         <Fragment>
-          {subPrices.length &&
-            subPrices?.map((item, idx) => {
-              return (
-                <TableRow key={item.id}>
-                  <TableCell></TableCell>
-                  <TableCell>
+          {subPrices?.map((item, idx) => {
+            return (
+              <TableRow key={item.id}>
+                <TableCell></TableCell>
+                <TableCell>
+                  <Controller
+                    name={`subPrice.${idx}.priceUnit`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        error={Boolean(
+                          errors.subPrice?.length
+                            ? errors?.subPrice[idx]?.priceUnit?.message
+                            : false,
+                        )}
+                        id='price-unit'
+                        placeholder='0-80 cuts'
+                        inputProps={{ maxLength: 100 }}
+                      />
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Controller
+                    name={`subPrice.${idx}.unit`}
+                    control={control}
+                    render={({ field }) => (
+                      <Autocomplete
+                        sx={{ minWidth: 250 }}
+                        {...field}
+                        disabled
+                        fullWidth
+                        options={PriceUnits}
+                        placeholder='Fixed rate'
+                        value={
+                          PriceUnits.filter(
+                            item => item.label === field.value,
+                          )[0]
+                        }
+                        renderInput={params => <TextField {...params} />}
+                      />
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  <Controller
+                    name={`subPrice.${idx}.weighting`}
+                    control={control}
+                    render={({ field }) => (
+                      <TextField
+                        {...field}
+                        fullWidth
+                        id='weighting'
+                        placeholder='-'
+                        error={Boolean(
+                          errors.subPrice?.length
+                            ? errors?.subPrice[idx]?.weighting?.message
+                            : false,
+                        )}
+                        onChange={e => {
+                          const value = e.target.value
+                          if (value.length > 10) return
+                          field.onChange(e.target.value)
+                        }}
+                        value={field.value ?? ''}
+                        InputProps={{ type: 'number' }}
+                      />
+                    )}
+                  />
+                </TableCell>
+                <TableCell>
+                  {!props?.data ? (
+                    ''
+                  ) : (
                     <Controller
-                      name={`subPrice.${idx}.priceUnit`}
+                      name={`subPrice.${idx}.isActive`}
                       control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          error={Boolean(
-                            errors.subPrice?.length
-                              ? errors?.subPrice[idx]?.priceUnit?.message
-                              : false,
-                          )}
-                          id='price-unit'
-                          placeholder='0-80 cuts'
-                          inputProps={{ maxLength: 100 }}
-                        />
+                      render={({ field: { value, onChange } }) => (
+                        <Switch checked={value} onChange={onChange} />
                       )}
                     />
-                  </TableCell>
-                  <TableCell>
-                    <Controller
-                      name={`subPrice.${idx}.unit`}
-                      control={control}
-                      render={({ field }) => (
-                        <Autocomplete
-                          sx={{ minWidth: 250 }}
-                          {...field}
-                          disabled
-                          fullWidth
-                          options={PriceUnits}
-                          placeholder='Fixed rate'
-                          value={
-                            PriceUnits.filter(
-                              item => item.label === field.value,
-                            )[0]
-                          }
-                          renderInput={params => <TextField {...params} />}
-                        />
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell>
-                    <Controller
-                      name={`subPrice.${idx}.weighting`}
-                      control={control}
-                      render={({ field }) => (
-                        <TextField
-                          {...field}
-                          fullWidth
-                          id='weighting'
-                          placeholder='-'
-                          error={Boolean(
-                            errors.subPrice?.length
-                              ? errors?.subPrice[idx]?.weighting?.message
-                              : false,
-                          )}
-                          onChange={e => {
-                            const value = e.target.value
-                            if (value.length > 10) return
-                            field.onChange(e.target.value)
-                          }}
-                          value={field.value ?? ''}
-                          InputProps={{ type: 'number' }}
-                        />
-                      )}
-                    />
-                  </TableCell>
-                  <TableCell></TableCell>
-                  <TableCell>
-                    <Box width='100%' display='flex' justifyContent='center'>
-                      <IconButton
-                        onClick={() => removeSubPrice(item.id)}
-                        disabled={!isValid}
-                      >
-                        <Icon icon='mdi:trash-outline' />
-                      </IconButton>
-                    </Box>
-                  </TableCell>
-                </TableRow>
-              )
-            })}
+                  )}
+                </TableCell>
+                <TableCell>
+                  <Box width='100%' display='flex' justifyContent='center'>
+                    <IconButton
+                      onClick={() => removeSubPrice(item.id)}
+                      disabled={!isValid}
+                    >
+                      <Icon icon='mdi:trash-outline' />
+                    </IconButton>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            )
+          })}
 
           <TableRow>
             <TableCell></TableCell>

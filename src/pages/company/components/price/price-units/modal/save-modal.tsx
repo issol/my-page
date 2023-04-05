@@ -4,25 +4,16 @@ import { SmallModalContainer } from '@src/@core/components/modal'
 import { TitleTypography } from '@src/@core/styles/typography'
 
 type Props = {
-  title: string
-  onAdd: () => void
+  onSave: () => void
   onClose: () => void
 }
-export default function AddModal({ title, onAdd, onClose }: Props) {
+export default function SaveModal({ onSave, onClose }: Props) {
   return (
     <SmallModalContainer>
       <AlertIcon type='successful' />
       <Typography variant='body1' textAlign='center' mt='10px'>
-        Are you sure you want to add this price unit?
+        Are you sure you want to save all changes?
       </Typography>
-      <TitleTypography
-        variant='body1'
-        textAlign='center'
-        fontWeight='bold'
-        mt='10px'
-      >
-        {title}
-      </TitleTypography>
       <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
         <Button variant='outlined' onClick={onClose}>
           Cancel
@@ -30,11 +21,11 @@ export default function AddModal({ title, onAdd, onClose }: Props) {
         <Button
           variant='contained'
           onClick={() => {
-            onAdd()
+            onSave()
             onClose()
           }}
         >
-          Add
+          Save
         </Button>
       </Box>
     </SmallModalContainer>

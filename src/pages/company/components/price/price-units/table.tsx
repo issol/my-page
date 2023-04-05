@@ -28,6 +28,8 @@ import Icon from 'src/@core/components/icon'
 import TableMenu from './table-menu'
 import logger from '@src/@core/utils/logger'
 import AddMode from './add-mode'
+import AddForm from './add-form'
+import EditForm from './edit-form'
 
 type Props = {
   skip: number
@@ -35,82 +37,93 @@ type Props = {
   setSkip: (n: number) => void
   setPageSize: (n: number) => void
   list: PriceUnitDataType
+  onEditClick: (row: PriceUnitType) => void
+  onDeleteClick: (row: PriceUnitType) => void
+  onBasePriceClick: (isChecked: boolean, row: PriceUnitType) => void
+  addMutation: (row: PriceUnitType) => void
+  saveMutation: (row: PriceUnitType) => void
+  editModeRow: PriceUnitType | undefined
+  cancelEditing: () => void
 }
 
-/** TODO
- * 1. onEdit, onDelete함수 완성
- * 2. onEdit, onDelete시 모달 추가
- * 3. isActive 활성화 로직 추가
- * 4. editMode 컴포넌트 심기
- * 5. editMode가 있는 경우 나머지 row비활성화 처리
- * 6. subPrice도 display
- * 7. basePrice 체크/해제 시 모달 추가
- * 8. basePrice 체크 시 자동 editMode되는 로직 추가
- *
- */
 export default function PriceUnitTable({
   skip,
   pageSize,
   setSkip,
   setPageSize,
   list,
+  onEditClick,
+  onDeleteClick,
+  onBasePriceClick,
+  addMutation,
+  saveMutation,
+  editModeRow,
+  cancelEditing,
 }: Props) {
-  function onEditClick(id: number) {
-    logger.info(id)
-  }
-
-  function onDeleteClick(row: PriceUnitType) {
-    logger.info(row)
-  }
-
   const Row = (props: { row: PriceUnitType }) => {
     // ** Props
     const { row } = props
     return (
       <Fragment>
-        <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
-          <TableCell component='th' scope='row'>
-            <Checkbox name='base_price' checked={row.isBasePrice} />
-          </TableCell>
-          <TableCell align='left'>
-            <Typography sx={{ fontWeight: 'bold' }}>{row.priceUnit}</Typography>
-          </TableCell>
-          <TableCell align='left'>{row.unit ?? '-'}</TableCell>
-          <TableCell align='left'>
-            {row.weighting ? `${row.weighting}%` : '-'}
-          </TableCell>
-          <TableCell align='left'>
-            <Switch checked={row.isActive} />
-          </TableCell>
-          <TableCell align='left'>
-            <TableMenu
-              row={row}
-              onEditClick={onEditClick}
-              onDeleteClick={onDeleteClick}
-            />
-          </TableCell>
-        </TableRow>
-        {row.subPrice?.map(subItem => (
-          <TableRow
-            sx={{ '& > *': { borderBottom: 'unset' } }}
-            key={subItem.id}
-          >
-            <TableCell component='th' scope='row'></TableCell>
-            <TableCell align='left'>
-              <Typography sx={{ paddingLeft: '40px' }}>
-                {subItem.priceUnit}
-              </Typography>
-            </TableCell>
-            <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
-            <TableCell align='left'>
-              {subItem.weighting ? `${subItem.weighting}%` : '-'}
-            </TableCell>
-            <TableCell align='left'>
-              <Switch checked={subItem.isActive} />
-            </TableCell>
-            <TableCell align='left'></TableCell>
-          </TableRow>
-        ))}
+        {editModeRow?.id === row.id ? (
+          <EditForm
+            data={editModeRow}
+            mutation={saveMutation}
+            onEditCancel={cancelEditing}
+          />
+        ) : (
+          <Fragment>
+            <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+              <TableCell component='th' scope='row'>
+                <Checkbox
+                  name='base_price'
+                  checked={row.isBasePrice}
+                  onChange={e => onBasePriceClick(e.currentTarget.checked, row)}
+                />
+              </TableCell>
+              <TableCell align='left'>
+                <Typography sx={{ fontWeight: 'bold' }}>
+                  {row.priceUnit}
+                </Typography>
+              </TableCell>
+              <TableCell align='left'>{row.unit ?? '-'}</TableCell>
+              <TableCell align='left'>
+                {row.weighting ? `${row.weighting}%` : '-'}
+              </TableCell>
+              <TableCell align='left'>
+                <Switch checked={row.isActive} />
+              </TableCell>
+              <TableCell align='left'>
+                <TableMenu
+                  row={row}
+                  onEditClick={() => onEditClick(row)}
+                  onDeleteClick={onDeleteClick}
+                />
+              </TableCell>
+            </TableRow>
+            {row.subPrice?.map(subItem => (
+              <TableRow
+                sx={{ '& > *': { borderBottom: 'unset' } }}
+                key={subItem.id}
+              >
+                <TableCell component='th' scope='row'></TableCell>
+                <TableCell align='left'>
+                  <Typography sx={{ paddingLeft: '40px' }}>
+                    {subItem.priceUnit}
+                  </Typography>
+                </TableCell>
+                <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
+                <TableCell align='left'>
+                  {subItem.weighting ? `${subItem.weighting}%` : '-'}
+                </TableCell>
+                <TableCell align='left'>
+                  <Switch checked={subItem.isActive} />
+                </TableCell>
+                <TableCell align='left'></TableCell>
+              </TableRow>
+            ))}
+          </Fragment>
+        )}
       </Fragment>
     )
   }
@@ -134,7 +147,8 @@ export default function PriceUnitTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            <AddMode />
+            {/* <AddMode /> */}
+            <AddForm mutation={addMutation} />
             <TableCell colSpan={6} style={{ padding: 0 }}>
               <Divider />
             </TableCell>

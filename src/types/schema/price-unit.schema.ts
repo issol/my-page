@@ -12,6 +12,7 @@ export type PriceFormType = {
     priceUnit: string
     unit: string
     weighting: null | number
+    isActive: boolean
   }>
 }
 export const priceUnitSchema = yup.object().shape({
