@@ -5,7 +5,7 @@ export const getProOverview = async (
   userId: number,
 ): Promise<OnboardingProDetailsType> => {
   const { data } = await axios.get<OnboardingProDetailsType>(
-    `/api/enough/onboard/user/${userId}`,
+    `/api/enough/u/pro/${userId}/overview`,
   )
 
   return data
