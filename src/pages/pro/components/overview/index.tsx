@@ -984,7 +984,6 @@ function ProDetailOverview() {
   )
 }
 
-// ** TODO : 렐,백엔드와 논의 후 수정
 ProDetailOverview.acl = {
   subject: 'pro',
   action: 'read',
