@@ -3,7 +3,8 @@ import { ContentGrid } from '.'
 
 type Props = {
   info: {
-    street: { 1: string; 2: string }
+    street1?: string
+    street2?: string
     city: string
     state: string
     country: string
@@ -21,13 +22,13 @@ export default function BillingAddress({ info, replaceDots }: Props) {
           <ContentGrid>
             <Typography sx={{ fontWeight: 'bold' }}>Street 1</Typography>
             <Typography variant='body2'>
-              {replaceDots(info?.street[1] ?? '')}
+              {replaceDots(info?.street1 ?? '')}
             </Typography>
           </ContentGrid>
           <ContentGrid>
             <Typography sx={{ fontWeight: 'bold' }}>City</Typography>
             <Typography variant='body2'>
-              {replaceDots(info?.street[2] ?? '')}
+              {replaceDots(info?.city ?? '')}
             </Typography>
           </ContentGrid>
           <ContentGrid>
@@ -42,7 +43,7 @@ export default function BillingAddress({ info, replaceDots }: Props) {
           <ContentGrid>
             <Typography sx={{ fontWeight: 'bold' }}>Street 2</Typography>
             <Typography variant='body2'>
-              {replaceDots(info?.street[2] ?? '')}
+              {replaceDots(info?.street2 ?? '')}
             </Typography>
           </ContentGrid>
           <ContentGrid>
