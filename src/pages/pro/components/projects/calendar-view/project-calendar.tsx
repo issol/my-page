@@ -13,11 +13,12 @@ type Props = {
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string
+  setCurrentListId: (id: number) => void
 }
 
 const ProjectCalendar = (props: Props) => {
   // ** Props
-  const { event, setYear, setMonth, direction } = props
+  const { event, setYear, setMonth, direction, setCurrentListId } = props
 
   const finalEvent = event.map(item => {
     return {
@@ -48,6 +49,9 @@ const ProjectCalendar = (props: Props) => {
       eventClassNames({ event: calendarEvent }: any) {
         const colorName = calendarEvent._def.extendedProps.calendar
         return [`bg-${colorName}`]
+      },
+      eventClick({ event }: any) {
+        setCurrentListId(Number(event?.id))
       },
     }
 

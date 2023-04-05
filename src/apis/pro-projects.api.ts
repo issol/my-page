@@ -42,7 +42,10 @@ export const getProProjectList = async (
 }> => {
   try {
     const { data } = await axios.get(
-      `/enough/pro/${id}/project?${makeQuery({ ...filters, company: 'GloZ' })}`,
+      `/api/enough/u/pro/${id}/project?${makeQuery({
+        ...filters,
+        company: 'GloZ',
+      })}`,
     )
     return data
     // return {
@@ -92,10 +95,12 @@ export const getProjectCalendarData = async (
   const color_overdue = 'overdue'
 
   try {
-    const { data } = await axios.get(`/enough/pro/${id}/project?date=${date}`)
-    // return data
+    const { data } = await axios.get(
+      `/api/enough/u/pro/${id}/project?date=${date}`,
+    )
+
     return {
-      data: data?.map((item: ProProjectType, idx: number) => {
+      data: data.data?.map((item: ProProjectType, idx: number) => {
         return {
           ...item,
           extendedProps: {
@@ -110,8 +115,8 @@ export const getProjectCalendarData = async (
       totalCount: data?.totalCount ?? 0,
     }
 
-    const [year, month] = date.split('-')
-    const result = generateRandomCalendarData(Number(year), Number(month), 10)
+    // const [year, month] = date.split('-')
+    // const result = generateRandomCalendarData(Number(year), Number(month), 10)
     // return {
     //   data: result.map((item: ProProjectType, idx: number) => {
     //     return {
@@ -128,7 +133,10 @@ export const getProjectCalendarData = async (
     //   totalCount: result.length,
     // }
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      data: [],
+      totalCount: 0,
+    }
   }
 }
 

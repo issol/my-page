@@ -101,7 +101,12 @@ export default function ProjectsList({
               {FullDateHelper(row.dueDate)} ({row.dueDate ? row.timezone : ''})
             </Typography>
           </TableCell>
-          <TableCell align='left'>{WorkStatusChip(row.status)}</TableCell>
+          <TableCell
+            align='left'
+            style={{ borderTop: '1px solid rgba(233, 233, 236, 1)' }}
+          >
+            {WorkStatusChip(row.status)}
+          </TableCell>
         </TableRow>
         <TableRow>
           <TableCell colSpan={6} sx={{ py: '0 !important' }}>
@@ -219,9 +224,11 @@ export default function ProjectsList({
               </TableHead>
               <TableBody>
                 {!list.data.length ? (
-                  <TableCell colSpan={7} align='center'>
-                    <Typography>There are no work lists</Typography>
-                  </TableCell>
+                  <TableRow>
+                    <TableCell colSpan={7} align='center'>
+                      <Typography>There are no work lists</Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   list.data?.map(row => <Row key={row.id} row={row} />)
                 )}
