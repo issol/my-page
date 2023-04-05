@@ -29,14 +29,14 @@ export default function PriceUnits() {
         isBasePrice: true,
         priceUnit: '알라깔라',
         unit: 'Fixed rate',
-        weighting: '100%',
+        weighting: 100,
         isActive: false,
         subPrice: [
           {
             id: 1,
             priceUnit: '똑깔라비띠',
             unit: 'Fixed rate',
-            weighting: '80%',
+            weighting: 80,
             isActive: true,
           },
         ],
@@ -46,7 +46,7 @@ export default function PriceUnits() {
         isBasePrice: false,
         priceUnit: '알라깔라',
         unit: 'Fixed rate',
-        weighting: '100%',
+        weighting: 100,
         isActive: false,
         subPrice: [],
       },
@@ -55,7 +55,7 @@ export default function PriceUnits() {
   }
 
   return (
-    <Grid item xs={12} mt='24px'>
+    <Grid item xs={12}>
       <Card>
         <CardHeader
           title={

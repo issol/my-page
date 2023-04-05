@@ -12,14 +12,14 @@ export type PriceUnitType = {
   isBasePrice: boolean
   priceUnit: string
   unit: string
-  weighting: string
+  weighting: number | null
   isActive: boolean
   subPrice: Array<{
     id: number
     isBasePrice?: boolean //subPrice에 isBasePrice값은 넣을지 말지 고민해보기
     priceUnit: string
     unit: string
-    weighting: string
+    weighting: number
     isActive: boolean
   }>
 }

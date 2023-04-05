@@ -27,6 +27,7 @@ import Switch from '@mui/material/Switch'
 import Icon from 'src/@core/components/icon'
 import TableMenu from './table-menu'
 import logger from '@src/@core/utils/logger'
+import AddMode from './add-mode'
 
 type Props = {
   skip: number
@@ -36,6 +37,17 @@ type Props = {
   list: PriceUnitDataType
 }
 
+/** TODO
+ * 1. onEdit, onDelete함수 완성
+ * 2. onEdit, onDelete시 모달 추가
+ * 3. isActive 활성화 로직 추가
+ * 4. editMode 컴포넌트 심기
+ * 5. editMode가 있는 경우 나머지 row비활성화 처리
+ * 6. subPrice도 display
+ * 7. basePrice 체크/해제 시 모달 추가
+ * 8. basePrice 체크 시 자동 editMode되는 로직 추가
+ *
+ */
 export default function PriceUnitTable({
   skip,
   pageSize,
@@ -81,27 +93,12 @@ export default function PriceUnitTable({
     )
   }
 
+  function onAdd(data: any) {
+    console.log(data)
+  }
+
   return (
-    <Box
-      sx={{
-        '& .hide': {
-          position: 'relative',
-          filter: 'grayscale(100%)',
-          '&:hover': {
-            background: 'rgba(76, 78, 100, 0.12)',
-          },
-          '&::after': {
-            position: 'absolute',
-            width: '100%',
-            height: '100%',
-            content: "''",
-            background: 'rgba(76, 78, 100, 0.12)',
-            mixBlendMode: 'revert',
-            filter: 'grayscale(100%)',
-          },
-        },
-      }}
-    >
+    <Box>
       <TableContainer component={Paper}>
         <Table aria-label='price unit list'>
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
@@ -115,6 +112,7 @@ export default function PriceUnitTable({
             </TableRow>
           </TableHead>
           <TableBody>
+            <AddMode />
             {!list.data?.length ? (
               <TableCell colSpan={6} align='center'>
                 <Typography>There are no price units</Typography>
