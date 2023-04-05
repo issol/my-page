@@ -34,7 +34,7 @@ export default function BillingMethod({
             <Button
               variant='outlined'
               color='secondary'
-              disabled={!isAccountManager || !info.type}
+              disabled={!isAccountManager || !info?.type}
               onClick={getDetail}
             >
               Detail
@@ -42,9 +42,9 @@ export default function BillingMethod({
           </Box>
         }
       />
-      {!info.type ? (
+      {!info?.type ? (
         <div></div>
-      ) : info.type === 'PayPal' ? (
+      ) : info?.type === 'PayPal' ? (
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography variant='h6'>PayPal</Typography>

@@ -4,15 +4,7 @@ import { useState, Fragment } from 'react'
 import styled from 'styled-components'
 
 // ** mui
-import {
-  Button,
-  Card,
-  Chip,
-  Grid,
-  TablePagination,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Card, Grid, TablePagination, Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import CardHeader from '@mui/material/CardHeader'
 import Paper from '@mui/material/Paper'
@@ -48,7 +40,7 @@ type Props = {
   setSort: (val: SortingType) => void
   list: {
     data: Array<ProProjectType> | []
-    count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -101,7 +93,12 @@ export default function ProjectsList({
               {FullDateHelper(row.dueDate)} ({row.dueDate ? row.timezone : ''})
             </Typography>
           </TableCell>
-          <TableCell align='left'>{WorkStatusChip(row.status)}</TableCell>
+          <TableCell
+            align='left'
+            style={{ borderTop: '1px solid rgba(233, 233, 236, 1)' }}
+          >
+            {WorkStatusChip(row.status)}
+          </TableCell>
         </TableRow>
         <TableRow>
           <TableCell colSpan={6} sx={{ py: '0 !important' }}>
@@ -152,7 +149,7 @@ export default function ProjectsList({
             title={
               <Box display='flex' justifyContent='space-between'>
                 <Typography variant='h6'>
-                  Work list ({list?.count | 0})
+                  Work list ({list?.totalCount | 0})
                 </Typography>
               </Box>
             }
@@ -219,9 +216,11 @@ export default function ProjectsList({
               </TableHead>
               <TableBody>
                 {!list.data.length ? (
-                  <TableCell colSpan={7} align='center'>
-                    <Typography>There are no work lists</Typography>
-                  </TableCell>
+                  <TableRow>
+                    <TableCell colSpan={7} align='center'>
+                      <Typography>There are no work lists</Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   list.data?.map(row => <Row key={row.id} row={row} />)
                 )}
@@ -231,7 +230,7 @@ export default function ProjectsList({
           <TablePagination
             page={skip}
             component='div'
-            count={list.count}
+            count={list.totalCount}
             rowsPerPage={pageSize}
             onPageChange={(e, page) => setSkip(page)}
             rowsPerPageOptions={[10, 25, 50]}

@@ -151,6 +151,7 @@ const CalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       // ** Event Colors
       '& .fc-event': {
         borderRadius: 4,
+        cursor: 'pointer',
         '&:not(.fc-list-event)': {
           '&.bg-primary': {
             borderColor: 'transparent',

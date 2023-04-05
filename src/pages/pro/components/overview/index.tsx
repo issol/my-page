@@ -78,6 +78,7 @@ import Specialties from '@src/pages/components/pro-detail-component/specialities
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 import WorkDays from '@src/pages/components/pro-detail-component/work-days'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -143,9 +144,7 @@ function ProDetailOverview() {
     useState<AddRoleType>(defaultValues)
 
   const [status, setStatus] = useState(userInfo?.status)
-
-  console.log(userInfo)
-
+  const ability = useContext(AbilityContext)
   const languageList = getGloLanguage()
 
   const {
@@ -963,6 +962,7 @@ function ProDetailOverview() {
                   handleAddCommentChange={handleAddCommentChange}
                   onClickDeleteComment={onClickDeleteComment}
                   addComment={addComment}
+                  ability={ability}
                 />
               </Grid>
               <Grid item xs={12} display='flex' gap='24px'>
@@ -984,7 +984,6 @@ function ProDetailOverview() {
   )
 }
 
-// ** TODO : 렐,백엔드와 논의 후 수정
 ProDetailOverview.acl = {
   subject: 'pro',
   action: 'read',

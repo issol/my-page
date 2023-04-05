@@ -17,7 +17,7 @@ import BillingAddress from './billing-address'
 
 // ** actions
 import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
-import { getFilePresinedUrl } from '@src/apis/payment-info.api'
+import { downloadPersonalInfoFile } from '@src/apis/payment-info.api'
 import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
 import axios from 'axios'
 
@@ -52,26 +52,15 @@ export default function PaymentInfo({ id }: Props) {
   }
 
   function fetchFile(fileName: string) {
-    getFilePresinedUrl(fileName)
+    downloadPersonalInfoFile(id, fileName)
       .then(res => {
-        axios
-          .get(res[0], {
-            headers: {
-              Authorization:
-                'Bearer ' + typeof window === 'object'
-                  ? getUserTokenFromBrowser()
-                  : null,
-            },
-          })
-          .then(res => {
-            logger.info('upload client guideline file success :', res)
-            const url = window.URL.createObjectURL(new Blob([res.data]))
-            const link = document.createElement('a')
-            link.href = url
-            link.setAttribute('download', `${fileName}`)
-            document.body.appendChild(link)
-            link.click()
-          })
+        logger.info(`${fileName} file download has been succeed : `, res)
+        const url = window.URL.createObjectURL(res)
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${fileName}`)
+        document.body.appendChild(link)
+        link.click()
       })
       .catch(err =>
         toast.error(
