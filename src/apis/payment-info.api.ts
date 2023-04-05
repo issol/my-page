@@ -186,12 +186,15 @@ export const getUserPaymentInfoForManager = async (
   }
 }
 
-export const getFilePresinedUrl = async (path: string): Promise<string> => {
+export const downloadPersonalInfoFile = async (
+  userId: number,
+  file: string,
+): Promise<Blob> => {
   try {
-    const { data } = await axios.post(
-      `/api/enough/onboard/guideline/download-file`,
+    const { data } = await axios.get(
+      `/api/enough/u/pro/${userId}/payment/download-file/${file}`,
       {
-        path,
+        responseType: 'blob',
       },
     )
     return data
