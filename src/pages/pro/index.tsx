@@ -58,7 +58,7 @@ const Pro = () => {
     experience: [],
     status: [],
     clients: [],
-    take: proListPage,
+    take: proListPageSize,
     skip: proListPage * proListPageSize,
     order: 'desc',
   })
