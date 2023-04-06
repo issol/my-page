@@ -1,5 +1,5 @@
 // ** react
-import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** mui
 import { Button, Checkbox, IconButton, Switch } from '@mui/material'
@@ -22,7 +22,6 @@ import {
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { ModalContext } from '@src/context/ModalContext'
 
 // ** logger
 import logger from '@src/@core/utils/logger'
@@ -33,10 +32,6 @@ import CancelModal from './modal/cancel-baseprice-modal'
 // ** type
 import { PriceUnitType } from '@src/apis/price-units.api'
 
-/** TODO
- * onAdd에 api연결하기
- */
-
 type Props = {
   data?: PriceUnitType
   mutation: (value: any) => void
@@ -46,7 +41,8 @@ type Props = {
 
 export default function PriceUnitForm(props: Props) {
   const { mutation, showModal } = props
-  const { setModal } = useContext(ModalContext)
+  const [open, setOpen] = useState(false)
+  const closeModal = () => setOpen(false)
 
   const defaultValues = {
     isBase: false,
@@ -143,7 +139,7 @@ export default function PriceUnitForm(props: Props) {
   }
 
   function onAdd() {
-    logger.info(getValues())
+    // logger.info(getValues())
     mutation(getValues())
   }
 
@@ -159,12 +155,7 @@ export default function PriceUnitForm(props: Props) {
                 name='base_price'
                 onChange={(e, v) => {
                   if (!v) {
-                    setModal(
-                      <CancelModal
-                        onCancelBasePrice={onCancelBasePrice}
-                        onClose={() => setModal(null)}
-                      />,
-                    )
+                    setOpen(true)
                   } else {
                     //@ts-ignore
                     setValue('weighting', 100, setValueOptions)
@@ -381,6 +372,12 @@ export default function PriceUnitForm(props: Props) {
       ) : (
         ''
       )}
+
+      <CancelModal
+        open={open}
+        onCancelBasePrice={onCancelBasePrice}
+        onClose={closeModal}
+      />
     </Fragment>
   )
 }

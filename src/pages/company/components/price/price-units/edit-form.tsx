@@ -1,7 +1,6 @@
-import { Fragment, ReactNode, useContext } from 'react'
+import { Fragment, useState } from 'react'
 import PriceUnitForm from './form'
 import { PriceUnitType } from '@src/apis/price-units.api'
-import { ModalContext } from '@src/context/ModalContext'
 import SaveModal from './modal/save-modal'
 
 type Props = {
@@ -12,11 +11,13 @@ type Props = {
 
 export default function EditForm(props: Props) {
   const { data, mutation, onEditCancel } = props
-  const { setModal } = useContext(ModalContext)
-  const closeModal = () => setModal(null)
+  const [open, setOpen] = useState(false)
+  const closeModal = () => setOpen(false)
+  const [onSave, setOnSave] = useState<(() => void) | undefined>()
 
   function showModal(title: string, onAdd: () => void) {
-    setModal(<SaveModal onSave={onAdd} onClose={closeModal} />)
+    setOnSave(() => onAdd)
+    setOpen(true)
   }
 
   return (
@@ -27,6 +28,7 @@ export default function EditForm(props: Props) {
         showModal={showModal}
         onEditCancel={onEditCancel}
       />
+      <SaveModal open={open} onSave={onSave} onClose={closeModal} />
     </Fragment>
   )
 }

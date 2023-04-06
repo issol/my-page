@@ -50,11 +50,11 @@ export default function PriceUnits() {
     data: [
       {
         id: 1,
-        isBase: false,
+        isBase: true,
         authorId: 5,
         title: '프라이스',
         unit: 'Fixed rate',
-        weighting: null,
+        weighting: 100,
         isActive: false,
         subPriceUnits: [
           {
