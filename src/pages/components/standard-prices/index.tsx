@@ -14,21 +14,46 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Icon from 'src/@core/components/icon'
-import styled from 'styled-components'
 
 import Paper from '@mui/material/Paper'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { StandardPriceListType } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useState,
+  MouseEvent,
+  useContext,
+  useEffect,
+} from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Divider from '@mui/material/Divider'
 import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
 import TablePagination from '@mui/material/TablePagination'
 
+import { styled } from '@mui/material/styles'
+import ListItemIcon from '@mui/material/ListItemIcon'
+import ListItemText from '@mui/material/ListItemText'
+import MuiMenu, { MenuProps } from '@mui/material/Menu'
+import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
+
+import AddSavePriceModal from '../standard-prices-modal/add-save-price-modal'
+import { ModalContext } from '@src/context/ModalContext'
+
 function Row(props: { row: StandardPriceListType }) {
   const { row } = props
+
   const [open, setOpen] = useState(false)
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   return (
     <>
@@ -195,9 +220,51 @@ function Row(props: { row: StandardPriceListType }) {
           }}
           size='small'
         >
-          <IconButton sx={{ width: '24px', height: '24px', padding: 0 }}>
+          <IconButton
+            sx={{ width: '24px', height: '24px', padding: 0 }}
+            onClick={handleClick}
+          >
             <Icon icon='mdi:dots-horizontal' />
           </IconButton>
+          <Menu
+            keepMounted
+            elevation={8}
+            anchorEl={anchorEl}
+            id='customized-menu'
+            onClose={handleClose}
+            open={Boolean(anchorEl)}
+            anchorOrigin={{
+              vertical: 'bottom',
+              horizontal: 'right',
+            }}
+            transformOrigin={{
+              vertical: 'top',
+              horizontal: 'right',
+            }}
+          >
+            <MenuItem sx={{ gap: 2 }}>
+              <ListItemIcon
+                sx={{
+                  minWidth: '16px !important',
+                  marginRight: '0 !important',
+                }}
+              >
+                <Icon icon='mdi:pencil-outline' fontSize={16} />
+              </ListItemIcon>
+              <ListItemText primary='Edit' />
+            </MenuItem>
+            <MenuItem sx={{ gap: 2 }}>
+              <ListItemIcon
+                sx={{
+                  minWidth: '16px !important',
+                  marginRight: '0 !important',
+                }}
+              >
+                <Icon icon='mdi:delete-outline' fontSize={16} />
+              </ListItemIcon>
+              <ListItemText primary='Delete' />
+            </MenuItem>
+          </Menu>
         </TableCell>
       </TableRow>
       <TableRow>
@@ -244,6 +311,13 @@ const StandardPrices = ({
   standardClientPriceListPageSize,
   setStandardClientPriceListPageSize,
 }: Props) => {
+  const { setModal } = useContext(ModalContext)
+  const [memoForPrice, setMemoForPrice] = useState('')
+
+  const onClickAddNewPrice = () => {
+    setModal(<AddSavePriceModal type={'Add'} memoForPrice={memoForPrice} />)
+  }
+
   return (
     <Grid container xs={12} spacing={6}>
       <Grid item xs={12}>
@@ -257,238 +331,245 @@ const StandardPrices = ({
             }}
           >
             <Typography variant='h6'>Standard client prices ({0})</Typography>
-            <Button variant='contained'>Add new price</Button>
+            <Button variant='contained' onClick={onClickAddNewPrice}>
+              Add new price
+            </Button>
           </Box>
-
-          <TableContainer component={Paper}>
-            <Table aria-label='collapsible table'>
-              <TableHead
-                sx={{
-                  background: '#F5F5F7',
-                  maxHeight: '54px',
-                  textTransform: 'none',
-                  width: '100%',
-                  display: 'flex',
-                }}
-              >
-                <TableRow
-                  sx={{
-                    maxHeight: '54px',
-                    height: '54px',
-                    flex: 1,
-                    display: 'flex',
-                    alignItems: 'center',
-                  }}
-                >
-                  <TableCell
+          {isLoading ? null : (
+            <>
+              {' '}
+              <TableContainer component={Paper}>
+                <Table aria-label='collapsible table'>
+                  <TableHead
                     sx={{
-                      height: '54px',
-
-                      fontWeight: '400 !important',
-                      flex: 0.04,
-                      maxWidth: '50px',
-                      width: '50px',
+                      background: '#F5F5F7',
+                      maxHeight: '54px',
+                      textTransform: 'none',
+                      width: '100%',
+                      display: 'flex',
                     }}
-                    size='small'
                   >
-                    <Box
+                    <TableRow
                       sx={{
-                        width: '100%',
-                        height: '100%',
+                        maxHeight: '54px',
+                        height: '54px',
+                        flex: 1,
                         display: 'flex',
                         alignItems: 'center',
-                        justifyContent: 'center',
-                        cursor: 'pointer',
                       }}
                     >
-                      <KeyboardArrowDownIcon color='action' />
-                    </Box>
-                  </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          fontWeight: '400 !important',
+                          flex: 0.04,
+                          maxWidth: '50px',
+                          width: '50px',
+                        }}
+                        size='small'
+                      >
+                        <Box
+                          sx={{
+                            width: '100%',
+                            height: '100%',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            cursor: 'pointer',
+                          }}
+                        >
+                          <KeyboardArrowDownIcon color='action' />
+                        </Box>
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex !important',
-                      alignItems: 'center',
-                      flex: 0.34,
-                    }}
-                    size='small'
-                  >
-                    <Box>Price name</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
-                      width: '12px',
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex !important',
+                          alignItems: 'center',
+                          flex: 0.34,
+                        }}
+                        size='small'
+                      >
+                        <Box>Price name</Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
+                          width: '12px',
+                          padding: '16px 0',
+                          textAlign: 'center',
+                          flex: 0.0096,
+                        }}
+                      >
+                        <img
+                          src='/images/icons/pro-icons/seperator.svg'
+                          alt='sep'
+                        />
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
-                      alignItems: 'center',
-                      flex: 0.136,
-                    }}
-                    size='small'
-                  >
-                    <Box>Category</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
-                      width: '12px',
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 0.136,
+                        }}
+                        size='small'
+                      >
+                        <Box>Category</Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
+                          width: '12px',
+                          padding: '16px 0',
+                          textAlign: 'center',
+                          flex: 0.0096,
+                        }}
+                      >
+                        <img
+                          src='/images/icons/pro-icons/seperator.svg'
+                          alt='sep'
+                        />
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
-                      alignItems: 'center',
-                      flex: 0.264,
-                    }}
-                    size='small'
-                  >
-                    <Box>Service type</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 0.264,
+                        }}
+                        size='small'
+                      >
+                        <Box>Service type</Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          padding: '16px 0',
+                          textAlign: 'center',
+                          flex: 0.0096,
+                        }}
+                      >
+                        <img
+                          src='/images/icons/pro-icons/seperator.svg'
+                          alt='sep'
+                        />
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
-                      alignItems: 'center',
-                      flex: 0.096,
-                    }}
-                    size='small'
-                  >
-                    <Box>Currency</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 0.096,
+                        }}
+                        size='small'
+                      >
+                        <Box>Currency</Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          padding: '16px 0',
+                          textAlign: 'center',
+                          flex: 0.0096,
+                        }}
+                      >
+                        <img
+                          src='/images/icons/pro-icons/seperator.svg'
+                          alt='sep'
+                        />
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                      alignItems: 'center',
-                      flex: 0.104,
-                    }}
-                    size='small'
-                  >
-                    <Box>CAT basis</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex',
 
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                          alignItems: 'center',
+                          flex: 0.104,
+                        }}
+                        size='small'
+                      >
+                        <Box>CAT basis</Box>
+                      </TableCell>
+                      <TableCell
+                        sx={{
+                          height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                          padding: '16px 0',
+                          textAlign: 'center',
+                          flex: 0.0096,
+                        }}
+                      >
+                        <img
+                          src='/images/icons/pro-icons/seperator.svg'
+                          alt='sep'
+                        />
+                      </TableCell>
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
-                      alignItems: 'center',
-                      flex: 0.056,
-                    }}
-                    size='small'
-                  ></TableCell>
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {list?.map(row => (
-                  <Row key={uuidv4()} row={row} />
-                ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-          <TablePagination
-            page={standardClientPriceListPage}
-            component='div'
-            count={listCount}
-            rowsPerPage={standardClientPriceListPageSize}
-            onPageChange={(e, page) => setStandardClientPriceListPage(page)}
-            rowsPerPageOptions={[10, 25, 50]}
-            onRowsPerPageChange={e =>
-              setStandardClientPriceListPageSize(Number(e.target.value))
-            }
-          />
+                      <TableCell
+                        sx={{
+                          height: '54px',
+
+                          fontWeight: '400 !important',
+                          fontSize: '14px !important',
+                          // paddingRight: '0 !important',
+                          display: 'flex',
+                          alignItems: 'center',
+                          flex: 0.056,
+                        }}
+                        size='small'
+                      ></TableCell>
+                    </TableRow>
+                  </TableHead>
+                  <TableBody>
+                    {list?.map(row => (
+                      <Row key={uuidv4()} row={row} />
+                    ))}
+                  </TableBody>
+                </Table>
+              </TableContainer>
+              <TablePagination
+                page={standardClientPriceListPage}
+                component='div'
+                count={listCount}
+                rowsPerPage={standardClientPriceListPageSize}
+                onPageChange={(e, page) => setStandardClientPriceListPage(page)}
+                rowsPerPageOptions={[10, 25, 50]}
+                onRowsPerPageChange={e =>
+                  setStandardClientPriceListPageSize(Number(e.target.value))
+                }
+              />
+            </>
+          )}
+
           {/* <Box
             sx={{
               '& .MuiDataGrid-columnHeaderTitle': {
@@ -578,12 +659,28 @@ const StandardPrices = ({
   )
 }
 
+const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
+  '& .MuiMenu-paper': {
+    border: `1px solid ${theme.palette.divider}`,
+  },
+}))
+
+// Styled MenuItem component
+const MenuItem = styled(MuiMenuItem)<MenuItemProps>(({ theme }) => ({
+  '&:focus': {
+    backgroundColor: theme.palette.primary.main,
+    '& .MuiListItemIcon-root, & .MuiListItemText-primary': {
+      color: theme.palette.common.white,
+    },
+  },
+}))
+
 const Title = styled(Typography)`
   color: #4c4e64;
   font-size: 0.875rem;
   font-weight: 700;
 `
-const Desc = styled.p`
+const Desc = styled(Typography)`
   font-size: 1rem;
   color: rgba(76, 78, 100, 0.87);
 `
