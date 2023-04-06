@@ -1758,7 +1758,7 @@ export const handlers = [
         currency: '$ USD',
         catBasis: 'Words',
         decimalPlace: 2,
-        roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5',
+        roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
         memoForPrice: 'This is the word based price.',
       },
     ]

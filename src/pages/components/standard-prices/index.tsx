@@ -14,6 +14,7 @@ import TableContainer from '@mui/material/TableContainer'
 import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Icon from 'src/@core/components/icon'
+import styled from 'styled-components'
 
 import Paper from '@mui/material/Paper'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
@@ -185,7 +186,7 @@ function Row(props: { row: StandardPriceListType }) {
 
             fontWeight: '400 !important',
             fontSize: '14px !important',
-            borderBottom: 'unset',
+            // borderBottom: 'unset',
             // paddingRight: '0 !important',
             display: 'flex',
             justifyContent: 'flex-end',
@@ -200,13 +201,24 @@ function Row(props: { row: StandardPriceListType }) {
         </TableCell>
       </TableRow>
       <TableRow>
-        <TableCell style={{ paddingBottom: 0, paddingTop: 0 }} colSpan={6}>
+        <TableCell colSpan={6} sx={{ p: '0 !important' }}>
           <Collapse in={open} timeout='auto' unmountOnExit>
-            <Box sx={{ margin: 1 }}>
-              <Typography variant='h6' gutterBottom component='div'>
-                History
-              </Typography>
-            </Box>
+            <Grid container xs={12} padding='20px 60px'>
+              <Grid item xs={4}>
+                <Title>Number of decimal places</Title>
+                <Desc>{row.decimalPlace}</Desc>
+              </Grid>
+              <Grid item xs={4}>
+                <Title>Memo for price</Title>
+                <Desc>{row.memoForPrice}</Desc>
+              </Grid>
+            </Grid>
+            <Grid container xs={12} padding='0px 60px'>
+              <Grid item xs={4}>
+                <Title>Rounding procedure</Title>
+                <Desc>{row.roundingProcedure}</Desc>
+              </Grid>
+            </Grid>
           </Collapse>
         </TableCell>
       </TableRow>
@@ -565,5 +577,15 @@ const StandardPrices = ({
     </Grid>
   )
 }
+
+const Title = styled(Typography)`
+  color: #4c4e64;
+  font-size: 0.875rem;
+  font-weight: 700;
+`
+const Desc = styled.p`
+  font-size: 1rem;
+  color: rgba(76, 78, 100, 0.87);
+`
 
 export default StandardPrices
