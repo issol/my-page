@@ -31,12 +31,14 @@ import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** type
 import { PriceUnitType } from '@src/apis/price-units.api'
+import { CustomTableRow } from './table'
 
 type Props = {
   data?: PriceUnitType
   mutation: (value: any) => void
   showModal: (title: string, onAdd: () => void) => void
   onEditCancel?: () => void
+  shouldDisabled?: boolean
 }
 
 export default function PriceUnitForm(props: Props) {
@@ -145,7 +147,10 @@ export default function PriceUnitForm(props: Props) {
 
   return (
     <Fragment>
-      <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+      <CustomTableRow
+        isDisabled={props?.shouldDisabled ? props.shouldDisabled : false}
+        sx={{ '& > *': { borderBottom: 'unset' } }}
+      >
         <TableCell component='th' scope='row'>
           <Controller
             name='isBase'
@@ -254,12 +259,17 @@ export default function PriceUnitForm(props: Props) {
             </Button>
           </Box>
         </TableCell>
-      </TableRow>
+      </CustomTableRow>
       {isBase ? (
         <Fragment>
           {subPrices?.map((item, idx) => {
             return (
-              <TableRow key={item.id}>
+              <CustomTableRow
+                key={item.id}
+                isDisabled={
+                  props?.shouldDisabled ? props.shouldDisabled : false
+                }
+              >
                 <TableCell></TableCell>
                 <TableCell>
                   <Controller
@@ -352,11 +362,14 @@ export default function PriceUnitForm(props: Props) {
                     </IconButton>
                   </Box>
                 </TableCell>
-              </TableRow>
+              </CustomTableRow>
             )
           })}
 
-          <TableRow>
+          <CustomTableRow
+            // key={item.id}
+            isDisabled={props?.shouldDisabled ? props.shouldDisabled : false}
+          >
             <TableCell></TableCell>
             <TableCell colSpan={6}>
               <IconButton onClick={addSubPrice} disabled={!isValid}>
@@ -367,7 +380,7 @@ export default function PriceUnitForm(props: Props) {
                 />
               </IconButton>
             </TableCell>
-          </TableRow>
+          </CustomTableRow>
         </Fragment>
       ) : (
         ''

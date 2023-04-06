@@ -42,8 +42,9 @@ export default function PriceUnits() {
   const [pageSize, setPageSize] = useState(10)
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
   const { setModal } = useContext(ModalContext)
+  const [open, setOpen] = useState(false)
 
-  const closeModal = () => setModal(null)
+  const closeModal = () => setOpen(false)
 
   // ** TODO : mock data이므로 지우기
   const list = {
@@ -97,7 +98,13 @@ export default function PriceUnits() {
   }
 
   function onDeleteClick(row: PriceUnitType) {
-    setModal(<DeleteModal row={row} onDelete={onDelete} onClose={closeModal} />)
+    setModal(
+      <DeleteModal
+        row={row}
+        onDelete={onDelete}
+        onClose={() => setModal(null)}
+      />,
+    )
   }
 
   // ** TODO : delete api연결
@@ -108,12 +115,7 @@ export default function PriceUnits() {
   function onBasePriceClick(isChecked: boolean, row: PriceUnitType) {
     // ** TODO : 현재 row의 id를 저장해야 함
     if (!isChecked) {
-      setModal(
-        <CancelModal
-          onCancelBasePrice={onCancelBasePrice}
-          onClose={closeModal}
-        />,
-      )
+      setOpen(true)
     }
   }
 
@@ -149,6 +151,11 @@ export default function PriceUnits() {
           cancelEditing={cancelEditing}
         />
       </Card>
+      <CancelModal
+        open={open}
+        onCancelBasePrice={onCancelBasePrice}
+        onClose={closeModal}
+      />
     </Grid>
   )
 }

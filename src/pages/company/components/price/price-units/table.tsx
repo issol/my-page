@@ -21,12 +21,12 @@ import TableContainer from '@mui/material/TableContainer'
 import { PriceUnitDataType, PriceUnitType } from '@src/apis/price-units.api'
 import Switch from '@mui/material/Switch'
 
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-import TableMenu from './table-menu'
 import logger from '@src/@core/utils/logger'
+
+// ** components
+import TableMenu from './table-menu'
 import AddForm from './add-form'
 import EditForm from './edit-form'
 
@@ -72,7 +72,12 @@ export default function PriceUnitTable({
           />
         ) : (
           <Fragment>
-            <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
+            <CustomTableRow
+              isDisabled={!!editModeRow}
+              sx={{
+                '& > *': { borderBottom: 'unset' },
+              }}
+            >
               <TableCell component='th' scope='row'>
                 <Checkbox
                   name='base_price'
@@ -97,11 +102,12 @@ export default function PriceUnitTable({
                   onDeleteClick={onDeleteClick}
                 />
               </TableCell>
-            </TableRow>
+            </CustomTableRow>
             {row.subPriceUnits?.map(subItem => (
-              <TableRow
+              <CustomTableRow
                 sx={{ '& > *': { borderBottom: 'unset' } }}
                 key={subItem.id}
+                isDisabled={!!editModeRow}
               >
                 <TableCell component='th' scope='row'></TableCell>
                 <TableCell align='left'>
@@ -117,7 +123,7 @@ export default function PriceUnitTable({
                   <Switch checked={subItem.isActive} />
                 </TableCell>
                 <TableCell align='left'></TableCell>
-              </TableRow>
+              </CustomTableRow>
             ))}
           </Fragment>
         )}
@@ -144,8 +150,8 @@ export default function PriceUnitTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* <AddMode /> */}
-            <AddForm mutation={addMutation} />
+            <AddForm mutation={addMutation} shouldDisabled={!!editModeRow} />
+
             <TableCell colSpan={6} style={{ padding: 0 }}>
               <Divider />
             </TableCell>
@@ -191,4 +197,25 @@ const HeaderCell = styled(TableCell)`
     height: 30%;
     background: rgba(76, 78, 100, 0.12);
   }
+`
+
+export const CustomTableRow = styled(TableRow)<{ isDisabled?: boolean }>`
+  ${({ isDisabled }) =>
+    isDisabled
+      ? css`
+      pointer-events:none;
+          position: relative;
+          filter: grayscale(100%);
+            &::after {
+              position: absolute;
+              width: 100%;
+              height:100%;
+              top: 0;
+              left: 0;
+              content: "";
+              background: rgba(76, 78, 100, 0.12);
+              mix-blend-mode:revert;
+              filter: grayscale(100%);
+  `
+      : ``}
 `
