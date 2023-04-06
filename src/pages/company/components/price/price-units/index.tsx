@@ -50,15 +50,16 @@ export default function PriceUnits() {
     data: [
       {
         id: 1,
-        isBasePrice: true,
-        priceUnit: '이걸 수정할래',
+        isBase: false,
+        authorId: 5,
+        title: '프라이스',
         unit: 'Fixed rate',
-        weighting: 100,
+        weighting: null,
         isActive: false,
-        subPrice: [
+        subPriceUnits: [
           {
             id: 1,
-            priceUnit: '똑깔라비띠',
+            title: 'Ehrsldkf',
             unit: 'Fixed rate',
             weighting: 80,
             isActive: true,
@@ -67,12 +68,12 @@ export default function PriceUnits() {
       },
       {
         id: 2,
-        isBasePrice: false,
-        priceUnit: '알라깔라',
+        isBase: false,
+        title: '알라깔라',
         unit: 'Fixed rate',
         weighting: 100,
         isActive: false,
-        subPrice: [],
+        subPriceUnits: [],
       },
     ],
     totalCount: 2,

@@ -27,7 +27,6 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 import TableMenu from './table-menu'
 import logger from '@src/@core/utils/logger'
-import AddMode from './add-mode'
 import AddForm from './add-form'
 import EditForm from './edit-form'
 
@@ -77,14 +76,12 @@ export default function PriceUnitTable({
               <TableCell component='th' scope='row'>
                 <Checkbox
                   name='base_price'
-                  checked={row.isBasePrice}
+                  checked={row.isBase}
                   onChange={e => onBasePriceClick(e.currentTarget.checked, row)}
                 />
               </TableCell>
               <TableCell align='left'>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  {row.priceUnit}
-                </Typography>
+                <Typography sx={{ fontWeight: 'bold' }}>{row.title}</Typography>
               </TableCell>
               <TableCell align='left'>{row.unit ?? '-'}</TableCell>
               <TableCell align='left'>
@@ -101,7 +98,7 @@ export default function PriceUnitTable({
                 />
               </TableCell>
             </TableRow>
-            {row.subPrice?.map(subItem => (
+            {row.subPriceUnits?.map(subItem => (
               <TableRow
                 sx={{ '& > *': { borderBottom: 'unset' } }}
                 key={subItem.id}
@@ -109,7 +106,7 @@ export default function PriceUnitTable({
                 <TableCell component='th' scope='row'></TableCell>
                 <TableCell align='left'>
                   <Typography sx={{ paddingLeft: '40px' }}>
-                    {subItem.priceUnit}
+                    {subItem.title}
                   </Typography>
                 </TableCell>
                 <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>

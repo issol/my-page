@@ -9,15 +9,16 @@ export type PriceUnitDataType = {
 }
 export type PriceUnitType = {
   id: number
-  isBasePrice: boolean
-  priceUnit: string
+  isBase: boolean
+  authorId?: number
+  title: string
   unit: string
   weighting: number | null
   isActive: boolean
-  subPrice: Array<{
+  subPriceUnits: Array<{
     id: number
-    isBasePrice?: boolean //subPrice에 isBasePrice값은 넣을지 말지 고민해보기
-    priceUnit: string
+    // isBase: boolean //subPrice에 isBasePrice값은 넣을지 말지 고민해보기
+    title: string
     unit: string
     weighting: number
     isActive: boolean

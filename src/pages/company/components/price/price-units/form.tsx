@@ -49,9 +49,9 @@ export default function PriceUnitForm(props: Props) {
   const { setModal } = useContext(ModalContext)
 
   const defaultValues = {
-    isBasePrice: false,
-    priceUnit: '',
-    subPrice: [],
+    isBase: false,
+    title: '',
+    subPriceUnits: [],
     unit: '',
     weighting: null,
     isActive: true,
@@ -78,10 +78,10 @@ export default function PriceUnitForm(props: Props) {
     update,
   } = useFieldArray({
     control,
-    name: 'subPrice',
+    name: 'subPriceUnits',
   })
 
-  const isBasePrice = watch('isBasePrice')
+  const isBase = watch('isBase')
   const unit = watch('unit')
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -101,7 +101,7 @@ export default function PriceUnitForm(props: Props) {
   function addSubPrice() {
     append({
       isSubPrice: true,
-      priceUnit: getValues('priceUnit'),
+      title: getValues('title'),
       unit: unit,
       weighting: getValues('weighting'),
       isActive: true,
@@ -125,21 +125,21 @@ export default function PriceUnitForm(props: Props) {
 
   function onCancelBasePrice() {
     setValue('weighting', null, setValueOptions)
-    setValue('isBasePrice', false, setValueOptions)
+    setValue('isBase', false, setValueOptions)
     remove()
   }
 
   function onCancel() {
     if (!props?.data) {
       reset()
-      reset({ subPrice: [] })
+      reset({ subPriceUnits: [] })
     } else {
       props?.onEditCancel && props.onEditCancel()
     }
   }
 
   function onAddClick() {
-    showModal(getValues('priceUnit'), onAdd)
+    showModal(getValues('title'), onAdd)
   }
 
   function onAdd() {
@@ -152,7 +152,7 @@ export default function PriceUnitForm(props: Props) {
       <TableRow sx={{ '& > *': { borderBottom: 'unset' } }}>
         <TableCell component='th' scope='row'>
           <Controller
-            name='isBasePrice'
+            name='isBase'
             control={control}
             render={({ field: { value, onChange } }) => (
               <Checkbox
@@ -180,13 +180,13 @@ export default function PriceUnitForm(props: Props) {
         </TableCell>
         <TableCell align='left'>
           <Controller
-            name='priceUnit'
+            name='title'
             control={control}
             render={({ field: { value, onChange, onBlur } }) => (
               <TextField
                 fullWidth
                 id='price-unit'
-                error={Boolean(errors.priceUnit)}
+                error={Boolean(errors.title)}
                 placeholder='0-80 cuts'
                 value={value}
                 onChange={onChange}
@@ -264,7 +264,7 @@ export default function PriceUnitForm(props: Props) {
           </Box>
         </TableCell>
       </TableRow>
-      {isBasePrice ? (
+      {isBase ? (
         <Fragment>
           {subPrices?.map((item, idx) => {
             return (
@@ -272,15 +272,15 @@ export default function PriceUnitForm(props: Props) {
                 <TableCell></TableCell>
                 <TableCell>
                   <Controller
-                    name={`subPrice.${idx}.priceUnit`}
+                    name={`subPriceUnits.${idx}.title`}
                     control={control}
                     render={({ field }) => (
                       <TextField
                         {...field}
                         fullWidth
                         error={Boolean(
-                          errors.subPrice?.length
-                            ? errors?.subPrice[idx]?.priceUnit?.message
+                          errors.subPriceUnits?.length
+                            ? errors?.subPriceUnits[idx]?.title?.message
                             : false,
                         )}
                         id='price-unit'
@@ -292,7 +292,7 @@ export default function PriceUnitForm(props: Props) {
                 </TableCell>
                 <TableCell>
                   <Controller
-                    name={`subPrice.${idx}.unit`}
+                    name={`subPriceUnits.${idx}.unit`}
                     control={control}
                     render={({ field }) => (
                       <Autocomplete
@@ -314,7 +314,7 @@ export default function PriceUnitForm(props: Props) {
                 </TableCell>
                 <TableCell>
                   <Controller
-                    name={`subPrice.${idx}.weighting`}
+                    name={`subPriceUnits.${idx}.weighting`}
                     control={control}
                     render={({ field }) => (
                       <TextField
@@ -323,8 +323,8 @@ export default function PriceUnitForm(props: Props) {
                         id='weighting'
                         placeholder='-'
                         error={Boolean(
-                          errors.subPrice?.length
-                            ? errors?.subPrice[idx]?.weighting?.message
+                          errors.subPriceUnits?.length
+                            ? errors?.subPriceUnits[idx]?.weighting?.message
                             : false,
                         )}
                         onChange={e => {
@@ -343,7 +343,7 @@ export default function PriceUnitForm(props: Props) {
                     ''
                   ) : (
                     <Controller
-                      name={`subPrice.${idx}.isActive`}
+                      name={`subPriceUnits.${idx}.isActive`}
                       control={control}
                       render={({ field: { value, onChange } }) => (
                         <Switch checked={value} onChange={onChange} />

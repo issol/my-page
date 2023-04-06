@@ -2,41 +2,41 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
 export type PriceFormType = {
-  isBasePrice: boolean
-  priceUnit: string
+  isBase: boolean
+  title: string
   unit: string
   weighting: number | null
   isActive: boolean
-  subPrice?: Array<{
+  subPriceUnits?: Array<{
     isSubPrice: boolean
-    priceUnit: string
+    title: string
     unit: string
     weighting: null | number
     isActive: boolean
   }>
 }
 export const priceUnitSchema = yup.object().shape({
-  isBasePrice: yup.boolean().required(),
-  priceUnit: yup.string().required(),
+  isBase: yup.boolean().required(),
+  title: yup.string().required(),
   unit: yup.string().nullable(),
   weighting: yup
     .number()
     .nullable()
-    .when('isBasePrice', (isBasePrice, schema) =>
-      !isBasePrice ? schema : yup.number().required(),
+    .when('isBase', (isBase, schema) =>
+      !isBase ? schema : yup.number().required(),
     ),
-  subPrice: yup
+  subPriceUnits: yup
     .array()
     .min(1, FormErrors.required)
     .of(
       yup.object().shape({
         isSubPrice: yup.boolean(),
-        priceUnit: yup.string().required(),
+        title: yup.string().required(),
         unit: yup.string().nullable(),
         weighting: yup.number().min(1).required(),
       }),
     )
-    .when('isBasePrice', (isBasePrice, schema) => {
-      return isBasePrice ? schema : yup.array().nullable()
+    .when('isBase', (isBase, schema) => {
+      return isBase ? schema : yup.array().nullable()
     }),
 })
