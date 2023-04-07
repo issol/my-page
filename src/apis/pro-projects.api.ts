@@ -48,27 +48,6 @@ export const getProProjectList = async (
       })}`,
     )
     return data
-    // return {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       title: 'Red Wood',
-    //       role: 'Copywriter',
-    //       client: 'Sandbox',
-    //       sourceLanguage: 'en',
-    //       targetLanguage: 'ko',
-    //       dueDate: Date(),
-    //       status: 'Invoice created',
-    //       timezone: 'KST',
-    //       projectName: 'Red wood..',
-    //       orderDate: Date(),
-    //       description: '알라깔라 똑깔라비',
-    //       category: 'Dubbing',
-    //       projectId: 'AAA-XXX',
-    //     },
-    //   ],
-    //   totalCount: 3,
-    // }
   } catch (e: any) {
     return {
       data: [],

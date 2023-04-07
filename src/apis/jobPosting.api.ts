@@ -33,59 +33,6 @@ export const getJobPostingList = async (
       })}`,
     )
     return data
-    // return {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       status: 'Ongoing',
-    //       jobType: 'Dubbing',
-    //       role: 'Audio describer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       email: 'bon@glozinc.com',
-    //       dueDate: Date(),
-    //       openings: 3,
-    //       yearsOfExperience: '1-2 year(s)',
-    //       dueDateTimezone: 'KR',
-    //       jobPostLink: 'www.bon.com',
-    //       view: 12,
-    //     },
-    //     {
-    //       id: 2,
-    //       status: 'Not started',
-    //       jobType: 'Interpretation',
-    //       role: 'QCer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       email: 'bon@glozinc.com',
-    //       dueDate: Date(),
-    //       openings: 3,
-    //       yearsOfExperience: '1-2 year(s)',
-    //       dueDateTimezone: 'KR',
-    //       jobPostLink: 'www.bon.com/2',
-    //       view: 30,
-    //     },
-    //     {
-    //       id: 4,
-    //       status: 'Not started',
-    //       jobType: 'Interpretation',
-    //       role: 'QCer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       email: 'bon@glozinc.com',
-    //       dueDate: Date(),
-    //       openings: 3,
-    //       yearsOfExperience: '1-2 year(s)',
-    //       jobPostLink: 'www.bon.com/1',
-    //       dueDateTimezone: 'KR',
-    //       view: 100,
-    //     },
-    //   ],
-    //   count: 3,
-    // }
   } catch (e: any) {
     return {
       data: [],
@@ -120,47 +67,6 @@ export const getJobPostingDetail = async (
   try {
     const { data } = await axios.get(`/api/enough/recruiting/jobposting/${id}`)
     return data
-    // return {
-    //   id: 1,
-    //   status: 'Ongoing',
-    //   writer: 'Bon Kim',
-    //   email: 'Bon@glozinc.com',
-    //   jobType: 'Dubbing',
-    //   role: 'QCer',
-    //   sourceLanguage: 'en',
-    //   targetLanguage: 'ko',
-    //   dueDate: Date(),
-    //   openings: 5,
-    //   dueDateTimezone: 'KR',
-    //   yearsOfExperience: '1-2 year(s)',
-    //   postLink: [{ id: 1, category: '알바천국', link: 'www.bon.com' }],
-    //   jobPostLink: 'www.shorturl.com',
-    //   createdAt: Date(),
-    // content: {
-    //   blocks: [
-    //     {
-    //       key: 'd9so6',
-    //       text: 'translation guidelines document for web novels:',
-    //       type: 'unstyled',
-    //       depth: 0,
-    //       inlineStyleRanges: [],
-    //       entityRanges: [],
-    //       data: {},
-    //     },
-    //     {
-    //       key: 'b75mm',
-    //       text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
-    //       type: 'unstyled',
-    //       depth: 0,
-    //       inlineStyleRanges: [],
-    //       entityRanges: [],
-    //       data: {},
-    //     },
-    //   ],
-    //   entityMap: {},
-    // },
-    //   view: 10,
-    // }
   } catch (e: any) {
     throw new Error(e)
   }
