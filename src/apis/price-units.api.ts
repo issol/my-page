@@ -47,21 +47,21 @@ export const getPriceUnitList = async (
 export type PriceUnitFormType = {
   title?: string
   unit?: string
-  weighting?: 100
-  isBase?: true
-  isActive?: true
+  weighting?: number | null
+  isBase?: boolean
+  isActive?: boolean
   subPriceUnits?: Array<{
     title?: string
     unit?: string
-    weighting?: 90
-    isActive?: true
+    weighting?: number | null
+    isActive?: boolean
   }>
 }
 export const postPriceUnit = async (
   form: PriceUnitFormType,
 ): Promise<PriceUnitDataType> => {
   try {
-    const { data } = await axios.post(`/api/enough/u/price/unit`, { form })
+    const { data } = await axios.post(`/api/enough/u/price/unit`, { ...form })
     return data
   } catch (e: any) {
     return {
@@ -76,7 +76,7 @@ export const updatePriceUnit = async (
   form: PriceUnitFormType,
 ): Promise<any> => {
   try {
-    return await axios.patch(`/api/enough/u/price/unit/${userId}`, { form })
+    return await axios.patch(`/api/enough/u/price/unit/${userId}`, { ...form })
   } catch (e: any) {
     throw new Error(e)
   }

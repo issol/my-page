@@ -16,7 +16,7 @@ export default function CancelModal({
   return (
     <Dialog
       onClose={onClose}
-      aria-labelledby='price-unit-save-dialog'
+      aria-labelledby='price-unit-cancel-base-price-dialog'
       open={open}
     >
       <SmallModalContainer>

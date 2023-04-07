@@ -141,7 +141,7 @@ export default function PriceUnitForm(props: Props) {
   }
 
   function onAdd() {
-    // logger.info(getValues())
+    logger.info(getValues())
     mutation(getValues())
   }
 

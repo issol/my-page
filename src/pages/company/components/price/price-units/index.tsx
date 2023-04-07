@@ -1,13 +1,11 @@
 // ** React Imports
-import { useState, Fragment, useContext } from 'react'
+import { useState, useContext, useEffect } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
 
-import styled from 'styled-components'
-
 // ** mui
-import { Button, Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
+import { Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import CardHeader from '@mui/material/CardHeader'
 
@@ -15,16 +13,23 @@ import CardHeader from '@mui/material/CardHeader'
 import logger from '@src/@core/utils/logger'
 
 // ** types
-import { PriceUnitType } from '@src/apis/price-units.api'
+import {
+  PriceUnitFormType,
+  PriceUnitType,
+  deletePriceUnit,
+  postPriceUnit,
+  updatePriceUnit,
+} from '@src/apis/price-units.api'
 
 // ** components
 import PriceUnitTable from './table'
 import DeleteModal from './modal/delete-modal'
 import CancelModal from './modal/cancel-baseprice-modal'
 
-/** TODO
- * 8. basePrice 체크 시 자동 editMode되는 로직 추가
- */
+// ** action
+import { useMutation } from 'react-query'
+import { useGetPriceUnitList } from '@src/queries/price-units.query'
+import { toast } from 'react-hot-toast'
 
 export default function PriceUnits() {
   const [skip, setSkip] = useState(0)
@@ -35,7 +40,64 @@ export default function PriceUnits() {
 
   const closeModal = () => setOpen(false)
 
-  //{ ...filter, skip: skip * pageSize, take: pageSize },
+  const { data, refetch } = useGetPriceUnitList({
+    skip: skip * pageSize,
+    take: pageSize,
+  })
+
+  const postMutation = useMutation(
+    (form: PriceUnitFormType) => postPriceUnit(form),
+    {
+      onSuccess: () => {
+        onMutationSuccess()
+      },
+      onError: () => {
+        onMutationError()
+      },
+    },
+  )
+
+  const updateMutation = useMutation(
+    ({ userId, form }: { userId: number; form: PriceUnitFormType }) =>
+      updatePriceUnit(userId, form),
+    {
+      onSuccess: () => {
+        cancelEditing()
+        onMutationSuccess()
+      },
+      onError: () => {
+        onMutationError()
+      },
+    },
+  )
+
+  const deleteMutation = useMutation(
+    (userId: number) => deletePriceUnit(userId),
+    {
+      onSuccess: () => {
+        onMutationSuccess()
+      },
+      onError: () => {
+        onMutationError()
+      },
+    },
+  )
+
+  function onMutationError() {
+    return toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  function onMutationSuccess() {
+    return toast.success('Succeed!', {
+      position: 'bottom-left',
+    })
+  }
+
+  useEffect(() => {
+    refetch()
+  }, [skip, pageSize])
 
   // ** TODO : mock data이므로 지우기
   const list = {
@@ -72,21 +134,18 @@ export default function PriceUnits() {
   }
 
   function onEditClick(row: PriceUnitType) {
-    // logger.info(id)
     setEditModeRow(row)
   }
 
-  function addMutation(value: PriceUnitType) {
-    logger.info('addddd : ', value)
+  function addMutation(value: PriceUnitFormType) {
+    postMutation.mutate(value)
   }
-  function saveMutation(value: PriceUnitType) {
-    // ** TODO : cancelEditing은 mutation onSuccess로 옮기기
-    cancelEditing()
-    logger.info('edddit : ', value)
+  function saveMutation(value: PriceUnitFormType) {
+    updateMutation.mutate({ userId: editModeRow?.authorId!, form: value })
   }
 
   function onToggleActive(id: number, value: boolean) {
-    logger.info('toggle : ', id, value)
+    updateMutation.mutate({ userId: id, form: { isActive: value } })
   }
 
   function cancelEditing() {
@@ -103,21 +162,24 @@ export default function PriceUnits() {
     )
   }
 
-  // ** TODO : delete api연결
   function onDelete(row: PriceUnitType) {
     logger.info(row)
+    deleteMutation.mutate(row.authorId!)
   }
 
+  const [row, setRow] = useState<PriceUnitType>()
   function onBasePriceClick(isChecked: boolean, row: PriceUnitType) {
-    // ** TODO : 현재 row의 id를 저장해야 함
     if (!isChecked) {
       setOpen(true)
+      setRow({ ...row })
+    } else {
+      setEditModeRow({ ...row, isBase: true })
     }
   }
 
-  // ** TODO : basePrice체크를 해제하는 api호출. 이 api호출 시, subPrice는 모두 삭제되어야 함
   function onCancelBasePrice() {
-    logger.info()
+    //@ts-ignore
+    setEditModeRow({ ...row, isBase: false, subPriceUnits: [] })
   }
 
   return (

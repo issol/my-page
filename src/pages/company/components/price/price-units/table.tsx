@@ -18,7 +18,11 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import { PriceUnitDataType, PriceUnitType } from '@src/apis/price-units.api'
+import {
+  PriceUnitDataType,
+  PriceUnitFormType,
+  PriceUnitType,
+} from '@src/apis/price-units.api'
 import Switch from '@mui/material/Switch'
 
 import styled, { css } from 'styled-components'
@@ -39,8 +43,8 @@ type Props = {
   onEditClick: (row: PriceUnitType) => void
   onDeleteClick: (row: PriceUnitType) => void
   onBasePriceClick: (isChecked: boolean, row: PriceUnitType) => void
-  addMutation: (row: PriceUnitType) => void
-  saveMutation: (row: PriceUnitType) => void
+  addMutation: (row: PriceUnitFormType) => void
+  saveMutation: (row: PriceUnitFormType) => void
   editModeRow: PriceUnitType | undefined
   cancelEditing: () => void
   onToggleActive: (id: number, value: boolean) => void
