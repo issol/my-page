@@ -4,7 +4,13 @@ import Dialog from '@mui/material/Dialog'
 import DialogContent from '@mui/material/DialogContent'
 import Autocomplete from '@mui/material/Autocomplete'
 import { ModalContext } from '@src/context/ModalContext'
-import { useContext } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
 import {
@@ -12,13 +18,19 @@ import {
   Controller,
   FieldErrors,
   UseFormGetValues,
+  UseFormHandleSubmit,
+  UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { JobList } from '@src/shared/const/job/jobs'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from '@src/shared/const/service-type/service-types'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
 import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
@@ -27,17 +39,14 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
-
-type Props = {
-  type: string
-
-  memoForPrice: string
-}
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
+import PriceActionModal from '../modal/price-action-modal'
 
 const defaultValue = {
   priceName: '',
   category: undefined,
-  serviceType: [],
+  serviceType: undefined,
   currency: { label: '$ USD', value: 'USD' },
   catBasis: { label: 'Words', value: 'Words' },
   decimalPlace: undefined,
@@ -45,11 +54,61 @@ const defaultValue = {
   memoForPrice: '',
 }
 
-const AddSavePriceModal = ({
-  type,
+type Props = {
+  open: boolean
+  onClose: any
+  type: string
+  selectedPriceData?: StandardPriceListType
+  setPriceActionModalOpen: Dispatch<SetStateAction<boolean>>
+  setAddingPriceData: Dispatch<SetStateAction<any>>
+  setSelectedAction: Dispatch<SetStateAction<any>>
+  // resetData: () => void
+  // setValue: UseFormSetValue<AddPriceType>
+  // handleSubmit: UseFormHandleSubmit<AddPriceType>
+  onSubmit: (data: AddPriceType) => void
+  // control: Control<AddPriceType, any>
+  // errors: FieldErrors<AddPriceType>
+  setServiceTypeList: Dispatch<
+    SetStateAction<
+      {
+        label: ServiceType
+        value: ServiceType
+      }[]
+    >
+  >
+  serviceTypeList: {
+    label: ServiceType
+    value: ServiceType
+  }[]
+  onClickAction: (type: string) => void
+  addingPriceData?: AddPriceType
+  // trigger: UseFormTrigger<AddPriceType>
+  // watch: UseFormWatch<AddPriceType>
+  // isValid: boolean
+}
 
-  memoForPrice,
-}: Props) => {
+const AddSavePriceModal = ({
+  open,
+  onClose,
+  type,
+  selectedPriceData,
+  // setValue,
+  // control,
+  // errors,
+  // resetData,
+  setServiceTypeList,
+  // trigger,
+  setPriceActionModalOpen,
+  setAddingPriceData,
+  setSelectedAction,
+  // handleSubmit,
+  onSubmit,
+  serviceTypeList,
+  onClickAction,
+  addingPriceData,
+}: // watch,
+// isValid,
+Props) => {
   const { setModal } = useContext(ModalContext)
   const {
     control,
@@ -59,6 +118,8 @@ const AddSavePriceModal = ({
     setError,
     trigger,
     getValues,
+    setValue,
+
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddPriceType>({
     mode: 'onBlur',
@@ -66,36 +127,68 @@ const AddSavePriceModal = ({
     resolver: yupResolver(standardPricesSchema),
   })
 
-  const onSubmit = (data: AddPriceType) => {
-    console.log(data)
-  }
-
-  console.log(errors)
-  console.log(watch('serviceType'))
-
-  console.log(isValid)
-
   const resetData = () => {
     reset({
       priceName: '',
-      category: { label: '', value: '' },
-      serviceType: [],
-      currency: { label: '', value: '' },
-      catBasis: { label: '', value: '' },
+      category: undefined,
+      serviceType: undefined,
+      currency: { label: '$ USD', value: 'USD' },
+      catBasis: { label: 'Words', value: 'Words' },
       decimalPlace: undefined,
-      roundingProcedure: { label: '', value: '' },
+      roundingProcedure: undefined,
       memoForPrice: '',
     })
   }
+  useEffect(() => {
+    if (type === 'Edit' && selectedPriceData) {
+      setValue('priceName', selectedPriceData.priceName)
 
+      setValue('category', {
+        label: selectedPriceData.category,
+        value: selectedPriceData.category,
+      })
+
+      setValue(
+        'serviceType',
+        selectedPriceData.serviceType.map(value => ({
+          label: value,
+          value: value,
+        })),
+      )
+      setValue('currency', {
+        label:
+          selectedPriceData.currency === 'USD'
+            ? '$ USD'
+            : selectedPriceData.currency === 'KRW'
+            ? '₩ KRW'
+            : selectedPriceData.currency === 'JPY'
+            ? '¥ JPY'
+            : selectedPriceData.currency === 'SGD'
+            ? '$ SGD'
+            : '',
+        value: selectedPriceData.currency,
+      })
+      setValue('catBasis', {
+        label: selectedPriceData.catBasis,
+        value: selectedPriceData.catBasis,
+      })
+      setValue('decimalPlace', selectedPriceData.decimalPlace)
+      setValue('roundingProcedure', {
+        label: selectedPriceData.roundingProcedure,
+        value: selectedPriceData.roundingProcedure,
+      })
+      setValue('memoForPrice', selectedPriceData.memoForPrice)
+    }
+  }, [type, selectedPriceData])
   return (
     <Dialog
-      open={true}
+      open={open}
       keepMounted
       fullWidth
       onClose={() => {
-        setModal(null)
         resetData()
+        // setModal(null)
+        onClose()
       }}
       // TransitionComponent={Transition}
       aria-labelledby='alert-dialog-slide-title'
@@ -152,6 +245,12 @@ const AddSavePriceModal = ({
                     }}
                     onChange={(event, item) => {
                       onChange(item)
+                      if (item) {
+                        // @ts-ignore
+                        const res = ServiceTypePair[item.value]
+                        setServiceTypeList(res)
+                        trigger('serviceType')
+                      }
                     }}
                     value={value}
                     options={CategoryList}
@@ -187,17 +286,30 @@ const AddSavePriceModal = ({
                     }}
                     onChange={(event, item) => {
                       onChange(item)
+
+                      // ServiceTypePair
                     }}
                     value={value}
-                    options={ServiceTypeList}
+                    options={serviceTypeList}
                     id='ServiceType'
                     limitTags={1}
+                    disabled={
+                      watch('category') === null ||
+                      watch('category') === undefined
+                    }
                     getOptionLabel={option => option.label}
                     renderInput={params => (
                       <TextField
                         {...params}
                         label='Service type*'
-                        error={watch('serviceType').length === 0}
+                        disabled={
+                          watch('category') === null ||
+                          watch('category') === undefined
+                        }
+                        error={
+                          watch('serviceType') &&
+                          watch('serviceType').length === 0
+                        }
                       />
                     )}
                     renderOption={(props, option, { selected }) => (
@@ -209,7 +321,7 @@ const AddSavePriceModal = ({
                   />
                 )}
               />
-              {watch('serviceType').length === 0 && (
+              {watch('serviceType') && watch('serviceType').length === 0 && (
                 <FormHelperText sx={{ color: 'error.main' }}>
                   {FormErrors.required}
                 </FormHelperText>
@@ -374,8 +486,20 @@ const AddSavePriceModal = ({
                   size='medium'
                   color='secondary'
                   type='button'
+                  onClick={() => {
+                    setSelectedAction(type === 'Edit' ? 'Cancel' : 'Discard')
+
+                    setPriceActionModalOpen(true)
+                    setModal(
+                      <PriceActionModal
+                        priceData={addingPriceData!}
+                        type={type === 'Edit' ? 'Cancel' : 'Discard'}
+                        onClickAction={onClickAction}
+                      />,
+                    )
+                  }}
                 >
-                  Discard
+                  {type === 'Edit' ? 'Cancel' : 'Discard'}
                 </Button>
                 <Button
                   variant='contained'
@@ -383,7 +507,7 @@ const AddSavePriceModal = ({
                   type='submit'
                   disabled={!isValid}
                 >
-                  {type}
+                  {type === 'Edit' ? 'Save' : 'Add'}
                 </Button>
               </Box>
             </Grid>

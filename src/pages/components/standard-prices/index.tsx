@@ -38,14 +38,27 @@ import ListItemText from '@mui/material/ListItemText'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
 import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
 
-import AddSavePriceModal from '../standard-prices-modal/add-save-price-modal'
+import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 import { ModalContext } from '@src/context/ModalContext'
+import NoPriceUnitModal from '../standard-prices-modal/modal/no-price-unit-modal'
+import PriceActionModal from '../standard-prices-modal/modal/price-action-modal'
+import { AddPriceType } from '@src/types/company/standard-client-prices'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
-function Row(props: { row: StandardPriceListType }) {
-  const { row } = props
+function Row(props: {
+  row: StandardPriceListType
+  onClickDeletePrice: (id: number) => void
+  onClickEditPrice: (priceData: StandardPriceListType) => void
+}) {
+  const { row, onClickDeletePrice, onClickEditPrice } = props
 
   const [open, setOpen] = useState(false)
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const [selected, setSelected] = useState<number>(-1)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -64,6 +77,9 @@ function Row(props: { row: StandardPriceListType }) {
           height: '54px',
           display: 'flex',
         }}
+        hover
+        onClick={() => setSelected(row.id)}
+        selected={row.id === selected}
       >
         <TableCell
           sx={{
@@ -154,7 +170,7 @@ function Row(props: { row: StandardPriceListType }) {
           }}
           size='small'
         >
-          <ServiceTypeChip label={row.serviceType} />
+          <ServiceTypeChip label={row.serviceType[0]} />
         </TableCell>
         <TableCell
           sx={{
@@ -174,7 +190,15 @@ function Row(props: { row: StandardPriceListType }) {
           }}
           size='small'
         >
-          {row.currency}
+          {row.currency === 'USD'
+            ? '$ USD'
+            : row.currency === 'SGD'
+            ? '$ SGD'
+            : row.currency === 'KRW'
+            ? '₩ KRW'
+            : row.currency === 'JPY'
+            ? '¥ JPY'
+            : '-'}
         </TableCell>
         <TableCell
           sx={{
@@ -242,7 +266,7 @@ function Row(props: { row: StandardPriceListType }) {
               horizontal: 'right',
             }}
           >
-            <MenuItem sx={{ gap: 2 }}>
+            <MenuItem sx={{ gap: 2 }} onClick={() => onClickEditPrice(row)}>
               <ListItemIcon
                 sx={{
                   minWidth: '16px !important',
@@ -253,7 +277,10 @@ function Row(props: { row: StandardPriceListType }) {
               </ListItemIcon>
               <ListItemText primary='Edit' />
             </MenuItem>
-            <MenuItem sx={{ gap: 2 }}>
+            <MenuItem
+              sx={{ gap: 2 }}
+              onClick={() => onClickDeletePrice(row.id)}
+            >
               <ListItemIcon
                 sx={{
                   minWidth: '16px !important',
@@ -267,7 +294,7 @@ function Row(props: { row: StandardPriceListType }) {
           </Menu>
         </TableCell>
       </TableRow>
-      <TableRow>
+      <TableRow selected={row.id === selected}>
         <TableCell colSpan={6} sx={{ p: '0 !important' }}>
           <Collapse in={open} timeout='auto' unmountOnExit>
             <Grid container xs={12} padding='20px 60px'>
@@ -312,14 +339,123 @@ const StandardPrices = ({
   setStandardClientPriceListPageSize,
 }: Props) => {
   const { setModal } = useContext(ModalContext)
-  const [memoForPrice, setMemoForPrice] = useState('')
+
+  const [noPriceUnitModalOpen, setNoPriceUnitModalOpen] = useState(false)
+  const [priceActionModalOpen, setPriceActionModalOpen] = useState(false)
+  const [addSaveModalOpen, setAddSaveModalOpen] = useState(false)
+  const [addingPriceData, setAddingPriceData] = useState<AddPriceType | null>(
+    null,
+  )
+  const [selectedPriceData, setSelectedPriceData] =
+    useState<StandardPriceListType | null>(null)
+  const [selectedAction, setSelectedAction] = useState('')
+  const [selectedModalType, setSelectedModalType] = useState('')
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+
+  const onClickAction = (type: string) => {
+    setPriceActionModalOpen(false)
+    if (type === 'Add' || type === 'Discard') {
+      setAddSaveModalOpen(false)
+      setAddingPriceData(null)
+      // resetData()
+    }
+    console.log(type)
+  }
 
   const onClickAddNewPrice = () => {
-    setModal(<AddSavePriceModal type={'Add'} memoForPrice={memoForPrice} />)
+    // TODO Price unit 있는지 판단 후 alert 모달 띄우기
+    // setNoPriceUnitModalOpen(true)
+    // setSelectedPriceData(priceData)
+    setSelectedModalType('Add')
+    setAddSaveModalOpen(true)
   }
+
+  const onClickEditPrice = (priceData: StandardPriceListType) => {
+    console.log(priceData)
+
+    setSelectedPriceData(priceData)
+    setSelectedModalType('Edit')
+    setAddSaveModalOpen(true)
+    // setModal()
+  }
+
+  const onClickDeletePrice = (id: number) => {
+    console.log('delete')
+  }
+
+  const onSubmit = (data: AddPriceType) => {
+    console.log(data)
+    setAddingPriceData(data)
+    setSelectedAction(selectedModalType === 'Add' ? 'Add' : 'Save')
+    setModal(null)
+    setPriceActionModalOpen(true)
+
+    setModal(
+      <PriceActionModal
+        priceData={addingPriceData!}
+        type={selectedModalType === 'Add' ? 'Add' : 'Save'}
+        onClickAction={onClickAction}
+      />,
+    )
+  }
+
+  const newModalOpen = () => {
+    if (addSaveModalOpen) {
+      if (selectedModalType === 'Edit') {
+        return (
+          <AddSavePriceModal
+            open={addSaveModalOpen}
+            onClose={() => setAddSaveModalOpen(false)}
+            type={selectedModalType}
+            setPriceActionModalOpen={setPriceActionModalOpen}
+            setAddingPriceData={setAddingPriceData}
+            setSelectedAction={setSelectedAction}
+            onSubmit={onSubmit}
+            serviceTypeList={serviceTypeList}
+            setServiceTypeList={setServiceTypeList}
+            selectedPriceData={selectedPriceData!}
+            onClickAction={onClickAction}
+            addingPriceData={addingPriceData!}
+          />
+        )
+      } else if (selectedModalType === 'Add') {
+        return (
+          <AddSavePriceModal
+            open={addSaveModalOpen}
+            onClose={() => setAddSaveModalOpen(false)}
+            type={selectedModalType}
+            setPriceActionModalOpen={setPriceActionModalOpen}
+            setAddingPriceData={setAddingPriceData}
+            setSelectedAction={setSelectedAction}
+            onSubmit={onSubmit}
+            serviceTypeList={serviceTypeList}
+            setServiceTypeList={setServiceTypeList}
+            onClickAction={onClickAction}
+            addingPriceData={addingPriceData!}
+            // selectedPriceData={selectedPriceData!}
+          />
+        )
+      }
+    }
+  }
+
+  // useEffect(() => {
+  //   if (selectedModalType === 'Edit' && selectedPriceData) {
+  //     console.log('hi')
+  //   } else {
+  //     setValue('currency', { label: '$ USD', value: 'USD' })
+  //     setValue('catBasis', { label: 'Words', value: 'Words' })
+  //   }
+  // }, [selectedModalType, selectedPriceData])
 
   return (
     <Grid container xs={12} spacing={6}>
+      <NoPriceUnitModal
+        open={noPriceUnitModalOpen}
+        onClose={() => setNoPriceUnitModalOpen(false)}
+      />
+      {newModalOpen()}
+
       <Grid item xs={12}>
         <Card sx={{ padding: '20px 0' }}>
           <Box
@@ -330,14 +466,15 @@ const StandardPrices = ({
               padding: '0 20px 20px 20px',
             }}
           >
-            <Typography variant='h6'>Standard client prices ({0})</Typography>
+            <Typography variant='h6'>
+              Standard client prices ({listCount})
+            </Typography>
             <Button variant='contained' onClick={onClickAddNewPrice}>
               Add new price
             </Button>
           </Box>
           {isLoading ? null : (
             <>
-              {' '}
               <TableContainer component={Paper}>
                 <Table aria-label='collapsible table'>
                   <TableHead
@@ -551,7 +688,12 @@ const StandardPrices = ({
                   </TableHead>
                   <TableBody>
                     {list?.map(row => (
-                      <Row key={uuidv4()} row={row} />
+                      <Row
+                        key={uuidv4()}
+                        row={row}
+                        onClickEditPrice={onClickEditPrice}
+                        onClickDeletePrice={onClickDeletePrice}
+                      />
                     ))}
                   </TableBody>
                 </Table>

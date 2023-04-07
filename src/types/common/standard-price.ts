@@ -2,7 +2,7 @@ export type StandardPriceListType = {
   id: number
   priceName: string
   category: string
-  serviceType: string
+  serviceType: string[]
   currency: string
   catBasis: string
 
