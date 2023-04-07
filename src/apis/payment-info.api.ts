@@ -1,13 +1,14 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 
+export type UserInfo = {
+  userId: number | null
+  identificationNumber?: string //social security number
+  identificationUploaded?: boolean //주민등록증
+  businessLicenseUploaded?: boolean
+}
 export type UserPaymentInfoType = {
-  userInfo: {
-    userId: number | null
-    identificationNumber?: string //social security number
-    identificationFile?: string //주민등록증
-    businessLicense?: string
-  }
+  userInfo: UserInfo
   type:
     | 'Transfer wise'
     | 'US ACH'
@@ -90,8 +91,8 @@ export const getUserPaymentInfo = async (
       userInfo: {
         userId: null,
         identificationNumber: '',
-        identificationFile: '',
-        businessLicense: '',
+        identificationUploaded: false,
+        businessLicenseUploaded: false,
       },
       type: '',
       bankInfo: {
@@ -158,8 +159,8 @@ export const getUserPaymentInfoForManager = async (
       userInfo: {
         userId: null,
         identificationNumber: '',
-        identificationFile: '',
-        businessLicense: '',
+        identificationUploaded: false,
+        businessLicenseUploaded: false,
       },
       type: '',
       bankInfo: {
@@ -186,12 +187,13 @@ export const getUserPaymentInfoForManager = async (
   }
 }
 
+export type FileNameType = 'identification' | 'businessLicense'
 export const downloadPersonalInfoFile = async (
   userId: number,
-  file: string,
+  file: FileNameType,
 ): Promise<Blob> => {
   try {
-    const { data } = await axios.get(
+    const { data } = await axios.post(
       `/api/enough/u/pro/${userId}/payment/download-file/${file}`,
       {
         responseType: 'blob',

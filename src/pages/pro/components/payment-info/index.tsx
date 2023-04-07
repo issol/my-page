@@ -17,7 +17,12 @@ import BillingAddress from './billing-address'
 
 // ** actions
 import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
-import { downloadPersonalInfoFile } from '@src/apis/payment-info.api'
+import {
+  FileNameType,
+  downloadPersonalInfoFile,
+} from '@src/apis/payment-info.api'
+import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
+import axios from 'axios'
 
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
@@ -49,11 +54,11 @@ export default function PaymentInfo({ id }: Props) {
     return value.replaceAll('*', '●')
   }
 
-  function fetchFile(fileName: string) {
+  function fetchFile(fileName: FileNameType) {
     downloadPersonalInfoFile(id, fileName)
       .then(res => {
-        logger.info(`${fileName} file download has been succeed : `, res)
-        const url = window.URL.createObjectURL(res)
+        logger.info(`${fileName} file download : `, typeof new Blob([res]))
+        const url = window.URL.createObjectURL(new Blob([res]))
         const link = document.createElement('a')
         link.href = url
         link.setAttribute('download', `${fileName}`)
@@ -70,7 +75,7 @@ export default function PaymentInfo({ id }: Props) {
       )
   }
 
-  function downloadFile(name: string) {
+  function downloadFile(name: FileNameType) {
     fetchFile(name)
   }
 
