@@ -43,6 +43,7 @@ type Props = {
   saveMutation: (row: PriceUnitType) => void
   editModeRow: PriceUnitType | undefined
   cancelEditing: () => void
+  onToggleActive: (id: number, value: boolean) => void
 }
 
 export default function PriceUnitTable({
@@ -58,6 +59,7 @@ export default function PriceUnitTable({
   saveMutation,
   editModeRow,
   cancelEditing,
+  onToggleActive,
 }: Props) {
   const Row = (props: { row: PriceUnitType }) => {
     // ** Props
@@ -93,7 +95,10 @@ export default function PriceUnitTable({
                 {row.weighting ? `${row.weighting}%` : '-'}
               </TableCell>
               <TableCell align='left'>
-                <Switch checked={row.isActive} />
+                <Switch
+                  checked={row.isActive}
+                  onChange={e => onToggleActive(row.id, e.target.checked)}
+                />
               </TableCell>
               <TableCell align='left'>
                 <TableMenu
@@ -120,7 +125,10 @@ export default function PriceUnitTable({
                   {subItem.weighting ? `${subItem.weighting}%` : '-'}
                 </TableCell>
                 <TableCell align='left'>
-                  <Switch checked={subItem.isActive} />
+                  <Switch
+                    checked={subItem.isActive}
+                    onChange={e => onToggleActive(subItem.id, e.target.checked)}
+                  />
                 </TableCell>
                 <TableCell align='left'></TableCell>
               </CustomTableRow>
@@ -151,7 +159,6 @@ export default function PriceUnitTable({
           </TableHead>
           <TableBody>
             <AddForm mutation={addMutation} shouldDisabled={!!editModeRow} />
-
             <TableCell colSpan={6} style={{ padding: 0 }}>
               <Divider />
             </TableCell>

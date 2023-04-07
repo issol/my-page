@@ -89,8 +89,13 @@ export default function PriceUnits() {
     logger.info('addddd : ', value)
   }
   function saveMutation(value: PriceUnitType) {
+    // ** TODO : cancelEditing은 mutation onSuccess로 옮기기
     cancelEditing()
     logger.info('edddit : ', value)
+  }
+
+  function onToggleActive(id: number, value: boolean) {
+    logger.info('toggle : ', id, value)
   }
 
   function cancelEditing() {
@@ -149,6 +154,7 @@ export default function PriceUnits() {
           saveMutation={saveMutation}
           editModeRow={editModeRow}
           cancelEditing={cancelEditing}
+          onToggleActive={onToggleActive}
         />
       </Card>
       <CancelModal
