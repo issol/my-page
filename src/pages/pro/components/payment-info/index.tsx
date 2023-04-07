@@ -55,9 +55,7 @@ export default function PaymentInfo({ id }: Props) {
   }
 
   function fetchFile(fileName: FileNameType) {
-    // ** TODO : 테스트코드 삭제 후 아래 주석처리 된 내용 활성화 하기
-    // downloadPersonalInfoFile(id, fileName)
-    downloadPersonalInfoFile(5, 'identification')
+    downloadPersonalInfoFile(id, fileName)
       .then(res => {
         logger.info(`${fileName} file download : `, typeof new Blob([res]))
         const url = window.URL.createObjectURL(new Blob([res]))

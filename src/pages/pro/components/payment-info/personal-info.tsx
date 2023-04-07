@@ -43,8 +43,7 @@ export default function PersonalInfo({
         <Button
           variant='outlined'
           sx={{ marginTop: '15px' }}
-          // ** TODO : 아래 disabled옵션 주석 해제하기!
-          // disabled={!isAccountManager || !info?.identificationUploaded}
+          disabled={!isAccountManager || !info?.identificationUploaded}
           onClick={() => downloadFile('identification')}
         >
           Download
