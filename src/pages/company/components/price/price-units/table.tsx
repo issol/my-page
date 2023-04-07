@@ -182,7 +182,7 @@ export default function PriceUnitTable({
       <TablePagination
         page={skip}
         component='div'
-        count={list.totalCount}
+        count={list.count}
         rowsPerPage={pageSize}
         onPageChange={(e, page) => setSkip(page)}
         rowsPerPageOptions={[10, 25, 50]}

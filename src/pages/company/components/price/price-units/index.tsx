@@ -40,7 +40,7 @@ export default function PriceUnits() {
 
   const closeModal = () => setOpen(false)
 
-  const { data, refetch } = useGetPriceUnitList({
+  const { data: list, refetch } = useGetPriceUnitList({
     skip: skip * pageSize,
     take: pageSize,
   })
@@ -100,38 +100,38 @@ export default function PriceUnits() {
   // }, [skip, pageSize])
 
   // ** TODO : mock data이므로 지우기
-  const list = {
-    data: [
-      {
-        id: 1,
-        isBase: true,
-        authorId: 5,
-        title: '프라이스',
-        unit: 'Fixed rate',
-        weighting: 100,
-        isActive: false,
-        subPriceUnits: [
-          {
-            id: 1,
-            title: 'Ehrsldkf',
-            unit: 'Fixed rate',
-            weighting: 80,
-            isActive: true,
-          },
-        ],
-      },
-      {
-        id: 2,
-        isBase: false,
-        title: '알라깔라',
-        unit: 'Fixed rate',
-        weighting: 100,
-        isActive: false,
-        subPriceUnits: [],
-      },
-    ],
-    totalCount: 2,
-  }
+  // const list = {
+  //   data: [
+  //     {
+  //       id: 1,
+  //       isBase: true,
+  //       authorId: 5,
+  //       title: '프라이스',
+  //       unit: 'Fixed rate',
+  //       weighting: 100,
+  //       isActive: false,
+  //       subPriceUnits: [
+  //         {
+  //           id: 1,
+  //           title: 'Ehrsldkf',
+  //           unit: 'Fixed rate',
+  //           weighting: 80,
+  //           isActive: true,
+  //         },
+  //       ],
+  //     },
+  //     {
+  //       id: 2,
+  //       isBase: false,
+  //       title: '알라깔라',
+  //       unit: 'Fixed rate',
+  //       weighting: 100,
+  //       isActive: false,
+  //       subPriceUnits: [],
+  //     },
+  //   ],
+  //   count: 2,
+  // }
 
   function onEditClick(row: PriceUnitType) {
     setEditModeRow(row)
@@ -189,7 +189,7 @@ export default function PriceUnits() {
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>
-                Price units ({list?.totalCount | 0})
+                Price units ({list?.count || 0})
               </Typography>
             </Box>
           }
@@ -199,7 +199,7 @@ export default function PriceUnits() {
           setSkip={setSkip}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          list={list}
+          list={list ?? { data: [], count: 0 }}
           onEditClick={onEditClick}
           onDeleteClick={onDeleteClick}
           onBasePriceClick={onBasePriceClick}

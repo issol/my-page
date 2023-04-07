@@ -4,7 +4,7 @@ import { makeQuery } from '@src/shared/transformer/query.transformer'
 
 export type PriceUnitDataType = {
   data: Array<PriceUnitType>
-  totalCount: number
+  count: number
 }
 export type PriceUnitType = {
   id: number
@@ -39,7 +39,7 @@ export const getPriceUnitList = async (
   } catch (e: any) {
     return {
       data: [],
-      totalCount: 0,
+      count: 0,
     }
   }
 }
@@ -66,7 +66,7 @@ export const postPriceUnit = async (
   } catch (e: any) {
     return {
       data: [],
-      totalCount: 0,
+      count: 0,
     }
   }
 }
