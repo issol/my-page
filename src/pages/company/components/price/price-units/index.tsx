@@ -23,18 +23,7 @@ import DeleteModal from './modal/delete-modal'
 import CancelModal from './modal/cancel-baseprice-modal'
 
 /** TODO
- * 1. onEdit, onDelete함수 완성
- * 2. onDelete시 모달 추가 ❤️
- * 3. isActive 활성화 로직 추가
- * 4. editMode 컴포넌트 심기
- * 5. editMode가 있는 경우 나머지 row비활성화 처리
- * 6. subPrice도 display ❤️
- * 7. basePrice 체크/해제 시 모달 추가 ❤️
  * 8. basePrice 체크 시 자동 editMode되는 로직 추가
- *
- * add / edit모드 차이
- * edit모드에만 isActive체크하는게 있음
- * edit모드에는 Add버튼이 아닌 Save버튼이 있음 (모달도 다름)
  */
 
 export default function PriceUnits() {
@@ -45,6 +34,8 @@ export default function PriceUnits() {
   const [open, setOpen] = useState(false)
 
   const closeModal = () => setOpen(false)
+
+  //{ ...filter, skip: skip * pageSize, take: pageSize },
 
   // ** TODO : mock data이므로 지우기
   const list = {
