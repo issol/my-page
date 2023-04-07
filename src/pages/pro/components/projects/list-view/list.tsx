@@ -42,7 +42,6 @@ type Props = {
     data: Array<ProProjectType> | []
     totalCount: number
   }
-  isLoading: boolean
 }
 
 export default function ProjectsList({
@@ -54,7 +53,6 @@ export default function ProjectsList({
   list,
   sort,
   setSort,
-  isLoading,
 }: Props) {
   const Row = (props: { row: ProProjectType }) => {
     // ** Props
@@ -197,9 +195,9 @@ export default function ProjectsList({
                     <Box>
                       Due date
                       <IconButton
-                        onClick={() =>
+                        onClick={() => {
                           setSort(sort === 'DESC' ? 'ASC' : 'DESC')
-                        }
+                        }}
                       >
                         <Icon
                           icon={`material-symbols:arrow-${

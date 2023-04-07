@@ -54,3 +54,14 @@ const BtnGroup = styled.div`
   display: flex;
   justify-content: center;
 `
+
+export const SmallModalContainer = styled(Box)`
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  max-width: 360px;
+  padding: 20px;
+  background: #ffffff;
+  border-radius: 10px;
+`

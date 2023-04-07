@@ -25,43 +25,6 @@ export const getGuidelines = async (
       `/api/enough/onboard/guideline?${makeQuery(filters)}`,
     )
     return data
-    // return {
-    //   data: [
-    // {
-    //   id: 21778705315028,
-    //   title: 'Naver webtoon guideline Ver.3',
-    //   client: 'Naver',
-    //   category: 'Webcomics',
-    //   serviceType: 'Translation',
-    //   createdAt: 'Tue Jan 31 2023 00:40:09',
-    // },
-    //     {
-    //       id: 2,
-    //       title: 'Tappytoon style guide',
-    //       client: 'Tappytoon',
-    //       category: 'Webnovel',
-    //       serviceType: 'Proofreading',
-    //       createdAt: 'Tue Jan 31 2023 00:40:09',
-    //     },
-    //     {
-    //       id: 3,
-    //       title: 'Naver webtoon guideline Ver.3',
-    //       client: 'Naver',
-    //       category: 'YouTube',
-    //       serviceType: 'QC',
-    //       createdAt: 'Tue Jan 31 2023 00:40:09',
-    //     },
-    //     {
-    //       id: 4,
-    //       title: 'Naver webtoon guideline Ver.3',
-    //       client: 'Naver',
-    //       category: 'Webcomics',
-    //       serviceType: 'Translation',
-    //       createdAt: 'Tue Jan 31 2023 00:40:09',
-    //     },
-    //   ],
-    //   count: 4,
-    // }
   } catch (e: any) {
     return {
       data: [],
