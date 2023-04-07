@@ -156,7 +156,9 @@ export default function PriceUnitTable({
                 Price unit
               </HeaderCell>
               <HeaderCell align='left'>Unit</HeaderCell>
-              <HeaderCell align='left'>Weighting (%)</HeaderCell>
+              <HeaderCell align='left' sx={{ minWidth: '100px' }}>
+                Weighting (%)
+              </HeaderCell>
               <HeaderCell align='left'>Active</HeaderCell>
               <TableCell align='left'></TableCell>
             </TableRow>

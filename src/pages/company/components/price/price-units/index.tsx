@@ -95,9 +95,9 @@ export default function PriceUnits() {
     })
   }
 
-  useEffect(() => {
-    refetch()
-  }, [skip, pageSize])
+  // useEffect(() => {
+  //   refetch()
+  // }, [skip, pageSize])
 
   // ** TODO : mock data이므로 지우기
   const list = {

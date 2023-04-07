@@ -89,10 +89,6 @@ export default function ProjectsDetail({ id }: Props) {
   }
 
   useEffect(() => {
-    refetch()
-  }, [sort])
-
-  useEffect(() => {
     if (isEqual(initialFilter, filter)) {
       refetch()
     }
@@ -141,7 +137,6 @@ export default function ProjectsDetail({ id }: Props) {
               setSkip={setSkip}
               pageSize={pageSize}
               setPageSize={setPageSize}
-              isLoading={false}
               list={list || { data: [], totalCount: 0 }}
             />
           </Grid>

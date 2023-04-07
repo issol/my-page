@@ -1,3 +1,4 @@
+import logger from '@src/@core/utils/logger'
 import {
   FilterType,
   getProProjectList,

@@ -18,8 +18,6 @@ import BillingAddress from './billing-address'
 // ** actions
 import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
 import { downloadPersonalInfoFile } from '@src/apis/payment-info.api'
-import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
-import axios from 'axios'
 
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
@@ -77,7 +75,9 @@ export default function PaymentInfo({ id }: Props) {
   }
 
   useEffect(() => {
-    refetch()
+    if (isManagerRequest) {
+      refetch()
+    }
   }, [isManagerRequest])
 
   function getDetail() {
