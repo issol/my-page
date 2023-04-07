@@ -3,18 +3,14 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 import { IconButton } from '@mui/material'
 import styled from 'styled-components'
+import { FileNameType, UserInfo } from '@src/apis/payment-info.api'
 
 type Props = {
-  info: {
-    userId: number | null
-    identificationNumber?: string //social security number
-    identificationFile?: string //주민등록증
-    businessLicense?: string
-  }
+  info: UserInfo
   onCopy: (info: string) => void
   isAccountManager: boolean
   replaceDots: (value: string) => string
-  downloadFile: (value: string) => void
+  downloadFile: (value: FileNameType) => void
 }
 
 export default function PersonalInfo({
@@ -47,8 +43,9 @@ export default function PersonalInfo({
         <Button
           variant='outlined'
           sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager || !info?.identificationFile}
-          onClick={() => downloadFile(info?.identificationFile!)}
+          // ** TODO : 아래 disabled옵션 주석 해제하기!
+          // disabled={!isAccountManager || !info?.identificationUploaded}
+          onClick={() => downloadFile('identification')}
         >
           Download
         </Button>
@@ -69,8 +66,8 @@ export default function PersonalInfo({
         <Button
           variant='outlined'
           sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager || !info?.businessLicense}
-          onClick={() => downloadFile(info?.businessLicense!)}
+          disabled={!isAccountManager || !info?.businessLicenseUploaded}
+          onClick={() => downloadFile('businessLicense')}
         >
           Download
         </Button>
