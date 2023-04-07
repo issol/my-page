@@ -3,9 +3,6 @@ import { useEffect, useState } from 'react'
 import { Grid, Typography } from '@mui/material'
 import PageHeader from 'src/@core/components/page-header'
 
-// ** third parties
-import isEqual from 'lodash/isEqual'
-
 // ** values
 import { ProRolePair } from 'src/shared/const/role/roles'
 import { ProJobPair } from 'src/shared/const/job/jobs'
@@ -26,34 +23,30 @@ export type FilterType = {
   take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
+// export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
 
-export const initialFilter: FilterOmitType = {
+export const initialFilter: FilterType = {
   jobType: '',
   role: '',
   yearsOfExperience: '',
   source: '',
   target: '',
   dueDate: '',
+  skip: 0,
+  take: 10,
 }
 export default function jobPosting() {
   type FilterState = Array<{ value: string; label: string }>
-  const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [search, setSearch] = useState(true)
+  // const [pageSize, setPageSize] = useState(10)
+  const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
+  const [activeFilter, setActiveFilter] = useState<FilterType>({
+    ...initialFilter,
+  })
 
-  const {
-    data: list,
-    refetch,
-    isLoading,
-  } = useGetJobPostingList(
-    { ...filter, skip: skip * pageSize, take: pageSize },
-    search,
-    setSearch,
-  )
+  const { data: list, isLoading } = useGetJobPostingList(activeFilter)
 
   function findDynamicFilterOptions(
     type: 'role' | 'jobType',
@@ -98,16 +91,14 @@ export default function jobPosting() {
     }
   }, [filter.role])
 
-  function onReset() {
-    setFilter({ ...initialFilter })
+  function onSearch() {
+    setActiveFilter({ ...filter })
   }
 
-  useEffect(() => {
-    if (isEqual(initialFilter, filter)) {
-      refetch()
-    }
-  }, [filter])
-
+  function onReset() {
+    setFilter({ ...initialFilter })
+    setActiveFilter({ ...initialFilter })
+  }
   return (
     <Grid container spacing={6} className='match-height'>
       <PageHeader title={<Typography variant='h5'>Job posting</Typography>} />
@@ -117,13 +108,18 @@ export default function jobPosting() {
         jobTypeOption={jobTypeOption}
         onReset={onReset}
         roleOption={roleOption}
-        search={() => setSearch(true)}
+        search={onSearch}
       />
       <JobPostingList
         skip={skip}
-        pageSize={pageSize}
-        setSkip={setSkip}
-        setPageSize={setPageSize}
+        pageSize={activeFilter.take!}
+        setSkip={(n: number) => {
+          setSkip(n)
+          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+        }}
+        setPageSize={(n: number) =>
+          setActiveFilter({ ...activeFilter, take: n })
+        }
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
       />

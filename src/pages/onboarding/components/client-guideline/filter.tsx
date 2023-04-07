@@ -25,11 +25,11 @@ import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** types
-import { ConstType, FilterOmitType } from '../../client-guideline'
+import { ConstType, FilterType } from '../../client-guideline'
 
 type Props = {
-  filter: FilterOmitType
-  setFilter: <T extends FilterOmitType>(v: T) => void
+  filter: FilterType
+  setFilter: <T extends FilterType>(v: T) => void
   search: () => void
   onReset: () => void
   serviceType: Array<ConstType>
@@ -42,7 +42,10 @@ export default function Filters({
   onReset,
   serviceType,
 }: Props) {
-  function filterValue(option: any, keyName: keyof FilterOmitType) {
+  function filterValue(
+    option: any,
+    keyName: keyof Omit<FilterType, 'skip' | 'take'>,
+  ) {
     return !filter[keyName]
       ? option[0]
       : option.filter((item: { value: string; label: string }) =>

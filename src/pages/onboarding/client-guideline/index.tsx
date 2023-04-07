@@ -17,7 +17,6 @@ import {
   ServiceTypePair,
 } from 'src/shared/const/service-type/service-types'
 
-import isEqual from 'lodash/isEqual'
 import { AuthContext } from '@src/context/AuthContext'
 
 export type ConstType = {
@@ -35,25 +34,20 @@ export type FilterType = {
   take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
-
-export const initialFilter: FilterOmitType = {
+export const initialFilter: FilterType = {
   client: [],
   category: [],
   serviceType: [],
   title: '',
   content: '',
+  skip: 0,
+  take: 10,
 }
 export default function ClientGuidLines() {
   const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [filter, setFilter] = useState<FilterOmitType>({
-    ...initialFilter,
-  })
+  const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
     ...initialFilter,
-    skip: skip * pageSize,
-    take: pageSize,
   })
 
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
@@ -62,12 +56,12 @@ export default function ClientGuidLines() {
   const { data: list, isLoading } = useGetGuideLines(activeFilter)
 
   function onSearch() {
-    setActiveFilter({ ...filter, skip, take: pageSize })
+    setActiveFilter({ ...filter })
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
-    setActiveFilter({ ...initialFilter, skip: skip * pageSize, take: pageSize })
+    setActiveFilter({ ...initialFilter })
   }
 
   function findServiceTypeFilter() {
@@ -118,13 +112,17 @@ export default function ClientGuidLines() {
         onReset={onReset}
         serviceType={serviceType}
         search={onSearch}
-        // search={() => setSearch(true)}
       />
       <ClientGuideLineList
         skip={skip}
-        pageSize={pageSize}
-        setSkip={setSkip}
-        setPageSize={setPageSize}
+        pageSize={activeFilter.take!}
+        setSkip={(n: number) => {
+          setSkip(n)
+          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+        }}
+        setPageSize={(n: number) =>
+          setActiveFilter({ ...activeFilter, take: n })
+        }
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
         user={user!}
