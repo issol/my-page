@@ -3,6 +3,8 @@ import { useState, useContext, useEffect } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
+import { AuthContext } from '@src/context/AuthContext'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** mui
 import { Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
@@ -30,8 +32,12 @@ import CancelModal from './modal/cancel-baseprice-modal'
 import { useMutation } from 'react-query'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import { toast } from 'react-hot-toast'
+import { company_price } from '@src/shared/const/permission-class'
 
 export default function PriceUnits() {
+  const { user } = useContext(AuthContext)
+  const ability = useContext(AbilityContext)
+
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
@@ -39,6 +45,11 @@ export default function PriceUnits() {
   const [open, setOpen] = useState(false)
 
   const closeModal = () => setOpen(false)
+
+  function abilityCheck(can: 'create' | 'update' | 'delete', id: number) {
+    const writer = new company_price(id)
+    return ability.can(can, writer)
+  }
 
   const { data: list, refetch } = useGetPriceUnitList({
     skip: skip * pageSize,
@@ -58,8 +69,8 @@ export default function PriceUnits() {
   )
 
   const updateMutation = useMutation(
-    ({ userId, form }: { userId: number; form: PriceUnitFormType }) =>
-      updatePriceUnit(userId, form),
+    ({ id, form }: { id: number; form: PriceUnitFormType }) =>
+      updatePriceUnit(id, form),
     {
       onSuccess: () => {
         cancelEditing()
@@ -71,17 +82,14 @@ export default function PriceUnits() {
     },
   )
 
-  const deleteMutation = useMutation(
-    (userId: number) => deletePriceUnit(userId),
-    {
-      onSuccess: () => {
-        onMutationSuccess()
-      },
-      onError: () => {
-        onMutationError()
-      },
+  const deleteMutation = useMutation((id: number) => deletePriceUnit(id), {
+    onSuccess: () => {
+      onMutationSuccess()
     },
-  )
+    onError: () => {
+      onMutationError()
+    },
+  })
 
   function onMutationError() {
     return toast.error('Something went wrong. Please try again.', {
@@ -90,48 +98,11 @@ export default function PriceUnits() {
   }
 
   function onMutationSuccess() {
+    refetch()
     return toast.success('Succeed!', {
       position: 'bottom-left',
     })
   }
-
-  // useEffect(() => {
-  //   refetch()
-  // }, [skip, pageSize])
-
-  // ** TODO : mock data이므로 지우기
-  // const list = {
-  //   data: [
-  //     {
-  //       id: 1,
-  //       isBase: true,
-  //       authorId: 5,
-  //       title: '프라이스',
-  //       unit: 'Fixed rate',
-  //       weighting: 100,
-  //       isActive: false,
-  //       subPriceUnits: [
-  //         {
-  //           id: 1,
-  //           title: 'Ehrsldkf',
-  //           unit: 'Fixed rate',
-  //           weighting: 80,
-  //           isActive: true,
-  //         },
-  //       ],
-  //     },
-  //     {
-  //       id: 2,
-  //       isBase: false,
-  //       title: '알라깔라',
-  //       unit: 'Fixed rate',
-  //       weighting: 100,
-  //       isActive: false,
-  //       subPriceUnits: [],
-  //     },
-  //   ],
-  //   count: 2,
-  // }
 
   function onEditClick(row: PriceUnitType) {
     setEditModeRow(row)
@@ -141,11 +112,11 @@ export default function PriceUnits() {
     postMutation.mutate(value)
   }
   function saveMutation(value: PriceUnitFormType) {
-    updateMutation.mutate({ userId: editModeRow?.authorId!, form: value })
+    updateMutation.mutate({ id: editModeRow?.id!, form: value })
   }
 
   function onToggleActive(id: number, value: boolean) {
-    updateMutation.mutate({ userId: id, form: { isActive: value } })
+    updateMutation.mutate({ id: id, form: { isActive: value } })
   }
 
   function cancelEditing() {
@@ -164,7 +135,7 @@ export default function PriceUnits() {
 
   function onDelete(row: PriceUnitType) {
     logger.info(row)
-    deleteMutation.mutate(row.authorId!)
+    deleteMutation.mutate(row.id!)
   }
 
   const [row, setRow] = useState<PriceUnitType>()
@@ -173,13 +144,31 @@ export default function PriceUnits() {
       setOpen(true)
       setRow({ ...row })
     } else {
-      setEditModeRow({ ...row, isBase: true })
+      setEditModeRow({
+        ...row,
+        isBase: true,
+        weighting: 100,
+        subPriceUnits: [
+          {
+            title: row.title,
+            unit: row.unit,
+            weighting: 100,
+            isActive: true,
+            id: 0,
+          },
+        ],
+      })
     }
   }
 
   function onCancelBasePrice() {
     //@ts-ignore
-    setEditModeRow({ ...row, isBase: false, subPriceUnits: [] })
+    setEditModeRow({
+      ...row,
+      isBase: false,
+      weighting: null,
+      subPriceUnits: [],
+    })
   }
 
   return (
@@ -189,7 +178,7 @@ export default function PriceUnits() {
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>
-                Price units ({list?.count || 0})
+                Price units ({list?.totalCount || 0})
               </Typography>
             </Box>
           }
@@ -208,6 +197,8 @@ export default function PriceUnits() {
           editModeRow={editModeRow}
           cancelEditing={cancelEditing}
           onToggleActive={onToggleActive}
+          abilityCheck={abilityCheck}
+          user={user}
         />
       </Card>
       <CancelModal

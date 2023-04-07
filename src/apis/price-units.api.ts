@@ -5,6 +5,7 @@ import { makeQuery } from '@src/shared/transformer/query.transformer'
 export type PriceUnitDataType = {
   data: Array<PriceUnitType>
   count: number
+  totalCount: number
 }
 export type PriceUnitType = {
   id: number
@@ -16,7 +17,7 @@ export type PriceUnitType = {
   isActive: boolean
   subPriceUnits: Array<{
     id: number
-    // isBase: boolean //subPrice에 isBasePrice값은 넣을지 말지 고민해보기
+    isBase?: boolean
     title: string
     unit: string
     weighting: number
@@ -40,6 +41,7 @@ export const getPriceUnitList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -64,27 +66,24 @@ export const postPriceUnit = async (
     const { data } = await axios.post(`/api/enough/u/price/unit`, { ...form })
     return data
   } catch (e: any) {
-    return {
-      data: [],
-      count: 0,
-    }
+    throw new Error(e)
   }
 }
 
 export const updatePriceUnit = async (
-  userId: number,
+  id: number,
   form: PriceUnitFormType,
 ): Promise<any> => {
   try {
-    return await axios.patch(`/api/enough/u/price/unit/${userId}`, { ...form })
+    return await axios.patch(`/api/enough/u/price/unit/${id}`, { ...form })
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const deletePriceUnit = async (userId: number): Promise<any> => {
+export const deletePriceUnit = async (id: number): Promise<any> => {
   try {
-    return await axios.delete(`/api/enough/u/price/unit/${userId}`)
+    return await axios.delete(`/api/enough/u/price/unit/${id}`)
   } catch (e: any) {
     throw new Error(e)
   }

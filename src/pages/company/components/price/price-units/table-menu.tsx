@@ -1,5 +1,5 @@
 // ** react
-import { MouseEvent, useState } from 'react'
+import { Fragment, MouseEvent, useState } from 'react'
 
 // ** mui
 import IconButton from '@mui/material/IconButton'
@@ -15,9 +15,17 @@ type Props = {
   row: PriceUnitType
   onEditClick: (rowId: number) => void
   onDeleteClick: (row: PriceUnitType) => void
+  abilityCheck: (can: 'create' | 'update' | 'delete', id: number) => boolean
+  userId: number
 }
 
-export default function TableMenu({ row, onEditClick, onDeleteClick }: Props) {
+export default function TableMenu({
+  row,
+  onEditClick,
+  onDeleteClick,
+  abilityCheck,
+  userId,
+}: Props) {
   // ** State
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -29,54 +37,66 @@ export default function TableMenu({ row, onEditClick, onDeleteClick }: Props) {
     setAnchorEl(null)
   }
 
+  const isEditable = abilityCheck('update', userId)
+  const isDeletable = abilityCheck('delete', userId)
+
   return (
-    <div>
-      <IconButton
-        aria-label='more'
-        aria-controls='long-menu'
-        aria-haspopup='true'
-        onClick={handleClick}
-      >
-        <Icon icon='mdi:dots-vertical' />
-      </IconButton>
-      <Menu
-        keepMounted
-        id='long-menu'
-        anchorEl={anchorEl}
-        onClose={handleClose}
-        open={Boolean(anchorEl)}
-        PaperProps={{
-          style: {
-            display: 'flex',
-            maxHeight: 48 * 4.5,
-          },
-        }}
-      >
-        <MenuItem onClick={handleClose}>
+    <Fragment>
+      {!isEditable && !isDeletable ? null : (
+        <div>
           <IconButton
-            aria-label='edit'
+            aria-label='more'
+            aria-controls='long-menu'
             aria-haspopup='true'
-            onClick={() => onEditClick(row.id)}
-            sx={{ display: 'flex', gap: '4px' }}
-            key='Edit'
+            onClick={handleClick}
           >
-            <Icon icon='mdi:pencil-outline' />
-            <Typography>Edit</Typography>
+            <Icon icon='mdi:dots-vertical' />
           </IconButton>
-        </MenuItem>
-        <MenuItem onClick={handleClose}>
-          <IconButton
-            aria-label='delete'
-            aria-haspopup='true'
-            onClick={() => onDeleteClick(row)}
-            sx={{ display: 'flex', gap: '4px' }}
-            key='Delete'
+          <Menu
+            keepMounted
+            id='long-menu'
+            anchorEl={anchorEl}
+            onClose={handleClose}
+            open={Boolean(anchorEl)}
+            PaperProps={{
+              style: {
+                display: 'flex',
+                maxHeight: 48 * 4.5,
+              },
+            }}
           >
-            <Icon icon='mdi:trash-outline' />
-            <Typography>Delete</Typography>
-          </IconButton>
-        </MenuItem>
-      </Menu>
-    </div>
+            {isEditable ? (
+              <MenuItem onClick={handleClose}>
+                <IconButton
+                  aria-label='edit'
+                  aria-haspopup='true'
+                  onClick={() => onEditClick(row.id)}
+                  sx={{ display: 'flex', gap: '4px' }}
+                  key='Edit'
+                >
+                  <Icon icon='mdi:pencil-outline' />
+                  <Typography>Edit</Typography>
+                </IconButton>
+              </MenuItem>
+            ) : null}
+
+            {isDeletable ? (
+              <MenuItem onClick={handleClose}>
+                <IconButton
+                  aria-label='delete'
+                  aria-haspopup='true'
+                  onClick={() => onDeleteClick(row)}
+                  sx={{ display: 'flex', gap: '4px' }}
+                  key='Delete'
+                >
+                  <Icon icon='mdi:trash-outline' />
+                  <Typography>Delete</Typography>
+                </IconButton>
+              </MenuItem>
+            ) : null}
+          </Menu>
+        </div>
+      )}
+    </Fragment>
   )
 }

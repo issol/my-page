@@ -1,15 +1,8 @@
 // ** react
-import { Fragment, MouseEvent, useState } from 'react'
+import { Fragment, useState } from 'react'
 
 // ** mui
-import {
-  Button,
-  Card,
-  Checkbox,
-  TablePagination,
-  Tooltip,
-  Typography,
-} from '@mui/material'
+import { Checkbox, TablePagination, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -34,12 +27,15 @@ import TableMenu from './table-menu'
 import AddForm from './add-form'
 import EditForm from './edit-form'
 
+// ** type
+import { UserDataType } from '@src/context/types'
+
 type Props = {
   skip: number
   pageSize: number
   setSkip: (n: number) => void
   setPageSize: (n: number) => void
-  list: PriceUnitDataType
+  list: Omit<PriceUnitDataType, 'totalCount'>
   onEditClick: (row: PriceUnitType) => void
   onDeleteClick: (row: PriceUnitType) => void
   onBasePriceClick: (isChecked: boolean, row: PriceUnitType) => void
@@ -48,6 +44,8 @@ type Props = {
   editModeRow: PriceUnitType | undefined
   cancelEditing: () => void
   onToggleActive: (id: number, value: boolean) => void
+  abilityCheck: (can: 'create' | 'update' | 'delete', id: number) => boolean
+  user: UserDataType | null
 }
 
 export default function PriceUnitTable({
@@ -64,6 +62,8 @@ export default function PriceUnitTable({
   editModeRow,
   cancelEditing,
   onToggleActive,
+  abilityCheck,
+  user,
 }: Props) {
   const Row = (props: { row: PriceUnitType }) => {
     // ** Props
@@ -88,6 +88,7 @@ export default function PriceUnitTable({
                 <Checkbox
                   name='base_price'
                   checked={row.isBase}
+                  disabled={!abilityCheck('update', user?.id!)}
                   onChange={e => onBasePriceClick(e.currentTarget.checked, row)}
                 />
               </TableCell>
@@ -102,6 +103,7 @@ export default function PriceUnitTable({
                 <Switch
                   checked={row.isActive}
                   onChange={e => onToggleActive(row.id, e.target.checked)}
+                  disabled={!abilityCheck('update', user?.id!)}
                 />
               </TableCell>
               <TableCell align='left'>
@@ -109,6 +111,8 @@ export default function PriceUnitTable({
                   row={row}
                   onEditClick={() => onEditClick(row)}
                   onDeleteClick={onDeleteClick}
+                  abilityCheck={abilityCheck}
+                  userId={user?.id!}
                 />
               </TableCell>
             </CustomTableRow>
@@ -132,6 +136,7 @@ export default function PriceUnitTable({
                   <Switch
                     checked={subItem.isActive}
                     onChange={e => onToggleActive(subItem.id, e.target.checked)}
+                    disabled={!abilityCheck('update', user?.id!)}
                   />
                 </TableCell>
                 <TableCell align='left'></TableCell>
@@ -164,10 +169,18 @@ export default function PriceUnitTable({
             </TableRow>
           </TableHead>
           <TableBody>
-            <AddForm mutation={addMutation} shouldDisabled={!!editModeRow} />
-            <TableCell colSpan={6} style={{ padding: 0 }}>
-              <Divider />
-            </TableCell>
+            {abilityCheck('create', user?.id!) ? (
+              <>
+                <AddForm
+                  mutation={addMutation}
+                  shouldDisabled={!!editModeRow}
+                />
+
+                <TableCell colSpan={6} style={{ padding: 0 }}>
+                  <Divider />
+                </TableCell>
+              </>
+            ) : null}
 
             {!list.data?.length ? (
               <TableCell colSpan={6} align='center'>
@@ -213,6 +226,7 @@ const HeaderCell = styled(TableCell)`
 `
 
 export const CustomTableRow = styled(TableRow)<{ isDisabled?: boolean }>`
+  border-bottom: 1px solid rgba(76, 78, 100, 0.12);
   ${({ isDisabled }) =>
     isDisabled
       ? css`

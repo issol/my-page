@@ -30,12 +30,12 @@ import logger from '@src/@core/utils/logger'
 import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** type
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitFormType, PriceUnitType } from '@src/apis/price-units.api'
 import { CustomTableRow } from './table'
 
 type Props = {
   data?: PriceUnitType
-  mutation: (value: any) => void
+  mutation: (value: any, cancelFunction: void) => void
   showModal: (title: string, onAdd: () => void) => void
   onEditCancel?: () => void
   shouldDisabled?: boolean
@@ -90,7 +90,6 @@ export default function PriceUnitForm(props: Props) {
     }
   }, [props?.data])
 
-  console.log(errors)
   // ** Desc : sub price는 base price의 unit을 따라가야 하므로, base price의 unit이 변경되면 sub price자동 업데이트하는 코드
   useEffect(() => {
     updateSubPrice()
@@ -98,7 +97,6 @@ export default function PriceUnitForm(props: Props) {
 
   function addSubPrice() {
     append({
-      isSubPrice: true,
       title: getValues('title'),
       unit: unit,
       weighting: getValues('weighting'),
@@ -141,8 +139,23 @@ export default function PriceUnitForm(props: Props) {
   }
 
   function onAdd() {
-    logger.info(getValues())
-    mutation(getValues())
+    const data = getValues()
+    if (data.subPriceUnits?.length) {
+      let finalForm: PriceUnitFormType = {
+        ...data,
+        subPriceUnits: data.subPriceUnits.map(item => {
+          return {
+            isActive: item.isActive,
+            title: item.title,
+            unit: item.unit,
+            weighting: item.weighting,
+          }
+        }),
+      }
+      mutation(finalForm, onCancel())
+    } else {
+      mutation(data, onCancel())
+    }
   }
 
   return (

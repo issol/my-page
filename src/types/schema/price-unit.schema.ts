@@ -8,7 +8,7 @@ export type PriceFormType = {
   weighting: number | null
   isActive: boolean
   subPriceUnits?: Array<{
-    isSubPrice: boolean
+    // isSubPrice: boolean
     title: string
     unit: string
     weighting: null | number
@@ -30,10 +30,9 @@ export const priceUnitSchema = yup.object().shape({
     .min(1, FormErrors.required)
     .of(
       yup.object().shape({
-        isSubPrice: yup.boolean(),
         title: yup.string().required(),
         unit: yup.string().nullable(),
-        weighting: yup.number().min(1).required(),
+        weighting: yup.number().required(),
       }),
     )
     .when('isBase', (isBase, schema) => {
