@@ -21,7 +21,10 @@ import {
   useGetProjectList,
   useGetWorkNameList,
 } from '@src/queries/pro-project/project.query'
-import { SortingType } from '@src/apis/pro-projects.api'
+import {
+  FilterType as ActiveFilterType,
+  SortingType,
+} from '@src/apis/pro-projects.api'
 import logger from '@src/@core/utils/logger'
 
 export type FilterType = {
@@ -32,19 +35,21 @@ export type FilterType = {
   target?: Array<{ value: string; label: string }>
   client?: Array<{ value: string; label: string }>
   sort?: SortingType
-  skip?: number
-  take?: number
+  skip: number
+  take: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take' | 'sort'>
+// export type FilterOmitType = Omit<FilterType, 'skip' | 'take' | 'sort'>
 
-export const initialFilter: FilterOmitType = {
+export const initialFilter: FilterType = {
   title: [],
   role: [],
   status: [],
   source: [],
   target: [],
   client: [],
+  skip: 0,
+  take: 10,
 }
 
 type Props = { id: number }
@@ -52,17 +57,28 @@ type MenuType = 'list' | 'calendar'
 
 export default function ProjectsDetail({ id }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
-  const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
+  const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
+  const [activeFilter, setActiveFilter] = useState<ActiveFilterType>({
+    skip: 0,
+    take: 10,
+  })
   const [sort, setSort] = useState<SortingType>('DESC')
   const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [search, setSearch] = useState(true)
 
   const { data: workName } = useGetWorkNameList(id)
 
-  const { data: list, refetch } = useGetProjectList(
-    id,
-    {
+  const { data: list } = useGetProjectList(id, activeFilter)
+
+  function getFilter(name: keyof Omit<FilterType, 'skip' | 'take' | 'sort'>) {
+    if (filter[name] && filter[name]?.length) {
+      return filter[name]?.map(item => item.value)
+    }
+    return []
+  }
+
+  function onSearch() {
+    setActiveFilter({
+      ...activeFilter,
       sort,
       title: getFilter('title'),
       role: getFilter('role'),
@@ -70,29 +86,15 @@ export default function ProjectsDetail({ id }: Props) {
       source: getFilter('source'),
       target: getFilter('target'),
       client: getFilter('client'),
-      skip: skip * pageSize,
-      take: pageSize,
-    },
-    search,
-    setSearch,
-  )
-
-  function getFilter(name: keyof FilterOmitType) {
-    if (filter[name] && filter[name]?.length) {
-      return filter[name]?.map(item => item.value)
-    }
-    return []
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {
     setFilter({ ...initialFilter })
+    setActiveFilter({ skip: 0, take: 10 })
   }
-
-  useEffect(() => {
-    if (isEqual(initialFilter, filter)) {
-      refetch()
-    }
-  }, [filter])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -127,16 +129,24 @@ export default function ProjectsDetail({ id }: Props) {
               filter={filter}
               setFilter={setFilter}
               onReset={onReset}
-              search={() => setSearch(true)}
+              search={onSearch}
             />
             <ProjectsList
               isCardHeader={true}
               skip={skip}
               sort={sort}
               setSort={setSort}
-              setSkip={setSkip}
-              pageSize={pageSize}
-              setPageSize={setPageSize}
+              pageSize={activeFilter.take!}
+              setSkip={(n: number) => {
+                setSkip(n)
+                setActiveFilter({
+                  ...activeFilter,
+                  skip: n * activeFilter.take!,
+                })
+              }}
+              setPageSize={(n: number) =>
+                setActiveFilter({ ...activeFilter, take: n })
+              }
               list={list || { data: [], totalCount: 0 }}
             />
           </Grid>

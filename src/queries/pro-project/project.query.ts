@@ -20,21 +20,16 @@ export const useGetWorkNameList = (id: number) => {
   )
 }
 
-export const useGetProjectList = (
-  id: number,
-  filter: FilterType,
-  search: boolean,
-  setSearch: (v: boolean) => void,
-) => {
+export const useGetProjectList = (id: number, filter: FilterType) => {
   return useQuery(
-    'get-project/list',
+    ['get-project/list', filter],
     () => {
       return getProProjectList(id, filter)
     },
     {
       suspense: true,
-      enabled: search,
-      onSuccess: () => setSearch(false),
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

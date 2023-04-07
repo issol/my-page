@@ -31,7 +31,7 @@ export type FilterType = {
   title?: string
   content?: string
   skip: number
-  take?: number
+  take: number
 }
 
 export const initialFilter: FilterType = {
@@ -115,10 +115,10 @@ export default function ClientGuidLines() {
       />
       <ClientGuideLineList
         skip={skip}
-        pageSize={activeFilter.take!}
+        pageSize={activeFilter.take}
         setSkip={(n: number) => {
           setSkip(n)
-          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take })
         }}
         setPageSize={(n: number) =>
           setActiveFilter({ ...activeFilter, take: n })
