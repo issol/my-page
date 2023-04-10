@@ -3,22 +3,15 @@ import { createPortal } from 'react-dom'
 import { useAppSelector } from '@src/hooks/useRedux'
 import styled from 'styled-components'
 import useModal from '@src/hooks/useModal'
+import { ModalType } from '@src/store/modal'
 
-// const MODAL_COMPONENTS = {
-//   basic: TestModal,
-//   small: TestModal,
-// }
-type Props = {
-  type: 'basic' | 'small'
-  children: ReactNode
-}
 function ModalContainer() {
   const modalList = useAppSelector(state => state.modal)
 
   const { closeModal } = useModal()
 
   const handleClickOverlay = (
-    name: 'basic' | 'small',
+    name: string,
     event: React.MouseEvent<HTMLDivElement>,
   ) => {
     if (event.currentTarget !== event.target) return
@@ -27,19 +20,20 @@ function ModalContainer() {
     event.stopPropagation()
     closeModal(name)
   }
-  const renderModal = modalList.map(({ type, children }: Props) => {
-    // const ModalComponent = MODAL_COMPONENTS[type]
-    return (
-      <Overlay
-        key={type}
-        onClick={e => {
-          handleClickOverlay(type, e)
-        }}
-      >
-        {children}
-      </Overlay>
-    )
-  })
+  const renderModal = modalList.map(
+    ({ type, children, isCloseable = true }: ModalType) => {
+      return (
+        <Overlay
+          key={type}
+          onClick={e => {
+            isCloseable && handleClickOverlay(type, e)
+          }}
+        >
+          {children}
+        </Overlay>
+      )
+    },
+  )
   return createPortal(<>{renderModal}</>, document.getElementById('modal')!)
 }
 

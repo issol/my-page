@@ -33,16 +33,11 @@ import { useMutation } from 'react-query'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import { toast } from 'react-hot-toast'
 import { company_price } from '@src/shared/const/permission-class'
-import useModal from '@src/hooks/useModal'
-import { useAppSelector } from '@src/hooks/useRedux'
 
 export default function PriceUnits() {
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
 
-  const { openModal, closeModal: close } = useModal()
-  const modalList = useAppSelector(state => state.modal)
-  console.log(modalList)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
@@ -176,42 +171,8 @@ export default function PriceUnits() {
     })
   }
 
-  // TODO : 테스트코드 삭제하기
-  function addModal() {
-    openModal({
-      type: 'small',
-      children: (
-        <div style={{ background: 'white', width: '200px' }}>
-          추가된 모달입니다.
-        </div>
-      ),
-    })
-  }
-
-  // TODO : 테스트코드 삭제하기
-  function onTest() {
-    openModal({
-      type: 'basic',
-      children: (
-        <div style={{ background: 'white', width: '200px' }}>
-          안녕하세요
-          <button onClick={addModal}>새 모달 추가하기</button>
-          <button onClick={onClose}>닫기</button>
-        </div>
-      ),
-    })
-  }
-
-  // TODO : 테스트코드 삭제하기
-  function onClose() {
-    close('basic')
-  }
-
   return (
     <Grid item xs={12}>
-      {/* TODO : 테스트코드 삭제하기 */}
-      <button onClick={onTest}>테스트버톤</button>
-      {/* TODO : 테스트코드 삭제하기 */}
       <Card>
         <CardHeader
           title={

@@ -2,7 +2,12 @@
 import { createSlice } from '@reduxjs/toolkit'
 import { ReactNode } from 'react'
 
-const initialState: Array<{ type: 'basic' | 'small'; children: ReactNode }> = []
+export type ModalType = {
+  type: string
+  children: ReactNode
+  isCloseable?: boolean
+}
+const initialState: Array<ModalType> = []
 
 export const modalSlice = createSlice({
   name: 'modal',

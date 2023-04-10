@@ -1,20 +1,15 @@
-import { closeModal, openModal } from '@src/store/modal'
+import { ModalType, closeModal, openModal } from '@src/store/modal'
 import { useAppDispatch } from './useRedux'
 import { ReactNode } from 'react'
-
-type Props = {
-  type: 'basic' | 'small'
-  children: ReactNode
-}
 
 function useModal() {
   const dispatch = useAppDispatch()
 
-  const handleOpenModal = ({ type, children }: Props) => {
-    dispatch(openModal({ type, children }))
+  const handleOpenModal = ({ type, children, isCloseable }: ModalType) => {
+    dispatch(openModal({ type, children, isCloseable }))
   }
 
-  const handleCloseModal = (type: 'basic' | 'small') => {
+  const handleCloseModal = (type: string) => {
     dispatch(closeModal(type))
   }
 
