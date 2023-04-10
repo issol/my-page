@@ -37,7 +37,14 @@ const Img = styled('img')(({ theme }) => ({
 }))
 export default function Home() {
   return (
-    <Box className='content-center'>
+    <Box
+      className='content-center'
+      sx={{
+        height: '100%',
+        display: 'grid',
+        placeItems: 'center',
+      }}
+    >
       <Box
         sx={{
           p: 5,

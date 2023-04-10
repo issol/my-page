@@ -58,7 +58,7 @@ const Pro = () => {
     experience: [],
     status: [],
     clients: [],
-    take: proListPage,
+    take: proListPageSize,
     skip: proListPage * proListPageSize,
     order: 'desc',
   })
@@ -252,9 +252,9 @@ const Pro = () => {
               alignItems: 'center',
             }}
           >
-            {!row.clients.length
+            {!row.clients?.length
               ? '-'
-              : row.clients.map(
+              : row.clients?.map(
                   (item, idx) =>
                     idx < 2 && (
                       <Box
@@ -277,8 +277,8 @@ const Pro = () => {
                       </Box>
                     ),
                 )}
-            {row.clients.length > 1 ? (
-              <Box>+{row.clients.length - 1}</Box>
+            {row.clients?.length > 1 ? (
+              <Box>+{row.clients?.length - 1}</Box>
             ) : null}
           </Box>
         )
@@ -326,10 +326,13 @@ const Pro = () => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
             <JobTypeChip
-              type={row.jobInfo[0].jobType}
-              label={row.jobInfo[0].jobType}
+              type={row.jobInfo[0]?.jobType}
+              label={row.jobInfo[0]?.jobType}
             />
-            <RoleChip type={row.jobInfo[0].role} label={row.jobInfo[0].role} />
+            <RoleChip
+              type={row.jobInfo[0]?.role}
+              label={row.jobInfo[0]?.role}
+            />
           </Box>
         )
         // const jobInfo = row.jobInfo.map(value => ({

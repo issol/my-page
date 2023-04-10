@@ -87,6 +87,7 @@ import {
 } from 'src/shared/sentry-provider'
 
 import logger from '@src/@core/utils/logger'
+import ModalContainer from '@src/@core/components/modal-container'
 
 /* msw mock server */
 // if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -239,6 +240,7 @@ const App = (props: ExtendedAppProps) => {
                   return (
                     <ThemeComponent settings={settings}>
                       <WindowWrapper>
+                        <ModalContainer />
                         <ModalProvider selector='modal'>
                           <Guard authGuard={authGuard} guestGuard={guestGuard}>
                             <AclGuard

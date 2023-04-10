@@ -10,9 +10,6 @@ import RecruitingDashboard from './components/dashboard'
 import Filters from './components/filter'
 import RecruitingList from './components/list'
 
-// ** third parties
-import isEqual from 'lodash/isEqual'
-
 // ** values
 import { ProRolePair } from 'src/shared/const/role/roles'
 import { ProJobPair } from 'src/shared/const/job/jobs'
@@ -36,33 +33,26 @@ export type FilterType = {
   take?: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
-
-export const initialFilter: FilterOmitType = {
+export const initialFilter: FilterType = {
   client: '',
   jobType: '',
   role: '',
   source: '',
   target: '',
+  skip: 0,
+  take: 10,
 }
 export default function Recruiting() {
   type FilterState = Array<{ value: string; label: string }>
-  const [filter, setFilter] = useState<FilterOmitType>({ ...initialFilter })
   const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
   const [roleOption, setRoleOption] = useState<FilterState>([])
   const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [search, setSearch] = useState(true)
+  const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
+  const [activeFilter, setActiveFilter] = useState<FilterType>({
+    ...initialFilter,
+  })
 
-  const {
-    data: list,
-    refetch,
-    isLoading,
-  } = useGetRecruitingList(
-    { ...filter, skip: skip * pageSize, take: pageSize },
-    search,
-    setSearch,
-  )
+  const { data: list, isLoading } = useGetRecruitingList(activeFilter)
   const { data: counts } = useGetRecruitingCount()
 
   function findDynamicFilterOptions(
@@ -108,15 +98,14 @@ export default function Recruiting() {
     }
   }, [filter.role])
 
-  function onReset() {
-    setFilter({ ...initialFilter })
+  function onSearch() {
+    setActiveFilter({ ...filter })
   }
 
-  useEffect(() => {
-    if (isEqual(initialFilter, filter)) {
-      refetch()
-    }
-  }, [filter])
+  function onReset() {
+    setFilter({ ...initialFilter })
+    setActiveFilter({ ...initialFilter })
+  }
 
   return (
     <Grid container spacing={6} className='match-height'>
@@ -130,15 +119,20 @@ export default function Recruiting() {
         filter={filter}
         setFilter={setFilter}
         onReset={onReset}
-        search={() => setSearch(true)}
+        search={onSearch}
         jobTypeOption={jobTypeOption}
         roleOption={roleOption}
       />
       <RecruitingList
         skip={skip}
-        pageSize={pageSize}
-        setSkip={setSkip}
-        setPageSize={setPageSize}
+        pageSize={activeFilter.take!}
+        setSkip={(n: number) => {
+          setSkip(n)
+          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+        }}
+        setPageSize={(n: number) =>
+          setActiveFilter({ ...activeFilter, take: n })
+        }
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
       />

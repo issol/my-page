@@ -83,20 +83,10 @@ export default function RecruitingPost() {
   const [openDialog, setOpenDialog] = useState(false)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(5)
-  const [search, setSearch] = useState(false)
-  const {
-    data: list,
-    refetch,
-    isLoading,
-  } = useGetJobPostingList(
-    { skip: skip * pageSize, take: pageSize },
-    search,
-    setSearch,
-  )
-
-  useEffect(() => {
-    if (openDialog) setSearch(true)
-  }, [openDialog])
+  const { data: list, isLoading } = useGetJobPostingList({
+    skip: skip * pageSize,
+    take: pageSize,
+  })
 
   // ** contexts
   const { user } = useContext(AuthContext)

@@ -46,13 +46,21 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
   const { data, refetch } = useGetProjectCalendarData(id, `${year}-${month}`)
   const [event, setEvent] = useState<Array<CalendarEventType>>([])
 
-  // ** list values
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+
+  const [currentListId, setCurrentListId] = useState<null | number>(null)
+  const [currentList, setCurrentList] = useState<Array<CalendarEventType>>([])
 
   useEffect(() => {
     refetch()
   }, [year, month])
+
+  useEffect(() => {
+    if (currentListId && data?.data) {
+      setCurrentList(data?.data.filter(item => item.id === currentListId))
+    }
+  }, [currentListId])
 
   useEffect(() => {
     if (data?.data?.length) {
@@ -102,6 +110,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
           leftSidebarWidth={leftSidebarWidth}
           leftSidebarOpen={leftSidebarOpen}
           handleLeftSidebarToggle={handleLeftSidebarToggle}
+          setCurrentListId={setCurrentListId}
         />
         <Box
           sx={{
@@ -137,6 +146,7 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
             setYear={setYear}
             setMonth={setMonth}
             direction={direction}
+            setCurrentListId={setCurrentListId}
           />
         </Box>
       </CalendarWrapper>
@@ -150,9 +160,9 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
         setPageSize={setPageSize}
         isLoading={false}
         list={
-          event?.length
-            ? { data: event, count: event?.length }
-            : { data: [], count: 0 }
+          currentList?.length
+            ? { data: currentList, totalCount: currentList?.length }
+            : { data: [], totalCount: 0 }
         }
       />
     </Box>

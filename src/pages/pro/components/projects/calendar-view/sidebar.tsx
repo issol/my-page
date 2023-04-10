@@ -21,6 +21,7 @@ type Props = {
   leftSidebarWidth: number
   leftSidebarOpen: boolean
   handleLeftSidebarToggle: () => void
+  setCurrentListId: (id: number) => void
 }
 export default function CalendarSideBar({
   event,
@@ -29,6 +30,7 @@ export default function CalendarSideBar({
   leftSidebarWidth,
   leftSidebarOpen,
   handleLeftSidebarToggle,
+  setCurrentListId,
 }: Props) {
   const bgColors = UseBgColor()
 
@@ -108,6 +110,7 @@ export default function CalendarSideBar({
             return (
               <BoxFeature
                 key={item.id}
+                onClick={() => setCurrentListId(item.id)}
                 bg={colors[item?.extendedProps?.calendar]?.backgroundColor}
                 $bgSize={colors[item?.extendedProps?.calendar]?.backgroundSize}
                 color={
@@ -137,6 +140,7 @@ const BoxFeature = styled(Box)<{
   color?: string
 }>`
   width: 100%;
+  cursor: pointer;
   margin-bottom: 10px;
   padding: 4px 10px;
   color: ${({ color }) => color ?? 'rgba(76, 78, 100, 0.87)'};

@@ -184,7 +184,7 @@ export default function ClientGuideLineList({
             rows={list.data}
             rowCount={list.count}
             loading={isLoading}
-            rowsPerPageOptions={[10, 25, 50]}
+            rowsPerPageOptions={[2, 10, 25, 50]}
             pagination
             page={skip}
             pageSize={pageSize}

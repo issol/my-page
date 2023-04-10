@@ -23,7 +23,7 @@ import {
 import Checkbox from '@mui/material/Checkbox'
 import TextField from '@mui/material/TextField'
 import Autocomplete from '@mui/material/Autocomplete'
-import { JobList, RolePair } from 'src/shared/const/personalInfo'
+import { JobList } from 'src/shared/const/job/jobs'
 
 import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
 import _ from 'lodash'
@@ -293,7 +293,6 @@ export default function TestMaterialFilters({
                                 const jobTypeValue = data?.value
 
                                 /* @ts-ignore */
-                                const rolePair = RolePair[jobTypeValue]
                                 const res = OnboardingListRolePair.filter(
                                   value => value.jobType.includes(jobTypeValue),
                                 )

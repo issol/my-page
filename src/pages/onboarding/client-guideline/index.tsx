@@ -17,7 +17,6 @@ import {
   ServiceTypePair,
 } from 'src/shared/const/service-type/service-types'
 
-import isEqual from 'lodash/isEqual'
 import { AuthContext } from '@src/context/AuthContext'
 
 export type ConstType = {
@@ -32,44 +31,37 @@ export type FilterType = {
   title?: string
   content?: string
   skip: number
-  take?: number
+  take: number
 }
 
-export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
-
-export const initialFilter: FilterOmitType = {
+export const initialFilter: FilterType = {
   client: [],
   category: [],
   serviceType: [],
   title: '',
   content: '',
+  skip: 0,
+  take: 10,
 }
 export default function ClientGuidLines() {
-  const [filter, setFilter] = useState<FilterOmitType>({
+  const [skip, setSkip] = useState(0)
+  const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
+  const [activeFilter, setActiveFilter] = useState<FilterType>({
     ...initialFilter,
   })
-  const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
-  const [search, setSearch] = useState(true)
+
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
   const { user } = useContext(AuthContext)
 
-  const {
-    data: list,
-    refetch,
-    isLoading,
-  } = useGetGuideLines(
-    { ...filter, skip: skip * pageSize, take: pageSize },
-    search,
-    setSearch,
-  )
+  const { data: list, isLoading } = useGetGuideLines(activeFilter)
 
-  useEffect(() => {
-    refetch()
-  }, [skip, pageSize])
+  function onSearch() {
+    setActiveFilter({ ...filter })
+  }
 
   function onReset() {
     setFilter({ ...initialFilter })
+    setActiveFilter({ ...initialFilter })
   }
 
   function findServiceTypeFilter() {
@@ -109,12 +101,6 @@ export default function ClientGuidLines() {
       })
   }, [filter.category])
 
-  useEffect(() => {
-    if (isEqual(initialFilter, filter)) {
-      refetch()
-    }
-  }, [filter])
-
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -125,13 +111,18 @@ export default function ClientGuidLines() {
         setFilter={setFilter}
         onReset={onReset}
         serviceType={serviceType}
-        search={() => setSearch(true)}
+        search={onSearch}
       />
       <ClientGuideLineList
         skip={skip}
-        pageSize={pageSize}
-        setSkip={setSkip}
-        setPageSize={setPageSize}
+        pageSize={activeFilter.take}
+        setSkip={(n: number) => {
+          setSkip(n)
+          setActiveFilter({ ...activeFilter, skip: n * activeFilter.take })
+        }}
+        setPageSize={(n: number) =>
+          setActiveFilter({ ...activeFilter, take: n })
+        }
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
         user={user!}

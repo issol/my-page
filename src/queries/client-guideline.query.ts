@@ -6,27 +6,12 @@ import {
 } from 'src/apis/client-guideline.api'
 import { FilterType } from 'src/pages/onboarding/client-guideline'
 
-export const useGetGuideLines = (
-  filter: FilterType,
-  search: boolean,
-  setSearch: (v: boolean) => void,
-) => {
-  return useQuery(
-    'get-guideline/list',
-    () => {
-      return getGuidelines(filter)
-    },
-    {
-      suspense: true,
-      enabled: search,
-      onSuccess: () => setSearch(false),
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
+export const useGetGuideLines = (filter: FilterType) => {
+  return useQuery(['get-guideline', filter], () => getGuidelines(filter), {
+    staleTime: 60 * 1000,
+    keepPreviousData: true,
+    suspense: true,
+  })
 }
 
 export const useGetGuideLineDetail = (id: number) => {

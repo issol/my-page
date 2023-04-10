@@ -36,3 +36,12 @@ export class contract {
     })
   }
 }
+export class company_price {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(company_price.prototype.constructor, 'name', {
+      value: 'company_price',
+    })
+  }
+}

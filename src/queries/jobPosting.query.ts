@@ -3,20 +3,16 @@ import { useQuery } from 'react-query'
 import { getJobPostingDetail, getJobPostingList } from 'src/apis/jobPosting.api'
 import { FilterType } from 'src/pages/jobPosting'
 
-export const useGetJobPostingList = (
-  filter: FilterType,
-  search: boolean,
-  setSearch: (v: boolean) => void,
-) => {
+export const useGetJobPostingList = (filter: FilterType) => {
   return useQuery(
-    'get-jobPosting/list',
+    ['get-jobPosting/list', filter],
     () => {
       return getJobPostingList(filter)
     },
     {
       suspense: true,
-      enabled: search,
-      onSuccess: () => setSearch(false),
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

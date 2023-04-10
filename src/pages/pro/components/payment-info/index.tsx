@@ -17,9 +17,10 @@ import BillingAddress from './billing-address'
 
 // ** actions
 import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
-import { getFilePresinedUrl } from '@src/apis/payment-info.api'
-import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
-import axios from 'axios'
+import {
+  FileNameType,
+  downloadPersonalInfoFile,
+} from '@src/apis/payment-info.api'
 
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
@@ -51,27 +52,16 @@ export default function PaymentInfo({ id }: Props) {
     return value.replaceAll('*', '●')
   }
 
-  function fetchFile(fileName: string) {
-    getFilePresinedUrl(fileName)
+  function fetchFile(fileName: FileNameType) {
+    downloadPersonalInfoFile(id, fileName)
       .then(res => {
-        axios
-          .get(res[0], {
-            headers: {
-              Authorization:
-                'Bearer ' + typeof window === 'object'
-                  ? getUserTokenFromBrowser()
-                  : null,
-            },
-          })
-          .then(res => {
-            logger.info('upload client guideline file success :', res)
-            const url = window.URL.createObjectURL(new Blob([res.data]))
-            const link = document.createElement('a')
-            link.href = url
-            link.setAttribute('download', `${fileName}`)
-            document.body.appendChild(link)
-            link.click()
-          })
+        logger.info(`${fileName} file download : `, typeof new Blob([res]))
+        const url = window.URL.createObjectURL(new Blob([res]))
+        const link = document.createElement('a')
+        link.href = url
+        link.setAttribute('download', `${fileName}`)
+        document.body.appendChild(link)
+        link.click()
       })
       .catch(err =>
         toast.error(
@@ -83,12 +73,14 @@ export default function PaymentInfo({ id }: Props) {
       )
   }
 
-  function downloadFile(name: string) {
+  function downloadFile(name: FileNameType) {
     fetchFile(name)
   }
 
   useEffect(() => {
-    refetch()
+    if (isManagerRequest) {
+      refetch()
+    }
   }, [isManagerRequest])
 
   function getDetail() {
@@ -98,7 +90,7 @@ export default function PaymentInfo({ id }: Props) {
   return (
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='6px'>
-        <Grid item xs={4}>
+        <Grid item xs={12} md={4} lg={4}>
           <PersonalInfo
             onCopy={onCopy}
             info={data?.userInfo!}
@@ -107,7 +99,7 @@ export default function PaymentInfo({ id }: Props) {
             downloadFile={downloadFile}
           />
         </Grid>
-        <Grid item xs={8}>
+        <Grid item xs={12} md={8} lg={8}>
           <BillingMethod
             info={data!}
             isAccountManager={isAccountManager}

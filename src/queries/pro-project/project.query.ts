@@ -1,8 +1,12 @@
-import { FilterType, getProProjectList } from './../../apis/pro-projects.api'
+import logger from '@src/@core/utils/logger'
+import {
+  FilterType,
+  getProProjectList,
+  getWorkNameFilterList,
+} from './../../apis/pro-projects.api'
 import { getProjectCalendarData } from '@src/apis/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { getWorkNameFilterList } from '@src/apis/payment-info.api'
 
 export const useGetWorkNameList = (id: number) => {
   return useQuery(
@@ -16,21 +20,16 @@ export const useGetWorkNameList = (id: number) => {
   )
 }
 
-export const useGetProjectList = (
-  id: number,
-  filter: FilterType,
-  search: boolean,
-  setSearch: (v: boolean) => void,
-) => {
+export const useGetProjectList = (id: number, filter: FilterType) => {
   return useQuery(
-    'get-project/list',
+    ['get-project/list', filter],
     () => {
       return getProProjectList(id, filter)
     },
     {
       suspense: true,
-      enabled: search,
-      onSuccess: () => setSearch(false),
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

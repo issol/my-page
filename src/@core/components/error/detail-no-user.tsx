@@ -51,7 +51,14 @@ const DetailNoUser = () => {
   //   }
   // })
   return (
-    <Box className='content-center'>
+    <Box
+      className='content-center'
+      sx={{
+        height: '100vh !important',
+        display: 'grid',
+        placeItems: 'center',
+      }}
+    >
       <Box
         sx={{
           p: 5,

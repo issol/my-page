@@ -14,6 +14,9 @@ import Icon from 'src/@core/components/icon'
 import StandardPrices from '@src/pages/components/standard-prices'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
+// ** Components
+import PriceUnits from '../components/price/price-units'
+
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
@@ -90,10 +93,7 @@ export default function Price() {
         </Typography>
       </TabPanel>
       <TabPanel value='3'>
-        <Typography>
-          Danish tiramisu jujubes cupcake chocolate bar cake cheesecake chupa
-          chups. Macaroon ice cream tootsie roll carrot cake gummi bears.
-        </Typography>
+        <PriceUnits />
       </TabPanel>
     </TabContext>
   )

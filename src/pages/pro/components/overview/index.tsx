@@ -145,7 +145,6 @@ function ProDetailOverview() {
 
   const [status, setStatus] = useState(userInfo?.status)
   const ability = useContext(AbilityContext)
-
   const languageList = getGloLanguage()
 
   const {
@@ -964,6 +963,7 @@ function ProDetailOverview() {
                   handleAddCommentChange={handleAddCommentChange}
                   onClickDeleteComment={onClickDeleteComment}
                   addComment={addComment}
+                  ability={ability}
                 />
               </Grid>
               <Grid item xs={12} display='flex' gap='24px'>
@@ -985,7 +985,6 @@ function ProDetailOverview() {
   )
 }
 
-// ** TODO : 렐,백엔드와 논의 후 수정
 ProDetailOverview.acl = {
   subject: 'pro',
   action: 'read',

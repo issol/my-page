@@ -15,12 +15,6 @@ export const getRecruitingCount = async (): Promise<RecruitingCountType> => {
       `/api/enough/recruiting/dashboard?company=GloZ`,
     )
     return data
-    // return {
-    //   onGoing: 1000,
-    //   done: 300,
-    //   hold: 300,
-    //   total: 1600,
-    // }
   } catch (e: any) {
     return {
       onGoing: 0,
@@ -56,56 +50,6 @@ export const getRecruitingList = async (
       `/api/enough/recruiting?${makeQuery({ ...filters, company: 'GloZ' })}`,
     )
     return data
-    // return {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       status: 'Ongoing',
-    //       client: 'Naver',
-    //       jobType: 'Dubbing',
-    //       role: 'Audio describer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       dueDate: Date(),
-    //       openings: 3,
-    //       jobStatus: 'Paused',
-    //       dueDateTimezone: 'KR',
-    //       isHide: true,
-    //     },
-    //     {
-    //       id: 2,
-    //       status: 'Fulfilled',
-    //       client: 'GloZ',
-    //       jobType: 'Webnovel',
-    //       role: 'DTPer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       dueDate: Date(),
-    //       dueDateTimezone: 'KR',
-    //       openings: 3,
-    //       jobStatus: 'Paused',
-    //       isHide: false,
-    //     },
-    //     {
-    //       id: 3,
-    //       status: 'Paused',
-    //       client: 'RIDI',
-    //       jobType: 'Interpretation',
-    //       role: 'QCer',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       writer: 'Bon Kim',
-    //       dueDate: Date(),
-    //       dueDateTimezone: 'KR',
-    //       openings: 3,
-    //       jobStatus: 'Not started',
-    //       isHide: false,
-    //     },
-    //   ],
-    //   count: 3,
-    // }
   } catch (e: any) {
     return {
       data: [],
@@ -144,92 +88,6 @@ export const getRecruitingDetail = async (id: number): Promise<DetailType> => {
   try {
     const { data } = await axios.get(`/api/enough/recruiting/${id}`)
     return data
-    // return {
-    //   currentVersion: {
-    //     id: 1,
-    //     version: 2,
-    //     writer: 'Bon kim',
-    //     email: 'bon@glozinc.com',
-    //     createdAt: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
-    //     status: 'Ongoing',
-    //     client: 'GloZ',
-    //     jobType: 'Interpretation',
-    //     role: 'DTPer',
-    //     sourceLanguage: 'en',
-    //     targetLanguage: 'ko',
-    //     openings: 3,
-    //     dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
-    //     dueDateTimezone: 'KR',
-    //     jobPostLink: 'wwww.example.com',
-    //     content: {
-    //       blocks: [
-    //         {
-    //           key: 'd9so6',
-    //           text: 'translation guidelines document for web novels:',
-    //           type: 'unstyled',
-    //           depth: 0,
-    //           inlineStyleRanges: [],
-    //           entityRanges: [],
-    //           data: {},
-    //         },
-    //         {
-    //           key: 'b75mm',
-    //           text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
-    //           type: 'unstyled',
-    //           depth: 0,
-    //           inlineStyleRanges: [],
-    //           entityRanges: [],
-    //           data: {},
-    //         },
-    //       ],
-    //       entityMap: {},
-    //     },
-    //     isHide: false,
-    //   },
-    //   versionHistory: [
-    //     {
-    //       id: 2,
-    //       version: 2,
-    //       writer: 'Bon kim',
-    //       email: 'bon@glozinc.com',
-    //       createdAt: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
-    //       status: 'Ongoing',
-    //       client: 'GloZ',
-    //       jobType: 'Interpretation',
-    //       role: 'DTPer',
-    //       sourceLanguage: 'en',
-    //       targetLanguage: 'ko',
-    //       openings: 3,
-    //       dueDate: 'Tue Feb 28 2023 14:37:36 GMT+0900 (한국 표준시)',
-    //       dueDateTimezone: 'KR',
-    //       jobPostLink: 'wwww.example.com',
-    //       content: {
-    //         blocks: [
-    //           {
-    //             key: 'd9so6',
-    //             text: 'translation guidelines document for web novels:',
-    //             type: 'unstyled',
-    //             depth: 0,
-    //             inlineStyleRanges: [],
-    //             entityRanges: [],
-    //             data: {},
-    //           },
-    //           {
-    //             key: 'b75mm',
-    //             text: 'Purpose of Translation: Clearly define the purpose of the document being translated, whether it is an official document or a consumer product manual, etc.',
-    //             type: 'unstyled',
-    //             depth: 0,
-    //             inlineStyleRanges: [],
-    //             entityRanges: [],
-    //             data: {},
-    //           },
-    //         ],
-    //         entityMap: {},
-    //       },
-    //       isHide: false,
-    //     },
-    //   ],
-    // }
   } catch (e: any) {
     throw new Error(e)
   }
