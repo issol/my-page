@@ -79,7 +79,10 @@ import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 import WorkDays from '@src/pages/components/pro-detail-component/work-days'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { useGetProWorkDays } from '@src/queries/pro/pro-details.query'
+import {
+  useGetProOverview,
+  useGetProWorkDays,
+} from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro-details.api'
 
 const defaultValues: AddRoleType = {
@@ -97,15 +100,10 @@ function ProDetailOverview() {
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
   const [year, setYear] = useState(new Date().getFullYear())
-  console.log(year)
 
-  const {
-    data: userInfo,
-    isError,
-    isFetched,
-  } = useGetOnboardingProDetails(Number(id!))
+  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
 
-  const { data: workday } = useGetProWorkDays(Number(id!), year)
+  // const { data: workday } = useGetProWorkDays(Number(id!), year)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   const { data: appliedRole } = useGetAppliedRole(userId!)
@@ -898,12 +896,12 @@ function ProDetailOverview() {
               />
             </Grid>
             <Grid item xs={12}>
-              <WorkDays
+              {/* <WorkDays
                 timezone={userInfo?.timezone!}
                 available={workday?.availableDate!}
                 off={workday?.offDate!}
                 setYear={setYear}
-              />
+              /> */}
               {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>

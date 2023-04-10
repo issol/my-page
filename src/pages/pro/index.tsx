@@ -35,6 +35,7 @@ import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
 import { AuthContext } from '@src/context/AuthContext'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { setDate } from 'date-fns'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -60,7 +61,8 @@ const Pro = () => {
     clients: [],
     take: proListPageSize,
     skip: proListPage * proListPageSize,
-    order: 'desc',
+    sortId: 'DESC',
+    sortDate: 'DESC',
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
@@ -74,7 +76,9 @@ const Pro = () => {
     OnboardingListRolePair,
   )
   const [idOrder, setIdOrder] = useState(true)
+  const [dateOrder, setDateOrder] = useState(true)
   const [isHoverId, setIsHoverId] = useState(false)
+  const [isDateHoverId, setIsDateHoverId] = useState(false)
 
   const [expanded, setExpanded] = useState<string | false>('panel1')
 
@@ -150,7 +154,8 @@ const Pro = () => {
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
-      order: 'desc',
+      sortId: 'desc',
+      sortDate: 'desc',
     }
 
     setFilters(filter)
@@ -190,7 +195,7 @@ const Pro = () => {
                   setIdOrder(!idOrder)
                   setFilters(prevState => ({
                     ...prevState,
-                    order: idOrder ? 'asc' : 'desc',
+                    sortId: idOrder ? 'ASC' : 'DESC',
                   }))
                 }}
               />
@@ -379,7 +384,35 @@ const Pro = () => {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Date of onboarded</Box>,
+      renderHeader: () => (
+        <Box
+          onMouseOver={() => setIsDateHoverId(true)}
+          onMouseLeave={() => setIsDateHoverId(false)}
+          sx={{
+            display: 'flex',
+            minWidth: 180,
+            width: '100%',
+            alignItems: 'center',
+          }}
+        >
+          <Box>Date of onboarded</Box>
+          {isDateHoverId ? (
+            <IconButton>
+              <Icon
+                icon={`mdi:${dateOrder ? 'arrow-up' : 'arrow-down'}`}
+                fontSize={18}
+                onClick={() => {
+                  setDateOrder(!dateOrder)
+                  setFilters(prevState => ({
+                    ...prevState,
+                    sortDate: dateOrder ? 'ASC' : 'DESC',
+                  }))
+                }}
+              />
+            </IconButton>
+          ) : null}
+        </Box>
+      ),
       renderCell: ({ row }: ProListCellType) => {
         return (
           <Typography variant='body1'>
