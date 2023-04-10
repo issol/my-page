@@ -47,6 +47,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import useModal from '@src/hooks/useModal'
 
 function Row(props: {
   row: StandardPriceListType
@@ -352,6 +353,7 @@ const StandardPrices = ({
   const [selectedModalType, setSelectedModalType] = useState('')
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
 
+  const { openModal, closeModal } = useModal()
   const onClickAction = (type: string) => {
     setPriceActionModalOpen(false)
     if (type === 'Add' || type === 'Discard') {
@@ -366,6 +368,26 @@ const StandardPrices = ({
     // TODO Price unit 있는지 판단 후 alert 모달 띄우기
     // setNoPriceUnitModalOpen(true)
     // setSelectedPriceData(priceData)
+
+    openModal({
+      type: 'addSaveModal',
+      children: (
+        <AddSavePriceModal
+          open={true}
+          onClose={() => console.log('hi')}
+          type={selectedModalType}
+          setPriceActionModalOpen={setPriceActionModalOpen}
+          setAddingPriceData={setAddingPriceData}
+          setSelectedAction={setSelectedAction}
+          onSubmit={onSubmit}
+          serviceTypeList={serviceTypeList}
+          setServiceTypeList={setServiceTypeList}
+          selectedPriceData={selectedPriceData!}
+          onClickAction={onClickAction}
+          addingPriceData={addingPriceData!}
+        />
+      ),
+    })
     setSelectedModalType('Add')
     setAddSaveModalOpen(true)
   }
@@ -399,45 +421,45 @@ const StandardPrices = ({
     )
   }
 
-  const newModalOpen = () => {
-    if (addSaveModalOpen) {
-      if (selectedModalType === 'Edit') {
-        return (
-          <AddSavePriceModal
-            open={addSaveModalOpen}
-            onClose={() => setAddSaveModalOpen(false)}
-            type={selectedModalType}
-            setPriceActionModalOpen={setPriceActionModalOpen}
-            setAddingPriceData={setAddingPriceData}
-            setSelectedAction={setSelectedAction}
-            onSubmit={onSubmit}
-            serviceTypeList={serviceTypeList}
-            setServiceTypeList={setServiceTypeList}
-            selectedPriceData={selectedPriceData!}
-            onClickAction={onClickAction}
-            addingPriceData={addingPriceData!}
-          />
-        )
-      } else if (selectedModalType === 'Add') {
-        return (
-          <AddSavePriceModal
-            open={addSaveModalOpen}
-            onClose={() => setAddSaveModalOpen(false)}
-            type={selectedModalType}
-            setPriceActionModalOpen={setPriceActionModalOpen}
-            setAddingPriceData={setAddingPriceData}
-            setSelectedAction={setSelectedAction}
-            onSubmit={onSubmit}
-            serviceTypeList={serviceTypeList}
-            setServiceTypeList={setServiceTypeList}
-            onClickAction={onClickAction}
-            addingPriceData={addingPriceData!}
-            // selectedPriceData={selectedPriceData!}
-          />
-        )
-      }
-    }
-  }
+  // const newModalOpen = () => {
+  //   if (addSaveModalOpen) {
+  //     if (selectedModalType === 'Edit') {
+  //       return (
+  //         <AddSavePriceModal
+  //           open={addSaveModalOpen}
+  //           onClose={() => setAddSaveModalOpen(false)}
+  //           type={selectedModalType}
+  //           setPriceActionModalOpen={setPriceActionModalOpen}
+  //           setAddingPriceData={setAddingPriceData}
+  //           setSelectedAction={setSelectedAction}
+  //           onSubmit={onSubmit}
+  //           serviceTypeList={serviceTypeList}
+  //           setServiceTypeList={setServiceTypeList}
+  //           selectedPriceData={selectedPriceData!}
+  //           onClickAction={onClickAction}
+  //           addingPriceData={addingPriceData!}
+  //         />
+  //       )
+  //     } else if (selectedModalType === 'Add') {
+  //       return (
+  //         <AddSavePriceModal
+  //           open={addSaveModalOpen}
+  //           onClose={() => setAddSaveModalOpen(false)}
+  //           type={selectedModalType}
+  //           setPriceActionModalOpen={setPriceActionModalOpen}
+  //           setAddingPriceData={setAddingPriceData}
+  //           setSelectedAction={setSelectedAction}
+  //           onSubmit={onSubmit}
+  //           serviceTypeList={serviceTypeList}
+  //           setServiceTypeList={setServiceTypeList}
+  //           onClickAction={onClickAction}
+  //           addingPriceData={addingPriceData!}
+  //           // selectedPriceData={selectedPriceData!}
+  //         />
+  //       )
+  //     }
+  //   }
+  // }
 
   return (
     <Grid container xs={12} spacing={6}>
@@ -445,7 +467,7 @@ const StandardPrices = ({
         open={noPriceUnitModalOpen}
         onClose={() => setNoPriceUnitModalOpen(false)}
       />
-      {newModalOpen()}
+      {/* {newModalOpen()} */}
 
       <Grid item xs={12}>
         <Card sx={{ padding: '20px 0' }}>
