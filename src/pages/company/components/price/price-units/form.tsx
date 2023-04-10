@@ -148,12 +148,16 @@ export default function PriceUnitForm(props: Props) {
             isActive: item.isActive,
             title: item.title,
             unit: item.unit,
-            weighting: item.weighting,
+            weighting:
+              typeof item.weighting === 'string'
+                ? parseFloat(item.weighting!)
+                : item.weighting,
           }
         }),
       }
       mutation(finalForm, onCancel())
     } else {
+      delete data.subPriceUnits
       mutation(data, onCancel())
     }
   }
