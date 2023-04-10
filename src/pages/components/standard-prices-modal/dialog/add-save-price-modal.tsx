@@ -488,11 +488,11 @@ Props) => {
                   type='button'
                   onClick={() => {
                     setSelectedAction(type === 'Edit' ? 'Cancel' : 'Discard')
-
+                    setAddingPriceData(getValues())
                     setPriceActionModalOpen(true)
                     setModal(
                       <PriceActionModal
-                        priceData={addingPriceData!}
+                        priceData={getValues()}
                         type={type === 'Edit' ? 'Cancel' : 'Discard'}
                         onClickAction={onClickAction}
                       />,

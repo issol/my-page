@@ -87,22 +87,30 @@ export default function PriceActionModal({
             {type === 'Add' ? (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box>Are you sure you want to add this price?</Box>
-                <Typography>{priceData?.priceName}</Typography>
+                <Typography
+                  variant='body2'
+                  sx={{ fontWeight: 700, fontSize: '1rem' }}
+                >
+                  {priceData?.priceName}
+                </Typography>
               </Box>
             ) : type === 'Discard' ? (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box>Are you sure you want to discard this price?</Box>
-                <Typography>{priceData?.priceName}</Typography>
+                <Typography
+                  variant='body2'
+                  sx={{ fontWeight: 700, fontSize: '1rem' }}
+                >
+                  {priceData?.priceName}
+                </Typography>
               </Box>
             ) : type === 'Cancel' ? (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box>Are you sure you want to discard all changes?</Box>
-                <Typography>{priceData?.priceName}</Typography>
               </Box>
             ) : type === 'Save' ? (
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box>Are you sure you want to save all changes?</Box>
-                <Typography>{priceData?.priceName}</Typography>
               </Box>
             ) : null}
           </Typography>

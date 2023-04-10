@@ -392,7 +392,7 @@ const StandardPrices = ({
 
     setModal(
       <PriceActionModal
-        priceData={addingPriceData!}
+        priceData={data!}
         type={selectedModalType === 'Add' ? 'Add' : 'Save'}
         onClickAction={onClickAction}
       />,
@@ -438,15 +438,6 @@ const StandardPrices = ({
       }
     }
   }
-
-  // useEffect(() => {
-  //   if (selectedModalType === 'Edit' && selectedPriceData) {
-  //     console.log('hi')
-  //   } else {
-  //     setValue('currency', { label: '$ USD', value: 'USD' })
-  //     setValue('catBasis', { label: 'Words', value: 'Words' })
-  //   }
-  // }, [selectedModalType, selectedPriceData])
 
   return (
     <Grid container xs={12} spacing={6}>
