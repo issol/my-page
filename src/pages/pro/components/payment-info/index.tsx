@@ -21,8 +21,6 @@ import {
   FileNameType,
   downloadPersonalInfoFile,
 } from '@src/apis/payment-info.api'
-import { getUserTokenFromBrowser } from '@src/shared/auth/storage'
-import axios from 'axios'
 
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
