@@ -9,4 +9,14 @@ export type StandardPriceListType = {
   decimalPlace: number
   roundingProcedure: string
   memoForPrice: string
+  languagePair: Array<LanguagePairListType>
+}
+
+export type LanguagePairListType = {
+  id: number
+  source: string
+  target: string
+  priceFactor: number
+  minimumPrice: number
+  currency: string
 }

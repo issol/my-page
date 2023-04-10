@@ -20,11 +20,6 @@ import PriceUnits from '../components/price/price-units'
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
-  const { data: standardPrices, isLoading } = useGetStandardPrices()
-  const [standardClientPriceListPage, setStandardClientPriceListPage] =
-    useState<number>(0)
-  const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
-    useState<number>(10)
 
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
@@ -74,17 +69,7 @@ export default function Price() {
         />
       </TabList>
       <TabPanel value='1'>
-        <StandardPrices
-          list={standardPrices?.data!}
-          isLoading={isLoading}
-          listCount={standardPrices?.totalCount!}
-          standardClientPriceListPage={standardClientPriceListPage}
-          setStandardClientPriceListPage={setStandardClientPriceListPage}
-          standardClientPriceListPageSize={standardClientPriceListPageSize}
-          setStandardClientPriceListPageSize={
-            setStandardClientPriceListPageSize
-          }
-        />
+        <StandardPrices />
       </TabPanel>
       <TabPanel value='2'>
         <Typography>

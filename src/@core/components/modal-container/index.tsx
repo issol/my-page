@@ -9,6 +9,7 @@ function ModalContainer() {
   const modalList = useAppSelector(state => state.modal)
 
   const { closeModal } = useModal()
+  console.log(modalList)
 
   const handleClickOverlay = (
     name: string,
@@ -20,7 +21,7 @@ function ModalContainer() {
     event.stopPropagation()
     closeModal(name)
   }
-  const renderModal = modalList.map(
+  const renderModal = modalList?.map(
     ({ type, children, isCloseable = true }: ModalType) => {
       return (
         <Overlay

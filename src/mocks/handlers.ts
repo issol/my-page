@@ -1760,6 +1760,16 @@ export const handlers = [
         decimalPlace: 2,
         roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
         memoForPrice: 'This is the word based price.',
+        languagePair: [
+          {
+            id: 0,
+            source: 'en',
+            target: 'ko',
+            priceFactor: 1.5,
+            minimumPrice: 7.65,
+            currency: 'USD',
+          },
+        ],
       },
     ]
 

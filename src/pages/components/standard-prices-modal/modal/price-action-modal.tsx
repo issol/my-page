@@ -17,23 +17,26 @@ import { AddRoleType } from 'src/types/onboarding/list'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { Dispatch, SetStateAction, useContext } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
+import useModal from '@src/hooks/useModal'
 type Props = {
   priceData?: AddPriceType
+  priceName?: string
   type: string
+  onClose: any
   onClickAction: (type: string) => void
 }
 export default function PriceActionModal({
   priceData,
   type,
+  onClose,
   onClickAction,
+  priceName,
 }: Props) {
-  const { setModal } = useContext(ModalContext)
-
   return (
     <Dialog
       open={true}
       keepMounted
-      onClose={() => setModal(null)}
+      onClose={onClose}
       aria-labelledby='alert-dialog-slide-title'
       aria-describedby='alert-dialog-slide-description'
       maxWidth='xs'
@@ -112,6 +115,16 @@ export default function PriceActionModal({
               <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                 <Box>Are you sure you want to save all changes?</Box>
               </Box>
+            ) : type === 'Delete' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box>Are you sure you want to delete this price?</Box>
+                <Typography
+                  variant='body2'
+                  sx={{ fontWeight: 700, fontSize: '1rem' }}
+                >
+                  {priceName}
+                </Typography>
+              </Box>
             ) : null}
           </Typography>
         </DialogContentText>
@@ -129,7 +142,7 @@ export default function PriceActionModal({
             variant='outlined'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              setModal(null)
+              onClose()
               onClickAction('Cancel')
             }}
           >
@@ -141,7 +154,7 @@ export default function PriceActionModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              setModal(null)
+              onClose()
               onClickAction(
                 type === 'Add'
                   ? 'Add'
@@ -151,6 +164,8 @@ export default function PriceActionModal({
                   ? 'Discard'
                   : type === 'Save'
                   ? 'Save'
+                  : type === 'Delete'
+                  ? 'Delete'
                   : '',
               )
             }}
@@ -163,6 +178,8 @@ export default function PriceActionModal({
               ? 'Discard'
               : type === 'Save'
               ? 'Save'
+              : type === 'Delete'
+              ? 'Delete'
               : ''}
           </Button>
         </Box>

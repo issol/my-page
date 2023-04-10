@@ -42,6 +42,7 @@ import { FormErrors } from '@src/shared/const/formErrors'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
+import useModal from '@src/hooks/useModal'
 
 const defaultValue = {
   priceName: '',
@@ -59,15 +60,9 @@ type Props = {
   onClose: any
   type: string
   selectedPriceData?: StandardPriceListType
-  setPriceActionModalOpen: Dispatch<SetStateAction<boolean>>
-  setAddingPriceData: Dispatch<SetStateAction<any>>
-  setSelectedAction: Dispatch<SetStateAction<any>>
-  // resetData: () => void
-  // setValue: UseFormSetValue<AddPriceType>
-  // handleSubmit: UseFormHandleSubmit<AddPriceType>
+
   onSubmit: (data: AddPriceType) => void
-  // control: Control<AddPriceType, any>
-  // errors: FieldErrors<AddPriceType>
+
   setServiceTypeList: Dispatch<
     SetStateAction<
       {
@@ -81,10 +76,6 @@ type Props = {
     value: ServiceType
   }[]
   onClickAction: (type: string) => void
-  addingPriceData?: AddPriceType
-  // trigger: UseFormTrigger<AddPriceType>
-  // watch: UseFormWatch<AddPriceType>
-  // isValid: boolean
 }
 
 const AddSavePriceModal = ({
@@ -92,24 +83,14 @@ const AddSavePriceModal = ({
   onClose,
   type,
   selectedPriceData,
-  // setValue,
-  // control,
-  // errors,
-  // resetData,
   setServiceTypeList,
-  // trigger,
-  setPriceActionModalOpen,
-  setAddingPriceData,
-  setSelectedAction,
-  // handleSubmit,
+
   onSubmit,
   serviceTypeList,
   onClickAction,
-  addingPriceData,
-}: // watch,
-// isValid,
-Props) => {
+}: Props) => {
   const { setModal } = useContext(ModalContext)
+  const { closeModal, openModal } = useModal()
   const {
     control,
     handleSubmit,
@@ -487,16 +468,26 @@ Props) => {
                   color='secondary'
                   type='button'
                   onClick={() => {
-                    setSelectedAction(type === 'Edit' ? 'Cancel' : 'Discard')
-                    setAddingPriceData(getValues())
-                    setPriceActionModalOpen(true)
-                    setModal(
-                      <PriceActionModal
-                        priceData={getValues()}
-                        type={type === 'Edit' ? 'Cancel' : 'Discard'}
-                        onClickAction={onClickAction}
-                      />,
-                    )
+                    // setPriceActionModalOpen(true)
+                    openModal({
+                      type: `${type}Price${
+                        type === 'Edit' ? 'Cancel' : 'Discard'
+                      }Modal`,
+                      children: (
+                        <PriceActionModal
+                          priceData={getValues()}
+                          onClose={() =>
+                            closeModal(
+                              `${type}Price${
+                                type === 'Edit' ? 'Cancel' : 'Discard'
+                              }Modal`,
+                            )
+                          }
+                          type={type === 'Edit' ? 'Cancel' : 'Discard'}
+                          onClickAction={onClickAction}
+                        />
+                      ),
+                    })
                   }}
                 >
                   {type === 'Edit' ? 'Cancel' : 'Discard'}

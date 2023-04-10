@@ -6,6 +6,8 @@ function useModal() {
   const dispatch = useAppDispatch()
 
   const handleOpenModal = ({ type, children, isCloseable }: ModalType) => {
+    console.log(type, children)
+
     dispatch(openModal({ type, children, isCloseable }))
   }
 
