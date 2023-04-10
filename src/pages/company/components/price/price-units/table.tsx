@@ -2,7 +2,12 @@
 import { Fragment, useState } from 'react'
 
 // ** mui
-import { Checkbox, TablePagination, Typography } from '@mui/material'
+import {
+  Checkbox,
+  IconButton,
+  TablePagination,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
@@ -19,6 +24,9 @@ import {
 import Switch from '@mui/material/Switch'
 
 import styled, { css } from 'styled-components'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 import logger from '@src/@core/utils/logger'
 
@@ -68,6 +76,9 @@ export default function PriceUnitTable({
   const Row = (props: { row: PriceUnitType }) => {
     // ** Props
     const { row } = props
+
+    const [open, setOpen] = useState<boolean>(false)
+
     return (
       <Fragment>
         {editModeRow?.id === row.id ? (
@@ -91,6 +102,16 @@ export default function PriceUnitTable({
                   disabled={!abilityCheck('update', user?.id!)}
                   onChange={e => onBasePriceClick(e.currentTarget.checked, row)}
                 />
+                {row.isBase ? (
+                  <IconButton
+                    aria-label='expand row'
+                    size='small'
+                    onClick={() => setOpen(!open)}
+                    sx={{ paddingLeft: '20px' }}
+                  >
+                    <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
+                  </IconButton>
+                ) : null}
               </TableCell>
               <TableCell align='left'>
                 <Typography sx={{ fontWeight: 'bold' }}>{row.title}</Typography>
@@ -116,32 +137,36 @@ export default function PriceUnitTable({
                 />
               </TableCell>
             </CustomTableRow>
-            {row.subPriceUnits?.map(subItem => (
-              <CustomTableRow
-                sx={{ '& > *': { borderBottom: 'unset' } }}
-                key={subItem.id}
-                isDisabled={!!editModeRow}
-              >
-                <TableCell component='th' scope='row'></TableCell>
-                <TableCell align='left'>
-                  <Typography sx={{ paddingLeft: '40px' }}>
-                    {subItem.title}
-                  </Typography>
-                </TableCell>
-                <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
-                <TableCell align='left'>
-                  {subItem.weighting ? `${subItem.weighting}%` : '-'}
-                </TableCell>
-                <TableCell align='left'>
-                  <Switch
-                    checked={subItem.isActive}
-                    onChange={e => onToggleActive(subItem.id, e.target.checked)}
-                    disabled={!abilityCheck('update', user?.id!)}
-                  />
-                </TableCell>
-                <TableCell align='left'></TableCell>
-              </CustomTableRow>
-            ))}
+            {open
+              ? row.subPriceUnits?.map(subItem => (
+                  <CustomTableRow
+                    sx={{ '& > *': { borderBottom: 'unset' } }}
+                    key={subItem.id}
+                    isDisabled={!!editModeRow}
+                  >
+                    <TableCell component='th' scope='row'></TableCell>
+                    <TableCell align='left'>
+                      <Typography sx={{ paddingLeft: '40px' }}>
+                        {subItem.title}
+                      </Typography>
+                    </TableCell>
+                    <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
+                    <TableCell align='left'>
+                      {subItem.weighting ? `${subItem.weighting}%` : '-'}
+                    </TableCell>
+                    <TableCell align='left'>
+                      <Switch
+                        checked={subItem.isActive}
+                        onChange={e =>
+                          onToggleActive(subItem.id, e.target.checked)
+                        }
+                        disabled={!abilityCheck('update', user?.id!)}
+                      />
+                    </TableCell>
+                    <TableCell align='left'></TableCell>
+                  </CustomTableRow>
+                ))
+              : null}
           </Fragment>
         )}
       </Fragment>
@@ -154,8 +179,20 @@ export default function PriceUnitTable({
         <Table aria-label='price unit list'>
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
             <TableRow>
-              <HeaderCell align='left' sx={{ minWidth: '100px' }}>
+              <HeaderCell
+                align='left'
+                sx={{
+                  minWidth: '100px',
+                }}
+              >
                 Base price
+                <IconButton
+                  aria-label='expand row'
+                  size='small'
+                  sx={{ paddingLeft: '20px' }}
+                >
+                  <Icon icon='mdi:chevron-down' />
+                </IconButton>
               </HeaderCell>
               <HeaderCell align='left' sx={{ minWidth: '230px' }}>
                 Price unit
