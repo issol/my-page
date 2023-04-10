@@ -146,9 +146,13 @@ export default function PriceUnitTable({
                   >
                     <TableCell component='th' scope='row'></TableCell>
                     <TableCell align='left'>
-                      <Typography sx={{ paddingLeft: '40px' }}>
-                        {subItem.title}
-                      </Typography>
+                      <Box display='flex' alignItems='center' gap='8px'>
+                        <Icon
+                          icon='material-symbols:subdirectory-arrow-right'
+                          opacity={0.7}
+                        />
+                        <Typography>{subItem.title}</Typography>
+                      </Box>
                     </TableCell>
                     <TableCell align='left'>{subItem.unit ?? '-'}</TableCell>
                     <TableCell align='left'>
