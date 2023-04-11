@@ -1770,6 +1770,18 @@ export const handlers = [
             currency: 'USD',
           },
         ],
+        priceUnit: [
+          {
+            id: 0,
+            isBase: false,
+            title: 'DTP file prep',
+            unit: 'Fixed rate',
+            weighting: null,
+            quantity: 2,
+            price: 5.0,
+            currency: 'USD',
+          },
+        ],
       },
     ]
 

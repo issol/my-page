@@ -19,6 +19,8 @@ import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
 import Button from '@mui/material/Button'
 import LanguagePair from './component/language-pair'
+import PriceUnits from '@src/pages/company/components/price/price-units'
+import PriceUnit from './component/price-unit'
 
 const StandardPrices = () => {
   const { data: standardPrices, isLoading } = useGetStandardPrices()
@@ -178,14 +180,10 @@ const StandardPrices = () => {
             >
               <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
             </Box>
-            <LanguagePair
-              list={selectedPriceData?.languagePair!}
+            <PriceUnit
+              list={selectedPriceData?.priceUnit!}
               listCount={1}
               isLoading={isLoading}
-              listPage={languagePairListPage}
-              setListPage={setLanguagePairListPage}
-              listPageSize={languagePairListPageSize}
-              setListPageSize={setLanguagePairListPageSize}
             />
           </Box>
         </Card>

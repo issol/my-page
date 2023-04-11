@@ -10,6 +10,7 @@ export type StandardPriceListType = {
   roundingProcedure: string
   memoForPrice: string
   languagePair: Array<LanguagePairListType>
+  priceUnit: Array<PriceUnitListType>
 }
 
 export type LanguagePairListType = {
@@ -18,5 +19,16 @@ export type LanguagePairListType = {
   target: string
   priceFactor: number
   minimumPrice: number
+  currency: string
+}
+
+export type PriceUnitListType = {
+  id: number
+  isBase: boolean
+  title: string
+  unit: string
+  weighting: number | null
+  quantity: number | null
+  price: number
   currency: string
 }

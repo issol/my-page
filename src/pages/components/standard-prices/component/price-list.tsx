@@ -304,11 +304,8 @@ const PriceList = ({
                     setSelectedRow={setSelectedRow}
                     open={open}
                     setOpen={setOpen}
-                    anchorEl={anchorEl}
                     selected={selected}
                     handleRowClick={handleRowClick}
-                    handleClick={handleClick}
-                    handleClose={handleClose}
                     isSelected={isSelected}
                   />
                 ))}

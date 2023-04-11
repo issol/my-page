@@ -24,13 +24,11 @@ export function Row(props: {
   setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
   open: boolean
   setOpen: Dispatch<SetStateAction<boolean>>
-  anchorEl: HTMLElement | null
 
   selected: number | null
 
   handleRowClick: (index: number) => void
-  handleClick: (event: MouseEvent<HTMLElement>) => void
-  handleClose: () => void
+
   isSelected: (index: number) => boolean
 }) {
   const {
@@ -40,15 +38,22 @@ export function Row(props: {
     setSelectedRow,
     open,
     setOpen,
-    anchorEl,
 
     selected,
 
     handleRowClick,
-    handleClick,
-    handleClose,
+
     isSelected,
   } = props
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   return (
     <>
@@ -221,8 +226,6 @@ export function Row(props: {
 
             fontWeight: '400 !important',
             fontSize: '14px !important',
-            // borderBottom: 'unset',
-            // paddingRight: '0 !important',
             display: 'flex',
             justifyContent: 'flex-end',
             alignItems: 'center',

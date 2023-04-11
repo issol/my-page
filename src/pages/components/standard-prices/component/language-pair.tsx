@@ -131,38 +131,34 @@ const LanguagePair = ({
         }}
       >
         <DataGrid
-          // components={{
-          //   NoRowsOverlay: () => {
-          //     return (
-          //       <Box
-          //         sx={{
-          //           width: '100%',
-          //           height: '100%',
-          //           display: 'flex',
-          //           justifyContent: 'center',
-          //           alignItems: 'center',
-          //         }}
-          //       >
-          //         <Typography variant='subtitle1'>There are no Pros</Typography>
-          //       </Box>
-          //     )
-          //   },
-          //   NoResultsOverlay: () => {
-          //     return (
-          //       <Box
-          //         sx={{
-          //           width: '100%',
-          //           height: '100%',
-          //           display: 'flex',
-          //           justifyContent: 'center',
-          //           alignItems: 'center',
-          //         }}
-          //       >
-          //         <Typography variant='subtitle1'>There are no Pros</Typography>
-          //       </Box>
-          //     )
-          //   },
-          // }}
+          components={{
+            NoRowsOverlay: () => {
+              return (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                ></Box>
+              )
+            },
+            NoResultsOverlay: () => {
+              return (
+                <Box
+                  sx={{
+                    width: '100%',
+                    height: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                ></Box>
+              )
+            },
+          }}
           columns={columns}
           loading={isLoading}
           rows={list ?? []}
