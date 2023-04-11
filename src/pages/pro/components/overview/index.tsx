@@ -103,7 +103,7 @@ function ProDetailOverview() {
 
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
 
-  // const { data: workday } = useGetProWorkDays(Number(id!), year)
+  const { data: workday } = useGetProWorkDays(Number(id!), year)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   const { data: appliedRole } = useGetAppliedRole(userId!)
@@ -896,12 +896,12 @@ function ProDetailOverview() {
               />
             </Grid>
             <Grid item xs={12}>
-              {/* <WorkDays
+              <WorkDays
                 timezone={userInfo?.timezone!}
                 available={workday?.availableDate!}
                 off={workday?.offDate!}
                 setYear={setYear}
-              /> */}
+              />
               {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>
