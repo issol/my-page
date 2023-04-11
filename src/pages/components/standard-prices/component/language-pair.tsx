@@ -15,6 +15,7 @@ type Props = {
   setListPage: Dispatch<SetStateAction<number>>
   listPageSize: number
   setListPageSize: Dispatch<SetStateAction<number>>
+  onCellClick: (params: any, event: any) => void
 }
 
 const LanguagePair = ({
@@ -25,6 +26,7 @@ const LanguagePair = ({
   setListPage,
   listPageSize,
   setListPageSize,
+  onCellClick,
 }: Props) => {
   const columns: GridColumns<LanguagePairListType> = [
     {
@@ -99,6 +101,7 @@ const LanguagePair = ({
       ),
     },
   ]
+
   return (
     <Card
       sx={{
@@ -163,12 +166,14 @@ const LanguagePair = ({
           loading={isLoading}
           rows={list ?? []}
           autoHeight
-          disableSelectionOnClick
+          // disableSelectionOnClick
+          hideFooterSelectedRowCount
           paginationMode='server'
           pageSize={listPageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
           page={listPage}
           rowCount={listCount ?? 0}
+          onCellClick={onCellClick}
           onPageChange={(newPage: number) => {
             // setFilters((prevState: OnboardingFilterType) => ({
             //   ...prevState,

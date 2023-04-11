@@ -3,18 +3,40 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 
 type Props = {
   list: PriceUnitListType[]
   listCount: number
   isLoading: boolean
+  decimalPlace: number
+  roundingProcedure: string
+  price?: number
 }
 
-const PriceUnit = ({ list, listCount, isLoading }: Props) => {
+const PriceUnit = ({
+  list,
+  listCount,
+  isLoading,
+  decimalPlace,
+  roundingProcedure,
+  price,
+}: Props) => {
+  function getKeyByValue<T extends { [key: string]: string }>(
+    object: T,
+    value: string,
+  ): keyof T | undefined {
+    return Object.keys(object).find(key => object[key] === value) as
+      | keyof T
+      | undefined
+  }
+
+  const rounding = getKeyByValue(PriceRoundingResponseEnum, roundingProcedure)
+
   const columns: GridColumns<PriceUnitListType> = [
     {
-      flex: 0.6,
+      flex: 0.2,
       minWidth: 348,
       field: 'priceUnit',
       headerName: 'Price unit',
@@ -31,7 +53,7 @@ const PriceUnit = ({ list, listCount, isLoading }: Props) => {
       ),
     },
     {
-      flex: 0.3,
+      flex: 0.2,
       minWidth: 110,
       field: 'price',
       headerName: 'Price',
@@ -39,19 +61,23 @@ const PriceUnit = ({ list, listCount, isLoading }: Props) => {
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => <Box>Price</Box>,
-      renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box>
-          {row.currency === 'USD' || row.currency === 'SGD'
-            ? '$'
-            : row.currency === 'KRW'
-            ? '₩'
-            : row.currency === 'JPY'
-            ? '¥'
-            : '-'}
-          &nbsp;
-          {row.price}
-        </Box>
-      ),
+      renderCell: ({ row }: { row: PriceUnitListType }) => {
+        return (
+          <Box>
+            {row.currency === 'USD' || row.currency === 'SGD'
+              ? '$'
+              : row.currency === 'KRW'
+              ? '₩'
+              : row.currency === 'JPY'
+              ? '¥'
+              : '-'}
+            &nbsp;
+            {rounding === 'Type_0'
+              ? row.price.toFixed(decimalPlace)
+              : row.price}
+          </Box>
+        )
+      },
     },
     {
       flex: 0.2,

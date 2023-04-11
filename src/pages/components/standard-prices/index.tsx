@@ -1,7 +1,11 @@
 import Grid from '@mui/material/Grid'
 
-import { StandardPriceListType } from '@src/types/common/standard-price'
-import { useState } from 'react'
+import {
+  LanguagePairListType,
+  PriceUnitListType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
+import { useEffect, useState } from 'react'
 
 import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 
@@ -24,6 +28,7 @@ import PriceUnit from './component/price-unit'
 
 const StandardPrices = () => {
   const { data: standardPrices, isLoading } = useGetStandardPrices()
+  const [lastClickTime, setLastClickTime] = useState(0)
   const [standardClientPriceListPage, setStandardClientPriceListPage] =
     useState<number>(0)
   const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
@@ -35,6 +40,11 @@ const StandardPrices = () => {
 
   const [selectedPriceData, setSelectedPriceData] =
     useState<StandardPriceListType | null>(null)
+
+  const [selectedLanguagePair, setSelectedLanguagePair] =
+    useState<LanguagePairListType | null>(null)
+
+  const [priceUnitList, setPriceUnitList] = useState<PriceUnitListType[]>([])
 
   const [selectedModalType, setSelectedModalType] = useState('')
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
@@ -133,6 +143,25 @@ const StandardPrices = () => {
     })
   }
 
+  const onClickLanguagePair = (params: any, event: any) => {
+    if (params.row !== selectedLanguagePair) {
+      setSelectedLanguagePair(params.row)
+      setPriceUnitList(prevState => {
+        const res = prevState?.map(value => ({
+          ...value,
+          price: params.row.priceFactor * value.price,
+        }))
+        return res
+      })
+    }
+  }
+
+  useEffect(() => {
+    if (selectedPriceData) {
+      setPriceUnitList(selectedPriceData.priceUnit)
+    }
+  }, [selectedPriceData])
+
   return (
     <Grid container xs={12} spacing={6}>
       <Grid item xs={12}>
@@ -169,6 +198,7 @@ const StandardPrices = () => {
               setListPage={setLanguagePairListPage}
               listPageSize={languagePairListPageSize}
               setListPageSize={setLanguagePairListPageSize}
+              onCellClick={onClickLanguagePair}
             />
             <Box
               sx={{
@@ -181,9 +211,11 @@ const StandardPrices = () => {
               <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
             </Box>
             <PriceUnit
-              list={selectedPriceData?.priceUnit!}
+              list={priceUnitList}
               listCount={1}
               isLoading={isLoading}
+              decimalPlace={selectedPriceData?.decimalPlace!}
+              roundingProcedure={selectedPriceData?.roundingProcedure!}
             />
           </Box>
         </Card>
