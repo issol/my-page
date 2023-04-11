@@ -90,7 +90,7 @@ const navigation = (): VerticalNavItemsType => {
           subject: 'permission_request',
         },
         {
-          title: 'Standard prices',
+          title: 'Standard Prices',
           path: `/company/price`,
           action: 'read',
           icon: 'solar:dollar-minimalistic-bold',
