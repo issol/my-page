@@ -29,12 +29,12 @@ import { ProStatus } from '@src/shared/const/status/statuses'
 import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 
 // ** types
-import { FilterOmitType } from '../index'
+import { FilterType } from '../index'
 
 type Props = {
   workName: Array<{ value: string; label: string }> | []
-  filter: FilterOmitType
-  setFilter: <T extends FilterOmitType>(v: T) => void
+  filter: FilterType
+  setFilter: <T extends FilterType>(v: T) => void
   search: () => void
   onReset: () => void
 }

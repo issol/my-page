@@ -39,8 +39,6 @@ export type FilterType = {
   take: number
 }
 
-// export type FilterOmitType = Omit<FilterType, 'skip' | 'take' | 'sort'>
-
 export const initialFilter: FilterType = {
   title: [],
   role: [],

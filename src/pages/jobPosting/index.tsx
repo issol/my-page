@@ -23,8 +23,6 @@ export type FilterType = {
   take?: number
 }
 
-// export type FilterOmitType = Omit<FilterType, 'skip' | 'take'>
-
 export const initialFilter: FilterType = {
   jobType: '',
   role: '',
