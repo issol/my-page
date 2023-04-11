@@ -36,12 +36,12 @@ import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 // ** types
-import { FilterOmitType } from '..'
+import { FilterType } from '..'
 
 type Filter = { value: string; label: string }
 type Props = {
-  filter: FilterOmitType
-  setFilter: <T extends FilterOmitType>(v: T) => void
+  filter: FilterType
+  setFilter: <T extends FilterType>(v: T) => void
   search: () => void
   onReset: () => void
   jobTypeOption: Array<Filter>
@@ -64,7 +64,7 @@ export default function Filters({
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
 
-  function filterValue(option: any, keyName: keyof FilterOmitType) {
+  function filterValue(option: any, keyName: keyof FilterType) {
     return !filter[keyName]
       ? { value: '', label: '' }
       : option.filter(
