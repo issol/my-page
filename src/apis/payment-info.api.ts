@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 
 export type UserInfo = {
@@ -57,35 +58,6 @@ export const getUserPaymentInfo = async (
   try {
     const data = await axios.get(`/api/enough/u/pro/${id}/payment`)
     return data.data
-    // return {
-    //   userInfo: {
-    //     userId: 1,
-    //     identificationNumber: '123-******', //social security number
-    //     identificationFile: '123-******', //주민등록증
-    //     businessLicense: '123-******',
-    //   },
-    //   type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
-    //   bankInfo: {
-    //     accountName: 'ABA',
-    //     email: 'bon@glozinc.com',
-    //     accountNumber: '123-******',
-    //     routingNumber: '123-******',
-    //     swiftCode: '123123',
-    //     ibnNumber: '123-******',
-    //   },
-    //   correspondentBankInfo: {
-    //     accountNumber: '123-******',
-    //     bankIdentifierCode: '123-******', //SWIFT, BIC
-    //     others: '123-******',
-    //   },
-
-    //   billingAddress: {
-    //     city: 'Seoul',
-    //     state: 'Seoul',
-    //     country: 'Korea',
-    //     zip: 303030,
-    //   },
-    // }
   } catch (e: any) {
     return {
       userInfo: {
@@ -125,35 +97,6 @@ export const getUserPaymentInfoForManager = async (
   try {
     const data = await axios.get(`/api/enough/u/pro/${id}/payment/detail`)
     return data.data
-    // return {
-    //   userInfo: {
-    //     userId: 1,
-    //     identificationNumber: '123-123123123', //social security number
-    //     identificationFile: '123-123123123', //주민등록증
-    //     businessLicense: '123-123123123',
-    //   },
-    //   type: 'Transfer wise', //Transfer wise | US ACH | Korea domestic transfer |International Wire | PayPal
-    //   bankInfo: {
-    //     accountName: 'ABA',
-    //     email: 'bon@glozinc.com',
-    //     accountNumber: '123-123123123',
-    //     routingNumber: '123-123123123',
-    //     swiftCode: '123123',
-    //     ibnNumber: '123-123123123',
-    //   },
-    //   correspondentBankInfo: {
-    //     accountNumber: '123-123123123',
-    //     bankIdentifierCode: '123-123123123', //SWIFT, BIC
-    //     others: '123-123123123',
-    //   },
-
-    //   billingAddress: {
-    //     city: 'Seoul',
-    //     state: 'Seoul',
-    //     country: 'Korea',
-    //     zip: 303030,
-    //   },
-    // }
   } catch (e: any) {
     return {
       userInfo: {
@@ -191,15 +134,17 @@ export type FileNameType = 'identification' | 'businessLicense'
 export const downloadPersonalInfoFile = async (
   userId: number,
   file: FileNameType,
-): Promise<Blob> => {
+): Promise<void> => {
   try {
-    const { data } = await axios.post(
+    const response = await axios.post(
       `/api/enough/u/pro/${userId}/payment/download-file/${file}`,
-      {
-        responseType: 'blob',
-      },
     )
-    return data
+    const mime = response?.headers['content-type']
+    if (mime) {
+      downloadBase64File(response.data, mime, file)
+    } else {
+      throw new Error()
+    }
   } catch (e: any) {
     throw new Error(e)
   }
