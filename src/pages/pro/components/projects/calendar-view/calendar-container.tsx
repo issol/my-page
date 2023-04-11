@@ -158,7 +158,6 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
         setSkip={setSkip}
         pageSize={pageSize}
         setPageSize={setPageSize}
-        isLoading={false}
         list={
           currentList?.length
             ? { data: currentList, totalCount: currentList?.length }
