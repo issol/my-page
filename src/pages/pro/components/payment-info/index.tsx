@@ -54,23 +54,16 @@ export default function PaymentInfo({ id }: Props) {
 
   function fetchFile(fileName: FileNameType) {
     downloadPersonalInfoFile(id, fileName)
-      .then(res => {
-        logger.info(`${fileName} file download : `, typeof new Blob([res]))
-        const url = window.URL.createObjectURL(new Blob([res]))
-        const link = document.createElement('a')
-        link.href = url
-        link.setAttribute('download', `${fileName}`)
-        document.body.appendChild(link)
-        link.click()
-      })
-      .catch(err =>
+      .then()
+      .catch(err => {
+        console.log(err)
         toast.error(
           'Something went wrong while uploading files. Please try again.',
           {
             position: 'bottom-left',
           },
-        ),
-      )
+        )
+      })
   }
 
   function downloadFile(name: FileNameType) {

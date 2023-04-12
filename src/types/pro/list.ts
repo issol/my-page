@@ -22,7 +22,8 @@ export type ProListFilterType = {
   source?: string[]
   target?: string[]
   experience?: string[]
-  order?: string
+  sortId?: string
+  sortDate?: string
 }
 
 export interface ProListJobInfoType extends JobInfoType {

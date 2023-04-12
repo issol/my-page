@@ -79,6 +79,11 @@ import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
 import WorkDays from '@src/pages/components/pro-detail-component/work-days'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import {
+  useGetProOverview,
+  useGetProWorkDays,
+} from '@src/queries/pro/pro-details.query'
+import { changeProStatus } from '@src/apis/pro-details.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -94,14 +99,14 @@ function ProDetailOverview() {
   const router = useRouter()
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
-  const {
-    data: userInfo,
-    isError,
-    isFetched,
-  } = useGetOnboardingProDetails(Number(id!))
+  const [year, setYear] = useState(new Date().getFullYear())
+
+  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
+
+  const { data: workday } = useGetProWorkDays(Number(id!), year)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
-  const { data: appliedRole } = useGetAppliedRole(userId!)
+  // const { data: appliedRole } = useGetAppliedRole(userId!)
 
   const { user } = useContext(AuthContext)
 
@@ -109,7 +114,7 @@ function ProDetailOverview() {
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
-  >(appliedRole!)
+  >(userInfo!.appliedRoles!)
 
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<AppliedRoleType | null>(null)
@@ -198,6 +203,16 @@ function ProDetailOverview() {
   const { setModal } = useContext(ModalContext)
 
   const queryClient = useQueryClient()
+
+  const changeProStatusMutation = useMutation(
+    (value: { userId: number; status: string }) =>
+      changeProStatus(value.userId, value.status),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`${userId}`)
+      },
+    },
+  )
 
   const appliedRoleActionMutation = useMutation(
     (value: {
@@ -294,6 +309,10 @@ function ProDetailOverview() {
   const handleChangeStatus = (event: SelectChangeEvent) => {
     // TODO Api연결
     setStatus(event.target.value as string)
+    changeProStatusMutation.mutate({
+      userId: Number(id!),
+      status: event.target.value,
+    })
   }
   const handleChangeRolePage = (direction: string) => {
     // window.scrollTo({ top: 0, left: 0, behavior: 'auto' })
@@ -348,7 +367,7 @@ function ProDetailOverview() {
         prevState = res
         setAppliedRoleList(prevState)
       } else {
-        let prevState = appliedRole!
+        let prevState = userInfo!.appliedRoles!
 
         setAppliedRoleList(prevState)
       }
@@ -760,8 +779,8 @@ function ProDetailOverview() {
   }
 
   useEffect(() => {
-    setAppliedRoleList(appliedRole!)
-  }, [appliedRole])
+    setAppliedRoleList(userInfo?.appliedRoles!)
+  }, [userInfo])
 
   useEffect(() => {
     setStatus(userInfo?.status)
@@ -879,8 +898,9 @@ function ProDetailOverview() {
             <Grid item xs={12}>
               <WorkDays
                 timezone={userInfo?.timezone!}
-                available={userInfo?.availableDate!}
-                off={userInfo?.offDate!}
+                available={workday?.availableDate!}
+                off={workday?.offDate!}
+                setYear={setYear}
               />
               {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
@@ -909,7 +929,7 @@ function ProDetailOverview() {
               <Grid item xs={12}>
                 <Suspense>
                   <AppliedRole
-                    totalCount={appliedRole?.length!}
+                    totalCount={userInfo!.appliedRoles?.length!}
                     userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}

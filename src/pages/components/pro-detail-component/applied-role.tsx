@@ -479,15 +479,13 @@ export default function AppliedRole({
                             value.requestStatus !== 'Paused' &&
                             value.requestStatus !== 'Rejected' &&
                             !(
-                              value.test.find(
-                                data => data.testType === 'basic',
-                              )!.status === 'Basic failed' &&
-                              value.test.find(
-                                data => data.testType === 'skill',
-                              )!.status === 'Awaiting assignment'
+                              value.test.find(data => data.testType === 'basic')
+                                ?.status === 'Basic failed' &&
+                              value.test.find(data => data.testType === 'skill')
+                                ?.status === 'Awaiting assignment'
                             ) &&
-                            value.test.find(data => data.testType === 'skill')!
-                              .status !== 'Skill failed' ? (
+                            value.test.find(data => data.testType === 'skill')
+                              ?.status !== 'Skill failed' ? (
                               <Button
                                 variant='outlined'
                                 size='small'

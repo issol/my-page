@@ -2,7 +2,13 @@ import DatePicker, { CalendarContainer } from 'react-datepicker'
 import { Box, Card, CardHeader, TextField, Typography } from '@mui/material'
 import { DateType } from '@src/types/forms/reactDatepickerTypes'
 import { addMonths, format, intlFormat, subDays, subMonths } from 'date-fns'
-import { forwardRef, ReactNode, useState } from 'react'
+import {
+  Dispatch,
+  forwardRef,
+  ReactNode,
+  SetStateAction,
+  useState,
+} from 'react'
 import DatePickerWrapper from 'src/@core/styles/libs/react-datepicker'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { getGmtTime, getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
@@ -14,12 +20,13 @@ import TimelineDot from '@src/@core/components/mui/timeline-dot'
 type Props = {
   timezone: CountryType
   available: Array<Date>
+  setYear: Dispatch<SetStateAction<number>>
   off: Array<Date>
 }
 
-const WorkDays = ({ timezone, available, off }: Props) => {
+const WorkDays = ({ timezone, available, off, setYear }: Props) => {
   const [startDate, setStartDate] = useState<Date | null>(new Date())
-  console.log(startDate)
+  const currentYear = new Date().getFullYear()
   const excludeWeekends = (date: Date) => {
     const day = date.getDay()
     return day !== 0 && day !== 6
@@ -34,7 +41,13 @@ const WorkDays = ({ timezone, available, off }: Props) => {
       >
         <DatePicker
           // selected={startDate}
-
+          // onYearChange={}
+          onMonthChange={(date: Date) => {
+            if (currentYear !== date.getFullYear()) {
+              setYear(date.getFullYear())
+            }
+          }}
+          // onYearChange={(date: Date) => console.log('hi')}
           onChange={(date: Date) => setStartDate(date)}
           inline
           readOnly

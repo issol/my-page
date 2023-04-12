@@ -161,7 +161,7 @@ export default function PriceUnitForm(props: Props) {
       mutation(data, onCancel())
     }
   }
-
+  const [expend, setExpend] = useState(true)
   return (
     <Fragment>
       <CustomTableRow
@@ -190,6 +190,16 @@ export default function PriceUnitForm(props: Props) {
               />
             )}
           />
+          {props.data ? (
+            <IconButton
+              aria-label='expand row'
+              size='small'
+              onClick={() => setExpend(!expend)}
+              sx={{ paddingLeft: '20px' }}
+            >
+              <Icon icon={expend ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
+            </IconButton>
+          ) : null}
         </TableCell>
         <TableCell align='left'>
           <Controller
@@ -279,109 +289,117 @@ export default function PriceUnitForm(props: Props) {
       </CustomTableRow>
       {isBase ? (
         <Fragment>
-          {subPrices?.map((item, idx) => {
-            return (
-              <CustomTableRow
-                key={item.id}
-                isDisabled={
-                  props?.shouldDisabled ? props.shouldDisabled : false
-                }
-              >
-                <TableCell></TableCell>
-                <TableCell>
-                  <Controller
-                    name={`subPriceUnits.${idx}.title`}
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        error={Boolean(
-                          errors.subPriceUnits?.length
-                            ? errors?.subPriceUnits[idx]?.title?.message
-                            : false,
+          {expend
+            ? subPrices?.map((item, idx) => {
+                return (
+                  <CustomTableRow
+                    key={item.id}
+                    isDisabled={
+                      props?.shouldDisabled ? props.shouldDisabled : false
+                    }
+                  >
+                    <TableCell></TableCell>
+                    <TableCell>
+                      <Box display='flex' alignItems='center' gap='8px'>
+                        <Icon
+                          icon='material-symbols:subdirectory-arrow-right'
+                          opacity={0.7}
+                        />
+                        <Controller
+                          name={`subPriceUnits.${idx}.title`}
+                          control={control}
+                          render={({ field }) => (
+                            <TextField
+                              {...field}
+                              fullWidth
+                              error={Boolean(
+                                errors.subPriceUnits?.length
+                                  ? errors?.subPriceUnits[idx]?.title?.message
+                                  : false,
+                              )}
+                              id='price-unit'
+                              placeholder='0-80 cuts'
+                              inputProps={{ maxLength: 100 }}
+                            />
+                          )}
+                        />
+                      </Box>
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name={`subPriceUnits.${idx}.unit`}
+                        control={control}
+                        render={({ field }) => (
+                          <Autocomplete
+                            sx={{ minWidth: 250 }}
+                            {...field}
+                            disabled
+                            fullWidth
+                            options={PriceUnits}
+                            placeholder='Fixed rate'
+                            value={
+                              PriceUnits.filter(
+                                item => item.label === field.value,
+                              )[0]
+                            }
+                            renderInput={params => <TextField {...params} />}
+                          />
                         )}
-                        id='price-unit'
-                        placeholder='0-80 cuts'
-                        inputProps={{ maxLength: 100 }}
                       />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Controller
-                    name={`subPriceUnits.${idx}.unit`}
-                    control={control}
-                    render={({ field }) => (
-                      <Autocomplete
-                        sx={{ minWidth: 250 }}
-                        {...field}
-                        disabled
-                        fullWidth
-                        options={PriceUnits}
-                        placeholder='Fixed rate'
-                        value={
-                          PriceUnits.filter(
-                            item => item.label === field.value,
-                          )[0]
-                        }
-                        renderInput={params => <TextField {...params} />}
-                      />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Controller
-                    name={`subPriceUnits.${idx}.weighting`}
-                    control={control}
-                    render={({ field }) => (
-                      <TextField
-                        {...field}
-                        fullWidth
-                        id='weighting'
-                        placeholder='-'
-                        error={Boolean(
-                          errors.subPriceUnits?.length
-                            ? errors?.subPriceUnits[idx]?.weighting?.message
-                            : false,
+                    </TableCell>
+                    <TableCell>
+                      <Controller
+                        name={`subPriceUnits.${idx}.weighting`}
+                        control={control}
+                        render={({ field }) => (
+                          <TextField
+                            {...field}
+                            fullWidth
+                            id='weighting'
+                            placeholder='-'
+                            error={Boolean(
+                              errors.subPriceUnits?.length
+                                ? errors?.subPriceUnits[idx]?.weighting?.message
+                                : false,
+                            )}
+                            onChange={e => {
+                              const value = e.target.value
+                              if (value.length > 10) return
+                              field.onChange(e.target.value)
+                            }}
+                            value={field.value ?? ''}
+                            InputProps={{ type: 'number' }}
+                          />
                         )}
-                        onChange={e => {
-                          const value = e.target.value
-                          if (value.length > 10) return
-                          field.onChange(e.target.value)
-                        }}
-                        value={field.value ?? ''}
-                        InputProps={{ type: 'number' }}
                       />
-                    )}
-                  />
-                </TableCell>
-                <TableCell>
-                  {!props?.data ? (
-                    ''
-                  ) : (
-                    <Controller
-                      name={`subPriceUnits.${idx}.isActive`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <Switch checked={value} onChange={onChange} />
+                    </TableCell>
+                    <TableCell>
+                      {!props?.data ? (
+                        ''
+                      ) : (
+                        <Controller
+                          name={`subPriceUnits.${idx}.isActive`}
+                          control={control}
+                          render={({ field: { value, onChange } }) => (
+                            <Switch checked={value} onChange={onChange} />
+                          )}
+                        />
                       )}
-                    />
-                  )}
-                </TableCell>
-                <TableCell>
-                  <Box width='100%' display='flex' justifyContent='center'>
-                    <IconButton
-                      onClick={() => removeSubPrice(item.id)}
-                      disabled={!isValid}
-                    >
-                      <Icon icon='mdi:trash-outline' />
-                    </IconButton>
-                  </Box>
-                </TableCell>
-              </CustomTableRow>
-            )
-          })}
+                    </TableCell>
+                    <TableCell>
+                      <Box width='100%' display='flex' justifyContent='center'>
+                        <IconButton
+                          onClick={() => removeSubPrice(item.id)}
+                          disabled={!isValid}
+                        >
+                          <Icon icon='mdi:trash-outline' />
+                        </IconButton>
+                      </Box>
+                    </TableCell>
+                  </CustomTableRow>
+                )
+              })
+            : null}
 
           <CustomTableRow
             // key={item.id}

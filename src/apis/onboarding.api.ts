@@ -7,6 +7,7 @@ import {
   OnboardingFilterType,
 } from 'src/types/onboarding/list'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
+import { DetailUserType } from '@src/types/common/detail-user.type'
 
 export const getOnboardingProList = async (filters: OnboardingFilterType) => {
   const data = await axios.get(
@@ -18,8 +19,8 @@ export const getOnboardingProList = async (filters: OnboardingFilterType) => {
 
 export const getOnboardingProDetails = async (
   userId: number,
-): Promise<OnboardingProDetailsType> => {
-  const { data } = await axios.get<OnboardingProDetailsType>(
+): Promise<DetailUserType> => {
+  const { data } = await axios.get<DetailUserType>(
     `/api/enough/onboard/user/${userId}`,
   )
 
