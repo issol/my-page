@@ -1,4 +1,5 @@
 import {
+  AppliedRoleType,
   CertifiedRoleType,
   OnboardingProDetailsType,
 } from '../onboarding/details'
@@ -8,7 +9,5 @@ export interface DetailUserType extends OnboardingProDetailsType {
   dateOfBirth?: string
   status?: string
   residence?: string
-  appliedRoles?: Array<OnboardingJobInfoType>
-  certifiedRoles?: Array<CertifiedRoleType>
-  roles?: Array<any>
+  appliedRoles: Array<AppliedRoleType>
 }
