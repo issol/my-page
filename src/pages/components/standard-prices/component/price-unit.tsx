@@ -13,6 +13,7 @@ type Props = {
   decimalPlace: number
   roundingProcedure: string
   price?: number
+  onClickSetPriceUnit: () => void
 }
 
 const PriceUnit = ({
@@ -21,6 +22,7 @@ const PriceUnit = ({
   isLoading,
   decimalPlace,
   roundingProcedure,
+  onClickSetPriceUnit,
   price,
 }: Props) => {
   function getKeyByValue<T extends { [key: string]: string }>(
@@ -120,7 +122,7 @@ const PriceUnit = ({
         <Typography variant='body1' sx={{ fontWeight: 600 }}>
           Price units ({listCount ?? 0})
         </Typography>
-        <Button variant='contained' size='small'>
+        <Button variant='contained' size='small' onClick={onClickSetPriceUnit}>
           Set price unit
         </Button>
       </Box>

@@ -26,10 +26,14 @@ import LanguagePair from './component/language-pair'
 import PriceUnits from '@src/pages/company/components/price/price-units'
 import PriceUnit from './component/price-unit'
 import AddNewLanguagePairModal from '../standard-prices-modal/dialog/add-new-language-pair-modal'
+import SetPriceUnitModal from '../standard-prices-modal/dialog/set-price-unit-modal'
 
-const StandardPrices = () => {
-  const { data: standardPrices, isLoading } = useGetStandardPrices()
+type Props = {
+  standardPrices: { data: StandardPriceListType[]; totalCount: number }
+  isLoading: boolean
+}
 
+const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   const [standardClientPriceListPage, setStandardClientPriceListPage] =
     useState<number>(0)
   const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
@@ -169,6 +173,18 @@ const StandardPrices = () => {
     })
   }
 
+  const onClickSetPriceUnit = () => {
+    openModal({
+      type: 'setPriceUnitModal',
+      children: (
+        <SetPriceUnitModal
+          onClose={() => closeModal('setPriceUnitModal')}
+          currency={selectedPriceData?.currency!}
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (selectedPriceData) {
       setPriceUnitList(selectedPriceData.priceUnit)
@@ -192,49 +208,52 @@ const StandardPrices = () => {
           onClickDeletePrice={onClickDeletePrice}
         />
       </Grid>
-      <Grid item xs={12}>
-        <Card
-          sx={{
-            padding: '20px',
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '20px',
-          }}
-        >
-          <Typography variant='h6'>Prices</Typography>
-          <Box sx={{ display: 'flex', width: '100%' }}>
-            <LanguagePair
-              list={selectedPriceData?.languagePair!}
-              listCount={1}
-              isLoading={isLoading}
-              listPage={languagePairListPage}
-              setListPage={setLanguagePairListPage}
-              listPageSize={languagePairListPageSize}
-              setListPageSize={setLanguagePairListPageSize}
-              onCellClick={onClickLanguagePair}
-              onClickAddNewLanguagePair={onClickAddNewLanguagePair}
-              existPriceUnit={!!priceUnitList}
-            />
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                ml: 1,
-                mr: 1,
-              }}
-            >
-              <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
+      {selectedPriceData ? (
+        <Grid item xs={12}>
+          <Card
+            sx={{
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '20px',
+            }}
+          >
+            <Typography variant='h6'>Prices</Typography>
+            <Box sx={{ display: 'flex', width: '100%' }}>
+              <LanguagePair
+                list={selectedPriceData?.languagePair!}
+                listCount={1}
+                isLoading={isLoading}
+                listPage={languagePairListPage}
+                setListPage={setLanguagePairListPage}
+                listPageSize={languagePairListPageSize}
+                setListPageSize={setLanguagePairListPageSize}
+                onCellClick={onClickLanguagePair}
+                onClickAddNewLanguagePair={onClickAddNewLanguagePair}
+                existPriceUnit={!!priceUnitList}
+              />
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  ml: 1,
+                  mr: 1,
+                }}
+              >
+                <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
+              </Box>
+              <PriceUnit
+                list={priceUnitList}
+                listCount={1}
+                isLoading={isLoading}
+                decimalPlace={selectedPriceData?.decimalPlace!}
+                roundingProcedure={selectedPriceData?.roundingProcedure!}
+                onClickSetPriceUnit={onClickSetPriceUnit}
+              />
             </Box>
-            <PriceUnit
-              list={priceUnitList}
-              listCount={1}
-              isLoading={isLoading}
-              decimalPlace={selectedPriceData?.decimalPlace!}
-              roundingProcedure={selectedPriceData?.roundingProcedure!}
-            />
-          </Box>
-        </Card>
-      </Grid>
+          </Card>
+        </Grid>
+      ) : null}
     </Grid>
   )
 }

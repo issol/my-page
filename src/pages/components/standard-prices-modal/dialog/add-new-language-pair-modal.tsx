@@ -24,6 +24,7 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import LanguagePairActionModal from '../modal/language-pair-action-modal'
 
 const defaultValues: AddNewLanguagePair = {
   pair: [{ source: '', target: '', priceFactor: null, minimumPrice: null }],
@@ -133,15 +134,28 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
     trigger('pair')
   }
 
+  const onClickAction = (type: string) => {
+    closeModal('addNewLanguagePairModal')
+    if (type === 'Discard') {
+      reset({
+        pair: [
+          { source: '', target: '', priceFactor: null, minimumPrice: null },
+        ],
+      })
+    } else if (type === 'Add') {
+      console.log('add')
+    }
+  }
+
   return (
     <Dialog
       open={true}
       keepMounted
       fullWidth
-      onClose={() => {
-        // setModal(null)
-        onClose()
-      }}
+      // onClose={() => {
+      //   // setModal(null)
+      //   onClose()
+      // }}
       // TransitionComponent={Transition}
       aria-labelledby='alert-dialog-slide-title'
       aria-describedby='alert-dialog-slide-description'
@@ -410,7 +424,21 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                 gap: '24px',
               }}
             >
-              <Button variant='outlined' onClick={onClose}>
+              <Button
+                variant='outlined'
+                onClick={() =>
+                  openModal({
+                    type: 'discardLanguagePairModal',
+                    children: (
+                      <LanguagePairActionModal
+                        onClose={() => closeModal('discardLanguagePairModal')}
+                        onClickAction={onClickAction}
+                        type='Discard'
+                      />
+                    ),
+                  })
+                }
+              >
                 Cancel
               </Button>
               <Button
@@ -419,6 +447,18 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                 disabled={pairFields.some(item => {
                   return !item.priceFactor || !item.target || !item.source
                 })}
+                onClick={() =>
+                  openModal({
+                    type: 'addLanguagePairModal',
+                    children: (
+                      <LanguagePairActionModal
+                        onClose={() => closeModal('addLanguagePairModal')}
+                        onClickAction={onClickAction}
+                        type='Add'
+                      />
+                    ),
+                  })
+                }
               >
                 Add
               </Button>
