@@ -106,7 +106,7 @@ function ProDetailOverview() {
   const { data: workday } = useGetProWorkDays(Number(id!), year)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
-  const { data: appliedRole } = useGetAppliedRole(userId!)
+  // const { data: appliedRole } = useGetAppliedRole(userId!)
 
   const { user } = useContext(AuthContext)
 
@@ -114,7 +114,7 @@ function ProDetailOverview() {
 
   const [appliedRoleList, setAppliedRoleList] = useState<
     AppliedRoleType[] | null
-  >(appliedRole!)
+  >(userInfo!.appliedRoles!)
 
   const [selectedJobInfo, setSelectedJobInfo] =
     useState<AppliedRoleType | null>(null)
@@ -367,7 +367,7 @@ function ProDetailOverview() {
         prevState = res
         setAppliedRoleList(prevState)
       } else {
-        let prevState = appliedRole!
+        let prevState = userInfo!.appliedRoles!
 
         setAppliedRoleList(prevState)
       }
@@ -779,8 +779,8 @@ function ProDetailOverview() {
   }
 
   useEffect(() => {
-    setAppliedRoleList(appliedRole!)
-  }, [appliedRole])
+    setAppliedRoleList(userInfo?.appliedRoles!)
+  }, [userInfo])
 
   useEffect(() => {
     setStatus(userInfo?.status)
@@ -929,7 +929,7 @@ function ProDetailOverview() {
               <Grid item xs={12}>
                 <Suspense>
                   <AppliedRole
-                    totalCount={appliedRole?.length!}
+                    totalCount={userInfo!.appliedRoles?.length!}
                     userInfo={appliedRoleList! ?? []}
                     hideFailedTest={hideFailedTest}
                     handleHideFailedTestChange={handleHideFailedTestChange}

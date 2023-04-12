@@ -1,10 +1,11 @@
 import axios from '@src/configs/axios'
+import { DetailUserType } from '@src/types/common/detail-user.type'
 import { OnboardingProDetailsType } from '@src/types/onboarding/details'
 
 export const getProOverview = async (
   userId: number,
-): Promise<OnboardingProDetailsType> => {
-  const { data } = await axios.get<OnboardingProDetailsType>(
+): Promise<DetailUserType> => {
+  const { data } = await axios.get<DetailUserType>(
     `/api/enough/u/pro/${userId}/overview`,
   )
 
