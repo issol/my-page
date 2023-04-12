@@ -25,10 +25,11 @@ import Button from '@mui/material/Button'
 import LanguagePair from './component/language-pair'
 import PriceUnits from '@src/pages/company/components/price/price-units'
 import PriceUnit from './component/price-unit'
+import AddNewLanguagePairModal from '../standard-prices-modal/dialog/add-new-language-pair-modal'
 
 const StandardPrices = () => {
   const { data: standardPrices, isLoading } = useGetStandardPrices()
-  const [lastClickTime, setLastClickTime] = useState(0)
+
   const [standardClientPriceListPage, setStandardClientPriceListPage] =
     useState<number>(0)
   const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
@@ -156,6 +157,18 @@ const StandardPrices = () => {
     }
   }
 
+  const onClickAddNewLanguagePair = () => {
+    openModal({
+      type: 'addNewLanguagePairModal',
+      children: (
+        <AddNewLanguagePairModal
+          onClose={() => closeModal('addNewLanguagePairModal')}
+          currency={selectedPriceData?.currency!}
+        />
+      ),
+    })
+  }
+
   useEffect(() => {
     if (selectedPriceData) {
       setPriceUnitList(selectedPriceData.priceUnit)
@@ -199,6 +212,8 @@ const StandardPrices = () => {
               listPageSize={languagePairListPageSize}
               setListPageSize={setLanguagePairListPageSize}
               onCellClick={onClickLanguagePair}
+              onClickAddNewLanguagePair={onClickAddNewLanguagePair}
+              existPriceUnit={!!priceUnitList}
             />
             <Box
               sx={{

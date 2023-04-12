@@ -32,3 +32,12 @@ export type PriceUnitListType = {
   price: number
   currency: string
 }
+
+export type AddNewLanguagePair = {
+  pair: {
+    source: string
+    target: string
+    priceFactor: number | null
+    minimumPrice: number | null
+  }[]
+}

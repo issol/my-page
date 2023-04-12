@@ -1,11 +1,18 @@
+import { yupResolver } from '@hookform/resolvers/yup'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { LanguagePairListType } from '@src/types/common/standard-price'
+import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import {
+  AddNewLanguagePair,
+  LanguagePairListType,
+} from '@src/types/common/standard-price'
+import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Dispatch, SetStateAction } from 'react'
+import { useForm } from 'react-hook-form'
 
 type Props = {
   list: LanguagePairListType[]
@@ -16,6 +23,8 @@ type Props = {
   listPageSize: number
   setListPageSize: Dispatch<SetStateAction<number>>
   onCellClick: (params: any, event: any) => void
+  onClickAddNewLanguagePair: () => void
+  existPriceUnit: boolean
 }
 
 const LanguagePair = ({
@@ -27,6 +36,8 @@ const LanguagePair = ({
   listPageSize,
   setListPageSize,
   onCellClick,
+  onClickAddNewLanguagePair,
+  existPriceUnit,
 }: Props) => {
   const columns: GridColumns<LanguagePairListType> = [
     {
@@ -41,7 +52,10 @@ const LanguagePair = ({
       renderCell: ({ row }: { row: LanguagePairListType }) => (
         <Box>
           <Box key={row.id}>
-            <Typography variant='body1' sx={{ fontWeight: 600 }}>
+            <Typography
+              variant='body1'
+              sx={{ fontWeight: 600, fontSize: '14px' }}
+            >
               {row.source && row.target ? (
                 <>
                   {languageHelper(row.source)} &rarr;{' '}
@@ -120,8 +134,15 @@ const LanguagePair = ({
           padding: '0 20px 20px 20px',
         }}
       >
-        <Typography variant='h6'>Language pairs ({listCount ?? 0})</Typography>
-        <Button variant='contained' disabled>
+        <Typography variant='body1' sx={{ fontWeight: 600 }}>
+          Language pairs ({listCount ?? 0})
+        </Typography>
+        <Button
+          variant='contained'
+          disabled={!existPriceUnit}
+          size='small'
+          onClick={onClickAddNewLanguagePair}
+        >
           Add new pair
         </Button>
       </Box>

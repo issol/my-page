@@ -12,7 +12,6 @@ import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
 
-import { AddRoleType } from 'src/types/onboarding/list'
 type Props = {
   open: boolean
   onClose: any

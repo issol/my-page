@@ -39,3 +39,14 @@ export const priceUnitSchema = yup.object().shape({
       return isBase ? schema : yup.array().nullable()
     }),
 })
+
+export const languagePairSchema = yup.object().shape({
+  pair: yup.array().of(
+    yup.object().shape({
+      source: yup.string().required(FormErrors.required),
+      target: yup.string().required(FormErrors.required),
+      priceFactor: yup.number().required(FormErrors.required),
+      minimumPrice: yup.number().nullable(),
+    }),
+  ),
+})

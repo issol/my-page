@@ -46,7 +46,10 @@ const PriceUnit = ({
       renderHeader: () => <Box>Price Unit</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
         <Box>
-          <Typography variant='body1' sx={{ fontWeight: 600 }}>
+          <Typography
+            variant='body1'
+            sx={{ fontWeight: 600, fontSize: '14px' }}
+          >
             {row.title} {row.quantity ? `(${row.quantity})` : ''}
           </Typography>
         </Box>
@@ -114,8 +117,12 @@ const PriceUnit = ({
           padding: '0 20px 20px 20px',
         }}
       >
-        <Typography variant='h6'>Price units ({listCount ?? 0})</Typography>
-        <Button variant='contained'>Set price unit</Button>
+        <Typography variant='body1' sx={{ fontWeight: 600 }}>
+          Price units ({listCount ?? 0})
+        </Typography>
+        <Button variant='contained' size='small'>
+          Set price unit
+        </Button>
       </Box>
       <Box
         sx={{
@@ -154,6 +161,7 @@ const PriceUnit = ({
               )
             },
           }}
+          hideFooter
           columns={columns}
           loading={isLoading}
           rows={list ?? []}
