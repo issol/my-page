@@ -1,4 +1,4 @@
-import { Card, Grid, Typography } from '@mui/material'
+import { Button, Card, Grid, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
@@ -6,6 +6,7 @@ import CardHeader from '@mui/material/CardHeader'
 import { ClientRowType } from '@src/apis/client.api'
 import { ClientStatusChip } from '@src/@core/components/chips/chips'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 type ClientListCellType = {
   row: ClientRowType
@@ -23,7 +24,6 @@ type Props = {
   isLoading: boolean
 }
 
-// ** TODO : 임의로 채워넣은 데이터 실데이터로 채워넣기
 export default function ClientList({
   skip,
   pageSize,
@@ -139,7 +139,16 @@ export default function ClientList({
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Clients (${0})`}
+          title={
+            <Box display='flex' justifyContent='space-between'>
+              <Typography variant='h6'>Clients ({list.count})</Typography>{' '}
+              <Button variant='contained'>
+                <StyledNextLink href='/client/add-new' color='white'>
+                  Add new client
+                </StyledNextLink>
+              </Button>
+            </Box>
+          }
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box

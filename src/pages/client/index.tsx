@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Grid, Typography } from '@mui/material'
+import { Box, Grid, Switch, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 import ClientListFilter from './list/filters'
 import { useGetClientList } from '@src/queries/client.query'
@@ -8,6 +8,7 @@ import ClientList from './list/list'
 export type FilterType = {
   status?: Array<string>
   search?: string
+  hideBlocked?: boolean
   skip: number
   take: number
 }
@@ -15,6 +16,7 @@ export type FilterType = {
 export const initialFilter: FilterType = {
   status: [],
   search: '',
+  hideBlocked: false,
   skip: 0,
   take: 10,
 }
@@ -46,6 +48,24 @@ export default function Clients() {
         search={onSearch}
         setFilter={setFilter}
       />
+
+      <Grid item xs={12} display='flex' justifyContent='flex-end'>
+        <Box>
+          <Typography component='label' htmlFor='hideBlocked'>
+            Hide blocked client
+          </Typography>
+          <Switch
+            id='hideBlocked'
+            checked={activeFilter.hideBlocked}
+            onChange={e =>
+              setActiveFilter({
+                ...activeFilter,
+                hideBlocked: e.target.checked,
+              })
+            }
+          />
+        </Box>
+      </Grid>
 
       <ClientList
         skip={skip}
