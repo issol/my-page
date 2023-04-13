@@ -42,7 +42,7 @@ export default function ClientListFilter({
 
   function filterValue(
     option: any,
-    keyName: keyof Omit<FilterType, 'skip' | 'take' | 'search'>,
+    keyName: keyof Omit<FilterType, 'skip' | 'take' | 'search' | 'hideBlocked'>,
   ) {
     return !filter[keyName]
       ? option[0]

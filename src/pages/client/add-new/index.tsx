@@ -3,7 +3,7 @@ import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
 // ** mui
-import { Box, Grid, IconButton, Typography } from '@mui/material'
+import { Box, Card, Grid, IconButton, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** Icon Imports
@@ -31,11 +31,12 @@ import {
   ClientContactPersonType,
   clientContactPersonSchema,
 } from '@src/types/schema/client-contact-person.schema'
+import CompanyInfoForm from '../components/form-elements/company-info'
 
 /* 
 TODO : 
 1. stepper - done
-2. react hook form setting / validator 제작
+2. react hook form setting / validator 제작 - done
 3. form 1,2,3,4
 */
 export default function AddNewClient() {
@@ -88,11 +89,14 @@ export default function AddNewClient() {
     getValues: getCompanyInfoValues,
     setValue: setCompanyInfoValues,
     handleSubmit: submitCompanyInfo,
+    watch: companyInfoWatch,
     formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
   } = useForm<CompanyInfoFormType>({
+    mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
     resolver: yupResolver(companyInfoSchema),
   })
+
   const {
     control: addressControl,
     getValues: getAddressValues,
@@ -143,6 +147,28 @@ export default function AddNewClient() {
       />
       <Grid item xs={12}>
         <AddClientStepper activeStep={activeStep} steps={steps} />
+      </Grid>
+      <Grid item xs={12}>
+        {activeStep === 0 ? (
+          <Card sx={{ padding: '24px' }}>
+            <CompanyInfoForm
+              control={companyInfoControl}
+              getValues={getCompanyInfoValues}
+              setValue={setCompanyInfoValues}
+              handleSubmit={submitCompanyInfo}
+              errors={companyInfoErrors}
+              isValid={isCompanyInfoValid}
+              watch={companyInfoWatch}
+              onNextStep={onNextStep}
+            />
+          </Card>
+        ) : activeStep === 1 ? (
+          <Card>여기여기</Card>
+        ) : activeStep === 2 ? (
+          <Card>여기여기</Card>
+        ) : (
+          <Card>여기여기</Card>
+        )}
       </Grid>
     </Grid>
   )

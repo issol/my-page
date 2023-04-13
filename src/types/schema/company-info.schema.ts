@@ -2,8 +2,10 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
 
+export type ClientType = 'Company' | 'Mr' | 'Ms.'
 export type CompanyInfoFormType = {
-  clientType: 'Company' | 'Mr' | 'Ms.'
+  clientType: ClientType
+  status: string
   name: string
   email: string
   phone?: string
@@ -18,8 +20,12 @@ export const companyInfoSchema = yup.object().shape({
     .string()
     .oneOf(['Company', 'Mr', 'Ms.'])
     .required(FormErrors.required),
+  status: yup.string().required(FormErrors.required),
   name: yup.string().required(FormErrors.required),
-  email: yup.string().email(FormErrors.invalidEmail),
+  email: yup
+    .string()
+    .email(FormErrors.invalidEmail)
+    .required(FormErrors.required),
   phone: yup.string().nullable(),
   mobile: yup.string().nullable(),
   fax: yup.string().nullable(),
@@ -34,6 +40,7 @@ export const companyInfoSchema = yup.object().shape({
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {
   clientType: 'Company',
+  status: '',
   name: '',
   email: '',
   timezone: { code: '', label: '', phone: '' },
