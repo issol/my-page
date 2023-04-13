@@ -45,8 +45,55 @@ export const languagePairSchema = yup.object().shape({
     yup.object().shape({
       source: yup.string().required(FormErrors.required),
       target: yup.string().required(FormErrors.required),
-      priceFactor: yup.number().required(FormErrors.required),
-      minimumPrice: yup.number().nullable(),
+      priceFactor: yup
+        .number()
+        .nullable()
+        .required(FormErrors.required)
+        .typeError('Invalid number'),
+      minimumPrice: yup.number().nullable().typeError('Invalid number'),
+    }),
+  ),
+})
+
+export const setPriceUnitSchema = yup.object().shape({
+  pair: yup.array().of(
+    yup.object().shape({
+      price: yup
+        .mixed()
+        .test('is-valid-input', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .test('is-integer-or-decimal', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .required(FormErrors.required),
+      quantity: yup
+        .mixed()
+        .test('is-valid-input', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .test('is-integer-or-decimal', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .required(FormErrors.required),
+      weighting: yup
+        .mixed()
+        .test('is-valid-input', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .test('is-integer-or-decimal', 'Invalid number', value => {
+          const regex = /^-?(?!.*--)[\d.-]+$/
+          return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+        })
+        .required(FormErrors.required),
     }),
   ),
 })

@@ -5,7 +5,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { useEffect, useState } from 'react'
+import { useEffect, useState, MouseEvent } from 'react'
 
 import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 
@@ -15,7 +15,10 @@ import { AddPriceType } from '@src/types/company/standard-client-prices'
 
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import useModal from '@src/hooks/useModal'
-import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import {
+  useGetCatInterface,
+  useGetStandardPrices,
+} from '@src/queries/company/standard-price'
 import PriceList from './component/price-list'
 import Prices from './component/language-pair'
 import Card from '@mui/material/Card'
@@ -27,13 +30,25 @@ import PriceUnits from '@src/pages/company/components/price/price-units'
 import PriceUnit from './component/price-unit'
 import AddNewLanguagePairModal from '../standard-prices-modal/dialog/add-new-language-pair-modal'
 import SetPriceUnitModal from '../standard-prices-modal/dialog/set-price-unit-modal'
+import { useGetPriceUnitList } from '@src/queries/price-units.query'
+import ToggleButton from '@mui/material/ToggleButton'
+import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
+import { styled } from '@mui/material/styles'
+import CatInterface from './component/cat-interface'
+import IconButton from '@mui/material/IconButton'
+import Icon from 'src/@core/components/icon'
 
 type Props = {
-  standardPrices: { data: StandardPriceListType[]; totalCount: number }
+  standardPrices: { data: StandardPriceListType[]; count: number }
   isLoading: boolean
 }
 
 const StandardPrices = ({ standardPrices, isLoading }: Props) => {
+  const { data: priceUnit, refetch } = useGetPriceUnitList({
+    skip: 0,
+    take: 1000,
+  })
+
   const [standardClientPriceListPage, setStandardClientPriceListPage] =
     useState<number>(0)
   const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
@@ -62,31 +77,34 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   }
 
   const onClickAddNewPrice = () => {
+    if (priceUnit) {
+      openModal({
+        type: 'AddPriceModal',
+        children: (
+          <AddSavePriceModal
+            open={true}
+            onClose={() => closeModal('AddPriceModal')}
+            type={'Add'}
+            onSubmit={onSubmit}
+            serviceTypeList={serviceTypeList}
+            setServiceTypeList={setServiceTypeList}
+            onClickAction={onClickAction}
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'NoPriceUnitModal',
+        children: (
+          <NoPriceUnitModal
+            open={true}
+            onClose={() => closeModal('NoPriceUnitModal')}
+          />
+        ),
+      })
+    }
     // TODO Price unit 있는지 판단 후 alert 모달 띄우기
-    // openModal({
-    //   type: 'NoPriceUnitModal',
-    //   children: (
-    //     <NoPriceUnitModal
-    //       open={true}
-    //       onClose={() => closeModal('NoPriceUnitModal')}
-    //     />
-    //   ),
-    // })
 
-    openModal({
-      type: 'AddPriceModal',
-      children: (
-        <AddSavePriceModal
-          open={true}
-          onClose={() => closeModal('AddPriceModal')}
-          type={'Add'}
-          onSubmit={onSubmit}
-          serviceTypeList={serviceTypeList}
-          setServiceTypeList={setServiceTypeList}
-          onClickAction={onClickAction}
-        />
-      ),
-    })
     setSelectedModalType('Add')
   }
 
@@ -180,6 +198,8 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
         <SetPriceUnitModal
           onClose={() => closeModal('setPriceUnitModal')}
           currency={selectedPriceData?.currency!}
+          priceUnit={priceUnit?.data!}
+          price={selectedPriceData!}
         />
       ),
     })
@@ -196,7 +216,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
       <Grid item xs={12}>
         <PriceList
           list={standardPrices?.data!}
-          listCount={standardPrices?.totalCount!}
+          listCount={standardPrices?.count!}
           isLoading={isLoading}
           listPage={standardClientPriceListPage}
           setListPage={setStandardClientPriceListPage}
@@ -209,50 +229,59 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
         />
       </Grid>
       {selectedPriceData ? (
-        <Grid item xs={12}>
-          <Card
-            sx={{
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-            }}
-          >
-            <Typography variant='h6'>Prices</Typography>
-            <Box sx={{ display: 'flex', width: '100%' }}>
-              <LanguagePair
-                list={selectedPriceData?.languagePair!}
-                listCount={1}
-                isLoading={isLoading}
-                listPage={languagePairListPage}
-                setListPage={setLanguagePairListPage}
-                listPageSize={languagePairListPageSize}
-                setListPageSize={setLanguagePairListPageSize}
-                onCellClick={onClickLanguagePair}
-                onClickAddNewLanguagePair={onClickAddNewLanguagePair}
-                existPriceUnit={!!priceUnitList}
-              />
-              <Box
-                sx={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  ml: 1,
-                  mr: 1,
-                }}
-              >
-                <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
+        <>
+          <Grid item xs={12}>
+            <Card
+              sx={{
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+              }}
+            >
+              <Typography variant='h6'>Prices</Typography>
+              <Box sx={{ display: 'flex', width: '100%' }}>
+                <LanguagePair
+                  list={selectedPriceData?.languagePair!}
+                  listCount={1}
+                  isLoading={isLoading}
+                  listPage={languagePairListPage}
+                  setListPage={setLanguagePairListPage}
+                  listPageSize={languagePairListPageSize}
+                  setListPageSize={setLanguagePairListPageSize}
+                  onCellClick={onClickLanguagePair}
+                  onClickAddNewLanguagePair={onClickAddNewLanguagePair}
+                  existPriceUnit={priceUnitList.length > 0}
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    ml: 1,
+                    mr: 1,
+                  }}
+                >
+                  <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
+                </Box>
+                <PriceUnit
+                  list={priceUnitList}
+                  listCount={1}
+                  isLoading={isLoading}
+                  decimalPlace={selectedPriceData?.decimalPlace!}
+                  roundingProcedure={selectedPriceData?.roundingProcedure!}
+                  onClickSetPriceUnit={onClickSetPriceUnit}
+                />
               </Box>
-              <PriceUnit
-                list={priceUnitList}
-                listCount={1}
-                isLoading={isLoading}
-                decimalPlace={selectedPriceData?.decimalPlace!}
-                roundingProcedure={selectedPriceData?.roundingProcedure!}
-                onClickSetPriceUnit={onClickSetPriceUnit}
-              />
-            </Box>
-          </Card>
-        </Grid>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <CatInterface
+              priceUnitList={priceUnitList}
+              priceData={selectedPriceData}
+              existPriceUnit={priceUnitList.length > 0}
+            />
+          </Grid>
+        </>
       ) : null}
     </Grid>
   )

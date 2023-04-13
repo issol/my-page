@@ -3,6 +3,7 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { PriceUnitType } from '@src/apis/price-units.api'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 
@@ -94,10 +95,7 @@ const PriceUnit = ({
       sortable: false,
       renderHeader: () => <Box>Weighting (%)</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box sx={{ display: 'flex', gap: '9px' }}>
-          <Box sx={{ width: '25px' }}>{row.weighting ?? '-'}</Box>
-          <Box>%</Box>
-        </Box>
+        <Box>{row.weighting ?? '-'} %</Box>
       ),
     },
   ]

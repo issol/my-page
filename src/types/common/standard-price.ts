@@ -41,3 +41,23 @@ export type AddNewLanguagePair = {
     minimumPrice: number | null
   }[]
 }
+
+export type SetPriceUnit = {
+  pair: {
+    unit: string
+    isBase: boolean
+    unitId: number | null
+    quantity: number | null | string
+    price: number | null | string
+    weighting: number | null | string
+    title: string
+  }[]
+}
+
+export type SetPriceUnitPair = {
+  priceId: number
+  price: number | null
+  currency: string
+  priceUnitId: number
+  quantity: number | null
+}

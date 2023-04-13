@@ -178,3 +178,14 @@ export const ProStatusChip = styled(Chip)<{ status: string }>`
       ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color:#666CFF;'
       : null};
 `
+
+export const CatInterfaceChip = styled(Chip)<{
+  status: boolean
+}>`
+  border: none;
+
+  ${({ status }) =>
+    status
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FA8773; color: #FA8773; font-weight: 600; `
+      : ` background: rgba(76, 78, 100, 0.12); color: rgba(76, 78, 100, 0.6);`};
+`

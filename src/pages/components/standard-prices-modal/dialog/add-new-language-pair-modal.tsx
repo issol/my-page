@@ -25,6 +25,7 @@ import { AddNewLanguagePair } from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import LanguagePairActionModal from '../modal/language-pair-action-modal'
+import { Input } from './set-price-unit-modal'
 
 const defaultValues: AddNewLanguagePair = {
   pair: [{ source: '', target: '', priceFactor: null, minimumPrice: null }],
@@ -135,7 +136,7 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
   }
 
   const onClickAction = (type: string) => {
-    closeModal('addNewLanguagePairModal')
+    closeModal('setPriceUnitModal')
     if (type === 'Discard') {
       reset({
         pair: [
@@ -146,6 +147,13 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
       console.log('add')
     }
   }
+
+  console.log(errors)
+
+  // const handleUpdate = (index: number, values: any) => {
+  //   pairFields
+  //   update(index, values)
+  // }
 
   return (
     <Dialog
@@ -202,19 +210,21 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                       <Controller
                         name={`pair.${idx}.source`}
                         control={control}
-                        render={({ field }) => (
+                        render={({ field: { onChange, value } }) => (
                           <Autocomplete
                             autoHighlight
                             fullWidth
-                            {...field}
-                            value={
-                              languageList.filter(
-                                l => l.value === item.source,
-                              )[0]
-                            }
+                            // {...field}
+                            value={languageList.find(
+                              option => option.value === value || null,
+                            )}
                             options={languageList}
-                            onChange={(e, v) => {
-                              onChangePair(item.id, v?.value, 'source')
+                            // onChange={(e, v) => {
+                            //   onChangePair(item.id, v?.value, 'source')
+                            // }}
+                            onChange={(event, newValue) => {
+                              onChange(newValue ? newValue.value : null)
+                              onChangePair(item.id, newValue?.value, 'source')
                             }}
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={props.id}>
@@ -251,19 +261,31 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                       <Controller
                         name={`pair.${idx}.target`}
                         control={control}
-                        render={({ field }) => (
+                        render={({ field: { onChange, value } }) => (
                           <Autocomplete
                             autoHighlight
                             fullWidth
-                            {...field}
-                            value={
-                              languageList.filter(
-                                l => l.value === item.target,
-                              )[0]
-                            }
+                            // {...field}
+                            // value={
+                            //   languageList.filter(
+                            //     l => l.value === item.target,
+                            //   )[0]
+                            // }
+                            value={languageList.find(
+                              option => option.value === value || null,
+                            )}
                             options={languageList}
-                            onChange={(e, v) => {
-                              onChangePair(item.id, v?.value, 'target')
+                            // onChange={(e, v) => {
+                            //   onChangePair(item.id, v?.value, 'target')
+                            // }}
+                            onChange={(event, newValue) => {
+                              onChange(newValue ? newValue.value : null)
+                              onChangePair(
+                                item.id,
+                                newValue ? newValue.value : null,
+
+                                'target',
+                              )
                             }}
                             renderOption={(props, option) => (
                               <Box component='li' {...props} key={props.id}>
@@ -305,21 +327,40 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                         name={`pair.${idx}.priceFactor`}
                         control={control}
                         render={({ field: { value, onChange, onBlur } }) => (
-                          <TextField
+                          <Input
+                            // type='number'
                             id='icons-start-adornment'
                             label='Price factor*'
                             value={value}
-                            onBlur={e => {
+                            // onBlur={e => {
+                            //   onChangePair(
+                            //     item.id,
+                            //     e.target.value,
+                            //     'priceFactor',
+                            //   )
+                            // }}
+                            onChange={e => {
+                              const { value } = e.target
+                              if (value === '') {
+                                onChange(null)
+                              } else {
+                                const filteredValue = value
+                                  .replace(
+                                    /[^0-9!@#$%^&*()_+{}\[\]:;.,\-\\/]/g,
+                                    '',
+                                  )
+                                  .slice(0, 10)
+                                e.target.value = filteredValue
+                                onChange(e.target.value)
+                              }
+                            }}
+                            onBlur={e =>
                               onChangePair(
                                 item.id,
                                 e.target.value,
                                 'priceFactor',
                               )
-                            }}
-                            // onChange={e => {
-                            //   onChange(e.target.value)
-                            // }}
-                            // inputProps={{ maxLength: 50 }}
+                            }
                             error={
                               errors.pair?.length
                                 ? !!errors.pair[idx]?.priceFactor
@@ -339,6 +380,11 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                                     : '-'}
                                 </InputAdornment>
                               ),
+                              // inputProps: {
+                              //   maxLength: 10,
+                              //   type: 'number',
+                              //   pattern: '[0-9]*',
+                              // },
                             }}
                           />
                         )}
@@ -356,22 +402,57 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                       <Controller
                         name={`pair.${idx}.minimumPrice`}
                         control={control}
-                        render={({ field: { value, onBlur } }) => (
-                          <TextField
+                        render={({ field: { value, onBlur, onChange } }) => (
+                          <Input
+                            // type='number'
                             id='icons-start-adornment'
                             label='Minimum price per item'
                             value={value}
-                            onBlur={e => {
-                              onChangePair(
-                                item.id,
-                                e.target.value,
-                                'minimumPrice',
-                              )
+                            // onBlur={e => {
+                            //   onChangePair(
+                            //     item.id,
+                            //     e.target.value,
+                            //     'minimumPrice',
+                            //   )
+                            // }}
+                            onChange={e => {
+                              const { value } = e.target
+                              if (value === '') {
+                                onChange(null)
+                              } else {
+                                const filteredValue = value
+                                  .replace(
+                                    /[^0-9!@#$%^&*()_+{}\[\]:;.,\-\\/]/g,
+                                    '',
+                                  )
+                                  .slice(0, 10)
+                                e.target.value = filteredValue
+                                onChange(e.target.value)
+                              }
                             }}
-                            // inputProps={{ maxLength: 50 }}
+                            onBlur={e => {
+                              const { value } = e.target
+                              if (value === '') {
+                                onChangePair(item.id, null, 'minimumPrice')
+                              } else {
+                                const filteredValue = value
+                                  .replace(
+                                    /[^0-9!@#$%^&*()_+{}\[\]:;.,\-\\/]/g,
+                                    '',
+                                  )
+                                  .slice(0, 10)
+                                e.target.value = filteredValue
+                                onChangePair(
+                                  item.id,
+                                  e.target.value,
+                                  'minimumPrice',
+                                )
+                              }
+                            }}
+                            inputProps={{ maxLength: 10 }}
                             error={
                               errors.pair?.length
-                                ? !!errors.pair[idx]?.priceFactor
+                                ? !!errors.pair[idx]?.minimumPrice
                                 : false
                             }
                             InputProps={{
@@ -388,6 +469,11 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                                     : '-'}
                                 </InputAdornment>
                               ),
+                              inputProps: {
+                                maxLength: 10,
+                                inputMode: 'numeric',
+                                pattern: '[0-9]*',
+                              },
                             }}
                           />
                         )}

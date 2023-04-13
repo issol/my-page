@@ -1776,7 +1776,7 @@ export const handlers = [
             isBase: false,
             title: 'DTP file prep',
             unit: 'Fixed rate',
-            weighting: null,
+            weighting: 70.66666,
             quantity: 2,
             price: 5.0,
             currency: 'USD',
