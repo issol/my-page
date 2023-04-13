@@ -5,7 +5,6 @@ import {
   Button,
   Divider,
   FormControl,
-  FormControlLabel,
   FormHelperText,
   Grid,
   IconButton,
@@ -233,7 +232,6 @@ export default function CompanyInfoForm({
                   error={Boolean(errors.timezone)}
                   inputProps={{
                     ...params.inputProps,
-                    autoComplete: 'new-password',
                   }}
                 />
               )}
@@ -293,16 +291,21 @@ export default function CompanyInfoForm({
           name='memo'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <TextField
-              rows={4}
-              multiline
-              fullWidth
-              error={Boolean(errors.memo)}
-              label='Write down some information to keep in mind about this client.'
-              value={value}
-              onChange={onChange}
-              inputProps={{ maxLength: 500 }}
-            />
+            <>
+              <TextField
+                rows={4}
+                multiline
+                fullWidth
+                error={Boolean(errors.memo)}
+                label='Write down some information to keep in mind about this client.'
+                value={value ?? ''}
+                onChange={onChange}
+                inputProps={{ maxLength: 500 }}
+              />
+              <Typography variant='body2' mt='12px' textAlign='right'>
+                {value?.length ?? 0}/500
+              </Typography>
+            </>
           )}
         />
       </Grid>

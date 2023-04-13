@@ -12,9 +12,11 @@ import Icon from 'src/@core/components/icon'
 // ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
+import CompanyInfoForm from '../components/form-elements/company-info'
+import AddressesForm from '../components/form-elements/addresses'
 
 // ** react hook form
-import { useForm, Controller } from 'react-hook-form'
+import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** validation values
@@ -25,13 +27,13 @@ import {
 } from '@src/types/schema/company-info.schema'
 import {
   ClientAddressFormType,
+  clientAddressDefaultValue,
   clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
 import {
   ClientContactPersonType,
   clientContactPersonSchema,
 } from '@src/types/schema/client-contact-person.schema'
-import CompanyInfoForm from '../components/form-elements/company-info'
 
 /* 
 TODO : 
@@ -62,7 +64,7 @@ export default function AddNewClient() {
       title: 'Company info',
     },
     {
-      title: 'Addresses',
+      title: 'AddressesForm',
     },
     {
       title: 'Contact person',
@@ -102,11 +104,22 @@ export default function AddNewClient() {
     getValues: getAddressValues,
     setValue: setAddressValues,
     handleSubmit: submitAddress,
+    watch: watchAddress,
     formState: { errors: addressErrors, isValid: isAddressValid },
   } = useForm<ClientAddressFormType>({
-    defaultValues: [],
-    mode: 'onBlur',
+    defaultValues: clientAddressDefaultValue,
+    mode: 'onChange',
     resolver: yupResolver(clientAddressSchema),
+  })
+
+  const {
+    fields: addresses,
+    append: appendAddress,
+    remove: removeAddress,
+    update: updateAddress,
+  } = useFieldArray({
+    control: addressControl,
+    name: 'clientAddresses',
   })
 
   const {
@@ -163,7 +176,21 @@ export default function AddNewClient() {
             />
           </Card>
         ) : activeStep === 1 ? (
-          <Card>여기여기</Card>
+          <Card sx={{ padding: '24px' }}>
+            <AddressesForm
+              control={addressControl}
+              fields={addresses}
+              append={appendAddress}
+              remove={removeAddress}
+              update={updateAddress}
+              getValues={getAddressValues}
+              errors={addressErrors}
+              isValid={isAddressValid}
+              watch={watchAddress}
+              handleBack={handleBack}
+              onNextStep={onNextStep}
+            />
+          </Card>
         ) : activeStep === 2 ? (
           <Card>여기여기</Card>
         ) : (
