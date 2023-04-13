@@ -88,26 +88,35 @@ export default function AddressesForm({
   ) {
     const idx = fields.map(item => item.id).indexOf(id)
     return (
-      <Controller
-        name={`clientAddresses.${idx}.${key}`}
-        control={control}
-        render={({ field: { value, onChange } }) => (
-          <TextField
-            fullWidth
-            error={
-              key !== 'name'
-                ? false
-                : errors?.clientAddresses?.length
-                ? Boolean(errors?.clientAddresses[idx]?.name)
-                : false
-            }
-            label={label}
-            value={value ?? ''}
-            onChange={onChange}
-            inputProps={{ maxLength }}
-          />
-        )}
-      />
+      <>
+        <Controller
+          name={`clientAddresses.${idx}.${key}`}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={
+                key !== 'name'
+                  ? false
+                  : errors?.clientAddresses?.length
+                  ? Boolean(errors?.clientAddresses[idx]?.name)
+                  : false
+              }
+              label={label}
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength }}
+            />
+          )}
+        />
+        {key === 'name' &&
+          errors?.clientAddresses?.length &&
+          errors?.clientAddresses[idx]?.name && (
+            <FormHelperText sx={{ color: 'error.main' }}>
+              {errors?.clientAddresses[idx]?.name?.message}
+            </FormHelperText>
+          )}
+      </>
     )
   }
 
@@ -165,10 +174,15 @@ export default function AddressesForm({
   }
 
   function setShippingAddress(isSameWithBilling: boolean) {
+    const id = fields.filter(item => item.addressType === 'shipping')[0].id
+    const idx = fields.map(item => item.id).indexOf(id)
+    const billingAddress = fields.filter(
+      item => item.addressType === 'billing',
+    )[0]
     if (isSameWithBilling) {
-      // ** TODO : billing address와 똑같이 세팅해주기
+      update(idx, { ...billingAddress, addressType: 'shipping' })
     } else {
-      // ** TODO : 리셋시키기
+      update(idx, { addressType: 'shipping' })
     }
   }
 
@@ -188,6 +202,7 @@ export default function AddressesForm({
   return (
     <Grid container spacing={6}>
       {basicAddress.map((item, idx) => {
+        const [checked, setChecked] = useState(false)
         return (
           <Fragment key={item?.id}>
             <Grid item xs={12}>
@@ -198,7 +213,9 @@ export default function AddressesForm({
               {item.addressType === 'shipping' ? (
                 <Box>
                   <Checkbox
+                    checked={checked}
                     onChange={e => {
+                      setChecked(e.target.checked)
                       setShippingAddress(e.target.checked)
                     }}
                   />
