@@ -157,3 +157,26 @@ export const WorkStatus = [
     label: 'Without invoice',
   },
 ]
+
+export const ClientStatus = [
+  {
+    label: 'New',
+    value: 'New',
+  },
+  {
+    label: 'Active',
+    value: 'Active',
+  },
+  {
+    label: 'Inactive',
+    value: 'Inactive',
+  },
+  {
+    label: 'Contacted',
+    value: 'Contacted',
+  },
+  {
+    label: 'Blocked',
+    value: 'Blocked',
+  },
+]
