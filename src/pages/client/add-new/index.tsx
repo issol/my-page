@@ -2,18 +2,39 @@ import { useState } from 'react'
 import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
+// ** mui
 import { Box, Grid, IconButton, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
+// ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
 
+// ** react hook form
+import { useForm, Controller } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+
+// ** validation values
+import {
+  CompanyInfoFormType,
+  companyInfoDefaultValue,
+  companyInfoSchema,
+} from '@src/types/schema/company-info.schema'
+import {
+  ClientAddressFormType,
+  clientAddressSchema,
+} from '@src/types/schema/client-address.schema'
+import {
+  ClientContactPersonType,
+  clientContactPersonSchema,
+} from '@src/types/schema/client-contact-person.schema'
+
 /* 
 TODO : 
-1. stepper
+1. stepper - done
 2. react hook form setting / validator 제작
 3. form 1,2,3,4
 */
@@ -53,7 +74,6 @@ export default function AddNewClient() {
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
-  // Handle Stepper
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
   }
@@ -61,6 +81,53 @@ export default function AddNewClient() {
   const onNextStep = () => {
     setActiveStep(activeStep + 1)
   }
+
+  // ** forms
+  const {
+    control: companyInfoControl,
+    getValues: getCompanyInfoValues,
+    setValue: setCompanyInfoValues,
+    handleSubmit: submitCompanyInfo,
+    formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
+  } = useForm<CompanyInfoFormType>({
+    defaultValues: companyInfoDefaultValue,
+    resolver: yupResolver(companyInfoSchema),
+  })
+  const {
+    control: addressControl,
+    getValues: getAddressValues,
+    setValue: setAddressValues,
+    handleSubmit: submitAddress,
+    formState: { errors: addressErrors, isValid: isAddressValid },
+  } = useForm<ClientAddressFormType>({
+    defaultValues: [],
+    mode: 'onBlur',
+    resolver: yupResolver(clientAddressSchema),
+  })
+
+  const {
+    control: contactPersonControl,
+    getValues: getContactPersonValues,
+    setValue: setContactPersonValues,
+    handleSubmit: submitContactPerson,
+    formState: { errors: contactPersonErrors, isValid: isContactPersonValid },
+  } = useForm<ClientContactPersonType>({
+    defaultValues: [],
+    mode: 'onBlur',
+    resolver: yupResolver(clientContactPersonSchema),
+  })
+
+  //   const {
+  //     control: priceControl,
+  //     getValues: getPriceValues,
+  //     setValue: setPriceValues,
+  //     handleSubmit: submitPrice,
+  //     formState: { errors: priceErrors, isValid: isPriceValid },
+  //   } = useForm<PriceFormType>({
+  //     defaultValues,
+  //     mode: 'onBlur',
+  //     resolver: yupResolver(priceUnitSchema),
+  //   })
 
   return (
     <Grid container spacing={6}>
