@@ -1,9 +1,13 @@
 import axios from '@src/configs/axios'
+import {
+  AddNewPriceType,
+  SetPriceUnitPair,
+} from '@src/types/common/standard-price'
 
 export const getStandardClientPrice = async () => {
   // const { data } = await axios.get('/api/company/signup-requests')
   try {
-    const { data } = await axios.get('/api/enough/client/prices')
+    const { data } = await axios.get('/api/enough/u/price/al')
     // /api/enough/u/price/al
     return data
   } catch (e: any) {
@@ -14,9 +18,17 @@ export const getStandardClientPrice = async () => {
 export const getCatInterface = async (toolName: string) => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/util/cat/interface?toolName=${toolName}`,
+      `/api/enough/u/cat-tool/interface?toolName=${toolName}`,
     )
 
     return data
   } catch (e: any) {}
+}
+
+export const createPrice = async (data: AddNewPriceType) => {
+  await axios.post('/api/enough/u/price', data)
+}
+
+export const setPriceUnitPair = async (data: SetPriceUnitPair[]) => {
+  await axios.post('/api/enough/u/price/unit/pair', { data: data })
 }

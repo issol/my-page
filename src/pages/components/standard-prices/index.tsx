@@ -1,11 +1,12 @@
 import Grid from '@mui/material/Grid'
 
 import {
+  AddNewPriceType,
   LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { useEffect, useState, MouseEvent } from 'react'
+import { useEffect, useState } from 'react'
 
 import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 
@@ -13,31 +14,27 @@ import NoPriceUnitModal from '../standard-prices-modal/modal/no-price-unit-modal
 import PriceActionModal from '../standard-prices-modal/modal/price-action-modal'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import useModal from '@src/hooks/useModal'
-import {
-  useGetCatInterface,
-  useGetStandardPrices,
-} from '@src/queries/company/standard-price'
+
 import PriceList from './component/price-list'
-import Prices from './component/language-pair'
+
 import Card from '@mui/material/Card'
 import Box from '@mui/material/Box'
 import Typography from '@mui/material/Typography'
-import Button from '@mui/material/Button'
+
 import LanguagePair from './component/language-pair'
-import PriceUnits from '@src/pages/company/components/price/price-units'
+
 import PriceUnit from './component/price-unit'
 import AddNewLanguagePairModal from '../standard-prices-modal/dialog/add-new-language-pair-modal'
 import SetPriceUnitModal from '../standard-prices-modal/dialog/set-price-unit-modal'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
-import ToggleButton from '@mui/material/ToggleButton'
-import ToggleButtonGroup from '@mui/material/ToggleButtonGroup'
-import { styled } from '@mui/material/styles'
+
 import CatInterface from './component/cat-interface'
-import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
+
 import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
+import { useMutation, useQueryClient } from 'react-query'
+import { createPrice } from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
 
 type Props = {
   standardPrices: { data: StandardPriceListType[]; count: number }
@@ -45,6 +42,7 @@ type Props = {
 }
 
 const StandardPrices = ({ standardPrices, isLoading }: Props) => {
+  const queryClient = useQueryClient()
   const { data: priceUnit, refetch } = useGetPriceUnitList({
     skip: 0,
     take: 1000,
@@ -68,16 +66,69 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   const [priceUnitList, setPriceUnitList] = useState<PriceUnitListType[]>([])
 
   const [selectedModalType, setSelectedModalType] = useState('')
-  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
 
   const { openModal, closeModal } = useModal()
-  const onClickAction = (type: string) => {
+
+  const addNewPriceMutation = useMutation(
+    (data: AddNewPriceType) => createPrice(data),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+  const onClickAction = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
+      if (type === 'Add') {
+        const obj: AddNewPriceType = {
+          isStandard: true,
+          priceName: data?.priceName!,
+          category: data?.category.value!,
+          serviceType: data?.serviceType.map(value => value.value)!,
+          currency: data?.currency.value!,
+          catBasis: data?.catBasis.value!,
+          decimalPlace: data?.decimalPlace!,
+          roundingProcedure: data?.roundingProcedure.value!,
+          memoForPrice: data?.memoForPrice!,
+        }
+        addNewPriceMutation.mutate(obj)
+      }
       closeModal(`${selectedModalType}PriceModal`)
     }
   }
+  const onSubmit = (data: AddPriceType, modalType: string) => {
+    openModal({
+      type: `${modalType}Price${
+        modalType === 'Edit' ? 'Cancel' : 'Discard'
+      }Modal`,
+      children: (
+        <PriceActionModal
+          onClose={() =>
+            closeModal(
+              `${modalType}Price${
+                modalType === 'Edit' ? 'Cancel' : 'Discard'
+              }Modal`,
+            )
+          }
+          priceData={data!}
+          type={modalType === 'Add' ? 'Add' : 'Save'}
+          onClickAction={onClickAction}
+        />
+      ),
+    })
+  }
 
   const onClickAddNewPrice = () => {
+    setSelectedModalType('Add')
     if (priceUnit) {
       openModal({
         type: 'AddPriceModal',
@@ -87,8 +138,6 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
             onClose={() => closeModal('AddPriceModal')}
             type={'Add'}
             onSubmit={onSubmit}
-            serviceTypeList={serviceTypeList}
-            setServiceTypeList={setServiceTypeList}
             onClickAction={onClickAction}
           />
         ),
@@ -104,9 +153,6 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
         ),
       })
     }
-    // TODO Price unit 있는지 판단 후 alert 모달 띄우기
-
-    setSelectedModalType('Add')
   }
 
   const onClickEditPrice = (priceData: StandardPriceListType) => {
@@ -120,8 +166,6 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           onClose={() => closeModal('EditPriceModal')}
           type={'Edit'}
           onSubmit={onSubmit}
-          serviceTypeList={serviceTypeList}
-          setServiceTypeList={setServiceTypeList}
           selectedPriceData={selectedPriceData!}
           onClickAction={onClickAction}
         />
@@ -137,30 +181,6 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           onClose={() => closeModal(`DeletePriceModal`)}
           priceName={priceData.priceName}
           type={'Delete'}
-          onClickAction={onClickAction}
-        />
-      ),
-    })
-  }
-
-  const onSubmit = (data: AddPriceType) => {
-    closeModal(`${selectedModalType}PriceModal`)
-
-    openModal({
-      type: `${selectedModalType}Price${
-        selectedModalType === 'Edit' ? 'Cancel' : 'Discard'
-      }Modal`,
-      children: (
-        <PriceActionModal
-          onClose={() =>
-            closeModal(
-              `${selectedModalType}Price${
-                selectedModalType === 'Edit' ? 'Cancel' : 'Discard'
-              }Modal`,
-            )
-          }
-          priceData={data!}
-          type={selectedModalType === 'Add' ? 'Add' : 'Save'}
           onClickAction={onClickAction}
         />
       ),
@@ -204,6 +224,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           currency={selectedPriceData?.currency!}
           priceUnit={priceUnit?.data!}
           price={selectedPriceData!}
+          priceUnitPair={selectedPriceData?.priceUnit!}
         />
       ),
     })
@@ -214,6 +235,10 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
       setPriceUnitList(selectedPriceData.priceUnit)
     }
   }, [selectedPriceData])
+
+  useEffect(() => {
+    console.log(selectedModalType)
+  }, [selectedModalType])
 
   return (
     <Grid container xs={12} spacing={6}>
@@ -247,7 +272,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
               <Box sx={{ display: 'flex', width: '100%' }}>
                 <LanguagePair
                   list={selectedPriceData?.languagePair!}
-                  listCount={1}
+                  listCount={selectedPriceData?.languagePair?.length}
                   isLoading={isLoading}
                   listPage={languagePairListPage}
                   setListPage={setLanguagePairListPage}
@@ -269,10 +294,9 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
                 </Box>
                 <PriceUnit
                   list={priceUnitList}
-                  listCount={1}
+                  listCount={priceUnitList.length}
                   isLoading={isLoading}
-                  decimalPlace={selectedPriceData?.decimalPlace!}
-                  roundingProcedure={selectedPriceData?.roundingProcedure!}
+                  priceData={selectedPriceData!}
                   onClickSetPriceUnit={onClickSetPriceUnit}
                 />
               </Box>

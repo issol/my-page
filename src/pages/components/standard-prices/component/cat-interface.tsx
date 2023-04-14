@@ -12,6 +12,7 @@ import Box from '@mui/material/Box'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
   PriceUnitListType,
+  PriceUnitListWithHeaders,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { v4 as uuidv4 } from 'uuid'
@@ -32,6 +33,10 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   const [alignment, setAlignment] = useState<string>('Memsource')
   const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
   const { data: catInterface, isLoading } = useGetCatInterface(alignment!)
+
+  const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<
+    PriceUnitListWithHeaders[]
+  >([])
 
   const [headers, setHeaders] = useState<
     Array<{ value: string; selected: boolean; tmpSelected: boolean }>
@@ -75,7 +80,10 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
     setIsEditingCatInterface(false)
   }
 
-  const onClickRangeChip = (data: { value: string; selected: boolean }) => {
+  const onClickRangeChip = (
+    data: { value: string; selected: boolean },
+    value: PriceUnitListWithHeaders,
+  ) => {
     setHeaders(prevHeaders => {
       const updatedHeaders = prevHeaders.map(obj => {
         if (obj.value === data.value) {
@@ -89,18 +97,48 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
       })
       return updatedHeaders
     })
+
+    setPriceUnitListWithHeaders(prevState => {
+      const concatPrev = prevState
+      const res = prevState.find(data => data.id === value.id)
+      const resIndex = prevState.findIndex(data => data.id === value.id)
+      if (res) {
+        const updatedHeaders = res.headers.map(obj => {
+          if (obj.value === data.value) {
+            return {
+              ...obj,
+              selected: !obj.selected,
+              tmpSelected: !obj.selected, // 선택된 상태를 반전시킴
+            }
+          }
+          return obj
+        })
+        res['headers'] = updatedHeaders
+        concatPrev[resIndex] = res
+
+        return concatPrev
+      } else {
+        return prevState
+      }
+    })
   }
 
   useEffect(() => {
-    if (!isLoading && catInterface) {
-      const res = catInterface.headers.map(value => ({
+    if (!isLoading && catInterface && priceUnitList) {
+      const formattedHeader = catInterface.headers.map(value => ({
         value: value,
         selected: false,
         tmpSelected: false,
       }))
-      setHeaders(res)
+      setHeaders(formattedHeader)
+      const withHeaders = priceUnitList.map(value => ({
+        ...value,
+        headers: formattedHeader,
+      }))
+
+      setPriceUnitListWithHeaders(withHeaders)
     }
-  }, [catInterface, isLoading])
+  }, [catInterface, isLoading, priceUnitList])
 
   return (
     <Card
@@ -167,9 +205,9 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
           </IconButton>
         ) : null}
       </Box>
-      <Box>
-        {!isLoading && priceUnitList.length ? (
-          priceUnitList.map(value => {
+      <Box sx={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
+        {!isLoading && priceUnitListWithHeaders.length ? (
+          priceUnitListWithHeaders.map(value => {
             return (
               <Box
                 key={uuidv4()}
@@ -227,23 +265,25 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-                  {headers.map(value => {
+                  {value.headers.map(data => {
                     return (
                       <CatInterfaceChip
-                        label={value.value}
+                        label={data.value}
                         size='medium'
                         clickable={isEditingCatInterface}
-                        status={value.selected}
+                        status={data.selected}
                         key={uuidv4()}
                         sx={{
                           display: 'flex',
                           '& .Mui-disabled': { opacity: 1 },
                         }}
                         onClick={() =>
-                          isEditingCatInterface ? onClickRangeChip(value) : null
+                          isEditingCatInterface
+                            ? onClickRangeChip(data, value)
+                            : null
                         }
                         icon={
-                          value.tmpSelected ? (
+                          data.tmpSelected ? (
                             <img
                               src='/images/icons/price-icons/check-chip.svg'
                               alt=''
@@ -308,7 +348,7 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
 
 export const ToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   height: '38px',
-  '& .MuiToggleButtonGroup-groupedHorizontal:not(:first-child)': {
+  '& .MuiToggleButtonGroup-groupedHorizontal:not(:first-of-type".)': {
     borderLeftColor: '#666CFF', // 가운데 선의 색상을 변경할 수 있습니다.
   },
 }))

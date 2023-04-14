@@ -5,6 +5,6 @@ export type AddPriceType = {
   currency: { label: string; value: string }
   catBasis: { label: string; value: string }
   decimalPlace: number
-  roundingProcedure: { label: string; value: string }
+  roundingProcedure: { label: string; value: number }
   memoForPrice: string
 }

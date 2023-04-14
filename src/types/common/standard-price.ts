@@ -22,15 +22,37 @@ export type LanguagePairListType = {
   currency: string
 }
 
-export type PriceUnitListType = {
+export interface PriceUnitListType {
   id: number
+  priceUnitId: number
+  parentPriceUnitId: number | null
   isBase: boolean
   title: string
   unit: string
   weighting: number | null
   quantity: number | null
   price: number
+
+  createdAt: string
+  updatedAt: string
+
+  deletedAt: string | null
+}
+
+export interface PriceUnitListWithHeaders extends PriceUnitListType {
+  headers: Array<{ value: string; selected: boolean; tmpSelected: boolean }>
+}
+
+export type AddNewPriceType = {
+  isStandard: boolean
+  priceName: string
+  category: string
+  serviceType: Array<string>
   currency: string
+  catBasis: string
+  decimalPlace: number
+  roundingProcedure: number
+  memoForPrice: string
 }
 
 export type AddNewLanguagePair = {
@@ -56,8 +78,8 @@ export type SetPriceUnit = {
 
 export type SetPriceUnitPair = {
   priceId: number
-  price: number | null
-  currency: string
   priceUnitId: number
+  price: number | null
+  weighting: number | null
   quantity: number | null
 }

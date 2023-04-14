@@ -23,7 +23,7 @@ type Props = {
   priceName?: string
   type: string
   onClose: any
-  onClickAction: (type: string) => void
+  onClickAction: (type: string, data?: AddPriceType) => void
 }
 export default function PriceActionModal({
   priceData,
@@ -167,6 +167,7 @@ export default function PriceActionModal({
                   : type === 'Delete'
                   ? 'Delete'
                   : '',
+                type === 'Add' ? priceData : undefined,
               )
             }}
           >

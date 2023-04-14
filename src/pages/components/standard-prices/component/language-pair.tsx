@@ -351,8 +351,12 @@ const LanguagePair = ({
       <Box
         sx={{
           width: '100%',
+          height: '262px',
           '& .MuiDataGrid-columnHeaderTitle': {
             textTransform: 'none',
+          },
+          '& .MuiDataGrid-main': {
+            height: '214px',
           },
         }}
       >
@@ -381,7 +385,9 @@ const LanguagePair = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
-                ></Box>
+                >
+                  dd
+                </Box>
               )
             },
           }}

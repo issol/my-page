@@ -26,10 +26,21 @@ export const standardPricesSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     value: yup.string().required(FormErrors.required),
   }),
-  decimalPlace: yup.number().required(FormErrors.required),
+  decimalPlace: yup
+    .mixed()
+    .test('is-valid-input', 'Invalid number', value => {
+      const regex = /^-?(?!.*--)[\d.-]+$/
+
+      return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+    })
+    .test('is-integer-or-decimal', 'Invalid number', value => {
+      const regex = /^-?(?!.*--)[\d.-]+$/
+      return !value || regex.test(value.toString()) // 입력값이 falsy인 경우나 숫자형이면 통과
+    })
+    .required(FormErrors.required),
   roundingProcedure: yup.object().shape({
     label: yup.string().required(FormErrors.required),
-    value: yup.string().required(FormErrors.required),
+    value: yup.number().required(FormErrors.required),
   }),
   memoForPrice: yup.string(),
 })

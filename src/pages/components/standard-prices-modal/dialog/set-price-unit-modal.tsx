@@ -10,10 +10,6 @@ import {
   Grid,
   IconButton,
   InputAdornment,
-  InputBase,
-  InputLabel,
-  MenuItem,
-  Select,
   TextField,
   Typography,
   styled,
@@ -22,52 +18,52 @@ import {
 import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
-import { v4 as uuidv4 } from 'uuid'
+
 import Icon from 'src/@core/components/icon'
 
 import useModal from '@src/hooks/useModal'
-import { JobList } from '@src/shared/const/job/jobs'
-import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+
 import {
-  AddNewLanguagePair,
+  PriceUnitListType,
   SetPriceUnit,
   SetPriceUnitPair,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import {
-  languagePairSchema,
-  setPriceUnitSchema,
-} from '@src/types/schema/price-unit.schema'
+import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
   Controller,
   FieldArrayWithId,
   useFieldArray,
   useForm,
 } from 'react-hook-form'
-import LanguagePairActionModal from '../modal/language-pair-action-modal'
-import { useGetPriceUnitList } from '@src/queries/price-units.query'
+
 import { PriceUnitType } from '@src/apis/price-units.api'
 import { SyntheticEvent, useEffect, useState } from 'react'
 import _ from 'lodash'
 
 import PriceActionModal from '../modal/price-action-modal'
-import { log } from 'console'
 
-// const defaultValues: SetPriceUnit = {
-//   pair: [
-//     { unitId: null, quantity: null, price: null, weighting: null, title: '' },
-//   ],
-// }
+import { useMutation, useQueryClient } from 'react-query'
+import toast from 'react-hot-toast'
+import { setPriceUnitPair } from '@src/apis/company-price.api'
 
 type Props = {
   onClose: any
   currency: string
   priceUnit: PriceUnitType[]
   price: StandardPriceListType
+  priceUnitPair: PriceUnitListType[]
 }
 
-const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
+const SetPriceUnitModal = ({
+  onClose,
+  currency,
+  priceUnit,
+  price,
+  priceUnitPair,
+}: Props) => {
   const { closeModal, openModal } = useModal()
+  const queryClient = useQueryClient()
 
   const [priceUnits, setPriceUnits] = useState<PriceUnitType[]>([])
   const [priceUnitOptions, setPriceUnitOptions] =
@@ -103,35 +99,73 @@ const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
     control,
     name: 'pair',
   })
+  const setPriceUnitMutation = useMutation(
+    (data: SetPriceUnitPair[]) => setPriceUnitPair(data),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+  const onClickAction = (type: string, data?: SetPriceUnitPair[]) => {
+    if (type === 'Discard' || type === 'Cancel') {
+      closeModal('setPriceUnitModal')
+    } else if (type === 'Save') {
+      setPriceUnitMutation.mutate(data!)
+      closeModal('setPriceUnitModal')
+    }
+  }
 
   const onSubmit = (data: SetPriceUnit) => {
-    const res = data.pair.map(value => ({
+    const res: SetPriceUnitPair[] = data.pair.map(value => ({
       priceId: price.id,
-      priceUnitId: value.unitId,
+      priceUnitId: value.unitId!,
       quantity:
         typeof value.quantity === 'string' && value.quantity === '-'
           ? null
           : typeof value.quantity === 'string' && value.quantity !== '-'
           ? parseFloat(value.quantity)
-          : value.quantity,
+          : typeof value.quantity === 'number'
+          ? value.quantity
+          : null,
       price:
         typeof value.price === 'string' && value.price === '-'
           ? null
           : typeof value.price === 'string' && value.price !== '-'
           ? parseFloat(value.price)
-          : value.price,
+          : typeof value.price === 'number'
+          ? value.price
+          : null,
       weighting:
         typeof value.weighting === 'string' && value.weighting === '-'
           ? null
           : typeof value.weighting === 'string' && value.weighting !== '-'
           ? parseFloat(value.weighting)
-          : value.weighting,
+          : typeof value.weighting === 'number'
+          ? value.weighting
+          : null,
     }))
 
-    console.log(res)
+    openModal({
+      type: 'saveSetPriceUnitModal',
+      children: (
+        <PriceActionModal
+          onClose={() => closeModal('saveSetPriceUnitModal')}
+          onClickAction={() => onClickAction('Save', res)}
+          type='Save'
+        />
+      ),
+    })
   }
-
-  const languageList = getGloLanguage()
 
   const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
     // const res = selectedPriceUnits.filter(value => value.id !== item.unitId)
@@ -188,12 +222,6 @@ const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
     setPriceUnits([])
   }
 
-  // setUnitPair(prevState => {
-  //   return prevState
-  //     .filter((value, idx) => idx === index)
-  //     .map(value => ({ ...value, [type]: item }))
-  // })
-
   const onChangePair = (
     idx: number,
     type: 'quantity' | 'price' | 'weighting',
@@ -207,32 +235,35 @@ const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
     trigger('pair')
   }
 
-  const onClickAction = (type: string) => {
-    if (type === 'Discard') {
-      closeModal('addNewLanguagePairModal')
-    } else if (type === 'Save') {
-      closeModal('addNewLanguagePairModal')
-    }
-  }
-
   useEffect(() => {
     setPriceUnitOptions(priceUnit)
   }, [priceUnit])
 
   useEffect(() => {
-    console.log(selectedPriceUnits)
-  }, [selectedPriceUnits])
+    priceUnitPair.map(value => {
+      append({
+        unitId: value.id,
+        quantity: value.quantity ?? '-',
+        price: value.price,
+        weighting: value.weighting ?? '-',
+        title: value.title,
+        isBase: value.parentPriceUnitId === null,
+        unit: value.unit,
+      })
+    })
+
+    const removeUnitsId = priceUnitPair.map(value => value.priceUnitId)
+    const newArr = priceUnitOptions.filter(
+      obj => !removeUnitsId.includes(obj.id),
+    )
+    setPriceUnitOptions(newArr)
+  }, [priceUnitPair])
 
   return (
     <Dialog
       open={true}
       keepMounted
       fullWidth
-      // onClose={() => {
-      //   // setModal(null)
-      //   onClose()
-      // }}
-      // TransitionComponent={Transition}
       aria-labelledby='alert-dialog-slide-title'
       aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
@@ -572,7 +603,7 @@ const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
                   children: (
                     <PriceActionModal
                       onClose={() => closeModal('cancelSetPriceUnitModal')}
-                      onClickAction={onClickAction}
+                      onClickAction={() => onClickAction('Cancel')}
                       type='Cancel'
                     />
                   ),
@@ -588,18 +619,6 @@ const SetPriceUnitModal = ({ onClose, currency, priceUnit, price }: Props) => {
                 pairFields.some(item => {
                   return !item.weighting || !item.quantity || !item.price
                 }) || pairFields.length === 0
-              }
-              onClick={() =>
-                openModal({
-                  type: 'saveSetPriceUnitModal',
-                  children: (
-                    <PriceActionModal
-                      onClose={() => closeModal('saveSetPriceUnitModal')}
-                      onClickAction={onClickAction}
-                      type='Save'
-                    />
-                  ),
-                })
               }
             >
               Save

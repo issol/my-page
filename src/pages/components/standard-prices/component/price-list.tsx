@@ -44,21 +44,16 @@ const PriceList = ({
   setSelectedRow,
   onClickDeletePrice,
 }: Props) => {
-  const [open, setOpen] = useState(false)
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-
   const [selected, setSelected] = useState<number | null>(null)
 
-  const handleRowClick = (index: number) => {
-    setSelected(index)
-  }
-
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
+  const handleRowClick = (row: StandardPriceListType) => {
+    if (row.id === selected) {
+      setSelected(null)
+      setSelectedRow(null)
+    } else {
+      setSelected(row.id)
+      setSelectedRow(row)
+    }
   }
 
   const isSelected = (index: number) => {
@@ -302,8 +297,6 @@ const PriceList = ({
                     onClickEditPrice={onClickEditPrice}
                     onClickDeletePrice={onClickDeletePrice}
                     setSelectedRow={setSelectedRow}
-                    open={open}
-                    setOpen={setOpen}
                     selected={selected}
                     handleRowClick={handleRowClick}
                     isSelected={isSelected}

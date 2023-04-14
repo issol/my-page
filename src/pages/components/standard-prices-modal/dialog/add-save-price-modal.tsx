@@ -39,10 +39,17 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import {
+  AddNewPriceType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
+import { useMutation, useQueryClient } from 'react-query'
+import { createPrice } from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
+import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 
 const defaultValue = {
   priceName: '',
@@ -50,7 +57,7 @@ const defaultValue = {
   serviceType: undefined,
   currency: { label: '$ USD', value: 'USD' },
   catBasis: { label: 'Words', value: 'Words' },
-  decimalPlace: undefined,
+  decimalPlace: 2,
   roundingProcedure: undefined,
   memoForPrice: '',
 }
@@ -61,20 +68,8 @@ type Props = {
   type: string
   selectedPriceData?: StandardPriceListType
 
-  onSubmit: (data: AddPriceType) => void
+  onSubmit: (data: AddPriceType, modalType: string) => void
 
-  setServiceTypeList: Dispatch<
-    SetStateAction<
-      {
-        label: ServiceType
-        value: ServiceType
-      }[]
-    >
-  >
-  serviceTypeList: {
-    label: ServiceType
-    value: ServiceType
-  }[]
   onClickAction: (type: string) => void
 }
 
@@ -83,14 +78,22 @@ const AddSavePriceModal = ({
   onClose,
   type,
   selectedPriceData,
-  setServiceTypeList,
 
   onSubmit,
-  serviceTypeList,
+
   onClickAction,
 }: Props) => {
-  const { setModal } = useContext(ModalContext)
   const { closeModal, openModal } = useModal()
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  function getKeyByValue<T extends { [key: string]: string }>(
+    object: T,
+    value: string,
+  ): keyof T | undefined {
+    return Object.keys(object).find(key => object[key] === value) as
+      | keyof T
+      | undefined
+  }
+
   const {
     control,
     handleSubmit,
@@ -103,7 +106,7 @@ const AddSavePriceModal = ({
 
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddPriceType>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: defaultValue,
     resolver: yupResolver(standardPricesSchema),
   })
@@ -156,11 +159,17 @@ const AddSavePriceModal = ({
       setValue('decimalPlace', selectedPriceData.decimalPlace)
       setValue('roundingProcedure', {
         label: selectedPriceData.roundingProcedure,
-        value: selectedPriceData.roundingProcedure,
+        value: parseInt(
+          getKeyByValue(
+            PriceRoundingResponseEnum,
+            selectedPriceData.roundingProcedure,
+          )?.split('_')[1]!,
+        ),
       })
       setValue('memoForPrice', selectedPriceData.memoForPrice)
     }
   }, [type, selectedPriceData])
+
   return (
     <Dialog
       open={open}
@@ -187,7 +196,11 @@ const AddSavePriceModal = ({
             Add new price
           </Typography>
         ) : null}
-        <form noValidate autoComplete='off' onSubmit={handleSubmit(onSubmit)}>
+        <form
+          noValidate
+          autoComplete='off'
+          onSubmit={handleSubmit(data => onSubmit(data, type))}
+        >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>
               <FormControl fullWidth>
@@ -197,11 +210,11 @@ const AddSavePriceModal = ({
                   rules={{ required: true }}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextField
-                      value={value}
+                      value={value || ''}
                       onBlur={onBlur}
                       label='Price name*'
                       onChange={onChange}
-                      inputProps={{ maxLength: 50 }}
+                      inputProps={{ maxLength: 200 }}
                       error={Boolean(errors.priceName)}
                       // placeholder='Price name*'
                     />
@@ -229,11 +242,12 @@ const AddSavePriceModal = ({
                       if (item) {
                         // @ts-ignore
                         const res = ServiceTypePair[item.value]
-                        setServiceTypeList(res)
+                        console.log(res)
                         trigger('serviceType')
+                        setServiceTypeList(res)
                       }
                     }}
-                    value={value}
+                    value={value || { label: '', value: '' }}
                     options={CategoryList}
                     id='category'
                     getOptionLabel={option => option.label}
@@ -270,7 +284,7 @@ const AddSavePriceModal = ({
 
                       // ServiceTypePair
                     }}
-                    value={value}
+                    value={value || []}
                     options={serviceTypeList}
                     id='ServiceType'
                     limitTags={1}
@@ -320,8 +334,15 @@ const AddSavePriceModal = ({
                     }}
                     onChange={(event, item) => {
                       onChange(item)
+                      if (item) {
+                        console.log(item)
+
+                        if (item.value === 'KRW' || item.value === 'JPY') {
+                          setValue('decimalPlace', 1000)
+                        }
+                      }
                     }}
-                    value={value}
+                    value={value || { label: '', value: '' }}
                     defaultValue={CurrencyList[0]}
                     options={CurrencyList}
                     id='Currency'
@@ -355,7 +376,7 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={value}
+                    value={value || { value: '', label: '' }}
                     defaultValue={{ label: 'Words', value: 'Words' }}
                     options={CatBasisList}
                     id='CAT Basis'
@@ -375,13 +396,48 @@ const AddSavePriceModal = ({
                   rules={{ required: true }}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <TextField
-                      value={value}
+                      value={value || null}
                       onBlur={onBlur}
-                      label='Number of decimal places*'
-                      onChange={onChange}
-                      // inputProps={{ maxLength: 50 }}
+                      label={
+                        watch('currency').value === 'USD' ||
+                        watch('currency').value === 'SGD'
+                          ? 'Number of decimal places*'
+                          : watch('currency').value === 'KRW' ||
+                            watch('currency').value === 'JPY'
+                          ? 'Place value*'
+                          : ''
+                      }
+                      onChange={e => {
+                        const { value } = e.target
+                        if (value === '') {
+                          onChange(null)
+                        } else {
+                          const filteredValue = value
+                            .replace(/[^0-9]/g, '')
+                            .slice(
+                              0,
+                              watch('currency').value === 'USD' ||
+                                watch('currency').value === 'SGD'
+                                ? 1
+                                : watch('currency').value === 'KRW' ||
+                                  watch('currency').value === 'JPY'
+                                ? 10
+                                : 0,
+                            )
+                          e.target.value = filteredValue
+                          onChange(e.target.value)
+                        }
+                      }}
                       error={Boolean(errors.decimalPlace)}
-                      // placeholder='Number of decimal places*'
+                      placeholder={
+                        watch('currency').value === 'USD' ||
+                        watch('currency').value === 'SGD'
+                          ? '2'
+                          : watch('currency').value === 'KRW' ||
+                            watch('currency').value === 'JPY'
+                          ? '1000'
+                          : ''
+                      }
                     />
                   )}
                 />
@@ -401,12 +457,12 @@ const AddSavePriceModal = ({
                   <Autocomplete
                     fullWidth
                     isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
+                      return option.label === newValue.label
                     }}
                     onChange={(event, item) => {
                       onChange(item)
                     }}
-                    value={value}
+                    value={value || { value: null, label: '' }}
                     options={RoundingProcedureList}
                     id='RoundingProcedure'
                     getOptionLabel={option => option.label}
@@ -484,7 +540,11 @@ const AddSavePriceModal = ({
                             )
                           }
                           type={type === 'Edit' ? 'Cancel' : 'Discard'}
-                          onClickAction={onClickAction}
+                          onClickAction={() =>
+                            onClickAction(
+                              type === 'Edit' ? 'Cancel' : 'Discard',
+                            )
+                          }
                         />
                       ),
                     })

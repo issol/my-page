@@ -5,15 +5,16 @@ import Typography from '@mui/material/Typography'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { PriceUnitType } from '@src/apis/price-units.api'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
-import { PriceUnitListType } from '@src/types/common/standard-price'
+import {
+  PriceUnitListType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 
 type Props = {
   list: PriceUnitListType[]
   listCount: number
   isLoading: boolean
-  decimalPlace: number
-  roundingProcedure: string
-  price?: number
+  priceData: StandardPriceListType
   onClickSetPriceUnit: () => void
 }
 
@@ -21,10 +22,8 @@ const PriceUnit = ({
   list,
   listCount,
   isLoading,
-  decimalPlace,
-  roundingProcedure,
+  priceData,
   onClickSetPriceUnit,
-  price,
 }: Props) => {
   function getKeyByValue<T extends { [key: string]: string }>(
     object: T,
@@ -35,7 +34,10 @@ const PriceUnit = ({
       | undefined
   }
 
-  const rounding = getKeyByValue(PriceRoundingResponseEnum, roundingProcedure)
+  const rounding = getKeyByValue(
+    PriceRoundingResponseEnum,
+    priceData.roundingProcedure,
+  )
 
   const columns: GridColumns<PriceUnitListType> = [
     {
@@ -48,7 +50,11 @@ const PriceUnit = ({
       sortable: false,
       renderHeader: () => <Box>Price Unit</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box>
+        <Box sx={{ display: 'flex', gap: '8px' }}>
+          {row.parentPriceUnitId !== null ? (
+            <img src='/images/icons/price-icons/sub-price-arrow.svg' alt='' />
+          ) : null}
+
           <Typography
             variant='body1'
             sx={{ fontWeight: 600, fontSize: '14px' }}
@@ -70,16 +76,16 @@ const PriceUnit = ({
       renderCell: ({ row }: { row: PriceUnitListType }) => {
         return (
           <Box>
-            {row.currency === 'USD' || row.currency === 'SGD'
+            {priceData.currency === 'USD' || priceData.currency === 'SGD'
               ? '$'
-              : row.currency === 'KRW'
+              : priceData.currency === 'KRW'
               ? '₩'
-              : row.currency === 'JPY'
+              : priceData.currency === 'JPY'
               ? '¥'
               : '-'}
             &nbsp;
             {rounding === 'Type_0'
-              ? row.price.toFixed(decimalPlace)
+              ? row.price.toFixed(priceData.decimalPlace)
               : row.price}
           </Box>
         )
@@ -127,6 +133,8 @@ const PriceUnit = ({
       <Box
         sx={{
           width: '100%',
+          height: '262px',
+          overflow: 'scroll',
           '& .MuiDataGrid-columnHeaderTitle': {
             textTransform: 'none',
           },

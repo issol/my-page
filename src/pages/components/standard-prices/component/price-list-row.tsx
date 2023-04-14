@@ -5,7 +5,11 @@ import { useState, MouseEvent, SetStateAction, Dispatch } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Box from '@mui/material/Box'
-import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  ExtraNumberChip,
+  JobTypeChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import MuiMenu, { MenuProps } from '@mui/material/Menu'
@@ -22,12 +26,10 @@ export function Row(props: {
   onClickDeletePrice: (priceData: StandardPriceListType) => void
   onClickEditPrice: (priceData: StandardPriceListType) => void
   setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
-  open: boolean
-  setOpen: Dispatch<SetStateAction<boolean>>
 
   selected: number | null
 
-  handleRowClick: (index: number) => void
+  handleRowClick: (row: StandardPriceListType) => void
 
   isSelected: (index: number) => boolean
 }) {
@@ -36,8 +38,6 @@ export function Row(props: {
     onClickDeletePrice,
     onClickEditPrice,
     setSelectedRow,
-    open,
-    setOpen,
 
     selected,
 
@@ -67,8 +67,7 @@ export function Row(props: {
         }}
         // hover
         onClick={() => {
-          handleRowClick(row.id)
-          setSelectedRow(row)
+          handleRowClick(row)
         }}
         selected={isSelected(row.id)}
       >
@@ -94,9 +93,8 @@ export function Row(props: {
               justifyContent: 'center',
               cursor: 'pointer',
             }}
-            onClick={() => setOpen(!open)}
           >
-            {open ? (
+            {isSelected(row.id) ? (
               <KeyboardArrowUpIcon color='action' />
             ) : (
               <KeyboardArrowDownIcon color='action' />
@@ -117,7 +115,7 @@ export function Row(props: {
           }}
           size='small'
         >
-          <Box>{row.priceName}</Box>
+          <Typography variant='body1'>{row.priceName}</Typography>
         </TableCell>
         <TableCell
           sx={{
@@ -158,10 +156,12 @@ export function Row(props: {
             display: 'flex',
             alignItems: 'center',
             flex: 0.264,
+            gap: '5px',
           }}
           size='small'
         >
           <ServiceTypeChip label={row.serviceType[0]} />
+          <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
         </TableCell>
         <TableCell
           sx={{
@@ -181,15 +181,17 @@ export function Row(props: {
           }}
           size='small'
         >
-          {row.currency === 'USD'
-            ? '$ USD'
-            : row.currency === 'SGD'
-            ? '$ SGD'
-            : row.currency === 'KRW'
-            ? '₩ KRW'
-            : row.currency === 'JPY'
-            ? '¥ JPY'
-            : '-'}
+          <Typography variant='body1'>
+            {row.currency === 'USD'
+              ? '$ USD'
+              : row.currency === 'SGD'
+              ? '$ SGD'
+              : row.currency === 'KRW'
+              ? '₩ KRW'
+              : row.currency === 'JPY'
+              ? '¥ JPY'
+              : '-'}
+          </Typography>
         </TableCell>
         <TableCell
           sx={{
@@ -209,7 +211,7 @@ export function Row(props: {
           }}
           size='small'
         >
-          {row.catBasis}
+          <Typography variant='body1'> {row.catBasis}</Typography>
         </TableCell>
         <TableCell
           sx={{
@@ -281,7 +283,7 @@ export function Row(props: {
       </TableRow>
       <TableRow selected={row.id === selected}>
         <TableCell colSpan={6} sx={{ p: '0 !important' }}>
-          <Collapse in={open} timeout='auto' unmountOnExit>
+          <Collapse in={row.id === selected} timeout='auto' unmountOnExit>
             <Grid container xs={12} padding='20px 60px'>
               <Grid item xs={4}>
                 <Title>Number of decimal places</Title>
