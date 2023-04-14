@@ -1,6 +1,4 @@
-import { useEffect, useState } from 'react'
-import useModal from '@src/hooks/useModal'
-import { v4 as uuidv4 } from 'uuid'
+import { useState } from 'react'
 
 // ** mui
 import { Button, Card, Grid, IconButton, Typography } from '@mui/material'
@@ -21,7 +19,6 @@ import Icon from 'src/@core/components/icon'
 // ** react hook form
 import {
   Control,
-  Controller,
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
@@ -37,6 +34,7 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 // ** components
 import AddContactPersonForm from './add-contact-person-form'
+import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 
 type Props = {
   control: Control<ClientContactPersonType, any>
@@ -67,11 +65,14 @@ export default function ContactPersonForm({
   onNextStep,
   handleBack,
 }: Props) {
-  const [openForm, setOpenForm] = useState(false)
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
   const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(2)
+  const [pageSize, setPageSize] = useState(10)
+
+  // ** modals
+  const [openForm, setOpenForm] = useState(false)
+  const [openDiscard, setOpenDiscard] = useState(false)
 
   const columns: GridColumns<ContactPersonType> = [
     {
@@ -197,7 +198,12 @@ export default function ContactPersonForm({
     setOpenForm(true)
   }
 
-  // console.log(list, list.slice(skip, pageSize), skip, pageSize)
+  function cancelUpdateForm() {
+    const data = fields?.[idx]
+    update(idx, data)
+    setOpenForm(false)
+  }
+
   return (
     <Grid item xs={12}>
       <Card>
@@ -228,12 +234,10 @@ export default function ContactPersonForm({
               NoResultsOverlay: () => NoList(),
             }}
             sx={{ overflowX: 'scroll' }}
-            // rows={fields}
-            rows={fields.slice(skip, pageSize)}
+            rows={fields.slice(skip, pageSize + 1)}
             columns={columns}
             rowCount={fields?.length ?? 0}
-            rowsPerPageOptions={[2, 25, 50]}
-            // page={skip}
+            rowsPerPageOptions={[10, 25, 50]}
             pageSize={pageSize}
             onPageChange={setSkip}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
@@ -255,7 +259,7 @@ export default function ContactPersonForm({
           Next <Icon icon='material-symbols:arrow-forward-rounded' />
         </Button>
       </Grid>
-      <Dialog open={openForm} onClose={() => setOpenForm(false)} maxWidth='lg'>
+      <Dialog open={openForm} maxWidth='lg'>
         <AddContactPersonForm
           mode={mode}
           idx={idx}
@@ -265,9 +269,19 @@ export default function ContactPersonForm({
           onSubmit={onSubmit}
           watch={watch}
           isValid={isValid}
-          onClose={() => setOpenForm(false)}
+          getValues={getValues}
+          onCancel={() => cancelUpdateForm()}
+          onDiscard={() => setOpenDiscard(true)}
         />
       </Dialog>
+      <DiscardContactPersonModal
+        open={openDiscard}
+        onDiscard={() => {
+          remove(idx)
+          setOpenForm(false)
+        }}
+        onClose={() => setOpenDiscard(false)}
+      />
     </Grid>
   )
 }

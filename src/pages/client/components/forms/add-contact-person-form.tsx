@@ -1,4 +1,4 @@
-import { Fragment } from 'react'
+import { Fragment, useState } from 'react'
 
 import {
   Autocomplete,
@@ -30,6 +30,7 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormHandleSubmit,
   UseFormWatch,
 } from 'react-hook-form'
@@ -40,6 +41,7 @@ import Icon from 'src/@core/components/icon'
 // ** Data
 import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import AddContactPersonConfirmModal from '../modals/add-contact-person-confirm-modal'
 
 type Props = {
   mode: 'create' | 'update'
@@ -50,7 +52,9 @@ type Props = {
   handleSubmit: UseFormHandleSubmit<ClientContactPersonType>
   watch: UseFormWatch<ClientContactPersonType>
   isValid: boolean
-  onClose: () => void
+  getValues: UseFormGetValues<ClientContactPersonType>
+  onCancel: () => void
+  onDiscard: () => void
 }
 export default function AddContactPersonForm(props: Props) {
   const {
@@ -61,9 +65,13 @@ export default function AddContactPersonForm(props: Props) {
     onSubmit,
     watch,
     isValid,
-    onClose,
+    getValues,
+    onCancel,
     handleSubmit,
+    onDiscard,
   } = props
+
+  const [openAdd, setOpenAdd] = useState(false)
 
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
 
@@ -278,20 +286,39 @@ export default function AddContactPersonForm(props: Props) {
             />
           </Grid>
           <Grid item xs={12} display='flex' gap='22px' justifyContent='center'>
-            <Button variant='outlined' color='secondary'>
-              Discard
-            </Button>
-            <Button
-              variant='contained'
-              type='submit'
-              disabled={!isValid} /* onClick={onNextStep} */
-              // onClick={onSubmit}
-            >
-              Add
-            </Button>
+            {mode === 'create' ? (
+              <Button variant='outlined' color='secondary' onClick={onDiscard}>
+                Discard
+              </Button>
+            ) : (
+              <Button variant='outlined' color='secondary' onClick={onCancel}>
+                Cancel
+              </Button>
+            )}
+
+            {mode === 'create' ? (
+              <Button
+                variant='contained'
+                type='button'
+                disabled={!isValid}
+                onClick={() => setOpenAdd(true)}
+              >
+                Add
+              </Button>
+            ) : (
+              <Button variant='contained' type='submit' disabled={!isValid}>
+                Save
+              </Button>
+            )}
           </Grid>
         </Grid>
       </form>
+
+      <AddContactPersonConfirmModal
+        open={openAdd}
+        onAdd={() => onSubmit(getValues())}
+        onClose={() => setOpenAdd(false)}
+      />
     </ModalContainer>
   )
 }
