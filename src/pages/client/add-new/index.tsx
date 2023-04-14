@@ -12,8 +12,8 @@ import Icon from 'src/@core/components/icon'
 // ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
-import CompanyInfoForm from '../components/form-elements/company-info'
-import AddressesForm from '../components/form-elements/addresses'
+import CompanyInfoForm from '../components/forms/company-info'
+import AddressesForm from '../components/forms/addresses'
 
 // ** react hook form
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -33,7 +33,9 @@ import {
 import {
   ClientContactPersonType,
   clientContactPersonSchema,
+  contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
+import ContactPersonForm from '../components/forms/contact-persons'
 
 /* 
 TODO : 
@@ -59,6 +61,7 @@ export default function AddNewClient() {
     return false
   })
 
+  // ** TODO : steps는 role별로 다르게 주기
   const steps = [
     {
       title: 'Company info',
@@ -75,7 +78,7 @@ export default function AddNewClient() {
   ]
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(2)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -127,11 +130,22 @@ export default function AddNewClient() {
     getValues: getContactPersonValues,
     setValue: setContactPersonValues,
     handleSubmit: submitContactPerson,
+    watch: watchContactPerson,
     formState: { errors: contactPersonErrors, isValid: isContactPersonValid },
   } = useForm<ClientContactPersonType>({
-    defaultValues: [],
-    mode: 'onBlur',
+    defaultValues: contactPersonDefaultValue,
+    mode: 'onChange',
     resolver: yupResolver(clientContactPersonSchema),
+  })
+
+  const {
+    fields: contactPersons,
+    append: appendContactPersons,
+    remove: removeContactPersons,
+    update: updateContactPersons,
+  } = useFieldArray({
+    control: contactPersonControl,
+    name: 'contactPersons',
   })
 
   //   const {
@@ -192,7 +206,22 @@ export default function AddNewClient() {
             />
           </Card>
         ) : activeStep === 2 ? (
-          <Card>여기여기</Card>
+          <Card sx={{ padding: '24px' }}>
+            <ContactPersonForm
+              control={contactPersonControl}
+              fields={contactPersons}
+              append={appendContactPersons}
+              remove={removeContactPersons}
+              update={updateContactPersons}
+              getValues={getContactPersonValues}
+              errors={contactPersonErrors}
+              isValid={isContactPersonValid}
+              watch={watchContactPerson}
+              handleSubmit={submitContactPerson}
+              onNextStep={handleBack}
+              handleBack={handleBack}
+            />
+          </Card>
         ) : (
           <Card>여기여기</Card>
         )}
