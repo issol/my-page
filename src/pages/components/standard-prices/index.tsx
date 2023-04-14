@@ -37,6 +37,7 @@ import { styled } from '@mui/material/styles'
 import CatInterface from './component/cat-interface'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
+import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
 
 type Props = {
   standardPrices: { data: StandardPriceListType[]; count: number }
@@ -166,7 +167,10 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
     })
   }
 
-  const onClickLanguagePair = (params: any, event: any) => {
+  const onClickLanguagePair = (
+    params: GridCellParams,
+    event: MuiEvent<React.MouseEvent>,
+  ) => {
     if (params.row !== selectedLanguagePair) {
       setSelectedLanguagePair(params.row)
       setPriceUnitList(prevState => {

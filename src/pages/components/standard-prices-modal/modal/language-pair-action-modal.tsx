@@ -11,22 +11,22 @@ import DialogContentText from '@mui/material/DialogContentText'
 import Button from '@mui/material/Button'
 
 import Typography from '@mui/material/Typography'
-import Paper from '@mui/material/Paper'
+import AlertIcon from '@src/@core/components/alert-icon'
+import languageHelper from '@src/shared/helpers/language.helper'
 
-import { AddRoleType } from 'src/types/onboarding/list'
-import { AddPriceType } from '@src/types/company/standard-client-prices'
-import { Dispatch, SetStateAction, useContext } from 'react'
-import { ModalContext } from '@src/context/ModalContext'
-import useModal from '@src/hooks/useModal'
 type Props = {
   type: string
   onClose: any
-  onClickAction: (type: string) => void
+  onClickAction: any
+  source?: string
+  target?: string
 }
 export default function LanguagePairActionModal({
   type,
   onClose,
   onClickAction,
+  source,
+  target,
 }: Props) {
   return (
     <Dialog
@@ -56,16 +56,11 @@ export default function LanguagePairActionModal({
             justifyContent: 'center',
           }}
         >
-          <Image
-            src={`/images/icons/alert/${
-              type === 'Add' || type === 'Save'
-                ? 'alert-success'
-                : 'alert-error-color'
-            }.svg`}
-            width={68}
-            height={68}
-            alt=''
-          />
+          {type === 'Add' || type === 'Save' ? (
+            <AlertIcon type={'successful'} />
+          ) : (
+            <AlertIcon type={'error'} />
+          )}
         </Box>
 
         <DialogContentText id='alert-dialog-slide-description'>
@@ -93,6 +88,27 @@ export default function LanguagePairActionModal({
                   Are you sure you want to discard this language pair(s)?
                 </Box>
               </Box>
+            ) : type === 'Delete' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box>Are you sure you want to delete this language pair?</Box>
+                <Typography
+                  variant='body2'
+                  sx={{ fontWeight: 700, fontSize: '1rem' }}
+                >
+                  {languageHelper(source)} &rarr; {languageHelper(target)}
+                </Typography>
+              </Box>
+            ) : type === 'Save' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box>Are you sure you want to save all changes?</Box>
+              </Box>
+            ) : type === 'Cancel' ? (
+              <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                <Box>
+                  Are you sure you want to leave this page? Changes you made may
+                  not be saved.
+                </Box>
+              </Box>
             ) : null}
           </Typography>
         </DialogContentText>
@@ -114,7 +130,7 @@ export default function LanguagePairActionModal({
               // onClickAction('Cancel')
             }}
           >
-            Cancel
+            {type === 'Cancel' ? 'Stay on this page' : 'Cancel'}
           </Button>
           <Button
             size='medium'
@@ -123,12 +139,30 @@ export default function LanguagePairActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              onClickAction(
-                type === 'Add' ? 'Add' : type === 'Discard' ? 'Discard' : '',
-              )
+              if (type === 'Add' || type === 'Discard') {
+                onClickAction(
+                  type === 'Add' ? 'Add' : type === 'Discard' ? 'Discard' : '',
+                )
+              } else if (
+                type === 'Delete' ||
+                type === 'Save' ||
+                type === 'Cancel'
+              ) {
+                onClickAction()
+              }
             }}
           >
-            {type === 'Add' ? 'Add' : type === 'Discard' ? 'Discard' : ''}
+            {type === 'Add'
+              ? 'Add'
+              : type === 'Discard'
+              ? 'Discard'
+              : type === 'Delete'
+              ? 'Delete'
+              : type === 'Save'
+              ? 'Save'
+              : type === 'Cancel'
+              ? 'Leave this page'
+              : ''}
           </Button>
         </Box>
       </DialogContent>
