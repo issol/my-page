@@ -107,7 +107,6 @@ export default function PriceUnitTable({
                     aria-label='expand row'
                     size='small'
                     onClick={() => setOpen(!open)}
-                    sx={{ paddingLeft: '20px' }}
                   >
                     <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
                   </IconButton>
@@ -190,11 +189,7 @@ export default function PriceUnitTable({
                 }}
               >
                 Base price
-                <IconButton
-                  aria-label='expand row'
-                  size='small'
-                  sx={{ paddingLeft: '20px' }}
-                >
+                <IconButton aria-label='expand row' size='small'>
                   <Icon icon='mdi:chevron-down' />
                 </IconButton>
               </HeaderCell>
