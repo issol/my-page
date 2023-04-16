@@ -961,6 +961,7 @@ function ProDetailOverview() {
               </Grid>
               <Grid item xs={12}>
                 <CommentsAboutPro
+                  ability={ability}
                   userInfo={userInfo!}
                   user={user!}
                   page={commentsProPage}

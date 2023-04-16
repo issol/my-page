@@ -15,6 +15,7 @@ export const modalSlice = createSlice({
   reducers: {
     openModal: (state, action) => {
       const { type, children } = action.payload
+
       return state.concat({ type, children })
     },
     closeModal: (state, action) => {

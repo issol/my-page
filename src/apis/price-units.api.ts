@@ -15,13 +15,15 @@ export type PriceUnitType = {
   unit: string
   weighting: number | null
   isActive: boolean
+  parentPriceUnitId: number | null
   subPriceUnits: Array<{
     id: number
-    isBase?: boolean
+    isBase: boolean
     title: string
     unit: string
     weighting: number
     isActive: boolean
+    parentPriceUnitId: number
   }>
 }
 

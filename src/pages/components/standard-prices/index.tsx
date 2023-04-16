@@ -1,0 +1,318 @@
+import Grid from '@mui/material/Grid'
+
+import {
+  AddNewPriceType,
+  LanguagePairListType,
+  PriceUnitListType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
+import { useEffect, useState } from 'react'
+
+import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
+
+import NoPriceUnitModal from '../standard-prices-modal/modal/no-price-unit-modal'
+import PriceActionModal from '../standard-prices-modal/modal/price-action-modal'
+import { AddPriceType } from '@src/types/company/standard-client-prices'
+
+import useModal from '@src/hooks/useModal'
+
+import PriceList from './component/price-list'
+
+import Card from '@mui/material/Card'
+import Box from '@mui/material/Box'
+import Typography from '@mui/material/Typography'
+
+import LanguagePair from './component/language-pair'
+
+import PriceUnit from './component/price-unit'
+import AddNewLanguagePairModal from '../standard-prices-modal/dialog/add-new-language-pair-modal'
+import SetPriceUnitModal from '../standard-prices-modal/dialog/set-price-unit-modal'
+import { useGetPriceUnitList } from '@src/queries/price-units.query'
+
+import CatInterface from './component/cat-interface'
+
+import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
+import { useMutation, useQueryClient } from 'react-query'
+import { createPrice } from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
+
+type Props = {
+  standardPrices: { data: StandardPriceListType[]; count: number }
+  isLoading: boolean
+}
+
+const StandardPrices = ({ standardPrices, isLoading }: Props) => {
+  const queryClient = useQueryClient()
+  const { data: priceUnit, refetch } = useGetPriceUnitList({
+    skip: 0,
+    take: 1000,
+  })
+
+  const [standardClientPriceListPage, setStandardClientPriceListPage] =
+    useState<number>(0)
+  const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
+    useState<number>(10)
+
+  const [languagePairListPage, setLanguagePairListPage] = useState<number>(0)
+  const [languagePairListPageSize, setLanguagePairListPageSize] =
+    useState<number>(5)
+
+  const [selectedPriceData, setSelectedPriceData] =
+    useState<StandardPriceListType | null>(null)
+
+  const [selectedLanguagePair, setSelectedLanguagePair] =
+    useState<LanguagePairListType | null>(null)
+
+  const [priceUnitList, setPriceUnitList] = useState<PriceUnitListType[]>([])
+
+  const [selectedModalType, setSelectedModalType] = useState('')
+
+  const { openModal, closeModal } = useModal()
+
+  const addNewPriceMutation = useMutation(
+    (data: AddNewPriceType) => createPrice(data),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+  const onClickAction = (type: string, data?: AddPriceType) => {
+    if (type === 'Add' || type === 'Discard') {
+      if (type === 'Add') {
+        const obj: AddNewPriceType = {
+          isStandard: true,
+          priceName: data?.priceName!,
+          category: data?.category.value!,
+          serviceType: data?.serviceType.map(value => value.value)!,
+          currency: data?.currency.value!,
+          catBasis: data?.catBasis.value!,
+          decimalPlace: data?.decimalPlace!,
+          roundingProcedure: data?.roundingProcedure.value!,
+          memoForPrice: data?.memoForPrice!,
+        }
+        addNewPriceMutation.mutate(obj)
+      }
+      closeModal(`${selectedModalType}PriceModal`)
+    }
+  }
+  const onSubmit = (data: AddPriceType, modalType: string) => {
+    openModal({
+      type: `${modalType}Price${
+        modalType === 'Edit' ? 'Cancel' : 'Discard'
+      }Modal`,
+      children: (
+        <PriceActionModal
+          onClose={() =>
+            closeModal(
+              `${modalType}Price${
+                modalType === 'Edit' ? 'Cancel' : 'Discard'
+              }Modal`,
+            )
+          }
+          priceData={data!}
+          type={modalType === 'Add' ? 'Add' : 'Save'}
+          onClickAction={onClickAction}
+        />
+      ),
+    })
+  }
+
+  const onClickAddNewPrice = () => {
+    setSelectedModalType('Add')
+    if (priceUnit) {
+      openModal({
+        type: 'AddPriceModal',
+        children: (
+          <AddSavePriceModal
+            open={true}
+            onClose={() => closeModal('AddPriceModal')}
+            type={'Add'}
+            onSubmit={onSubmit}
+            onClickAction={onClickAction}
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'NoPriceUnitModal',
+        children: (
+          <NoPriceUnitModal
+            open={true}
+            onClose={() => closeModal('NoPriceUnitModal')}
+          />
+        ),
+      })
+    }
+  }
+
+  const onClickEditPrice = (priceData: StandardPriceListType) => {
+    setSelectedPriceData(priceData)
+    setSelectedModalType('Edit')
+    openModal({
+      type: 'EditPriceModal',
+      children: (
+        <AddSavePriceModal
+          open={true}
+          onClose={() => closeModal('EditPriceModal')}
+          type={'Edit'}
+          onSubmit={onSubmit}
+          selectedPriceData={selectedPriceData!}
+          onClickAction={onClickAction}
+        />
+      ),
+    })
+  }
+
+  const onClickDeletePrice = (priceData: StandardPriceListType) => {
+    openModal({
+      type: 'DeletePriceModal',
+      children: (
+        <PriceActionModal
+          onClose={() => closeModal(`DeletePriceModal`)}
+          priceName={priceData.priceName}
+          type={'Delete'}
+          onClickAction={onClickAction}
+        />
+      ),
+    })
+  }
+
+  const onClickLanguagePair = (
+    params: GridCellParams,
+    event: MuiEvent<React.MouseEvent>,
+  ) => {
+    if (params.row !== selectedLanguagePair) {
+      setSelectedLanguagePair(params.row)
+      setPriceUnitList(prevState => {
+        const res = prevState?.map(value => ({
+          ...value,
+          price: params.row.priceFactor * value.price,
+        }))
+        return res
+      })
+    }
+  }
+
+  const onClickAddNewLanguagePair = () => {
+    openModal({
+      type: 'addNewLanguagePairModal',
+      children: (
+        <AddNewLanguagePairModal
+          onClose={() => closeModal('addNewLanguagePairModal')}
+          currency={selectedPriceData?.currency!}
+        />
+      ),
+    })
+  }
+
+  const onClickSetPriceUnit = () => {
+    openModal({
+      type: 'setPriceUnitModal',
+      children: (
+        <SetPriceUnitModal
+          onClose={() => closeModal('setPriceUnitModal')}
+          currency={selectedPriceData?.currency!}
+          priceUnit={priceUnit?.data!}
+          price={selectedPriceData!}
+          priceUnitPair={selectedPriceData?.priceUnit!}
+        />
+      ),
+    })
+  }
+
+  useEffect(() => {
+    if (selectedPriceData) {
+      setPriceUnitList(selectedPriceData.priceUnit)
+    }
+  }, [selectedPriceData])
+
+  useEffect(() => {
+    console.log(selectedModalType)
+  }, [selectedModalType])
+
+  return (
+    <Grid container xs={12} spacing={6}>
+      <Grid item xs={12}>
+        <PriceList
+          list={standardPrices?.data!}
+          listCount={standardPrices?.count!}
+          isLoading={isLoading}
+          listPage={standardClientPriceListPage}
+          setListPage={setStandardClientPriceListPage}
+          listPageSize={standardClientPriceListPageSize}
+          setListPageSize={setStandardClientPriceListPageSize}
+          setSelectedRow={setSelectedPriceData}
+          onClickAddNewPrice={onClickAddNewPrice}
+          onClickEditPrice={onClickEditPrice}
+          onClickDeletePrice={onClickDeletePrice}
+        />
+      </Grid>
+      {selectedPriceData ? (
+        <>
+          <Grid item xs={12}>
+            <Card
+              sx={{
+                padding: '20px',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '20px',
+              }}
+            >
+              <Typography variant='h6'>Prices</Typography>
+              <Box sx={{ display: 'flex', width: '100%' }}>
+                <LanguagePair
+                  list={selectedPriceData?.languagePair!}
+                  listCount={selectedPriceData?.languagePair?.length}
+                  isLoading={isLoading}
+                  listPage={languagePairListPage}
+                  setListPage={setLanguagePairListPage}
+                  listPageSize={languagePairListPageSize}
+                  setListPageSize={setLanguagePairListPageSize}
+                  onCellClick={onClickLanguagePair}
+                  onClickAddNewLanguagePair={onClickAddNewLanguagePair}
+                  existPriceUnit={priceUnitList.length > 0}
+                />
+                <Box
+                  sx={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    ml: 1,
+                    mr: 1,
+                  }}
+                >
+                  <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
+                </Box>
+                <PriceUnit
+                  list={priceUnitList}
+                  listCount={priceUnitList.length}
+                  isLoading={isLoading}
+                  priceData={selectedPriceData!}
+                  onClickSetPriceUnit={onClickSetPriceUnit}
+                />
+              </Box>
+            </Card>
+          </Grid>
+          <Grid item xs={12}>
+            <CatInterface
+              priceUnitList={priceUnitList}
+              priceData={selectedPriceData}
+              existPriceUnit={priceUnitList.length > 0}
+            />
+          </Grid>
+        </>
+      ) : null}
+    </Grid>
+  )
+}
+
+export default StandardPrices

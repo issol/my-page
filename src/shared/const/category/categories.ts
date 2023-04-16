@@ -1,7 +1,6 @@
 import { Category } from './category.enum'
 
 export const CategoryList = [
-  { label: Category['No category'], value: Category['No category'] },
   { label: Category['Documents/Text'], value: Category['Documents/Text'] },
   { label: Category.Dubbing, value: Category.Dubbing },
   { label: Category.Interpretation, value: Category.Interpretation },

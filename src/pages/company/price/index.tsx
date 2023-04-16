@@ -11,6 +11,8 @@ import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import StandardPrices from '@src/pages/components/standard-prices'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 // ** Components
 import PriceUnits from '../components/price/price-units'
@@ -18,7 +20,7 @@ import PriceUnits from '../components/price/price-units'
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
-
+  const { data: standardPrices, isLoading } = useGetStandardPrices()
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
     '& .MuiTabs-indicator': {
@@ -67,11 +69,10 @@ export default function Price() {
         />
       </TabList>
       <TabPanel value='1'>
-        <Typography>
-          Cake apple pie chupa chups biscuit liquorice tootsie roll liquorice
-          sugar plum. Cotton candy wafer wafer jelly cake caramels brownie
-          gummies.
-        </Typography>
+        <StandardPrices
+          standardPrices={standardPrices!}
+          isLoading={isLoading}
+        />
       </TabPanel>
       <TabPanel value='2'>
         <Typography>

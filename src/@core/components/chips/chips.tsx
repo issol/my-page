@@ -197,3 +197,24 @@ export const ClientStatusChip = styled(Chip)<{
       ? 'background: #626471; color:#F7F7F9;'
       : null};
 `
+export const CatInterfaceChip = styled(Chip)<{
+  status: boolean
+}>`
+  border: none;
+  ${({ status }) =>
+    status
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FA8773; color: #FA8773; font-weight: 600; `
+      : ` background: rgba(76, 78, 100, 0.12); color: rgba(76, 78, 100, 0.6);`};
+`
+
+export const ExtraNumberChip = styled(Chip)`
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #6d788d;
+  border: 1px solid rgba(76, 78, 100, 0.6);
+  border-radius: 16px;
+  color: #6d788d;
+`
