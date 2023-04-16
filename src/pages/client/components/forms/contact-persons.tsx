@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** mui
 import { Button, Card, Grid, IconButton, Typography } from '@mui/material'
@@ -271,16 +271,26 @@ export default function ContactPersonForm({
           isValid={isValid}
           getValues={getValues}
           onCancel={() => cancelUpdateForm()}
-          onDiscard={() => setOpenDiscard(true)}
+          onDiscard={() => {
+            setOpenForm(false)
+            setOpenDiscard(true)
+          }}
         />
       </Dialog>
       <DiscardContactPersonModal
         open={openDiscard}
         onDiscard={() => {
           remove(idx)
-          setOpenForm(false)
         }}
-        onClose={() => setOpenDiscard(false)}
+        onCancel={() => {
+          const data = watch('contactPersons')?.[idx]
+          data && update(idx, data)
+          setOpenForm(true)
+          setOpenDiscard(false)
+        }}
+        onClose={() => {
+          setOpenDiscard(false)
+        }}
       />
     </Grid>
   )

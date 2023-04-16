@@ -7,11 +7,13 @@ type Props = {
   open: boolean
   onDiscard: () => void
   onClose: () => void
+  onCancel: () => void
 }
 export default function DiscardContactPersonModal({
   open,
   onDiscard,
   onClose,
+  onCancel,
 }: Props) {
   return (
     <Dialog
@@ -25,7 +27,7 @@ export default function DiscardContactPersonModal({
           Are you sure you want to discard this contact person?
         </Typography>
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
-          <Button variant='outlined' onClick={onClose}>
+          <Button variant='outlined' onClick={onCancel}>
             Cancel
           </Button>
           <Button
