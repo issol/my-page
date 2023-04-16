@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
@@ -14,6 +14,11 @@ import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
 import CompanyInfoForm from '../components/forms/company-info'
 import AddressesForm from '../components/forms/addresses'
+import ContactPersonForm from '../components/forms/contact-persons'
+import ClientPrices from '../components/forms/client-prices'
+import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
+import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
+import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
 
 // ** react hook form
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -35,14 +40,22 @@ import {
   clientContactPersonSchema,
   contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
-import ContactPersonForm from '../components/forms/contact-persons'
+import {
+  AddNewPriceType,
+  LanguagePairListType,
+  PriceUnitListType,
+  SetPriceUnitPair,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
+import { AddPriceType } from '@src/types/company/standard-client-prices'
+import { AddNewLanguagePair } from '@src/types/common/standard-price'
 
-/* 
-TODO : 
-1. stepper - done
-2. react hook form setting / validator 제작 - done
-3. form 1,2,3,4
-*/
+// ** fetch
+import { useGetPriceUnitList } from '@src/queries/price-units.query'
+import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
+import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
+import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
+
 export default function AddNewClient() {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
@@ -78,7 +91,7 @@ export default function AddNewClient() {
   ]
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(2)
+  const [activeStep, setActiveStep] = useState<number>(3)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -88,7 +101,7 @@ export default function AddNewClient() {
     setActiveStep(activeStep + 1)
   }
 
-  // ** forms
+  // ** step1
   const {
     control: companyInfoControl,
     getValues: getCompanyInfoValues,
@@ -102,6 +115,7 @@ export default function AddNewClient() {
     resolver: yupResolver(companyInfoSchema),
   })
 
+  // ** step2
   const {
     control: addressControl,
     getValues: getAddressValues,
@@ -125,6 +139,7 @@ export default function AddNewClient() {
     name: 'clientAddresses',
   })
 
+  // ** step3
   const {
     control: contactPersonControl,
     getValues: getContactPersonValues,
@@ -148,17 +163,223 @@ export default function AddNewClient() {
     name: 'contactPersons',
   })
 
-  //   const {
-  //     control: priceControl,
-  //     getValues: getPriceValues,
-  //     setValue: setPriceValues,
-  //     handleSubmit: submitPrice,
-  //     formState: { errors: priceErrors, isValid: isPriceValid },
-  //   } = useForm<PriceFormType>({
-  //     defaultValues,
-  //     mode: 'onBlur',
-  //     resolver: yupResolver(priceUnitSchema),
-  //   })
+  // ** step 4
+  const [selectedModalType, setSelectedModalType] = useState('')
+
+  const [priceList, setPriceList] = useState<StandardPriceListType[] | []>([])
+  const [selectedPrice, setSelectedPrice] =
+    useState<StandardPriceListType | null>(null)
+  const [selectedLanguagePair, setSelectedLanguagePair] =
+    useState<LanguagePairListType | null>(null)
+
+  const { data: priceUnit, refetch } = useGetPriceUnitList({
+    skip: 0,
+    take: 1000,
+  })
+  console.log(priceList)
+  const onAddPrice = () => {
+    setSelectedModalType('Add')
+    if (priceUnit) {
+      openModal({
+        type: 'AddPriceModal',
+        children: (
+          <AddSavePriceModal
+            open={true}
+            onClose={() => closeModal('AddPriceModal')}
+            type={'Add'}
+            onSubmit={onSavePriceClick}
+            onClickAction={onSubmitPrice}
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'NoPriceUnitModal',
+        children: (
+          <NoPriceUnitModal
+            open={true}
+            onClose={() => closeModal('NoPriceUnitModal')}
+          />
+        ),
+      })
+    }
+  }
+
+  const onEditPrice = (priceData: StandardPriceListType) => {
+    setSelectedPrice(priceData)
+    setSelectedModalType('Edit')
+    openModal({
+      type: 'EditPriceModal',
+      children: (
+        <AddSavePriceModal
+          open={true}
+          onClose={() => closeModal('EditPriceModal')}
+          type={'Edit'}
+          onSubmit={onSavePriceClick}
+          selectedPriceData={selectedPrice!}
+          onClickAction={onSubmitPrice}
+        />
+      ),
+    })
+  }
+
+  const onDeletePrice = (priceData: StandardPriceListType) => {
+    openModal({
+      type: 'DeletePriceModal',
+      children: (
+        <PriceActionModal
+          onClose={() => closeModal(`DeletePriceModal`)}
+          priceName={priceData.priceName}
+          type={'Delete'}
+          onClickAction={onSubmitPrice}
+        />
+      ),
+    })
+  }
+
+  const onSubmitPrice = (type: string, data?: AddPriceType) => {
+    if (type === 'Add' || type === 'Discard') {
+      if (type === 'Add') {
+        const formData = {
+          ...data,
+          id: Math.random(),
+          isStandard: false, // ** TODO : isStandard : false 보내는거 맞는지
+          client: getCompanyInfoValues('name'), // ** TODO : client name보내는거 맞는지
+          serviceType: data?.serviceType.map(value => value.value),
+          catBasis: data?.catBasis.value,
+          category: data?.category.value,
+          currency: data?.currency.value,
+          roundingProcedure: data?.roundingProcedure.value,
+          languagePair: [],
+          priceUnit: [],
+        }
+
+        //@ts-ignore
+        setPriceList(priceList.concat(formData))
+        // const obj: AddNewPriceType = {
+        //   isStandard: false,
+        //   priceName: data?.priceName!,
+        //   category: data?.category.value!,
+        //   serviceType: data?.serviceType.map(value => value.value)!,
+        //   currency: data?.currency.value!,
+        //   catBasis: data?.catBasis.value!,
+        //   decimalPlace: data?.decimalPlace!,
+        //   roundingProcedure: data?.roundingProcedure.value!,
+        //   memoForPrice: data?.memoForPrice!,
+        // }
+        // ** TODO : mutation
+        // addNewPriceMutation.mutate(obj)
+      }
+      closeModal(`${selectedModalType}PriceModal`)
+    }
+  }
+
+  const onSavePriceClick = (data: AddPriceType, modalType: string) => {
+    openModal({
+      type: `${modalType}Price${
+        modalType === 'Edit' ? 'Cancel' : 'Discard'
+      }Modal`,
+      children: (
+        <PriceActionModal
+          onClose={() =>
+            closeModal(
+              `${modalType}Price${
+                modalType === 'Edit' ? 'Cancel' : 'Discard'
+              }Modal`,
+            )
+          }
+          priceData={data!}
+          type={modalType === 'Add' ? 'Add' : 'Save'}
+          onClickAction={onSubmitPrice}
+        />
+      ),
+    })
+  }
+
+  function onPriceUnitSubmit(
+    data: Array<
+      Omit<PriceUnitListType, 'priceId'> & {
+        priceId: string
+        id: number
+      }
+    >,
+  ) {
+    //@ts-ignore
+    setSelectedPrice({
+      ...selectedPrice,
+      priceUnit: selectedPrice?.priceUnit.concat(data)!,
+    })
+  }
+
+  const onSetPriceUnitClick = () => {
+    openModal({
+      type: 'setPriceUnitModal',
+      children: (
+        <SetPriceUnitModal
+          onSubmit={onPriceUnitSubmit}
+          onClose={() => closeModal('setPriceUnitModal')}
+          currency={selectedPrice?.currency!}
+          priceUnit={priceUnit?.data!}
+          price={selectedPrice!}
+          priceUnitPair={selectedPrice?.priceUnit!}
+        />
+      ),
+    })
+  }
+
+  const onLanguageListClick = (params: GridCellParams) => {
+    if (
+      params.row !== selectedLanguagePair &&
+      selectedPrice?.priceUnit.length
+    ) {
+      setSelectedLanguagePair(params.row)
+      setSelectedPrice({
+        ...selectedPrice,
+        priceUnit: selectedPrice?.priceUnit.map(item => ({
+          ...item,
+          price: item.price ? params.row.priceFactor * item.price : 0,
+        })),
+      })
+    }
+  }
+
+  const onAddLanguagePair = () => {
+    openModal({
+      type: 'addNewLanguagePairModal',
+      children: (
+        <AddNewLanguagePairModal
+          onClose={() => closeModal('addNewLanguagePairModal')}
+          currency={selectedPrice?.currency!}
+          onSubmit={onLanguagePairsSubmit}
+        />
+      ),
+    })
+  }
+
+  function onEditLanguagePair(data: LanguagePairListType) {
+    if (selectedPrice) {
+      const idx = selectedPrice.languagePair
+        .map(item => item.id)
+        .indexOf(data.id)
+      if (idx !== -1) {
+        const newLanguagePair = [...selectedPrice.languagePair]
+        newLanguagePair[idx] = data
+        setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
+      }
+    }
+  }
+
+  function onLanguagePairsSubmit(data: AddNewLanguagePair) {
+    const langData = data.pair.map(item => ({
+      ...item,
+      currency: selectedPrice?.currency,
+    }))
+    setSelectedPrice({
+      ...selectedPrice,
+      //@ts-ignore
+      languagePair: selectedPrice?.languagePair.concat(langData),
+    })
+  }
 
   return (
     <Grid container spacing={6}>
@@ -218,12 +439,25 @@ export default function AddNewClient() {
               isValid={isContactPersonValid}
               watch={watchContactPerson}
               handleSubmit={submitContactPerson}
-              onNextStep={handleBack}
+              onNextStep={onNextStep}
               handleBack={handleBack}
             />
           </Card>
         ) : (
-          <Card>여기여기</Card>
+          <Card sx={{ padding: '24px' }}>
+            <ClientPrices
+              priceList={priceList}
+              onAddPrice={onAddPrice}
+              onDeletePrice={onDeletePrice}
+              onEditPrice={onEditPrice}
+              selectedPrice={selectedPrice}
+              setSelectedPrice={setSelectedPrice}
+              onSetPriceUnitClick={onSetPriceUnitClick}
+              onLanguageListClick={onLanguageListClick}
+              onAddLanguagePair={onAddLanguagePair}
+              onEditLanguagePair={onEditLanguagePair}
+            />
+          </Card>
         )}
       </Grid>
     </Grid>

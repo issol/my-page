@@ -1,47 +1,25 @@
-import { yupResolver } from '@hookform/resolvers/yup'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
-import { v4 as uuidv4 } from 'uuid'
 import {
   DataGrid,
-  GridActionsCellItem,
-  GridCellModes,
-  GridCellModesModel,
   GridCellParams,
   GridColumns,
-  GridEditRowsModel,
   GridEventListener,
-  GridRowClassNameParams,
-  GridRowId,
-  GridRowModel,
-  GridRowModes,
-  GridRowModesModel,
-  GridRowParams,
   MuiEvent,
 } from '@mui/x-data-grid'
 import languageHelper from '@src/shared/helpers/language.helper'
-import AddIcon from '@mui/icons-material/Add'
-import EditIcon from '@mui/icons-material/Edit'
-import DeleteIcon from '@mui/icons-material/DeleteOutlined'
-import SaveIcon from '@mui/icons-material/Save'
-import CancelIcon from '@mui/icons-material/Close'
 import { LanguagePairListType } from '@src/types/common/standard-price'
 
-import {
-  Dispatch,
-  SetStateAction,
-  useCallback,
-  useState,
-  FocusEvent,
-  useMemo,
-} from 'react'
+import { Dispatch, SetStateAction, useCallback, useState } from 'react'
 
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
-import LanguagePairActionModal from '../../standard-prices-modal/modal/language-pair-action-modal'
+import LanguagePairActionModal from '../standard-prices-modal/modal/language-pair-action-modal'
+
+import styled from 'styled-components'
 
 type Props = {
   list: LanguagePairListType[]
@@ -55,7 +33,8 @@ type Props = {
     params: GridCellParams,
     event: MuiEvent<React.MouseEvent>,
   ) => void
-  onClickAddNewLanguagePair: () => void
+  onAddLanguagePair: () => void
+  onEditLanguagePair: (data: LanguagePairListType) => void
   existPriceUnit: boolean
 }
 
@@ -68,18 +47,15 @@ const LanguagePair = ({
   listPageSize,
   setListPageSize,
   onCellClick,
-  onClickAddNewLanguagePair,
+  onAddLanguagePair,
+  onEditLanguagePair,
   existPriceUnit,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const [isEditingLanguagePair, setIsEditingLanguagePair] = useState(false)
-
-  const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({})
 
   const getCellClassName = (
     params: GridCellParams<any, LanguagePairListType, any>,
   ) => {
-    // console.log(params)
     const isEditMode = params.cellMode === 'edit'
     return isEditMode
       ? 'edit-row'
@@ -88,43 +64,28 @@ const LanguagePair = ({
       : ''
   }
 
-  const [editRowsModel, setEditRowsModel] = useState<GridEditRowsModel>({})
-
-  const handleEditRowModelChange = useCallback((model: GridEditRowsModel) => {
-    setEditRowsModel(model)
-  }, [])
+  const [rowToEdit, setRowToEdit] = useState<LanguagePairListType | null>(null)
 
   const handleSave = useCallback(() => {
     // Save the changes to your data store here
-    console.log(editRowsModel)
-    setIsEditingLanguagePair(false)
-    setEditRowsModel({})
-  }, [editRowsModel])
+    onEditLanguagePair(rowToEdit!)
+    setRowToEdit(null)
+  }, [rowToEdit])
 
   const handleDelete = (id: number) => {
     console.log(`${id} deleted`)
   }
 
   const handleEditCancel = () => {
-    setEditRowsModel({})
-    setIsEditingLanguagePair(false)
+    setRowToEdit(null)
   }
 
-  const onClickEditLanguagePair = () => {
-    setIsEditingLanguagePair(true)
+  const onClickEditLanguagePair = (row: LanguagePairListType) => {
+    setRowToEdit(row)
   }
 
   const onClickCancelEditLanguagePair = () => {
-    openModal({
-      type: 'editCancelLanguagePairModal',
-      children: (
-        <LanguagePairActionModal
-          type='Cancel'
-          onClose={() => closeModal('editCancelLanguagePairModal')}
-          onClickAction={() => handleEditCancel()}
-        />
-      ),
-    })
+    handleEditCancel()
   }
 
   const onClickSaveEditLanguagePair = () => {
@@ -205,21 +166,37 @@ const LanguagePair = ({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      editable: isEditingLanguagePair,
       renderHeader: () => <Box>Price factor</Box>,
-      renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>
-          {row.currency === 'USD' || row.currency === 'SGD'
-            ? '$'
-            : row.currency === 'KRW'
-            ? '₩'
-            : row.currency === 'JPY'
-            ? '¥'
-            : '-'}
-          &nbsp;
-          {row.priceFactor}
-        </Box>
-      ),
+      renderCell: ({ row }: { row: LanguagePairListType }) => {
+        return (
+          <>
+            {!!rowToEdit && rowToEdit.id === row.id ? (
+              <SmallInput
+                type='number'
+                value={rowToEdit.priceFactor}
+                onChange={e =>
+                  setRowToEdit({
+                    ...rowToEdit,
+                    priceFactor: Number(e.currentTarget.value),
+                  })
+                }
+              />
+            ) : (
+              <Box>
+                {row.currency === 'USD' || row.currency === 'SGD'
+                  ? '$'
+                  : row.currency === 'KRW'
+                  ? '₩'
+                  : row.currency === 'JPY'
+                  ? '¥'
+                  : '-'}
+                &nbsp;
+                {row.priceFactor}
+              </Box>
+            )}
+          </>
+        )
+      },
     },
     {
       flex: 0.172,
@@ -229,19 +206,35 @@ const LanguagePair = ({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      editable: isEditingLanguagePair,
       renderHeader: () => <Box>Min. price</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>
-          {row.currency === 'USD' || row.currency === 'SGD'
-            ? '$'
-            : row.currency === 'KRW'
-            ? '₩'
-            : row.currency === 'JPY'
-            ? '¥'
-            : '-'}
-          &nbsp;{row.minimumPrice}
-        </Box>
+        <>
+          {!!rowToEdit && rowToEdit.id === row.id ? (
+            <SmallInput
+              type='number'
+              value={rowToEdit.minimumPrice ?? ''}
+              onChange={e =>
+                setRowToEdit({
+                  ...rowToEdit,
+                  minimumPrice: Number(e.currentTarget.value),
+                })
+              }
+            />
+          ) : !row.minimumPrice ? (
+            '-'
+          ) : (
+            <Box>
+              {row.currency === 'USD' || row.currency === 'SGD'
+                ? '$'
+                : row.currency === 'KRW'
+                ? '₩'
+                : row.currency === 'JPY'
+                ? '¥'
+                : '-'}
+              &nbsp;{row.minimumPrice}
+            </Box>
+          )}
+        </>
       ),
     },
     {
@@ -259,7 +252,7 @@ const LanguagePair = ({
       renderCell: ({ row }: { row: LanguagePairListType }) => {
         return (
           <Box>
-            {isEditingLanguagePair ? (
+            {!!rowToEdit ? (
               <Box sx={{ display: 'flex', gap: '5px' }}>
                 <Button
                   sx={{
@@ -270,6 +263,7 @@ const LanguagePair = ({
                     border: 'none',
                     outline: 'none',
                   }}
+                  type='button'
                   onClick={onClickCancelEditLanguagePair}
                 >
                   <img
@@ -297,7 +291,7 @@ const LanguagePair = ({
             ) : (
               <Box sx={{ display: 'flex', gap: '5px' }}>
                 <IconButton
-                  onClick={onClickEditLanguagePair}
+                  onClick={() => onClickEditLanguagePair(row)}
                   size='small'
                   sx={{ padding: 0 }}
                 >
@@ -343,7 +337,7 @@ const LanguagePair = ({
           variant='contained'
           disabled={!existPriceUnit}
           size='small'
-          onClick={onClickAddNewLanguagePair}
+          onClick={onAddLanguagePair}
         >
           Add new pair
         </Button>
@@ -412,33 +406,19 @@ const LanguagePair = ({
           editMode='row'
           rows={list ?? []}
           autoHeight
-          // disableSelectionOnClick
           hideFooterSelectedRowCount
-          paginationMode='server'
           pageSize={listPageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
           page={listPage}
           rowCount={listCount ?? 0}
           onCellClick={onCellClick}
-          editRowsModel={editRowsModel}
-          onEditRowsModelChange={handleEditRowModelChange}
           onCellKeyDown={handleCellKeyDown}
           onCellFocusOut={(params, event) => (event.defaultMuiPrevented = true)}
           getCellClassName={getCellClassName}
-          // cellModesModel={cellModesModel}
-          // onCellModesModelChange={model => setCellModesModel(model)}
           onPageChange={(newPage: number) => {
-            // setFilters((prevState: OnboardingFilterType) => ({
-            //   ...prevState,
-            //   skip: newPage * onboardingListPageSize,
-            // }))
             setListPage(newPage)
           }}
           onPageSizeChange={(newPageSize: number) => {
-            // setFilters((prevState: OnboardingFilterType) => ({
-            //   ...prevState,
-            //   take: newPageSize,
-            // }))
             setListPageSize(newPageSize)
           }}
         />
@@ -448,3 +428,22 @@ const LanguagePair = ({
 }
 
 export default LanguagePair
+
+const SmallInput = styled.input`
+  max-width: 80px;
+  padding: 4px;
+  background: transparent;
+  border: 1px solid rgba(76, 78, 100, 0.22);
+  border-radius: 5px;
+  /* Chrome, Safari, Edge, Opera */
+  &::-webkit-inner-spin-button,
+  &::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+  }
+
+  /* Firefox */
+  &[type='number'] {
+    -moz-appearance: textfield;
+  }
+`

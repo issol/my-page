@@ -25,7 +25,7 @@ export type LanguagePairListType = {
 export interface PriceUnitListType {
   id: number
   priceUnitId: number
-  parentPriceUnitId: number | null
+  parentPriceUnitId?: number | null
   isBase: boolean
   title: string
   unit: string
@@ -33,10 +33,10 @@ export interface PriceUnitListType {
   quantity: number | null
   price: number
 
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 
-  deletedAt: string | null
+  deletedAt?: string | null
 }
 
 export interface PriceUnitListWithHeaders extends PriceUnitListType {
