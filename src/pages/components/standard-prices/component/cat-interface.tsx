@@ -50,19 +50,6 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   ) => {
     setAlignment(newAlignment)
   }
-  function getKeyByValue<T extends { [key: string]: string }>(
-    object: T,
-    value: string,
-  ): keyof T | undefined {
-    return Object.keys(object).find(key => object[key] === value) as
-      | keyof T
-      | undefined
-  }
-
-  const rounding = getKeyByValue(
-    PriceRoundingResponseEnum,
-    priceData.roundingProcedure,
-  )
 
   const [name, setName] = useState<number>(1)
 
@@ -82,13 +69,17 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
     setIsEditingCatInterface(false)
   }
 
+  useEffect(() => {
+    console.log(priceData)
+  }, [priceData])
+
   const onClickRangeChip = (
-    data: { value: string; selected: boolean },
+    data: { title: string; selected: boolean },
     value: PriceUnitListWithHeaders,
   ) => {
     setHeaders(prevHeaders => {
       const updatedHeaders = prevHeaders.map(obj => {
-        if (obj.value === data.value) {
+        if (obj.value === data.title) {
           return {
             ...obj,
             selected: !obj.selected,
@@ -100,47 +91,81 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
       return updatedHeaders
     })
 
-    setPriceUnitListWithHeaders(prevState => {
-      const concatPrev = prevState
-      const res = prevState.find(data => data.id === value.id)
-      const resIndex = prevState.findIndex(data => data.id === value.id)
-      if (res) {
-        const updatedHeaders = res.headers.map(obj => {
-          if (obj.value === data.value) {
-            return {
-              ...obj,
-              selected: !obj.selected,
-              tmpSelected: !obj.selected, // 선택된 상태를 반전시킴
-            }
-          }
-          return obj
-        })
-        res['headers'] = updatedHeaders
-        concatPrev[resIndex] = res
+    // setPriceUnitListWithHeaders(prevState => {
+    //   const concatPrev = prevState
+    //   const res = prevState.find(data => data.id === value.id)
+    //   const resIndex = prevState.findIndex(data => data.id === value.id)
+    //   if (res) {
+    //     const updatedHeaders = res.headers.map(obj => {
+    //       if (obj.value === data.value) {
+    //         return {
+    //           ...obj,
+    //           selected: !obj.selected,
+    //           tmpSelected: !obj.selected, // 선택된 상태를 반전시킴
+    //         }
+    //       }
+    //       return obj
+    //     })
+    //     res['headers'] = updatedHeaders
+    //     concatPrev[resIndex] = res
 
-        return concatPrev
-      } else {
-        return prevState
-      }
-    })
+    //     return concatPrev
+    //   } else {
+    //     return prevState
+    //   }
+    // })
   }
 
+  // id: number
+  // priceUnitId: number
+  // parentPriceUnitId?: number | null
+  // isBase: boolean
+  // title: string
+  // unit: string
+  // weighting: number | null
+  // quantity: number | null
+  // price: number
+
   useEffect(() => {
-    if (!isLoading && catInterface && priceUnitList) {
+    if (!isLoading && catInterface && priceUnitList && priceData) {
+      // if(priceData.)
+      /* @ts-ignore */
+      if (priceData.catInterface) {
+        if (priceData.catInterface.memSource) {
+          const res: PriceUnitListWithHeaders[] =
+            priceData.catInterface.memSource.map(value => ({
+              id: value.id,
+              title: value.priceUnitTitle,
+              quantity: value.priceUnitQuantity,
+              price: value.priceUnitPrice,
+              unit: value.priceUnitUnit,
+              chips: value.chips.map(value => ({
+                title: value.title,
+                selected: value.selected,
+                tmpSelected: false,
+              })),
+            }))
+          setPriceUnitListWithHeaders(res)
+        }
+      }
       const formattedHeader = catInterface.headers.map(value => ({
-        value: value,
+        title: value,
         selected: false,
         tmpSelected: false,
       }))
-      setHeaders(formattedHeader)
+      // setHeaders(formattedHeader)
       const withHeaders = priceUnitList.map(value => ({
-        ...value,
-        headers: formattedHeader,
+        id: value.id,
+        title: value.title,
+        quantity: value.quantity!,
+        price: value.price,
+        unit: value.unit,
+        chips: formattedHeader,
       }))
 
       setPriceUnitListWithHeaders(withHeaders)
     }
-  }, [catInterface, isLoading, priceUnitList])
+  }, [catInterface, isLoading, priceUnitList, priceData])
 
   return (
     <Card
@@ -265,10 +290,10 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-                  {value.headers.map(data => {
+                  {value.chips.map(data => {
                     return (
                       <CatInterfaceChip
-                        label={data.value}
+                        label={data.title}
                         size='medium'
                         clickable={isEditingCatInterface}
                         status={data.selected}
