@@ -243,8 +243,9 @@ export default function AddNewClient() {
         const formData = {
           ...data,
           id: Math.random(),
-          isStandard: false, // ** TODO : isStandard : false 보내는거 맞는지
-          client: getCompanyInfoValues('name'), // ** TODO : client name보내는거 맞는지
+          isStandard: false,
+          // clientId: client관련 ID를 보내주기
+          //
           serviceType: data?.serviceType.map(value => value.value),
           catBasis: data?.catBasis.value,
           category: data?.category.value,
@@ -253,7 +254,6 @@ export default function AddNewClient() {
           languagePair: [],
           priceUnit: [],
         }
-
         //@ts-ignore
         setPriceList(priceList.concat(formData))
         // const obj: AddNewPriceType = {
@@ -328,18 +328,8 @@ export default function AddNewClient() {
   }
 
   const onLanguageListClick = (params: GridCellParams) => {
-    if (
-      params.row !== selectedLanguagePair &&
-      selectedPrice?.priceUnit.length
-    ) {
+    if (selectedPrice?.priceUnit.length) {
       setSelectedLanguagePair(params.row)
-      setSelectedPrice({
-        ...selectedPrice,
-        priceUnit: selectedPrice?.priceUnit.map(item => ({
-          ...item,
-          price: item.price ? params.row.priceFactor * item.price : 0,
-        })),
-      })
     }
   }
 
@@ -366,6 +356,15 @@ export default function AddNewClient() {
         newLanguagePair[idx] = data
         setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
       }
+    }
+  }
+
+  function onDeleteLanguagePair(id: any) {
+    if (selectedPrice) {
+      const newLanguagePair = selectedPrice.languagePair.filter(
+        item => item.id !== id,
+      )
+      setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
     }
   }
 
@@ -453,9 +452,11 @@ export default function AddNewClient() {
               selectedPrice={selectedPrice}
               setSelectedPrice={setSelectedPrice}
               onSetPriceUnitClick={onSetPriceUnitClick}
+              selectedLanguagePair={selectedLanguagePair}
               onLanguageListClick={onLanguageListClick}
               onAddLanguagePair={onAddLanguagePair}
               onEditLanguagePair={onEditLanguagePair}
+              onDeleteLanguagePair={onDeleteLanguagePair}
             />
           </Card>
         )}

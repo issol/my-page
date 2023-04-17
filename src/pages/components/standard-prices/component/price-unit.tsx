@@ -6,6 +6,7 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { PriceUnitType } from '@src/apis/price-units.api'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
+  LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
@@ -14,6 +15,7 @@ type Props = {
   list: PriceUnitListType[]
   listCount: number
   isLoading: boolean
+  selectedLanguagePair: LanguagePairListType | null
   priceData: StandardPriceListType
   onClickSetPriceUnit: () => void
 }
@@ -22,6 +24,7 @@ const PriceUnit = ({
   list,
   listCount,
   isLoading,
+  selectedLanguagePair,
   priceData,
   onClickSetPriceUnit,
 }: Props) => {
@@ -38,6 +41,13 @@ const PriceUnit = ({
     PriceRoundingResponseEnum,
     priceData.roundingProcedure,
   )
+
+  function getPrice(price: number) {
+    if (selectedLanguagePair?.priceFactor) {
+      return price * selectedLanguagePair.priceFactor
+    }
+    return price
+  }
 
   const columns: GridColumns<PriceUnitListType> = [
     {
@@ -85,8 +95,8 @@ const PriceUnit = ({
               : '-'}
             &nbsp;
             {rounding === 'Type_0'
-              ? row.price.toFixed(priceData.decimalPlace)
-              : row.price}
+              ? getPrice(row.price).toFixed(priceData.decimalPlace)
+              : getPrice(row.price)}
           </Box>
         )
       },

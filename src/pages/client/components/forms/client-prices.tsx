@@ -20,7 +20,6 @@ import {
 } from '@src/types/common/standard-price'
 
 // ** fetches
-import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
 
 type Props = {
@@ -31,12 +30,14 @@ type Props = {
   selectedPrice: StandardPriceListType | null
   setSelectedPrice: Dispatch<SetStateAction<StandardPriceListType | null>>
   onSetPriceUnitClick: () => void
+  selectedLanguagePair: LanguagePairListType | null
   onLanguageListClick: (
     params: GridCellParams,
     event: MuiEvent<React.MouseEvent>,
   ) => void
   onAddLanguagePair: () => void
   onEditLanguagePair: (data: LanguagePairListType) => void
+  onDeleteLanguagePair: (id: any) => void
 }
 
 export default function ClientPrices({
@@ -46,10 +47,12 @@ export default function ClientPrices({
   onDeletePrice,
   selectedPrice,
   setSelectedPrice,
+  onSetPriceUnitClick,
+  selectedLanguagePair,
   onLanguageListClick,
   onAddLanguagePair,
-  onSetPriceUnitClick,
   onEditLanguagePair,
+  onDeleteLanguagePair,
 }: Props) {
   const [priceListSkip, setPriceListSkip] = useState(0)
   const [priceListPageSize, setPriceListPageSize] = useState(10)
@@ -97,6 +100,7 @@ export default function ClientPrices({
                   onCellClick={onLanguageListClick}
                   onAddLanguagePair={onAddLanguagePair}
                   onEditLanguagePair={onEditLanguagePair}
+                  onDeleteLanguagePair={onDeleteLanguagePair}
                   existPriceUnit={selectedPrice?.priceUnit?.length > 0}
                 />
                 <Box
@@ -113,6 +117,7 @@ export default function ClientPrices({
                   list={selectedPrice?.priceUnit}
                   listCount={selectedPrice?.priceUnit.length}
                   isLoading={false}
+                  selectedLanguagePair={selectedLanguagePair}
                   priceData={selectedPrice!}
                   onClickSetPriceUnit={onSetPriceUnitClick}
                 />

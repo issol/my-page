@@ -35,6 +35,7 @@ type Props = {
   ) => void
   onAddLanguagePair: () => void
   onEditLanguagePair: (data: LanguagePairListType) => void
+  onDeleteLanguagePair: (id: any) => void
   existPriceUnit: boolean
 }
 
@@ -49,6 +50,7 @@ const LanguagePair = ({
   onCellClick,
   onAddLanguagePair,
   onEditLanguagePair,
+  onDeleteLanguagePair,
   existPriceUnit,
 }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -73,7 +75,7 @@ const LanguagePair = ({
   }, [rowToEdit])
 
   const handleDelete = (id: number) => {
-    console.log(`${id} deleted`)
+    onDeleteLanguagePair(id)
   }
 
   const handleEditCancel = () => {
