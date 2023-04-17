@@ -51,7 +51,6 @@ const ClientPriceList = ({
       setSelected(null)
       setSelectedRow(null)
     } else {
-      console.log(row)
       setSelected(row.id)
       setSelectedRow(row)
     }
