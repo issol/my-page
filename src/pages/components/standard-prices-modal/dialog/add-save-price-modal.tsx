@@ -93,7 +93,7 @@ const AddSavePriceModal = ({
       | keyof T
       | undefined
   }
-
+  console.log(type)
   const {
     control,
     handleSubmit,
@@ -339,6 +339,10 @@ const AddSavePriceModal = ({
 
                         if (item.value === 'KRW' || item.value === 'JPY') {
                           setValue('decimalPlace', 1000)
+                          trigger('decimalPlace')
+                        } else {
+                          setValue('decimalPlace', 2)
+                          trigger('decimalPlace')
                         }
                       }
                     }}

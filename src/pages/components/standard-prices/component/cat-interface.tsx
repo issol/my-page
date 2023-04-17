@@ -22,7 +22,7 @@ import Icon from 'src/@core/components/icon'
 import { ChangeEvent, useState, MouseEvent, useEffect } from 'react'
 import TextField from '@mui/material/TextField'
 import { CatInterfaceChip } from '@src/@core/components/chips/chips'
-import { useGetCatInterface } from '@src/queries/company/standard-price'
+import { useGetCatInterfaceHeaders } from '@src/queries/company/standard-price'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
@@ -32,7 +32,9 @@ type Props = {
 const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   const [alignment, setAlignment] = useState<string>('Memsource')
   const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
-  const { data: catInterface, isLoading } = useGetCatInterface(alignment!)
+  const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
+    alignment!,
+  )
 
   const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<
     PriceUnitListWithHeaders[]

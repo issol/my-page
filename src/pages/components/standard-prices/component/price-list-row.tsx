@@ -48,6 +48,7 @@ export function Row(props: {
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
     setAnchorEl(event.currentTarget)
   }
 
@@ -66,7 +67,9 @@ export function Row(props: {
           cursor: 'pointer',
         }}
         // hover
-        onClick={() => {
+        onClick={event => {
+          event.preventDefault()
+
           handleRowClick(row)
         }}
         selected={isSelected(row.id)}

@@ -18,15 +18,22 @@ import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { Dispatch, SetStateAction, useContext } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
 import useModal from '@src/hooks/useModal'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 type Props = {
   priceData?: AddPriceType
   priceName?: string
+  selectedPriceData?: StandardPriceListType
   type: string
   onClose: any
-  onClickAction: (type: string, data?: AddPriceType) => void
+  onClickAction: (
+    type: string,
+    data?: AddPriceType,
+    selectedData?: StandardPriceListType,
+  ) => void
 }
 export default function PriceActionModal({
   priceData,
+  selectedPriceData,
   type,
   onClose,
   onClickAction,
@@ -143,7 +150,19 @@ export default function PriceActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              onClickAction('Cancel')
+              // onClickAction(
+              //   type === 'Add'
+              //     ? 'Add'
+              //     : type === 'Discard'
+              //     ? 'Discard'
+              //     : type === 'Cancel'
+              //     ? 'Discard'
+              //     : type === 'Save'
+              //     ? 'Save'
+              //     : type === 'Delete'
+              //     ? 'Delete'
+              //     : '',
+              // )
             }}
           >
             Cancel
@@ -155,6 +174,7 @@ export default function PriceActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
+              console.log(type)
               onClickAction(
                 type === 'Add'
                   ? 'Add'
@@ -168,6 +188,7 @@ export default function PriceActionModal({
                   ? 'Delete'
                   : '',
                 type === 'Add' ? priceData : undefined,
+                type === 'Delete' ? selectedPriceData : undefined,
               )
             }}
           >

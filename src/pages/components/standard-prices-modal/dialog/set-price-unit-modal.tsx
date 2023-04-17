@@ -43,9 +43,18 @@ import _ from 'lodash'
 
 import PriceActionModal from '../modal/price-action-modal'
 
-import { useMutation, useQueryClient } from 'react-query'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+} from 'react-query'
 import toast from 'react-hot-toast'
-import { setPriceUnitPair } from '@src/apis/company-price.api'
+import {
+  patchPriceUnitPair,
+  setPriceUnitPair,
+} from '@src/apis/company-price.api'
 
 type Props = {
   onClose: any
@@ -53,6 +62,17 @@ type Props = {
   priceUnit: PriceUnitType[]
   price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        data: StandardPriceListType[]
+        count: number
+      },
+      unknown
+    >
+  >
 }
 
 const SetPriceUnitModal = ({
@@ -61,11 +81,16 @@ const SetPriceUnitModal = ({
   priceUnit,
   price,
   priceUnitPair,
+  refetch,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const queryClient = useQueryClient()
 
   const [priceUnits, setPriceUnits] = useState<PriceUnitType[]>([])
+
+  const [baseUnitPrice, setBaseUnitPrice] = useState<
+    { id: number; price: number }[]
+  >([])
   const [priceUnitOptions, setPriceUnitOptions] =
     useState<PriceUnitType[]>(priceUnit)
   const [selectedPriceUnits, setSelectedPriceUnits] = useState<PriceUnitType[]>(
@@ -82,6 +107,8 @@ const SetPriceUnitModal = ({
     reset,
     watch,
     trigger,
+    setValue,
+    setError,
     getValues,
     formState: { errors, dirtyFields },
   } = useForm<SetPriceUnit>({
@@ -99,10 +126,21 @@ const SetPriceUnitModal = ({
     control,
     name: 'pair',
   })
+
+  const calculateRoundedRatio = (total: number, value: number) => {
+    const ratio = (value / total) * 100
+    const roundedRatio = ratio.toFixed(5)
+    return Number(roundedRatio)
+  }
+
   const setPriceUnitMutation = useMutation(
-    (data: SetPriceUnitPair[]) => setPriceUnitPair(data),
+    (value: { data: SetPriceUnitPair[]; type: string }) =>
+      value.type === 'Save'
+        ? setPriceUnitPair(value.data)
+        : patchPriceUnitPair(value.data),
     {
       onSuccess: data => {
+        refetch()
         queryClient.invalidateQueries('standard-client-prices')
 
         toast.success(`Success`, {
@@ -116,12 +154,15 @@ const SetPriceUnitModal = ({
       },
     },
   )
+
   const onClickAction = (type: string, data?: SetPriceUnitPair[]) => {
-    if (type === 'Discard' || type === 'Cancel') {
+    console.log(type)
+    if (type === 'Discard') {
       closeModal('setPriceUnitModal')
-    } else if (type === 'Save') {
-      setPriceUnitMutation.mutate(data!)
+    } else if (type === 'Save' || type === 'EditSave') {
       closeModal('setPriceUnitModal')
+      setPriceUnitMutation.mutate({ data: data!, type: type })
+    } else if (type === 'Cancel') {
     }
   }
 
@@ -133,34 +174,38 @@ const SetPriceUnitModal = ({
         typeof value.quantity === 'string' && value.quantity === '-'
           ? null
           : typeof value.quantity === 'string' && value.quantity !== '-'
-          ? parseFloat(value.quantity)
-          : typeof value.quantity === 'number'
           ? value.quantity
+          : typeof value.quantity === 'number'
+          ? value.quantity.toString()
           : null,
       price:
         typeof value.price === 'string' && value.price === '-'
           ? null
           : typeof value.price === 'string' && value.price !== '-'
-          ? parseFloat(value.price)
-          : typeof value.price === 'number'
           ? value.price
+          : typeof value.price === 'number'
+          ? value.price.toString()
           : null,
       weighting:
         typeof value.weighting === 'string' && value.weighting === '-'
           ? null
           : typeof value.weighting === 'string' && value.weighting !== '-'
-          ? parseFloat(value.weighting)
-          : typeof value.weighting === 'number'
           ? value.weighting
+          : typeof value.weighting === 'number'
+          ? value.weighting.toString()
           : null,
     }))
+
+    console.log(res)
 
     openModal({
       type: 'saveSetPriceUnitModal',
       children: (
         <PriceActionModal
           onClose={() => closeModal('saveSetPriceUnitModal')}
-          onClickAction={() => onClickAction('Save', res)}
+          onClickAction={() =>
+            onClickAction(priceUnitPair.length ? 'EditSave' : 'Save', res)
+          }
           type='Save'
         />
       ),
@@ -168,8 +213,6 @@ const SetPriceUnitModal = ({
   }
 
   const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
-    // const res = selectedPriceUnits.filter(value => value.id !== item.unitId)
-    // setSelectedPriceUnits(res)
     const idx = pairFields.map(item => item.unitId).indexOf(item.unitId)
     idx !== -1 && remove(idx)
 
@@ -197,17 +240,24 @@ const SetPriceUnitModal = ({
         weighting: value.weighting ?? '-',
         title: value.title,
         isBase: value.parentPriceUnitId === null,
+        parentPriceUnitId: value.parentPriceUnitId,
+        subPriceUnits: value.subPriceUnits,
         unit: value.unit,
       })
+      if (value.parentPriceUnitId === null) {
+        setBaseUnitPrice([{ id: value.id, price: 1.0 }])
+      }
+
       if (value.subPriceUnits) {
         value.subPriceUnits.map(value => {
           append({
             unitId: value.id,
             quantity: value.unit === 'Percent' ? '-' : 1,
-            price: (1.0).toFixed(1),
+            price: (1.0 * value.weighting) / 100,
             weighting: value.weighting ?? '-',
             title: value.title,
             isBase: value.parentPriceUnitId === null,
+            parentPriceUnitId: value.parentPriceUnitId,
             unit: value.unit,
           })
         })
@@ -248,6 +298,7 @@ const SetPriceUnitModal = ({
         weighting: value.weighting ?? '-',
         title: value.title,
         isBase: value.parentPriceUnitId === null,
+        parentPriceUnitId: value.parentPriceUnitId,
         unit: value.unit,
       })
     })
@@ -258,6 +309,10 @@ const SetPriceUnitModal = ({
     )
     setPriceUnitOptions(newArr)
   }, [priceUnitPair])
+
+  useEffect(() => {
+    console.log(errors)
+  }, [errors])
 
   return (
     <Dialog
@@ -457,7 +512,83 @@ const SetPriceUnitModal = ({
                                         '',
                                       )
                                       .slice(0, 10)
+                                    if (data.isBase) {
+                                      const res = data.subPriceUnits?.map(
+                                        value => value.id,
+                                      )
+                                      const subUnitIds = res?.map(value => {
+                                        return {
+                                          index: pairFields.findIndex(
+                                            data => data.unitId === value,
+                                          ),
+                                          weighting: pairFields.find(
+                                            data => data.unitId === value,
+                                          )?.weighting,
+                                        }
+                                      })
+
+                                      subUnitIds?.map(value => {
+                                        setValue(
+                                          `pair.${value.index}.price`,
+                                          value.weighting === null ||
+                                            value.weighting === '-'
+                                            ? Number(e.target.value) / 100
+                                            : Number(
+                                                (
+                                                  (Number(e.target.value) *
+                                                    Number(value.weighting)) /
+                                                  100
+                                                )
+                                                  .toString()
+                                                  .slice(0, 10),
+                                              ),
+                                        )
+                                        trigger(`pair.${value.index}.price`)
+                                      })
+
+                                      setBaseUnitPrice(prevState => {
+                                        const existingId = prevState.map(
+                                          value => value.id,
+                                        )
+                                        if (
+                                          !existingId.includes(data.unitId!)
+                                        ) {
+                                          return [
+                                            ...prevState,
+                                            {
+                                              id: data.unitId!,
+                                              price: Number(e.target.value),
+                                            },
+                                          ]
+                                        } else {
+                                          return [
+                                            {
+                                              id: data.unitId!,
+                                              price: Number(e.target.value),
+                                            },
+                                          ]
+                                        }
+                                      })
+                                    } else {
+                                      const price = baseUnitPrice.find(
+                                        value =>
+                                          value.id === data.parentPriceUnitId,
+                                      )?.price
+
+                                      if (!isNaN(Number(e.target.value))) {
+                                        setValue(
+                                          `pair.${idx}.weighting`,
+                                          calculateRoundedRatio(
+                                            price!,
+                                            Number(e.target.value),
+                                          ),
+                                        )
+
+                                        trigger(`pair.${idx}.weighting`)
+                                      }
+                                    }
                                     e.target.value = filteredValue
+
                                     onChange(e.target.value)
                                   }
                                 }}
@@ -529,6 +660,27 @@ const SetPriceUnitModal = ({
                                       .slice(0, 10)
                                     e.target.value = filteredValue
                                     onChange(e.target.value)
+
+                                    const price = baseUnitPrice.find(
+                                      value =>
+                                        value.id === data.parentPriceUnitId,
+                                    )?.price
+
+                                    if (!isNaN(Number(e.target.value))) {
+                                      setValue(
+                                        `pair.${idx}.price`,
+                                        Number(
+                                          (
+                                            price! *
+                                            (Number(e.target.value) / 100)
+                                          )
+                                            .toString()
+                                            .slice(0, 10),
+                                        ),
+                                      )
+
+                                      trigger(`pair.${idx}.price`)
+                                    }
                                   }
                                 }}
                                 error={
@@ -612,17 +764,29 @@ const SetPriceUnitModal = ({
             >
               Cancel
             </Button>
-            <Button
-              variant='contained'
-              type='submit'
-              disabled={
-                pairFields.some(item => {
+            {priceUnitPair.length ? (
+              <Button
+                variant='contained'
+                type='submit'
+                disabled={pairFields.some(item => {
                   return !item.weighting || !item.quantity || !item.price
-                }) || pairFields.length === 0
-              }
-            >
-              Save
-            </Button>
+                })}
+              >
+                Save
+              </Button>
+            ) : (
+              <Button
+                variant='contained'
+                type='submit'
+                disabled={
+                  pairFields.some(item => {
+                    return !item.weighting || !item.quantity || !item.price
+                  }) || pairFields.length === 0
+                }
+              >
+                Save
+              </Button>
+            )}
           </Box>
         </form>
       </DialogContent>

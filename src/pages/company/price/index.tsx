@@ -20,7 +20,7 @@ import PriceUnits from '../components/price/price-units'
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
-  const { data: standardPrices, isLoading } = useGetStandardPrices()
+  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
     '& .MuiTabs-indicator': {
@@ -72,6 +72,7 @@ export default function Price() {
         <StandardPrices
           standardPrices={standardPrices!}
           isLoading={isLoading}
+          refetch={refetch}
         />
       </TabPanel>
       <TabPanel value='2'>
