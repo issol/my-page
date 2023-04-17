@@ -32,18 +32,39 @@ import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import CatInterface from './component/cat-interface'
 
 import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
-import { useMutation, useQueryClient } from 'react-query'
-import { createPrice } from '@src/apis/company-price.api'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+} from 'react-query'
+import {
+  createPrice,
+  deletePrice,
+  patchPrice,
+} from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
 
 type Props = {
   standardPrices: { data: StandardPriceListType[]; count: number }
   isLoading: boolean
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        data: StandardPriceListType[]
+        count: number
+      },
+      unknown
+    >
+  >
 }
 
-const StandardPrices = ({ standardPrices, isLoading }: Props) => {
+const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
   const queryClient = useQueryClient()
-  const { data: priceUnit, refetch } = useGetPriceUnitList({
+  const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
     take: 1000,
   })
@@ -67,6 +88,22 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
 
   const [selectedModalType, setSelectedModalType] = useState('')
 
+  const [selected, setSelected] = useState<number | null>(null)
+
+  const handleRowClick = (row: StandardPriceListType) => {
+    if (row.id === selected) {
+      setSelected(null)
+      setSelectedPriceData(null)
+    } else {
+      setSelected(row.id)
+      setSelectedPriceData(row)
+    }
+  }
+
+  const isSelected = (index: number) => {
+    return index === selected
+  }
+
   const { openModal, closeModal } = useModal()
 
   const addNewPriceMutation = useMutation(
@@ -86,8 +123,48 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
       },
     },
   )
-  const onClickAction = (type: string, data?: AddPriceType) => {
-    if (type === 'Add' || type === 'Discard') {
+
+  const patchPriceMutation = useMutation(
+    (value: { data: AddNewPriceType; id: number }) =>
+      patchPrice(value.data, value.id),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  const deletePriceMutation = useMutation((id: number) => deletePrice(id), {
+    onSuccess: data => {
+      queryClient.invalidateQueries('standard-client-prices')
+
+      toast.success(`Success`, {
+        position: 'bottom-left',
+      })
+    },
+    onError: error => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+  const onClickAction = (
+    type: string,
+    data?: AddPriceType,
+    selectedData?: StandardPriceListType,
+  ) => {
+    console.log(type)
+
+    if (type === 'Add' || type === 'Cancel') {
       if (type === 'Add') {
         const obj: AddNewPriceType = {
           isStandard: true,
@@ -103,20 +180,32 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
         addNewPriceMutation.mutate(obj)
       }
       closeModal(`${selectedModalType}PriceModal`)
+    } else if (type === 'Delete') {
+      deletePriceMutation.mutate(selectedData?.id!)
+    } else if (type === 'Save') {
+      const obj: AddNewPriceType = {
+        isStandard: true,
+        priceName: data?.priceName!,
+        category: data?.category.value!,
+        serviceType: data?.serviceType.map(value => value.value)!,
+        currency: data?.currency.value!,
+        catBasis: data?.catBasis.value!,
+        decimalPlace: data?.decimalPlace!,
+        roundingProcedure: data?.roundingProcedure.value!,
+        memoForPrice: data?.memoForPrice!,
+      }
+      patchPriceMutation.mutate({ data: obj, id: selectedPriceData?.id! })
+      closeModal(`${selectedModalType}PriceModal`)
     }
   }
   const onSubmit = (data: AddPriceType, modalType: string) => {
     openModal({
-      type: `${modalType}Price${
-        modalType === 'Edit' ? 'Cancel' : 'Discard'
-      }Modal`,
+      type: `${modalType}Price${modalType === 'Edit' ? 'Save' : 'Add'}Modal`,
       children: (
         <PriceActionModal
           onClose={() =>
             closeModal(
-              `${modalType}Price${
-                modalType === 'Edit' ? 'Cancel' : 'Discard'
-              }Modal`,
+              `${modalType}Price${modalType === 'Edit' ? 'Save' : 'Add'}Modal`,
             )
           }
           priceData={data!}
@@ -158,6 +247,8 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   const onClickEditPrice = (priceData: StandardPriceListType) => {
     setSelectedPriceData(priceData)
     setSelectedModalType('Edit')
+    console.log(priceData)
+
     openModal({
       type: 'EditPriceModal',
       children: (
@@ -166,7 +257,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           onClose={() => closeModal('EditPriceModal')}
           type={'Edit'}
           onSubmit={onSubmit}
-          selectedPriceData={selectedPriceData!}
+          selectedPriceData={priceData!}
           onClickAction={onClickAction}
         />
       ),
@@ -174,6 +265,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   }
 
   const onClickDeletePrice = (priceData: StandardPriceListType) => {
+    setSelectedPriceData(priceData)
     openModal({
       type: 'DeletePriceModal',
       children: (
@@ -182,6 +274,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           priceName={priceData.priceName}
           type={'Delete'}
           onClickAction={onClickAction}
+          selectedPriceData={priceData!}
         />
       ),
     })
@@ -225,6 +318,7 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           priceUnit={priceUnit?.data!}
           price={selectedPriceData!}
           priceUnitPair={selectedPriceData?.priceUnit!}
+          refetch={refetch}
         />
       ),
     })
@@ -233,12 +327,20 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
   useEffect(() => {
     if (selectedPriceData) {
       setPriceUnitList(selectedPriceData.priceUnit)
+    } else {
+      setPriceUnitList([])
     }
   }, [selectedPriceData])
 
   useEffect(() => {
-    console.log(selectedModalType)
-  }, [selectedModalType])
+    if (selectedPriceData) {
+      const updatedData = standardPrices.data.find(
+        value => value.id === selectedPriceData.id,
+      )
+      setSelectedPriceData(updatedData!)
+      setPriceUnitList(updatedData?.priceUnit!)
+    }
+  }, [standardPrices, selectedPriceData])
 
   return (
     <Grid container xs={12} spacing={6}>
@@ -255,6 +357,9 @@ const StandardPrices = ({ standardPrices, isLoading }: Props) => {
           onClickAddNewPrice={onClickAddNewPrice}
           onClickEditPrice={onClickEditPrice}
           onClickDeletePrice={onClickDeletePrice}
+          handleRowClick={handleRowClick}
+          isSelected={isSelected}
+          selected={selected}
         />
       </Grid>
       {selectedPriceData ? (

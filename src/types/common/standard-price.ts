@@ -73,13 +73,23 @@ export type SetPriceUnit = {
     price: number | null | string
     weighting: number | null | string
     title: string
+    parentPriceUnitId: number | null
+    subPriceUnits?: Array<{
+      id: number
+      isBase: boolean
+      title: string
+      unit: string
+      weighting: number
+      isActive?: boolean
+      parentPriceUnitId: number
+    }>
   }[]
 }
 
 export type SetPriceUnitPair = {
   priceId: number
   priceUnitId: number
-  price: number | null
-  weighting: number | null
-  quantity: number | null
+  price: string | null
+  weighting: string | null
+  quantity: string | null
 }

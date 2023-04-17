@@ -90,10 +90,10 @@ import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
 
 /* msw mock server */
-// if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
-//   require('../mocks')
-// }
-require('../mocks')
+if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
+  require('../mocks')
+}
+
 // ** Extend App Props with Emotion
 type ExtendedAppProps = AppProps & {
   Component: NextPage

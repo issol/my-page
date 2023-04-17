@@ -15,7 +15,7 @@ export const getStandardClientPrice = async () => {
   }
 }
 
-export const getCatInterface = async (toolName: string) => {
+export const getCatInterfaceHeaders = async (toolName: string) => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/cat-tool/interface?toolName=${toolName}`,
@@ -29,6 +29,18 @@ export const createPrice = async (data: AddNewPriceType) => {
   await axios.post('/api/enough/u/price', data)
 }
 
+export const patchPrice = async (data: AddNewPriceType, id: number) => {
+  await axios.patch(`/api/enough/u/price/${id}`, data)
+}
+
+export const deletePrice = async (priceId: number) => {
+  await axios.delete(`/api/enough/u/price/${priceId}`)
+}
+
 export const setPriceUnitPair = async (data: SetPriceUnitPair[]) => {
   await axios.post('/api/enough/u/price/unit/pair', { data: data })
+}
+
+export const patchPriceUnitPair = async (data: SetPriceUnitPair[]) => {
+  await axios.patch('/api/enough/u/price/unit/pair', { data: data })
 }
