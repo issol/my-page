@@ -1,5 +1,6 @@
 import { CurrencyType } from '@src/types/common/standard-price'
 import { locale } from '../const/locale'
+import { RoundingProcedureObj } from '../const/rounding-procedure/rounding-procedure'
 
 export function formatCurrency(num: number | string, currency: CurrencyType) {
   const currentLocale = locale[currency]
@@ -22,7 +23,14 @@ export function formatByRoundingProcedure(
       10,
       roundingType === 4 ? decimalPlace - 1 : decimalPlace,
     )
-    const type = Number(roundingType)
+
+    let type = null
+    if (typeof roundingType === 'string') {
+      //@ts-ignore
+      type = RoundingProcedureObj[roundingType]
+    } else {
+      type = Number(roundingType)
+    }
     switch (type) {
       case 0:
         return price.toFixed(decimalPlace)
