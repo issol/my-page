@@ -2,6 +2,7 @@ import axios from '@src/configs/axios'
 import {
   AddNewLanguagePairParams,
   AddNewPriceType,
+  CreatePriceResType,
   SetPriceUnitPair,
 } from '@src/types/common/standard-price'
 
@@ -26,8 +27,11 @@ export const getCatInterfaceHeaders = async (toolName: string) => {
   } catch (e: any) {}
 }
 
-export const createPrice = async (data: AddNewPriceType) => {
-  await axios.post('/api/enough/u/price', data)
+export const createPrice = async (
+  data: AddNewPriceType,
+): Promise<CreatePriceResType> => {
+  const res = await axios.post('/api/enough/u/price', data)
+  return res.data
 }
 
 export const patchPrice = async (data: AddNewPriceType, id: number) => {
