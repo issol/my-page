@@ -35,8 +35,10 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 // ** components
 import AddContactPersonForm from './add-contact-person-form'
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
+import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 
 type Props = {
+  getCompanyInfo?: UseFormGetValues<CompanyInfoFormType>
   control: Control<ClientContactPersonType, any>
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
   append: UseFieldArrayAppend<ClientContactPersonType, 'contactPersons'>
@@ -52,6 +54,7 @@ type Props = {
 }
 
 export default function ContactPersonForm({
+  getCompanyInfo,
   control,
   fields,
   append,
@@ -176,11 +179,14 @@ export default function ContactPersonForm({
   }
 
   function appendContactPerson() {
+    const companyInfo = getCompanyInfo ? getCompanyInfo() : undefined
     append({
       personType: 'Mr.',
       firstName: '',
       lastName: '',
-      timezone: { code: '', phone: '', label: '' },
+      timezone: companyInfo
+        ? companyInfo.timezone
+        : { code: '', label: '', phone: '' },
       email: '',
     })
   }

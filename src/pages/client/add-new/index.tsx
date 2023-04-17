@@ -440,6 +440,7 @@ export default function AddNewClient() {
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
             <ContactPersonForm
+              getCompanyInfo={getCompanyInfoValues}
               control={contactPersonControl}
               fields={contactPersons}
               append={appendContactPersons}
