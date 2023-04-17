@@ -186,7 +186,7 @@ export default function AddNewClient() {
       setPriceList(data)
     }
   }, [selectedPrice])
-  console.log(priceList)
+
   const onAddPrice = () => {
     setSelectedModalType('Add')
     if (priceUnit) {
@@ -235,6 +235,10 @@ export default function AddNewClient() {
     })
   }
 
+  function deletePrice(data: StandardPriceListType) {
+    setPriceList(priceList.filter(item => item.id !== data.id))
+  }
+
   const onDeletePrice = (priceData: StandardPriceListType) => {
     openModal({
       type: 'DeletePriceModal',
@@ -243,7 +247,7 @@ export default function AddNewClient() {
           onClose={() => closeModal(`DeletePriceModal`)}
           priceName={priceData.priceName}
           type={'Delete'}
-          onClickAction={onSubmitPrice}
+          onClickAction={() => deletePrice(priceData)}
         />
       ),
     })

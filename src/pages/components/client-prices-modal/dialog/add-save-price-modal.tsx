@@ -6,16 +6,7 @@ import Autocomplete from '@mui/material/Autocomplete'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormGetValues,
-  UseFormHandleSubmit,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormWatch,
-} from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -25,7 +16,10 @@ import {
 } from '@src/shared/const/service-type/service-types'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
-import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import {
+  RoundingProcedureList,
+  RoundingProcedureObjReversed,
+} from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -42,6 +36,9 @@ import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+
+import { v4 as uuidv4 } from 'uuid'
+
 import CopyPriceModal from './copy-price-modal'
 
 const defaultValue = {
@@ -122,7 +119,7 @@ const AddSavePriceModal = ({
       setSelected(selectedPriceData)
     }
   }, [selectedPriceData])
-  console.log(errors)
+
   useEffect(() => {
     if (selected) {
       setValue('priceName', selected.priceName, setValueOptions)
@@ -172,10 +169,15 @@ const AddSavePriceModal = ({
         setValueOptions,
       )
       setValue('decimalPlace', selected.decimalPlace)
+      setValue('memoForPrice', selected.memoForPrice, setValueOptions)
+
+      const rounding =
+        //@ts-ignore
+        RoundingProcedureObjReversed[Number(selected.roundingProcedure)]
       setValue(
         'roundingProcedure',
         {
-          label: selected.roundingProcedure,
+          label: rounding ?? selected.roundingProcedure,
           value: parseInt(
             getKeyByValue(
               PriceRoundingResponseEnum,
@@ -185,7 +187,6 @@ const AddSavePriceModal = ({
         },
         setValueOptions,
       )
-      setValue('memoForPrice', selected.memoForPrice, setValueOptions)
     }
   }, [selected])
 
@@ -248,6 +249,7 @@ const AddSavePriceModal = ({
             if (selected) {
               const finalData: StandardPriceListType = {
                 ...selected,
+                id: Math.random(),
                 isStandard: false,
                 priceName: data.priceName,
                 category: data?.category.value,
@@ -396,8 +398,6 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                       if (item) {
-                        console.log(item)
-
                         if (item.value === 'KRW' || item.value === 'JPY') {
                           setValue('decimalPlace', 1000)
                           trigger('decimalPlace')
@@ -604,11 +604,18 @@ const AddSavePriceModal = ({
                             )
                           }
                           type={type === 'Edit' ? 'Cancel' : 'Discard'}
-                          onClickAction={() =>
+                          onClickAction={() => {
+                            if (type === 'Edit') {
+                              closeModal(
+                                `${type}Price${
+                                  type === 'Edit' ? 'Cancel' : 'Discard'
+                                }Modal`,
+                              )
+                            }
                             onClickAction(
                               type === 'Edit' ? 'Cancel' : 'Discard',
                             )
-                          }
+                          }}
                         />
                       ),
                     })
