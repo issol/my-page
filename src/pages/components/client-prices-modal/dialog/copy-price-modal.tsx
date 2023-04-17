@@ -1,4 +1,12 @@
-import { Box, Button, Checkbox, Grid, Radio, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Checkbox,
+  DialogTitle,
+  Grid,
+  Radio,
+  Typography,
+} from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
@@ -15,39 +23,30 @@ import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 
 type Props = {
-  list: { data: StandardPriceListType[]; count: number }
+  list: { data: StandardPriceListType[] | []; count: number }
   open: boolean
   onClose: any
-  type: string
-  selectedPriceData?: StandardPriceListType
-
-  //   onSubmit: (data: AddPriceType, modalType: string) => void
-
-  onClickAction: (type: string) => void
+  onSubmit: (data: StandardPriceListType) => void
 }
 
 type CellType = {
   row: StandardPriceListType
 }
-const CopyPriceModal = ({
-  list,
-  open,
-  onClose,
-  type,
-  selectedPriceData,
-
-  //   onSubmit,
-
-  onClickAction,
-}: Props) => {
-  const { closeModal, openModal } = useModal()
+const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(5)
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
+  function onCopy() {
+    if (selected) {
+      onSubmit(selected)
+      onClose()
+    }
+  }
+
   const columns = [
     {
-      flex: 0.2,
+      flex: 0.03,
       minWidth: 60,
       field: 'radiobutton',
       headerName: '',
@@ -110,12 +109,16 @@ const CopyPriceModal = ({
           position: 'relative',
         }}
       >
+        <Typography variant='h6' mb='30px'>
+          Copy price
+        </Typography>
         <DataGrid
           autoHeight
           components={{
             NoRowsOverlay: () => noData(),
             NoResultsOverlay: () => noData(),
           }}
+          onRowClick={row => setSelected(row.row)}
           rows={list.data}
           rowCount={list.count}
           rowsPerPageOptions={[5, 15, 30]}
@@ -126,6 +129,14 @@ const CopyPriceModal = ({
           onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           columns={columns}
         />
+        <Box display='flex' gap='10px' justifyContent='center' mt='24px'>
+          <Button variant='outlined' color='secondary' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button variant='contained' onClick={onCopy} disabled={!selected}>
+            Copy
+          </Button>
+        </Box>
       </DialogContent>
     </Dialog>
   )

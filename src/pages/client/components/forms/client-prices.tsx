@@ -68,7 +68,7 @@ export default function ClientPrices({
       <Grid item xs={12}>
         <ClientPriceList
           list={priceList}
-          listCount={priceList.length ?? 0}
+          listCount={priceList?.length ?? 0}
           isLoading={false}
           listPage={priceListSkip}
           setListPage={setPriceListSkip}

@@ -186,7 +186,7 @@ export default function AddNewClient() {
       setPriceList(data)
     }
   }, [selectedPrice])
-
+  console.log(priceList)
   const onAddPrice = () => {
     setSelectedModalType('Add')
     if (priceUnit) {
@@ -199,6 +199,7 @@ export default function AddNewClient() {
             type={'Add'}
             onSubmit={onSavePriceClick}
             onClickAction={onSubmitPrice}
+            setPriceList={setPriceList}
           />
         ),
       })
@@ -228,6 +229,7 @@ export default function AddNewClient() {
           onSubmit={onSavePriceClick}
           selectedPriceData={selectedPrice!}
           onClickAction={onSubmitPrice}
+          setPriceList={setPriceList}
         />
       ),
     })

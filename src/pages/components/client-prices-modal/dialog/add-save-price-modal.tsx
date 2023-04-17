@@ -3,7 +3,7 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 import Autocomplete from '@mui/material/Autocomplete'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
 import {
@@ -42,6 +42,7 @@ import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import CopyPriceModal from './copy-price-modal'
 
 const defaultValue = {
   priceName: '',
@@ -59,9 +60,8 @@ type Props = {
   onClose: any
   type: string
   selectedPriceData?: StandardPriceListType
-
+  setPriceList: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
   onSubmit: (data: AddPriceType, modalType: string) => void
-
   onClickAction: (type: string) => void
 }
 
@@ -70,9 +70,8 @@ const AddSavePriceModal = ({
   onClose,
   type,
   selectedPriceData,
-
   onSubmit,
-
+  setPriceList,
   onClickAction,
 }: Props) => {
   const { closeModal, openModal } = useModal()
@@ -95,7 +94,6 @@ const AddSavePriceModal = ({
     trigger,
     getValues,
     setValue,
-
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddPriceType>({
     mode: 'onChange',
@@ -103,7 +101,9 @@ const AddSavePriceModal = ({
     resolver: yupResolver(standardPricesSchema),
   })
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
-  console.log('price data', standardPrices)
+  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+
   const resetData = () => {
     reset({
       priceName: '',
@@ -116,52 +116,95 @@ const AddSavePriceModal = ({
       memoForPrice: '',
     })
   }
-  useEffect(() => {
-    if (type === 'Edit' && selectedPriceData) {
-      setValue('priceName', selectedPriceData.priceName)
 
-      setValue('category', {
-        label: selectedPriceData.category,
-        value: selectedPriceData.category,
-      })
+  useEffect(() => {
+    if (selectedPriceData) {
+      setSelected(selectedPriceData)
+    }
+  }, [selectedPriceData])
+  console.log(errors)
+  useEffect(() => {
+    if (selected) {
+      setValue('priceName', selected.priceName, setValueOptions)
+
+      setValue(
+        'category',
+        {
+          label: selected.category,
+          value: selected.category,
+        },
+        setValueOptions,
+      )
 
       setValue(
         'serviceType',
-        selectedPriceData.serviceType.map(value => ({
-          label: value,
-          value: value,
-        })),
-      )
-      setValue('currency', {
-        label:
-          selectedPriceData.currency === 'USD'
-            ? '$ USD'
-            : selectedPriceData.currency === 'KRW'
-            ? '₩ KRW'
-            : selectedPriceData.currency === 'JPY'
-            ? '¥ JPY'
-            : selectedPriceData.currency === 'SGD'
-            ? '$ SGD'
-            : '',
-        value: selectedPriceData.currency,
-      })
-      setValue('catBasis', {
-        label: selectedPriceData.catBasis,
-        value: selectedPriceData.catBasis,
-      })
-      setValue('decimalPlace', selectedPriceData.decimalPlace)
-      setValue('roundingProcedure', {
-        label: selectedPriceData.roundingProcedure,
-        value: parseInt(
-          getKeyByValue(
-            PriceRoundingResponseEnum,
-            selectedPriceData.roundingProcedure,
-          )?.split('_')[1]!,
+        selected.serviceType.map(
+          value => ({
+            label: value,
+            value: value,
+          }),
+          setValueOptions,
         ),
-      })
-      setValue('memoForPrice', selectedPriceData.memoForPrice)
+      )
+      setValue(
+        'currency',
+        {
+          label:
+            selected.currency === 'USD'
+              ? '$ USD'
+              : selected.currency === 'KRW'
+              ? '₩ KRW'
+              : selected.currency === 'JPY'
+              ? '¥ JPY'
+              : selected.currency === 'SGD'
+              ? '$ SGD'
+              : '',
+          value: selected.currency,
+        },
+        setValueOptions,
+      )
+      setValue(
+        'catBasis',
+        {
+          label: selected.catBasis,
+          value: selected.catBasis,
+        },
+        setValueOptions,
+      )
+      setValue('decimalPlace', selected.decimalPlace)
+      setValue(
+        'roundingProcedure',
+        {
+          label: selected.roundingProcedure,
+          value: parseInt(
+            getKeyByValue(
+              PriceRoundingResponseEnum,
+              selected.roundingProcedure,
+            )?.split('_')[1]!,
+          ),
+        },
+        setValueOptions,
+      )
+      setValue('memoForPrice', selected.memoForPrice, setValueOptions)
     }
-  }, [type, selectedPriceData])
+  }, [selected])
+
+  function openCopyPriceModal() {
+    openModal({
+      type: 'copy-price',
+      children: (
+        <CopyPriceModal
+          list={standardPrices ?? { data: [], count: 0 }}
+          open={true}
+          onSubmit={onAddCopiedPrice}
+          onClose={() => closeModal('copy-price')}
+        />
+      ),
+    })
+  }
+  function onAddCopiedPrice(data: StandardPriceListType) {
+    setSelected(data)
+  }
 
   return (
     <Dialog
@@ -170,12 +213,8 @@ const AddSavePriceModal = ({
       fullWidth
       onClose={() => {
         resetData()
-        // setModal(null)
         onClose()
       }}
-      // TransitionComponent={Transition}
-      aria-labelledby='alert-dialog-slide-title'
-      aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
     >
       <DialogContent
@@ -195,6 +234,7 @@ const AddSavePriceModal = ({
             <Button
               variant='outlined'
               startIcon={<Icon icon='ic:baseline-file-download' />}
+              onClick={openCopyPriceModal}
             >
               Copy price
             </Button>
@@ -203,7 +243,24 @@ const AddSavePriceModal = ({
         <form
           noValidate
           autoComplete='off'
-          onSubmit={handleSubmit(data => onSubmit(data, type))}
+          onSubmit={handleSubmit(data => {
+            console.log('handleSubmit', data)
+            if (selected) {
+              const finalData: StandardPriceListType = {
+                ...selected,
+                isStandard: false,
+                priceName: data.priceName,
+                category: data?.category.value,
+                serviceType: data?.serviceType.map(value => value.value),
+                currency: data?.currency.value,
+                catBasis: data?.catBasis.value,
+                decimalPlace: data?.decimalPlace,
+                roundingProcedure: data?.roundingProcedure.value.toString(),
+              }
+              setPriceList(prev => [...prev, finalData])
+              onClose()
+            } else onSubmit(data, type)
+          })}
         >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>
@@ -246,7 +303,6 @@ const AddSavePriceModal = ({
                       if (item) {
                         // @ts-ignore
                         const res = ServiceTypePair[item.value]
-                        console.log(res)
                         trigger('serviceType')
                         setServiceTypeList(res)
                       }
