@@ -20,6 +20,7 @@ import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../standard-prices-modal/modal/language-pair-action-modal'
 
 import styled from 'styled-components'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
   list: LanguagePairListType[]
@@ -184,17 +185,7 @@ const LanguagePair = ({
                 }
               />
             ) : (
-              <Box>
-                {row.currency === 'USD' || row.currency === 'SGD'
-                  ? '$'
-                  : row.currency === 'KRW'
-                  ? '₩'
-                  : row.currency === 'JPY'
-                  ? '¥'
-                  : '-'}
-                &nbsp;
-                {row.priceFactor}
-              </Box>
+              <Box>{formatCurrency(row.priceFactor, row.currency)}</Box>
             )}
           </>
         )

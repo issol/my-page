@@ -4,11 +4,13 @@ import { Dispatch, SetStateAction, useState } from 'react'
 import useModal from '@src/hooks/useModal'
 
 // ** mui
-import { Box, Card, Grid, Typography } from '@mui/material'
+import { Box, Button, Card, Grid, Typography } from '@mui/material'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 // ** components
 import CatInterface from '@src/pages/components/standard-prices/component/cat-interface'
-// import PriceList from '@src/pages/components/standard-prices/component/price-list'
 import LanguagePair from '@src/pages/components/client-prices/language-pair'
 import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
 import ClientPriceList from '@src/pages/components/client-prices/price-list'
@@ -38,6 +40,7 @@ type Props = {
   onAddLanguagePair: () => void
   onEditLanguagePair: (data: LanguagePairListType) => void
   onDeleteLanguagePair: (id: any) => void
+  handleBack: () => void
 }
 
 export default function ClientPrices({
@@ -53,6 +56,7 @@ export default function ClientPrices({
   onAddLanguagePair,
   onEditLanguagePair,
   onDeleteLanguagePair,
+  handleBack,
 }: Props) {
   const [priceListSkip, setPriceListSkip] = useState(0)
   const [priceListPageSize, setPriceListPageSize] = useState(10)
@@ -133,6 +137,21 @@ export default function ClientPrices({
           </Grid>
         </>
       ) : null}
+      <Grid
+        item
+        xs={12}
+        display='flex'
+        justifyContent='space-between'
+        mt='24px'
+      >
+        <Button variant='outlined' color='secondary' onClick={handleBack}>
+          <Icon icon='material-symbols:arrow-back-rounded' />
+          Previous
+        </Button>
+        <Button variant='contained' /* onClick={onNextStep} */>
+          Save <Icon icon='material-symbols:arrow-forward-rounded' />
+        </Button>
+      </Grid>
     </Grid>
   )
 }

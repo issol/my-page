@@ -1,5 +1,6 @@
 import { FormErrors } from '@src/shared/const/formErrors'
 import * as yup from 'yup'
+import { CurrencyType } from '../common/standard-price'
 
 export const standardPricesSchema = yup.object().shape({
   priceName: yup.string().required(FormErrors.required),
@@ -20,7 +21,11 @@ export const standardPricesSchema = yup.object().shape({
     ),
   currency: yup.object().shape({
     label: yup.string().required(FormErrors.required),
-    value: yup.string().required(FormErrors.required),
+    value: yup
+      .string()
+      .oneOf<CurrencyType>(['USD', 'KRW', 'SGD', 'JPY'])
+      .required(FormErrors.required),
+    // value: yup.string().required(FormErrors.required),
   }),
   catBasis: yup.object().shape({
     label: yup.string().required(FormErrors.required),

@@ -3,14 +3,7 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 import Autocomplete from '@mui/material/Autocomplete'
-import { ModalContext } from '@src/context/ModalContext'
-import {
-  Dispatch,
-  SetStateAction,
-  useContext,
-  useEffect,
-  useState,
-} from 'react'
+import { useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
 import {
@@ -26,7 +19,6 @@ import {
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
-import { JobList } from '@src/shared/const/job/jobs'
 import {
   ServiceTypeList,
   ServiceTypePair,
@@ -40,17 +32,16 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
 import {
-  AddNewPriceType,
   CurrencyType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import PriceActionModal from '../modal/price-action-modal'
+import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
-import { createPrice } from '@src/apis/company-price.api'
-import toast from 'react-hot-toast'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
+
+// ** Icon Imports
+import Icon from 'src/@core/components/icon'
 
 const defaultValue = {
   priceName: '',
@@ -111,7 +102,8 @@ const AddSavePriceModal = ({
     defaultValues: defaultValue,
     resolver: yupResolver(standardPricesSchema),
   })
-
+  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
+  console.log('price data', standardPrices)
   const resetData = () => {
     reset({
       priceName: '',
@@ -193,9 +185,20 @@ const AddSavePriceModal = ({
         }}
       >
         {type === 'Add' ? (
-          <Typography variant='h5' sx={{ mb: '30px' }}>
-            Add new price
-          </Typography>
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
+            mb='30px'
+          >
+            <Typography variant='h5'>Add new price</Typography>
+            <Button
+              variant='outlined'
+              startIcon={<Icon icon='ic:baseline-file-download' />}
+            >
+              Copy price
+            </Button>
+          </Box>
         ) : null}
         <form
           noValidate
@@ -529,7 +532,6 @@ const AddSavePriceModal = ({
                   color='secondary'
                   type='button'
                   onClick={() => {
-                    // setPriceActionModalOpen(true)
                     openModal({
                       type: `${type}Price${
                         type === 'Edit' ? 'Cancel' : 'Discard'

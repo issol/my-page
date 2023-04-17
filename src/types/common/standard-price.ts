@@ -1,9 +1,10 @@
+export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
   priceName: string
   category: string
   serviceType: string[]
-  currency: string
+  currency: CurrencyType
   catBasis: string
 
   decimalPlace: number
@@ -19,7 +20,7 @@ export type LanguagePairListType = {
   target: string
   priceFactor: number
   minimumPrice: number
-  currency: string
+  currency: CurrencyType
 }
 
 export interface PriceUnitListType {
@@ -48,7 +49,7 @@ export type AddNewPriceType = {
   priceName: string
   category: string
   serviceType: Array<string>
-  currency: string
+  currency: CurrencyType
   catBasis: string
   decimalPlace: number
   roundingProcedure: number

@@ -17,7 +17,7 @@ import AddressesForm from '../components/forms/addresses'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
-import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
+import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
 
 // ** react hook form
@@ -176,7 +176,17 @@ export default function AddNewClient() {
     skip: 0,
     take: 1000,
   })
-  console.log(priceList)
+
+  useEffect(() => {
+    if (!selectedPrice?.id) return
+    const idx = priceList.map(item => item.id).indexOf(selectedPrice.id)
+    if (idx !== -1) {
+      const data = [...priceList]
+      data[idx] = selectedPrice
+      setPriceList(data)
+    }
+  }, [selectedPrice])
+
   const onAddPrice = () => {
     setSelectedModalType('Add')
     if (priceUnit) {
@@ -457,6 +467,7 @@ export default function AddNewClient() {
               onAddLanguagePair={onAddLanguagePair}
               onEditLanguagePair={onEditLanguagePair}
               onDeleteLanguagePair={onDeleteLanguagePair}
+              handleBack={handleBack}
             />
           </Card>
         )}

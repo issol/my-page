@@ -3,8 +3,10 @@ import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { PriceUnitType } from '@src/apis/price-units.api'
-import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import {
   LanguagePairListType,
   PriceUnitListType,
@@ -15,8 +17,8 @@ type Props = {
   list: PriceUnitListType[]
   listCount: number
   isLoading: boolean
-  selectedLanguagePair: LanguagePairListType | null
   priceData: StandardPriceListType
+  selectedLanguagePair: LanguagePairListType | null
   onClickSetPriceUnit: () => void
 }
 
@@ -24,64 +26,10 @@ const PriceUnit = ({
   list,
   listCount,
   isLoading,
-  selectedLanguagePair,
   priceData,
+  selectedLanguagePair,
   onClickSetPriceUnit,
 }: Props) => {
-  function getKeyByValue<T extends { [key: string]: string }>(
-    object: T,
-    value: string,
-  ): keyof T | undefined {
-    return Object.keys(object).find(key => object[key] === value) as
-      | keyof T
-      | undefined
-  }
-
-  const rounding = getKeyByValue(
-    PriceRoundingResponseEnum,
-    priceData.roundingProcedure,
-  )
-
-  const adjustRoundingProcedure = (
-    value: number,
-    decimalPlace: number,
-    type: string,
-    currency: string,
-  ) => {
-    if (currency === 'USD' || currency === 'SGD') {
-      const factor = Math.pow(
-        10,
-        type === 'Type_4' ? decimalPlace - 1 : decimalPlace,
-      )
-
-      switch (type) {
-        case 'Type_0':
-          return value.toFixed(decimalPlace)
-        case 'Type_1':
-          return (Math.ceil(value * factor) / factor).toFixed(2)
-        case 'Type_2':
-          return (Math.floor(value * factor) / factor).toFixed(2)
-        case 'Type_3':
-          return (Math.round(value * factor) / factor).toFixed(2)
-        case 'Type_4':
-          return (Math.ceil(value * factor) / factor).toFixed(2)
-      }
-    } else {
-      const rounded = Math.round(value / decimalPlace) * decimalPlace
-      const result = rounded.toString()
-      return result.padEnd(
-        result.length + Math.max(0, String(decimalPlace).length - 2),
-        '0',
-      )
-    }
-  }
-
-  // adjustRoundingProcedure(
-  //   row.price,
-  //   priceData.decimalPlace,
-  //   rounding!,
-  //   priceData.currency,
-  // )
   function getPrice(price: number) {
     if (selectedLanguagePair?.priceFactor) {
       return price * selectedLanguagePair.priceFactor
@@ -126,17 +74,15 @@ const PriceUnit = ({
       renderCell: ({ row }: { row: PriceUnitListType }) => {
         return (
           <Box>
-            {priceData.currency === 'USD' || priceData.currency === 'SGD'
-              ? '$'
-              : priceData.currency === 'KRW'
-              ? '₩'
-              : priceData.currency === 'JPY'
-              ? '¥'
-              : '-'}
-            &nbsp;
-            {rounding === 'Type_0'
-              ? getPrice(row.price).toFixed(priceData.decimalPlace)
-              : getPrice(row.price)}
+            {formatCurrency(
+              formatByRoundingProcedure(
+                getPrice(row.price),
+                priceData.decimalPlace,
+                priceData.roundingProcedure,
+                priceData.currency,
+              ),
+              priceData.currency,
+            )}
           </Box>
         )
       },
