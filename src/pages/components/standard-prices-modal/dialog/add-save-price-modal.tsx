@@ -93,7 +93,7 @@ const AddSavePriceModal = ({
       | keyof T
       | undefined
   }
-  console.log(type)
+
   const {
     control,
     handleSubmit,

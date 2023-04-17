@@ -60,11 +60,7 @@ const PriceUnit = ({
       }
     } else {
       const rounded = Math.round(value / decimalPlace) * decimalPlace
-      const result = rounded.toString()
-      return result.padEnd(
-        result.length + Math.max(0, String(decimalPlace).length - 2),
-        '0',
-      )
+      return rounded
     }
   }
 

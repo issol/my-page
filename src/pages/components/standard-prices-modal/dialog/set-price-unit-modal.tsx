@@ -291,14 +291,17 @@ const SetPriceUnitModal = ({
   }, [priceUnit])
 
   useEffect(() => {
-    const subUnit = priceUnitPair.map(value => ({
-      id: value.priceUnitId,
-      isBase: value.parentPriceUnitId === null,
-      title: value.title,
-      unit: value.unit,
-      weighting: value.weighting!,
-      parentPriceUnitId: value.parentPriceUnitId!,
-    }))
+    const subUnit = priceUnitPair
+      .filter(value => value.parentPriceUnitId !== null)
+      .map(data => ({
+        id: data.priceUnitId,
+        isBase: data.parentPriceUnitId === null,
+        title: data.title,
+        unit: data.unit,
+        weighting: data.weighting!,
+        parentPriceUnitId: data.parentPriceUnitId!,
+      }))
+
     priceUnitPair.map(value => {
       if (value.parentPriceUnitId === null) {
         append({
@@ -309,7 +312,9 @@ const SetPriceUnitModal = ({
           title: value.title,
           isBase: value.parentPriceUnitId === null,
           parentPriceUnitId: value.parentPriceUnitId,
-          subPriceUnits: subUnit,
+          subPriceUnits: subUnit.filter(
+            data => data.parentPriceUnitId === value.priceUnitId,
+          ),
           unit: value.unit,
         })
         setBaseUnitPrice(prevState => [
