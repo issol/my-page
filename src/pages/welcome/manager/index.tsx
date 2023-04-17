@@ -365,7 +365,6 @@ const PersonalInfoManager = () => {
                               error={Boolean(errors.timezone)}
                               inputProps={{
                                 ...params.inputProps,
-                                autoComplete: 'new-password',
                               }}
                             />
                           )}

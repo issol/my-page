@@ -79,7 +79,7 @@ const LanguagePair = ({
   const getCellClassName = (
     params: GridCellParams<any, LanguagePairListType, any>,
   ) => {
-    console.log(params)
+    // console.log(params)
     const isEditMode = params.cellMode === 'edit'
     return isEditMode
       ? 'edit-row'

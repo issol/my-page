@@ -1,9 +1,10 @@
+export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
   priceName: string
   category: string
   serviceType: string[]
-  currency: string
+  currency: CurrencyType
   catBasis: string
 
   decimalPlace: number
@@ -19,13 +20,13 @@ export type LanguagePairListType = {
   target: string
   priceFactor: number
   minimumPrice: number
-  currency: string
+  currency: CurrencyType
 }
 
 export interface PriceUnitListType {
   id: number
   priceUnitId: number
-  parentPriceUnitId: number | null
+  parentPriceUnitId?: number | null
   isBase: boolean
   title: string
   unit: string
@@ -33,10 +34,10 @@ export interface PriceUnitListType {
   quantity: number | null
   price: number
 
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 
-  deletedAt: string | null
+  deletedAt?: string | null
 }
 
 export interface PriceUnitListWithHeaders extends PriceUnitListType {
@@ -48,7 +49,7 @@ export type AddNewPriceType = {
   priceName: string
   category: string
   serviceType: Array<string>
-  currency: string
+  currency: CurrencyType
   catBasis: string
   decimalPlace: number
   roundingProcedure: number

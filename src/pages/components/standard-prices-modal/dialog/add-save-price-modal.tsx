@@ -41,6 +41,7 @@ import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
 import {
   AddNewPriceType,
+  CurrencyType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
@@ -55,7 +56,7 @@ const defaultValue = {
   priceName: '',
   category: undefined,
   serviceType: undefined,
-  currency: { label: '$ USD', value: 'USD' },
+  currency: { label: '$ USD', value: 'USD' as CurrencyType },
   catBasis: { label: 'Words', value: 'Words' },
   decimalPlace: 2,
   roundingProcedure: undefined,

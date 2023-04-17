@@ -286,13 +286,13 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
   ) => {
     if (params.row !== selectedLanguagePair) {
       setSelectedLanguagePair(params.row)
-      setPriceUnitList(prevState => {
-        const res = prevState?.map(value => ({
-          ...value,
-          price: params.row.priceFactor * value.price,
-        }))
-        return res
-      })
+      // setPriceUnitList(prevState => {
+      //   const res = prevState?.map(value => ({
+      //     ...value,
+      //     price: params.row.priceFactor * value.price,
+      //   }))
+      //   return res
+      // })
     }
   }
 
@@ -402,6 +402,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
                   listCount={priceUnitList.length}
                   isLoading={isLoading}
                   priceData={selectedPriceData!}
+                  selectedLanguagePair={selectedLanguagePair}
                   onClickSetPriceUnit={onClickSetPriceUnit}
                 />
               </Box>

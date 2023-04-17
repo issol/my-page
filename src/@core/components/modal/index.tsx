@@ -60,7 +60,7 @@ export const SmallModalContainer = styled(Box)`
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  max-width: 360px;
+  max-width: 380px;
   padding: 20px;
   background: #ffffff;
   border-radius: 10px;

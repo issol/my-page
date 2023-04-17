@@ -195,7 +195,6 @@ export default function PriceUnitForm(props: Props) {
               aria-label='expand row'
               size='small'
               onClick={() => setExpend(!expend)}
-              sx={{ paddingLeft: '20px' }}
             >
               <Icon icon={expend ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
             </IconButton>

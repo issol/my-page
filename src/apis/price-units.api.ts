@@ -23,7 +23,7 @@ export type PriceUnitType = {
     unit: string
     weighting: number
     isActive: boolean
-    parentPriceUnitId: number
+    parentPriceUnitId: number | null
   }>
 }
 

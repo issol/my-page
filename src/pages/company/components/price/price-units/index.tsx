@@ -155,6 +155,8 @@ export default function PriceUnits() {
             weighting: 100,
             isActive: true,
             id: 0,
+            parentPriceUnitId: null,
+            isBase: false,
           },
         ],
       })

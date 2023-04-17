@@ -1844,6 +1844,11 @@
   "resolved" "https://npm.pkg.github.com/download/@glocalize-inc/glo-languages/1.0.1/ec5097e65d489da85e550bdcc90b5cc5173801ac"
   "version" "1.0.1"
 
+"@glocalize-inc/glodex@^2.8.9":
+  "integrity" "sha512-RgPXCHZj584bhZAgcINs2RQfL7NubsGeBcEztMryMtKyN+gllXcqjDUwSIlCUCcfPhUNbCpBf3jxSRTA9dgo9Q=="
+  "resolved" "https://npm.pkg.github.com/download/@glocalize-inc/glodex/2.8.9/e3520731fb183790107cfd295b9175cfc3d0cde4"
+  "version" "2.8.9"
+
 "@grpc/grpc-js@~1.7.0":
   "integrity" "sha512-H9l79u4kJ2PVSxUNA08HMYAnUBLj9v6KjYQ7SQ71hOZcEXhShE/y5iQCesP8+6/Ik/7i2O0a10bPquIcYfufog=="
   "resolved" "https://registry.npmjs.org/@grpc/grpc-js/-/grpc-js-1.7.3.tgz"

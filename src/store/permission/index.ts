@@ -215,6 +215,22 @@ export const getPermission = createAsyncThunk(
           subject: 'company_price',
           can: 'delete',
         },
+        {
+          subject: 'client',
+          can: 'read',
+        },
+        {
+          subject: 'client',
+          can: 'create',
+        },
+        {
+          subject: 'client',
+          can: 'update',
+        },
+        {
+          subject: 'client',
+          can: 'delete',
+        },
       ]
     } catch (e: any) {
       throw new Error('getPermission error : ', e)

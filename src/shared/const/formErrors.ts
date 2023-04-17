@@ -1,5 +1,6 @@
 export const FormErrors = {
   invalidEmail: 'Invalid email address',
+  invalidUrl: 'Invalid link',
   registeredEmail: 'This email is already registered',
   invalidVerificationCode: 'Invalid verification code',
   required: 'This field is required.',
