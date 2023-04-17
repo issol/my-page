@@ -1,24 +1,10 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  DialogTitle,
-  Grid,
-  Radio,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Radio, Typography } from '@mui/material'
 import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import {
-  CurrencyType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
-import useModal from '@src/hooks/useModal'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
 import { DataGrid } from '@mui/x-data-grid'
 import { useState } from 'react'
 
@@ -33,7 +19,7 @@ type CellType = {
   row: StandardPriceListType
 }
 const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
-  const [pageSize, setPageSize] = useState(2)
+  const [pageSize, setPageSize] = useState(5)
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
   function onCopy() {
