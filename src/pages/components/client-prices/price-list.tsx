@@ -260,7 +260,6 @@ const ClientPriceList = ({
                   <TableCell
                     sx={{
                       height: '54px',
-
                       padding: '16px 0',
                       textAlign: 'center',
                       flex: 0.0096,
@@ -289,9 +288,11 @@ const ClientPriceList = ({
               </TableHead>
               <TableBody>
                 {!list?.length ? (
-                  <TableCell colSpan={6} align='center'>
-                    <Typography>There are no client prices</Typography>
-                  </TableCell>
+                  <TableRow>
+                    <TableCell colSpan={6} align='center'>
+                      <Typography>There are no client prices</Typography>
+                    </TableCell>
+                  </TableRow>
                 ) : (
                   list?.map(row => (
                     <Row
