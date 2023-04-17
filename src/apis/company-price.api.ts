@@ -1,6 +1,6 @@
 import axios from '@src/configs/axios'
 import {
-  AddNewLanguagePairParams,
+  LanguagePairParams,
   AddNewPriceType,
   SetPriceUnitPair,
 } from '@src/types/common/standard-price'
@@ -46,6 +46,17 @@ export const patchPriceUnitPair = async (data: SetPriceUnitPair[]) => {
   await axios.patch('/api/enough/u/price/unit/pair', { data: data })
 }
 
-export const createLanguagePair = async (data: AddNewLanguagePairParams[]) => {
+export const createLanguagePair = async (data: LanguagePairParams[]) => {
   await axios.post('/api/enough/u/language/pair', { data: data })
+}
+
+export const patchLanguagePair = async (
+  data: LanguagePairParams,
+  id: number,
+) => {
+  await axios.patch(`/api/enough/u/language/pair/${id}`, data)
+}
+
+export const deleteLanguagePair = async (id: number) => {
+  await axios.delete(`/api/enough/u/language/pair/${id}`)
 }

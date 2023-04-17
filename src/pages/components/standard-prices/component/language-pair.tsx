@@ -27,7 +27,11 @@ import EditIcon from '@mui/icons-material/Edit'
 import DeleteIcon from '@mui/icons-material/DeleteOutlined'
 import SaveIcon from '@mui/icons-material/Save'
 import CancelIcon from '@mui/icons-material/Close'
-import { LanguagePairListType } from '@src/types/common/standard-price'
+import {
+  LanguagePairListType,
+  LanguagePairParams,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 
 import {
   Dispatch,
@@ -43,6 +47,12 @@ import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../../standard-prices-modal/modal/language-pair-action-modal'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  deleteLanguagePair,
+  patchLanguagePair,
+} from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
 
 type Props = {
   list: LanguagePairListType[]
@@ -58,6 +68,13 @@ type Props = {
   ) => void
   onClickAddNewLanguagePair: () => void
   existPriceUnit: boolean
+  selectedLanguagePair: LanguagePairListType | null
+  priceData: StandardPriceListType
+}
+
+interface SelectedCellParams {
+  id: GridRowId
+  field: string
 }
 
 const LanguagePair = ({
@@ -71,14 +88,79 @@ const LanguagePair = ({
   onCellClick,
   onClickAddNewLanguagePair,
   existPriceUnit,
+  selectedLanguagePair,
+  priceData,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const [isEditingLanguagePair, setIsEditingLanguagePair] = useState(false)
+  const queryClient = useQueryClient()
+  const [selectedCellParams, setSelectedCellParams] =
+    useState<SelectedCellParams | null>(null)
+  const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({})
+  const [isEditingLanguagePair, setIsEditingLanguagePair] = useState<
+    number | null
+  >(null)
+  const handleCellFocus = useCallback(
+    (event: React.FocusEvent<HTMLDivElement>) => {
+      const row = event.currentTarget.parentElement
+      const id = row!.dataset.id!
+      const field = event.currentTarget.dataset.field!
+      setSelectedCellParams({ id, field })
+    },
+    [],
+  )
+  const cellMode = useMemo(() => {
+    if (!selectedCellParams) {
+      return 'view'
+    }
+    const { id, field } = selectedCellParams
+    return cellModesModel[id]?.[field]?.mode || 'view'
+  }, [cellModesModel, selectedCellParams])
+
+  console.log(cellMode)
+
+  const patchLanguagePairMutation = useMutation(
+    (value: { data: LanguagePairParams; id: number }) =>
+      patchLanguagePair(value.data, value.id),
+    {
+      onSuccess: data => {
+        // refetch()
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  const deleteLanguagePairMutation = useMutation(
+    (id: number) => deleteLanguagePair(id),
+    {
+      onSuccess: data => {
+        // refetch()
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
 
   const getCellClassName = (
     params: GridCellParams<any, LanguagePairListType, any>,
   ) => {
-    // console.log(params)
+    console.log(params)
     const isEditMode = params.cellMode === 'edit'
     return isEditMode
       ? 'edit-row'
@@ -89,28 +171,59 @@ const LanguagePair = ({
 
   const [editRowsModel, setEditRowsModel] = useState<GridEditRowsModel>({})
 
-  const handleEditRowModelChange = useCallback((model: GridEditRowsModel) => {
-    setEditRowsModel(model)
-  }, [])
+  const handleEditRowModelChange = useCallback(
+    (model: GridEditRowsModel, details: any) => {
+      setEditRowsModel(model)
+    },
+    [],
+  )
 
   const handleSave = useCallback(() => {
     // Save the changes to your data store here
     console.log(editRowsModel)
-    setIsEditingLanguagePair(false)
+
+    if (isEditingLanguagePair !== null && selectedLanguagePair != null) {
+      console.log(editRowsModel[isEditingLanguagePair].priceFactor)
+      const res = {
+        source: selectedLanguagePair?.source,
+        target: selectedLanguagePair.target,
+        priceFactor:
+          editRowsModel[isEditingLanguagePair].priceFactor.value.toString(),
+        minimumPrice:
+          editRowsModel[isEditingLanguagePair].minimumPrice.value.toString(),
+        currency: priceData.currency,
+      }
+
+      patchLanguagePairMutation.mutate({ data: res, id: isEditingLanguagePair })
+    }
+
+    setIsEditingLanguagePair(null)
     setEditRowsModel({})
-  }, [editRowsModel])
+  }, [editRowsModel, isEditingLanguagePair, selectedLanguagePair])
 
   const handleDelete = (id: number) => {
+    deleteLanguagePairMutation.mutate(id)
     console.log(`${id} deleted`)
   }
 
   const handleEditCancel = () => {
     setEditRowsModel({})
-    setIsEditingLanguagePair(false)
+    setIsEditingLanguagePair(null)
+    // setCellModes(prevModes => ({
+    //   ...prevModes,
+    //   [id]: GridCellModes.View,
+    // }))
   }
 
-  const onClickEditLanguagePair = () => {
-    setIsEditingLanguagePair(true)
+  const onClickEditLanguagePair = (row: LanguagePairListType) => {
+    setEditRowsModel({
+      [row.id]: {
+        priceFactor: { mode: GridCellModes.Edit, value: row.priceFactor },
+        minimumPrice: { mode: GridCellModes.Edit, value: row.minimumPrice },
+      },
+    })
+
+    setIsEditingLanguagePair(row.id)
   }
 
   const onClickCancelEditLanguagePair = () => {
@@ -152,17 +265,16 @@ const LanguagePair = ({
         />
       ),
     })
-    console.log('delete')
   }
 
   const handleCellKeyDown = useCallback<GridEventListener<'cellKeyDown'>>(
     (params, event) => {
-      if (event.key === 'Enter') {
+      if (event.key === 'Enter' || cellMode === 'edit') {
         event.defaultMuiPrevented = true
         console.log(params)
       }
     },
-    [],
+    [cellMode],
   )
 
   const columns: GridColumns<LanguagePairListType> = [
@@ -204,7 +316,7 @@ const LanguagePair = ({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      editable: isEditingLanguagePair,
+      editable: selectedLanguagePair?.id === isEditingLanguagePair,
       renderHeader: () => <Box>Price factor</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
         <Box>{formatCurrency(row.priceFactor, row.currency)}</Box>
@@ -218,7 +330,7 @@ const LanguagePair = ({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      editable: isEditingLanguagePair,
+      editable: selectedLanguagePair?.id === isEditingLanguagePair,
       renderHeader: () => <Box>Min. price</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
         <Box>{formatCurrency(row.minimumPrice, row.currency)}</Box>
@@ -239,7 +351,7 @@ const LanguagePair = ({
       renderCell: ({ row }: { row: LanguagePairListType }) => {
         return (
           <Box>
-            {isEditingLanguagePair ? (
+            {isEditingLanguagePair === row.id ? (
               <Box sx={{ display: 'flex', gap: '5px' }}>
                 <Button
                   sx={{
@@ -277,7 +389,7 @@ const LanguagePair = ({
             ) : (
               <Box sx={{ display: 'flex', gap: '5px' }}>
                 <IconButton
-                  onClick={onClickEditLanguagePair}
+                  onClick={() => onClickEditLanguagePair(row)}
                   size='small'
                   sx={{ padding: 0 }}
                 >
@@ -400,9 +512,13 @@ const LanguagePair = ({
           page={listPage}
           rowCount={listCount ?? 0}
           onCellClick={onCellClick}
-          editRowsModel={editRowsModel}
-          onEditRowsModelChange={handleEditRowModelChange}
           onCellKeyDown={handleCellKeyDown}
+          cellModesModel={cellModesModel}
+          onCellModesModelChange={model => setCellModesModel(model)}
+          editRowsModel={editRowsModel}
+          onEditRowsModelChange={(editRowsModel, details) =>
+            handleEditRowModelChange(editRowsModel, details)
+          }
           onCellFocusOut={(params, event) => (event.defaultMuiPrevented = true)}
           getCellClassName={getCellClassName}
           // cellModesModel={cellModesModel}

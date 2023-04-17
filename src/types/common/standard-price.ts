@@ -98,10 +98,10 @@ export type SetPriceUnitPair = {
   quantity: string | null
 }
 
-export type AddNewLanguagePairParams = {
+export type LanguagePairParams = {
   source: string
   target: string
-  priceFactor: number | null
-  minimumPrice: number | null
+  priceFactor: string | null
+  minimumPrice: string | null
   currency: string
 }

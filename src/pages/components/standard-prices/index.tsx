@@ -6,7 +6,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 
@@ -31,7 +31,12 @@ import { useGetPriceUnitList } from '@src/queries/price-units.query'
 
 import CatInterface from './component/cat-interface'
 
-import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
+import {
+  GridCellModes,
+  GridCellModesModel,
+  GridCellParams,
+  MuiEvent,
+} from '@mui/x-data-grid'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -289,6 +294,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
     if (selectedPriceData?.priceUnit.length) {
       setSelectedLanguagePair(params.row)
     }
+
     // setSelectedLanguagePair(params.row)
     // setPriceUnitList(prevState => {
     //   const res = prevState?.map(value => ({
@@ -390,6 +396,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
                   onCellClick={onClickLanguagePair}
                   onClickAddNewLanguagePair={onClickAddNewLanguagePair}
                   existPriceUnit={priceUnitList.length > 0}
+                  selectedLanguagePair={selectedLanguagePair!}
+                  priceData={selectedPriceData!}
                 />
                 <Box
                   sx={{
