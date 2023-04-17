@@ -256,6 +256,7 @@ const AddSavePriceModal = ({
                 catBasis: data?.catBasis.value,
                 decimalPlace: data?.decimalPlace,
                 roundingProcedure: data?.roundingProcedure.value.toString(),
+                memoForPrice: data?.memoForPrice,
               }
               setPriceList(prev => [...prev, finalData])
               onClose()
