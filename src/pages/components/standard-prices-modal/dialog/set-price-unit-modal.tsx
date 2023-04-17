@@ -329,7 +329,7 @@ const SetPriceUnitModal = ({
           weighting: value.weighting ?? '-',
           title: value.title,
           isBase: value.parentPriceUnitId === null,
-          parentPriceUnitId: value.parentPriceUnitId,
+          parentPriceUnitId: value.parentPriceUnitId!,
           unit: value.unit,
         })
       }

@@ -10,7 +10,7 @@ export type StandardPriceListType = {
   decimalPlace: number
   roundingProcedure: string
   memoForPrice: string
-  languagePair: Array<LanguagePairListType>
+  languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
 }
 
@@ -21,6 +21,9 @@ export type LanguagePairListType = {
   priceFactor: number
   minimumPrice: number
   currency: CurrencyType
+  createdAt: string
+  deletedAt: string | null
+  updatedAt: string
 }
 
 export interface PriceUnitListType {
@@ -82,7 +85,7 @@ export type SetPriceUnit = {
       unit: string
       weighting: number
       isActive?: boolean
-      parentPriceUnitId: number
+      parentPriceUnitId: number | null
     }>
   }[]
 }
@@ -93,4 +96,12 @@ export type SetPriceUnitPair = {
   price: string | null
   weighting: string | null
   quantity: string | null
+}
+
+export type AddNewLanguagePairParams = {
+  source: string
+  target: string
+  priceFactor: number | null
+  minimumPrice: number | null
+  currency: string
 }

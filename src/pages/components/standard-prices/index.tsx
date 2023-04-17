@@ -284,16 +284,20 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
     params: GridCellParams,
     event: MuiEvent<React.MouseEvent>,
   ) => {
-    if (params.row !== selectedLanguagePair) {
+    // if (params.row !== selectedLanguagePair) {
+    console.log(params.row)
+    if (selectedPriceData?.priceUnit.length) {
       setSelectedLanguagePair(params.row)
-      // setPriceUnitList(prevState => {
-      //   const res = prevState?.map(value => ({
-      //     ...value,
-      //     price: params.row.priceFactor * value.price,
-      //   }))
-      //   return res
-      // })
     }
+    // setSelectedLanguagePair(params.row)
+    // setPriceUnitList(prevState => {
+    //   const res = prevState?.map(value => ({
+    //     ...value,
+    //     price: params.row.priceFactor * value.price,
+    //   }))
+    //   return res
+    // })
+    // }
   }
 
   const onClickAddNewLanguagePair = () => {
@@ -302,7 +306,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
       children: (
         <AddNewLanguagePairModal
           onClose={() => closeModal('addNewLanguagePairModal')}
-          currency={selectedPriceData?.currency!}
+          priceData={selectedPriceData!}
         />
       ),
     })
@@ -376,8 +380,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
               <Typography variant='h6'>Prices</Typography>
               <Box sx={{ display: 'flex', width: '100%' }}>
                 <LanguagePair
-                  list={selectedPriceData?.languagePair!}
-                  listCount={selectedPriceData?.languagePair?.length}
+                  list={selectedPriceData?.languagePairs!}
+                  listCount={selectedPriceData?.languagePairs?.length}
                   isLoading={isLoading}
                   listPage={languagePairListPage}
                   setListPage={setLanguagePairListPage}
