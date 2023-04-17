@@ -67,7 +67,6 @@ export default function ContactPersonForm({
 }: Props) {
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
-  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
   // ** modals
@@ -234,12 +233,10 @@ export default function ContactPersonForm({
               NoResultsOverlay: () => NoList(),
             }}
             sx={{ overflowX: 'scroll' }}
-            rows={fields.slice(skip, pageSize + 1)}
+            rows={fields}
             columns={columns}
-            rowCount={fields?.length ?? 0}
-            rowsPerPageOptions={[10, 25, 50]}
             pageSize={pageSize}
-            onPageChange={setSkip}
+            rowsPerPageOptions={[10, 25, 50]}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Box>

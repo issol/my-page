@@ -33,8 +33,7 @@ type CellType = {
   row: StandardPriceListType
 }
 const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
-  const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(5)
+  const [pageSize, setPageSize] = useState(2)
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
   function onCopy() {
@@ -91,6 +90,7 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
       </Box>
     )
   }
+
   return (
     <Dialog
       open={open}
@@ -119,15 +119,11 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
             NoResultsOverlay: () => noData(),
           }}
           onRowClick={row => setSelected(row.row)}
-          rows={list.data}
-          rowCount={list.count}
-          rowsPerPageOptions={[5, 15, 30]}
-          pagination
-          page={skip}
-          pageSize={pageSize}
-          onPageChange={setSkip}
-          onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+          rows={list?.data || []}
           columns={columns}
+          pageSize={pageSize}
+          rowsPerPageOptions={[5, 15, 30]}
+          onPageSizeChange={newPageSize => setPageSize(newPageSize)}
         />
         <Box display='flex' gap='10px' justifyContent='center' mt='24px'>
           <Button variant='outlined' color='secondary' onClick={onClose}>
