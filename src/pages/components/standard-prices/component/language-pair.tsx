@@ -42,6 +42,7 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../../standard-prices-modal/modal/language-pair-action-modal'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
   list: LanguagePairListType[]
@@ -73,8 +74,6 @@ const LanguagePair = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const [isEditingLanguagePair, setIsEditingLanguagePair] = useState(false)
-
-  const [cellModesModel, setCellModesModel] = useState<GridCellModesModel>({})
 
   const getCellClassName = (
     params: GridCellParams<any, LanguagePairListType, any>,
@@ -208,17 +207,7 @@ const LanguagePair = ({
       editable: isEditingLanguagePair,
       renderHeader: () => <Box>Price factor</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>
-          {row.currency === 'USD' || row.currency === 'SGD'
-            ? '$'
-            : row.currency === 'KRW'
-            ? '₩'
-            : row.currency === 'JPY'
-            ? '¥'
-            : '-'}
-          &nbsp;
-          {row.priceFactor}
-        </Box>
+        <Box>{formatCurrency(row.priceFactor, row.currency)}</Box>
       ),
     },
     {
@@ -232,16 +221,7 @@ const LanguagePair = ({
       editable: isEditingLanguagePair,
       renderHeader: () => <Box>Min. price</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>
-          {row.currency === 'USD' || row.currency === 'SGD'
-            ? '$'
-            : row.currency === 'KRW'
-            ? '₩'
-            : row.currency === 'JPY'
-            ? '¥'
-            : '-'}
-          &nbsp;{row.minimumPrice}
-        </Box>
+        <Box>{formatCurrency(row.minimumPrice, row.currency)}</Box>
       ),
     },
     {
