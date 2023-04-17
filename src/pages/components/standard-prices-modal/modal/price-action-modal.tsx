@@ -39,6 +39,8 @@ export default function PriceActionModal({
   onClickAction,
   priceName,
 }: Props) {
+  console.log(selectedPriceData)
+
   return (
     <Dialog
       open={true}
@@ -187,8 +189,10 @@ export default function PriceActionModal({
                   : type === 'Delete'
                   ? 'Delete'
                   : '',
-                type === 'Add' ? priceData : undefined,
-                type === 'Delete' ? selectedPriceData : undefined,
+                type === 'Add' || type === 'Save' ? priceData : undefined,
+                type === 'Delete' || type === 'Save'
+                  ? selectedPriceData
+                  : undefined,
               )
             }}
           >

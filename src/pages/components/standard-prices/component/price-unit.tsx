@@ -34,6 +34,40 @@ const PriceUnit = ({
       | undefined
   }
 
+  const adjustRoundingProcedure = (
+    value: number,
+    decimalPlace: number,
+    type: string,
+    currency: string,
+  ) => {
+    if (currency === 'USD' || currency === 'SGD') {
+      const factor = Math.pow(
+        10,
+        type === 'Type_4' ? decimalPlace - 1 : decimalPlace,
+      )
+
+      switch (type) {
+        case 'Type_0':
+          return value.toFixed(decimalPlace)
+        case 'Type_1':
+          return (Math.ceil(value * factor) / factor).toFixed(2)
+        case 'Type_2':
+          return (Math.floor(value * factor) / factor).toFixed(2)
+        case 'Type_3':
+          return (Math.round(value * factor) / factor).toFixed(2)
+        case 'Type_4':
+          return (Math.ceil(value * factor) / factor).toFixed(2)
+      }
+    } else {
+      const rounded = Math.round(value / decimalPlace) * decimalPlace
+      const result = rounded.toString()
+      return result.padEnd(
+        result.length + Math.max(0, String(decimalPlace).length - 2),
+        '0',
+      )
+    }
+  }
+
   const rounding = getKeyByValue(
     PriceRoundingResponseEnum,
     priceData.roundingProcedure,
@@ -84,9 +118,12 @@ const PriceUnit = ({
               ? '¥'
               : '-'}
             &nbsp;
-            {rounding === 'Type_0'
-              ? row.price.toFixed(priceData.decimalPlace)
-              : row.price}
+            {adjustRoundingProcedure(
+              row.price,
+              priceData.decimalPlace,
+              rounding!,
+              priceData.currency,
+            )}
           </Box>
         )
       },

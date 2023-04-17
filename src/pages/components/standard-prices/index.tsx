@@ -39,7 +39,11 @@ import {
   useMutation,
   useQueryClient,
 } from 'react-query'
-import { createPrice, deletePrice } from '@src/apis/company-price.api'
+import {
+  createPrice,
+  deletePrice,
+  patchPrice,
+} from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
 
 type Props = {
@@ -120,6 +124,25 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
     },
   )
 
+  const patchPriceMutation = useMutation(
+    (value: { data: AddNewPriceType; id: number }) =>
+      patchPrice(value.data, value.id),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   const deletePriceMutation = useMutation((id: number) => deletePrice(id), {
     onSuccess: data => {
       queryClient.invalidateQueries('standard-client-prices')
@@ -159,6 +182,20 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
       closeModal(`${selectedModalType}PriceModal`)
     } else if (type === 'Delete') {
       deletePriceMutation.mutate(selectedData?.id!)
+    } else if (type === 'Save') {
+      const obj: AddNewPriceType = {
+        isStandard: true,
+        priceName: data?.priceName!,
+        category: data?.category.value!,
+        serviceType: data?.serviceType.map(value => value.value)!,
+        currency: data?.currency.value!,
+        catBasis: data?.catBasis.value!,
+        decimalPlace: data?.decimalPlace!,
+        roundingProcedure: data?.roundingProcedure.value!,
+        memoForPrice: data?.memoForPrice!,
+      }
+      patchPriceMutation.mutate({ data: obj, id: selectedPriceData?.id! })
+      closeModal(`${selectedModalType}PriceModal`)
     }
   }
   const onSubmit = (data: AddPriceType, modalType: string) => {

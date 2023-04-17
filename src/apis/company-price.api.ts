@@ -29,6 +29,10 @@ export const createPrice = async (data: AddNewPriceType) => {
   await axios.post('/api/enough/u/price', data)
 }
 
+export const patchPrice = async (data: AddNewPriceType, id: number) => {
+  await axios.patch(`/api/enough/u/price/${id}`, data)
+}
+
 export const deletePrice = async (priceId: number) => {
   await axios.delete(`/api/enough/u/price/${priceId}`)
 }

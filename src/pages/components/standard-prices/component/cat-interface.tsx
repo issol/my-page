@@ -230,9 +230,7 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                   }}
                 >
                   <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                    {rounding === 'Type_0'
-                      ? value.price.toFixed(priceData.decimalPlace)
-                      : value.price}
+                    {value.price}
                     &nbsp;
                     {priceData.currency}&nbsp;per&nbsp;
                     {value.unit && value.unit === 'Percent'
