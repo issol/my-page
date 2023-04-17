@@ -21,11 +21,18 @@ import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import { JobList } from '@src/shared/const/job/jobs'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-import { AddNewLanguagePair } from '@src/types/common/standard-price'
+import {
+  AddNewLanguagePair,
+  AddNewLanguagePairParams,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import LanguagePairActionModal from '../modal/language-pair-action-modal'
 import { Input } from './set-price-unit-modal'
+import { useMutation, useQueryClient } from 'react-query'
+import { createLanguagePair } from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
 
 const defaultValues: AddNewLanguagePair = {
   pair: [{ source: '', target: '', priceFactor: null, minimumPrice: null }],
@@ -33,13 +40,15 @@ const defaultValues: AddNewLanguagePair = {
 
 type Props = {
   onClose: any
-  currency: string
+
+  priceData: StandardPriceListType
 }
 
-const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
+const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {
   const { closeModal, openModal } = useModal()
 
   const languageList = getGloLanguage()
+  const queryClient = useQueryClient()
 
   const {
     control,
@@ -65,8 +74,45 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
     name: 'pair',
   })
 
+  const addLanguagePairMutation = useMutation(
+    (data: AddNewLanguagePairParams[]) => createLanguagePair(data),
+    {
+      onSuccess: data => {
+        // refetch()
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   const onSubmit = (data: AddNewLanguagePair) => {
-    console.log(data)
+    const res = data.pair.map(value => ({
+      priceId: priceData.id,
+      source: value.source,
+      target: value.target,
+      priceFactor: value.priceFactor,
+      minimumPrice: value.minimumPrice,
+      currency: priceData.currency,
+    }))
+    openModal({
+      type: 'addLanguagePairModal',
+      children: (
+        <LanguagePairActionModal
+          onClose={() => closeModal('addLanguagePairModal')}
+          onClickAction={onClickAction}
+          type='Add'
+          data={res}
+        />
+      ),
+    })
   }
 
   const removePair = (item: { id: string }) => {
@@ -135,7 +181,7 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
     trigger('pair')
   }
 
-  const onClickAction = (type: string) => {
+  const onClickAction = (type: string, data?: AddNewLanguagePairParams[]) => {
     closeModal('setPriceUnitModal')
     if (type === 'Discard') {
       reset({
@@ -144,7 +190,7 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
         ],
       })
     } else if (type === 'Add') {
-      console.log('add')
+      addLanguagePairMutation.mutate(data!)
     }
   }
 
@@ -160,11 +206,6 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
       open={true}
       keepMounted
       fullWidth
-      // onClose={() => {
-      //   // setModal(null)
-      //   onClose()
-      // }}
-      // TransitionComponent={Transition}
       aria-labelledby='alert-dialog-slide-title'
       aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
@@ -369,13 +410,13 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position='start'>
-                                  {currency === 'USD'
+                                  {priceData.currency === 'USD'
                                     ? '($ USD)'
-                                    : currency === 'KRW'
+                                    : priceData.currency === 'KRW'
                                     ? '(₩ KRW)'
-                                    : currency === 'JPY'
+                                    : priceData.currency === 'JPY'
                                     ? '(¥ JPY)'
-                                    : currency === 'SGD'
+                                    : priceData.currency === 'SGD'
                                     ? '($ SGD)'
                                     : '-'}
                                 </InputAdornment>
@@ -458,22 +499,17 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                             InputProps={{
                               startAdornment: (
                                 <InputAdornment position='start'>
-                                  {currency === 'USD'
+                                  {priceData.currency === 'USD'
                                     ? '($ USD)'
-                                    : currency === 'KRW'
+                                    : priceData.currency === 'KRW'
                                     ? '(₩ KRW)'
-                                    : currency === 'JPY'
+                                    : priceData.currency === 'JPY'
                                     ? '(¥ JPY)'
-                                    : currency === 'SGD'
+                                    : priceData.currency === 'SGD'
                                     ? '($ SGD)'
                                     : '-'}
                                 </InputAdornment>
                               ),
-                              inputProps: {
-                                maxLength: 10,
-                                inputMode: 'numeric',
-                                pattern: '[0-9]*',
-                              },
                             }}
                           />
                         )}
@@ -533,18 +569,6 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                 disabled={pairFields.some(item => {
                   return !item.priceFactor || !item.target || !item.source
                 })}
-                onClick={() =>
-                  openModal({
-                    type: 'addLanguagePairModal',
-                    children: (
-                      <LanguagePairActionModal
-                        onClose={() => closeModal('addLanguagePairModal')}
-                        onClickAction={onClickAction}
-                        type='Add'
-                      />
-                    ),
-                  })
-                }
               >
                 Add
               </Button>

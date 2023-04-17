@@ -23,3 +23,11 @@ export const RoundingProcedureList = [
     value: 4,
   },
 ]
+
+export const RoundingProcedureObj = {
+  [PriceRoundingResponseEnum.Type_0]: 0,
+  [PriceRoundingResponseEnum.Type_1]: 1,
+  [PriceRoundingResponseEnum.Type_2]: 2,
+  [PriceRoundingResponseEnum.Type_3]: 3,
+  [PriceRoundingResponseEnum.Type_4]: 4,
+}
