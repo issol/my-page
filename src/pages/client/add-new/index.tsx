@@ -360,23 +360,23 @@ export default function AddNewClient() {
 
   function onEditLanguagePair(data: LanguagePairListType) {
     if (selectedPrice) {
-      const idx = selectedPrice.languagePair
+      const idx = selectedPrice.languagePairs
         .map(item => item.id)
         .indexOf(data.id)
       if (idx !== -1) {
-        const newLanguagePair = [...selectedPrice.languagePair]
+        const newLanguagePair = [...selectedPrice.languagePairs]
         newLanguagePair[idx] = data
-        setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
+        setSelectedPrice({ ...selectedPrice, languagePairs: newLanguagePair })
       }
     }
   }
 
   function onDeleteLanguagePair(id: any) {
     if (selectedPrice) {
-      const newLanguagePair = selectedPrice.languagePair.filter(
+      const newLanguagePair = selectedPrice.languagePairs.filter(
         item => item.id !== id,
       )
-      setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
+      setSelectedPrice({ ...selectedPrice, languagePairs: newLanguagePair })
     }
   }
 
@@ -388,7 +388,7 @@ export default function AddNewClient() {
     setSelectedPrice({
       ...selectedPrice,
       //@ts-ignore
-      languagePair: selectedPrice?.languagePair.concat(langData),
+      languagePair: selectedPrice?.languagePairs.concat(langData),
     })
   }
 

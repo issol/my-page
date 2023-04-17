@@ -94,8 +94,8 @@ export default function ClientPrices({
               <Typography variant='h6'>Prices</Typography>
               <Box sx={{ display: 'flex', width: '100%' }}>
                 <LanguagePair
-                  list={selectedPrice?.languagePair!}
-                  listCount={selectedPrice?.languagePair?.length}
+                  list={selectedPrice?.languagePairs!}
+                  listCount={selectedPrice?.languagePairs?.length}
                   isLoading={false}
                   listPage={langListSkip}
                   setListPage={setLangListSkip}

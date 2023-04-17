@@ -1,6 +1,7 @@
 export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
+  isStandard?: boolean
   priceName: string
   category: string
   serviceType: string[]
