@@ -68,8 +68,6 @@ export function Row(props: {
         }}
         // hover
         onClick={event => {
-          event.preventDefault()
-
           handleRowClick(row)
         }}
         selected={isSelected(row.id)}
@@ -164,7 +162,9 @@ export function Row(props: {
           size='small'
         >
           <ServiceTypeChip label={row.serviceType[0]} />
-          <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
+          {row.serviceType.slice(1).length ? (
+            <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
+          ) : null}
         </TableCell>
         <TableCell
           sx={{
@@ -259,7 +259,12 @@ export function Row(props: {
               horizontal: 'right',
             }}
           >
-            <MenuItem sx={{ gap: 2 }} onClick={() => onClickEditPrice(row)}>
+            <MenuItem
+              sx={{ gap: 2 }}
+              onClick={() => {
+                onClickEditPrice(row)
+              }}
+            >
               <ListItemIcon
                 sx={{
                   minWidth: '16px !important',

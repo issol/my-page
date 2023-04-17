@@ -30,6 +30,9 @@ type Props = {
   onClickEditPrice: (priceData: StandardPriceListType) => void
   onClickDeletePrice: (priceData: StandardPriceListType) => void
   setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
+  handleRowClick: (row: StandardPriceListType) => void
+  isSelected: (index: number) => boolean
+  selected: number | null
 }
 const PriceList = ({
   list,
@@ -43,22 +46,10 @@ const PriceList = ({
   onClickEditPrice,
   setSelectedRow,
   onClickDeletePrice,
+  handleRowClick,
+  isSelected,
+  selected,
 }: Props) => {
-  const [selected, setSelected] = useState<number | null>(null)
-
-  const handleRowClick = (row: StandardPriceListType) => {
-    if (row.id === selected) {
-      setSelected(null)
-      setSelectedRow(null)
-    } else {
-      setSelected(row.id)
-      setSelectedRow(row)
-    }
-  }
-
-  const isSelected = (index: number) => {
-    return index === selected
-  }
   return (
     <Card sx={{ padding: '20px 0' }}>
       <Box

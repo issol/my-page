@@ -80,7 +80,7 @@ export type SetPriceUnit = {
       title: string
       unit: string
       weighting: number
-      isActive: boolean
+      isActive?: boolean
       parentPriceUnitId: number
     }>
   }[]

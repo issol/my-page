@@ -84,6 +84,22 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
 
   const [selectedModalType, setSelectedModalType] = useState('')
 
+  const [selected, setSelected] = useState<number | null>(null)
+
+  const handleRowClick = (row: StandardPriceListType) => {
+    if (row.id === selected) {
+      setSelected(null)
+      setSelectedPriceData(null)
+    } else {
+      setSelected(row.id)
+      setSelectedPriceData(row)
+    }
+  }
+
+  const isSelected = (index: number) => {
+    return index === selected
+  }
+
   const { openModal, closeModal } = useModal()
 
   const addNewPriceMutation = useMutation(
@@ -274,12 +290,20 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
   useEffect(() => {
     if (selectedPriceData) {
       setPriceUnitList(selectedPriceData.priceUnit)
+    } else {
+      setPriceUnitList([])
     }
   }, [selectedPriceData])
 
   useEffect(() => {
-    console.log(selectedModalType)
-  }, [selectedModalType])
+    if (selectedPriceData) {
+      const updatedData = standardPrices.data.find(
+        value => value.id === selectedPriceData.id,
+      )
+      setSelectedPriceData(updatedData!)
+      setPriceUnitList(updatedData?.priceUnit!)
+    }
+  }, [standardPrices, selectedPriceData])
 
   return (
     <Grid container xs={12} spacing={6}>
@@ -296,6 +320,9 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
           onClickAddNewPrice={onClickAddNewPrice}
           onClickEditPrice={onClickEditPrice}
           onClickDeletePrice={onClickDeletePrice}
+          handleRowClick={handleRowClick}
+          isSelected={isSelected}
+          selected={selected}
         />
       </Grid>
       {selectedPriceData ? (

@@ -163,6 +163,7 @@ const SetPriceUnitModal = ({
       closeModal('setPriceUnitModal')
       setPriceUnitMutation.mutate({ data: data!, type: type })
     } else if (type === 'Cancel') {
+      closeModal('setPriceUnitModal')
     }
   }
 
@@ -290,17 +291,43 @@ const SetPriceUnitModal = ({
   }, [priceUnit])
 
   useEffect(() => {
+    const subUnit = priceUnitPair.map(value => ({
+      id: value.priceUnitId,
+      isBase: value.parentPriceUnitId === null,
+      title: value.title,
+      unit: value.unit,
+      weighting: value.weighting!,
+      parentPriceUnitId: value.parentPriceUnitId!,
+    }))
     priceUnitPair.map(value => {
-      append({
-        unitId: value.id,
-        quantity: value.quantity ?? '-',
-        price: value.price,
-        weighting: value.weighting ?? '-',
-        title: value.title,
-        isBase: value.parentPriceUnitId === null,
-        parentPriceUnitId: value.parentPriceUnitId,
-        unit: value.unit,
-      })
+      if (value.parentPriceUnitId === null) {
+        append({
+          unitId: value.priceUnitId,
+          quantity: value.quantity ?? '-',
+          price: value.price,
+          weighting: value.weighting ?? '-',
+          title: value.title,
+          isBase: value.parentPriceUnitId === null,
+          parentPriceUnitId: value.parentPriceUnitId,
+          subPriceUnits: subUnit,
+          unit: value.unit,
+        })
+        setBaseUnitPrice(prevState => [
+          ...prevState,
+          { id: value.priceUnitId, price: Number(value.price) },
+        ])
+      } else {
+        append({
+          unitId: value.priceUnitId,
+          quantity: value.quantity ?? '-',
+          price: value.price,
+          weighting: value.weighting ?? '-',
+          title: value.title,
+          isBase: value.parentPriceUnitId === null,
+          parentPriceUnitId: value.parentPriceUnitId,
+          unit: value.unit,
+        })
+      }
     })
 
     const removeUnitsId = priceUnitPair.map(value => value.priceUnitId)
@@ -311,8 +338,8 @@ const SetPriceUnitModal = ({
   }, [priceUnitPair])
 
   useEffect(() => {
-    console.log(errors)
-  }, [errors])
+    console.log(baseUnitPrice)
+  }, [baseUnitPrice])
 
   return (
     <Dialog
@@ -513,9 +540,11 @@ const SetPriceUnitModal = ({
                                       )
                                       .slice(0, 10)
                                     if (data.isBase) {
+                                      console.log(data)
                                       const res = data.subPriceUnits?.map(
                                         value => value.id,
                                       )
+
                                       const subUnitIds = res?.map(value => {
                                         return {
                                           index: pairFields.findIndex(
@@ -550,6 +579,8 @@ const SetPriceUnitModal = ({
                                         const existingId = prevState.map(
                                           value => value.id,
                                         )
+                                        console.log(data)
+
                                         if (
                                           !existingId.includes(data.unitId!)
                                         ) {
@@ -570,6 +601,9 @@ const SetPriceUnitModal = ({
                                         }
                                       })
                                     } else {
+                                      console.log(baseUnitPrice)
+                                      console.log(data)
+
                                       const price = baseUnitPrice.find(
                                         value =>
                                           value.id === data.parentPriceUnitId,
