@@ -40,6 +40,7 @@ import Icon from 'src/@core/components/icon'
 import { v4 as uuidv4 } from 'uuid'
 
 import CopyPriceModal from './copy-price-modal'
+import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
 
 const defaultValue = {
   priceName: '',
@@ -55,7 +56,7 @@ const defaultValue = {
 type Props = {
   open: boolean
   onClose: any
-  type: string
+  type: 'Edit' | 'Add'
   selectedPriceData?: StandardPriceListType
   setPriceList: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
   onSubmit: (data: AddPriceType, modalType: string) => void
@@ -171,19 +172,16 @@ const AddSavePriceModal = ({
       setValue('decimalPlace', selected.decimalPlace)
       setValue('memoForPrice', selected.memoForPrice, setValueOptions)
 
-      const rounding =
+      const roundingLabel =
         //@ts-ignore
         RoundingProcedureObjReversed[Number(selected.roundingProcedure)]
+      //@ts-ignore
+      const roundingValue = RoundingProcedureObj[selected.roundingProcedure]
       setValue(
         'roundingProcedure',
         {
-          label: rounding ?? selected.roundingProcedure,
-          value: parseInt(
-            getKeyByValue(
-              PriceRoundingResponseEnum,
-              selected.roundingProcedure,
-            )?.split('_')[1]!,
-          ),
+          label: roundingLabel ?? selected.roundingProcedure,
+          value: roundingValue ?? selected.roundingProcedure,
         },
         setValueOptions,
       )
@@ -246,10 +244,11 @@ const AddSavePriceModal = ({
           autoComplete='off'
           onSubmit={handleSubmit(data => {
             console.log('handleSubmit', data)
+            console.log(type)
             if (selected) {
               const finalData: StandardPriceListType = {
                 ...selected,
-                id: Math.random(),
+                id: type === 'Edit' ? selected.id : Math.random(),
                 isStandard: false,
                 priceName: data.priceName,
                 category: data?.category.value,
@@ -260,7 +259,17 @@ const AddSavePriceModal = ({
                 roundingProcedure: data?.roundingProcedure.value.toString(),
                 memoForPrice: data?.memoForPrice,
               }
-              setPriceList(prev => [...prev, finalData])
+              if (type === 'Edit') {
+                setPriceList(prev => {
+                  const idx = prev.map(item => item.id).indexOf(selected.id)
+                  const data = [...prev]
+                  data[idx] = finalData
+                  return data
+                })
+              } else {
+                setPriceList(prev => [...prev, finalData])
+              }
+
               onClose()
             } else onSubmit(data, type)
           })}

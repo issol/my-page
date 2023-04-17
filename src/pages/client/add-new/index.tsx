@@ -217,7 +217,6 @@ export default function AddNewClient() {
   }
 
   const onEditPrice = (priceData: StandardPriceListType) => {
-    setSelectedPrice(priceData)
     setSelectedModalType('Edit')
     openModal({
       type: 'EditPriceModal',
@@ -227,7 +226,7 @@ export default function AddNewClient() {
           onClose={() => closeModal('EditPriceModal')}
           type={'Edit'}
           onSubmit={onSavePriceClick}
-          selectedPriceData={selectedPrice!}
+          selectedPriceData={priceData}
           onClickAction={onSubmitPrice}
           setPriceList={setPriceList}
         />
