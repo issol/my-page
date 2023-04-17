@@ -66,7 +66,24 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
   })
 
   const onSubmit = (data: AddNewLanguagePair) => {
-    console.log(data)
+    const res = data.pair.map(value => ({
+      source: value.source,
+      target: value.target,
+      priceFactor: value.priceFactor,
+      minimumPrice: value.minimumPrice,
+      currency: currency,
+    }))
+    openModal({
+      type: 'addLanguagePairModal',
+      children: (
+        <LanguagePairActionModal
+          onClose={() => closeModal('addLanguagePairModal')}
+          onClickAction={onClickAction}
+          type='Add'
+          data={res}
+        />
+      ),
+    })
   }
 
   const removePair = (item: { id: string }) => {
@@ -135,7 +152,16 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
     trigger('pair')
   }
 
-  const onClickAction = (type: string) => {
+  const onClickAction = (
+    type: string,
+    data?: {
+      source: string
+      target: string
+      priceFactor: number | null
+      minimumPrice: number | null
+      currency: string
+    }[],
+  ) => {
     closeModal('setPriceUnitModal')
     if (type === 'Discard') {
       reset({
@@ -144,7 +170,7 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
         ],
       })
     } else if (type === 'Add') {
-      console.log('add')
+      console.log(data)
     }
   }
 
@@ -160,11 +186,6 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
       open={true}
       keepMounted
       fullWidth
-      // onClose={() => {
-      //   // setModal(null)
-      //   onClose()
-      // }}
-      // TransitionComponent={Transition}
       aria-labelledby='alert-dialog-slide-title'
       aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
@@ -533,18 +554,6 @@ const AddNewLanguagePairModal = ({ onClose, currency }: Props) => {
                 disabled={pairFields.some(item => {
                   return !item.priceFactor || !item.target || !item.source
                 })}
-                onClick={() =>
-                  openModal({
-                    type: 'addLanguagePairModal',
-                    children: (
-                      <LanguagePairActionModal
-                        onClose={() => closeModal('addLanguagePairModal')}
-                        onClickAction={onClickAction}
-                        type='Add'
-                      />
-                    ),
-                  })
-                }
               >
                 Add
               </Button>

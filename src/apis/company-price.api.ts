@@ -44,3 +44,5 @@ export const setPriceUnitPair = async (data: SetPriceUnitPair[]) => {
 export const patchPriceUnitPair = async (data: SetPriceUnitPair[]) => {
   await axios.patch('/api/enough/u/price/unit/pair', { data: data })
 }
+
+// export const createLanguagePair = async()
