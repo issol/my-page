@@ -116,6 +116,7 @@ const CatInterface = ({
     const memSource: CatInterfaceParams[] =
       priceUnitListWithHeaders.Memsource.map(value => ({
         id: value.id,
+        priceUnitId: value.id,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -130,6 +131,7 @@ const CatInterface = ({
     const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
       value => ({
         id: value.id,
+        priceUnitId: value.id,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -226,6 +228,7 @@ const CatInterface = ({
 
       const withHeaders = priceUnitList.map(value => ({
         id: value.id,
+        priceUnitId: value.priceUnitId,
         title: value.title,
         quantity: value.quantity!,
         perWords: 1,
@@ -236,45 +239,58 @@ const CatInterface = ({
 
       const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
         .memSource.length
-        ? priceData.catInterface.memSource.map(value => ({
-            id: value.id,
-            title: value.priceUnitTitle,
-            quantity: value.priceUnitQuantity,
-            price: value.priceUnitPrice,
-            unit: value.priceUnitUnit,
-            perWords: value.perWords,
-            chips: value.chips.map((data, idx) => ({
-              id: idx,
-              title: data.title,
-              selected: data.selected,
-              tmpSelected: false,
+        ? [
+            ...priceData.catInterface.memSource.map(value => ({
+              id: value.id,
+              priceUnitId: value.priceUnitId,
+              title: value.priceUnitTitle,
+              quantity: value.priceUnitQuantity,
+              price: value.priceUnitPrice,
+              unit: value.priceUnitUnit,
+              perWords: value.perWords,
+              chips: value.chips.map((data, idx) => ({
+                id: idx,
+                title: data.title,
+                selected: data.selected,
+                tmpSelected: false,
+              })),
             })),
-          }))
+            ...withHeaders.filter(
+              value =>
+                !priceData.catInterface.memSource
+                  .map(value => value.priceUnitId)
+                  .includes(value.priceUnitId),
+            ),
+          ]
         : withHeaders
 
       const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
         .length
-        ? priceData.catInterface.memoQ.map(value => ({
-            id: value.id,
-            title: value.priceUnitTitle,
-            quantity: value.priceUnitQuantity,
-            price: value.priceUnitPrice,
-            unit: value.priceUnitUnit,
-            perWords: value.perWords,
-            chips: value.chips.map((data, idx) => ({
-              id: idx,
-              title: data.title,
-              selected: data.selected,
-              tmpSelected: false,
+        ? [
+            ...priceData.catInterface.memoQ.map(value => ({
+              id: value.id,
+              priceUnitId: value.priceUnitId,
+              title: value.priceUnitTitle,
+              quantity: value.priceUnitQuantity,
+              price: value.priceUnitPrice,
+              unit: value.priceUnitUnit,
+              perWords: value.perWords,
+              chips: value.chips.map((data, idx) => ({
+                id: idx,
+                title: data.title,
+                selected: data.selected,
+                tmpSelected: false,
+              })),
             })),
-          }))
+            ...withHeaders.filter(
+              value =>
+                !priceData.catInterface.memoQ
+                  .map(value => value.priceUnitId)
+                  .includes(value.priceUnitId),
+            ),
+          ]
         : withHeaders
       setPriceUnitListWithHeaders(prevState => ({
-        ...prevState,
-        Memsource: memSource,
-        memoQ: memoQ,
-      }))
-      setOriginalHeaders(prevState => ({
         ...prevState,
         Memsource: memSource,
         memoQ: memoQ,
@@ -289,6 +305,7 @@ const CatInterface = ({
 
       const withHeaders: PriceUnitListWithHeaders = {
         id: 0,
+        priceUnitId: 0,
         title: '-',
         quantity: null,
         perWords: null,
