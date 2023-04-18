@@ -51,6 +51,7 @@ export interface PriceUnitListType {
 export interface PriceUnitListWithHeaders {
   id: number
   title: string
+  priceUnitId: number
   quantity: number | null
   price: number | null
   unit: string | null
@@ -127,6 +128,7 @@ export type CatInterfaceType = {
   id: number
   createdAt: string
   updatedAt: string
+  priceUnitId: number
   priceUnitTitle: string
   priceUnitQuantity: number
   priceUnitUnit: string
@@ -142,6 +144,7 @@ export type CatInterfaceType = {
 }
 
 export type CatInterfaceParams = {
+  priceUnitId: number
   priceUnitTitle: string
   priceUnitPrice: number
   priceUnitQuantity: number
