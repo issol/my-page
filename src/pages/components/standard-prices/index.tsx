@@ -6,7 +6,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { useEffect, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import AddSavePriceModal from '../standard-prices-modal/dialog/add-save-price-modal'
 
@@ -31,7 +31,12 @@ import { useGetPriceUnitList } from '@src/queries/price-units.query'
 
 import CatInterface from './component/cat-interface'
 
-import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
+import {
+  GridCellModes,
+  GridCellModesModel,
+  GridCellParams,
+  MuiEvent,
+} from '@mui/x-data-grid'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -89,6 +94,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
   const [selectedModalType, setSelectedModalType] = useState('')
 
   const [selected, setSelected] = useState<number | null>(null)
+
+  const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
 
   const handleRowClick = (row: StandardPriceListType) => {
     if (row.id === selected) {
@@ -289,6 +296,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
     if (selectedPriceData?.priceUnit.length) {
       setSelectedLanguagePair(params.row)
     }
+
     // setSelectedLanguagePair(params.row)
     // setPriceUnitList(prevState => {
     //   const res = prevState?.map(value => ({
@@ -322,6 +330,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
           priceUnit={priceUnit?.data!}
           price={selectedPriceData!}
           priceUnitPair={selectedPriceData?.priceUnit!}
+          setIsEditingCatInterface={setIsEditingCatInterface}
           refetch={refetch}
         />
       ),
@@ -390,6 +399,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
                   onCellClick={onClickLanguagePair}
                   onClickAddNewLanguagePair={onClickAddNewLanguagePair}
                   existPriceUnit={priceUnitList.length > 0}
+                  selectedLanguagePair={selectedLanguagePair!}
+                  priceData={selectedPriceData!}
                 />
                 <Box
                   sx={{
@@ -417,6 +428,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
               priceUnitList={priceUnitList}
               priceData={selectedPriceData}
               existPriceUnit={priceUnitList.length > 0}
+              setIsEditingCatInterface={setIsEditingCatInterface}
+              isEditingCatInterface={isEditingCatInterface}
             />
           </Grid>
         </>

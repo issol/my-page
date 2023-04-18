@@ -38,7 +38,13 @@ import {
 } from 'react-hook-form'
 
 import { PriceUnitType } from '@src/apis/price-units.api'
-import { SyntheticEvent, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useEffect,
+  useState,
+} from 'react'
 import _ from 'lodash'
 
 import PriceActionModal from '../modal/price-action-modal'
@@ -55,6 +61,7 @@ import {
   patchPriceUnitPair,
   setPriceUnitPair,
 } from '@src/apis/company-price.api'
+import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
 
 type Props = {
   onClose: any
@@ -62,6 +69,7 @@ type Props = {
   priceUnit: PriceUnitType[]
   price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
+  setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
@@ -82,6 +90,7 @@ const SetPriceUnitModal = ({
   price,
   priceUnitPair,
   refetch,
+  setIsEditingCatInterface,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const queryClient = useQueryClient()
@@ -134,14 +143,17 @@ const SetPriceUnitModal = ({
   }
 
   const setPriceUnitMutation = useMutation(
-    (value: { data: SetPriceUnitPair[]; type: string }) =>
+    (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
       value.type === 'Save'
-        ? setPriceUnitPair(value.data)
-        : patchPriceUnitPair(value.data),
+        ? setPriceUnitPair(value.data, value.id)
+        : patchPriceUnitPair(value.data, value.id),
     {
-      onSuccess: data => {
+      onSuccess: (data, variables) => {
         refetch()
         queryClient.invalidateQueries('standard-client-prices')
+        if (variables.type === 'Save') {
+          setIsEditingCatInterface(true)
+        }
 
         toast.success(`Success`, {
           position: 'bottom-left',
@@ -161,7 +173,7 @@ const SetPriceUnitModal = ({
       closeModal('setPriceUnitModal')
     } else if (type === 'Save' || type === 'EditSave') {
       closeModal('setPriceUnitModal')
-      setPriceUnitMutation.mutate({ data: data!, type: type })
+      setPriceUnitMutation.mutate({ data: data!, type: type, id: price.id })
     } else if (type === 'Cancel') {
       closeModal('setPriceUnitModal')
     }
@@ -169,7 +181,6 @@ const SetPriceUnitModal = ({
 
   const onSubmit = (data: SetPriceUnit) => {
     const res: SetPriceUnitPair[] = data.pair.map(value => ({
-      priceId: price.id,
       priceUnitId: value.unitId!,
       quantity:
         typeof value.quantity === 'string' && value.quantity === '-'
@@ -213,9 +224,26 @@ const SetPriceUnitModal = ({
     })
   }
 
-  const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
+  const handleRemovePair = (
+    item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>,
+    isBase: boolean,
+  ) => {
     const idx = pairFields.map(item => item.unitId).indexOf(item.unitId)
-    idx !== -1 && remove(idx)
+
+    const subUnits = isBase
+      ? pairFields
+          .filter(data => data.parentPriceUnitId === item.unitId)
+          .map(value => value.unitId)
+      : []
+
+    const indexes = pairFields.reduce((acc: number[], obj, index) => {
+      if (subUnits.find(id => obj.unitId === id)) {
+        acc.push(index)
+      }
+      return acc
+    }, [])
+
+    idx !== -1 && remove([idx, ...indexes])
 
     let arr = priceUnitOptions
 
@@ -228,6 +256,24 @@ const SetPriceUnitModal = ({
     arr = _.sortBy(arr, ['title'])
 
     setPriceUnitOptions(arr)
+  }
+
+  const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
+    if (item.parentPriceUnitId === null) {
+      openModal({
+        type: 'BasePriceUnitRemoveModal',
+        children: (
+          <BasePriceUnitRemoveModal
+            onClose={() => closeModal('BasePriceUnitRemoveModal')}
+            onClickAction={handleRemovePair}
+            item={item}
+            isBase={item.parentPriceUnitId === null}
+          />
+        ),
+      })
+    } else {
+      handleRemovePair(item, item.parentPriceUnitId === null)
+    }
   }
 
   const onClickAddPriceUnit = () => {

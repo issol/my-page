@@ -13,6 +13,10 @@ export type StandardPriceListType = {
   memoForPrice: string
   languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
+  catInterface: {
+    memSource: Array<CatInterfaceType>
+    memoQ: Array<CatInterfaceType>
+  }
 }
 
 export type LanguagePairListType = {
@@ -44,8 +48,19 @@ export interface PriceUnitListType {
   deletedAt?: string | null
 }
 
-export interface PriceUnitListWithHeaders extends PriceUnitListType {
-  headers: Array<{ value: string; selected: boolean; tmpSelected: boolean }>
+export interface PriceUnitListWithHeaders {
+  id: number
+  title: string
+  quantity: number | null
+  price: number | null
+  unit: string | null
+  perWords: number | null
+  chips: Array<{
+    id: number
+    title: string
+    selected: boolean
+    tmpSelected: boolean
+  }>
 }
 
 export type AddNewPriceType = {
@@ -93,21 +108,49 @@ export type SetPriceUnit = {
 }
 
 export type SetPriceUnitPair = {
-  priceId: number
   priceUnitId: number
   price: string | null
   weighting: string | null
   quantity: string | null
 }
 
-export type AddNewLanguagePairParams = {
+export type LanguagePairParams = {
   source: string
   target: string
-  priceFactor: number | null
-  minimumPrice: number | null
+  priceFactor: string | null
+  minimumPrice: string | null
   currency: string
 }
 
+export type CatInterfaceType = {
+  id: number
+  createdAt: string
+  updatedAt: string
+  priceUnitTitle: string
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  priceUnitPrice: number
+  chips: [
+    {
+      id: number
+      title: string
+      selected: boolean
+    },
+  ]
+}
+
+export type CatInterfaceParams = {
+  priceUnitTitle: string
+  priceUnitPrice: number
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  chips: Array<{
+    title: string
+    selected: boolean
+  }>
+}
 export type CreatePriceResType = {
   name: string
   category: string

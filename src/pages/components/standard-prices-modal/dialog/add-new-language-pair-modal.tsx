@@ -23,7 +23,7 @@ import { JobList } from '@src/shared/const/job/jobs'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import {
   AddNewLanguagePair,
-  AddNewLanguagePairParams,
+  LanguagePairParams,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
@@ -75,7 +75,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {
   })
 
   const addLanguagePairMutation = useMutation(
-    (data: AddNewLanguagePairParams[]) => createLanguagePair(data),
+    (data: LanguagePairParams[]) => createLanguagePair(data),
     {
       onSuccess: data => {
         // refetch()
@@ -181,7 +181,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {
     trigger('pair')
   }
 
-  const onClickAction = (type: string, data?: AddNewLanguagePairParams[]) => {
+  const onClickAction = (type: string, data?: LanguagePairParams[]) => {
     closeModal('setPriceUnitModal')
     if (type === 'Discard') {
       reset({
