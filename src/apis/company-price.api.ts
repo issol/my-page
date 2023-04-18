@@ -86,3 +86,17 @@ export const createCatInterface = async (
     memoQ: data.memoQ,
   })
 }
+
+export const patchCatInterface = async (
+  id: number,
+  data: {
+    memSource: Array<CatInterfaceParams>
+    memoQ: Array<CatInterfaceParams>
+  },
+) => {
+  await axios.patch('/api/enough/u/price-cat-pair', {
+    priceId: id,
+    memSource: data.memSource,
+    memoQ: data.memoQ,
+  })
+}

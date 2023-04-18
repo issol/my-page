@@ -20,13 +20,23 @@ import { v4 as uuidv4 } from 'uuid'
 
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
-import { ChangeEvent, useState, MouseEvent, useEffect } from 'react'
+import {
+  ChangeEvent,
+  useState,
+  MouseEvent,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from 'react'
 import TextField from '@mui/material/TextField'
 import { CatInterfaceChip } from '@src/@core/components/chips/chips'
 import { useGetCatInterfaceHeaders } from '@src/queries/company/standard-price'
 import { object } from 'yup'
 import { useMutation, useQueryClient } from 'react-query'
-import { createCatInterface } from '@src/apis/company-price.api'
+import {
+  createCatInterface,
+  patchCatInterface,
+} from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
 
 type InputType = { id: number; words: number }
@@ -35,23 +45,35 @@ type Props = {
   priceUnitList: PriceUnitListType[]
   priceData: StandardPriceListType
   existPriceUnit: boolean
+  setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
+  isEditingCatInterface: boolean
 }
-const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
+const CatInterface = ({
+  priceUnitList,
+  priceData,
+  existPriceUnit,
+  setIsEditingCatInterface,
+  isEditingCatInterface,
+}: Props) => {
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
-  const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
+
   const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
     alignment!,
   )
 
   const createCatInterfacePairMutation = useMutation(
     (value: {
+      type: string
       id: number
       data: {
         memSource: Array<CatInterfaceParams>
         memoQ: Array<CatInterfaceParams>
       }
-    }) => createCatInterface(value.id, value.data),
+    }) =>
+      value.type === 'patch'
+        ? patchCatInterface(value.id, value.data)
+        : createCatInterface(value.id, value.data),
     {
       onSuccess: data => {
         // refetch()
@@ -165,6 +187,11 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
       memoQ: memoQ,
     }
     createCatInterfacePairMutation.mutate({
+      type:
+        priceData.catInterface.memoQ.length > 0 ||
+        priceData.catInterface.memSource.length > 0
+          ? 'patch'
+          : 'post',
       id: priceData.id,
       data: data,
     })

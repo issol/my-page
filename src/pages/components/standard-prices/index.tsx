@@ -95,6 +95,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
 
   const [selected, setSelected] = useState<number | null>(null)
 
+  const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
+
   const handleRowClick = (row: StandardPriceListType) => {
     if (row.id === selected) {
       setSelected(null)
@@ -328,6 +330,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
           priceUnit={priceUnit?.data!}
           price={selectedPriceData!}
           priceUnitPair={selectedPriceData?.priceUnit!}
+          setIsEditingCatInterface={setIsEditingCatInterface}
           refetch={refetch}
         />
       ),
@@ -425,6 +428,8 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
               priceUnitList={priceUnitList}
               priceData={selectedPriceData}
               existPriceUnit={priceUnitList.length > 0}
+              setIsEditingCatInterface={setIsEditingCatInterface}
+              isEditingCatInterface={isEditingCatInterface}
             />
           </Grid>
         </>

@@ -38,7 +38,13 @@ import {
 } from 'react-hook-form'
 
 import { PriceUnitType } from '@src/apis/price-units.api'
-import { SyntheticEvent, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useEffect,
+  useState,
+} from 'react'
 import _ from 'lodash'
 
 import PriceActionModal from '../modal/price-action-modal'
@@ -63,6 +69,7 @@ type Props = {
   priceUnit: PriceUnitType[]
   price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
+  setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
@@ -83,6 +90,7 @@ const SetPriceUnitModal = ({
   price,
   priceUnitPair,
   refetch,
+  setIsEditingCatInterface,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const queryClient = useQueryClient()
@@ -140,9 +148,12 @@ const SetPriceUnitModal = ({
         ? setPriceUnitPair(value.data, value.id)
         : patchPriceUnitPair(value.data, value.id),
     {
-      onSuccess: data => {
+      onSuccess: (data, variables) => {
         refetch()
         queryClient.invalidateQueries('standard-client-prices')
+        if (variables.type === 'Save') {
+          setIsEditingCatInterface(true)
+        }
 
         toast.success(`Success`, {
           position: 'bottom-left',
