@@ -47,5 +47,5 @@ export const standardPricesSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     value: yup.number().required(FormErrors.required),
   }),
-  memoForPrice: yup.string(),
+  memoForPrice: yup.string().nullable(),
 })

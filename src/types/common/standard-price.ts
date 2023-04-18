@@ -1,6 +1,7 @@
 export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
+  isStandard: boolean
   priceName: string
   category: string
   serviceType: string[]
@@ -63,6 +64,7 @@ export interface PriceUnitListWithHeaders {
 }
 
 export type AddNewPriceType = {
+  clientId?: number
   isStandard: boolean
   priceName: string
   category: string
@@ -148,4 +150,22 @@ export type CatInterfaceParams = {
     title: string
     selected: boolean
   }>
+}
+export type CreatePriceResType = {
+  name: string
+  category: string
+  serviceType: string[]
+  currency: CurrencyType
+  calculationBasis: string
+  rounding: number
+  numberPlace: number
+  authorId: number
+  client: {
+    clientId: number
+  }
+  memo: null | string
+  id: number
+  createdAt?: string
+  updatedAt?: null | string
+  isStandard: boolean
 }

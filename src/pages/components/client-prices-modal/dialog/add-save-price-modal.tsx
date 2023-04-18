@@ -3,19 +3,10 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 import Autocomplete from '@mui/material/Autocomplete'
-import { useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import TextField from '@mui/material/TextField'
 import FormControl from '@mui/material/FormControl'
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormGetValues,
-  UseFormHandleSubmit,
-  UseFormSetValue,
-  UseFormTrigger,
-  UseFormWatch,
-} from 'react-hook-form'
+import { Controller } from 'react-hook-form'
 import FormHelperText from '@mui/material/FormHelperText'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -25,7 +16,10 @@ import {
 } from '@src/shared/const/service-type/service-types'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
-import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import {
+  RoundingProcedureList,
+  RoundingProcedureObjReversed,
+} from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -43,6 +37,11 @@ import { useGetStandardPrices } from '@src/queries/company/standard-price'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
+import { v4 as uuidv4 } from 'uuid'
+
+import CopyPriceModal from './copy-price-modal'
+import { RoundingProcedureObj } from '@src/shared/const/rounding-procedure/rounding-procedure'
+
 const defaultValue = {
   priceName: '',
   category: undefined,
@@ -57,11 +56,10 @@ const defaultValue = {
 type Props = {
   open: boolean
   onClose: any
-  type: string
+  type: 'Edit' | 'Add'
   selectedPriceData?: StandardPriceListType
-
+  setPriceList: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
   onSubmit: (data: AddPriceType, modalType: string) => void
-
   onClickAction: (type: string) => void
 }
 
@@ -70,9 +68,8 @@ const AddSavePriceModal = ({
   onClose,
   type,
   selectedPriceData,
-
   onSubmit,
-
+  setPriceList,
   onClickAction,
 }: Props) => {
   const { closeModal, openModal } = useModal()
@@ -95,7 +92,6 @@ const AddSavePriceModal = ({
     trigger,
     getValues,
     setValue,
-
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddPriceType>({
     mode: 'onChange',
@@ -103,7 +99,9 @@ const AddSavePriceModal = ({
     resolver: yupResolver(standardPricesSchema),
   })
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
-  console.log('price data', standardPrices)
+  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+
   const resetData = () => {
     reset({
       priceName: '',
@@ -116,52 +114,96 @@ const AddSavePriceModal = ({
       memoForPrice: '',
     })
   }
-  useEffect(() => {
-    if (type === 'Edit' && selectedPriceData) {
-      setValue('priceName', selectedPriceData.priceName)
 
-      setValue('category', {
-        label: selectedPriceData.category,
-        value: selectedPriceData.category,
-      })
+  useEffect(() => {
+    if (selectedPriceData) {
+      setSelected(selectedPriceData)
+    }
+  }, [selectedPriceData])
+
+  useEffect(() => {
+    if (selected) {
+      setValue('priceName', selected.priceName, setValueOptions)
+
+      setValue(
+        'category',
+        {
+          label: selected.category,
+          value: selected.category,
+        },
+        setValueOptions,
+      )
 
       setValue(
         'serviceType',
-        selectedPriceData.serviceType.map(value => ({
-          label: value,
-          value: value,
-        })),
-      )
-      setValue('currency', {
-        label:
-          selectedPriceData.currency === 'USD'
-            ? '$ USD'
-            : selectedPriceData.currency === 'KRW'
-            ? '₩ KRW'
-            : selectedPriceData.currency === 'JPY'
-            ? '¥ JPY'
-            : selectedPriceData.currency === 'SGD'
-            ? '$ SGD'
-            : '',
-        value: selectedPriceData.currency,
-      })
-      setValue('catBasis', {
-        label: selectedPriceData.catBasis,
-        value: selectedPriceData.catBasis,
-      })
-      setValue('decimalPlace', selectedPriceData.decimalPlace)
-      setValue('roundingProcedure', {
-        label: selectedPriceData.roundingProcedure,
-        value: parseInt(
-          getKeyByValue(
-            PriceRoundingResponseEnum,
-            selectedPriceData.roundingProcedure,
-          )?.split('_')[1]!,
+        selected.serviceType.map(
+          value => ({
+            label: value,
+            value: value,
+          }),
+          setValueOptions,
         ),
-      })
-      setValue('memoForPrice', selectedPriceData.memoForPrice)
+      )
+      setValue(
+        'currency',
+        {
+          label:
+            selected.currency === 'USD'
+              ? '$ USD'
+              : selected.currency === 'KRW'
+              ? '₩ KRW'
+              : selected.currency === 'JPY'
+              ? '¥ JPY'
+              : selected.currency === 'SGD'
+              ? '$ SGD'
+              : '',
+          value: selected.currency,
+        },
+        setValueOptions,
+      )
+      setValue(
+        'catBasis',
+        {
+          label: selected.catBasis,
+          value: selected.catBasis,
+        },
+        setValueOptions,
+      )
+      setValue('decimalPlace', selected.decimalPlace)
+      setValue('memoForPrice', selected.memoForPrice, setValueOptions)
+
+      const roundingLabel =
+        //@ts-ignore
+        RoundingProcedureObjReversed[Number(selected.roundingProcedure)]
+      //@ts-ignore
+      const roundingValue = RoundingProcedureObj[selected.roundingProcedure]
+      setValue(
+        'roundingProcedure',
+        {
+          label: roundingLabel ?? selected.roundingProcedure,
+          value: roundingValue ?? selected.roundingProcedure,
+        },
+        setValueOptions,
+      )
     }
-  }, [type, selectedPriceData])
+  }, [selected])
+
+  function openCopyPriceModal() {
+    openModal({
+      type: 'copy-price',
+      children: (
+        <CopyPriceModal
+          list={standardPrices ?? { data: [], count: 0 }}
+          open={true}
+          onSubmit={onAddCopiedPrice}
+          onClose={() => closeModal('copy-price')}
+        />
+      ),
+    })
+  }
+  function onAddCopiedPrice(data: StandardPriceListType) {
+    setSelected(data)
+  }
 
   return (
     <Dialog
@@ -170,12 +212,8 @@ const AddSavePriceModal = ({
       fullWidth
       onClose={() => {
         resetData()
-        // setModal(null)
         onClose()
       }}
-      // TransitionComponent={Transition}
-      aria-labelledby='alert-dialog-slide-title'
-      aria-describedby='alert-dialog-slide-description'
       maxWidth='md'
     >
       <DialogContent
@@ -195,6 +233,7 @@ const AddSavePriceModal = ({
             <Button
               variant='outlined'
               startIcon={<Icon icon='ic:baseline-file-download' />}
+              onClick={openCopyPriceModal}
             >
               Copy price
             </Button>
@@ -203,7 +242,37 @@ const AddSavePriceModal = ({
         <form
           noValidate
           autoComplete='off'
-          onSubmit={handleSubmit(data => onSubmit(data, type))}
+          onSubmit={handleSubmit(data => {
+            console.log('handleSubmit', data)
+            console.log(type)
+            if (selected) {
+              const finalData: StandardPriceListType = {
+                ...selected,
+                id: type === 'Edit' ? selected.id : Math.random(),
+                isStandard: false,
+                priceName: data.priceName,
+                category: data?.category.value,
+                serviceType: data?.serviceType.map(value => value.value),
+                currency: data?.currency.value,
+                catBasis: data?.catBasis.value,
+                decimalPlace: data?.decimalPlace,
+                roundingProcedure: data?.roundingProcedure.value.toString(),
+                memoForPrice: data?.memoForPrice,
+              }
+              if (type === 'Edit') {
+                setPriceList(prev => {
+                  const idx = prev.map(item => item.id).indexOf(selected.id)
+                  const data = [...prev]
+                  data[idx] = finalData
+                  return data
+                })
+              } else {
+                setPriceList(prev => [...prev, finalData])
+              }
+
+              onClose()
+            } else onSubmit(data, type)
+          })}
         >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>
@@ -246,7 +315,6 @@ const AddSavePriceModal = ({
                       if (item) {
                         // @ts-ignore
                         const res = ServiceTypePair[item.value]
-                        console.log(res)
                         trigger('serviceType')
                         setServiceTypeList(res)
                       }
@@ -339,8 +407,6 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                       if (item) {
-                        console.log(item)
-
                         if (item.value === 'KRW' || item.value === 'JPY') {
                           setValue('decimalPlace', 1000)
                           trigger('decimalPlace')
@@ -547,11 +613,18 @@ const AddSavePriceModal = ({
                             )
                           }
                           type={type === 'Edit' ? 'Cancel' : 'Discard'}
-                          onClickAction={() =>
+                          onClickAction={() => {
+                            if (type === 'Edit') {
+                              closeModal(
+                                `${type}Price${
+                                  type === 'Edit' ? 'Cancel' : 'Discard'
+                                }Modal`,
+                              )
+                            }
                             onClickAction(
                               type === 'Edit' ? 'Cancel' : 'Discard',
                             )
-                          }
+                          }}
                         />
                       ),
                     })
