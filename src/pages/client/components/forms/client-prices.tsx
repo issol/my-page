@@ -41,6 +41,7 @@ type Props = {
   onEditLanguagePair: (data: LanguagePairListType) => void
   onDeleteLanguagePair: (id: any) => void
   handleBack: () => void
+  onSubmit: () => void
 }
 
 export default function ClientPrices({
@@ -57,6 +58,7 @@ export default function ClientPrices({
   onEditLanguagePair,
   onDeleteLanguagePair,
   handleBack,
+  onSubmit,
 }: Props) {
   const [priceListSkip, setPriceListSkip] = useState(0)
   const [priceListPageSize, setPriceListPageSize] = useState(10)
@@ -64,11 +66,11 @@ export default function ClientPrices({
   const [langListPageSize, setLangListPageSize] = useState(10)
 
   return (
-    <Grid container xs={12} spacing={6}>
+    <Grid container spacing={6}>
       <Grid item xs={12}>
         <ClientPriceList
           list={priceList}
-          listCount={priceList.length ?? 0}
+          listCount={priceList?.length ?? 0}
           isLoading={false}
           listPage={priceListSkip}
           setListPage={setPriceListSkip}
@@ -94,8 +96,8 @@ export default function ClientPrices({
               <Typography variant='h6'>Prices</Typography>
               <Box sx={{ display: 'flex', width: '100%' }}>
                 <LanguagePair
-                  list={selectedPrice?.languagePair!}
-                  listCount={selectedPrice?.languagePair?.length}
+                  list={selectedPrice?.languagePairs!}
+                  listCount={selectedPrice?.languagePairs?.length}
                   isLoading={false}
                   listPage={langListSkip}
                   setListPage={setLangListSkip}
@@ -148,7 +150,7 @@ export default function ClientPrices({
           <Icon icon='material-symbols:arrow-back-rounded' />
           Previous
         </Button>
-        <Button variant='contained' /* onClick={onNextStep} */>
+        <Button variant='contained' onClick={onSubmit}>
           Save <Icon icon='material-symbols:arrow-forward-rounded' />
         </Button>
       </Grid>

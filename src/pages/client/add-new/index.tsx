@@ -1,6 +1,11 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useRouter } from 'next/router'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** redux
+import { useAppSelector } from '@src/hooks/useRedux'
 
 // ** mui
 import { Box, Card, Grid, IconButton, Typography } from '@mui/material'
@@ -19,12 +24,15 @@ import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
 import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
+import ConfirmCreateClientModal from '../components/modals/confirm-create-client-modal'
+import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
+import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
 
 // ** react hook form
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** validation values
+// ** validation values & types
 import {
   CompanyInfoFormType,
   companyInfoDefaultValue,
@@ -41,6 +49,7 @@ import {
   contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
 import {
+  AddNewLanguagePairParams,
   AddNewPriceType,
   LanguagePairListType,
   PriceUnitListType,
@@ -49,15 +58,35 @@ import {
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
+import { CreateClientBodyType, CreateClientResType } from '@src/apis/client.api'
+import { GridCellParams } from '@mui/x-data-grid'
 
 // ** fetch
+import { useMutation } from 'react-query'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
-import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
-import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
-import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
+import { createClient } from '@src/apis/client.api'
+import {
+  createLanguagePair,
+  createPrice,
+  setPriceUnitPair,
+} from '@src/apis/company-price.api'
 
+// ** third parties
+import { toast } from 'react-hot-toast'
+
+type PriceListCopyRowType = Omit<
+  StandardPriceListType,
+  'languagePairs' | 'priceUnit' | 'id'
+> & {
+  id?: number
+  languagePairs?: Array<LanguagePairListType>
+  priceUnit?: Array<PriceUnitListType>
+}
 export default function AddNewClient() {
   const router = useRouter()
+
+  const { role, isLoading } = useAppSelector(state => state.userAccess)
+
   const { openModal, closeModal } = useModal()
 
   // ** confirm page leaving
@@ -74,8 +103,7 @@ export default function AddNewClient() {
     return false
   })
 
-  // ** TODO : steps는 role별로 다르게 주기
-  const steps = [
+  const [steps, setSteps] = useState<{ title: string }[]>([
     {
       title: 'Company info',
     },
@@ -85,13 +113,23 @@ export default function AddNewClient() {
     {
       title: 'Contact person',
     },
-    {
-      title: 'Prices',
-    },
-  ]
+  ])
+
+  useEffect(() => {
+    if (role.length) {
+      const isGeneral =
+        role.filter(item => item.name === 'LPM')[0]?.type === 'General'
+      !isGeneral &&
+        setSteps(
+          steps.concat({
+            title: 'Prices',
+          }),
+        )
+    }
+  }, [role])
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(3)
+  const [activeStep, setActiveStep] = useState<number>(0)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -199,6 +237,7 @@ export default function AddNewClient() {
             type={'Add'}
             onSubmit={onSavePriceClick}
             onClickAction={onSubmitPrice}
+            setPriceList={setPriceList}
           />
         ),
       })
@@ -216,7 +255,6 @@ export default function AddNewClient() {
   }
 
   const onEditPrice = (priceData: StandardPriceListType) => {
-    setSelectedPrice(priceData)
     setSelectedModalType('Edit')
     openModal({
       type: 'EditPriceModal',
@@ -226,11 +264,16 @@ export default function AddNewClient() {
           onClose={() => closeModal('EditPriceModal')}
           type={'Edit'}
           onSubmit={onSavePriceClick}
-          selectedPriceData={selectedPrice!}
+          selectedPriceData={priceData}
           onClickAction={onSubmitPrice}
+          setPriceList={setPriceList}
         />
       ),
     })
+  }
+
+  function deletePrice(data: StandardPriceListType) {
+    setPriceList(priceList.filter(item => item.id !== data.id))
   }
 
   const onDeletePrice = (priceData: StandardPriceListType) => {
@@ -241,7 +284,7 @@ export default function AddNewClient() {
           onClose={() => closeModal(`DeletePriceModal`)}
           priceName={priceData.priceName}
           type={'Delete'}
-          onClickAction={onSubmitPrice}
+          onClickAction={() => deletePrice(priceData)}
         />
       ),
     })
@@ -254,8 +297,6 @@ export default function AddNewClient() {
           ...data,
           id: Math.random(),
           isStandard: false,
-          // clientId: client관련 ID를 보내주기
-          //
           serviceType: data?.serviceType.map(value => value.value),
           catBasis: data?.catBasis.value,
           category: data?.category.value,
@@ -266,19 +307,6 @@ export default function AddNewClient() {
         }
         //@ts-ignore
         setPriceList(priceList.concat(formData))
-        // const obj: AddNewPriceType = {
-        //   isStandard: false,
-        //   priceName: data?.priceName!,
-        //   category: data?.category.value!,
-        //   serviceType: data?.serviceType.map(value => value.value)!,
-        //   currency: data?.currency.value!,
-        //   catBasis: data?.catBasis.value!,
-        //   decimalPlace: data?.decimalPlace!,
-        //   roundingProcedure: data?.roundingProcedure.value!,
-        //   memoForPrice: data?.memoForPrice!,
-        // }
-        // ** TODO : mutation
-        // addNewPriceMutation.mutate(obj)
       }
       closeModal(`${selectedModalType}PriceModal`)
     }
@@ -358,23 +386,23 @@ export default function AddNewClient() {
 
   function onEditLanguagePair(data: LanguagePairListType) {
     if (selectedPrice) {
-      const idx = selectedPrice.languagePair
+      const idx = selectedPrice.languagePairs
         .map(item => item.id)
         .indexOf(data.id)
       if (idx !== -1) {
-        const newLanguagePair = [...selectedPrice.languagePair]
+        const newLanguagePair = [...selectedPrice.languagePairs]
         newLanguagePair[idx] = data
-        setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
+        setSelectedPrice({ ...selectedPrice, languagePairs: newLanguagePair })
       }
     }
   }
 
   function onDeleteLanguagePair(id: any) {
     if (selectedPrice) {
-      const newLanguagePair = selectedPrice.languagePair.filter(
+      const newLanguagePair = selectedPrice.languagePairs.filter(
         item => item.id !== id,
       )
-      setSelectedPrice({ ...selectedPrice, languagePair: newLanguagePair })
+      setSelectedPrice({ ...selectedPrice, languagePairs: newLanguagePair })
     }
   }
 
@@ -386,7 +414,113 @@ export default function AddNewClient() {
     setSelectedPrice({
       ...selectedPrice,
       //@ts-ignore
-      languagePair: selectedPrice?.languagePair.concat(langData),
+      languagePair: selectedPrice?.languagePairs.concat(langData),
+    })
+  }
+
+  // ** DESC : step 1-3 mutation
+  const createClientMutation = useMutation(
+    (data: CreateClientBodyType) => createClient(data),
+    {
+      onSuccess: res => {
+        onCreateClientSuccess(res)
+      },
+      onError: error => {
+        if (steps.length < 4) {
+          onMutationError()
+        } else {
+          throw new Error()
+        }
+      },
+    },
+  )
+
+  const clientId = useRef<number | null>(null)
+
+  function onCreateClientSuccess(data: CreateClientResType) {
+    clientId.current = data.clientId
+    const isGeneral = steps.length < 4
+
+    if (isGeneral || !priceList.length) {
+      router.push(`/client/${data.clientId}`)
+    } else if (priceList.length) {
+      const promiseArr: any = []
+      priceList.forEach(row => {
+        const copy: PriceListCopyRowType = { ...row }
+        delete copy.id
+        delete copy.languagePairs
+        delete copy.priceUnit
+        const form: AddNewPriceType = {
+          ...copy,
+          clientId: data.clientId,
+          roundingProcedure: Number(copy.roundingProcedure),
+        }
+        promiseArr.push(
+          createPrice(form)
+            .then(res => onCreatePriceSuccess(res.id, row))
+            .catch(e => onMutationError()),
+        )
+      })
+      Promise.all(promiseArr).then(() =>
+        router
+          .push(`/client/${clientId.current}`)
+          .catch(() => onMutationError()),
+      )
+    }
+  }
+
+  // ** step 1-3 등록
+  function onClientDataSubmit() {
+    const data: CreateClientBodyType = {
+      ...getCompanyInfoValues(),
+      ...getAddressValues(),
+      ...getContactPersonValues()!,
+    }
+    openModal({
+      type: 'create-client',
+      children: (
+        <ConfirmCreateClientModal
+          clientName={getCompanyInfoValues().name}
+          onAdd={() => createClientMutation.mutate(data)}
+          onClose={() => closeModal('create-client')}
+        />
+      ),
+    })
+  }
+
+  function onCreatePriceSuccess(priceId: number, data: StandardPriceListType) {
+    if (!data.languagePairs.length && !data.priceUnit.length) {
+      return
+    } else {
+      const priceUnitData: SetPriceUnitPair[] | [] = !data?.priceUnit?.length
+        ? []
+        : data.priceUnit.map(item => ({
+            priceId,
+            priceUnitId: item.priceUnitId,
+            price: item.price.toString(),
+            weighting: item.weighting ? item.weighting.toString() : null,
+            quantity: item.quantity ? item.quantity.toString() : null,
+          }))
+      priceUnitData.length && setPriceUnitPair(priceUnitData)
+
+      const priceLangData: AddNewLanguagePairParams[] | [] = !data
+        ?.languagePairs?.length
+        ? []
+        : data.languagePairs.map(item => ({
+            source: item.source,
+            target: item.target,
+            priceFactor: item.priceFactor,
+            minimumPrice: item.minimumPrice ?? null,
+            currency: item.currency,
+          }))
+
+      priceLangData.length && createLanguagePair(priceLangData)
+    }
+  }
+
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
     })
   }
 
@@ -438,6 +572,7 @@ export default function AddNewClient() {
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
             <ContactPersonForm
+              getCompanyInfo={getCompanyInfoValues}
               control={contactPersonControl}
               fields={contactPersons}
               append={appendContactPersons}
@@ -468,6 +603,7 @@ export default function AddNewClient() {
               onEditLanguagePair={onEditLanguagePair}
               onDeleteLanguagePair={onDeleteLanguagePair}
               handleBack={handleBack}
+              onSubmit={onClientDataSubmit}
             />
           </Card>
         )}

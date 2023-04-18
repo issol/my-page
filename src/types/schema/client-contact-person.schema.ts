@@ -9,10 +9,10 @@ export type ClientContactPersonType = {
 
 export type ContactPersonType = {
   id?: string
-  personType: PersonType
-  firstName: string
+  personType?: PersonType
+  firstName?: string
   middleName?: string
-  lastName: string
+  lastName?: string
   department?: string
   jobTitle?: string
   timezone: {

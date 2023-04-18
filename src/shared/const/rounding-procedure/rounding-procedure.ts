@@ -31,3 +31,10 @@ export const RoundingProcedureObj = {
   [PriceRoundingResponseEnum.Type_3]: 3,
   [PriceRoundingResponseEnum.Type_4]: 4,
 }
+export const RoundingProcedureObjReversed = {
+  0: PriceRoundingResponseEnum.Type_0,
+  1: PriceRoundingResponseEnum.Type_1,
+  2: PriceRoundingResponseEnum.Type_2,
+  3: PriceRoundingResponseEnum.Type_3,
+  4: PriceRoundingResponseEnum.Type_4,
+}

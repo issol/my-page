@@ -39,8 +39,6 @@ export default function PriceActionModal({
   onClickAction,
   priceName,
 }: Props) {
-  console.log(selectedPriceData)
-
   return (
     <Dialog
       open={true}
@@ -176,7 +174,6 @@ export default function PriceActionModal({
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
               onClose()
-              console.log(type)
               onClickAction(
                 type === 'Add'
                   ? 'Add'

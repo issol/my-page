@@ -35,8 +35,10 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 // ** components
 import AddContactPersonForm from './add-contact-person-form'
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
+import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 
 type Props = {
+  getCompanyInfo?: UseFormGetValues<CompanyInfoFormType>
   control: Control<ClientContactPersonType, any>
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
   append: UseFieldArrayAppend<ClientContactPersonType, 'contactPersons'>
@@ -52,6 +54,7 @@ type Props = {
 }
 
 export default function ContactPersonForm({
+  getCompanyInfo,
   control,
   fields,
   append,
@@ -67,7 +70,6 @@ export default function ContactPersonForm({
 }: Props) {
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
-  const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
   // ** modals
@@ -177,11 +179,14 @@ export default function ContactPersonForm({
   }
 
   function appendContactPerson() {
+    const companyInfo = getCompanyInfo ? getCompanyInfo() : undefined
     append({
       personType: 'Mr.',
       firstName: '',
       lastName: '',
-      timezone: { code: '', phone: '', label: '' },
+      timezone: companyInfo
+        ? companyInfo.timezone
+        : { code: '', label: '', phone: '' },
       email: '',
     })
   }
@@ -234,12 +239,10 @@ export default function ContactPersonForm({
               NoResultsOverlay: () => NoList(),
             }}
             sx={{ overflowX: 'scroll' }}
-            rows={fields.slice(skip, pageSize + 1)}
+            rows={fields}
             columns={columns}
-            rowCount={fields?.length ?? 0}
-            rowsPerPageOptions={[10, 25, 50]}
             pageSize={pageSize}
-            onPageChange={setSkip}
+            rowsPerPageOptions={[10, 25, 50]}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Box>

@@ -39,8 +39,6 @@ import {
 } from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
 
-type InputType = { id: number; words: number }
-
 type Props = {
   priceUnitList: PriceUnitListType[]
   priceData: StandardPriceListType
@@ -55,6 +53,8 @@ const CatInterface = ({
   setIsEditingCatInterface,
   isEditingCatInterface,
 }: Props) => {
+  console.log(priceUnitList)
+
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
 
@@ -158,6 +158,7 @@ const CatInterface = ({
   const onClickSaveEditCatInterface = () => {
     const memSource: CatInterfaceParams[] =
       priceUnitListWithHeaders.Memsource.map(value => ({
+        priceUnitId: value.id,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -171,6 +172,7 @@ const CatInterface = ({
 
     const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
       value => ({
+        priceUnitId: value.id,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -262,8 +264,6 @@ const CatInterface = ({
   }
 
   useEffect(() => {
-    console.log(priceUnitList)
-
     if (!isLoading && catInterface && priceUnitList.length > 0 && priceData) {
       /* @ts-ignore */
       const formattedHeader = catInterface.headers.map((value, idx) => ({
@@ -275,6 +275,7 @@ const CatInterface = ({
       // setHeaders(formattedHeader)
       const withHeaders = priceUnitList.map(value => ({
         id: value.id,
+        priceUnitId: value.priceUnitId,
         title: value.title,
         quantity: value.quantity!,
         perWords: 1,
@@ -282,42 +283,61 @@ const CatInterface = ({
         unit: value.unit,
         chips: formattedHeader,
       }))
-      console.log(priceData.catInterface.memSource.length)
 
       const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
         .memSource.length
-        ? priceData.catInterface.memSource.map(value => ({
-            id: value.id,
-            title: value.priceUnitTitle,
-            quantity: value.priceUnitQuantity,
-            price: value.priceUnitPrice,
-            unit: value.priceUnitUnit,
-            perWords: value.perWords,
-            chips: value.chips.map((data, idx) => ({
-              id: idx,
-              title: data.title,
-              selected: data.selected,
-              tmpSelected: false,
+        ? [
+            ...priceData.catInterface.memSource.map(value => ({
+              id: value.id,
+              priceUnitId: value.priceUnitId,
+              title: value.priceUnitTitle,
+              quantity: value.priceUnitQuantity,
+              price: value.priceUnitPrice,
+              unit: value.priceUnitUnit,
+              perWords: value.perWords,
+              chips: value.chips.map((data, idx) => ({
+                id: idx,
+                title: data.title,
+                selected: data.selected,
+                tmpSelected: false,
+              })),
             })),
-          }))
+            ...withHeaders.filter(
+              value =>
+                !priceData.catInterface.memSource
+                  .map(value => value.priceUnitId)
+                  .includes(value.priceUnitId),
+            ),
+          ]
         : withHeaders
+
+      console.log(withHeaders)
 
       const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
         .length
-        ? priceData.catInterface.memoQ.map(value => ({
-            id: value.id,
-            title: value.priceUnitTitle,
-            quantity: value.priceUnitQuantity,
-            price: value.priceUnitPrice,
-            unit: value.priceUnitUnit,
-            perWords: value.perWords,
-            chips: value.chips.map((data, idx) => ({
-              id: idx,
-              title: data.title,
-              selected: data.selected,
-              tmpSelected: false,
+        ? [
+            ...priceData.catInterface.memoQ.map(value => ({
+              id: value.id,
+              priceUnitId: value.priceUnitId,
+              title: value.priceUnitTitle,
+              quantity: value.priceUnitQuantity,
+              price: value.priceUnitPrice,
+              unit: value.priceUnitUnit,
+              perWords: value.perWords,
+              chips: value.chips.map((data, idx) => ({
+                id: idx,
+                title: data.title,
+                selected: data.selected,
+                tmpSelected: false,
+              })),
             })),
-          }))
+            ...withHeaders.filter(
+              value =>
+                !priceData.catInterface.memoQ
+                  .map(value => value.priceUnitId)
+                  .includes(value.priceUnitId),
+            ),
+          ]
         : withHeaders
       setPriceUnitListWithHeaders(prevState => ({
         ...prevState,
@@ -334,6 +354,7 @@ const CatInterface = ({
 
       const withHeaders: PriceUnitListWithHeaders = {
         id: 0,
+        priceUnitId: 0,
         title: '-',
         quantity: null,
         perWords: null,
@@ -349,10 +370,6 @@ const CatInterface = ({
       }))
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
-
-  useEffect(() => {
-    console.log(priceUnitListWithHeaders)
-  }, [priceUnitListWithHeaders])
 
   return (
     <Card

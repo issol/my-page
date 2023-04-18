@@ -9,7 +9,6 @@ function ModalContainer() {
   const modalList = useAppSelector(state => state.modal)
 
   const { closeModal } = useModal()
-  console.log(modalList)
 
   const handleClickOverlay = (
     name: string,
