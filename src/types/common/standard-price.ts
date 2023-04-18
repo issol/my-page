@@ -53,7 +53,9 @@ export interface PriceUnitListWithHeaders {
   quantity: number
   price: number
   unit: string
+  perWords: number | null
   chips: Array<{
+    id: number
     title: string
     selected: boolean
     tmpSelected: boolean
@@ -135,4 +137,16 @@ export type CatInterfaceType = {
       selected: boolean
     },
   ]
+}
+
+export type CatInterfaceParams = {
+  priceUnitTitle: string
+  priceUnitPrice: number
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  chips: Array<{
+    title: string
+    selected: boolean
+  }>
 }

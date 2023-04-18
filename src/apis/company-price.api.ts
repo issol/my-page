@@ -3,6 +3,8 @@ import {
   LanguagePairParams,
   AddNewPriceType,
   SetPriceUnitPair,
+  CatInterfaceType,
+  CatInterfaceParams,
 } from '@src/types/common/standard-price'
 
 export const getStandardClientPrice = async () => {
@@ -59,4 +61,18 @@ export const patchLanguagePair = async (
 
 export const deleteLanguagePair = async (id: number) => {
   await axios.delete(`/api/enough/u/language/pair/${id}`)
+}
+
+export const createCatInterface = async (
+  id: number,
+  data: {
+    memSource: Array<CatInterfaceParams>
+    memoQ: Array<CatInterfaceParams>
+  },
+) => {
+  await axios.post('/api/enough/u/price-cat-pair', {
+    priceId: id,
+    memSource: data.memSource,
+    memoQ: data.memoQ,
+  })
 }

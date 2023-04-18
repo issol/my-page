@@ -116,8 +116,6 @@ const LanguagePair = ({
     return cellModesModel[id]?.[field]?.mode || 'view'
   }, [cellModesModel, selectedCellParams])
 
-  console.log(cellMode)
-
   const patchLanguagePairMutation = useMutation(
     (value: { data: LanguagePairParams; id: number }) =>
       patchLanguagePair(value.data, value.id),
@@ -160,7 +158,6 @@ const LanguagePair = ({
   const getCellClassName = (
     params: GridCellParams<any, LanguagePairListType, any>,
   ) => {
-    console.log(params)
     const isEditMode = params.cellMode === 'edit'
     return isEditMode
       ? 'edit-row'
