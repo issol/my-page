@@ -19,7 +19,7 @@ type CellType = {
   row: StandardPriceListType
 }
 const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
-  const [pageSize, setPageSize] = useState(5)
+  const [pageSize, setPageSize] = useState(10)
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
   function onCopy() {
@@ -57,6 +57,18 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
       renderHeader: () => <Box>Price name</Box>,
       renderCell: ({ row }: CellType) => (
         <Typography>{row.priceName}</Typography>
+      ),
+    },
+    {
+      flex: 0.15,
+      field: 'isStandard',
+      minWidth: 40,
+      headerName: 'No.',
+      renderHeader: () => <Box>Price type</Box>,
+      renderCell: ({ row }: CellType) => (
+        <Typography>
+          {row.isStandard ? 'Standard client price' : 'Client price'}
+        </Typography>
       ),
     },
   ]
@@ -108,7 +120,7 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
           rows={list?.data || []}
           columns={columns}
           pageSize={pageSize}
-          rowsPerPageOptions={[5, 15, 30]}
+          rowsPerPageOptions={[10, 25, 50]}
           onPageSizeChange={newPageSize => setPageSize(newPageSize)}
         />
         <Box display='flex' gap='10px' justifyContent='center' mt='24px'>
