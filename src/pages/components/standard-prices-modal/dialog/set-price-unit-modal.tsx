@@ -55,6 +55,7 @@ import {
   patchPriceUnitPair,
   setPriceUnitPair,
 } from '@src/apis/company-price.api'
+import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
 
 type Props = {
   onClose: any
@@ -136,7 +137,7 @@ const SetPriceUnitModal = ({
   const setPriceUnitMutation = useMutation(
     (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
       value.type === 'Save'
-        ? setPriceUnitPair(value.data)
+        ? setPriceUnitPair(value.data, value.id)
         : patchPriceUnitPair(value.data, value.id),
     {
       onSuccess: data => {
@@ -212,9 +213,26 @@ const SetPriceUnitModal = ({
     })
   }
 
-  const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
+  const handleRemovePair = (
+    item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>,
+    isBase: boolean,
+  ) => {
     const idx = pairFields.map(item => item.unitId).indexOf(item.unitId)
-    idx !== -1 && remove(idx)
+
+    const subUnits = isBase
+      ? pairFields
+          .filter(data => data.parentPriceUnitId === item.unitId)
+          .map(value => value.unitId)
+      : []
+
+    const indexes = pairFields.reduce((acc: number[], obj, index) => {
+      if (subUnits.find(id => obj.unitId === id)) {
+        acc.push(index)
+      }
+      return acc
+    }, [])
+
+    idx !== -1 && remove([idx, ...indexes])
 
     let arr = priceUnitOptions
 
@@ -227,6 +245,24 @@ const SetPriceUnitModal = ({
     arr = _.sortBy(arr, ['title'])
 
     setPriceUnitOptions(arr)
+  }
+
+  const removePair = (item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>) => {
+    if (item.parentPriceUnitId === null) {
+      openModal({
+        type: 'BasePriceUnitRemoveModal',
+        children: (
+          <BasePriceUnitRemoveModal
+            onClose={() => closeModal('BasePriceUnitRemoveModal')}
+            onClickAction={handleRemovePair}
+            item={item}
+            isBase={item.parentPriceUnitId === null}
+          />
+        ),
+      })
+    } else {
+      handleRemovePair(item, item.parentPriceUnitId === null)
+    }
   }
 
   const onClickAddPriceUnit = () => {

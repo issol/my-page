@@ -40,8 +40,13 @@ export const deletePrice = async (priceId: number) => {
   await axios.delete(`/api/enough/u/price/${priceId}`)
 }
 
-export const setPriceUnitPair = async (data: SetPriceUnitPair[]) => {
-  await axios.post('/api/enough/u/price/unit/pair', { data: data })
+export const setPriceUnitPair = async (
+  data: SetPriceUnitPair[],
+  id: number,
+) => {
+  await axios.post(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+    data: data,
+  })
 }
 
 export const patchPriceUnitPair = async (
