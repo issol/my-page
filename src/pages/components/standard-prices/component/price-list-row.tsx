@@ -21,7 +21,7 @@ import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
-export function Row(props: {
+export default function Row(props: {
   row: StandardPriceListType
   onClickDeletePrice: (priceData: StandardPriceListType) => void
   onClickEditPrice: (priceData: StandardPriceListType) => void
