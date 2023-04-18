@@ -12,7 +12,7 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
-import { Row } from './price-list-row'
+import Row from './price-list-row'
 import TablePagination from '@mui/material/TablePagination'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'

@@ -29,6 +29,7 @@ import {
   PriceUnitListType,
   SetPriceUnit,
   SetPriceUnitPair,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
@@ -43,18 +44,18 @@ import { SyntheticEvent, useEffect, useState } from 'react'
 import _ from 'lodash'
 
 import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
-import { ClientPriceListFormType } from '@src/apis/client.api'
 
 type ClientPriceUnitType = Omit<PriceUnitListType, 'priceId'> & {
   priceId: string
   id: number
 }
+
 type Props = {
   onClose: any
-  onSubmit: (data: Array<ClientPriceUnitType>) => void
+  onSubmit: (data: SetPriceUnitPair[]) => void
   currency: string
   priceUnit: PriceUnitType[]
-  price: ClientPriceListFormType
+  price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
 }
 
@@ -100,7 +101,7 @@ const SetPriceUnitModal = ({
     name: 'pair',
   })
 
-  const onClickAction = (type: string, data?: Array<ClientPriceUnitType>) => {
+  const onClickAction = (type: string, data?: SetPriceUnitPair[]) => {
     if (type === 'Discard' || type === 'Cancel') {
       closeModal('setPriceUnitModal')
     } else if (type === 'Save') {
@@ -110,7 +111,7 @@ const SetPriceUnitModal = ({
   }
 
   const openConfirmModal = (data: SetPriceUnit) => {
-    const res: Array<ClientPriceUnitType> = data.pair.map((value, idx) => ({
+    const res: SetPriceUnitPair[] = data.pair.map((value, idx) => ({
       ...value, //추가
       id: idx,
       priceId: uuidv4(), //추가
@@ -119,25 +120,25 @@ const SetPriceUnitModal = ({
         typeof value.quantity === 'string' && value.quantity === '-'
           ? null
           : typeof value.quantity === 'string' && value.quantity !== '-'
-          ? parseFloat(value.quantity)
-          : typeof value.quantity === 'number'
           ? value.quantity
+          : typeof value.quantity === 'number'
+          ? value.quantity.toString()
           : null,
       price:
         typeof value.price === 'string' && value.price === '-'
           ? null
           : typeof value.price === 'string' && value.price !== '-'
-          ? parseFloat(value.price)
-          : typeof value.price === 'number'
           ? value.price
+          : typeof value.price === 'number'
+          ? value.price.toString()
           : null,
       weighting:
         typeof value.weighting === 'string' && value.weighting === '-'
           ? null
           : typeof value.weighting === 'string' && value.weighting !== '-'
-          ? parseFloat(value.weighting)
-          : typeof value.weighting === 'number'
           ? value.weighting
+          : typeof value.weighting === 'number'
+          ? value.weighting.toString()
           : null,
     }))
 
@@ -171,8 +172,6 @@ const SetPriceUnitModal = ({
   }
 
   const onClickAddPriceUnit = () => {
-    // setSelectedPriceUnits(priceUnits)
-
     priceUnits.map(value => {
       append({
         unitId: value.id,
@@ -181,6 +180,8 @@ const SetPriceUnitModal = ({
         weighting: value.weighting ?? '-',
         title: value.title,
         isBase: value.parentPriceUnitId === null,
+        parentPriceUnitId: value.parentPriceUnitId,
+        subPriceUnits: value.subPriceUnits,
         unit: value.unit,
       })
       if (value.subPriceUnits) {
@@ -188,10 +189,11 @@ const SetPriceUnitModal = ({
           append({
             unitId: value.id,
             quantity: value.unit === 'Percent' ? '-' : 1,
-            price: (1.0).toFixed(1),
+            price: (1.0 * value.weighting) / 100,
             weighting: value.weighting ?? '-',
             title: value.title,
             isBase: value.parentPriceUnitId === null,
+            parentPriceUnitId: value.parentPriceUnitId,
             unit: value.unit,
           })
         })
@@ -226,12 +228,13 @@ const SetPriceUnitModal = ({
   useEffect(() => {
     priceUnitPair.map(value => {
       append({
-        unitId: value?.id ? value.id : null,
+        unitId: value.priceUnitId,
         quantity: value.quantity ?? '-',
         price: value.price,
         weighting: value.weighting ?? '-',
         title: value.title,
         isBase: value.parentPriceUnitId === null,
+        parentPriceUnitId: value.parentPriceUnitId!,
         unit: value.unit,
       })
     })

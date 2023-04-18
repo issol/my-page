@@ -108,6 +108,7 @@ export type SetPriceUnit = {
 }
 
 export type SetPriceUnitPair = {
+  id?: number
   priceUnitId: number
   price: string | null
   weighting: string | null
@@ -119,7 +120,7 @@ export type LanguagePairParams = {
   target: string
   priceFactor: string | null
   minimumPrice: string | null
-  currency: string
+  currency: CurrencyType
 }
 
 export type CatInterfaceType = {

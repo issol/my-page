@@ -49,12 +49,13 @@ import {
   contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
 import {
-  AddNewLanguagePairParams,
+  LanguagePairParams,
   AddNewPriceType,
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
   StandardPriceListType,
+  CatInterfaceParams,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
@@ -66,6 +67,7 @@ import { useMutation } from 'react-query'
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
 import { createClient } from '@src/apis/client.api'
 import {
+  createCatInterface,
   createLanguagePair,
   createPrice,
   setPriceUnitPair,
@@ -225,6 +227,12 @@ export default function AddNewClient() {
     }
   }, [selectedPrice])
 
+  useEffect(() => {
+    if (!priceList.length) {
+      setSelectedPrice(null)
+    }
+  }, [priceList])
+
   const onAddPrice = () => {
     setSelectedModalType('Add')
     if (priceUnit) {
@@ -334,17 +342,11 @@ export default function AddNewClient() {
     })
   }
 
-  function onPriceUnitSubmit(
-    data: Array<
-      Omit<PriceUnitListType, 'priceId'> & {
-        priceId: string
-        id: number
-      }
-    >,
-  ) {
+  function onPriceUnitSubmit(data: SetPriceUnitPair[]) {
     //@ts-ignore
     setSelectedPrice({
       ...selectedPrice,
+      //@ts-ignore
       priceUnit: selectedPrice?.priceUnit.concat(data)!,
     })
   }
@@ -418,7 +420,7 @@ export default function AddNewClient() {
     })
   }
 
-  // ** DESC : step 1-3 mutation
+  // ** step 1-3 mutation
   const createClientMutation = useMutation(
     (data: CreateClientBodyType) => createClient(data),
     {
@@ -433,6 +435,16 @@ export default function AddNewClient() {
         }
       },
     },
+  )
+
+  const createCatInterfaceMutation = useMutation(
+    (value: {
+      id: number
+      data: {
+        memSource: Array<CatInterfaceParams>
+        memoQ: Array<CatInterfaceParams>
+      }
+    }) => createCatInterface(value.id, value.data),
   )
 
   const clientId = useRef<number | null>(null)
@@ -468,7 +480,6 @@ export default function AddNewClient() {
     }
   }
 
-  // ** step 1-3 등록
   function onClientDataSubmit() {
     const data: CreateClientBodyType = {
       ...getCompanyInfoValues(),
@@ -494,26 +505,28 @@ export default function AddNewClient() {
       const priceUnitData: SetPriceUnitPair[] | [] = !data?.priceUnit?.length
         ? []
         : data.priceUnit.map(item => ({
-            priceId,
             priceUnitId: item.priceUnitId,
             price: item.price.toString(),
             weighting: item.weighting ? item.weighting.toString() : null,
             quantity: item.quantity ? item.quantity.toString() : null,
           }))
-      priceUnitData.length && setPriceUnitPair(priceUnitData)
+      priceUnitData.length && setPriceUnitPair(priceUnitData, priceId)
 
-      const priceLangData: AddNewLanguagePairParams[] | [] = !data
-        ?.languagePairs?.length
+      const priceLangData: LanguagePairParams[] | [] = !data?.languagePairs
+        ?.length
         ? []
         : data.languagePairs.map(item => ({
             source: item.source,
             target: item.target,
-            priceFactor: item.priceFactor,
-            minimumPrice: item.minimumPrice ?? null,
+            priceFactor: item.priceFactor.toString(),
+            minimumPrice: item.minimumPrice.toString() ?? null,
             currency: item.currency,
           }))
 
       priceLangData.length && createLanguagePair(priceLangData)
+
+      const catInterfaceData = data.catInterface
+      createCatInterface(priceId, catInterfaceData)
     }
   }
 
@@ -522,7 +535,7 @@ export default function AddNewClient() {
       position: 'bottom-left',
     })
   }
-
+  console.log(priceList)
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -574,8 +587,7 @@ export default function AddNewClient() {
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
             <ContactPersonForm
-              // isGeneral={isGeneral}
-              isGeneral={true}
+              isGeneral={isGeneral}
               getCompanyInfo={getCompanyInfoValues}
               control={contactPersonControl}
               fields={contactPersons}
