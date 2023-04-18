@@ -50,9 +50,9 @@ export interface PriceUnitListType {
 export interface PriceUnitListWithHeaders {
   id: number
   title: string
-  quantity: number
-  price: number
-  unit: string
+  quantity: number | null
+  price: number | null
+  unit: string | null
   perWords: number | null
   chips: Array<{
     id: number
@@ -106,7 +106,6 @@ export type SetPriceUnit = {
 }
 
 export type SetPriceUnitPair = {
-  priceId: number
   priceUnitId: number
   price: string | null
   weighting: string | null

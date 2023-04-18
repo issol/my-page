@@ -134,10 +134,10 @@ const SetPriceUnitModal = ({
   }
 
   const setPriceUnitMutation = useMutation(
-    (value: { data: SetPriceUnitPair[]; type: string }) =>
+    (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
       value.type === 'Save'
         ? setPriceUnitPair(value.data)
-        : patchPriceUnitPair(value.data),
+        : patchPriceUnitPair(value.data, value.id),
     {
       onSuccess: data => {
         refetch()
@@ -161,7 +161,7 @@ const SetPriceUnitModal = ({
       closeModal('setPriceUnitModal')
     } else if (type === 'Save' || type === 'EditSave') {
       closeModal('setPriceUnitModal')
-      setPriceUnitMutation.mutate({ data: data!, type: type })
+      setPriceUnitMutation.mutate({ data: data!, type: type, id: price.id })
     } else if (type === 'Cancel') {
       closeModal('setPriceUnitModal')
     }
@@ -169,7 +169,6 @@ const SetPriceUnitModal = ({
 
   const onSubmit = (data: SetPriceUnit) => {
     const res: SetPriceUnitPair[] = data.pair.map(value => ({
-      priceId: price.id,
       priceUnitId: value.unitId!,
       quantity:
         typeof value.quantity === 'string' && value.quantity === '-'

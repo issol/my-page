@@ -44,8 +44,13 @@ export const setPriceUnitPair = async (data: SetPriceUnitPair[]) => {
   await axios.post('/api/enough/u/price/unit/pair', { data: data })
 }
 
-export const patchPriceUnitPair = async (data: SetPriceUnitPair[]) => {
-  await axios.patch('/api/enough/u/price/unit/pair', { data: data })
+export const patchPriceUnitPair = async (
+  data: SetPriceUnitPair[],
+  id: number,
+) => {
+  await axios.patch(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+    data: data,
+  })
 }
 
 export const createLanguagePair = async (data: LanguagePairParams[]) => {

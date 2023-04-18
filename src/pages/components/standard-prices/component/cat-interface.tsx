@@ -83,8 +83,6 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
     setAlignment(newAlignment)
   }
 
-  const [words, setWords] = useState<Array<InputType>>([])
-
   const handleItemChange = (id: number, field: string, value: string) => {
     if (id === editingItemId) {
       if (alignment === 'Memsource') {
@@ -139,9 +137,9 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
     const memSource: CatInterfaceParams[] =
       priceUnitListWithHeaders.Memsource.map(value => ({
         priceUnitTitle: value.title,
-        priceUnitPrice: value.price,
-        priceUnitQuantity: value.quantity,
-        priceUnitUnit: value.unit,
+        priceUnitPrice: value.price!,
+        priceUnitQuantity: value.quantity!,
+        priceUnitUnit: value.unit!,
         perWords: value.perWords!,
         chips: value.chips.map(obj => ({
           title: obj.title,
@@ -152,9 +150,9 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
     const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
       value => ({
         priceUnitTitle: value.title,
-        priceUnitPrice: value.price,
-        priceUnitQuantity: value.quantity,
-        priceUnitUnit: value.unit,
+        priceUnitPrice: value.price!,
+        priceUnitQuantity: value.quantity!,
+        priceUnitUnit: value.unit!,
         perWords: value.perWords!,
         chips: value.chips.map(obj => ({
           title: obj.title,
@@ -237,73 +235,91 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   }
 
   useEffect(() => {
-    if (!isLoading && catInterface && priceUnitList && priceData) {
-      // if(priceData.)
+    console.log(priceUnitList)
+
+    if (!isLoading && catInterface && priceUnitList.length > 0 && priceData) {
       /* @ts-ignore */
-      if (priceData.catInterface) {
-        const formattedHeader = catInterface.headers.map((value, idx) => ({
-          id: idx,
-          title: value,
-          selected: false,
-          tmpSelected: false,
-        }))
-        // setHeaders(formattedHeader)
-        const withHeaders = priceUnitList.map(value => ({
-          id: value.id,
-          title: value.title,
-          quantity: value.quantity!,
-          perWords: 1,
-          price: value.price,
-          unit: value.unit,
-          chips: formattedHeader,
-        }))
-        if (priceData.catInterface.memSource) {
-          const res: PriceUnitListWithHeaders[] =
-            priceData.catInterface.memSource.map(value => ({
-              id: value.id,
-              title: value.priceUnitTitle,
-              quantity: value.priceUnitQuantity,
-              price: value.priceUnitPrice,
-              unit: value.priceUnitUnit,
-              perWords: value.perWords,
-              chips: value.chips.map((data, idx) => ({
-                id: idx,
-                title: data.title,
-                selected: data.selected,
-                tmpSelected: false,
-              })),
-            }))
-          setPriceUnitListWithHeaders(prevState => ({
-            ...prevState,
-            Memsource: res,
-            memoQ: withHeaders,
+      const formattedHeader = catInterface.headers.map((value, idx) => ({
+        id: idx,
+        title: value,
+        selected: false,
+        tmpSelected: false,
+      }))
+      // setHeaders(formattedHeader)
+      const withHeaders = priceUnitList.map(value => ({
+        id: value.id,
+        title: value.title,
+        quantity: value.quantity!,
+        perWords: 1,
+        price: value.price,
+        unit: value.unit,
+        chips: formattedHeader,
+      }))
+      console.log(priceData.catInterface.memSource.length)
+
+      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
+        .memSource.length
+        ? priceData.catInterface.memSource.map(value => ({
+            id: value.id,
+            title: value.priceUnitTitle,
+            quantity: value.priceUnitQuantity,
+            price: value.priceUnitPrice,
+            unit: value.priceUnitUnit,
+            perWords: value.perWords,
+            chips: value.chips.map((data, idx) => ({
+              id: idx,
+              title: data.title,
+              selected: data.selected,
+              tmpSelected: false,
+            })),
           }))
-        } else {
-          if (priceData.catInterface.memoQ) {
-            const res: PriceUnitListWithHeaders[] =
-              priceData.catInterface.memoQ.map(value => ({
-                id: value.id,
-                title: value.priceUnitTitle,
-                quantity: value.priceUnitQuantity,
-                price: value.priceUnitPrice,
-                unit: value.priceUnitUnit,
-                perWords: value.perWords,
-                chips: value.chips.map((data, idx) => ({
-                  id: idx,
-                  title: data.title,
-                  selected: data.selected,
-                  tmpSelected: false,
-                })),
-              }))
-            setPriceUnitListWithHeaders(prevState => ({
-              ...prevState,
-              Memsource: withHeaders,
-              memoQ: res,
-            }))
-          }
-        }
-      } else {
+        : withHeaders
+
+      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
+        .length
+        ? priceData.catInterface.memoQ.map(value => ({
+            id: value.id,
+            title: value.priceUnitTitle,
+            quantity: value.priceUnitQuantity,
+            price: value.priceUnitPrice,
+            unit: value.priceUnitUnit,
+            perWords: value.perWords,
+            chips: value.chips.map((data, idx) => ({
+              id: idx,
+              title: data.title,
+              selected: data.selected,
+              tmpSelected: false,
+            })),
+          }))
+        : withHeaders
+      setPriceUnitListWithHeaders(prevState => ({
+        ...prevState,
+        Memsource: memSource,
+        memoQ: memoQ,
+      }))
+    } else if (!isLoading && catInterface && priceUnitList.length === 0) {
+      const formattedHeader = catInterface.headers.map((value, idx) => ({
+        id: idx,
+        title: value,
+        selected: false,
+        tmpSelected: false,
+      }))
+
+      const withHeaders: PriceUnitListWithHeaders = {
+        id: 0,
+        title: '-',
+        quantity: null,
+        perWords: null,
+        price: null,
+        unit: null,
+        chips: formattedHeader,
       }
+
+      setPriceUnitListWithHeaders(prevState => ({
+        ...prevState,
+        memoQ: [withHeaders],
+        Memsource: [withHeaders],
+      }))
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
 
@@ -385,9 +401,7 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
         ) : null}
       </Box>
       <Box sx={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
-        {!isLoading &&
-        alignment === 'Memsource' &&
-        priceUnitListWithHeaders.Memsource.length
+        {alignment === 'Memsource'
           ? priceUnitListWithHeaders.Memsource.map(obj => {
               return (
                 <Box
@@ -409,9 +423,10 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price}
+                      {obj.price ?? ''}
                       &nbsp;
-                      {priceData.currency}&nbsp;per&nbsp;
+                      {obj.title === '-' ? '' : priceData.currency}
+                      &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
                       {obj.unit && obj.unit === 'Percent' ? 1 : obj.quantity}
                       &nbsp;
                       {obj.unit && obj.unit !== 'Percent'
@@ -425,45 +440,50 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
-                      <TextField
-                        value={obj.perWords}
-                        onFocus={() => handleFocus(obj.id)}
-                        onBlur={handleBlur}
-                        autoFocus={obj.id === editingItemId}
-                        disabled={!isEditingCatInterface}
-                        error={obj.perWords === null}
-                        onChange={e => {
-                          const { value } = e.target
+                      {obj.title === '-' ? (
+                        '-'
+                      ) : (
+                        <TextField
+                          value={obj.perWords}
+                          onFocus={() => handleFocus(obj.id)}
+                          onBlur={handleBlur}
+                          autoFocus={obj.id === editingItemId}
+                          disabled={!isEditingCatInterface}
+                          error={obj.perWords === null}
+                          onChange={e => {
+                            const { value } = e.target
 
-                          const filteredValue = value
-                            .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
-                            .slice(0, 10)
-                          e.target.value = filteredValue
-                          handleItemChange(obj.id, 'words', filteredValue)
-                        }}
-                        id='controlled-text-field'
-                        InputProps={{
-                          style: {
-                            width: '42px',
-                            height: '30px',
-                          },
-                        }}
-                        sx={{
-                          input: {
-                            textAlign: 'center',
-                            padding: '0 12px',
-                          },
-                          '.Mui-disabled': {
-                            opacity: 1,
-                            color: 'black',
-                            input: {
-                              color: 'rgba(76, 78, 100, 0.87)',
-                              '-webkit-text-fill-color':
-                                'rgba(76, 78, 100, 0.87)',
+                            const filteredValue = value
+                              .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
+                              .slice(0, 10)
+                            e.target.value = filteredValue
+                            handleItemChange(obj.id, 'words', filteredValue)
+                          }}
+                          id='controlled-text-field'
+                          InputProps={{
+                            style: {
+                              width: '42px',
+                              height: '30px',
                             },
-                          },
-                        }}
-                      />
+                          }}
+                          sx={{
+                            input: {
+                              textAlign: 'center',
+                              padding: '0 12px',
+                            },
+                            '.Mui-disabled': {
+                              opacity: 1,
+                              color: 'black',
+                              input: {
+                                color: 'rgba(76, 78, 100, 0.87)',
+                                '-webkit-text-fill-color':
+                                  'rgba(76, 78, 100, 0.87)',
+                              },
+                            },
+                          }}
+                        />
+                      )}
+
                       <Typography variant='body2' sx={{}}>
                         Words
                       </Typography>
@@ -504,10 +524,7 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                 </Box>
               )
             })
-          : !isLoading &&
-            priceUnitListWithHeaders.memoQ.length &&
-            alignment === 'memoQ'
-          ? priceUnitListWithHeaders.memoQ.map(obj => {
+          : priceUnitListWithHeaders.memoQ.map(obj => {
               return (
                 <Box
                   key={uuidv4()}
@@ -528,9 +545,10 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price}
+                      {obj.price ?? ''}
                       &nbsp;
-                      {priceData.currency}&nbsp;per&nbsp;
+                      {obj.title === '-' ? '' : priceData.currency}
+                      &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
                       {obj.unit && obj.unit === 'Percent' ? 1 : obj.quantity}
                       &nbsp;
                       {obj.unit && obj.unit !== 'Percent'
@@ -544,45 +562,50 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                     <Box
                       sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
                     >
-                      <TextField
-                        value={obj.perWords}
-                        onFocus={() => handleFocus(obj.id)}
-                        onBlur={handleBlur}
-                        autoFocus={obj.id === editingItemId}
-                        disabled={!isEditingCatInterface}
-                        error={obj.perWords === null}
-                        onChange={e => {
-                          const { value } = e.target
+                      {obj.title === '-' ? (
+                        '-'
+                      ) : (
+                        <TextField
+                          value={obj.perWords}
+                          onFocus={() => handleFocus(obj.id)}
+                          onBlur={handleBlur}
+                          autoFocus={obj.id === editingItemId}
+                          disabled={!isEditingCatInterface}
+                          error={obj.perWords === null}
+                          onChange={e => {
+                            const { value } = e.target
 
-                          const filteredValue = value
-                            .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
-                            .slice(0, 10)
-                          e.target.value = filteredValue
-                          handleItemChange(obj.id, 'words', filteredValue)
-                        }}
-                        id='controlled-text-field'
-                        InputProps={{
-                          style: {
-                            width: '42px',
-                            height: '30px',
-                          },
-                        }}
-                        sx={{
-                          input: {
-                            textAlign: 'center',
-                            padding: '0 12px',
-                          },
-                          '.Mui-disabled': {
-                            opacity: 1,
-                            color: 'black',
-                            input: {
-                              color: 'rgba(76, 78, 100, 0.87)',
-                              '-webkit-text-fill-color':
-                                'rgba(76, 78, 100, 0.87)',
+                            const filteredValue = value
+                              .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
+                              .slice(0, 10)
+                            e.target.value = filteredValue
+                            handleItemChange(obj.id, 'words', filteredValue)
+                          }}
+                          id='controlled-text-field'
+                          InputProps={{
+                            style: {
+                              width: '42px',
+                              height: '30px',
                             },
-                          },
-                        }}
-                      />
+                          }}
+                          sx={{
+                            input: {
+                              textAlign: 'center',
+                              padding: '0 12px',
+                            },
+                            '.Mui-disabled': {
+                              opacity: 1,
+                              color: 'black',
+                              input: {
+                                color: 'rgba(76, 78, 100, 0.87)',
+                                '-webkit-text-fill-color':
+                                  'rgba(76, 78, 100, 0.87)',
+                              },
+                            },
+                          }}
+                        />
+                      )}
+
                       <Typography variant='body2' sx={{}}>
                         Words
                       </Typography>
@@ -622,57 +645,11 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
                   </Box>
                 </Box>
               )
-            })
-          : null}
+            })}
       </Box>
     </Card>
   )
 }
-
-// (
-//   <Box
-//     key={uuidv4()}
-//     sx={{
-//       border: '1px solid rgba(76, 78, 100, 0.22)',
-//       borderRadius: '10px',
-//       padding: '20px',
-//       display: 'flex',
-//       flexDirection: 'column',
-//       gap: '20px',
-//     }}
-//   >
-//     <Box
-//       sx={{
-//         display: 'flex',
-//         justifyContent: 'space-between',
-//         alignItems: 'center',
-//       }}
-//     >
-//       <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-//         -
-//       </Typography>
-//       <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-//         -
-//         <Typography variant='body2' sx={{}}>
-//           Words
-//         </Typography>
-//       </Box>
-//     </Box>
-//     <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-//       {catInterface?.headers.map(value => {
-//         return (
-//           <CatInterfaceChip
-//             label={value}
-//             size='medium'
-//             status={false}
-//             key={uuidv4()}
-//             sx={{ display: 'flex' }}
-//           />
-//         )
-//       })}
-//     </Box>
-//   </Box>
-// )
 
 export const ToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
   height: '38px',
@@ -682,3 +659,47 @@ export const ToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }))
 
 export default CatInterface
+{
+  /* <Box
+key={uuidv4()}
+sx={{
+  border: '1px solid rgba(76, 78, 100, 0.22)',
+  borderRadius: '10px',
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+}}
+>
+<Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }}
+>
+  <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
+    -
+  </Typography>
+  <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+    -
+    <Typography variant='body2' sx={{}}>
+      Words
+    </Typography>
+  </Box>
+</Box>
+<Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
+  {catInterface?.headers.map(value => {
+    return (
+      <CatInterfaceChip
+        label={value}
+        size='medium'
+        status={false}
+        key={uuidv4()}
+        sx={{ display: 'flex' }}
+      />
+    )
+  })}
+</Box>
+</Box> */
+}
