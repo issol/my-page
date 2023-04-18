@@ -11,13 +11,19 @@ const navigation = (): VerticalNavItemsType => {
       path: `/dashboards`,
     },
     {
-      title: 'Pro',
+      title: 'Pros',
       icon: 'ic:baseline-people-outline',
       action: 'read',
       subject: 'pro',
       path: `/pro`,
     },
-
+    {
+      title: 'Clients',
+      icon: 'ic:baseline-people-outline',
+      action: 'read',
+      subject: 'client',
+      path: `/client`,
+    },
     {
       title: 'Recruiting',
       icon: 'material-symbols:person-search-outline',

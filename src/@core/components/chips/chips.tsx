@@ -1,6 +1,7 @@
 import styled from 'styled-components'
 import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
+import { StatusType } from '@src/apis/client.api'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -179,11 +180,27 @@ export const ProStatusChip = styled(Chip)<{ status: string }>`
       : null};
 `
 
+export const ClientStatusChip = styled(Chip)<{
+  status: StatusType
+}>`
+  border: none;
+  ${({ status }) =>
+    status === 'New'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+      : status === 'Active'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #64C623; color :#64C623;`
+      : status === 'Inactive'
+      ? `background: #EDEFF1; color : rgba(76, 78, 100, 0.38);`
+      : status === 'Contacted'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #DF9F23; color: #DF9F23;`
+      : status === 'Blocked'
+      ? 'background: #626471; color:#F7F7F9;'
+      : null};
+`
 export const CatInterfaceChip = styled(Chip)<{
   status: boolean
 }>`
   border: none;
-
   ${({ status }) =>
     status
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FA8773; color: #FA8773; font-weight: 600; `
@@ -197,7 +214,6 @@ export const ExtraNumberChip = styled(Chip)`
       rgba(255, 255, 255, 0.88)
     ),
     #6d788d;
-
   border: 1px solid rgba(76, 78, 100, 0.6);
   border-radius: 16px;
   color: #6d788d;

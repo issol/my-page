@@ -1,16 +1,21 @@
+export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
   priceName: string
   category: string
   serviceType: string[]
-  currency: string
+  currency: CurrencyType
   catBasis: string
 
   decimalPlace: number
   roundingProcedure: string
   memoForPrice: string
-  languagePair: Array<LanguagePairListType>
+  languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
+  catInterface: {
+    memSource: Array<CatInterfaceType>
+    memoQ: Array<CatInterfaceType>
+  }
 }
 
 export type LanguagePairListType = {
@@ -19,13 +24,16 @@ export type LanguagePairListType = {
   target: string
   priceFactor: number
   minimumPrice: number
-  currency: string
+  currency: CurrencyType
+  createdAt: string
+  deletedAt: string | null
+  updatedAt: string
 }
 
 export interface PriceUnitListType {
   id: number
   priceUnitId: number
-  parentPriceUnitId: number | null
+  parentPriceUnitId?: number | null
   isBase: boolean
   title: string
   unit: string
@@ -33,14 +41,25 @@ export interface PriceUnitListType {
   quantity: number | null
   price: number
 
-  createdAt: string
-  updatedAt: string
+  createdAt?: string
+  updatedAt?: string
 
-  deletedAt: string | null
+  deletedAt?: string | null
 }
 
-export interface PriceUnitListWithHeaders extends PriceUnitListType {
-  headers: Array<{ value: string; selected: boolean; tmpSelected: boolean }>
+export interface PriceUnitListWithHeaders {
+  id: number
+  title: string
+  quantity: number | null
+  price: number | null
+  unit: string | null
+  perWords: number | null
+  chips: Array<{
+    id: number
+    title: string
+    selected: boolean
+    tmpSelected: boolean
+  }>
 }
 
 export type AddNewPriceType = {
@@ -48,7 +67,7 @@ export type AddNewPriceType = {
   priceName: string
   category: string
   serviceType: Array<string>
-  currency: string
+  currency: CurrencyType
   catBasis: string
   decimalPlace: number
   roundingProcedure: number
@@ -73,13 +92,60 @@ export type SetPriceUnit = {
     price: number | null | string
     weighting: number | null | string
     title: string
+    parentPriceUnitId: number | null
+    subPriceUnits?: Array<{
+      id: number
+      isBase: boolean
+      title: string
+      unit: string
+      weighting: number
+      isActive?: boolean
+      parentPriceUnitId: number | null
+    }>
   }[]
 }
 
 export type SetPriceUnitPair = {
-  priceId: number
   priceUnitId: number
-  price: number | null
-  weighting: number | null
-  quantity: number | null
+  price: string | null
+  weighting: string | null
+  quantity: string | null
+}
+
+export type LanguagePairParams = {
+  source: string
+  target: string
+  priceFactor: string | null
+  minimumPrice: string | null
+  currency: string
+}
+
+export type CatInterfaceType = {
+  id: number
+  createdAt: string
+  updatedAt: string
+  priceUnitTitle: string
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  priceUnitPrice: number
+  chips: [
+    {
+      id: number
+      title: string
+      selected: boolean
+    },
+  ]
+}
+
+export type CatInterfaceParams = {
+  priceUnitTitle: string
+  priceUnitPrice: number
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  chips: Array<{
+    title: string
+    selected: boolean
+  }>
 }

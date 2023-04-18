@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
+  CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
   StandardPriceListType,
@@ -19,28 +20,83 @@ import { v4 as uuidv4 } from 'uuid'
 
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
-import { ChangeEvent, useState, MouseEvent, useEffect } from 'react'
+import {
+  ChangeEvent,
+  useState,
+  MouseEvent,
+  useEffect,
+  Dispatch,
+  SetStateAction,
+} from 'react'
 import TextField from '@mui/material/TextField'
 import { CatInterfaceChip } from '@src/@core/components/chips/chips'
-import { useGetCatInterface } from '@src/queries/company/standard-price'
+import { useGetCatInterfaceHeaders } from '@src/queries/company/standard-price'
+import { object } from 'yup'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  createCatInterface,
+  patchCatInterface,
+} from '@src/apis/company-price.api'
+import toast from 'react-hot-toast'
+
+type InputType = { id: number; words: number }
 
 type Props = {
   priceUnitList: PriceUnitListType[]
   priceData: StandardPriceListType
   existPriceUnit: boolean
+  setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
+  isEditingCatInterface: boolean
 }
-const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
+const CatInterface = ({
+  priceUnitList,
+  priceData,
+  existPriceUnit,
+  setIsEditingCatInterface,
+  isEditingCatInterface,
+}: Props) => {
+  const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
-  const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
-  const { data: catInterface, isLoading } = useGetCatInterface(alignment!)
 
-  const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<
-    PriceUnitListWithHeaders[]
-  >([])
+  const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
+    alignment!,
+  )
 
-  const [headers, setHeaders] = useState<
-    Array<{ value: string; selected: boolean; tmpSelected: boolean }>
-  >([])
+  const createCatInterfacePairMutation = useMutation(
+    (value: {
+      type: string
+      id: number
+      data: {
+        memSource: Array<CatInterfaceParams>
+        memoQ: Array<CatInterfaceParams>
+      }
+    }) =>
+      value.type === 'patch'
+        ? patchCatInterface(value.id, value.data)
+        : createCatInterface(value.id, value.data),
+    {
+      onSuccess: data => {
+        // refetch()
+        queryClient.invalidateQueries('standard-client-prices')
+
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<{
+    Memsource: PriceUnitListWithHeaders[]
+    memoQ: PriceUnitListWithHeaders[]
+  }>({ Memsource: [], memoQ: [] })
+
+  const [editingItemId, setEditingItemId] = useState<number | null>(null)
 
   const handleAlignment = (
     event: MouseEvent<HTMLElement>,
@@ -48,24 +104,47 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   ) => {
     setAlignment(newAlignment)
   }
-  function getKeyByValue<T extends { [key: string]: string }>(
-    object: T,
-    value: string,
-  ): keyof T | undefined {
-    return Object.keys(object).find(key => object[key] === value) as
-      | keyof T
-      | undefined
+
+  const handleItemChange = (id: number, field: string, value: string) => {
+    if (id === editingItemId) {
+      if (alignment === 'Memsource') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.Memsource.map(obj => {
+            if (obj.id === id) {
+              return {
+                ...obj,
+                perWords: value ? Number(value) : null,
+              }
+            } else {
+              return obj
+            }
+          })
+          return { ...prevState, Memsource: res }
+        })
+      } else if (alignment === 'memoQ') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.memoQ.map(obj => {
+            if (obj.id === id) {
+              return {
+                ...obj,
+                perWords: value ? Number(value) : null,
+              }
+            } else {
+              return obj
+            }
+          })
+          return { ...prevState, memoQ: res }
+        })
+      }
+    }
   }
 
-  const rounding = getKeyByValue(
-    PriceRoundingResponseEnum,
-    priceData.roundingProcedure,
-  )
+  const handleFocus = (id: number) => {
+    setEditingItemId(id)
+  }
 
-  const [name, setName] = useState<number>(1)
-
-  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(parseFloat(event.target.value))
+  const handleBlur = () => {
+    setEditingItemId(null)
   }
 
   const onClickEditCatInterface = () => {
@@ -77,68 +156,203 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
   }
 
   const onClickSaveEditCatInterface = () => {
+    const memSource: CatInterfaceParams[] =
+      priceUnitListWithHeaders.Memsource.map(value => ({
+        priceUnitTitle: value.title,
+        priceUnitPrice: value.price!,
+        priceUnitQuantity: value.quantity!,
+        priceUnitUnit: value.unit!,
+        perWords: value.perWords!,
+        chips: value.chips.map(obj => ({
+          title: obj.title,
+          selected: obj.selected,
+        })),
+      }))
+
+    const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
+      value => ({
+        priceUnitTitle: value.title,
+        priceUnitPrice: value.price!,
+        priceUnitQuantity: value.quantity!,
+        priceUnitUnit: value.unit!,
+        perWords: value.perWords!,
+        chips: value.chips.map(obj => ({
+          title: obj.title,
+          selected: obj.selected,
+        })),
+      }),
+    )
+    const data = {
+      memSource: memSource,
+      memoQ: memoQ,
+    }
+    createCatInterfacePairMutation.mutate({
+      type:
+        priceData.catInterface.memoQ.length > 0 ||
+        priceData.catInterface.memSource.length > 0
+          ? 'patch'
+          : 'post',
+      id: priceData.id,
+      data: data,
+    })
     setIsEditingCatInterface(false)
   }
 
   const onClickRangeChip = (
-    data: { value: string; selected: boolean },
+    data: { id: number; title: string; selected: boolean },
     value: PriceUnitListWithHeaders,
   ) => {
-    setHeaders(prevHeaders => {
-      const updatedHeaders = prevHeaders.map(obj => {
-        if (obj.value === data.value) {
-          return {
-            ...obj,
-            selected: !obj.selected,
-            tmpSelected: !obj.selected, // 선택된 상태를 반전시킴
-          }
-        }
-        return obj
-      })
-      return updatedHeaders
-    })
+    if (alignment === 'Memsource') {
+      setPriceUnitListWithHeaders(prevState => {
+        const res = prevState.Memsource.map(obj => {
+          if (obj.id === value.id) {
+            const tmp = obj.chips.map(obj2 => {
+              if (obj2.id === data.id) {
+                return {
+                  ...obj2,
+                  selected: !obj2.selected,
+                  tmpSelected: !obj2.tmpSelected,
+                }
+              } else {
+                return obj2
+              }
+            })
 
-    setPriceUnitListWithHeaders(prevState => {
-      const concatPrev = prevState
-      const res = prevState.find(data => data.id === value.id)
-      const resIndex = prevState.findIndex(data => data.id === value.id)
-      if (res) {
-        const updatedHeaders = res.headers.map(obj => {
-          if (obj.value === data.value) {
-            return {
-              ...obj,
-              selected: !obj.selected,
-              tmpSelected: !obj.selected, // 선택된 상태를 반전시킴
-            }
+            return { ...obj, chips: tmp }
+          } else {
+            return obj
           }
-          return obj
         })
-        res['headers'] = updatedHeaders
-        concatPrev[resIndex] = res
 
-        return concatPrev
-      } else {
-        return prevState
-      }
-    })
+        if (res) {
+          return { ...prevState, Memsource: res }
+        } else {
+          return prevState
+        }
+      })
+    } else if (alignment === 'memoQ') {
+      setPriceUnitListWithHeaders(prevState => {
+        const res = prevState.memoQ.map(obj => {
+          if (obj.id === value.id) {
+            const tmp = obj.chips.map(obj2 => {
+              if (obj2.id === data.id) {
+                return {
+                  ...obj2,
+                  selected: !obj2.selected,
+                  tmpSelected: !obj2.tmpSelected,
+                }
+              } else {
+                return obj2
+              }
+            })
+
+            return { ...obj, chips: tmp }
+          } else {
+            return obj
+          }
+        })
+
+        if (res) {
+          return { ...prevState, memoQ: res }
+        } else {
+          return prevState
+        }
+      })
+    }
   }
 
   useEffect(() => {
-    if (!isLoading && catInterface && priceUnitList) {
-      const formattedHeader = catInterface.headers.map(value => ({
-        value: value,
+    console.log(priceUnitList)
+
+    if (!isLoading && catInterface && priceUnitList.length > 0 && priceData) {
+      /* @ts-ignore */
+      const formattedHeader = catInterface.headers.map((value, idx) => ({
+        id: idx,
+        title: value,
         selected: false,
         tmpSelected: false,
       }))
-      setHeaders(formattedHeader)
+      // setHeaders(formattedHeader)
       const withHeaders = priceUnitList.map(value => ({
-        ...value,
-        headers: formattedHeader,
+        id: value.id,
+        title: value.title,
+        quantity: value.quantity!,
+        perWords: 1,
+        price: value.price,
+        unit: value.unit,
+        chips: formattedHeader,
+      }))
+      console.log(priceData.catInterface.memSource.length)
+
+      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
+        .memSource.length
+        ? priceData.catInterface.memSource.map(value => ({
+            id: value.id,
+            title: value.priceUnitTitle,
+            quantity: value.priceUnitQuantity,
+            price: value.priceUnitPrice,
+            unit: value.priceUnitUnit,
+            perWords: value.perWords,
+            chips: value.chips.map((data, idx) => ({
+              id: idx,
+              title: data.title,
+              selected: data.selected,
+              tmpSelected: false,
+            })),
+          }))
+        : withHeaders
+
+      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
+        .length
+        ? priceData.catInterface.memoQ.map(value => ({
+            id: value.id,
+            title: value.priceUnitTitle,
+            quantity: value.priceUnitQuantity,
+            price: value.priceUnitPrice,
+            unit: value.priceUnitUnit,
+            perWords: value.perWords,
+            chips: value.chips.map((data, idx) => ({
+              id: idx,
+              title: data.title,
+              selected: data.selected,
+              tmpSelected: false,
+            })),
+          }))
+        : withHeaders
+      setPriceUnitListWithHeaders(prevState => ({
+        ...prevState,
+        Memsource: memSource,
+        memoQ: memoQ,
+      }))
+    } else if (!isLoading && catInterface && priceUnitList.length === 0) {
+      const formattedHeader = catInterface.headers.map((value, idx) => ({
+        id: idx,
+        title: value,
+        selected: false,
+        tmpSelected: false,
       }))
 
-      setPriceUnitListWithHeaders(withHeaders)
+      const withHeaders: PriceUnitListWithHeaders = {
+        id: 0,
+        title: '-',
+        quantity: null,
+        perWords: null,
+        price: null,
+        unit: null,
+        chips: formattedHeader,
+      }
+
+      setPriceUnitListWithHeaders(prevState => ({
+        ...prevState,
+        memoQ: [withHeaders],
+        Memsource: [withHeaders],
+      }))
     }
-  }, [catInterface, isLoading, priceUnitList])
+  }, [catInterface, isLoading, priceUnitList, priceData])
+
+  useEffect(() => {
+    console.log(priceUnitListWithHeaders)
+  }, [priceUnitListWithHeaders])
 
   return (
     <Card
@@ -158,12 +372,20 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
               color='primary'
               value={alignment}
               onChange={handleAlignment}
-              sx={{ border: '1px solid #666CFF' }}
+              sx={{
+                border: '1px solid #666CFF',
+              }}
             >
-              <ToggleButton value='Memsource' sx={{ color: '#666CFF' }}>
+              <ToggleButton
+                value='Memsource'
+                sx={{ color: '#666CFF', textTransform: 'none !important' }}
+              >
                 Memsource
               </ToggleButton>
-              <ToggleButton value='memoQ' sx={{ color: '#666CFF' }}>
+              <ToggleButton
+                value='memoQ'
+                sx={{ color: '#666CFF', textTransform: 'none !important' }}
+              >
                 memoQ
               </ToggleButton>
             </ToggleGroup>
@@ -206,141 +428,251 @@ const CatInterface = ({ priceUnitList, priceData, existPriceUnit }: Props) => {
         ) : null}
       </Box>
       <Box sx={{ display: 'flex', gap: '12px', flexDirection: 'column' }}>
-        {!isLoading && priceUnitListWithHeaders.length ? (
-          priceUnitListWithHeaders.map(value => {
-            return (
-              <Box
-                key={uuidv4()}
-                sx={{
-                  border: '1px solid rgba(76, 78, 100, 0.22)',
-                  borderRadius: '10px',
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '20px',
-                }}
-              >
+        {alignment === 'Memsource'
+          ? priceUnitListWithHeaders.Memsource.map(obj => {
+              return (
                 <Box
+                  key={uuidv4()}
                   sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                    borderRadius: '10px',
+                    padding: '20px',
                     display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
+                    flexDirection: 'column',
+                    gap: '20px',
                   }}
                 >
-                  <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                    {rounding === 'Type_0'
-                      ? value.price.toFixed(priceData.decimalPlace)
-                      : value.price}
-                    &nbsp;
-                    {priceData.currency}&nbsp;per&nbsp;
-                    {value.unit && value.unit === 'Percent'
-                      ? 1
-                      : value.quantity}
-                    &nbsp;
-                    {value.unit && value.unit !== 'Percent'
-                      ? value.unit
-                      : value.unit && value.unit === 'Percent'
-                      ? ''
-                      : ''}
-                    &nbsp;
-                    {value.title}
-                  </Typography>
                   <Box
-                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
                   >
-                    <TextField
-                      value={name}
-                      onChange={handleChange}
-                      id='controlled-text-field'
-                      InputProps={{
-                        style: {
-                          width: '36px',
-                          height: '36px',
-                        },
-                      }}
-                    />
-                    <Typography variant='body2' sx={{}}>
-                      Words
+                    <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
+                      {obj.price ?? ''}
+                      &nbsp;
+                      {obj.title === '-' ? '' : priceData.currency}
+                      &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
+                      {obj.unit && obj.unit === 'Percent' ? 1 : obj.quantity}
+                      &nbsp;
+                      {obj.unit && obj.unit !== 'Percent'
+                        ? obj.unit
+                        : obj.unit && obj.unit === 'Percent'
+                        ? ''
+                        : ''}
+                      &nbsp;
+                      {obj.title}
                     </Typography>
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      {obj.title === '-' ? (
+                        '-'
+                      ) : (
+                        <TextField
+                          value={obj.perWords}
+                          onFocus={() => handleFocus(obj.id)}
+                          onBlur={handleBlur}
+                          autoFocus={obj.id === editingItemId}
+                          disabled={!isEditingCatInterface}
+                          error={obj.perWords === null}
+                          onChange={e => {
+                            const { value } = e.target
+
+                            const filteredValue = value
+                              .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
+                              .slice(0, 10)
+                            e.target.value = filteredValue
+                            handleItemChange(obj.id, 'words', filteredValue)
+                          }}
+                          id='controlled-text-field'
+                          InputProps={{
+                            style: {
+                              width: '42px',
+                              height: '30px',
+                            },
+                          }}
+                          sx={{
+                            input: {
+                              textAlign: 'center',
+                              padding: '0 12px',
+                            },
+                            '.Mui-disabled': {
+                              opacity: 1,
+                              color: 'black',
+                              input: {
+                                color: 'rgba(76, 78, 100, 0.87)',
+                                '-webkit-text-fill-color':
+                                  'rgba(76, 78, 100, 0.87)',
+                              },
+                            },
+                          }}
+                        />
+                      )}
+
+                      <Typography variant='body2' sx={{}}>
+                        Words
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
+                    {obj.chips.map(data => {
+                      return (
+                        <CatInterfaceChip
+                          label={data.title}
+                          size='medium'
+                          clickable={isEditingCatInterface}
+                          status={data.selected}
+                          key={uuidv4()}
+                          sx={{
+                            display: 'flex',
+                            '& .Mui-disabled': { opacity: 1 },
+                          }}
+                          onClick={() => {
+                            console.log(obj)
+
+                            isEditingCatInterface
+                              ? onClickRangeChip(data, obj)
+                              : null
+                          }}
+                          icon={
+                            data.tmpSelected ? (
+                              <img
+                                src='/images/icons/price-icons/check-chip.svg'
+                                alt=''
+                              />
+                            ) : undefined
+                          }
+                        />
+                      )
+                    })}
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-                  {value.headers.map(data => {
-                    return (
-                      <CatInterfaceChip
-                        label={data.value}
-                        size='medium'
-                        clickable={isEditingCatInterface}
-                        status={data.selected}
-                        key={uuidv4()}
-                        sx={{
-                          display: 'flex',
-                          '& .Mui-disabled': { opacity: 1 },
-                        }}
-                        onClick={() =>
-                          isEditingCatInterface
-                            ? onClickRangeChip(data, value)
-                            : null
-                        }
-                        icon={
-                          data.tmpSelected ? (
-                            <img
-                              src='/images/icons/price-icons/check-chip.svg'
-                              alt=''
-                            />
-                          ) : undefined
-                        }
-                      />
-                    )
-                  })}
+              )
+            })
+          : priceUnitListWithHeaders.memoQ.map(obj => {
+              return (
+                <Box
+                  key={uuidv4()}
+                  sx={{
+                    border: '1px solid rgba(76, 78, 100, 0.22)',
+                    borderRadius: '10px',
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '20px',
+                  }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
+                      {obj.price ?? ''}
+                      &nbsp;
+                      {obj.title === '-' ? '' : priceData.currency}
+                      &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
+                      {obj.unit && obj.unit === 'Percent' ? 1 : obj.quantity}
+                      &nbsp;
+                      {obj.unit && obj.unit !== 'Percent'
+                        ? obj.unit
+                        : obj.unit && obj.unit === 'Percent'
+                        ? ''
+                        : ''}
+                      &nbsp;
+                      {obj.title}
+                    </Typography>
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      {obj.title === '-' ? (
+                        '-'
+                      ) : (
+                        <TextField
+                          value={obj.perWords}
+                          onFocus={() => handleFocus(obj.id)}
+                          onBlur={handleBlur}
+                          autoFocus={obj.id === editingItemId}
+                          disabled={!isEditingCatInterface}
+                          error={obj.perWords === null}
+                          onChange={e => {
+                            const { value } = e.target
+
+                            const filteredValue = value
+                              .replace(/[^0-9]/g, '') // 숫자만 입력 가능하도록 필터링
+                              .slice(0, 10)
+                            e.target.value = filteredValue
+                            handleItemChange(obj.id, 'words', filteredValue)
+                          }}
+                          id='controlled-text-field'
+                          InputProps={{
+                            style: {
+                              width: '42px',
+                              height: '30px',
+                            },
+                          }}
+                          sx={{
+                            input: {
+                              textAlign: 'center',
+                              padding: '0 12px',
+                            },
+                            '.Mui-disabled': {
+                              opacity: 1,
+                              color: 'black',
+                              input: {
+                                color: 'rgba(76, 78, 100, 0.87)',
+                                '-webkit-text-fill-color':
+                                  'rgba(76, 78, 100, 0.87)',
+                              },
+                            },
+                          }}
+                        />
+                      )}
+
+                      <Typography variant='body2' sx={{}}>
+                        Words
+                      </Typography>
+                    </Box>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
+                    {obj.chips.map(data => {
+                      return (
+                        <CatInterfaceChip
+                          label={data.title}
+                          size='medium'
+                          clickable={isEditingCatInterface}
+                          status={data.selected}
+                          key={uuidv4()}
+                          sx={{
+                            display: 'flex',
+                            '& .Mui-disabled': { opacity: 1 },
+                          }}
+                          onClick={() => {
+                            console.log(obj)
+
+                            isEditingCatInterface
+                              ? onClickRangeChip(data, obj)
+                              : null
+                          }}
+                          icon={
+                            data.tmpSelected ? (
+                              <img
+                                src='/images/icons/price-icons/check-chip.svg'
+                                alt=''
+                              />
+                            ) : undefined
+                          }
+                        />
+                      )
+                    })}
+                  </Box>
                 </Box>
-              </Box>
-            )
-          })
-        ) : (
-          <Box
-            key={uuidv4()}
-            sx={{
-              border: '1px solid rgba(76, 78, 100, 0.22)',
-              borderRadius: '10px',
-              padding: '20px',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-            }}
-          >
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                -
-              </Typography>
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                -
-                <Typography variant='body2' sx={{}}>
-                  Words
-                </Typography>
-              </Box>
-            </Box>
-            <Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-              {headers.map(value => {
-                return (
-                  <CatInterfaceChip
-                    label={value.value}
-                    size='medium'
-                    status={false}
-                    key={uuidv4()}
-                    sx={{ display: 'flex' }}
-                  />
-                )
-              })}
-            </Box>
-          </Box>
-        )}
+              )
+            })}
       </Box>
     </Card>
   )
@@ -354,3 +686,47 @@ export const ToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }))
 
 export default CatInterface
+{
+  /* <Box
+key={uuidv4()}
+sx={{
+  border: '1px solid rgba(76, 78, 100, 0.22)',
+  borderRadius: '10px',
+  padding: '20px',
+  display: 'flex',
+  flexDirection: 'column',
+  gap: '20px',
+}}
+>
+<Box
+  sx={{
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  }}
+>
+  <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
+    -
+  </Typography>
+  <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+    -
+    <Typography variant='body2' sx={{}}>
+      Words
+    </Typography>
+  </Box>
+</Box>
+<Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
+  {catInterface?.headers.map(value => {
+    return (
+      <CatInterfaceChip
+        label={value}
+        size='medium'
+        status={false}
+        key={uuidv4()}
+        sx={{ display: 'flex' }}
+      />
+    )
+  })}
+</Box>
+</Box> */
+}

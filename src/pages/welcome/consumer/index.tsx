@@ -677,7 +677,6 @@ const PersonalInfoPro = () => {
                                 error={Boolean(errors.timezone)}
                                 inputProps={{
                                   ...params.inputProps,
-                                  autoComplete: 'new-password',
                                 }}
                               />
                             )}
@@ -954,7 +953,6 @@ const PersonalInfoPro = () => {
                                       }
                                       inputProps={{
                                         ...params.inputProps,
-                                        autoComplete: 'new-password',
                                       }}
                                     />
                                   )}
@@ -1010,7 +1008,6 @@ const PersonalInfoPro = () => {
                                       }
                                       inputProps={{
                                         ...params.inputProps,
-                                        autoComplete: 'new-password',
                                       }}
                                     />
                                   )}

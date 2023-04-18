@@ -20,6 +20,13 @@ type Props = {
   onClickAction: any
   source?: string
   target?: string
+  data?: {
+    source: string
+    target: string
+    priceFactor: number | null
+    minimumPrice: number | null
+    currency: string
+  }[]
 }
 export default function LanguagePairActionModal({
   type,
@@ -27,6 +34,7 @@ export default function LanguagePairActionModal({
   onClickAction,
   source,
   target,
+  data,
 }: Props) {
   return (
     <Dialog
@@ -142,6 +150,7 @@ export default function LanguagePairActionModal({
               if (type === 'Add' || type === 'Discard') {
                 onClickAction(
                   type === 'Add' ? 'Add' : type === 'Discard' ? 'Discard' : '',
+                  type === 'Add' ? data : undefined,
                 )
               } else if (
                 type === 'Delete' ||
