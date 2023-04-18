@@ -23,6 +23,8 @@ import Overview from '@src/@core/components/card-statistics/card-overview'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
+import { useGetClientDetail } from '@src/queries/client/client-detail'
+import ClientInfoCard from '@src/@core/components/clientInfo'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -33,11 +35,11 @@ export default function ClientDetail() {
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
-  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
+  const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
 
   return (
     <div>
-      <UserInfoCard userInfo={userInfo!} />
+      <ClientInfoCard userInfo={userInfo!} />
       <TabContext value={value}>
         <TabList
           onChange={handleChange}

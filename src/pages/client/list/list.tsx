@@ -7,6 +7,7 @@ import { ClientRowType } from '@src/apis/client.api'
 import { ClientStatusChip } from '@src/@core/components/chips/chips'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import { StyledNextLink } from '@src/@core/components/customLink'
+import { useRouter } from 'next/router'
 
 type ClientListCellType = {
   row: ClientRowType
@@ -32,6 +33,7 @@ export default function ClientList({
   list,
   isLoading,
 }: Props) {
+  const router = useRouter()
   const columns: GridColumns<ClientRowType> = [
     {
       field: 'corporationId',
@@ -170,6 +172,9 @@ export default function ClientList({
             rows={list.data}
             rowCount={list.count}
             loading={isLoading}
+            onCellClick={params => {
+              router.push(`/client/detail/${params.row.clientId}`)
+            }}
             rowsPerPageOptions={[10, 25, 50]}
             pagination
             page={skip}

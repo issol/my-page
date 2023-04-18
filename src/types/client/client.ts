@@ -1,20 +1,8 @@
-export type ClientDetailType = {
-  clientId: 2
-  corporationId: 'C-000002'
-  authorId: 5
-  adminCompanyName: 'GloZ'
-  clientType: 'Company'
-  name: 'sdfsdf'
-  email: 'sfdfsdf@sdf.com'
-  phone: null
-  mobile: null
-  fax: null
-  websiteLink: null
-  status: 'New'
-  timezone: {
-    code: 'AD'
-    label: 'Andorra'
-    phone: '376'
-  }
-  deletedAt: null
-}
+import { ClientAddressFormType } from '../schema/client-address.schema'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
+import { CompanyInfoFormType } from '../schema/company-info.schema'
+import { CountryType } from '../sign/personalInfoTypes'
+
+export type ClientDetailType = CompanyInfoFormType &
+  ClientAddressFormType &
+  ContactPersonType
