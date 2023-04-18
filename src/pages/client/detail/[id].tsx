@@ -50,35 +50,39 @@ export default function ClientDetail() {
             value='1'
             label='Projects'
             iconPosition='start'
-            icon={<Icon icon='iconoir:large-suitcase' />}
+            icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
           <CustomTap
             value='2'
             label='Invoices'
             iconPosition='start'
-            icon={<Icon icon='material-symbols:person-outline' />}
+            icon={<Icon icon='ic:sharp-receipt-long' fontSize={'18px'} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
           <CustomTap
             value='3'
             label='Prices'
             iconPosition='start'
-            icon={<Icon icon='carbon:currency-dollar' />}
+            icon={
+              <Icon icon='mdi:format-list-numbered-rtl' fontSize={'18px'} />
+            }
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
           <CustomTap
             value='4'
             label='Profile'
             iconPosition='start'
-            icon={<Icon icon='carbon:currency-dollar' />}
+            icon={
+              <Icon icon='material-symbols:person-outline' fontSize={'18px'} />
+            }
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
           <CustomTap
             value='5'
             label='Payment info'
             iconPosition='start'
-            icon={<Icon icon='carbon:currency-dollar' />}
+            icon={<Icon icon='mdi:dollar' fontSize={'18px'} />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
