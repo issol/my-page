@@ -38,6 +38,7 @@ import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 
 type Props = {
+  isGeneral: boolean
   getCompanyInfo?: UseFormGetValues<CompanyInfoFormType>
   control: Control<ClientContactPersonType, any>
   fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
@@ -49,11 +50,13 @@ type Props = {
   isValid: boolean
   watch: UseFormWatch<ClientContactPersonType>
   handleSubmit: UseFormHandleSubmit<ClientContactPersonType>
+  onClientDataSubmit: () => void
   onNextStep: () => void
   handleBack: () => void
 }
 
 export default function ContactPersonForm({
+  isGeneral,
   getCompanyInfo,
   control,
   fields,
@@ -65,6 +68,7 @@ export default function ContactPersonForm({
   isValid,
   watch,
   handleSubmit,
+  onClientDataSubmit,
   onNextStep,
   handleBack,
 }: Props) {
@@ -91,9 +95,9 @@ export default function ContactPersonForm({
           <Box display='flex' flexDirection='column'>
             <Typography fontWeight='bold'>
               {getLegalName({
-                firstName: row.firstName,
+                firstName: row.firstName!,
                 middleName: row?.middleName,
-                lastName: row.lastName,
+                lastName: row.lastName!,
               })}
             </Typography>
             <Typography variant='body2'>{row?.email}</Typography>
@@ -258,9 +262,19 @@ export default function ContactPersonForm({
           <Icon icon='material-symbols:arrow-back-rounded' />
           Previous
         </Button>
-        <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-          Next <Icon icon='material-symbols:arrow-forward-rounded' />
-        </Button>
+        {isGeneral ? (
+          <Button
+            variant='contained'
+            disabled={!isValid}
+            onClick={onClientDataSubmit}
+          >
+            Save <Icon icon='material-symbols:arrow-forward-rounded' />
+          </Button>
+        ) : (
+          <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
+            Next <Icon icon='material-symbols:arrow-forward-rounded' />
+          </Button>
+        )}
       </Grid>
       <Dialog open={openForm} maxWidth='lg'>
         <AddContactPersonForm

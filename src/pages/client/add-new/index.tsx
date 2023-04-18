@@ -86,6 +86,7 @@ export default function AddNewClient() {
   const router = useRouter()
 
   const { role, isLoading } = useAppSelector(state => state.userAccess)
+  const [isGeneral, setIsGeneral] = useState(true)
 
   const { openModal, closeModal } = useModal()
 
@@ -103,7 +104,7 @@ export default function AddNewClient() {
     return false
   })
 
-  const [steps, setSteps] = useState<{ title: string }[]>([
+  const generalSteps = [
     {
       title: 'Company info',
     },
@@ -113,23 +114,22 @@ export default function AddNewClient() {
     {
       title: 'Contact person',
     },
-  ])
+  ]
+
+  const masterSteps = generalSteps.concat({
+    title: 'Prices',
+  })
 
   useEffect(() => {
     if (role.length) {
       const isGeneral =
         role.filter(item => item.name === 'LPM')[0]?.type === 'General'
-      !isGeneral &&
-        setSteps(
-          steps.concat({
-            title: 'Prices',
-          }),
-        )
+      setIsGeneral(isGeneral)
     }
   }, [role])
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(3)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -426,7 +426,7 @@ export default function AddNewClient() {
         onCreateClientSuccess(res)
       },
       onError: error => {
-        if (steps.length < 4) {
+        if (isGeneral) {
           onMutationError()
         } else {
           throw new Error()
@@ -439,7 +439,6 @@ export default function AddNewClient() {
 
   function onCreateClientSuccess(data: CreateClientResType) {
     clientId.current = data.clientId
-    const isGeneral = steps.length < 4
 
     if (isGeneral || !priceList.length) {
       router.push(`/client/${data.clientId}`)
@@ -537,7 +536,10 @@ export default function AddNewClient() {
         }
       />
       <Grid item xs={12}>
-        <AddClientStepper activeStep={activeStep} steps={steps} />
+        <AddClientStepper
+          activeStep={activeStep}
+          steps={isGeneral ? generalSteps : masterSteps}
+        />
       </Grid>
       <Grid item xs={12}>
         {activeStep === 0 ? (
@@ -572,6 +574,8 @@ export default function AddNewClient() {
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
             <ContactPersonForm
+              // isGeneral={isGeneral}
+              isGeneral={true}
               getCompanyInfo={getCompanyInfoValues}
               control={contactPersonControl}
               fields={contactPersons}
@@ -583,6 +587,7 @@ export default function AddNewClient() {
               isValid={isContactPersonValid}
               watch={watchContactPerson}
               handleSubmit={submitContactPerson}
+              onClientDataSubmit={onClientDataSubmit}
               onNextStep={onNextStep}
               handleBack={handleBack}
             />
