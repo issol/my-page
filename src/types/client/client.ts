@@ -4,5 +4,8 @@ import { CompanyInfoFormType } from '../schema/company-info.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type ClientDetailType = CompanyInfoFormType &
-  ClientAddressFormType &
-  ContactPersonType
+  ClientAddressFormType & {
+    clientId: number
+    corporationId: string
+    authorId: number
+  }

@@ -25,6 +25,8 @@ import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
 import { useGetClientDetail } from '@src/queries/client/client-detail'
 import ClientInfoCard from '@src/@core/components/clientInfo'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import StandardPrices from '@src/pages/components/standard-prices'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -36,6 +38,7 @@ export default function ClientDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
+  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
 
   return (
     <div>
@@ -88,7 +91,17 @@ export default function ClientDetail() {
         </TabList>
         <TabPanel value='1'></TabPanel>
         <TabPanel value='2'></TabPanel>
-        <TabPanel value='3'></TabPanel>
+        <TabPanel value='3'>
+          <StandardPrices
+            standardPrices={standardPrices!}
+            isLoading={isLoading}
+            refetch={refetch}
+            title='Client prices'
+            clientId={userInfo?.clientId!}
+          />
+        </TabPanel>
+        <TabPanel value='4'></TabPanel>
+        <TabPanel value='5'></TabPanel>
       </TabContext>
     </div>
   )

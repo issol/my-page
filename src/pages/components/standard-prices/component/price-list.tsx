@@ -33,6 +33,7 @@ type Props = {
   handleRowClick: (row: StandardPriceListType) => void
   isSelected: (index: number) => boolean
   selected: number | null
+  title: string
 }
 const PriceList = ({
   list,
@@ -49,6 +50,7 @@ const PriceList = ({
   handleRowClick,
   isSelected,
   selected,
+  title,
 }: Props) => {
   return (
     <Card sx={{ padding: '20px 0' }}>
@@ -61,7 +63,7 @@ const PriceList = ({
         }}
       >
         <Typography variant='h6'>
-          Standard client prices ({listCount ?? 0})
+          {title} ({listCount ?? 0})
         </Typography>
         <Button variant='contained' onClick={onClickAddNewPrice}>
           Add new price
@@ -307,90 +309,6 @@ const PriceList = ({
           />
         </>
       )}
-
-      {/* <Box
-    sx={{
-      '& .MuiDataGrid-columnHeaderTitle': {
-        textTransform: 'none',
-      },
-      '& .MuiDataGrid-columnHeader.price-collapsible': {
-        padding: '0 !important',
-        paddingLeft: '0 !important',
-
-        display: 'flex',
-        justifyContent: 'center',
-
-        '& .MuiDataGrid-columnHeaderTitleContainerContent': {
-          margin: '0 auto',
-        },
-      },
-    }}
-  >
-    <DataGrid
-      components={{
-        NoRowsOverlay: () => {
-          return (
-            <Box
-              sx={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant='subtitle1'>
-                There are no Pros
-              </Typography>
-            </Box>
-          )
-        },
-        NoResultsOverlay: () => {
-          return (
-            <Box
-              sx={{
-                width: '100%',
-                height: '100%',
-                display: 'flex',
-                justifyContent: 'center',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant='subtitle1'>
-                There are no Pros
-              </Typography>
-            </Box>
-          )
-        },
-      }}
-      sx={{ overflowX: 'scroll' }}
-      columns={getStandardPriceColumns()}
-      loading={isLoading}
-      rows={list ?? []}
-      autoHeight
-      disableSelectionOnClick
-      paginationMode='server'
-      pageSize={standardClientPriceListPageSize}
-      rowsPerPageOptions={[5, 10, 25, 50]}
-      page={standardClientPriceListPage}
-      rowCount={listCount}
-
-      // onPageChange={(newPage: number) => {
-      //   setFilters((prevState: ProListFilterType) => ({
-      //     ...prevState,
-      //     skip: newPage * proListPageSize,
-      //   }))
-      //   setProListPage(newPage)
-      // }}
-      // onPageSizeChange={(newPageSize: number) => {
-      //   setFilters((prevState: ProListFilterType) => ({
-      //     ...prevState,
-      //     take: newPageSize,
-      //   }))
-      //   setProListPageSize(newPageSize)
-      // }}
-    />
-  </Box> */}
     </Card>
   )
 }
