@@ -7,7 +7,8 @@ import {
 import { FieldArrayWithId } from 'react-hook-form'
 
 type Props = {
-  fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
+  // fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
+  fields: Array<ContactPersonType>
   columns: GridColumns<ContactPersonType>
   openForm: () => void
   pageSize: number

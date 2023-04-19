@@ -1,5 +1,8 @@
 import { ClientAddressFormType } from '../schema/client-address.schema'
-import { ClientContactPersonType } from '../schema/client-contact-person.schema'
+import {
+  ClientContactPersonType,
+  ContactPersonType,
+} from '../schema/client-contact-person.schema'
 import { CompanyInfoFormType } from '../schema/company-info.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 

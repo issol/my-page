@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 
-// ** mui
-import { Button, Card, Grid, IconButton, Typography } from '@mui/material'
+// ** style components
+import {
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
+import { GridColumns } from '@mui/x-data-grid'
 import Dialog from '@mui/material/Dialog'
+import { TableTitleTypography } from '@src/@core/styles/typography'
 
 // ** types
 import {
@@ -94,13 +101,21 @@ export default function ContactPersonForm({
       renderCell: ({ row }: { row: ContactPersonType }) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>
-              {getLegalName({
+            <Tooltip
+              title={getLegalName({
                 firstName: row.firstName!,
                 middleName: row?.middleName,
                 lastName: row.lastName!,
               })}
-            </Typography>
+            >
+              <TableTitleTypography fontWeight='bold'>
+                {getLegalName({
+                  firstName: row.firstName!,
+                  middleName: row?.middleName,
+                  lastName: row.lastName!,
+                })}
+              </TableTitleTypography>
+            </Tooltip>
             <Typography variant='body2'>{row?.email}</Typography>
           </Box>
         )

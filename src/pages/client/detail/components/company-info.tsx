@@ -49,10 +49,10 @@ import { Controller, useForm } from 'react-hook-form'
 // ** components
 import CompanyInfoForm from '../../components/forms/company-info-form'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
+import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
 type Props = {
   clientId: number
