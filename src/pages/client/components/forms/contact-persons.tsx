@@ -36,6 +36,7 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import AddContactPersonForm from './add-contact-person-form'
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
+import ContactPersonList from '../list/contact-person-list'
 
 type Props = {
   isGeneral: boolean
@@ -215,42 +216,13 @@ export default function ContactPersonForm({
 
   return (
     <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>
-                Contact person({fields?.length ?? 0})
-              </Typography>{' '}
-              <Button variant='contained' onClick={openContactPersonForm}>
-                Add contact person
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        />
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll' }}
-            rows={fields}
-            columns={columns}
-            pageSize={pageSize}
-            rowsPerPageOptions={[10, 25, 50]}
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
+      <ContactPersonList
+        fields={fields}
+        columns={columns}
+        openForm={openContactPersonForm}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+      />
       <Grid
         item
         xs={12}
