@@ -158,7 +158,7 @@ const CatInterface = ({
   const onClickSaveEditCatInterface = () => {
     const memSource: CatInterfaceParams[] =
       priceUnitListWithHeaders.Memsource.map(value => ({
-        priceUnitId: value.id,
+        priceUnitPairId: value.priceUnitPairId,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -172,7 +172,7 @@ const CatInterface = ({
 
     const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
       value => ({
-        priceUnitId: value.id,
+        priceUnitPairId: value.priceUnitPairId,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -275,7 +275,7 @@ const CatInterface = ({
       // setHeaders(formattedHeader)
       const withHeaders = priceUnitList.map(value => ({
         id: value.id,
-        priceUnitId: value.priceUnitId,
+        priceUnitPairId: value.id,
         title: value.title,
         quantity: value.quantity!,
         perWords: 1,
@@ -283,13 +283,16 @@ const CatInterface = ({
         unit: value.unit,
         chips: formattedHeader,
       }))
+      console.log(priceUnitList)
+      console.log(priceData.catInterface)
+      console.log(withHeaders)
 
       const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
         .memSource.length
         ? [
             ...priceData.catInterface.memSource.map(value => ({
               id: value.id,
-              priceUnitId: value.priceUnitId,
+              priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
               quantity: value.priceUnitQuantity,
               price: value.priceUnitPrice,
@@ -305,9 +308,15 @@ const CatInterface = ({
             ...withHeaders.filter(
               value =>
                 !priceData.catInterface.memSource
-                  .map(value => value.priceUnitId)
-                  .includes(value.priceUnitId),
+                  .map(data => data.priceUnitTitle)
+                  .includes(value.title),
             ),
+            // ...withHeaders.filter(
+            //   value =>
+            //     !priceData.catInterface.memSource
+            //       .map(data => data.priceUnitPairId)
+            //       .includes(value.id),
+            // ),
           ]
         : withHeaders
 
@@ -318,7 +327,7 @@ const CatInterface = ({
         ? [
             ...priceData.catInterface.memoQ.map(value => ({
               id: value.id,
-              priceUnitId: value.priceUnitId,
+              priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
               quantity: value.priceUnitQuantity,
               price: value.priceUnitPrice,
@@ -333,10 +342,16 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memoQ
-                  .map(value => value.priceUnitId)
-                  .includes(value.priceUnitId),
+                !priceData.catInterface.memSource
+                  .map(data => data.priceUnitTitle)
+                  .includes(value.title),
             ),
+            // ...withHeaders.filter(
+            //   value =>
+            //     !priceData.catInterface.memoQ
+            //       .map(data => data.priceUnitPairId)
+            //       .includes(value.id),
+            // ),
           ]
         : withHeaders
       setPriceUnitListWithHeaders(prevState => ({
@@ -354,7 +369,7 @@ const CatInterface = ({
 
       const withHeaders: PriceUnitListWithHeaders = {
         id: 0,
-        priceUnitId: 0,
+        priceUnitPairId: 0,
         title: '-',
         quantity: null,
         perWords: null,
@@ -370,6 +385,10 @@ const CatInterface = ({
       }))
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
+
+  useEffect(() => {
+    console.log(priceUnitListWithHeaders)
+  }, [priceUnitListWithHeaders])
 
   return (
     <Card
