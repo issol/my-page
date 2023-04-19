@@ -119,6 +119,7 @@ export const updateClientStatus = async (
   }
 }
 
+/** TODO : request body수정 가능성 있음 */
 export const updateClientAddress = async (
   clientId: number,
   body: ClientAddressType,

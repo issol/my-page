@@ -109,7 +109,7 @@ export default function ClientInfo({ clientId, clientInfo }: Props) {
   )
 
   function onMutationSuccess() {
-    return queryClient.invalidateQueries('get-client/list')
+    return queryClient.invalidateQueries(`client-detail-${clientId}`)
   }
   function onMutationError() {
     toast.error('Something went wrong. Please try again.', {
