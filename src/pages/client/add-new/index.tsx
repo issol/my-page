@@ -131,7 +131,7 @@ export default function AddNewClient() {
   }, [role])
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(3)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -300,8 +300,8 @@ export default function AddNewClient() {
 
   const onSubmitPrice = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
-      if (type === 'Add') {
-        const formData = {
+      if (type === 'Add' && data) {
+        const formData: StandardPriceListType = {
           ...data,
           id: Math.random(),
           isStandard: false,
@@ -309,12 +309,13 @@ export default function AddNewClient() {
           catBasis: data?.catBasis.value,
           category: data?.category.value,
           currency: data?.currency.value,
-          roundingProcedure: data?.roundingProcedure.value,
-          languagePair: [],
+          roundingProcedure: data?.roundingProcedure.value.toString()!,
+          languagePairs: [],
           priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
         }
-        //@ts-ignore
-        setPriceList(priceList.concat(formData))
+
+        setPriceList([...priceList, formData])
       }
       closeModal(`${selectedModalType}PriceModal`)
     }
@@ -416,7 +417,7 @@ export default function AddNewClient() {
     setSelectedPrice({
       ...selectedPrice,
       //@ts-ignore
-      languagePair: selectedPrice?.languagePairs.concat(langData),
+      languagePairs: selectedPrice?.languagePairs.concat(langData),
     })
   }
 
@@ -481,11 +482,17 @@ export default function AddNewClient() {
   }
 
   function onClientDataSubmit() {
+    const address = getAddressValues()?.clientAddresses?.map(item => {
+      delete item.id
+      return item
+    })
+    console.log(address)
     const data: CreateClientBodyType = {
       ...getCompanyInfoValues(),
-      ...getAddressValues(),
+      clientAddresses: address,
       ...getContactPersonValues()!,
     }
+
     openModal({
       type: 'create-client',
       children: (
@@ -536,6 +543,7 @@ export default function AddNewClient() {
     })
   }
   console.log(priceList)
+  const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -571,6 +579,8 @@ export default function AddNewClient() {
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
             <AddressesForm
+              checked={checked}
+              setChecked={setChecked}
               control={addressControl}
               fields={addresses}
               append={appendAddress}

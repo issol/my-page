@@ -36,6 +36,8 @@ import { Fragment, useState } from 'react'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 
 type Props = {
+  checked: boolean
+  setChecked: (v: boolean) => void
   control: Control<ClientAddressFormType, any>
   fields: FieldArrayWithId<ClientAddressFormType, 'clientAddresses', 'id'>[]
   append: UseFieldArrayAppend<ClientAddressFormType, 'clientAddresses'>
@@ -49,6 +51,8 @@ type Props = {
   handleBack: () => void
 }
 export default function AddressesForm({
+  checked,
+  setChecked,
   control,
   fields,
   append,
@@ -62,7 +66,7 @@ export default function AddressesForm({
   handleBack,
 }: Props) {
   const country = getTypeList('CountryCode')
-
+  // const [checked, setChecked] = useState(false)
   const basicAddress = fields.filter(item => item.addressType !== 'additional')
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
@@ -196,7 +200,6 @@ export default function AddressesForm({
   return (
     <Grid container spacing={6}>
       {basicAddress.map((item, idx) => {
-        const [checked, setChecked] = useState(false)
         return (
           <Fragment key={item?.id}>
             <Grid item xs={12}>
