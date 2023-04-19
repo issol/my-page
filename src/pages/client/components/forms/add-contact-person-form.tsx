@@ -262,7 +262,7 @@ export default function AddContactPersonForm(props: Props) {
           </Grid>
           <Grid item xs={12}>
             <Typography variant='h6' mb='24px' textAlign='left'>
-              Memo for client
+              Memo for contact person
             </Typography>
             <Controller
               name={`contactPersons.${idx}.memo`}
@@ -273,7 +273,7 @@ export default function AddContactPersonForm(props: Props) {
                     rows={4}
                     multiline
                     fullWidth
-                    label='Write down some information to keep in mind about this contact'
+                    label='Write down some information to keep in mind about this contact person'
                     value={value ?? ''}
                     onChange={onChange}
                     inputProps={{ maxLength: 500 }}
