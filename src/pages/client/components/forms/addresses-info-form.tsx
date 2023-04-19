@@ -1,3 +1,5 @@
+import { Fragment } from 'react'
+
 // ** mui
 import {
   Autocomplete,
@@ -13,8 +15,6 @@ import {
 } from '@mui/material'
 
 // ** types
-import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
-
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 
 // ** Icon Imports
@@ -29,28 +29,22 @@ import {
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormWatch,
 } from 'react-hook-form'
-import { Fragment, useState } from 'react'
+
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 
 type Props = {
-  checked: boolean
-  setChecked: (v: boolean) => void
+  checked?: boolean
+  setChecked?: (v: boolean) => void
   control: Control<ClientAddressFormType, any>
   fields: FieldArrayWithId<ClientAddressFormType, 'clientAddresses', 'id'>[]
   append: UseFieldArrayAppend<ClientAddressFormType, 'clientAddresses'>
   remove: UseFieldArrayRemove
   update: UseFieldArrayUpdate<ClientAddressFormType, 'clientAddresses'>
-  getValues: UseFormGetValues<ClientAddressFormType>
   errors: FieldErrors<ClientAddressFormType>
   isValid: boolean
-  watch: UseFormWatch<ClientAddressFormType>
-  onNextStep: () => void
-  handleBack: () => void
 }
-export default function AddressesForm({
+export default function ClientAddressesForm({
   checked,
   setChecked,
   control,
@@ -58,20 +52,14 @@ export default function AddressesForm({
   append,
   remove,
   update,
-  getValues,
   errors,
   isValid,
-  watch,
-  onNextStep,
-  handleBack,
 }: Props) {
   const country = getTypeList('CountryCode')
-  // const [checked, setChecked] = useState(false)
   const basicAddress = fields.filter(item => item.addressType !== 'additional')
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
   )
-
   function renderForm(
     id: string,
     key:
@@ -196,9 +184,8 @@ export default function AddressesForm({
       idx !== -1 && remove(idx)
     }
   }
-
   return (
-    <Grid container spacing={6}>
+    <Fragment>
       {basicAddress.map((item, idx) => {
         return (
           <Fragment key={item?.id}>
@@ -207,7 +194,9 @@ export default function AddressesForm({
                 {item.addressType === 'billing' ? 'Billing' : 'Shipping'}{' '}
                 address
               </Typography>
-              {item.addressType === 'shipping' ? (
+              {item.addressType === 'shipping' &&
+              checked !== undefined &&
+              setChecked ? (
                 <Box>
                   <Checkbox
                     checked={checked}
@@ -264,18 +253,6 @@ export default function AddressesForm({
           <Icon icon='material-symbols:add' />
         </Button>
       </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={12} display='flex' justifyContent='space-between'>
-        <Button variant='outlined' color='secondary' onClick={handleBack}>
-          <Icon icon='material-symbols:arrow-back-rounded' />
-          Previous
-        </Button>
-        <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-          Next <Icon icon='material-symbols:arrow-forward-rounded' />
-        </Button>
-      </Grid>
-    </Grid>
+    </Fragment>
   )
 }

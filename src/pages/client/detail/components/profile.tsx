@@ -39,7 +39,7 @@ export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
           <Grid item xs={4}>
             <Box display='flex' flexDirection='column' gap='24px'>
               <ClientInfo clientId={id} clientInfo={clientInfo} />
-              <ClientAddresses clientInfo={clientInfo} />
+              <ClientAddresses clientId={id} clientInfo={clientInfo} />
               <Card>
                 <CardContent>
                   <Button variant='outlined' color='error' fullWidth>
