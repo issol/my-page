@@ -12,7 +12,10 @@ import MuiTabList, { TabListProps } from '@mui/lab/TabList'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 import StandardPrices from '@src/pages/components/standard-prices'
+
+// ** fetches
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import { useGetPriceUnitList } from '@src/queries/price-units.query'
 
 // ** Components
 import PriceUnits from '../components/price/price-units'
@@ -21,6 +24,14 @@ export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
+
+  const [skip, setSkip] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const { data: list, refetch: refetchPriceUnit } = useGetPriceUnitList({
+    skip: skip * pageSize,
+    take: pageSize,
+  })
+
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
     '& .MuiTabs-indicator': {
@@ -82,7 +93,14 @@ export default function Price() {
         </Typography>
       </TabPanel>
       <TabPanel value='3'>
-        <PriceUnits />
+        <PriceUnits
+          list={list || { data: [], count: 0, totalCount: 0 }}
+          refetch={refetchPriceUnit}
+          skip={skip}
+          setSkip={setSkip}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+        />
       </TabPanel>
     </TabContext>
   )
