@@ -152,24 +152,6 @@ export default function ContactPersonForm({
     },
   ]
 
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>
-          There are no contact persons
-        </Typography>
-      </Box>
-    )
-  }
-
   function onSubmit(data: ClientContactPersonType) {
     setOpenForm(false)
     if (!data.contactPersons?.length) return

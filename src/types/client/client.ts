@@ -1,8 +1,20 @@
 import { ClientAddressFormType } from '../schema/client-address.schema'
-import { ContactPersonType } from '../schema/client-contact-person.schema'
+import { ClientContactPersonType } from '../schema/client-contact-person.schema'
 import { CompanyInfoFormType } from '../schema/company-info.schema'
-import { CountryType } from '../sign/personalInfoTypes'
 
-export type ClientDetailType = CompanyInfoFormType &
-  ClientAddressFormType &
-  ContactPersonType
+export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
+  memos: Array<ClientMemoType>
+} & ClientAddressFormType &
+  ClientContactPersonType
+
+export type ClientMemoType = {
+  id: number
+  createdAt: string
+  updatedAt: string
+  writerId: number
+  writerFirstName: string
+  writerMiddleName: string
+  writerLastName: string
+  writerEmail: string
+  memo: string
+}
