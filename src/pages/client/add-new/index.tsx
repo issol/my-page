@@ -131,7 +131,7 @@ export default function AddNewClient() {
   }, [role])
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(3)
+  const [activeStep, setActiveStep] = useState<number>(0)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
