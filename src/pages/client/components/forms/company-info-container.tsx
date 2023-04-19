@@ -44,6 +44,7 @@ export default function CompanyInfoContainer({
   return (
     <Grid container spacing={6}>
       <CompanyInfoForm
+        mode='create'
         control={control}
         setValue={setValue}
         errors={errors}

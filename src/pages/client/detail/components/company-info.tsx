@@ -1,11 +1,18 @@
+import { useEffect, useState } from 'react'
+
+// ** design component
 import { Icon } from '@iconify/react'
 import {
   Autocomplete,
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogContent,
   Divider,
+  Grid,
   IconButton,
   TextField,
   Typography,
@@ -13,11 +20,17 @@ import {
 
 import styled from 'styled-components'
 
-// ** types
+// ** types & schema
 import { ClientDetailType } from '@src/types/client/client'
 import { TitleTypography } from '@src/@core/styles/typography'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import { ClientStatus } from '@src/shared/const/status/statuses'
+import {
+  CompanyInfoFormType,
+  companyInfoDefaultValue,
+  companyInfoSchema,
+} from '@src/types/schema/company-info.schema'
+import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** fetch & mutation
 import { useMutation, useQueryClient } from 'react-query'
@@ -29,34 +42,34 @@ import {
 
 // ** toast
 import { toast } from 'react-hot-toast'
-import { useForm } from 'react-hook-form'
-import {
-  CompanyInfoFormType,
-  companyInfoDefaultValue,
-  companyInfoSchema,
-} from '@src/types/schema/company-info.schema'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { useState } from 'react'
+
+// ** react hook form
+import { Controller, useForm } from 'react-hook-form'
+
+// ** components
+import CompanyInfoForm from '../../components/forms/company-info-form'
+import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
+import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
 type Props = {
   clientId: number
   clientInfo: ClientDetailType
 }
 
-/**
- * TODO : form 여는 함수 연결
- * status 변경 함수 연결
- */
-
 export default function ClientInfo({ clientId, clientInfo }: Props) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
+  const { openModal, closeModal } = useModal()
 
   const {
     control,
     getValues,
     setValue,
     handleSubmit,
+    reset,
     watch,
     formState: { errors, isValid },
   } = useForm<CompanyInfoFormType>({
@@ -64,6 +77,20 @@ export default function ClientInfo({ clientId, clientInfo }: Props) {
     defaultValues: companyInfoDefaultValue,
     resolver: yupResolver(companyInfoSchema),
   })
+
+  useEffect(() => {
+    reset({
+      clientType: clientInfo.clientType,
+      status: clientInfo.status,
+      name: clientInfo.name,
+      email: clientInfo.email,
+      timezone: clientInfo.timezone,
+      phone: clientInfo.phone ?? '',
+      mobile: clientInfo.mobile ?? '',
+      fax: clientInfo.fax ?? '',
+      websiteLink: clientInfo.websiteLink ?? '',
+    })
+  }, [clientInfo])
 
   const updateCompanyInfoMutation = useMutation(
     (body: updateClientInfoType) => updateClientInfo(clientId, body),
@@ -90,16 +117,37 @@ export default function ClientInfo({ clientId, clientInfo }: Props) {
     })
   }
 
-  // <CompanyInfoForm
-  //             control={companyInfoControl}
-  //             getValues={getCompanyInfoValues}
-  //             setValue={setCompanyInfoValues}
-  //             handleSubmit={submitCompanyInfo}
-  //             errors={companyInfoErrors}
-  //             isValid={isCompanyInfoValid}
-  //             watch={companyInfoWatch}
-  //             onNextStep={onNextStep}
-  //           />
+  function onCancel() {
+    openModal({
+      type: 'discard',
+      children: (
+        <DiscardChangesModal
+          onDiscard={() => setOpen(false)}
+          onClose={() => closeModal('discard')}
+        />
+      ),
+    })
+  }
+
+  function onSave() {
+    openModal({
+      type: 'save',
+      children: (
+        <ConfirmSaveAllChanges
+          onSave={() => {
+            setOpen(false)
+            onSubmit()
+          }}
+          onClose={() => closeModal('save')}
+        />
+      ),
+    })
+  }
+
+  function onSubmit() {
+    updateCompanyInfoMutation.mutate(getValues())
+  }
+
   return (
     <Card>
       <CardHeader
@@ -110,7 +158,7 @@ export default function ClientInfo({ clientId, clientInfo }: Props) {
             justifyContent='space-between'
           >
             <Typography variant='h6'>Company info</Typography>
-            <IconButton>
+            <IconButton onClick={() => setOpen(true)}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
           </Box>
@@ -196,25 +244,65 @@ export default function ClientInfo({ clientId, clientInfo }: Props) {
           </InfoBox>
         </Box>
         <Divider style={{ marginBottom: '24px' }} />
-        <Autocomplete
-          autoHighlight
-          fullWidth
-          options={ClientStatus}
-          //** TODO : status변경하는 함수 연결 */
-          //   onChange={(e, v) => {
-          //     if (!v) onChange({ value: '', label: '' })
-          //     else onChange(v.value)
-          //   }}
-          value={
-            !clientInfo.status
-              ? { value: '', label: '' }
-              : ClientStatus.filter(item => item.value === clientInfo.status)[0]
-          }
-          renderInput={params => (
-            <TextField {...params} label='Status*' placeholder='Status*' />
+        <Controller
+          name='status'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              options={ClientStatus}
+              onChange={(e, v) => {
+                if (!v) onChange({ value: '', label: '' })
+                else {
+                  onChange(v.value)
+                  updateClientStatusMutation.mutate({ status: v.value })
+                }
+              }}
+              value={
+                !value
+                  ? { value: '', label: '' }
+                  : ClientStatus.filter(item => item.value === value)[0]
+              }
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  error={Boolean(errors.status)}
+                  label='Status*'
+                  placeholder='Status*'
+                />
+              )}
+            />
           )}
         />
       </CardContent>
+      <Dialog open={open} onClose={() => setOpen(false)} maxWidth='lg'>
+        <DialogContent style={{ padding: '50px 60px' }}>
+          <Grid container spacing={6}>
+            <CompanyInfoForm
+              mode='update'
+              control={control}
+              setValue={setValue}
+              errors={errors}
+              watch={watch}
+            />
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              justifyContent='center'
+              gap='16px'
+            >
+              <Button variant='outlined' color='secondary' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button variant='contained' disabled={!isValid} onClick={onSave}>
+                Save
+              </Button>
+            </Grid>
+          </Grid>
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }

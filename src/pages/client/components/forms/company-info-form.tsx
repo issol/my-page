@@ -42,6 +42,7 @@ import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
+  mode: 'create' | 'update'
   control: Control<CompanyInfoFormType, any>
   //   getValues: UseFormGetValues<CompanyInfoFormType>
   setValue: UseFormSetValue<CompanyInfoFormType>
@@ -50,6 +51,7 @@ type Props = {
   watch: UseFormWatch<CompanyInfoFormType>
 }
 export default function CompanyInfoForm({
+  mode,
   control,
   //   getValues,
   setValue,
@@ -276,35 +278,40 @@ export default function CompanyInfoForm({
         />
         {renderErrorMsg('websiteLink')}
       </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant='h6' mb='24px'>
-          Memo for client
-        </Typography>
-        <Controller
-          name='memo'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <>
-              <TextField
-                rows={4}
-                multiline
-                fullWidth
-                error={Boolean(errors.memo)}
-                label='Write down some information to keep in mind about this client.'
-                value={value ?? ''}
-                onChange={onChange}
-                inputProps={{ maxLength: 500 }}
-              />
-              <Typography variant='body2' mt='12px' textAlign='right'>
-                {value?.length ?? 0}/500
-              </Typography>
-            </>
-          )}
-        />
-      </Grid>
+
+      {mode === 'create' ? (
+        <>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant='h6' mb='24px'>
+              Memo for client
+            </Typography>
+            <Controller
+              name='memo'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <TextField
+                    rows={4}
+                    multiline
+                    fullWidth
+                    error={Boolean(errors.memo)}
+                    label='Write down some information to keep in mind about this client.'
+                    value={value ?? ''}
+                    onChange={onChange}
+                    inputProps={{ maxLength: 500 }}
+                  />
+                  <Typography variant='body2' mt='12px' textAlign='right'>
+                    {value?.length ?? 0}/500
+                  </Typography>
+                </>
+              )}
+            />
+          </Grid>
+        </>
+      ) : null}
     </Fragment>
   )
 }
