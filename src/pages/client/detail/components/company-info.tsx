@@ -20,7 +20,7 @@ import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 
 type Props = {
-  userInfo: ClientDetailType
+  clientInfo: ClientDetailType
 }
 
 /**
@@ -28,7 +28,7 @@ type Props = {
  * status 변경 함수 연결
  */
 
-export default function ClientInfo({ userInfo }: Props) {
+export default function ClientInfo({ clientInfo }: Props) {
   return (
     <Card>
       <CardHeader
@@ -52,7 +52,9 @@ export default function ClientInfo({ userInfo }: Props) {
             <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
               Email:
             </Typography>
-            <TitleTypography variant='body2'>{userInfo.email}</TitleTypography>
+            <TitleTypography variant='body2'>
+              {clientInfo.email}
+            </TitleTypography>
           </InfoBox>
           <InfoBox>
             <Icon icon='mdi:earth' fontSize='20px' />
@@ -60,7 +62,7 @@ export default function ClientInfo({ userInfo }: Props) {
               Time zone:
             </Typography>
             <TitleTypography variant='body2'>
-              {getGmtTime(userInfo.timezone.code)}
+              {getGmtTime(clientInfo.timezone.code)}
             </TitleTypography>
           </InfoBox>
           <InfoBox>
@@ -69,8 +71,8 @@ export default function ClientInfo({ userInfo }: Props) {
               Telephone:
             </Typography>
             <TitleTypography variant='body2'>
-              {userInfo?.phone
-                ? `+${userInfo.timezone.phone})  ${userInfo.phone}`
+              {clientInfo?.phone
+                ? `+${clientInfo.timezone.phone})  ${clientInfo.phone}`
                 : '-'}
             </TitleTypography>
           </InfoBox>
@@ -80,8 +82,8 @@ export default function ClientInfo({ userInfo }: Props) {
               Mobile phone:
             </Typography>
             <TitleTypography variant='body2'>
-              {userInfo?.mobile
-                ? `+${userInfo.timezone.phone})  ${userInfo.mobile}`
+              {clientInfo?.mobile
+                ? `+${clientInfo.timezone.phone})  ${clientInfo.mobile}`
                 : '-'}
             </TitleTypography>
           </InfoBox>
@@ -91,8 +93,8 @@ export default function ClientInfo({ userInfo }: Props) {
               Fax:
             </Typography>
             <TitleTypography variant='body2'>
-              {userInfo?.fax
-                ? `+${userInfo.timezone.phone})  ${userInfo.fax}`
+              {clientInfo?.fax
+                ? `+${clientInfo.timezone.phone})  ${clientInfo.fax}`
                 : '-'}
             </TitleTypography>
           </InfoBox>
@@ -108,12 +110,14 @@ export default function ClientInfo({ userInfo }: Props) {
               justifyContent='space-between'
             >
               <TitleTypography variant='body2'>
-                {userInfo.websiteLink ?? '-'}
+                {clientInfo.websiteLink ?? '-'}
               </TitleTypography>
               <IconButton
                 edge='end'
-                disabled={!userInfo.websiteLink}
-                onClick={() => window.open(`${userInfo.websiteLink}`, '_blank')}
+                disabled={!clientInfo.websiteLink}
+                onClick={() =>
+                  window.open(`${clientInfo.websiteLink}`, '_blank')
+                }
               >
                 <Icon icon='material-symbols:open-in-new' opacity={0.7} />
               </IconButton>
@@ -131,9 +135,9 @@ export default function ClientInfo({ userInfo }: Props) {
           //     else onChange(v.value)
           //   }}
           value={
-            !userInfo.status
+            !clientInfo.status
               ? { value: '', label: '' }
-              : ClientStatus.filter(item => item.value === userInfo.status)[0]
+              : ClientStatus.filter(item => item.value === clientInfo.status)[0]
           }
           renderInput={params => (
             <TextField {...params} label='Status*' placeholder='Status*' />

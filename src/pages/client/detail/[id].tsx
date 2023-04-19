@@ -102,7 +102,8 @@ export default function ClientDetail() {
         <TabPanel value='3'></TabPanel>
         <TabPanel value='4'>
           <ClientProfile
-            userInfo={userInfo ?? null}
+            clientId={id}
+            clientInfo={userInfo ?? null}
             memo={memo || { data: [], count: 0 }}
           />
         </TabPanel>

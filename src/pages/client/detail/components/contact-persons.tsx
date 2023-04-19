@@ -25,12 +25,12 @@ import { GridColumns } from '@mui/x-data-grid'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
-  userInfo: ClientDetailType
+  clientInfo: ClientDetailType
 }
 
-export default function ContactPersons({ userInfo }: Props) {
+export default function ContactPersons({ clientInfo }: Props) {
   const [pageSize, setPageSize] = useState(10)
-  const { contactPersons } = userInfo
+  const { contactPersons } = clientInfo
 
   const columns: GridColumns<ContactPersonType> = [
     {

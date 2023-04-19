@@ -59,8 +59,9 @@ import {
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
-import { CreateClientBodyType, CreateClientResType } from '@src/apis/client.api'
+import { CreateClientBodyType } from '@src/apis/client.api'
 import { GridCellParams } from '@mui/x-data-grid'
+import { CreateClientResType } from '@src/types/client/client'
 
 // ** fetch
 import { useMutation } from 'react-query'

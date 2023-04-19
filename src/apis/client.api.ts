@@ -16,6 +16,7 @@ import {
   ClientDetailType,
   ClientMemoPostType,
   ClientMemoType,
+  CreateClientResType,
 } from '@src/types/client/client'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
@@ -56,22 +57,6 @@ export const getClientList = async (
 export type CreateClientBodyType = CompanyInfoFormType &
   ClientAddressFormType &
   ClientContactPersonType
-
-export type CreateClientResType = {
-  adminCompanyName: string
-  clientType: string
-  name: string
-  email: string
-  phone: string | null
-  mobile: string | null
-  fax: string | null
-  websiteLink: string | null
-  timezone: CountryType
-  corporationId: string
-  status: string
-  memo: string | null
-  clientId: number
-}
 
 export const createClient = async (
   form: CreateClientBodyType,

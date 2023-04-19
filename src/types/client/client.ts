@@ -1,6 +1,23 @@
 import { ClientAddressFormType } from '../schema/client-address.schema'
 import { ClientContactPersonType } from '../schema/client-contact-person.schema'
 import { CompanyInfoFormType } from '../schema/company-info.schema'
+import { CountryType } from '../sign/personalInfoTypes'
+
+export type CreateClientResType = {
+  adminCompanyName: string
+  clientType: string
+  name: string
+  email: string
+  phone: string | null
+  mobile: string | null
+  fax: string | null
+  websiteLink: string | null
+  timezone: CountryType
+  corporationId: string
+  status: string
+  memo: string | null
+  clientId: number
+}
 
 export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
   memos: Array<ClientMemoType>

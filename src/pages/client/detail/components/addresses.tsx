@@ -17,12 +17,12 @@ import { ClientDetailType } from '@src/types/client/client'
 import { TitleTypography } from '@src/@core/styles/typography'
 
 type Props = {
-  userInfo: ClientDetailType
+  clientInfo: ClientDetailType
 }
 
 /** TODO : form여는 함수 연결 */
-export default function ClientAddresses({ userInfo }: Props) {
-  const { clientAddresses: address } = userInfo
+export default function ClientAddresses({ clientInfo }: Props) {
+  const { clientAddresses: address } = clientInfo
 
   return (
     <Card>
