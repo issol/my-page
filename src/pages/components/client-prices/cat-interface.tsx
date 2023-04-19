@@ -115,8 +115,7 @@ const CatInterface = ({
   const onClickSaveEditCatInterface = () => {
     const memSource: CatInterfaceParams[] =
       priceUnitListWithHeaders.Memsource.map(value => ({
-        id: value.id,
-        priceUnitId: value.id,
+        priceUnitPairId: value.priceUnitPairId,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -130,8 +129,7 @@ const CatInterface = ({
 
     const memoQ: CatInterfaceParams[] = priceUnitListWithHeaders.memoQ.map(
       value => ({
-        id: value.id,
-        priceUnitId: value.id,
+        priceUnitPairId: value.priceUnitPairId,
         priceUnitTitle: value.title,
         priceUnitPrice: value.price!,
         priceUnitQuantity: value.quantity!,
@@ -217,6 +215,9 @@ const CatInterface = ({
   }
 
   useEffect(() => {
+    let memSource: PriceUnitListWithHeaders[] = []
+    let memoQ: PriceUnitListWithHeaders[] = []
+
     if (!isLoading && catInterface && priceUnitList.length > 0 && priceData) {
       /* @ts-ignore */
       const formattedHeader = catInterface.headers.map((value, idx) => ({
@@ -228,7 +229,7 @@ const CatInterface = ({
 
       const withHeaders = priceUnitList.map(value => ({
         id: value.id,
-        priceUnitId: value.priceUnitId,
+        priceUnitPairId: value.id,
         title: value.title,
         quantity: value.quantity!,
         perWords: 1,
@@ -237,12 +238,11 @@ const CatInterface = ({
         chips: formattedHeader,
       }))
 
-      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
-        .memSource.length
+      memSource = priceData.catInterface.memSource.length
         ? [
             ...priceData.catInterface.memSource.map(value => ({
               id: value.id,
-              priceUnitId: value.priceUnitId,
+              priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
               quantity: value.priceUnitQuantity,
               price: value.priceUnitPrice,
@@ -258,18 +258,17 @@ const CatInterface = ({
             ...withHeaders.filter(
               value =>
                 !priceData.catInterface.memSource
-                  .map(value => value.priceUnitId)
-                  .includes(value.priceUnitId),
+                  .map(data => data.priceUnitTitle)
+                  .includes(value.title),
             ),
           ]
         : withHeaders
 
-      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
-        .length
+      memoQ = priceData.catInterface.memoQ.length
         ? [
             ...priceData.catInterface.memoQ.map(value => ({
               id: value.id,
-              priceUnitId: value.priceUnitId,
+              priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
               quantity: value.priceUnitQuantity,
               price: value.priceUnitPrice,
@@ -284,17 +283,12 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memoQ
-                  .map(value => value.priceUnitId)
-                  .includes(value.priceUnitId),
+                !priceData.catInterface.memSource
+                  .map(data => data.priceUnitTitle)
+                  .includes(value.title),
             ),
           ]
         : withHeaders
-      setPriceUnitListWithHeaders(prevState => ({
-        ...prevState,
-        Memsource: memSource,
-        memoQ: memoQ,
-      }))
     } else if (!isLoading && catInterface && priceUnitList.length === 0) {
       const formattedHeader = catInterface.headers.map((value, idx) => ({
         id: idx,
@@ -303,28 +297,22 @@ const CatInterface = ({
         tmpSelected: false,
       }))
 
-      const withHeaders: PriceUnitListWithHeaders = {
-        id: 0,
-        priceUnitId: 0,
-        title: '-',
-        quantity: null,
-        perWords: null,
-        price: null,
-        unit: null,
-        chips: formattedHeader,
-      }
-
-      setPriceUnitListWithHeaders(prevState => ({
-        ...prevState,
-        memoQ: [withHeaders],
-        Memsource: [withHeaders],
-      }))
-      setOriginalHeaders(prevState => ({
-        ...prevState,
-        memoQ: [withHeaders],
-        Memsource: [withHeaders],
-      }))
+      memoQ = memSource = [
+        {
+          id: 0,
+          priceUnitPairId: 0,
+          title: '-',
+          quantity: null,
+          perWords: null,
+          price: null,
+          unit: null,
+          chips: formattedHeader,
+        },
+      ]
     }
+
+    setPriceUnitListWithHeaders({ Memsource: memSource, memoQ })
+    setOriginalHeaders({ Memsource: memSource, memoQ })
   }, [catInterface, isLoading, priceUnitList, priceData])
 
   return (

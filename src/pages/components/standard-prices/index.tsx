@@ -347,7 +347,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
 
   useEffect(() => {
     if (selectedPriceData) {
-      const updatedData = standardPrices.data.find(
+      const updatedData = standardPrices.data?.find(
         value => value.id === selectedPriceData.id,
       )
       setSelectedPriceData(updatedData!)

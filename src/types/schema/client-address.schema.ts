@@ -3,6 +3,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 
 export type ClientAddressFormType = {
   clientAddresses?: Array<{
+    id?: string
     addressType?: 'billing' | 'shipping' | 'additional'
     name?: string
     baseAddress?: string //street1

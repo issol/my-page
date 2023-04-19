@@ -62,6 +62,15 @@ export const patchPriceUnitPair = async (
   })
 }
 
+export const putPriceUnitPair = async (
+  data: SetPriceUnitPair[],
+  id: number,
+) => {
+  await axios.put(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+    data: data,
+  })
+}
+
 export const createLanguagePair = async (data: LanguagePairParams[]) => {
   await axios.post('/api/enough/u/language/pair', { data: data })
 }
@@ -86,8 +95,12 @@ export const createCatInterface = async (
 ) => {
   await axios.post('/api/enough/u/price-cat-pair', {
     priceId: id,
-    memSource: data.memSource,
-    memoQ: data.memoQ,
+    data: [
+      {
+        memSource: data.memSource,
+        memoQ: data.memoQ,
+      },
+    ],
   })
 }
 
@@ -100,7 +113,11 @@ export const patchCatInterface = async (
 ) => {
   await axios.patch('/api/enough/u/price-cat-pair', {
     priceId: id,
-    memSource: data.memSource,
-    memoQ: data.memoQ,
+    data: [
+      {
+        memSource: data.memSource,
+        memoQ: data.memoQ,
+      },
+    ],
   })
 }
