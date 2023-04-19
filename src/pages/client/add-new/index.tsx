@@ -481,11 +481,17 @@ export default function AddNewClient() {
   }
 
   function onClientDataSubmit() {
+    const address = getAddressValues()?.clientAddresses?.map(item => {
+      delete item.id
+      return item
+    })
+    console.log(address)
     const data: CreateClientBodyType = {
       ...getCompanyInfoValues(),
-      ...getAddressValues(),
+      clientAddresses: address,
       ...getContactPersonValues()!,
     }
+
     openModal({
       type: 'create-client',
       children: (
@@ -536,6 +542,7 @@ export default function AddNewClient() {
     })
   }
   console.log(priceList)
+  const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -571,6 +578,8 @@ export default function AddNewClient() {
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
             <AddressesForm
+              checked={checked}
+              setChecked={setChecked}
               control={addressControl}
               fields={addresses}
               append={appendAddress}
