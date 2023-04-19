@@ -59,6 +59,7 @@ import {
 import toast from 'react-hot-toast'
 import {
   patchPriceUnitPair,
+  putPriceUnitPair,
   setPriceUnitPair,
 } from '@src/apis/company-price.api'
 import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
@@ -144,9 +145,10 @@ const SetPriceUnitModal = ({
 
   const setPriceUnitMutation = useMutation(
     (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
-      value.type === 'Save'
-        ? setPriceUnitPair(value.data, value.id)
-        : patchPriceUnitPair(value.data, value.id),
+      // value.type === 'Save'
+      //   ? setPriceUnitPair(value.data, value.id)
+      //   : patchPriceUnitPair(value.data, value.id),
+      putPriceUnitPair(value.data, value.id),
     {
       onSuccess: (data, variables) => {
         refetch()
@@ -181,6 +183,7 @@ const SetPriceUnitModal = ({
 
   const onSubmit = (data: SetPriceUnit) => {
     const res: SetPriceUnitPair[] = data.pair.map(value => ({
+      priceUnitPairId: value.id,
       priceUnitId: value.unitId!,
       quantity:
         typeof value.quantity === 'string' && value.quantity === '-'
@@ -207,7 +210,6 @@ const SetPriceUnitModal = ({
           ? value.weighting.toString()
           : null,
     }))
-
     console.log(res)
 
     openModal({
@@ -283,7 +285,7 @@ const SetPriceUnitModal = ({
       append({
         unitId: value.id,
         quantity: value.unit === 'Percent' ? '-' : 1,
-        price: (1.0).toFixed(1),
+        price: 1.0,
         weighting: value.weighting ?? '-',
         title: value.title,
         isBase: value.parentPriceUnitId === null,
@@ -340,7 +342,8 @@ const SetPriceUnitModal = ({
     const subUnit = priceUnitPair
       .filter(value => value.parentPriceUnitId !== null)
       .map(data => ({
-        id: data.priceUnitId,
+        id: data.id,
+        priceUnitId: data.priceUnitId,
         isBase: data.parentPriceUnitId === null,
         title: data.title,
         unit: data.unit,
@@ -351,6 +354,7 @@ const SetPriceUnitModal = ({
     priceUnitPair.map(value => {
       if (value.parentPriceUnitId === null) {
         append({
+          id: value.id,
           unitId: value.priceUnitId,
           quantity: value.quantity ?? '-',
           price: value.price,
@@ -369,6 +373,7 @@ const SetPriceUnitModal = ({
         ])
       } else {
         append({
+          id: value.id,
           unitId: value.priceUnitId,
           quantity: value.quantity ?? '-',
           price: value.price,
@@ -387,10 +392,6 @@ const SetPriceUnitModal = ({
     )
     setPriceUnitOptions(newArr)
   }, [priceUnitPair])
-
-  useEffect(() => {
-    console.log(baseUnitPrice)
-  }, [baseUnitPrice])
 
   return (
     <Dialog
