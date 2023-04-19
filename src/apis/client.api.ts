@@ -8,6 +8,7 @@ import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { ClientDetailType } from '@src/types/client/client'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -106,6 +107,17 @@ export const createClient = async (
 ): Promise<CreateClientResType> => {
   try {
     const { data } = await axios.post(`/api/enough/u/client`, form)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getClientDetail = async (
+  id: number,
+): Promise<ClientDetailType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/client/${id}/profile`)
     return data
   } catch (e: any) {
     throw new Error(e)
