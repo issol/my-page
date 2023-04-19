@@ -17,6 +17,7 @@ import {
   ClientMemoPostType,
   ClientMemoType,
   CreateClientResType,
+  CreateContactPersonFormType,
 } from '@src/types/client/client'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
@@ -144,6 +145,19 @@ export const updateContactPerson = async (
       `/api/enough/u/contact-person/${contactPersonId}`,
       body,
     )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createContactPerson = async (
+  body: Array<CreateContactPersonFormType>,
+): Promise<ContactPersonType> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/contact-person`, {
+      data: body,
+    })
     return data
   } catch (e: any) {
     throw new Error(e)

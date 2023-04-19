@@ -19,6 +19,9 @@ export type CreateClientResType = {
   clientId: number
 }
 
+export type CreateContactPersonFormType = ContactPersonType & {
+  clientId: number
+}
 export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
   memos: Array<ClientMemoType>
 } & ClientAddressFormType &
