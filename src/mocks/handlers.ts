@@ -1747,47 +1747,4 @@ export const handlers = [
       return res(ctx.status(200), ctx.json(details))
     }
   }),
-
-  rest.get(BASEURL + '/api/enough/client/prices', (req, res, ctx) => {
-    const list: StandardPriceListType[] = [
-      {
-        id: 0,
-        priceName: 'Standard client price (USD)_Word Based',
-        category: 'OTT/Subtitle',
-        serviceType: ['Translation'],
-        currency: 'USD',
-        catBasis: 'Words',
-        decimalPlace: 2,
-        roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
-        memoForPrice: 'This is the word based price.',
-        languagePair: [
-          {
-            id: 0,
-            source: 'en',
-            target: 'ko',
-            priceFactor: 1.5,
-            minimumPrice: 7.65,
-            currency: 'USD',
-          },
-        ],
-        priceUnit: [
-          {
-            id: 0,
-            isBase: false,
-            title: 'DTP file prep',
-            unit: 'Fixed rate',
-            weighting: 70.66666,
-            quantity: 2,
-            price: 5.0,
-            currency: 'USD',
-          },
-        ],
-      },
-    ]
-
-    return res(
-      ctx.status(200),
-      ctx.json({ data: list, totalCount: list.length }),
-    )
-  }),
 ]

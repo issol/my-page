@@ -51,6 +51,7 @@ export interface PriceUnitListType {
 export interface PriceUnitListWithHeaders {
   id: number
   title: string
+  priceUnitPairId: number
   quantity: number | null
   price: number | null
   unit: string | null
@@ -87,6 +88,7 @@ export type AddNewLanguagePair = {
 
 export type SetPriceUnit = {
   pair: {
+    id?: number
     unit: string
     isBase: boolean
     unitId: number | null
@@ -108,6 +110,7 @@ export type SetPriceUnit = {
 }
 
 export type SetPriceUnitPair = {
+  priceUnitPairId?: number
   priceUnitId: number
   price: string | null
   weighting: string | null
@@ -119,13 +122,14 @@ export type LanguagePairParams = {
   target: string
   priceFactor: string | null
   minimumPrice: string | null
-  currency: string
+  currency: CurrencyType
 }
 
 export type CatInterfaceType = {
   id: number
   createdAt: string
   updatedAt: string
+  priceUnitPairId: number
   priceUnitTitle: string
   priceUnitQuantity: number
   priceUnitUnit: string
@@ -141,6 +145,7 @@ export type CatInterfaceType = {
 }
 
 export type CatInterfaceParams = {
+  priceUnitPairId: number
   priceUnitTitle: string
   priceUnitPrice: number
   priceUnitQuantity: number

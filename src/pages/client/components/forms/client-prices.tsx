@@ -10,10 +10,10 @@ import { Box, Button, Card, Grid, Typography } from '@mui/material'
 import Icon from 'src/@core/components/icon'
 
 // ** components
-import CatInterface from '@src/pages/components/standard-prices/component/cat-interface'
 import LanguagePair from '@src/pages/components/client-prices/language-pair'
 import PriceUnit from '@src/pages/components/standard-prices/component/price-unit'
 import ClientPriceList from '@src/pages/components/client-prices/price-list'
+import CatInterface from '@src/pages/components/client-prices/cat-interface'
 
 // ** types
 import {
@@ -133,6 +133,7 @@ export default function ClientPrices({
           <Grid item xs={12}>
             <CatInterface
               priceUnitList={selectedPrice?.priceUnit}
+              setSelectedPrice={setSelectedPrice}
               priceData={selectedPrice}
               existPriceUnit={selectedPrice?.priceUnit.length > 0}
             />

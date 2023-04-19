@@ -983,7 +983,6 @@ function ProDetailOverview() {
                   handleAddCommentChange={handleAddCommentChange}
                   onClickDeleteComment={onClickDeleteComment}
                   addComment={addComment}
-                  ability={ability}
                 />
               </Grid>
               <Grid item xs={12} display='flex' gap='24px'>

@@ -16,7 +16,7 @@ import TablePagination from '@mui/material/TablePagination'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
-import { Row } from '../standard-prices/component/price-list-row'
+import Row from '../standard-prices/component/price-list-row'
 
 type Props = {
   list: StandardPriceListType[] | []

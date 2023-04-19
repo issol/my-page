@@ -1,7 +1,6 @@
 import {
   Button,
   Card,
-  FormControl,
   ToggleButton,
   ToggleButtonGroup,
   Typography,
@@ -9,7 +8,6 @@ import {
 } from '@mui/material'
 import Box from '@mui/material/Box'
 
-import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
   CatInterfaceParams,
   PriceUnitListType,
@@ -21,76 +19,39 @@ import { v4 as uuidv4 } from 'uuid'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import {
-  ChangeEvent,
   useState,
   MouseEvent,
   useEffect,
-  Dispatch,
   SetStateAction,
+  Dispatch,
 } from 'react'
 import TextField from '@mui/material/TextField'
 import { CatInterfaceChip } from '@src/@core/components/chips/chips'
 import { useGetCatInterfaceHeaders } from '@src/queries/company/standard-price'
-import { object } from 'yup'
-import { useMutation, useQueryClient } from 'react-query'
-import {
-  createCatInterface,
-  patchCatInterface,
-} from '@src/apis/company-price.api'
-import toast from 'react-hot-toast'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
   priceData: StandardPriceListType
   existPriceUnit: boolean
-  setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
-  isEditingCatInterface: boolean
+  setSelectedPrice: Dispatch<SetStateAction<StandardPriceListType | null>>
 }
 const CatInterface = ({
   priceUnitList,
   priceData,
   existPriceUnit,
-  setIsEditingCatInterface,
-  isEditingCatInterface,
+  setSelectedPrice,
 }: Props) => {
-  console.log(priceUnitList)
-
-  const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
+  const [editing, setEditing] = useState(false)
 
   const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
     alignment!,
   )
 
-  const createCatInterfacePairMutation = useMutation(
-    (value: {
-      type: string
-      id: number
-      data: {
-        memSource: Array<CatInterfaceParams>
-        memoQ: Array<CatInterfaceParams>
-      }
-    }) =>
-      value.type === 'patch'
-        ? patchCatInterface(value.id, value.data)
-        : createCatInterface(value.id, value.data),
-    {
-      onSuccess: data => {
-        // refetch()
-        queryClient.invalidateQueries('standard-client-prices')
-
-        toast.success(`Success`, {
-          position: 'bottom-left',
-        })
-      },
-      onError: error => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
-
+  const [originalHeaders, setOriginalHeaders] = useState<{
+    Memsource: PriceUnitListWithHeaders[]
+    memoQ: PriceUnitListWithHeaders[]
+  }>({ Memsource: [], memoQ: [] })
   const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<{
     Memsource: PriceUnitListWithHeaders[]
     memoQ: PriceUnitListWithHeaders[]
@@ -148,11 +109,7 @@ const CatInterface = ({
   }
 
   const onClickEditCatInterface = () => {
-    setIsEditingCatInterface(true)
-  }
-
-  const onClickCancelEditCatInterface = () => {
-    setIsEditingCatInterface(false)
+    setEditing(true)
   }
 
   const onClickSaveEditCatInterface = () => {
@@ -188,16 +145,10 @@ const CatInterface = ({
       memSource: memSource,
       memoQ: memoQ,
     }
-    createCatInterfacePairMutation.mutate({
-      type:
-        priceData.catInterface.memoQ.length > 0 ||
-        priceData.catInterface.memSource.length > 0
-          ? 'patch'
-          : 'post',
-      id: priceData.id,
-      data: data,
-    })
-    setIsEditingCatInterface(false)
+
+    //@ts-ignore
+    setSelectedPrice({ ...priceData, catInterface: data })
+    setEditing(false)
   }
 
   const onClickRangeChip = (
@@ -386,10 +337,6 @@ const CatInterface = ({
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
 
-  useEffect(() => {
-    console.log(priceUnitListWithHeaders)
-  }, [priceUnitListWithHeaders])
-
   return (
     <Card
       sx={{
@@ -428,7 +375,7 @@ const CatInterface = ({
           </Box>
         </Box>
 
-        {isEditingCatInterface ? (
+        {editing ? (
           <Box sx={{ display: 'flex', gap: '10px' }}>
             <Button
               variant='contained'
@@ -438,7 +385,10 @@ const CatInterface = ({
                 height: '36px',
                 minWidth: '36px !important',
               }}
-              onClick={onClickCancelEditCatInterface}
+              onClick={() => {
+                setPriceUnitListWithHeaders({ ...originalHeaders })
+                setEditing(false)
+              }}
             >
               <img
                 src='/images/icons/price-icons/interface-cancel.svg'
@@ -457,7 +407,7 @@ const CatInterface = ({
               <img src='/images/icons/price-icons/interface-check.svg' alt='' />
             </Button>
           </Box>
-        ) : !isEditingCatInterface && existPriceUnit ? (
+        ) : !editing && existPriceUnit ? (
           <IconButton onClick={onClickEditCatInterface}>
             <Icon icon='mdi:pencil-outline'></Icon>
           </IconButton>
@@ -511,7 +461,7 @@ const CatInterface = ({
                           onFocus={() => handleFocus(obj.id)}
                           onBlur={handleBlur}
                           autoFocus={obj.id === editingItemId}
-                          disabled={!isEditingCatInterface}
+                          disabled={!editing}
                           error={obj.perWords === null}
                           onChange={e => {
                             const { value } = e.target
@@ -558,7 +508,7 @@ const CatInterface = ({
                         <CatInterfaceChip
                           label={data.title}
                           size='medium'
-                          clickable={isEditingCatInterface}
+                          clickable={editing}
                           status={data.selected}
                           key={uuidv4()}
                           sx={{
@@ -566,11 +516,7 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
-                            isEditingCatInterface
-                              ? onClickRangeChip(data, obj)
-                              : null
+                            editing ? onClickRangeChip(data, obj) : null
                           }}
                           icon={
                             data.tmpSelected ? (
@@ -633,7 +579,7 @@ const CatInterface = ({
                           onFocus={() => handleFocus(obj.id)}
                           onBlur={handleBlur}
                           autoFocus={obj.id === editingItemId}
-                          disabled={!isEditingCatInterface}
+                          disabled={!editing}
                           error={obj.perWords === null}
                           onChange={e => {
                             const { value } = e.target
@@ -680,7 +626,7 @@ const CatInterface = ({
                         <CatInterfaceChip
                           label={data.title}
                           size='medium'
-                          clickable={isEditingCatInterface}
+                          clickable={editing}
                           status={data.selected}
                           key={uuidv4()}
                           sx={{
@@ -688,11 +634,7 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
-                            isEditingCatInterface
-                              ? onClickRangeChip(data, obj)
-                              : null
+                            editing ? onClickRangeChip(data, obj) : null
                           }}
                           icon={
                             data.tmpSelected ? (
@@ -722,47 +664,3 @@ export const ToggleGroup = styled(ToggleButtonGroup)(({ theme }) => ({
 }))
 
 export default CatInterface
-{
-  /* <Box
-key={uuidv4()}
-sx={{
-  border: '1px solid rgba(76, 78, 100, 0.22)',
-  borderRadius: '10px',
-  padding: '20px',
-  display: 'flex',
-  flexDirection: 'column',
-  gap: '20px',
-}}
->
-<Box
-  sx={{
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  }}
->
-  <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-    -
-  </Typography>
-  <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-    -
-    <Typography variant='body2' sx={{}}>
-      Words
-    </Typography>
-  </Box>
-</Box>
-<Box sx={{ display: 'flex', gap: '1%', overflow: 'scroll' }}>
-  {catInterface?.headers.map(value => {
-    return (
-      <CatInterfaceChip
-        label={value}
-        size='medium'
-        status={false}
-        key={uuidv4()}
-        sx={{ display: 'flex' }}
-      />
-    )
-  })}
-</Box>
-</Box> */
-}
