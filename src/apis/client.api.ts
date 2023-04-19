@@ -4,12 +4,19 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { FilterType } from '@src/pages/client'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
-import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
+import {
+  ClientAddressFormType,
+  ClientAddressType,
+} from '@src/types/schema/client-address.schema'
 import {
   ClientContactPersonType,
   ContactPersonType,
 } from '@src/types/schema/client-contact-person.schema'
-import { ClientDetailType, ClientMemoType } from '@src/types/client/client'
+import {
+  ClientDetailType,
+  ClientMemoPostType,
+  ClientMemoType,
+} from '@src/types/client/client'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -99,5 +106,110 @@ export const getClientMemo = async (
     return data
   } catch (e: any) {
     return { data: [], count: 0 }
+  }
+}
+
+export const updateClientInfo = async (
+  clientId: number,
+  body: Omit<CompanyInfoFormType, 'memo' | 'status'>,
+): Promise<CreateClientResType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateClientStatus = async (
+  clientId: number,
+  body: { status: string },
+): Promise<CreateClientResType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateClientAddress = async (
+  clientId: number,
+  body: ClientAddressType,
+): Promise<CreateClientResType> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/client/address/${clientId}`,
+      body,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateContactPerson = async (
+  contactPersonId: number,
+  body: ContactPersonType,
+): Promise<ContactPersonType> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/contact-person/${contactPersonId}`,
+      body,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteContactPerson = async (
+  contactPersonId: number,
+): Promise<ContactPersonType> => {
+  try {
+    const { data } = await axios.delete(
+      `/api/enough/u/contact-person/${contactPersonId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createClientMemo = async (
+  contactPersonId: number,
+  body: ClientMemoPostType,
+): Promise<ContactPersonType> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/u/contact-person/${contactPersonId}`,
+      body,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateClientMemo = async (body: {
+  memoId: number
+  memo: string
+}): Promise<ClientMemoType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/client/memo`, body)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteClientMemo = async (
+  memoId: number,
+): Promise<ClientMemoType> => {
+  try {
+    const { data } = await axios.delete(`/api/enough/u/client/memo/${memoId}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

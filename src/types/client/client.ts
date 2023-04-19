@@ -7,10 +7,17 @@ export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
 } & ClientAddressFormType &
   ClientContactPersonType
 
-export type ClientMemoType = {
+export type ClientMemoType = ClientMemoCommonType & {
   id: number
   createdAt: string
   updatedAt: string
+}
+
+export type ClientMemoPostType = ClientMemoCommonType & {
+  clientId: number
+}
+
+export type ClientMemoCommonType = {
   writerId: number
   writerFirstName: string
   writerMiddleName: string
