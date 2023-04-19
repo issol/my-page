@@ -17,7 +17,7 @@ import Icon from 'src/@core/components/icon'
 // ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
-import CompanyInfoForm from '../components/forms/company-info'
+import CompanyInfoForm from '../components/forms/company-info-container'
 import AddressesForm from '../components/forms/addresses'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
@@ -487,7 +487,7 @@ export default function AddNewClient() {
       delete item.id
       return item
     })
-    console.log(address)
+
     const data: CreateClientBodyType = {
       ...getCompanyInfoValues(),
       clientAddresses: address,

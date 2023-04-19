@@ -26,7 +26,7 @@ export const useGetClientMemo = (
   filter: { skip?: number; take: number },
 ) => {
   return useQuery(
-    ['get-client/list', clientId, filter],
+    ['get-client/memo', clientId, filter],
     () => {
       return getClientMemo(clientId, filter)
     },

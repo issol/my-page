@@ -94,9 +94,10 @@ export const getClientMemo = async (
   }
 }
 
+export type updateClientInfoType = Omit<CompanyInfoFormType, 'memo'>
 export const updateClientInfo = async (
   clientId: number,
-  body: Omit<CompanyInfoFormType, 'memo' | 'status'>,
+  body: updateClientInfoType,
 ): Promise<CreateClientResType> => {
   try {
     const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)

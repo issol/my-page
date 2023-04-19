@@ -19,7 +19,27 @@ import { TitleTypography } from '@src/@core/styles/typography'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 
+// ** fetch & mutation
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  updateClientInfo,
+  updateClientInfoType,
+  updateClientStatus,
+} from '@src/apis/client.api'
+
+// ** toast
+import { toast } from 'react-hot-toast'
+import { useForm } from 'react-hook-form'
+import {
+  CompanyInfoFormType,
+  companyInfoDefaultValue,
+  companyInfoSchema,
+} from '@src/types/schema/company-info.schema'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { useState } from 'react'
+
 type Props = {
+  clientId: number
   clientInfo: ClientDetailType
 }
 
@@ -28,7 +48,58 @@ type Props = {
  * status 변경 함수 연결
  */
 
-export default function ClientInfo({ clientInfo }: Props) {
+export default function ClientInfo({ clientId, clientInfo }: Props) {
+  const queryClient = useQueryClient()
+  const [open, setOpen] = useState(false)
+
+  const {
+    control,
+    getValues,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<CompanyInfoFormType>({
+    mode: 'onChange',
+    defaultValues: companyInfoDefaultValue,
+    resolver: yupResolver(companyInfoSchema),
+  })
+
+  const updateCompanyInfoMutation = useMutation(
+    (body: updateClientInfoType) => updateClientInfo(clientId, body),
+    {
+      onSuccess: () => onMutationSuccess(),
+      onError: () => onMutationError(),
+    },
+  )
+
+  const updateClientStatusMutation = useMutation(
+    (body: { status: string }) => updateClientStatus(clientId, body),
+    {
+      onSuccess: () => onMutationSuccess(),
+      onError: () => onMutationError(),
+    },
+  )
+
+  function onMutationSuccess() {
+    return queryClient.invalidateQueries('get-client/list')
+  }
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  // <CompanyInfoForm
+  //             control={companyInfoControl}
+  //             getValues={getCompanyInfoValues}
+  //             setValue={setCompanyInfoValues}
+  //             handleSubmit={submitCompanyInfo}
+  //             errors={companyInfoErrors}
+  //             isValid={isCompanyInfoValid}
+  //             watch={companyInfoWatch}
+  //             onNextStep={onNextStep}
+  //           />
   return (
     <Card>
       <CardHeader
