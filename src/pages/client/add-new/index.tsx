@@ -453,7 +453,7 @@ export default function AddNewClient() {
     clientId.current = data.clientId
 
     if (isGeneral || !priceList.length) {
-      router.push(`/client/${data.clientId}`)
+      router.push(`/client/detail/${data.clientId}`)
     } else if (priceList.length) {
       const promiseArr: any = []
       priceList.forEach(row => {
