@@ -131,7 +131,7 @@ export default function AddNewClient() {
   }, [role])
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(3)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -300,8 +300,8 @@ export default function AddNewClient() {
 
   const onSubmitPrice = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
-      if (type === 'Add') {
-        const formData = {
+      if (type === 'Add' && data) {
+        const formData: StandardPriceListType = {
           ...data,
           id: Math.random(),
           isStandard: false,
@@ -309,12 +309,13 @@ export default function AddNewClient() {
           catBasis: data?.catBasis.value,
           category: data?.category.value,
           currency: data?.currency.value,
-          roundingProcedure: data?.roundingProcedure.value,
-          languagePair: [],
+          roundingProcedure: data?.roundingProcedure.value.toString()!,
+          languagePairs: [],
           priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
         }
-        //@ts-ignore
-        setPriceList(priceList.concat(formData))
+
+        setPriceList([...priceList, formData])
       }
       closeModal(`${selectedModalType}PriceModal`)
     }
