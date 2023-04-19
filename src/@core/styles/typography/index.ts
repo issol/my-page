@@ -10,3 +10,8 @@ export const TitleTypography = styled(Typography)`
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
 `
+export const TableTitleTypography = styled(Typography)`
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+`
