@@ -417,7 +417,7 @@ export default function AddNewClient() {
     setSelectedPrice({
       ...selectedPrice,
       //@ts-ignore
-      languagePair: selectedPrice?.languagePairs.concat(langData),
+      languagePairs: selectedPrice?.languagePairs.concat(langData),
     })
   }
 
