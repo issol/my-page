@@ -39,6 +39,7 @@ import ClientProjects from '../components/projects'
 import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
 import { AuthContext } from '@src/context/AuthContext'
+import { Box } from '@mui/material'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -62,7 +63,7 @@ export default function ClientDetail() {
   })
 
   return (
-    <div>
+    <Box sx={{ pb: '100px' }}>
       <ClientInfoCard userInfo={userInfo!} />
       <TabContext value={value}>
         <TabList
@@ -134,7 +135,7 @@ export default function ClientDetail() {
         </TabPanel>
         <TabPanel value='5'></TabPanel>
       </TabContext>
-    </div>
+    </Box>
   )
 }
 

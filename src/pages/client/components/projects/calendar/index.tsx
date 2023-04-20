@@ -18,14 +18,21 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 import { CalendarEventType, SortingType } from '@src/apis/pro-projects.api'
-import ProjectCalendar from '@src/pages/pro/components/projects/calendar-view/project-calendar'
-import CalendarSideBar from '@src/pages/pro/components/projects/calendar-view/sidebar'
+
+import { ClientProjectCalendarEventType } from '@src/apis/client.api'
+import ClientProjectCalendar from './client-project-calendar'
+import ClientProjectCalendarSideBar from './client-project-sidebar'
+import { useGetClientProjectsCalendar } from '@src/queries/client/client-detail'
+import ClientProjectList from '../list/list'
+import { UserDataType } from '@src/context/types'
+import { ClientProjectListType } from '@src/types/client/client-projects.type'
 
 type Props = {
   id: number
+  user: UserDataType
 }
 
-const ClientProjectCalendarContainer = ({ id }: Props) => {
+const ClientProjectCalendarContainer = ({ id, user }: Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [hideFilter, setHideFilter] = useState(false)
@@ -40,14 +47,29 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch } = useGetProjectCalendarData(id, `${year}-${month}`)
-  const [event, setEvent] = useState<Array<CalendarEventType>>([])
-
-  const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
+  const { data, refetch } = useGetClientProjectsCalendar(id, `${year}-${month}`)
+  const [event, setEvent] = useState<Array<ClientProjectCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
-  const [currentList, setCurrentList] = useState<Array<CalendarEventType>>([])
+  const [currentList, setCurrentList] = useState<
+    Array<ClientProjectCalendarEventType>
+  >([])
+
+  const [selected, setSelected] = useState<number | null>(null)
+
+  const handleRowClick = (row: ClientProjectListType) => {
+    if (row.id === selected) {
+      setSelected(null)
+      // setSelectedProjectRow(null)
+    } else {
+      setSelected(row.id)
+      // setSelectedProjectRow(row)
+    }
+  }
+
+  const isSelected = (index: number) => {
+    return index === selected
+  }
 
   useEffect(() => {
     refetch()
@@ -55,6 +77,8 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
 
   useEffect(() => {
     if (currentListId && data?.data) {
+      console.log(currentListId)
+
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }
   }, [currentListId])
@@ -67,7 +91,11 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
         //@ts-ignore
         {
           id: 0,
-          title: '',
+          qId: '',
+          serviceType: [],
+          projectName: '',
+          workName: '',
+          category: '',
           orderDate: '',
           dueDate: '',
           status: '',
@@ -90,7 +118,7 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
   return (
-    <Box>
+    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <CalendarWrapper
         className='app-calendar'
         sx={{
@@ -100,7 +128,7 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
           }),
         }}
       >
-        <CalendarSideBar
+        <ClientProjectCalendarSideBar
           event={event}
           month={month}
           mdAbove={mdAbove}
@@ -132,13 +160,12 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
             right='0'
           >
             <Typography>Hide completed projects</Typography>
-            <Typography variant='body2'>(As of yesterday)</Typography>
             <Switch
               checked={hideFilter}
               onChange={e => setHideFilter(e.target.checked)}
             />
           </Box>
-          <ProjectCalendar
+          <ClientProjectCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
@@ -148,19 +175,16 @@ const ClientProjectCalendarContainer = ({ id }: Props) => {
         </Box>
       </CalendarWrapper>
 
-      {/* <ProjectsList
-        sort={sort}
-        setSort={setSort}
-        skip={skip}
-        setSkip={setSkip}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-        list={
-          currentList?.length
-            ? { data: currentList, totalCount: currentList?.length }
-            : { data: [], totalCount: 0 }
-        }
-      /> */}
+      {currentList.length ? (
+        <ClientProjectList
+          list={currentList}
+          listCount={currentList.length}
+          handleRowClick={handleRowClick}
+          isSelected={isSelected}
+          selected={selected}
+          user={user}
+        />
+      ) : null}
     </Box>
   )
 }

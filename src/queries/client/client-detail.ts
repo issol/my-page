@@ -1,9 +1,14 @@
-import { getClientDetail, getClientProjectList } from '@src/apis/client.api'
+import {
+  getClientDetail,
+  getClientProjectList,
+  getClientProjectsCalendarData,
+} from '@src/apis/client.api'
 import { ClientDetailType } from '@src/types/client/client'
 import {
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
+import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
 export const useGetClientDetail = (id: number) => {
@@ -34,6 +39,23 @@ export const useGetClientProjectList = (filter: ClientProjectFilterType) => {
       suspense: true,
 
       useErrorBoundary: (error: any) => error.response?.status >= 500,
+    },
+  )
+}
+
+export const useGetClientProjectsCalendar = (id: number, date: string) => {
+  return useQuery(
+    'get-project-calendar',
+    () => {
+      return getClientProjectsCalendarData(id, date)
+    },
+    {
+      suspense: true,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
     },
   )
 }

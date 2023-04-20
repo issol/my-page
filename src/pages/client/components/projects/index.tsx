@@ -253,7 +253,7 @@ export default function ClientProjects({ id, user }: Props) {
           </Box>
         ) : (
           // <CalendarContainer id={id} sort={sort} setSort={setSort} />
-          <ClientProjectCalendarContainer id={1} />
+          <ClientProjectCalendarContainer id={id} user={user} />
         )}
       </Box>
     </Box>
