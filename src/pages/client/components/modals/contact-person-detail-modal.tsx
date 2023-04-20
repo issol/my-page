@@ -10,7 +10,6 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
-import { ModalContainer } from '@src/@core/components/modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
