@@ -6,6 +6,6 @@ export type ClientProjectFilterType = {
   category?: string[]
   serviceType?: string[]
   status?: string[]
-  dueDate?: string[]
+  dueDate?: Date[]
   sort?: string
 }

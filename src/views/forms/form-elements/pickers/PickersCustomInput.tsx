@@ -3,7 +3,13 @@ import { forwardRef } from 'react'
 
 // ** MUI Imports
 import TextField from '@mui/material/TextField'
-import { IconButton, InputAdornment, OutlinedInput } from '@mui/material'
+import {
+  FormControl,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+} from '@mui/material'
 
 import Icon from 'src/@core/components/icon'
 interface PickerProps {
@@ -20,19 +26,22 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
     switch (props.icon) {
       case 'calendar':
         return (
-          <OutlinedInput
-            inputRef={ref}
-            {...props}
-            label={label || ''}
-            {...(readOnly && { inputProps: { readOnly: true } })}
-            endAdornment={
-              <InputAdornment position='end'>
-                <IconButton edge='end'>
-                  <Icon icon='material-symbols:calendar-today-rounded' />
-                </IconButton>
-              </InputAdornment>
-            }
-          />
+          <FormControl fullWidth>
+            <InputLabel>{label || ''}</InputLabel>
+            <OutlinedInput
+              inputRef={ref}
+              {...props}
+              label={label || ''}
+              {...(readOnly && { inputProps: { readOnly: true } })}
+              endAdornment={
+                <InputAdornment position='end'>
+                  <IconButton edge='end'>
+                    <Icon icon='material-symbols:calendar-today-rounded' />
+                  </IconButton>
+                </InputAdornment>
+              }
+            />
+          </FormControl>
         )
       default:
         return (

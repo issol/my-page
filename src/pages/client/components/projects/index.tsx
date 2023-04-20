@@ -26,13 +26,15 @@ import logger from '@src/@core/utils/logger'
 import ClientProjectsFilter from './list/filters'
 import { useForm } from 'react-hook-form'
 import { ClientProjectFilterType } from '@src/types/client/client-projects.type'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import { CategoryList } from '@src/shared/const/category/categories'
 
 export type FilterType = {
   projectType: Array<{ value: string; label: string }>
   category: Array<{ value: string; label: string }>
   serviceType: Array<{ value: string; label: string }>
   status: Array<{ value: string; label: string }>
-  dueDate: Array<{ value: string; label: string }>
+  dueDate: Date[]
   search: string
 }
 
@@ -50,9 +52,14 @@ type MenuType = 'list' | 'calendar'
 
 export default function ClientProjects({ id }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
+
   const [clientProjectListPage, setClientProjectListPage] = useState<number>(0)
   const [clientProjectListPageSize, setClientProjectListPageSize] =
     useState<number>(10)
+
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
+
   const [filters, setFilters] = useState<ClientProjectFilterType>({
     projectType: [],
     category: [],
@@ -67,7 +74,7 @@ export default function ClientProjects({ id }: Props) {
   const [sort, setSort] = useState<SortingType>('DESC')
   const [skip, setSkip] = useState(0)
 
-  const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
+  const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
     mode: 'onSubmit',
   })
@@ -103,7 +110,7 @@ export default function ClientProjects({ id }: Props) {
       category: category.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       status: status.map(value => value.value),
-      dueDate: dueDate.map(value => value.value),
+      dueDate: dueDate.map(value => value),
 
       search: search,
       take: clientProjectListPageSize,
@@ -111,11 +118,7 @@ export default function ClientProjects({ id }: Props) {
       sort: 'DESC',
     }
 
-    console.log(filter)
-
     setFilters(filter)
-
-    console.log(data)
   }
 
   return (
@@ -147,12 +150,18 @@ export default function ClientProjects({ id }: Props) {
         {menu === 'list' ? (
           <Grid>
             <ClientProjectsFilter
-              // workName={!workName?.length ? [] : workName}
               filter={filters}
+              control={control}
               setFilter={setFilters}
               onReset={onClickResetButton}
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
+              trigger={trigger}
+              watch={watch}
+              setServiceTypeList={setServiceTypeList}
+              serviceTypeList={serviceTypeList}
+              categoryList={categoryList}
+              setCategoryList={setCategoryList}
               // search={onSearch}
             />
             {/* <ProjectsList

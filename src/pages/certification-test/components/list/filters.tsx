@@ -292,7 +292,6 @@ export default function TestMaterialFilters({
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
 
-                                /* @ts-ignore */
                                 const res = OnboardingListRolePair.filter(
                                   value => value.jobType.includes(jobTypeValue),
                                 )
