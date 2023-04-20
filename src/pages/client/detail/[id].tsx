@@ -24,10 +24,14 @@ import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
 import { useGetClientDetail } from '@src/queries/client/client-detail'
+
+// ** components
 import ClientInfoCard from '@src/@core/components/clientInfo'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import StandardPrices from '@src/pages/components/standard-prices'
 import ClientProjects from '../components/projects'
+import { useGetClientMemo } from '@src/queries/client.query'
+import ClientProfile from './components/profile'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -35,11 +39,18 @@ export default function ClientDetail() {
   const { id } = router.query
   const [value, setValue] = useState<string>('1')
 
+  const [memoSkip, setMemoSkip] = useState(0)
+  const MEMO_PAGESIZE = 3
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
+  const { data: memo, refetch: refetchMemo } = useGetClientMemo(Number(id!), {
+    skip: memoSkip * MEMO_PAGESIZE,
+    take: MEMO_PAGESIZE,
+  })
 
   return (
     <div>
@@ -103,7 +114,14 @@ export default function ClientDetail() {
             clientId={userInfo?.clientId!}
           />
         </TabPanel>
-        <TabPanel value='4'></TabPanel>
+
+        <TabPanel value='4'>
+          <ClientProfile
+            clientId={id}
+            clientInfo={userInfo ?? null}
+            memo={memo || { data: [], count: 0 }}
+          />
+        </TabPanel>
         <TabPanel value='5'></TabPanel>
       </TabContext>
     </div>

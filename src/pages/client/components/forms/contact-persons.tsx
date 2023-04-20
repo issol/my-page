@@ -1,11 +1,18 @@
 import { useEffect, useState } from 'react'
 
-// ** mui
-import { Button, Card, Grid, IconButton, Typography } from '@mui/material'
+// ** style components
+import {
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
+import { GridColumns } from '@mui/x-data-grid'
 import Dialog from '@mui/material/Dialog'
+import { TableTitleTypography } from '@src/@core/styles/typography'
 
 // ** types
 import {
@@ -36,6 +43,7 @@ import { getLegalName } from 'src/shared/helpers/legalname.helper'
 import AddContactPersonForm from './add-contact-person-form'
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
+import ContactPersonList from '../list/contact-person-list'
 
 type Props = {
   isGeneral: boolean
@@ -93,13 +101,21 @@ export default function ContactPersonForm({
       renderCell: ({ row }: { row: ContactPersonType }) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>
-              {getLegalName({
+            <Tooltip
+              title={getLegalName({
                 firstName: row.firstName!,
                 middleName: row?.middleName,
                 lastName: row.lastName!,
               })}
-            </Typography>
+            >
+              <TableTitleTypography fontWeight='bold'>
+                {getLegalName({
+                  firstName: row.firstName!,
+                  middleName: row?.middleName,
+                  lastName: row.lastName!,
+                })}
+              </TableTitleTypography>
+            </Tooltip>
             <Typography variant='body2'>{row?.email}</Typography>
           </Box>
         )
@@ -151,24 +167,6 @@ export default function ContactPersonForm({
     },
   ]
 
-  function NoList() {
-    return (
-      <Box
-        sx={{
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          justifyContent: 'center',
-          alignItems: 'center',
-        }}
-      >
-        <Typography variant='subtitle1'>
-          There are no contact persons
-        </Typography>
-      </Box>
-    )
-  }
-
   function onSubmit(data: ClientContactPersonType) {
     setOpenForm(false)
     if (!data.contactPersons?.length) return
@@ -215,42 +213,13 @@ export default function ContactPersonForm({
 
   return (
     <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>
-                Contact person({fields?.length ?? 0})
-              </Typography>{' '}
-              <Button variant='contained' onClick={openContactPersonForm}>
-                Add contact person
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        />
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll' }}
-            rows={fields}
-            columns={columns}
-            pageSize={pageSize}
-            rowsPerPageOptions={[10, 25, 50]}
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
+      <ContactPersonList
+        fields={fields}
+        columns={columns}
+        openForm={openContactPersonForm}
+        pageSize={pageSize}
+        setPageSize={setPageSize}
+      />
       <Grid
         item
         xs={12}

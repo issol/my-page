@@ -1,4 +1,4 @@
-// ** mui
+import { Icon } from '@iconify/react'
 import {
   Autocomplete,
   Box,
@@ -14,18 +14,11 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import { Fragment } from 'react'
 
-// ** types
+// ** data
 import { ClientStatus } from '@src/shared/const/status/statuses'
-import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
-import {
-  ClientType,
-  CompanyInfoFormType,
-} from '@src/types/schema/company-info.schema'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
+import { countries } from 'src/@fake-db/autocomplete'
 
 // ** react hook form
 import {
@@ -38,28 +31,33 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 
-// ** Data
-import { countries } from 'src/@fake-db/autocomplete'
+// ** types
+import {
+  ClientType,
+  CompanyInfoFormType,
+} from '@src/types/schema/company-info.schema'
+
+// ** helpers
+import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
+  mode: 'create' | 'update'
   control: Control<CompanyInfoFormType, any>
-  getValues: UseFormGetValues<CompanyInfoFormType>
+  //   getValues: UseFormGetValues<CompanyInfoFormType>
   setValue: UseFormSetValue<CompanyInfoFormType>
-  handleSubmit: UseFormHandleSubmit<CompanyInfoFormType>
+  //   handleSubmit: UseFormHandleSubmit<CompanyInfoFormType>
   errors: FieldErrors<CompanyInfoFormType>
-  isValid: boolean
   watch: UseFormWatch<CompanyInfoFormType>
-  onNextStep: () => void
 }
 export default function CompanyInfoForm({
+  mode,
   control,
-  getValues,
+  //   getValues,
   setValue,
-  handleSubmit,
+  //   handleSubmit,
   errors,
-  isValid,
   watch,
-  onNextStep,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr.', 'Ms.']
 
@@ -129,7 +127,7 @@ export default function CompanyInfoForm({
   }
 
   return (
-    <Grid container spacing={6}>
+    <Fragment>
       <Grid item xs={6}>
         <Controller
           name='clientType'
@@ -280,40 +278,40 @@ export default function CompanyInfoForm({
         />
         {renderErrorMsg('websiteLink')}
       </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={12}>
-        <Typography variant='h6' mb='24px'>
-          Memo for client
-        </Typography>
-        <Controller
-          name='memo'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <>
-              <TextField
-                rows={4}
-                multiline
-                fullWidth
-                error={Boolean(errors.memo)}
-                label='Write down some information to keep in mind about this client.'
-                value={value ?? ''}
-                onChange={onChange}
-                inputProps={{ maxLength: 500 }}
-              />
-              <Typography variant='body2' mt='12px' textAlign='right'>
-                {value?.length ?? 0}/500
-              </Typography>
-            </>
-          )}
-        />
-      </Grid>
-      <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-          Next <Icon icon='material-symbols:arrow-forward-rounded' />
-        </Button>
-      </Grid>
-    </Grid>
+
+      {mode === 'create' ? (
+        <>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant='h6' mb='24px'>
+              Memo for client
+            </Typography>
+            <Controller
+              name='memo'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <>
+                  <TextField
+                    rows={4}
+                    multiline
+                    fullWidth
+                    error={Boolean(errors.memo)}
+                    label='Write down some information to keep in mind about this client.'
+                    value={value ?? ''}
+                    onChange={onChange}
+                    inputProps={{ maxLength: 500 }}
+                  />
+                  <Typography variant='body2' mt='12px' textAlign='right'>
+                    {value?.length ?? 0}/500
+                  </Typography>
+                </>
+              )}
+            />
+          </Grid>
+        </>
+      ) : null}
+    </Fragment>
   )
 }

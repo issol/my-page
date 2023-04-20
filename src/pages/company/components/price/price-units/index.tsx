@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, useContext, useEffect } from 'react'
+import { useState, useContext } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
@@ -7,7 +7,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** mui
-import { Card, Chip, Grid, Tooltip, Typography } from '@mui/material'
+import { Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import CardHeader from '@mui/material/CardHeader'
 
@@ -29,17 +29,32 @@ import DeleteModal from './modal/delete-modal'
 import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** action
-import { useMutation } from 'react-query'
-import { useGetPriceUnitList } from '@src/queries/price-units.query'
+import { QueryObserverResult, useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { company_price } from '@src/shared/const/permission-class'
+import { PriceUnitDataType } from '@src/apis/price-units.api'
 
-export default function PriceUnits() {
+type Props = {
+  list: PriceUnitDataType
+  refetch: (
+    options?: any,
+  ) => Promise<QueryObserverResult<PriceUnitDataType, unknown>>
+  skip: number
+  setSkip: (n: number) => void
+  pageSize: number
+  setPageSize: (n: number) => void
+}
+export default function PriceUnits({
+  list,
+  refetch,
+  skip,
+  setSkip,
+  pageSize,
+  setPageSize,
+}: Props) {
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
 
-  const [skip, setSkip] = useState(0)
-  const [pageSize, setPageSize] = useState(10)
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()
   const { setModal } = useContext(ModalContext)
   const [open, setOpen] = useState(false)
@@ -50,11 +65,6 @@ export default function PriceUnits() {
     const writer = new company_price(id)
     return ability.can(can, writer)
   }
-
-  const { data: list, refetch } = useGetPriceUnitList({
-    skip: skip * pageSize,
-    take: pageSize,
-  })
 
   const postMutation = useMutation(
     (form: PriceUnitFormType) => postPriceUnit(form),

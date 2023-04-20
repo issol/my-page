@@ -64,7 +64,7 @@ const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
       field: 'isStandard',
       minWidth: 40,
       headerName: 'No.',
-      renderHeader: () => <Box>Price type</Box>,
+      renderHeader: () => <Box></Box>,
       renderCell: ({ row }: CellType) => (
         <Typography>
           {row.isStandard ? 'Standard client price' : 'Client price'}

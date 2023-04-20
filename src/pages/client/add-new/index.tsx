@@ -17,8 +17,8 @@ import Icon from 'src/@core/components/icon'
 // ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
 import AddClientStepper from '../components/stepper/add-client-stepper'
-import CompanyInfoForm from '../components/forms/company-info'
-import AddressesForm from '../components/forms/addresses'
+import CompanyInfoForm from '../components/forms/company-info-container'
+import AddressesForm from '../components/forms/addresses-container'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
@@ -59,8 +59,9 @@ import {
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
-import { CreateClientBodyType, CreateClientResType } from '@src/apis/client.api'
+import { CreateClientBodyType } from '@src/apis/client.api'
 import { GridCellParams } from '@mui/x-data-grid'
+import { CreateClientResType } from '@src/types/client/client'
 
 // ** fetch
 import { useMutation } from 'react-query'
@@ -300,8 +301,8 @@ export default function AddNewClient() {
 
   const onSubmitPrice = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
-      if (type === 'Add') {
-        const formData = {
+      if (type === 'Add' && data) {
+        const formData: StandardPriceListType = {
           ...data,
           id: Math.random(),
           isStandard: false,
@@ -309,12 +310,13 @@ export default function AddNewClient() {
           catBasis: data?.catBasis.value,
           category: data?.category.value,
           currency: data?.currency.value,
-          roundingProcedure: data?.roundingProcedure.value,
-          languagePair: [],
+          roundingProcedure: data?.roundingProcedure.value.toString()!,
+          languagePairs: [],
           priceUnit: [],
+          catInterface: { memSource: [], memoQ: [] },
         }
-        //@ts-ignore
-        setPriceList(priceList.concat(formData))
+
+        setPriceList([...priceList, formData])
       }
       closeModal(`${selectedModalType}PriceModal`)
     }
@@ -416,7 +418,7 @@ export default function AddNewClient() {
     setSelectedPrice({
       ...selectedPrice,
       //@ts-ignore
-      languagePair: selectedPrice?.languagePairs.concat(langData),
+      languagePairs: selectedPrice?.languagePairs.concat(langData),
     })
   }
 
@@ -435,16 +437,6 @@ export default function AddNewClient() {
         }
       },
     },
-  )
-
-  const createCatInterfaceMutation = useMutation(
-    (value: {
-      id: number
-      data: {
-        memSource: Array<CatInterfaceParams>
-        memoQ: Array<CatInterfaceParams>
-      }
-    }) => createCatInterface(value.id, value.data),
   )
 
   const clientId = useRef<number | null>(null)
@@ -481,11 +473,17 @@ export default function AddNewClient() {
   }
 
   function onClientDataSubmit() {
+    const address = getAddressValues()?.clientAddresses?.map(item => {
+      delete item.id
+      return item
+    })
+
     const data: CreateClientBodyType = {
       ...getCompanyInfoValues(),
-      ...getAddressValues(),
+      clientAddresses: address,
       ...getContactPersonValues()!,
     }
+
     openModal({
       type: 'create-client',
       children: (
@@ -536,6 +534,7 @@ export default function AddNewClient() {
     })
   }
   console.log(priceList)
+  const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -571,6 +570,8 @@ export default function AddNewClient() {
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
             <AddressesForm
+              checked={checked}
+              setChecked={setChecked}
               control={addressControl}
               fields={addresses}
               append={appendAddress}

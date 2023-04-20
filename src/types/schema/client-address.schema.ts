@@ -2,16 +2,22 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
 export type ClientAddressFormType = {
-  clientAddresses?: Array<{
-    addressType?: 'billing' | 'shipping' | 'additional'
-    name?: string
-    baseAddress?: string //street1
-    detailAddress?: string //street2
-    city?: string
-    state?: string
-    country?: string
-    zipCode?: string
-  }>
+  clientAddresses?: Array<
+    ClientAddressType & {
+      id?: string
+    }
+  >
+}
+
+export type ClientAddressType = {
+  addressType?: 'billing' | 'shipping' | 'additional'
+  name?: string
+  baseAddress?: string //street1
+  detailAddress?: string //street2
+  city?: string
+  state?: string
+  country?: string
+  zipCode?: string
 }
 
 export const clientAddressDefaultValue: ClientAddressFormType = {
