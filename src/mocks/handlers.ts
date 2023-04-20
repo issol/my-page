@@ -1747,4 +1747,40 @@ export const handlers = [
       return res(ctx.status(200), ctx.json(details))
     }
   }),
+
+  rest.get(BASEURL + '/api/enough/u/client/projects', (req, res, ctx) => {
+    const list = [
+      {
+        id: 0,
+        qId: 'Q-000001',
+        workName: 'The Glory',
+        projectName: 'The Glory 1~2',
+        category: 'Webcomics',
+        serviceType: ['Translation', 'Proofreading'],
+        dueDate: '2022-04-27T14:13:15Z',
+        status: 'Active',
+        orderDate: '2022-04-20T14:13:15Z',
+        projectDescription: 'Test',
+      },
+      {
+        id: 1,
+        qId: 'O-000001',
+        workName: 'Dark Night',
+        projectName: 'Dark Night 1~2',
+        category: 'Webcomics',
+        serviceType: ['Translation', 'Proofreading'],
+        dueDate: '2022-04-28T14:13:15Z',
+        status: 'Active',
+        orderDate: '2022-04-20T14:13:15Z',
+        projectDescription: 'Test2',
+      },
+    ]
+    return res(
+      ctx.status(200),
+      ctx.json({
+        data: list,
+        totalCount: list.length,
+      }),
+    )
+  }),
 ]

@@ -19,6 +19,10 @@ import {
   CreateClientResType,
   CreateContactPersonFormType,
 } from '@src/types/client/client'
+import {
+  ClientProjectFilterType,
+  ClientProjectListType,
+} from '@src/types/client/client-projects.type'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -210,6 +214,50 @@ export const deleteClientMemo = async (
   try {
     const { data } = await axios.delete(`/api/enough/u/client/memo/${memoId}`)
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getClientProjectList = async (
+  filter: ClientProjectFilterType,
+): Promise<{ data: ClientProjectListType[]; totalCount: number }> => {
+  try {
+    // const { data } = await axios.get(
+    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
+    // )
+
+    const list = [
+      {
+        id: 0,
+        qId: 'Q-000001',
+        workName: 'The Glory',
+        projectName: 'The Glory 1~2',
+        category: 'Webcomics',
+        serviceType: ['Translation', 'Proofreading'],
+        dueDate: '2022-04-27T14:13:15Z',
+        status: 'Active',
+        orderDate: '2022-04-20T14:13:15Z',
+        projectDescription: 'Test',
+      },
+      {
+        id: 1,
+        qId: 'O-000001',
+        workName: 'Dark Night',
+        projectName: 'Dark Night 1~2',
+        category: 'Webcomics',
+        serviceType: ['Translation', 'Proofreading'],
+        dueDate: '2022-04-28T14:13:15Z',
+        status: 'Active',
+        orderDate: '2022-04-20T14:13:15Z',
+        projectDescription: 'Test2',
+      },
+    ]
+    // return data
+    return {
+      data: list,
+      totalCount: list.length,
+    }
   } catch (e: any) {
     throw new Error(e)
   }

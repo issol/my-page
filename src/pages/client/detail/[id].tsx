@@ -1,5 +1,11 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useState } from 'react'
+import {
+  MouseEvent,
+  Suspense,
+  SyntheticEvent,
+  useContext,
+  useState,
+} from 'react'
 
 // ** styled components
 import styled from 'styled-components'
@@ -32,12 +38,14 @@ import StandardPrices from '@src/pages/components/standard-prices'
 import ClientProjects from '../components/projects'
 import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
+import { AuthContext } from '@src/context/AuthContext'
 
 export default function ClientDetail() {
   const router = useRouter()
 
   const { id } = router.query
   const [value, setValue] = useState<string>('1')
+  const { user } = useContext(AuthContext)
 
   const [memoSkip, setMemoSkip] = useState(0)
   const MEMO_PAGESIZE = 3
@@ -46,6 +54,7 @@ export default function ClientDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
+
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
   const { data: memo, refetch: refetchMemo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
@@ -102,7 +111,9 @@ export default function ClientDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <ClientProjects id={Number(id)} />
+          <Suspense>
+            <ClientProjects id={Number(id)} user={user!} />
+          </Suspense>
         </TabPanel>
         <TabPanel value='2'></TabPanel>
         <TabPanel value='3'>

@@ -5,9 +5,9 @@ import styled from 'styled-components'
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Grid } from '@mui/material'
+import { Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-
+import FormControlLabel from '@mui/material/FormControlLabel'
 // ** components
 
 // ** third parties
@@ -25,9 +25,15 @@ import {
 import logger from '@src/@core/utils/logger'
 import ClientProjectsFilter from './list/filters'
 import { useForm } from 'react-hook-form'
-import { ClientProjectFilterType } from '@src/types/client/client-projects.type'
+import {
+  ClientProjectFilterType,
+  ClientProjectListType,
+} from '@src/types/client/client-projects.type'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
+import { useGetClientProjectList } from '@src/queries/client/client-detail'
+import ClientProjectList from './list/list'
+import { UserDataType } from '@src/context/types'
 
 export type FilterType = {
   projectType: Array<{ value: string; label: string }>
@@ -47,10 +53,10 @@ const defaultValues: FilterType = {
   search: '',
 }
 
-type Props = { id: number }
+type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
-export default function ClientProjects({ id }: Props) {
+export default function ClientProjects({ id, user }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [clientProjectListPage, setClientProjectListPage] = useState<number>(0)
@@ -59,6 +65,11 @@ export default function ClientProjects({ id }: Props) {
 
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
+  const [hideCompletedProjects, setHideCompletedProjects] = useState(false)
+  const [selectedProjectRow, setSelectedProjectRow] =
+    useState<ClientProjectListType | null>(null)
+
+  const [selected, setSelected] = useState<number | null>(null)
 
   const [filters, setFilters] = useState<ClientProjectFilterType>({
     projectType: [],
@@ -71,8 +82,9 @@ export default function ClientProjects({ id }: Props) {
     skip: clientProjectListPageSize * clientProjectListPage,
     sort: 'DESC',
   })
-  const [sort, setSort] = useState<SortingType>('DESC')
-  const [skip, setSkip] = useState(0)
+
+  const { data: clientProjectList, isLoading } =
+    useGetClientProjectList(filters)
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -100,6 +112,30 @@ export default function ClientProjects({ id }: Props) {
       take: 10,
       sort: 'DESC',
     })
+  }
+
+  const handleRowClick = (row: ClientProjectListType) => {
+    if (row.id === selected) {
+      setSelected(null)
+      setSelectedProjectRow(null)
+    } else {
+      setSelected(row.id)
+      setSelectedProjectRow(row)
+    }
+  }
+
+  const isSelected = (index: number) => {
+    return index === selected
+  }
+
+  const handleHideCompletedProjects = (
+    event: React.ChangeEvent<HTMLInputElement>,
+  ) => {
+    setHideCompletedProjects(event.target.checked)
+    setFilters(prevState => ({
+      ...prevState,
+      hideCompletedProject: event.target.checked,
+    }))
   }
 
   const onSubmit = (data: FilterType) => {
@@ -148,7 +184,7 @@ export default function ClientProjects({ id }: Props) {
       </Box>
       <Box>
         {menu === 'list' ? (
-          <Grid>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <ClientProjectsFilter
               filter={filters}
               control={control}
@@ -164,26 +200,56 @@ export default function ClientProjects({ id }: Props) {
               setCategoryList={setCategoryList}
               // search={onSearch}
             />
-            {/* <ProjectsList
-              isCardHeader={true}
-              skip={skip}
-              sort={sort}
-              setSort={setSort}
-              pageSize={activeFilter.take!}
-              setSkip={(n: number) => {
-                setSkip(n)
-                setActiveFilter({
-                  ...activeFilter,
-                  skip: n * activeFilter.take!,
-                })
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
               }}
-              setPageSize={(n: number) =>
-                setActiveFilter({ ...activeFilter, take: n })
-              }
-              list={list || { data: [], totalCount: 0 }}
-            /> */}
-            <Box>List</Box>
-          </Grid>
+            >
+              <FormControlLabel
+                value='start'
+                control={
+                  <Switch
+                    checked={hideCompletedProjects}
+                    onChange={handleHideCompletedProjects}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                  />
+                }
+                label={
+                  <Typography
+                    sx={{
+                      fontStyle: 'normal',
+                      fontWeight: 400,
+                      fontSize: '14px',
+                      lineHeight: '21px',
+
+                      letterSpacing: '0.15px',
+
+                      color: 'rgba(76, 78, 100, 0.6)',
+                    }}
+                  >
+                    Hide completed projects
+                  </Typography>
+                }
+                labelPlacement='start'
+              />
+            </Box>
+
+            <ClientProjectList
+              list={clientProjectList?.data!}
+              listCount={clientProjectList?.totalCount!}
+              isLoading={isLoading}
+              listPage={clientProjectListPage}
+              listPageSize={clientProjectListPageSize}
+              setListPage={setClientProjectListPage}
+              setListPageSize={setClientProjectListPageSize}
+              handleRowClick={handleRowClick}
+              isSelected={isSelected}
+              selected={selected}
+              user={user}
+              title='Projects'
+            />
+          </Box>
         ) : (
           // <CalendarContainer id={id} sort={sort} setSort={setSort} />
           <Box>Calendar</Box>

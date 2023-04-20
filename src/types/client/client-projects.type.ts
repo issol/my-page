@@ -8,4 +8,18 @@ export type ClientProjectFilterType = {
   status?: string[]
   dueDate?: Date[]
   sort?: string
+  hideCompletedProject?: boolean
+}
+
+export type ClientProjectListType = {
+  id: number
+  qId: string
+  workName: string
+  projectName: string
+  category: string
+  serviceType: Array<string>
+  dueDate: string
+  status: string
+  orderDate: string
+  projectDescription: string
 }
