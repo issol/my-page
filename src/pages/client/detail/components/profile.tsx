@@ -55,7 +55,7 @@ export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
             {clientInfo && !!id ? (
               <ContactPersons clientId={id} clientInfo={clientInfo} />
             ) : null}
-            {memo && !!id ? <ClientMemo memo={memo} /> : null}
+            {memo && !!id ? <ClientMemo clientId={id} memo={memo} /> : null}
           </Box>
         </Grid>
       </Grid>

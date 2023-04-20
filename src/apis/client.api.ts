@@ -178,24 +178,23 @@ export const deleteContactPerson = async (
 }
 
 export const createClientMemo = async (
-  contactPersonId: number,
   body: ClientMemoPostType,
 ): Promise<ContactPersonType> => {
   try {
-    const { data } = await axios.post(
-      `/api/enough/u/contact-person/${contactPersonId}`,
-      body,
-    )
+    const { data } = await axios.post(`/api/enough/u/client/memo`, body)
     return data
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-export const updateClientMemo = async (body: {
+export type updateClientMemoType = {
   memoId: number
   memo: string
-}): Promise<ClientMemoType> => {
+}
+export const updateClientMemo = async (
+  body: updateClientMemoType,
+): Promise<ClientMemoType> => {
   try {
     const { data } = await axios.patch(`/api/enough/u/client/memo`, body)
     return data
