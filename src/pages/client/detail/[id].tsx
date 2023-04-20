@@ -27,6 +27,7 @@ import { useGetClientDetail } from '@src/queries/client/client-detail'
 import ClientInfoCard from '@src/@core/components/clientInfo'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import StandardPrices from '@src/pages/components/standard-prices'
+import ClientProjects from '../components/projects'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -89,7 +90,9 @@ export default function ClientDetail() {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='1'></TabPanel>
+        <TabPanel value='1'>
+          <ClientProjects id={Number(id)} />
+        </TabPanel>
         <TabPanel value='2'></TabPanel>
         <TabPanel value='3'>
           <StandardPrices
