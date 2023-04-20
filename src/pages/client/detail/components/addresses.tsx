@@ -53,7 +53,6 @@ type Props = {
   clientInfo: ClientDetailType
 }
 
-/** TODO : request body문의 후 이어서 작업하기 */
 export default function ClientAddresses({ clientId, clientInfo }: Props) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -87,7 +86,7 @@ export default function ClientAddresses({ clientId, clientInfo }: Props) {
   }, [address])
 
   const updateClientAddressMutation = useMutation(
-    (body: ClientAddressType) => updateClientAddress(clientId, body),
+    (body: { data: Array<ClientAddressType> }) => updateClientAddress(body),
     {
       onSuccess: () => onMutationSuccess(),
       onError: () => onMutationError(),
@@ -132,7 +131,15 @@ export default function ClientAddresses({ clientId, clientInfo }: Props) {
 
   function onSubmit() {
     const data = getValues().clientAddresses
-    // updateClientAddressMutation.mutate()
+    if (data?.length) {
+      const finalForm = data.map(item => {
+        delete item.updatedAt
+        delete item.createdAt
+        return item
+      })
+      updateClientAddressMutation.mutate({ data: finalForm })
+      console.log(finalForm)
+    }
   }
 
   return (

@@ -120,16 +120,13 @@ export const updateClientStatus = async (
   }
 }
 
-/** TODO : request body수정 가능성 있음 */
-export const updateClientAddress = async (
-  clientId: number,
-  body: ClientAddressType,
-): Promise<CreateClientResType> => {
+export const updateClientAddress = async (body: {
+  data: Array<ClientAddressType>
+}): Promise<CreateClientResType> => {
   try {
-    const { data } = await axios.patch(
-      `/api/enough/u/client/address/${clientId}`,
-      body,
-    )
+    const { data } = await axios.patch(`/api/enough/u/client/address`, {
+      data: body.data,
+    })
     return data
   } catch (e: any) {
     throw new Error(e)
