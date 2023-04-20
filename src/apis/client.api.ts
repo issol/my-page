@@ -210,3 +210,14 @@ export const deleteClientMemo = async (
     throw new Error(e)
   }
 }
+
+export const deleteClient = async (
+  clientId: number,
+): Promise<ClientMemoType> => {
+  try {
+    const { data } = await axios.delete(`/api/enough/u/client/${clientId}`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
