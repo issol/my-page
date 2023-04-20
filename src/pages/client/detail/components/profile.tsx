@@ -25,13 +25,12 @@ type Props = {
 /**
  * TODO
  * delete client
- * form controls
  *
  */
 export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
   const id = Number(clientId)
   const queryClient = useQueryClient()
-  console.log('id : ', !!id)
+
   return (
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='0px'>

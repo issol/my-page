@@ -53,7 +53,9 @@ import toast from 'react-hot-toast'
 
 type Props = {
   standardPrices: { data: StandardPriceListType[]; count: number }
+  clientId?: number
   isLoading: boolean
+  title: string
   refetch: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
@@ -67,7 +69,13 @@ type Props = {
   >
 }
 
-const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
+const StandardPrices = ({
+  standardPrices,
+  clientId,
+  isLoading,
+  refetch,
+  title,
+}: Props) => {
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
@@ -169,12 +177,10 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
     data?: AddPriceType,
     selectedData?: StandardPriceListType,
   ) => {
-    console.log(type)
-
     if (type === 'Add' || type === 'Cancel') {
       if (type === 'Add') {
         const obj: AddNewPriceType = {
-          isStandard: true,
+          isStandard: clientId ? false : true,
           priceName: data?.priceName!,
           category: data?.category.value!,
           serviceType: data?.serviceType.map(value => value.value)!,
@@ -184,6 +190,10 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
           roundingProcedure: data?.roundingProcedure.value!,
           memoForPrice: data?.memoForPrice!,
         }
+        if (clientId) {
+          obj['clientId'] = clientId
+        }
+
         addNewPriceMutation.mutate(obj)
       }
       closeModal(`${selectedModalType}PriceModal`)
@@ -191,7 +201,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
       deletePriceMutation.mutate(selectedData?.id!)
     } else if (type === 'Save') {
       const obj: AddNewPriceType = {
-        isStandard: true,
+        isStandard: clientId ? false : true,
         priceName: data?.priceName!,
         category: data?.category.value!,
         serviceType: data?.serviceType.map(value => value.value)!,
@@ -200,6 +210,9 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
         decimalPlace: data?.decimalPlace!,
         roundingProcedure: data?.roundingProcedure.value!,
         memoForPrice: data?.memoForPrice!,
+      }
+      if (clientId) {
+        obj['clientId'] = clientId
       }
       patchPriceMutation.mutate({ data: obj, id: selectedPriceData?.id! })
       closeModal(`${selectedModalType}PriceModal`)
@@ -356,7 +369,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
   }, [standardPrices, selectedPriceData])
 
   return (
-    <Grid container xs={12} spacing={6}>
+    <Grid container xs={12} spacing={6} mt={1}>
       <Grid item xs={12}>
         <PriceList
           list={standardPrices?.data!}
@@ -373,6 +386,7 @@ const StandardPrices = ({ standardPrices, isLoading, refetch }: Props) => {
           handleRowClick={handleRowClick}
           isSelected={isSelected}
           selected={selected}
+          title={title}
         />
       </Grid>
       {selectedPriceData ? (

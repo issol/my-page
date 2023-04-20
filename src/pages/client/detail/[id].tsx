@@ -29,6 +29,9 @@ import { useGetClientDetail } from '@src/queries/client/client-detail'
 import ClientInfoCard from '@src/@core/components/clientInfo'
 import ClientProfile from './components/profile'
 import { useGetClientMemo } from '@src/queries/client.query'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import StandardPrices from '@src/pages/components/standard-prices'
+import ClientProjects from '../components/projects'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -47,6 +50,7 @@ export default function ClientDetail() {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
   })
+  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
 
   return (
     <div>
@@ -97,9 +101,19 @@ export default function ClientDetail() {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='1'></TabPanel>
+        <TabPanel value='1'>
+          <ClientProjects id={Number(id)} />
+        </TabPanel>
         <TabPanel value='2'></TabPanel>
-        <TabPanel value='3'></TabPanel>
+        <TabPanel value='3'>
+          <StandardPrices
+            standardPrices={standardPrices!}
+            isLoading={isLoading}
+            refetch={refetch}
+            title='Client prices'
+            clientId={userInfo?.clientId!}
+          />
+        </TabPanel>
         <TabPanel value='4'>
           <ClientProfile
             clientId={id}

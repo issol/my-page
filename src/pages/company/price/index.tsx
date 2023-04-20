@@ -81,6 +81,7 @@ export default function Price() {
       </TabList>
       <TabPanel value='1'>
         <StandardPrices
+          title='Standard client prices'
           standardPrices={standardPrices!}
           isLoading={isLoading}
           refetch={refetch}
