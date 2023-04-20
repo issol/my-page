@@ -67,7 +67,7 @@ export default function ClientProjectsFilter({
           <CardContent>
             <form onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={6} rowSpacing={4}>
-                {/* <Grid item xs={12} sm={6} md={6}>
+                <Grid item xs={12} sm={6} md={6}>
                   <FormControl fullWidth>
                     <Autocomplete
                       autoHighlight
@@ -136,7 +136,7 @@ export default function ClientProjectsFilter({
                       Search
                     </Button>
                   </Box>
-                </Grid> */}
+                </Grid>
               </Grid>
             </form>
           </CardContent>
