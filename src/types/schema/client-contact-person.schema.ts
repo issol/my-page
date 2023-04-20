@@ -8,7 +8,7 @@ export type ClientContactPersonType = {
 }
 
 export type ContactPersonType = {
-  id?: string
+  id?: number
   personType?: PersonType
   firstName?: string
   middleName?: string
@@ -25,6 +25,7 @@ export type ContactPersonType = {
   mobile?: string
   fax?: string
   memo?: string
+  isReferred?: boolean
 }
 
 export const contactPersonDefaultValue: ClientContactPersonType = {

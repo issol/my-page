@@ -1,4 +1,5 @@
 import { AuthContext } from '@src/context/AuthContext'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { Fragment, useContext, useEffect, useState } from 'react'
 
 // ** hooks
@@ -47,13 +48,23 @@ import SaveCommentModal from '@src/pages/components/pro-detail-modal/modal/save-
 import { ClientMemoPostType } from '@src/types/client/client'
 import CancelSaveCommentModal from '@src/pages/components/pro-detail-modal/modal/cancel-comment-modal'
 
+// ** permission class
+import { client_comment } from '@src/shared/const/permission-class'
+
 type Props = {
   clientId: number
   memo: { data: Array<ClientMemoType>; count: number }
 }
 
 export default function ClientMemo({ clientId, memo }: Props) {
+  const ability = useContext(AbilityContext)
+
   const { user } = useContext(AuthContext)
+  const User = new client_comment(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+
   const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
@@ -343,18 +354,22 @@ export default function ClientMemo({ clientId, memo }: Props) {
 
                   {currentMemo.memoId !== item.id ? (
                     <Box>
-                      <IconButton
-                        onClick={() => setEditor(item)}
-                        disabled={!!currentMemo.memoId || isCreate}
-                      >
-                        <Icon icon='mdi:pencil-outline' />
-                      </IconButton>
-                      <IconButton
-                        onClick={() => onDelete(item)}
-                        disabled={!!currentMemo.memoId || isCreate}
-                      >
-                        <Icon icon='mdi:trash-outline' />
-                      </IconButton>
+                      {isUpdatable ? (
+                        <IconButton
+                          onClick={() => setEditor(item)}
+                          disabled={!!currentMemo.memoId || isCreate}
+                        >
+                          <Icon icon='mdi:pencil-outline' />
+                        </IconButton>
+                      ) : null}
+                      {isDeletable ? (
+                        <IconButton
+                          onClick={() => onDelete(item)}
+                          disabled={!!currentMemo.memoId || isCreate}
+                        >
+                          <Icon icon='mdi:trash-outline' />
+                        </IconButton>
+                      ) : null}
                     </Box>
                   ) : null}
                 </Box>
