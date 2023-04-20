@@ -114,7 +114,6 @@ export default function ClientDetail() {
             clientId={userInfo?.clientId!}
           />
         </TabPanel>
-
         <TabPanel value='4'>
           <ClientProfile
             clientId={id}

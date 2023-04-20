@@ -8,9 +8,7 @@ import {
   Card,
   Dialog,
   DialogContent,
-  Divider,
   Grid,
-  IconButton,
   Typography,
   Tooltip,
 } from '@mui/material'
@@ -18,7 +16,7 @@ import { TableTitleTypography } from '@src/@core/styles/typography'
 import styled from 'styled-components'
 
 // ** react hook form
-import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 
 // ** types & schema
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -42,8 +40,6 @@ import useModal from '@src/hooks/useModal'
 
 // ** components
 import ContactPersonList from '../../components/list/contact-person-list'
-import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
-import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 import AddContactPersonForm from '../../components/forms/add-contact-person-form'
 import DiscardContactPersonModal from '../../components/modals/discard-contact-person-modal'
 
@@ -63,14 +59,13 @@ type Props = {
   clientInfo: ClientDetailType
 }
 
-/* TODO : contact person detail모달 추가, update, delete 추가 */
+/* TODO : delete 추가 */
 export default function ContactPersons({ clientId, clientInfo }: Props) {
   const { contactPersons } = clientInfo
 
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
 
-  // const [idx, setIdx] = useState<number>(0)
   const [open, setOpen] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
   const [pageSize, setPageSize] = useState(10)
@@ -215,7 +210,7 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
       position: 'bottom-left',
     })
   }
-  console.log(getValues())
+
   function onSubmit(data: ClientContactPersonType) {
     const body = data.contactPersons
     if (body?.length) {
