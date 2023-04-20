@@ -57,6 +57,7 @@ import {
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
 import { Category } from '@src/shared/const/category/category.enum'
+import _ from 'lodash'
 
 type Props = {
   filter: ClientProjectFilterType
@@ -188,7 +189,7 @@ export default function ClientProjectsFilter({
                           }}
                           onChange={(event, item) => {
                             onChange(item)
-                            if (item) {
+                            if (item.length) {
                               const arr: {
                                 label: ServiceType
                                 value: ServiceType
@@ -199,9 +200,8 @@ export default function ClientProjectsFilter({
                                 const res = ServiceTypePair[value.value]
                                 arr.push(...res)
                               })
-                              console.log(arr)
 
-                              setServiceTypeList(arr)
+                              setServiceTypeList(_.uniqBy(arr, 'value'))
                               trigger('serviceType')
                             } else {
                               setServiceTypeList(ServiceTypeList)
@@ -213,20 +213,17 @@ export default function ClientProjectsFilter({
                           id='category'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Category'
-                              error={watch('category') === null}
-                            />
+                            <TextField {...params} label='Service type' />
+                          )}
+                          renderOption={(props, option, { selected }) => (
+                            <li {...props}>
+                              <Checkbox checked={selected} sx={{ mr: 2 }} />
+                              {option.label}
+                            </li>
                           )}
                         />
                       )}
                     />
-                    {watch('category') === null && (
-                      <FormHelperText sx={{ color: 'error.main' }}>
-                        {FormErrors.required}
-                      </FormHelperText>
-                    )}
                   </Grid>
                   <Grid item xs={4}>
                     <Controller
@@ -243,7 +240,7 @@ export default function ClientProjectsFilter({
                           onChange={(event, item) => {
                             onChange(item)
 
-                            if (item) {
+                            if (item.length) {
                               const arr: {
                                 label: Category
                                 value: Category
