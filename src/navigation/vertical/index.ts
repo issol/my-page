@@ -19,7 +19,7 @@ const navigation = (): VerticalNavItemsType => {
     },
     {
       title: 'Clients',
-      icon: 'ic:baseline-people-outline',
+      icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
       path: `/client`,
