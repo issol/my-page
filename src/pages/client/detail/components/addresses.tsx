@@ -176,73 +176,37 @@ export default function ClientAddresses({ clientId, clientInfo }: Props) {
                       size='small'
                     />
                     <InfoBox>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        Street:
-                      </Typography>
+                      <Label variant='body2'>Street:</Label>
                       <TitleTypography variant='body2'>
                         {item?.baseAddress ?? '-'}
                       </TitleTypography>
                     </InfoBox>
                     <InfoBox>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        Street2:
-                      </Typography>
+                      <Label variant='body2'>Street2:</Label>
                       <TitleTypography variant='body2'>
                         {item?.detailAddress ?? '-'}
                       </TitleTypography>
                     </InfoBox>
                     <InfoBox>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        City:
-                      </Typography>
+                      <Label variant='body2'>City:</Label>
                       <TitleTypography variant='body2'>
                         {item?.city ?? '-'}
                       </TitleTypography>
                     </InfoBox>
                     <InfoBox>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        State:
-                      </Typography>
+                      <Label variant='body2'>State:</Label>
                       <TitleTypography variant='body2'>
                         {item?.state ?? '-'}
                       </TitleTypography>
                     </InfoBox>
                     <InfoBox>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        Country:
-                      </Typography>
+                      <Label variant='body2'>Country:</Label>
                       <TitleTypography variant='body2'>
                         {item?.country ?? '-'}
                       </TitleTypography>
                     </InfoBox>
                     <InfoBox mb='8px'>
-                      <Typography
-                        fontSize='1rem'
-                        variant='body2'
-                        fontWeight='bold'
-                      >
-                        ZIP code:
-                      </Typography>
+                      <Label variant='body2'>ZIP code:</Label>
                       <TitleTypography variant='body2'>
                         {item?.zipCode ?? '-'}
                       </TitleTypography>
@@ -293,4 +257,9 @@ const InfoBox = styled(Box)`
   display: flex;
   gap: 8px;
   align-items: center;
+`
+
+const Label = styled(Typography)`
+  font-weight: bold;
+  font-size: 1rem;
 `

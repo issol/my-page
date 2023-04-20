@@ -32,7 +32,7 @@ import {
   clientContactPersonSchema,
   contactPersonDefaultValue,
 } from '@src/types/schema/client-contact-person.schema'
-import { GridColumns } from '@mui/x-data-grid'
+import { GridColumns, GridRowParams } from '@mui/x-data-grid'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -56,6 +56,7 @@ import {
 
 // ** toast
 import { toast } from 'react-hot-toast'
+import ContactPersonDetailModal from '../../components/modals/contact-person-detail-modal'
 
 type Props = {
   clientId: number
@@ -69,10 +70,18 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
 
-  const [idx, setIdx] = useState<number>(0)
+  // const [idx, setIdx] = useState<number>(0)
   const [open, setOpen] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
   const [pageSize, setPageSize] = useState(10)
+
+  const [formMode, setFormMode] = useState<'create' | 'update'>('create')
+
+  const modalType = {
+    discard: 'discard',
+    save: 'save',
+    contactPerson: 'contactPerson',
+  }
 
   const columns: GridColumns<ContactPersonType> = [
     {
@@ -161,32 +170,28 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
     })
   }
 
-  function openContactPersonForm() {
+  function openCreateContactPersonForm() {
+    reset({ contactPersons: [] })
     appendContactPerson()
-    setIdx(fields.length)
+    setFormMode('create')
+    setOpen(true)
+  }
+
+  function openEditContactPersonForm(data: ContactPersonType) {
+    closeModal(modalType.contactPerson)
+    reset({ contactPersons: [data] })
+    setFormMode('update')
     setOpen(true)
   }
 
   function cancelUpdateForm() {
-    const data = fields?.[idx]
-    update(idx, data)
+    reset({ contactPersons: [] })
     setOpen(false)
   }
 
-  function removeContactPerson(id: string) {
-    const idx = fields.map(item => item.id).indexOf(id)
-    idx !== -1 && remove(idx)
-  }
-
-  function updateContactPerson(id: string) {
-    const idx = fields.map(item => item.id).indexOf(id)
-    setIdx(idx)
-    // setMode('update')
-    setOpen(true)
-  }
-
   const updateContactPersonMutation = useMutation(
-    (body: ContactPersonType) => patchContactPerson(clientId, body),
+    (data: { id: number; body: ContactPersonType }) =>
+      patchContactPerson(data.id, data.body),
     {
       onSuccess: () => onMutationSuccess(),
       onError: () => onMutationError(),
@@ -210,47 +215,45 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
       position: 'bottom-left',
     })
   }
-
-  function onCancel() {
-    openModal({
-      type: 'discard',
-      children: (
-        <DiscardChangesModal
-          onDiscard={() => setOpen(false)}
-          onClose={() => closeModal('discard')}
-        />
-      ),
-    })
-  }
-
-  function onSave() {
-    openModal({
-      type: 'save',
-      children: (
-        <ConfirmSaveAllChanges
-          onSave={() => {
-            setOpen(false)
-            onSubmit()
-          }}
-          onClose={() => closeModal('save')}
-        />
-      ),
-    })
-  }
-
-  function onSubmit() {
-    const data = getValues().contactPersons
-    if (data?.length) {
-      const finalForm: Array<CreateContactPersonFormType> = data.map(item => ({
-        ...item,
-        clientId,
-      }))
-      createContactPersonMutation.mutate(finalForm)
+  console.log(getValues())
+  function onSubmit(data: ClientContactPersonType) {
+    const body = data.contactPersons
+    if (body?.length) {
+      if (formMode === 'create') {
+        const finalForm: Array<CreateContactPersonFormType> = body.map(
+          item => ({
+            ...item,
+            clientId,
+          }),
+        )
+        createContactPersonMutation.mutate(finalForm)
+      } else if (formMode === 'update') {
+        const contactPersonId = body[0].id
+        updateContactPersonMutation.mutate({
+          id: Number(contactPersonId)!,
+          body: body[0],
+        })
+      }
     }
+
     reset({ contactPersons: [] })
     setOpen(false)
   }
-  console.log(getValues())
+
+  function onRowClick(data: GridRowParams<ContactPersonType>) {
+    openModal({
+      type: modalType.contactPerson,
+      children: (
+        <ContactPersonDetailModal
+          data={data.row}
+          onEdit={openEditContactPersonForm}
+          onClose={() => {
+            closeModal(modalType.contactPerson)
+          }}
+        />
+      ),
+    })
+  }
 
   return (
     <Card>
@@ -259,15 +262,16 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
         columns={columns}
         pageSize={pageSize}
         setPageSize={setPageSize}
-        openForm={openContactPersonForm}
+        openForm={openCreateContactPersonForm}
+        onRowClick={onRowClick}
       />
 
       <Dialog open={open} maxWidth='lg'>
         <DialogContent style={{ padding: '50px 60px' }}>
           <Grid container spacing={6}>
             <AddContactPersonForm
-              mode='create'
-              idx={idx}
+              mode={formMode}
+              idx={0}
               control={control}
               errors={errors}
               handleSubmit={handleSubmit}
@@ -279,33 +283,20 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
               onDiscard={() => {
                 setOpen(false)
                 setOpenDiscard(true)
+                reset({ contactPersons: [] })
               }}
             />
-            {/* <Grid
-              item
-              xs={12}
-              display='flex'
-              justifyContent='center'
-              gap='16px'
-            >
-              <Button variant='outlined' color='secondary' onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button variant='contained' disabled={!isValid} onClick={onSave}>
-                Save
-              </Button>
-            </Grid> */}
           </Grid>
         </DialogContent>
       </Dialog>
       <DiscardContactPersonModal
         open={openDiscard}
         onDiscard={() => {
-          remove(idx)
+          reset({ contactPersons: [] })
         }}
         onCancel={() => {
-          const data = watch('contactPersons')?.[idx]
-          data && update(idx, data)
+          const data = watch('contactPersons')?.[0]
+          data && update(0, data)
           setOpen(true)
           setOpenDiscard(false)
         }}

@@ -1,5 +1,5 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import {
   ClientContactPersonType,
   ContactPersonType,
@@ -13,6 +13,7 @@ type Props = {
   openForm: () => void
   pageSize: number
   setPageSize: (n: number) => void
+  onRowClick?: (row: GridRowParams<ContactPersonType>) => void
 }
 export default function ContactPersonList({
   fields,
@@ -20,6 +21,7 @@ export default function ContactPersonList({
   openForm,
   pageSize,
   setPageSize,
+  onRowClick,
 }: Props) {
   function NoList() {
     return (
@@ -72,6 +74,7 @@ export default function ContactPersonList({
           columns={columns}
           pageSize={pageSize}
           rowsPerPageOptions={[10, 25, 50]}
+          onRowClick={e => onRowClick && onRowClick(e)}
           onPageSizeChange={newPageSize => setPageSize(newPageSize)}
         />
       </Box>
