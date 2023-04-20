@@ -51,9 +51,18 @@ import { toast } from 'react-hot-toast'
 type Props = {
   clientId: number
   clientInfo: ClientDetailType
+  isUpdatable: boolean
+  isDeletable: boolean
+  isCreatable: boolean
 }
 
-export default function ClientAddresses({ clientId, clientInfo }: Props) {
+export default function ClientAddresses({
+  clientId,
+  clientInfo,
+  isUpdatable,
+  isDeletable,
+  isCreatable,
+}: Props) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const { openModal, closeModal } = useModal()
@@ -152,9 +161,11 @@ export default function ClientAddresses({ clientId, clientInfo }: Props) {
             justifyContent='space-between'
           >
             <Typography variant='h6'>Address</Typography>
-            <IconButton onClick={() => setOpen(true)}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable ? (
+              <IconButton onClick={() => setOpen(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            ) : null}
           </Box>
         }
       />

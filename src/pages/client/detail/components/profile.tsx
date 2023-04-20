@@ -9,27 +9,29 @@ import ClientInfo from './company-info'
 import ClientAddresses from './addresses'
 import ContactPersons from './contact-persons'
 import ClientMemo from './memo-for-client'
-import { useMutation, useQueryClient } from 'react-query'
-import {
-  updateClientInfo,
-  updateClientInfoType,
-  updateClientStatus,
-} from '@src/apis/client.api'
-import { toast } from 'react-hot-toast'
 
 type Props = {
   clientId: string | string[] | undefined
   clientInfo: ClientDetailType | null
   memo: { data: Array<ClientMemoType>; count: number }
+  isUpdatable: boolean
+  isDeletable: boolean
+  isCreatable: boolean
 }
 /**
  * TODO
  * delete client
  *
  */
-export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
+export default function ClientProfile({
+  clientId,
+  clientInfo,
+  memo,
+  isUpdatable,
+  isDeletable,
+  isCreatable,
+}: Props) {
   const id = Number(clientId)
-  const queryClient = useQueryClient()
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
@@ -37,11 +39,28 @@ export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
         {clientInfo && !!id ? (
           <Grid item xs={4}>
             <Box display='flex' flexDirection='column' gap='24px'>
-              <ClientInfo clientId={id} clientInfo={clientInfo} />
-              <ClientAddresses clientId={id} clientInfo={clientInfo} />
+              <ClientInfo
+                isUpdatable={isUpdatable}
+                isDeletable={isDeletable}
+                isCreatable={isCreatable}
+                clientId={id}
+                clientInfo={clientInfo}
+              />
+              <ClientAddresses
+                isUpdatable={isUpdatable}
+                isDeletable={isDeletable}
+                isCreatable={isCreatable}
+                clientId={id}
+                clientInfo={clientInfo}
+              />
               <Card>
                 <CardContent>
-                  <Button variant='outlined' color='error' fullWidth>
+                  <Button
+                    variant='outlined'
+                    color='error'
+                    fullWidth
+                    disabled={!isDeletable}
+                  >
                     Delete this client
                   </Button>
                 </CardContent>
@@ -53,7 +72,13 @@ export default function ClientProfile({ clientId, clientInfo, memo }: Props) {
         <Grid item xs={8}>
           <Box display='flex' flexDirection='column' gap='24px'>
             {clientInfo && !!id ? (
-              <ContactPersons clientId={id} clientInfo={clientInfo} />
+              <ContactPersons
+                isUpdatable={isUpdatable}
+                isDeletable={isDeletable}
+                isCreatable={isCreatable}
+                clientId={id}
+                clientInfo={clientInfo}
+              />
             ) : null}
             {memo && !!id ? <ClientMemo clientId={id} memo={memo} /> : null}
           </Box>

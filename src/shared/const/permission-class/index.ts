@@ -45,3 +45,22 @@ export class company_price {
     })
   }
 }
+
+export class client {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client.prototype.constructor, 'name', {
+      value: 'client',
+    })
+  }
+}
+export class client_comment {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_comment.prototype.constructor, 'name', {
+      value: 'client_comment',
+    })
+  }
+}

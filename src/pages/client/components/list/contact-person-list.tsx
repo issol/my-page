@@ -7,9 +7,9 @@ import {
 import { FieldArrayWithId } from 'react-hook-form'
 
 type Props = {
-  // fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
   fields: Array<ContactPersonType>
   columns: GridColumns<ContactPersonType>
+  isUpdatable?: boolean
   openForm: () => void
   pageSize: number
   setPageSize: (n: number) => void
@@ -18,11 +18,14 @@ type Props = {
 export default function ContactPersonList({
   fields,
   columns,
+  isUpdatable,
   openForm,
   pageSize,
   setPageSize,
   onRowClick,
 }: Props) {
+  const updatable = isUpdatable === undefined ? true : isUpdatable
+
   function NoList() {
     return (
       <Box
@@ -49,9 +52,11 @@ export default function ContactPersonList({
             <Typography variant='h6'>
               Contact person({fields?.length ?? 0})
             </Typography>{' '}
-            <Button variant='contained' onClick={openForm}>
-              Add contact person
-            </Button>
+            {updatable ? (
+              <Button variant='contained' onClick={openForm}>
+                Add contact person
+              </Button>
+            ) : null}
           </Box>
         }
         sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}

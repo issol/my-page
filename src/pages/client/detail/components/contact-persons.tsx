@@ -47,20 +47,32 @@ import DiscardContactPersonModal from '../../components/modals/discard-contact-p
 import { useMutation, useQueryClient } from 'react-query'
 import {
   createContactPerson,
+  deleteContactPerson,
   updateContactPerson as patchContactPerson,
 } from '@src/apis/client.api'
 
 // ** toast
 import { toast } from 'react-hot-toast'
 import ContactPersonDetailModal from '../../components/modals/contact-person-detail-modal'
+import DeleteContactPersonModal from '../../components/modals/delete-contact-person-modal'
+import CannotDeleteContactPersonModal from '../../components/modals/cannot-delete-contact-person-modal'
 
 type Props = {
   clientId: number
   clientInfo: ClientDetailType
+  isUpdatable: boolean
+  isDeletable: boolean
+  isCreatable: boolean
 }
 
 /* TODO : delete 추가 */
-export default function ContactPersons({ clientId, clientInfo }: Props) {
+export default function ContactPersons({
+  clientId,
+  clientInfo,
+  isUpdatable,
+  isDeletable,
+  isCreatable,
+}: Props) {
   const { contactPersons } = clientInfo
 
   const queryClient = useQueryClient()
@@ -76,6 +88,8 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
     discard: 'discard',
     save: 'save',
     contactPerson: 'contactPerson',
+    deleteContactPerson: 'deleteContactPerson',
+    cannotDelete: 'cannotDelete',
   }
 
   const columns: GridColumns<ContactPersonType> = [
@@ -184,6 +198,14 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
     setOpen(false)
   }
 
+  const createContactPersonMutation = useMutation(
+    (body: Array<CreateContactPersonFormType>) => createContactPerson(body),
+    {
+      onSuccess: () => onMutationSuccess(),
+      onError: () => onMutationError(),
+    },
+  )
+
   const updateContactPersonMutation = useMutation(
     (data: { id: number; body: ContactPersonType }) =>
       patchContactPerson(data.id, data.body),
@@ -192,10 +214,14 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
       onError: () => onMutationError(),
     },
   )
-  const createContactPersonMutation = useMutation(
-    (body: Array<CreateContactPersonFormType>) => createContactPerson(body),
+
+  const deleteContactPersonMutation = useMutation(
+    (contactPersonId: number) => deleteContactPerson(contactPersonId),
     {
-      onSuccess: () => onMutationSuccess(),
+      onSuccess: () => {
+        onMutationSuccess()
+        closeModal(modalType.contactPerson)
+      },
       onError: () => onMutationError(),
     },
   )
@@ -235,12 +261,45 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
     setOpen(false)
   }
 
+  function onContactPersonDelete(data: ContactPersonType) {
+    if (data?.isReferred !== undefined) {
+      if (data.isReferred) {
+        openModal({
+          type: modalType.cannotDelete,
+          children: (
+            <CannotDeleteContactPersonModal
+              open={true}
+              onClose={() => {
+                closeModal(modalType.cannotDelete)
+              }}
+            />
+          ),
+        })
+      } else {
+        openModal({
+          type: modalType.deleteContactPerson,
+          children: (
+            <DeleteContactPersonModal
+              open={true}
+              onDelete={() => deleteContactPersonMutation.mutate(data.id!)}
+              onClose={() => {
+                closeModal(modalType.deleteContactPerson)
+              }}
+            />
+          ),
+        })
+      }
+    }
+  }
   function onRowClick(data: GridRowParams<ContactPersonType>) {
     openModal({
       type: modalType.contactPerson,
       children: (
         <ContactPersonDetailModal
           data={data.row}
+          onDelete={onContactPersonDelete}
+          isUpdatable={isUpdatable}
+          isDeletable={isDeletable}
           onEdit={openEditContactPersonForm}
           onClose={() => {
             closeModal(modalType.contactPerson)
@@ -255,6 +314,7 @@ export default function ContactPersons({ clientId, clientInfo }: Props) {
       <ContactPersonList
         fields={contactPersons || []}
         columns={columns}
+        isUpdatable={isUpdatable}
         pageSize={pageSize}
         setPageSize={setPageSize}
         openForm={openCreateContactPersonForm}

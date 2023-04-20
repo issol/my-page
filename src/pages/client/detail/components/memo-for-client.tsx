@@ -20,14 +20,10 @@ import {
   Typography,
 } from '@mui/material'
 import CustomChip from 'src/@core/components/mui/chip'
-import { TitleTypography } from '@src/@core/styles/typography'
-
-import styled from 'styled-components'
 
 // ** types & mutation
 import { useMutation, useQueryClient } from 'react-query'
-import { ClientDetailType, ClientMemoType } from '@src/types/client/client'
-import { ClientStatus } from '@src/shared/const/status/statuses'
+import { ClientMemoType } from '@src/types/client/client'
 import {
   createClientMemo,
   deleteClientMemo,
