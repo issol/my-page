@@ -1,9 +1,11 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useContext, useState } from 'react'
-
-// ** context
-import { AuthContext } from '@src/context/AuthContext'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
+import {
+  MouseEvent,
+  Suspense,
+  SyntheticEvent,
+  useContext,
+  useState,
+} from 'react'
 
 // ** styled components
 import styled from 'styled-components'
@@ -31,12 +33,15 @@ import { useGetClientDetail } from '@src/queries/client/client-detail'
 
 // ** components
 import ClientInfoCard from '@src/@core/components/clientInfo'
-import ClientProfile from './components/profile'
-import { useGetClientMemo } from '@src/queries/client.query'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import StandardPrices from '@src/pages/components/standard-prices'
 import ClientProjects from '../components/projects'
 import { client } from '@src/shared/const/permission-class'
+import { useGetClientMemo } from '@src/queries/client.query'
+import ClientProfile from './components/profile'
+import { AuthContext } from '@src/context/AuthContext'
+import { Box } from '@mui/material'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -60,14 +65,15 @@ export default function ClientDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
+
+  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
   const { data: memo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
   })
-  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
 
   return (
-    <div>
+    <Box sx={{ pb: '100px' }}>
       <ClientInfoCard userInfo={userInfo!} />
       <TabContext value={value}>
         <TabList
@@ -116,7 +122,9 @@ export default function ClientDetail() {
           />
         </TabList>
         <TabPanel value='1'>
-          <ClientProjects id={Number(id)} />
+          <Suspense>
+            <ClientProjects id={Number(id)} user={user!} />
+          </Suspense>
         </TabPanel>
         <TabPanel value='2'></TabPanel>
         <TabPanel value='3'>
@@ -140,7 +148,7 @@ export default function ClientDetail() {
         </TabPanel>
         <TabPanel value='5'></TabPanel>
       </TabContext>
-    </div>
+    </Box>
   )
 }
 
