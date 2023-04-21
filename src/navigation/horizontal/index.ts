@@ -104,6 +104,13 @@ const navigation = (): HorizontalNavItemsType => {
         },
       ],
     },
+    {
+      title: 'Quotes',
+      icon: 'material-symbols:request-quote-outline',
+      path: '/quotes',
+      action: 'read',
+      subject: 'quotes',
+    },
   ]
 }
 export default navigation
