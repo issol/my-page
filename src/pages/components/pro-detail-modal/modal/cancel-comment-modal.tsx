@@ -69,7 +69,7 @@ export default function CancelSaveCommentModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to cancel this comment?
+            Are you sure you want to discard this comment?
           </Typography>
         </DialogContentText>
         <Box
@@ -99,7 +99,7 @@ export default function CancelSaveCommentModal({
               onClose()
             }}
           >
-            Confirm
+            Discard
           </Button>
         </Box>
       </DialogContent>

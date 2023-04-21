@@ -18,6 +18,8 @@ export type ClientAddressType = {
   state?: string
   country?: string
   zipCode?: string
+  createdAt?: string
+  updatedAt?: string
 }
 
 export const clientAddressDefaultValue: ClientAddressFormType = {

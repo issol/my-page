@@ -61,7 +61,7 @@ export default function Price() {
           value='1'
           label='Standard client prices'
           iconPosition='start'
-          icon={<Icon icon='material-symbols:person-outline' />}
+          icon={<Icon icon='mdi:account-star-outline' />}
           sx={{ marginLeft: '24px' }}
         />
         <Tab

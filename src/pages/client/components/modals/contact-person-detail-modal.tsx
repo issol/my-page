@@ -17,12 +17,18 @@ import styled from 'styled-components'
 
 type Props = {
   data: ContactPersonType
+  isUpdatable: boolean
+  isDeletable: boolean
   onEdit: (data: ContactPersonType) => void
+  onDelete: (data: ContactPersonType) => void
   onClose: () => void
 }
 export default function ContactPersonDetailModal({
   data,
+  isUpdatable,
+  isDeletable,
   onEdit,
+  onDelete,
   onClose,
 }: Props) {
   return (
@@ -122,22 +128,20 @@ export default function ContactPersonDetailModal({
         </Grid>
 
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
-          <Button
-            variant='outlined'
-            color='secondary'
-            onClick={() => onEdit(data)}
-          >
-            Edit
-          </Button>
-          <Button
-            variant='contained'
-            //   onClick={() => {
-            //     onClick()
-            //     onClose()
-            //   }}
-          >
-            Delete
-          </Button>
+          {isUpdatable ? (
+            <Button
+              variant='outlined'
+              color='secondary'
+              onClick={() => onEdit(data)}
+            >
+              Edit
+            </Button>
+          ) : null}
+          {isDeletable ? (
+            <Button variant='contained' onClick={() => onDelete(data)}>
+              Delete
+            </Button>
+          ) : null}
         </Box>
       </DialogContent>
     </Dialog>

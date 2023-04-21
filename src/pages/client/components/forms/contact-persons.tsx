@@ -45,25 +45,25 @@ import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 import ContactPersonList from '../list/contact-person-list'
 
-type Props = {
+type Props<T extends number | string = string> = {
   isGeneral: boolean
   getCompanyInfo?: UseFormGetValues<CompanyInfoFormType>
-  control: Control<ClientContactPersonType, any>
-  fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
-  append: UseFieldArrayAppend<ClientContactPersonType, 'contactPersons'>
+  control: Control<ClientContactPersonType<T>, any>
+  fields: FieldArrayWithId<ClientContactPersonType<T>, 'contactPersons', 'id'>[]
+  append: UseFieldArrayAppend<ClientContactPersonType<T>, 'contactPersons'>
   remove: UseFieldArrayRemove
-  update: UseFieldArrayUpdate<ClientContactPersonType, 'contactPersons'>
-  getValues: UseFormGetValues<ClientContactPersonType>
-  errors: FieldErrors<ClientContactPersonType>
+  update: UseFieldArrayUpdate<ClientContactPersonType<T>, 'contactPersons'>
+  getValues: UseFormGetValues<ClientContactPersonType<T>>
+  errors: FieldErrors<ClientContactPersonType<T>>
   isValid: boolean
-  watch: UseFormWatch<ClientContactPersonType>
-  handleSubmit: UseFormHandleSubmit<ClientContactPersonType>
+  watch: UseFormWatch<ClientContactPersonType<T>>
+  handleSubmit: UseFormHandleSubmit<ClientContactPersonType<T>>
   onClientDataSubmit: () => void
   onNextStep: () => void
   handleBack: () => void
 }
 
-export default function ContactPersonForm({
+export default function ContactPersonForm<T extends number | string = string>({
   isGeneral,
   getCompanyInfo,
   control,
@@ -79,16 +79,16 @@ export default function ContactPersonForm({
   onClientDataSubmit,
   onNextStep,
   handleBack,
-}: Props) {
+}: Props<T>) {
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
   const [pageSize, setPageSize] = useState(10)
-
+  console.log(fields)
   // ** modals
   const [openForm, setOpenForm] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
 
-  const columns: GridColumns<ContactPersonType> = [
+  const columns: GridColumns<ContactPersonType<T>> = [
     {
       flex: 0.1,
       minWidth: 210,
@@ -98,7 +98,7 @@ export default function ContactPersonForm({
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => <Box>Company name / Email</Box>,
-      renderCell: ({ row }: { row: ContactPersonType }) => {
+      renderCell: ({ row }: { row: ContactPersonType<T> }) => {
         return (
           <Box display='flex' flexDirection='column'>
             <Tooltip
@@ -130,7 +130,7 @@ export default function ContactPersonForm({
       disableColumnMenu: true,
       sortable: false,
       renderHeader: () => <Box>Department</Box>,
-      renderCell: ({ row }: { row: ContactPersonType }) => {
+      renderCell: ({ row }: { row: ContactPersonType<T> }) => {
         return <Typography>{row.department}</Typography>
       },
     },
@@ -152,13 +152,13 @@ export default function ContactPersonForm({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderCell: ({ row }: { row: ContactPersonType }) => {
+      renderCell: ({ row }: { row: ContactPersonType<T> }) => {
         return (
           <Box>
-            <IconButton onClick={() => updateContactPerson(row.id!)}>
+            <IconButton onClick={() => updateContactPerson(String(row.id!))}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
-            <IconButton onClick={() => removeContactPerson(row.id!)}>
+            <IconButton onClick={() => removeContactPerson(String(row.id!))}>
               <Icon icon='mdi:trash-outline' />
             </IconButton>
           </Box>
@@ -167,7 +167,7 @@ export default function ContactPersonForm({
     },
   ]
 
-  function onSubmit(data: ClientContactPersonType) {
+  function onSubmit(data: ClientContactPersonType<T>) {
     setOpenForm(false)
     if (!data.contactPersons?.length) return
     update(idx, data.contactPersons[idx])
@@ -194,12 +194,12 @@ export default function ContactPersonForm({
   }
 
   function removeContactPerson(id: string) {
-    const idx = fields.map(item => item.id).indexOf(id)
+    const idx = fields.map(item => item.id as string).indexOf(id)
     idx !== -1 && remove(idx)
   }
 
   function updateContactPerson(id: string) {
-    const idx = fields.map(item => item.id).indexOf(id)
+    const idx = fields.map(item => item.id as string).indexOf(id)
     setIdx(idx)
     setMode('update')
     setOpenForm(true)
@@ -213,7 +213,7 @@ export default function ContactPersonForm({
 
   return (
     <Grid item xs={12}>
-      <ContactPersonList
+      <ContactPersonList<T>
         fields={fields}
         columns={columns}
         openForm={openContactPersonForm}
@@ -246,7 +246,7 @@ export default function ContactPersonForm({
         )}
       </Grid>
       <Dialog open={openForm} maxWidth='lg'>
-        <AddContactPersonForm
+        <AddContactPersonForm<T>
           mode={mode}
           idx={idx}
           control={control}

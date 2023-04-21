@@ -36,18 +36,28 @@ import ClientInfoCard from '@src/@core/components/clientInfo'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 import StandardPrices from '@src/pages/components/standard-prices'
 import ClientProjects from '../components/projects'
+import { client } from '@src/shared/const/permission-class'
 import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
 import { AuthContext } from '@src/context/AuthContext'
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 export default function ClientDetail() {
   const router = useRouter()
 
   const { id } = router.query
   const [value, setValue] = useState<string>('1')
+
+  const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+
+  const User = new client(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+  const isCreatable = ability.can('create', User)
 
   const [memoSkip, setMemoSkip] = useState(0)
   const MEMO_PAGESIZE = 3
@@ -58,7 +68,7 @@ export default function ClientDetail() {
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
 
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
-  const { data: memo, refetch: refetchMemo } = useGetClientMemo(Number(id!), {
+  const { data: memo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
   })
@@ -136,6 +146,9 @@ export default function ClientDetail() {
             clientId={id}
             clientInfo={userInfo ?? null}
             memo={memo || { data: [], count: 0 }}
+            isUpdatable={isUpdatable}
+            isDeletable={isDeletable}
+            isCreatable={isCreatable}
           />
         </TabPanel>
         <TabPanel value='5'></TabPanel>

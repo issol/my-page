@@ -68,6 +68,7 @@ export default function CompanyInfoForm({
   ) {
     return (
       <Button
+        key={type}
         variant='outlined'
         onClick={() => onChange(type)}
         color={value === type ? 'primary' : 'secondary'}
