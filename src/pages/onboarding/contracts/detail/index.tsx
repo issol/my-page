@@ -13,7 +13,12 @@ import { Suspense, useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Third Party Imports
-import { convertFromRaw, EditorState } from 'draft-js'
+import {
+  ContentBlock,
+  ContentState,
+  convertFromRaw,
+  EditorState,
+} from 'draft-js'
 
 // ** Component Import
 import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
@@ -52,6 +57,7 @@ import {
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { contract as Contract } from '@src/shared/const/permission-class'
+import { Entity } from 'draft-js'
 
 type CellType = {
   row: {
@@ -145,20 +151,95 @@ const ContractDetail = () => {
     refetch()
   }, [])
 
-  useEffect(() => {
-    // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 사용하기
-    if (contract?.content) {
-      // for (let i = 0; i < contract.content?.blocks?.length; i++) {
-      //   if (!contract.content?.blocks[i]?.text.includes('@name')) continue
-      //   contract.content.blocks[i].text = contract.content?.blocks[
-      //     i
-      //   ]?.text?.replace('@name', 'This is Name!!!!!!')
-      // }
-      const content = convertFromRaw(contract?.content as any)
-      const editorState = EditorState.createWithContent(content)
-      setMainContent(editorState)
-    }
-  }, [contract])
+  function urlToImage(url: string): Promise<HTMLImageElement> {
+    const image = new Image()
+    image.src = url
+    return new Promise(resolve => {
+      image.onload = () => resolve(image)
+    })
+  }
+
+  // ** TODO : 추후 contract에 pro의 이름을 넣어야 하는 경우 아래 코드 수정하여 사용하기
+  // useEffect(() => {
+  //   /* eslint-disable */
+  //   const initialState = {
+  //     entityMap: {
+  //       0: {
+  //         type: 'IMAGE',
+  //         mutability: 'IMMUTABLE',
+  //         data: {
+  //           src: 'https://picsum.photos/200/300',
+  //         },
+  //       },
+  //     },
+  //     blocks: [
+  //       {
+  //         key: 'ov7r',
+  //         text: ' ',
+  //         type: 'atomic',
+  //         depth: 0,
+  //         inlineStyleRanges: [],
+  //         entityRanges: [
+  //           {
+  //             offset: 0,
+  //             length: 1,
+  //             key: 0,
+  //           },
+  //         ],
+  //         data: {},
+  //       },
+  //       {
+  //         key: 'e23a8',
+  //         text: 'See advanced examples further down …',
+  //         type: 'unstyled',
+  //         depth: 0,
+  //         inlineStyleRanges: [],
+  //         entityRanges: [],
+  //         data: {},
+  //       },
+  //     ],
+  //   }
+  //   /* eslint-enable */
+
+  //   if (contract?.content) {
+  //     const copyContent = { ...contract.content }
+
+  //     for (let i = 0; i < copyContent?.blocks?.length; i++) {
+  //       if (!copyContent?.blocks[i]?.text.includes('dsdd')) continue
+  //       copyContent.blocks[i].text = copyContent?.blocks[i]?.text?.replace(
+  //         'dsdd',
+  //         '',
+  //       )
+  //       copyContent.blocks[i].type = 'atomic'
+  //       copyContent.blocks[i].entityRanges = [
+  //         {
+  //           offset: 0,
+  //           length: 1,
+  //           key: 0,
+  //         },
+  //       ]
+  //     }
+  //     copyContent.entityMap = {
+  //       [0]: {
+  //         type: 'IMAGE',
+  //         mutability: 'IMMUTABLE',
+  //         data: {
+  //           src: 'https://picsum.photos/200/300',
+  //         },
+  //       },
+  //     }
+
+  //     console.log(copyContent)
+  //     console.log(initialState)
+  //     const content = convertFromRaw(copyContent as any)
+
+  //     const editorState = EditorState.createWithContent(content)
+  //     // const editorState = EditorState.createWithContent(
+  //     //   convertFromRaw(initialState),
+  //     // )
+  //     setMainContent(editorState)
+  //   }
+  // }, [contract])
 
   function getTitle() {
     switch (type) {
