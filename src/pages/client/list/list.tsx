@@ -167,7 +167,7 @@ export default function ClientList({
               NoRowsOverlay: () => NoList(),
               NoResultsOverlay: () => NoList(),
             }}
-            sx={{ overflowX: 'scroll' }}
+            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
             columns={columns}
             rows={list.data}
             rowCount={list.count}
@@ -181,6 +181,7 @@ export default function ClientList({
             pageSize={pageSize}
             paginationMode='server'
             onPageChange={setSkip}
+            disableSelectionOnClick
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
           />
         </Box>

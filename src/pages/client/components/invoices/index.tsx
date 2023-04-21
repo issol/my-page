@@ -13,66 +13,60 @@ import FormControlLabel from '@mui/material/FormControlLabel'
 import ClientProjectsFilter from './list/filters'
 import { useForm } from 'react-hook-form'
 import {
-  ClientProjectFilterType,
-  ClientProjectListType,
+  ClientInvoiceFilterType,
+  ClientInvoiceListType,
 } from '@src/types/client/client-projects.type'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
-import { CategoryList } from '@src/shared/const/category/categories'
-import { useGetClientProjectList } from '@src/queries/client/client-detail'
-import ClientProjectList from './list/list'
+
+import { useGetClientInvoiceList } from '@src/queries/client/client-detail'
+
 import { UserDataType } from '@src/context/types'
-import ClientProjectCalendarContainer from './calendar'
+
+import ClientInvoiceList from './list/list'
+
+import ClientInvoiceCalendarContainer from './calendar'
 
 export type FilterType = {
-  projectType: Array<{ value: string; label: string }>
-  category: Array<{ value: string; label: string }>
-  serviceType: Array<{ value: string; label: string }>
-  status: Array<{ value: string; label: string }>
-  dueDate: Date[]
+  invoicedDate: Date[]
+  paymentDueDate: Date[]
+  status: Array<{ label: string; value: string }>
   search: string
 }
 
 const defaultValues: FilterType = {
-  projectType: [],
-  category: [],
-  serviceType: [],
+  invoicedDate: [],
+  paymentDueDate: [],
   status: [],
-  dueDate: [],
   search: '',
 }
 
 type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
-export default function ClientProjects({ id, user }: Props) {
+export default function ClientInvoices({ id, user }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
 
-  const [clientProjectListPage, setClientProjectListPage] = useState<number>(0)
-  const [clientProjectListPageSize, setClientProjectListPageSize] =
+  const [clientInvoiceListPage, setClientInvoiceListPage] = useState<number>(0)
+  const [clientInvoiceListPageSize, setClientInvoiceListPageSize] =
     useState<number>(10)
 
-  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
-  const [categoryList, setCategoryList] = useState(CategoryList)
-  const [hideCompletedProjects, setHideCompletedProjects] = useState(false)
-  const [selectedProjectRow, setSelectedProjectRow] =
-    useState<ClientProjectListType | null>(null)
+  const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
+  const [selectedInvoiceRow, setSelectedInvoiceRow] =
+    useState<ClientInvoiceListType | null>(null)
 
   const [selected, setSelected] = useState<number | null>(null)
 
-  const [filters, setFilters] = useState<ClientProjectFilterType>({
-    projectType: [],
-    category: [],
-    serviceType: [],
+  const [filters, setFilters] = useState<ClientInvoiceFilterType>({
+    invoicedDate: [],
+    paymentDueDate: [],
     status: [],
-    dueDate: [],
     search: '',
-    take: clientProjectListPageSize,
-    skip: clientProjectListPageSize * clientProjectListPage,
+    take: clientInvoiceListPageSize,
+    skip: clientInvoiceListPageSize * clientInvoiceListPage,
     sort: 'DESC',
   })
 
-  const { data: clientProjectList, isLoading } =
-    useGetClientProjectList(filters)
+  const { data: clientInvoiceList, isLoading } =
+    useGetClientInvoiceList(filters)
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -81,20 +75,14 @@ export default function ClientProjects({ id, user }: Props) {
 
   const onClickResetButton = () => {
     reset({
-      projectType: [],
-      category: [],
-      serviceType: [],
-      status: [],
-      dueDate: [],
+      invoicedDate: [],
+      paymentDueDate: [],
       search: '',
     })
 
     setFilters({
-      projectType: [],
-      category: [],
-      serviceType: [],
-      status: [],
-      dueDate: [],
+      invoicedDate: [],
+      paymentDueDate: [],
       search: '',
       skip: 0,
       take: 10,
@@ -102,13 +90,13 @@ export default function ClientProjects({ id, user }: Props) {
     })
   }
 
-  const handleRowClick = (row: ClientProjectListType) => {
+  const handleRowClick = (row: ClientInvoiceListType) => {
     if (row.id === selected) {
       setSelected(null)
-      setSelectedProjectRow(null)
+      setSelectedInvoiceRow(null)
     } else {
       setSelected(row.id)
-      setSelectedProjectRow(row)
+      setSelectedInvoiceRow(row)
     }
   }
 
@@ -119,26 +107,23 @@ export default function ClientProjects({ id, user }: Props) {
   const handleHideCompletedProjects = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setHideCompletedProjects(event.target.checked)
+    setHidePaidInvoices(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedProject: event.target.checked,
+      hidePaidInvoices: event.target.checked,
     }))
   }
 
   const onSubmit = (data: FilterType) => {
-    const { projectType, category, serviceType, status, dueDate, search } = data
+    const { invoicedDate, paymentDueDate, search } = data
 
     const filter = {
-      projectType: projectType.map(value => value.value),
-      category: category.map(value => value.value),
-      serviceType: serviceType.map(value => value.value),
-      status: status.map(value => value.value),
-      dueDate: dueDate.map(value => value),
+      invoicedDate: invoicedDate.map(value => value),
+      paymentDueDate: paymentDueDate.map(value => value),
 
       search: search,
-      take: clientProjectListPageSize,
-      skip: clientProjectListPageSize * clientProjectListPage,
+      take: clientInvoiceListPageSize,
+      skip: clientInvoiceListPageSize * clientInvoiceListPage,
       sort: 'DESC',
     }
 
@@ -181,12 +166,6 @@ export default function ClientProjects({ id, user }: Props) {
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
               trigger={trigger}
-              watch={watch}
-              setServiceTypeList={setServiceTypeList}
-              serviceTypeList={serviceTypeList}
-              categoryList={categoryList}
-              setCategoryList={setCategoryList}
-              // search={onSearch}
             />
             <Box
               sx={{
@@ -198,7 +177,7 @@ export default function ClientProjects({ id, user }: Props) {
                 value='start'
                 control={
                   <Switch
-                    checked={hideCompletedProjects}
+                    checked={hidePaidInvoices}
                     onChange={handleHideCompletedProjects}
                     inputProps={{ 'aria-label': 'controlled' }}
                   />
@@ -216,32 +195,32 @@ export default function ClientProjects({ id, user }: Props) {
                       color: 'rgba(76, 78, 100, 0.6)',
                     }}
                   >
-                    Hide completed projects
+                    Hide paid invoices
                   </Typography>
                 }
                 labelPlacement='start'
               />
             </Box>
 
-            <ClientProjectList
-              list={clientProjectList?.data!}
-              listCount={clientProjectList?.totalCount!}
+            <ClientInvoiceList
+              list={clientInvoiceList?.data!}
+              listCount={clientInvoiceList?.totalCount!}
               isLoading={isLoading}
-              listPage={clientProjectListPage}
-              listPageSize={clientProjectListPageSize}
-              setListPage={setClientProjectListPage}
-              setListPageSize={setClientProjectListPageSize}
+              listPage={clientInvoiceListPage}
+              listPageSize={clientInvoiceListPageSize}
+              setListPage={setClientInvoiceListPage}
+              setListPageSize={setClientInvoiceListPageSize}
               handleRowClick={handleRowClick}
               isSelected={isSelected}
               selected={selected}
               user={user}
-              title='Projects'
+              title='Invoices'
               isCardHeader={true}
             />
           </Box>
         ) : (
           // <CalendarContainer id={id} sort={sort} setSort={setSort} />
-          <ClientProjectCalendarContainer id={id} user={user} />
+          <ClientInvoiceCalendarContainer id={id} user={user} />
         )}
       </Box>
     </Box>
