@@ -162,7 +162,7 @@ const ClientGuidelineEdit = () => {
       )
       initializeValue(
         'category',
-        ClientList.filter(item => item.value === currentVersion.category)[0],
+        CategoryList.filter(item => item.value === currentVersion.category)[0],
       )
       initializeValue(
         'serviceType',
@@ -335,11 +335,11 @@ const ClientGuidelineEdit = () => {
           </Typography>
         </Box>
         <ModalButtonGroup>
-          <Button variant='contained' onClick={() => setModal(null)}>
+          <Button variant='outlined' onClick={() => setModal(null)}>
             Cancel
           </Button>
           <Button
-            variant='outlined'
+            variant='contained'
             onClick={() => {
               setModal(null)
               onSubmit()
