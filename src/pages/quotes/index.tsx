@@ -20,19 +20,52 @@ import { useGetClientInvoiceList } from '@src/queries/client/client-detail'
 
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
+import { QuotesFilterType } from '@src/types/quotes/quote'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import { CategoryList } from '@src/shared/const/category/categories'
+import QuotesFilters from './list/filters'
 
 export type FilterType = {
-  invoicedDate: Date[]
-  paymentDueDate: Date[]
+  quoteDate: Date[]
+  quoteDeadline: Date[]
+  quoteExpiryDate: Date[]
+
   status: Array<{ label: string; value: string }>
+  client: Array<{ label: string; value: string }>
+  category: Array<{ label: string; value: string }>
+  serviceType: Array<{ label: string; value: string }>
+
   search: string
 }
 
 const defaultValues: FilterType = {
-  invoicedDate: [],
-  paymentDueDate: [],
+  quoteDate: [],
+  quoteDeadline: [],
+  quoteExpiryDate: [],
   status: [],
+  client: [],
+  category: [],
+  serviceType: [],
   search: '',
+}
+
+const defaultFilters: QuotesFilterType = {
+  quoteDate: [],
+  quoteDeadline: [],
+  quoteExpiryDate: [],
+  status: [],
+  client: [],
+  category: [],
+  serviceType: [],
+  search: '',
+  take: 10,
+  skip: 0,
+  idOrder: 'DESC',
+  quoteDateOrder: 'DESC',
+  quoteDeadlineOrder: 'DESC',
+  quoteExpiryDateOrder: 'DESC',
+  hideCompletedQuotes: false,
+  seeMyQuotes: false,
 }
 
 type Props = { id: number; user: UserDataType }
@@ -41,25 +74,17 @@ type MenuType = 'list' | 'calendar'
 export default function Quotes({ id, user }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
 
-  const [clientInvoiceListPage, setClientInvoiceListPage] = useState<number>(0)
-  const [clientInvoiceListPageSize, setClientInvoiceListPageSize] =
-    useState<number>(10)
+  const [quoteListPage, setClientInvoiceListPage] = useState<number>(0)
+  const [quoteListPageSize, setClientInvoiceListPageSize] = useState<number>(10)
 
-  const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
+  const [hideCompletedQuotes, setHideCompletedQuotes] = useState(false)
+  const [seeMyQuotes, setSeeMyQuotes] = useState(false)
   const [selectedInvoiceRow, setSelectedInvoiceRow] =
     useState<ClientInvoiceListType | null>(null)
 
-  const [selected, setSelected] = useState<number | null>(null)
-
-  const [filters, setFilters] = useState<ClientInvoiceFilterType>({
-    invoicedDate: [],
-    paymentDueDate: [],
-    status: [],
-    search: '',
-    take: clientInvoiceListPageSize,
-    skip: clientInvoiceListPageSize * clientInvoiceListPage,
-    sort: 'DESC',
-  })
+  const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
 
   const { data: clientInvoiceList, isLoading } =
     useGetClientInvoiceList(filters)
@@ -71,56 +96,69 @@ export default function Quotes({ id, user }: Props) {
 
   const onClickResetButton = () => {
     reset({
-      invoicedDate: [],
-      paymentDueDate: [],
+      quoteDate: [],
+      quoteDeadline: [],
+      quoteExpiryDate: [],
+      status: [],
+      client: [],
+      category: [],
+      serviceType: [],
       search: '',
     })
 
-    setFilters({
-      invoicedDate: [],
-      paymentDueDate: [],
-      search: '',
-      skip: 0,
-      take: 10,
-      sort: 'DESC',
-    })
+    setFilters(defaultFilters)
   }
 
   const handleRowClick = (row: ClientInvoiceListType) => {
-    if (row.id === selected) {
-      setSelected(null)
-      setSelectedInvoiceRow(null)
-    } else {
-      setSelected(row.id)
-      setSelectedInvoiceRow(row)
-    }
+    setSelectedInvoiceRow(row)
   }
 
-  const isSelected = (index: number) => {
-    return index === selected
-  }
-
-  const handleHideCompletedProjects = (
+  const handleHideCompletedQuotes = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
-    setHidePaidInvoices(event.target.checked)
+    setHideCompletedQuotes(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hidePaidInvoices: event.target.checked,
+      hideCompletedQuotes: event.target.checked,
+    }))
+  }
+
+  const handleSeeMyQuotes = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSeeMyQuotes(event.target.checked)
+    setFilters(prevState => ({
+      ...prevState,
+      seeMyQuotes: event.target.checked,
     }))
   }
 
   const onSubmit = (data: FilterType) => {
-    const { invoicedDate, paymentDueDate, search } = data
+    const {
+      quoteDate,
+      quoteDeadline,
+      quoteExpiryDate,
+      status,
+      client,
+      serviceType,
+      category,
+      search,
+    } = data
 
-    const filter = {
-      invoicedDate: invoicedDate.map(value => value),
-      paymentDueDate: paymentDueDate.map(value => value),
+    const filter: QuotesFilterType = {
+      quoteDate: quoteDate.map(value => value),
+      quoteDeadline: quoteDeadline.map(value => value),
+      quoteExpiryDate: quoteExpiryDate.map(value => value),
+      status: status.map(value => value.value),
+      client: client.map(value => value.value),
+      serviceType: serviceType.map(value => value.value),
+      category: category.map(value => value.value),
 
       search: search,
-      take: clientInvoiceListPageSize,
-      skip: clientInvoiceListPageSize * clientInvoiceListPage,
-      sort: 'DESC',
+      take: quoteListPageSize,
+      skip: quoteListPageSize * quoteListPage,
+      idOrder: 'DESC',
+      quoteDateOrder: 'DESC',
+      quoteDeadlineOrder: 'DESC',
+      quoteExpiryDateOrder: 'DESC',
     }
 
     setFilters(filter)
@@ -155,7 +193,7 @@ export default function Quotes({ id, user }: Props) {
       <Box>
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            {/* <ClientProjectsFilter
+            <QuotesFilters
               filter={filters}
               control={control}
               setFilter={setFilters}
@@ -163,40 +201,29 @@ export default function Quotes({ id, user }: Props) {
               handleSubmit={handleSubmit}
               onSubmit={onSubmit}
               trigger={trigger}
-            /> */}
+              serviceTypeList={serviceTypeList}
+              setServiceTypeList={setServiceTypeList}
+              categoryList={categoryList}
+              setCategoryList={setCategoryList}
+            />
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
+                gap: '24px',
               }}
             >
-              <FormControlLabel
-                value='start'
-                control={
-                  <Switch
-                    checked={hidePaidInvoices}
-                    onChange={handleHideCompletedProjects}
-                    inputProps={{ 'aria-label': 'controlled' }}
-                  />
-                }
-                label={
-                  <Typography
-                    sx={{
-                      fontStyle: 'normal',
-                      fontWeight: 400,
-                      fontSize: '14px',
-                      lineHeight: '21px',
-
-                      letterSpacing: '0.15px',
-
-                      color: 'rgba(76, 78, 100, 0.6)',
-                    }}
-                  >
-                    Hide paid invoices
-                  </Typography>
-                }
-                labelPlacement='start'
-              />
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography>See only my quotes</Typography>
+                <Switch checked={seeMyQuotes} onChange={handleSeeMyQuotes} />
+              </Box>
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography>Hide completed quotes</Typography>
+                <Switch
+                  checked={hideCompletedQuotes}
+                  onChange={handleHideCompletedQuotes}
+                />
+              </Box>
             </Box>
 
             {/* <ClientInvoiceList
