@@ -43,20 +43,22 @@ import { countries } from 'src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import AddContactPersonConfirmModal from '../modals/add-contact-person-confirm-modal'
 
-type Props = {
+type Props<T extends number | string = number> = {
   mode: 'create' | 'update'
   idx: number
-  control: Control<ClientContactPersonType, any>
-  errors: FieldErrors<ClientContactPersonType>
-  onSubmit: (data: ClientContactPersonType) => void
-  handleSubmit: UseFormHandleSubmit<ClientContactPersonType>
-  watch: UseFormWatch<ClientContactPersonType>
+  control: Control<ClientContactPersonType<T>, any>
+  errors: FieldErrors<ClientContactPersonType<T>>
+  onSubmit: (data: ClientContactPersonType<T>) => void
+  handleSubmit: UseFormHandleSubmit<ClientContactPersonType<T>>
+  watch: UseFormWatch<ClientContactPersonType<T>>
   isValid: boolean
-  getValues: UseFormGetValues<ClientContactPersonType>
+  getValues: UseFormGetValues<ClientContactPersonType<T>>
   onCancel: () => void
   onDiscard: () => void
 }
-export default function AddContactPersonForm(props: Props) {
+export default function AddContactPersonForm<
+  T extends number | string = number,
+>(props: Props<T>) {
   const {
     mode,
     idx,
@@ -76,15 +78,15 @@ export default function AddContactPersonForm(props: Props) {
   const personType: Array<PersonType> = ['Mr.', 'Ms.']
 
   function renderErrorMsg(key: keyof ContactPersonType) {
-    return (
-      <>
-        {errors?.contactPersons?.length ? (
-          <FormHelperText sx={{ color: 'error.main' }}>
-            {errors?.contactPersons[idx]?.[key]?.message}
-          </FormHelperText>
-        ) : null}
-      </>
-    )
+    if (errors?.contactPersons?.length) {
+      const error = errors?.contactPersons[idx]?.[key]?.message
+      return (
+        <FormHelperText sx={{ color: 'error.main' }}>
+          {typeof error === 'string' && error}
+        </FormHelperText>
+      )
+    }
+    return null
   }
 
   function renderPersonTypeBtn(

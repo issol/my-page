@@ -3,12 +3,12 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type PersonType = 'Mr.' | 'Ms.'
-export type ClientContactPersonType = {
-  contactPersons?: Array<ContactPersonType>
+export type ClientContactPersonType<T extends number | string = number> = {
+  contactPersons?: Array<ContactPersonType<T>>
 }
 
-export type ContactPersonType = {
-  id?: number
+export type ContactPersonType<T extends number | string = number> = {
+  id?: T
   personType?: PersonType
   firstName?: string
   middleName?: string

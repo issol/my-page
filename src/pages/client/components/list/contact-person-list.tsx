@@ -1,21 +1,17 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
-import {
-  ClientContactPersonType,
-  ContactPersonType,
-} from '@src/types/schema/client-contact-person.schema'
-import { FieldArrayWithId } from 'react-hook-form'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
-type Props = {
-  fields: Array<ContactPersonType>
-  columns: GridColumns<ContactPersonType>
+type Props<T extends string | number> = {
+  fields: Array<ContactPersonType<T>>
+  columns: GridColumns<ContactPersonType<T>>
   isUpdatable?: boolean
   openForm: () => void
   pageSize: number
   setPageSize: (n: number) => void
-  onRowClick?: (row: GridRowParams<ContactPersonType>) => void
+  onRowClick?: (row: GridRowParams<ContactPersonType<T>>) => void
 }
-export default function ContactPersonList({
+export default function ContactPersonList<T extends string | number>({
   fields,
   columns,
   isUpdatable,
@@ -23,7 +19,7 @@ export default function ContactPersonList({
   pageSize,
   setPageSize,
   onRowClick,
-}: Props) {
+}: Props<T>) {
   const updatable = isUpdatable === undefined ? true : isUpdatable
 
   function NoList() {
