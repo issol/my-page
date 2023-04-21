@@ -41,6 +41,7 @@ import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
 import { AuthContext } from '@src/context/AuthContext'
 import { Box } from '@mui/material'
+import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 export default function ClientDetail() {
@@ -126,7 +127,11 @@ export default function ClientDetail() {
             <ClientProjects id={Number(id)} user={user!} />
           </Suspense>
         </TabPanel>
-        <TabPanel value='2'></TabPanel>
+        <TabPanel value='2'>
+          <Suspense>
+            <ClientInvoices id={Number(id)} user={user!} />
+          </Suspense>
+        </TabPanel>
         <TabPanel value='3'>
           <StandardPrices
             standardPrices={standardPrices!}

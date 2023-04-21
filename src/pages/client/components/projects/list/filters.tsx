@@ -1,11 +1,5 @@
 // ** React imports
-import {
-  Dispatch,
-  SetStateAction,
-  forwardRef,
-  useEffect,
-  useState,
-} from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -19,7 +13,6 @@ import {
   Card,
   CardHeader,
   Checkbox,
-  FormHelperText,
   Grid,
   IconButton,
   InputAdornment,
@@ -30,8 +23,6 @@ import {
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import format from 'date-fns/format'
-import addDays from 'date-fns/addDays'
 import { FilterType } from '..'
 import { ClientStatus, WorkStatus } from '@src/shared/const/status/statuses'
 import { ClientProjectFilterType } from '@src/types/client/client-projects.type'
@@ -48,7 +39,7 @@ import {
   CategoryListPair,
 } from '@src/shared/const/category/categories'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import { FormErrors } from '@src/shared/const/formErrors'
+
 import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -142,7 +133,7 @@ export default function ClientProjectsFilter({
                   xs={12}
                   spacing={6}
                   rowSpacing={4}
-                  sx={{ padding: '0 20px 20px' }}
+                  sx={{ padding: '0' }}
                 >
                   <Grid item xs={4}>
                     <Controller

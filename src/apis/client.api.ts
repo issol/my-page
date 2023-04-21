@@ -20,6 +20,8 @@ import {
   CreateContactPersonFormType,
 } from '@src/types/client/client'
 import {
+  ClientInvoiceFilterType,
+  ClientInvoiceListType,
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
@@ -344,6 +346,139 @@ export const getClientProjectsCalendarData = async (
     ]
     return {
       data: list.map((item: ClientProjectListType, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar:
+              item.status === 'Overdue'
+                ? color_overdue
+                : colors[idx % colors.length],
+          },
+          allDay: true,
+        }
+      }),
+      totalCount: data?.totalCount ?? 0,
+    }
+  } catch (e: any) {
+    return {
+      data: [],
+      totalCount: 0,
+    }
+  }
+}
+
+export type ClientInvoiceCalendarData = {
+  data: Array<ClientInvoiceCalendarEventType>
+  totalCount: number
+}
+
+export type ClientInvoiceCalendarEventType = ClientInvoiceListType & {
+  extendedProps?: { calendar: string }
+  allDay?: boolean
+}
+
+export const getClientInvoiceList = async (
+  filter: ClientInvoiceFilterType,
+): Promise<{ data: ClientInvoiceListType[]; totalCount: number }> => {
+  try {
+    // const { data } = await axios.get(
+    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
+    // )
+
+    const list: ClientInvoiceListType[] = [
+      {
+        id: 0,
+        iId: 'I-000001',
+        invoiceName: 'Invoice name',
+        amount: 3000,
+        paymentDueDate: '2023-04-27T14:13:15Z',
+        invoicedDate: '2023-04-20T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice',
+        currency: 'USD',
+      },
+      {
+        id: 1,
+        iId: 'I-000002',
+        invoiceName: 'Invoice name2',
+        amount: 4000,
+        paymentDueDate: '2023-04-27T14:13:15Z',
+        invoicedDate: '2023-04-20T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice2',
+        currency: 'USD',
+      },
+    ]
+    // return data
+    return {
+      data: list,
+      totalCount: list.length,
+    }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getClientInvoicesCalendarData = async (
+  id: number,
+  date: string,
+): Promise<ClientInvoiceCalendarData> => {
+  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
+  const color_overdue = 'overdue'
+
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/${id}/project?date=${date}`,
+    )
+
+    const list: ClientInvoiceListType[] = [
+      {
+        id: 1,
+        iId: 'I-000001',
+        invoiceName: 'Invoice name',
+        amount: 3000,
+        paymentDueDate: '2023-04-27T14:13:15Z',
+        invoicedDate: '2023-04-20T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice',
+        currency: 'USD',
+      },
+      {
+        id: 2,
+        iId: 'I-000002',
+        invoiceName: 'Invoice name2',
+        amount: 3000,
+        paymentDueDate: '2023-04-27T14:13:15Z',
+        invoicedDate: '2023-04-20T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice',
+        currency: 'USD',
+      },
+      {
+        id: 3,
+        iId: 'I-000003',
+        invoiceName: 'Invoice name3',
+        amount: 4000,
+        paymentDueDate: '2023-04-27T14:13:15Z',
+        invoicedDate: '2023-04-20T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice',
+        currency: 'USD',
+      },
+      {
+        id: 4,
+        iId: 'I-000004',
+        invoiceName: 'Invoice name4',
+        amount: 3000,
+        paymentDueDate: '2023-04-23T14:13:15Z',
+        invoicedDate: '2023-04-19T14:13:15Z',
+        status: 'Active',
+        invoiceDescription: 'Test invoice',
+        currency: 'USD',
+      },
+    ]
+    return {
+      data: list.map((item: ClientInvoiceListType, idx: number) => {
         return {
           ...item,
           extendedProps: {

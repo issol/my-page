@@ -21,15 +21,19 @@ import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import { ClientProjectListType } from '@src/types/client/client-projects.type'
+import {
+  ClientInvoiceListType,
+  ClientProjectListType,
+} from '@src/types/client/client-projects.type'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
-export default function ClientProjectsRows(props: {
-  row: ClientProjectListType
+export default function ClientInvoicesRows(props: {
+  row: ClientInvoiceListType
   user: UserDataType
   selected: number | null
-  handleRowClick: (row: ClientProjectListType) => void
+  handleRowClick: (row: ClientInvoiceListType) => void
   isSelected: (index: number) => boolean
 }) {
   const { row, user, selected, handleRowClick, isSelected } = props
@@ -110,43 +114,42 @@ export default function ClientProjectsRows(props: {
             sx={{
               fontSize: '14px',
               fontWeight: 400,
-              color:
-                row.qId.charAt(0) === 'Q'
-                  ? 'rgba(76, 78, 100, 0.87)'
-                  : '#666CFF',
+              color: 'rgba(76, 78, 100, 0.87)',
             }}
           >
-            {row.qId}
+            {row.iId}
           </Typography>
         </TableCell>
         {separateLine()}
 
         <TableCell
           sx={{
-            flex: 0.1952,
             height: '54px',
             display: 'flex',
+
             alignItems: 'center',
+            flex: 0.1952,
             minWidth: '244px',
           }}
           size='small'
         >
-          <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {row.workName}
-          </Typography>
+          <Typography variant='body1'>{row.invoiceName}</Typography>
         </TableCell>
         {separateLine()}
         <TableCell
           sx={{
-            flex: 0.1928,
             height: '54px',
             display: 'flex',
+
             alignItems: 'center',
-            minWidth: '241px',
+            flex: 0.1456,
+            minWidth: '149px',
           }}
           size='small'
         >
-          <Typography variant='body1'>{row.projectName}</Typography>
+          <Typography variant='body1' sx={{ fontWeight: 600 }}>
+            {formatCurrency(row.amount, row.currency)}
+          </Typography>
         </TableCell>
         {separateLine()}
         <TableCell
@@ -158,58 +161,40 @@ export default function ClientProjectsRows(props: {
             // paddingRight: '0 !important',
             display: 'flex',
             alignItems: 'center',
-            flex: 0.1456,
             gap: '5px',
-            minWidth: '182px',
-          }}
-          size='small'
-        >
-          <JobTypeChip label={row.category} type={row.category} />
-        </TableCell>
-        {separateLine()}
-        <TableCell
-          sx={{
-            flex: 0.2,
-            height: '54px',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '8px',
-            minWidth: '250px',
-          }}
-          size='small'
-        >
-          <ServiceTypeChip label={row.serviceType[0]} />
-          {row.serviceType.slice(1).length ? (
-            <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
-          ) : null}
-        </TableCell>
-        {separateLine()}
-        <TableCell
-          sx={{
             flex: 0.224,
-            height: '54px',
-            display: 'flex',
-            alignItems: 'center',
             minWidth: '280px',
           }}
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.dueDate, user.timezone)}
+            {FullDateTimezoneHelper(row.invoicedDate, user.timezone)}
           </Typography>
         </TableCell>
         {separateLine()}
         <TableCell
           sx={{
             height: '54px',
-
-            fontWeight: '400 !important',
-            fontSize: '14px !important',
             display: 'flex',
-
             alignItems: 'center',
-            flex: 0.112,
-            minWidth: '140px',
+            gap: '8px',
+            flex: 0.224,
+            minWidth: '280px',
+          }}
+          size='small'
+        >
+          <Typography variant='body1'>
+            {FullDateTimezoneHelper(row.paymentDueDate, user.timezone)}
+          </Typography>
+        </TableCell>
+        {separateLine()}
+        <TableCell
+          sx={{
+            height: '54px',
+            display: 'flex',
+            alignItems: 'center',
+            flex: 0.0992,
+            minWidth: '124px',
           }}
           size='small'
         >
@@ -220,15 +205,9 @@ export default function ClientProjectsRows(props: {
         <TableCell colSpan={6} sx={{ p: '0 !important' }}>
           <Collapse in={row.id === selected} timeout='auto' unmountOnExit>
             <Grid container xs={12} padding='20px 64px'>
-              <Grid item xs={3.2}>
-                <Title>Order date</Title>
-                <Desc>
-                  {FullDateTimezoneHelper(row.orderDate, user.timezone)}
-                </Desc>
-              </Grid>
               <Grid item xs={3}>
-                <Title>Project description</Title>
-                <Desc>{row.projectDescription}</Desc>
+                <Title>Invoice description</Title>
+                <Desc>{row.invoiceDescription}</Desc>
               </Grid>
             </Grid>
             {/* <Grid container xs={12} padding='0 60px 20px 60px'>
