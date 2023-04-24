@@ -1,6 +1,6 @@
 // ** Redux Imports
 import { Dispatch } from 'redux'
-import { createSlice, createAsyncThunk } from '@reduxjs/toolkit'
+import { createSlice, createAsyncThunk, Slice } from '@reduxjs/toolkit'
 
 // ** Axios Imports
 import axios from 'src/configs/axios'
@@ -329,7 +329,11 @@ const initialState: {
   isLoading: false,
 }
 
-export const permissionSlice = createSlice({
+export const permissionSlice: Slice<{
+  isLoading: boolean
+  permission: PermissionObjectType
+  role: Array<UserRoleType>
+}> = createSlice({
   name: 'permission',
   initialState,
   reducers: {},
