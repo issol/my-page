@@ -17,7 +17,7 @@ type Props = {
   activeStep: number
   steps: Array<{ title: string }>
 }
-export default function AddClientStepper({ activeStep, steps }: Props) {
+export default function FormStepper({ activeStep, steps }: Props) {
   return (
     <Card>
       <CardContent sx={{ maxWidth: '80%', margin: '0 auto' }}>

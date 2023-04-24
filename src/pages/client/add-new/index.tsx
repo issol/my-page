@@ -16,7 +16,7 @@ import Icon from 'src/@core/components/icon'
 
 // ** components
 import PageLeaveModal from '../components/modals/page-leave-modal'
-import AddClientStepper from '../components/stepper/add-client-stepper'
+import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '../components/forms/company-info-container'
 import AddressesForm from '../components/forms/addresses-container'
 import ContactPersonForm from '../components/forms/contact-persons'
@@ -533,7 +533,7 @@ export default function AddNewClient() {
       position: 'bottom-left',
     })
   }
-  console.log(priceList)
+
   const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
@@ -548,7 +548,7 @@ export default function AddNewClient() {
         }
       />
       <Grid item xs={12}>
-        <AddClientStepper
+        <Stepper
           activeStep={activeStep}
           steps={isGeneral ? generalSteps : masterSteps}
         />
