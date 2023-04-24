@@ -27,6 +27,8 @@ import {
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import ClientQuotesFormContainer from '../components/form-container/client-container'
 
 export default function AddNewQuotes() {
   const router = useRouter()
@@ -103,6 +105,23 @@ export default function AddNewQuotes() {
     name: 'teams',
   })
 
+  // ** step2
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: null,
+      contactPersonId: null,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
+
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -136,7 +155,18 @@ export default function AddNewQuotes() {
             />
           </Card>
         ) : activeStep === 1 ? (
-          <Card sx={{ padding: '24px' }}>Client</Card>
+          <Card sx={{ padding: '24px' }}>
+            <ClientQuotesFormContainer
+              control={clientControl}
+              getValues={getClientValue}
+              setValue={setClientValue}
+              errors={clientErrors}
+              isValid={isClientValid}
+              watch={clientWatch}
+              handleBack={handleBack}
+              onNextStep={onNextStep}
+            />
+          </Card>
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>Project Info</Card>
         ) : (
