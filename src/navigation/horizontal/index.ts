@@ -105,11 +105,34 @@ const navigation = (): HorizontalNavItemsType => {
       ],
     },
     {
-      title: 'Quotes',
+      title: 'Orders',
       icon: 'material-symbols:request-quote-outline',
       path: '/quotes',
       action: 'read',
       subject: 'quotes',
+    },
+    {
+      title: 'Orders',
+      icon: 'mdi:briefcase-outline',
+      action: 'read',
+      subject: 'order_list',
+      children: [
+        {
+          title: 'Order List',
+          path: `/orders/order-list`,
+          action: 'read',
+
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'order_list',
+        },
+        {
+          title: 'Job List',
+          path: `/orders/job-list`,
+          action: 'read',
+          icon: 'material-symbols:person',
+          subject: 'job_list',
+        },
+      ],
     },
   ]
 }
