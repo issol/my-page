@@ -1,4 +1,5 @@
 // ** Config
+import { CreateClientBodyType } from '@src/apis/client.api'
 import authConfig from 'src/configs/auth'
 import { UserDataType } from 'src/context/types'
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
@@ -63,5 +64,24 @@ export function saveRememberMe(email: string) {
 export function removeRememberMe() {
   if (typeof window === 'object') {
     window.localStorage.removeItem(authConfig.rememberId)
+  }
+}
+
+/* handle client form data */
+export function getClientFormData() {
+  if (typeof window === 'object') {
+    return window.localStorage.getItem('client-form-data')
+  }
+}
+
+export function saveClientFormData(data: CreateClientBodyType) {
+  if (typeof window === 'object') {
+    window.localStorage.setItem('client-form-data', JSON.stringify(data))
+  }
+}
+
+export function removeClientFormData() {
+  if (typeof window === 'object') {
+    window.localStorage.removeItem('client-form-data')
   }
 }

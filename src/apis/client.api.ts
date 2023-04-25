@@ -156,7 +156,7 @@ export const updateContactPerson = async (
 
 export const createContactPerson = async (
   body: Array<CreateContactPersonFormType>,
-): Promise<ContactPersonType> => {
+): Promise<ContactPersonType[]> => {
   try {
     const { data } = await axios.post(`/api/enough/u/contact-person`, {
       data: body,

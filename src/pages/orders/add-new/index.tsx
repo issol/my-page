@@ -111,6 +111,7 @@ export default function AddNewQuotes() {
     getValues: getClientValue,
     setValue: setClientValue,
     watch: clientWatch,
+    reset: clientReset,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
@@ -135,7 +136,13 @@ export default function AddNewQuotes() {
         }
       />
       <Grid item xs={12}>
-        <Stepper activeStep={activeStep} steps={steps} />
+        <Card>
+          <Stepper
+            activeStep={activeStep}
+            steps={steps}
+            style={{ maxWidth: '80%', margin: '0 auto' }}
+          />
+        </Card>
       </Grid>
       <Grid item xs={12}>
         {activeStep === 0 ? (
@@ -158,6 +165,7 @@ export default function AddNewQuotes() {
           <Card sx={{ padding: '24px' }}>
             <ClientQuotesFormContainer
               control={clientControl}
+              reset={clientReset}
               getValues={getClientValue}
               setValue={setClientValue}
               errors={clientErrors}

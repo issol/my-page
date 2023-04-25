@@ -16,44 +16,40 @@ import { Card } from '@mui/material'
 type Props = {
   activeStep: number
   steps: Array<{ title: string }>
+  style?: { [key: string]: string | string }
 }
-export default function FormStepper({ activeStep, steps }: Props) {
+export default function FormStepper({ activeStep, steps, style }: Props) {
   return (
-    <Card>
-      <CardContent sx={{ maxWidth: '80%', margin: '0 auto' }}>
-        <StepperWrapper>
-          <Stepper activeStep={activeStep}>
-            {steps.map((step, index) => {
-              const labelProps: {
-                error?: boolean
-              } = {}
-              if (index === activeStep) {
-                labelProps.error = false
-              }
+    <CardContent sx={style}>
+      <StepperWrapper>
+        <Stepper activeStep={activeStep}>
+          {steps.map((step, index) => {
+            const labelProps: {
+              error?: boolean
+            } = {}
+            if (index === activeStep) {
+              labelProps.error = false
+            }
 
-              return (
-                <Step key={index}>
-                  <StepLabel
-                    {...labelProps}
-                    StepIconComponent={StepperCustomDot}
-                  >
-                    <div className='step-label'>
-                      <Typography className='step-number'>{`0${
-                        index + 1
-                      }`}</Typography>
-                      <div>
-                        <Typography className='step-title'>
-                          {step.title}
-                        </Typography>
-                      </div>
+            return (
+              <Step key={index}>
+                <StepLabel {...labelProps} StepIconComponent={StepperCustomDot}>
+                  <div className='step-label'>
+                    <Typography className='step-number'>{`0${
+                      index + 1
+                    }`}</Typography>
+                    <div>
+                      <Typography className='step-title'>
+                        {step.title}
+                      </Typography>
                     </div>
-                  </StepLabel>
-                </Step>
-              )
-            })}
-          </Stepper>
-        </StepperWrapper>
-      </CardContent>
-    </Card>
+                  </div>
+                </StepLabel>
+              </Step>
+            )
+          })}
+        </Stepper>
+      </StepperWrapper>
+    </CardContent>
   )
 }

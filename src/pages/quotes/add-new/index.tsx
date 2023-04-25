@@ -135,7 +135,11 @@ export default function AddNewQuotes() {
         }
       />
       <Grid item xs={12}>
-        <Stepper activeStep={activeStep} steps={steps} />
+        <Stepper
+          style={{ maxWidth: '80%', margin: '0 auto' }}
+          activeStep={activeStep}
+          steps={steps}
+        />
       </Grid>
       <Grid item xs={12}>
         {activeStep === 0 ? (
