@@ -29,6 +29,12 @@ import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/quotes/components/form-container/client-container'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
+import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 
 export default function AddNewQuotes() {
   const router = useRouter()
@@ -36,7 +42,7 @@ export default function AddNewQuotes() {
   const { openModal, closeModal } = useModal()
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(0)
+  const [activeStep, setActiveStep] = useState<number>(2)
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -123,6 +129,20 @@ export default function AddNewQuotes() {
     resolver: yupResolver(clientSchema),
   })
 
+  // ** step3
+  const {
+    control: projectInfoControl,
+    getValues: getProjectInfo,
+    setValue: setProjectInfo,
+    watch: projectInfoWatch,
+    reset: projectInfoReset,
+    formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
+  } = useForm<OrderProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: orderProjectInfoDefaultValue,
+    resolver: yupResolver(orderProjectInfoSchema),
+  })
+
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -176,7 +196,18 @@ export default function AddNewQuotes() {
             />
           </Card>
         ) : activeStep === 2 ? (
-          <Card sx={{ padding: '24px' }}>Project Info</Card>
+          <Card sx={{ padding: '24px' }}>
+            <ProjectInfoForm
+              control={projectInfoControl}
+              getValues={getProjectInfo}
+              setValue={setProjectInfo}
+              watch={projectInfoWatch}
+              errors={projectInfoErrors}
+              isValid={isProjectInfoValid}
+              handleBack={handleBack}
+              onNextStep={onNextStep}
+            />
+          </Card>
         ) : (
           <Card sx={{ padding: '24px' }}>Languages & Items</Card>
         )}
