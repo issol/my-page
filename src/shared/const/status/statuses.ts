@@ -180,3 +180,26 @@ export const ClientStatus = [
     value: 'Blocked',
   },
 ]
+
+export const OrderStatus = [
+  {
+    value: 'In preparation',
+    label: 'In preparation',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Completed',
+    label: 'Completed',
+  },
+  {
+    value: 'Invoiced',
+    label: 'Invoiced',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]
