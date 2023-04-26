@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import {
   Button,
   Card,
+  DialogContent,
   Grid,
   IconButton,
   Tooltip,
@@ -40,16 +41,17 @@ import {
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
 
 // ** components
-import AddContactPersonForm from './add-contact-person-form'
 import DiscardContactPersonModal from '../modals/discard-contact-person-modal'
 import { CompanyInfoFormType } from '@src/types/schema/company-info.schema'
 import ContactPersonList from '../list/contact-person-list'
+import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
+import AddContactPersonConfirmModal from '../modals/add-contact-person-confirm-modal'
 
 type Props<T extends number | string = string> = {
   isGeneral: boolean
   getCompanyInfo?: UseFormGetValues<CompanyInfoFormType>
   control: Control<ClientContactPersonType<T>, any>
-  fields: FieldArrayWithId<ClientContactPersonType<T>, 'contactPersons', 'id'>[]
+  fields: FieldArrayWithId<ClientContactPersonType, 'contactPersons', 'id'>[]
   append: UseFieldArrayAppend<ClientContactPersonType<T>, 'contactPersons'>
   remove: UseFieldArrayRemove
   update: UseFieldArrayUpdate<ClientContactPersonType<T>, 'contactPersons'>
@@ -83,9 +85,10 @@ export default function ContactPersonForm<T extends number | string = string>({
   const [idx, setIdx] = useState<number>(0)
   const [mode, setMode] = useState<'create' | 'update'>('create')
   const [pageSize, setPageSize] = useState(10)
-  console.log(fields)
+
   // ** modals
   const [openForm, setOpenForm] = useState(false)
+  const [openAdd, setOpenAdd] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
 
   const columns: GridColumns<ContactPersonType<T>> = [
@@ -246,22 +249,64 @@ export default function ContactPersonForm<T extends number | string = string>({
         )}
       </Grid>
       <Dialog open={openForm} maxWidth='lg'>
-        <AddContactPersonForm<T>
-          mode={mode}
-          idx={idx}
-          control={control}
-          errors={errors}
-          handleSubmit={handleSubmit}
-          onSubmit={onSubmit}
-          watch={watch}
-          isValid={isValid}
-          getValues={getValues}
-          onCancel={() => cancelUpdateForm()}
-          onDiscard={() => {
-            setOpenForm(false)
-            setOpenDiscard(true)
-          }}
-        />
+        <DialogContent>
+          <Grid container spacing={6}>
+            {mode === 'create' ? (
+              <Grid item xs={12} display='flex' justifyContent='flex-start'>
+                <Typography variant='h5'>Add contact person</Typography>
+              </Grid>
+            ) : null}
+            <AddContactPersonForm<T>
+              fields={fields.length ? [fields[idx]] : []}
+              control={control}
+              errors={errors}
+              watch={watch}
+            />
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              gap='22px'
+              justifyContent='center'
+            >
+              {mode === 'create' ? (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => {
+                    setOpenForm(false)
+                    setOpenDiscard(true)
+                  }}
+                >
+                  Discard
+                </Button>
+              ) : (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => cancelUpdateForm()}
+                >
+                  Cancel
+                </Button>
+              )}
+
+              {mode === 'create' ? (
+                <Button
+                  variant='contained'
+                  type='button'
+                  disabled={!isValid}
+                  onClick={() => setOpenAdd(true)}
+                >
+                  Add
+                </Button>
+              ) : (
+                <Button variant='contained' type='submit' disabled={!isValid}>
+                  Save
+                </Button>
+              )}
+            </Grid>
+          </Grid>
+        </DialogContent>
       </Dialog>
       <DiscardContactPersonModal
         open={openDiscard}
@@ -277,6 +322,11 @@ export default function ContactPersonForm<T extends number | string = string>({
         onClose={() => {
           setOpenDiscard(false)
         }}
+      />
+      <AddContactPersonConfirmModal
+        open={openAdd}
+        onAdd={() => onSubmit(getValues())}
+        onClose={() => setOpenAdd(false)}
       />
     </Grid>
   )

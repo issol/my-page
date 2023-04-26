@@ -111,6 +111,7 @@ export default function AddNewQuotes() {
     getValues: getClientValue,
     setValue: setClientValue,
     watch: clientWatch,
+    reset: clientReset,
     formState: { errors: clientErrors, isValid: isClientValid },
   } = useForm<ClientFormType>({
     mode: 'onChange',
@@ -162,6 +163,7 @@ export default function AddNewQuotes() {
           <Card sx={{ padding: '24px' }}>
             <ClientQuotesFormContainer
               control={clientControl}
+              reset={clientReset}
               getValues={getClientValue}
               setValue={setClientValue}
               errors={clientErrors}
