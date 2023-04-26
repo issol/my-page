@@ -63,7 +63,7 @@ export default function ProjectsDetail({ id }: Props) {
   const [sort, setSort] = useState<SortingType>('DESC')
   const [skip, setSkip] = useState(0)
 
-  const { data: workName } = useGetWorkNameList(id)
+  const { data: workName } = useGetWorkNameList()
 
   const { data: list } = useGetProjectList(id, activeFilter)
 
