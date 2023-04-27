@@ -50,3 +50,10 @@ code[class*='language-'] {
 .css-d5up4r-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
   background: rgba(76, 78, 100, 0.12) !important;
 }
+
+/* number type input에 number 화살표 제거 */
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
