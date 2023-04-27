@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -24,6 +24,8 @@ import {
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
+import { removeClientFormData } from '@src/shared/auth/storage'
+
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
@@ -35,18 +37,26 @@ import {
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
-import {
-  getClientFormData,
-  removeClientFormData,
-} from '@src/shared/auth/storage'
 
+import LanguagesAndItemsContainer from '@src/pages/components/form-container/languages-and-items/languages-and-items-container'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+
+export type languageType = {
+  id: string
+  source: string
+  target: string
+  price: StandardPriceListType | null
+  isDeletable?: boolean
+}
 export default function AddNewQuotes() {
   const router = useRouter()
 
   const { openModal, closeModal } = useModal()
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(2)
+  const [activeStep, setActiveStep] = useState<number>(3)
+
+  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
@@ -219,7 +229,13 @@ export default function AddNewQuotes() {
             />
           </Card>
         ) : (
-          <Card sx={{ padding: '24px' }}>Languages & Items</Card>
+          <Card sx={{ padding: '24px' }}>
+            <LanguagesAndItemsContainer
+              languagePairs={languagePairs}
+              setLanguagePairs={setLanguagePairs}
+              clientId={getClientValue('clientId')}
+            />
+          </Card>
         )}
       </Grid>
     </Grid>

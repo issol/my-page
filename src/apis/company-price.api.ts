@@ -1,4 +1,6 @@
 import axios from '@src/configs/axios'
+import { PriceListFilterType } from '@src/queries/company/standard-price'
+import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   LanguagePairParams,
   AddNewPriceType,
@@ -6,7 +8,21 @@ import {
   SetPriceUnitPair,
   CatInterfaceType,
   CatInterfaceParams,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
+
+export const getPriceList = async (
+  filter: PriceListFilterType,
+): Promise<{ data: StandardPriceListType[]; count: number }> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/price/al?${makeQuery(filter)}`,
+    )
+    return data
+  } catch (e: any) {
+    return { data: [], count: 0 }
+  }
+}
 
 export const getStandardClientPrice = async () => {
   // const { data } = await axios.get('/api/company/signup-requests')
