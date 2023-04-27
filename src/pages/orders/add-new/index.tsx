@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -40,6 +40,10 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 
 import LanguagesAndItemsContainer from '@src/pages/components/form-container/languages-and-items/languages-and-items-container'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+import { itemDefaultValue, itemSchema } from '@src/types/schema/item.schema'
+import { ItemType } from '@src/types/common/item.type'
+import { AuthContext } from '@src/context/AuthContext'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 export type languageType = {
   id: string
@@ -50,6 +54,7 @@ export type languageType = {
 }
 export default function AddNewQuotes() {
   const router = useRouter()
+  const { user } = useContext(AuthContext)
 
   const { openModal, closeModal } = useModal()
 
@@ -102,6 +107,7 @@ export default function AddNewQuotes() {
   })
 
   // ** step1
+  const [tax, setTax] = useState(0)
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -112,10 +118,19 @@ export default function AddNewQuotes() {
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
     defaultValues: {
+      // ** TODO : test데이터 지.우.기 (id : null 로 수정하기)
       teams: [
-        { type: 'supervisorId', id: null },
-        { type: 'projectManagerId', id: null },
-        { type: 'member', id: null },
+        { type: 'supervisorId', id: 7 },
+        {
+          type: 'projectManagerId',
+          id: user?.userId!,
+          name: getLegalName({
+            firstName: user?.firstName!,
+            middleName: user?.middleName,
+            lastName: user?.lastName!,
+          }),
+        },
+        { type: 'member', id: 5 },
       ],
     },
     resolver: yupResolver(projectTeamSchema),
@@ -161,6 +176,30 @@ export default function AddNewQuotes() {
     mode: 'onChange',
     defaultValues: orderProjectInfoDefaultValue,
     resolver: yupResolver(orderProjectInfoSchema),
+  })
+
+  // ** step4
+  const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    watch: itemWatch,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: isItemValid },
+  } = useForm<{ items: ItemType[] }>({
+    mode: 'onChange',
+    defaultValues: { items: [] },
+    resolver: yupResolver(itemSchema),
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
   })
 
   return (
@@ -231,9 +270,23 @@ export default function AddNewQuotes() {
         ) : (
           <Card sx={{ padding: '24px' }}>
             <LanguagesAndItemsContainer
+              tax={tax}
+              setTax={setTax}
               languagePairs={languagePairs}
               setLanguagePairs={setLanguagePairs}
               clientId={getClientValue('clientId')}
+              itemControl={itemControl}
+              getItem={getItem}
+              setItem={setItem}
+              itemWatch={itemWatch}
+              itemErrors={itemErrors}
+              items={items}
+              appendItems={appendItems}
+              removeItems={removeItems}
+              updateItems={updateItems}
+              isItemValid={isItemValid}
+              teamMembers={getTeamValues()?.teams}
+              handleBack={handleBack}
             />
           </Card>
         )}

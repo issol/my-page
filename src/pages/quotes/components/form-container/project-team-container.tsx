@@ -1,3 +1,6 @@
+import { useContext } from 'react'
+import { AuthContext } from '@src/context/AuthContext'
+
 // ** mui
 import { Button, Grid } from '@mui/material'
 
@@ -10,14 +13,12 @@ import Icon from 'src/@core/components/icon'
 // ** react hook form
 import {
   Control,
-  Controller,
   FieldArrayWithId,
   FieldErrors,
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
   UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -25,6 +26,7 @@ import {
 // ** components
 import ProjectTeamForm from '@src/pages/components/forms/project-team-form'
 import { useGetMemberList } from '@src/queries/quotes.query'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -53,6 +55,7 @@ export default function ProjectTeamFormContainer({
   watch,
   onNextStep,
 }: Props) {
+  const { user } = useContext(AuthContext)
   const { data } = useGetMemberList()
 
   return (
@@ -68,7 +71,17 @@ export default function ProjectTeamFormContainer({
           errors={errors}
           isValid={isValid}
           watch={watch}
-          memberList={data || []}
+          memberList={
+            data?.concat({
+              value: user?.userId.toString()!,
+              label: getLegalName({
+                firstName: user?.firstName!,
+                middleName: user?.middleName,
+                lastName: user?.lastName!,
+              }),
+              jobTitle: user?.jobTitle ?? '',
+            }) || []
+          }
         />
       </Grid>
 

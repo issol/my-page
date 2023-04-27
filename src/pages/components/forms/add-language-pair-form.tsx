@@ -134,7 +134,9 @@ export default function AddLanguagePairForm({
         justifyContent='space-between'
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
-        <Typography variant='h6'>Language pairs (0)</Typography>
+        <Typography variant='h6'>
+          Language pairs ({languagePairs.length ?? 0})
+        </Typography>
         <Box display='flex' alignItems='center' gap='15px'>
           <Autocomplete
             value={

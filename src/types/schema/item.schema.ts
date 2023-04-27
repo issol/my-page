@@ -1,26 +1,19 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CurrencyType } from '../common/standard-price'
+import { ItemType } from '../common/item.type'
 
-export type ItemType = {
-  id?: number
-  name: string
-  dueAt?: string
-  contactPersonId?: number
-  source: string
-  target: string
-  priceId: number
-  detail?: Array<{
-    quantity: number
-    priceUnit: string
-    unitPrice: number
-    prices: number
-    unit: string
-    currency: CurrencyType
-  }>
-  description?: string
-  analysis?: number[] //file id를 보내기
-  totalPrice: number
+export const itemDefaultValue: { items: ItemType[] } = {
+  items: [
+    {
+      name: '',
+      source: '',
+      target: '',
+      priceId: null,
+      detail: [],
+      totalPrice: 0,
+    },
+  ],
 }
 
 export const itemSchema = yup.object().shape({
