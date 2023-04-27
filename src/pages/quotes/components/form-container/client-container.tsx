@@ -1,18 +1,11 @@
+// ** react
+import { useEffect, useState } from 'react'
+
 // ** mui
-import {
-  Box,
-  Button,
-  Card,
-  CardHeader,
-  Dialog,
-  DialogContent,
-  Divider,
-  Grid,
-  Typography,
-} from '@mui/material'
+import { Button, Dialog, DialogContent, Grid, Typography } from '@mui/material'
 
 // ** types
-import { ProjectTeamType } from '@src/types/schema/project-team.schema'
+import { CreateClientBodyType } from '@src/apis/client.api'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
@@ -22,14 +15,8 @@ import {
   useForm,
   useFieldArray,
   Control,
-  Controller,
-  FieldArrayWithId,
   FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
   UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
   UseFormReset,
@@ -54,24 +41,19 @@ import {
 } from '@src/types/schema/client-contact-person.schema'
 import { ClientFormType } from '@src/types/schema/client.schema'
 
-// ** components
-import ProjectTeamForm from '@src/pages/components/forms/project-team-form'
-import { useGetMemberList } from '@src/queries/quotes.query'
+// ** fetches & mutations
 import { useGetClientList } from '@src/queries/client.query'
-import { useEffect, useState } from 'react'
-import RegisterClientForm from '@src/pages/components/forms/register-client.form'
-import Stepper from '@src/pages/components/stepper'
-import PageHeader from '@src/@core/components/page-header'
-import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
-import AddNewClientModal from '@src/pages/components/form-container/clients/add-new-client-modal'
-import { useMutation } from 'react-query'
 import { createClient, createContactPerson } from '@src/apis/client.api'
-import { CreateClientBodyType } from '@src/apis/client.api'
 import { saveClientFormData } from '@src/shared/auth/storage'
+
+// ** components
+import RegisterClientForm from '@src/pages/components/forms/register-client-form'
+import AddNewClientModal from '@src/pages/components/form-container/clients/add-new-client-modal'
 import ConfirmCreateClientModal from '@src/pages/client/components/modals/confirm-create-client-modal'
-import useModal from '@src/hooks/useModal'
 import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm-modal'
-import { CreateContactPersonFormType } from '@src/types/client/client'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
 
 type Props = {
   control: Control<ClientFormType, any>

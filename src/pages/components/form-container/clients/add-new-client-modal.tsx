@@ -31,7 +31,6 @@ import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 import { ClientContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
 // ** components
-import RegisterClientForm from '@src/pages/components/forms/register-client.form'
 import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '@src/pages/client/components/forms/company-info-form'
 import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
