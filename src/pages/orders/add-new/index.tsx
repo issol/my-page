@@ -35,6 +35,10 @@ import {
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
+import {
+  getClientFormData,
+  removeClientFormData,
+} from '@src/shared/auth/storage'
 
 export default function AddNewQuotes() {
   const router = useRouter()
@@ -43,6 +47,8 @@ export default function AddNewQuotes() {
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(2)
+
+  const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -66,6 +72,10 @@ export default function AddNewQuotes() {
       title: ' Languages & Items',
     },
   ]
+
+  useEffect(() => {
+    return removeClientFormData()
+  }, [])
 
   // ** confirm page leaving
   router.beforePopState(() => {

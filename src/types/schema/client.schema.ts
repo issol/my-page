@@ -21,7 +21,5 @@ export const clientSchema = yup.object().shape({
 })
 
 const customValidation = (value: any) => {
-  return (
-    value === 'Not applicable' || (typeof value === 'number' && !isNaN(value))
-  )
+  return value === 'Not applicable' || (!isNaN(value) && !!value)
 }

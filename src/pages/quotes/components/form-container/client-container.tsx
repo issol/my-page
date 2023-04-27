@@ -279,7 +279,8 @@ export default function ClientQuotesFormContainer({
       ),
     })
   }
-
+  console.log(errors)
+  console.log(watch('contactPersonId'))
   return (
     <Grid container spacing={6}>
       <Grid
@@ -297,10 +298,7 @@ export default function ClientQuotesFormContainer({
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
         <RegisterClientForm
           control={control}
-          getValues={getValues}
           setValue={setValue}
-          errors={errors}
-          isValid={isValid}
           watch={watch}
           clientList={clients}
         />

@@ -20,17 +20,8 @@ import Icon from 'src/@core/components/icon'
 
 // ** react hook form
 import {
-  useForm,
-  useFieldArray,
   Control,
   Controller,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -47,23 +38,18 @@ import { ClientFormType } from '@src/types/schema/client.schema'
 import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import { saveClientFormData } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<ClientFormType, any>
-  getValues: UseFormGetValues<ClientFormType>
   setValue: UseFormSetValue<ClientFormType>
-  errors: FieldErrors<ClientFormType>
-  isValid: boolean
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: string; label: string }>
 }
 
 export default function RegisterClientForm({
   control,
-  getValues,
   setValue,
-  errors,
-  isValid,
   watch,
   clientList,
 }: Props) {
@@ -91,10 +77,17 @@ export default function RegisterClientForm({
   ])
 
   const clientId = watch('clientId')
+
   useEffect(() => {
     if (!clientId) return
     getDetail(clientId!, false)
   }, [clientId])
+
+  useEffect(() => {
+    contactPerson?.label === 'Not applicable'
+      ? saveClientFormData({ timezone: clientDetail?.timezone })
+      : saveClientFormData({ timezone: contactPerson?.timezone })
+  }, [contactPerson, clientDetail])
 
   function getDetail(id: number, resetClientId = true) {
     return getClientDetail(id)
