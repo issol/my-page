@@ -26,23 +26,27 @@ code[class*='language-'] {
 
 /* OutlinedInput disabled design */
 .css-1wxwjf-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
-  background: rgba(76, 78, 100, 0.12);
+  background: rgba(76, 78, 100, 0.12) !important;
 }
 .css-z08spr-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
   .MuiOutlinedInput-notchedOutline {
-  background: rgba(76, 78, 100, 0.12);
+  background: rgba(76, 78, 100, 0.12) !important;
 }
 /* Select component disabled design */
 .css-oagach-MuiSelect-select-MuiInputBase-input-MuiOutlinedInput-input.Mui-disabled {
-  background: rgba(76, 78, 100, 0.12);
+  background: rgba(76, 78, 100, 0.12) !important;
 }
 
 /* TextField disabled design */
 .css-127u85g-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
-  background: rgba(76, 78, 100, 0.12);
+  background: rgba(76, 78, 100, 0.12) !important;
+}
+.css-1l2ldj5-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled
+  .MuiOutlinedInput-notchedOutline {
+  background: rgba(76, 78, 100, 0.12) !important;
 }
 
 /* CustomInput disabled design */
 .css-d5up4r-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
-  background: rgba(76, 78, 100, 0.12);
+  background: rgba(76, 78, 100, 0.12) !important;
 }
