@@ -245,10 +245,7 @@ export default function AddNewQuotes() {
           <Card sx={{ padding: '24px' }}>
             <ClientQuotesFormContainer
               control={clientControl}
-              reset={clientReset}
-              getValues={getClientValue}
               setValue={setClientValue}
-              errors={clientErrors}
               isValid={isClientValid}
               watch={clientWatch}
               handleBack={handleBack}

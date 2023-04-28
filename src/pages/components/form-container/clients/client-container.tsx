@@ -57,10 +57,7 @@ import useModal from '@src/hooks/useModal'
 
 type Props = {
   control: Control<ClientFormType, any>
-  reset: UseFormReset<ClientFormType>
-  getValues: UseFormGetValues<ClientFormType>
   setValue: UseFormSetValue<ClientFormType>
-  errors: FieldErrors<ClientFormType>
   isValid: boolean
   watch: UseFormWatch<ClientFormType>
   handleBack: () => void
@@ -68,10 +65,7 @@ type Props = {
 }
 export default function ClientQuotesFormContainer({
   control,
-  reset,
-  getValues,
   setValue,
-  errors,
   isValid,
   watch,
   handleBack,
@@ -261,8 +255,7 @@ export default function ClientQuotesFormContainer({
       ),
     })
   }
-  console.log(errors)
-  console.log(watch('contactPersonId'))
+
   return (
     <Grid container spacing={6}>
       <Grid
