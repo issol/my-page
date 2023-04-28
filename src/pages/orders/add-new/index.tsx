@@ -5,7 +5,7 @@ import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
 // ** mui
-import { Box, Card, Grid, IconButton, Typography } from '@mui/material'
+import { Box, Button, Card, Grid, IconButton, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -44,6 +44,7 @@ import { itemDefaultValue, itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
 import { AuthContext } from '@src/context/AuthContext'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 export type languageType = {
   id: string
@@ -256,16 +257,38 @@ export default function AddNewQuotes() {
           </Card>
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
-            <ProjectInfoForm
-              control={projectInfoControl}
-              getValues={getProjectInfo}
-              setValue={setProjectInfo}
-              watch={projectInfoWatch}
-              errors={projectInfoErrors}
-              isValid={isProjectInfoValid}
-              handleBack={handleBack}
-              onNextStep={onNextStep}
-            />
+            <DatePickerWrapper>
+              <Grid container spacing={6}>
+                <ProjectInfoForm
+                  control={projectInfoControl}
+                  setValue={setProjectInfo}
+                  watch={projectInfoWatch}
+                  errors={projectInfoErrors}
+                />
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  justifyContent='space-between'
+                >
+                  <Button
+                    variant='outlined'
+                    color='secondary'
+                    onClick={handleBack}
+                  >
+                    <Icon icon='material-symbols:arrow-back-rounded' />
+                    Previous
+                  </Button>
+                  <Button
+                    variant='contained'
+                    disabled={!isProjectInfoValid}
+                    onClick={onNextStep}
+                  >
+                    Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                  </Button>
+                </Grid>
+              </Grid>
+            </DatePickerWrapper>
           </Card>
         ) : (
           <Card sx={{ padding: '24px' }}>
