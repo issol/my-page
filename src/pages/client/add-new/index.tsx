@@ -548,10 +548,13 @@ export default function AddNewClient() {
         }
       />
       <Grid item xs={12}>
-        <Stepper
-          activeStep={activeStep}
-          steps={isGeneral ? generalSteps : masterSteps}
-        />
+        <Card>
+          <Stepper
+            style={{ maxWidth: '80%', margin: '0 auto' }}
+            activeStep={activeStep}
+            steps={isGeneral ? generalSteps : masterSteps}
+          />
+        </Card>
       </Grid>
       <Grid item xs={12}>
         {activeStep === 0 ? (

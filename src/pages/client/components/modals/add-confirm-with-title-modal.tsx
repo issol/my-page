@@ -5,30 +5,29 @@ import Dialog from '@mui/material/Dialog'
 import { TitleTypography } from '@src/@core/styles/typography'
 
 type Props = {
-  clientName: string
-  onAdd: () => void
+  message: string
+  title?: string
   onClose: () => void
+  onClick: () => void
 }
-export default function ConfirmCreateClientModal({
-  clientName,
-  onAdd,
+export default function AddConfirmModal({
+  message,
+  title,
   onClose,
+  onClick,
 }: Props) {
   return (
-    <Dialog open={true}>
+    <Dialog
+      onClose={onClose}
+      aria-labelledby='price-unit-add-dialog'
+      open={true}
+    >
       <SmallModalContainer>
         <AlertIcon type='successful' />
         <Typography variant='body1' textAlign='center' mt='10px'>
-          Are you sure you want to add this client?
+          {message}
         </Typography>
-        <TitleTypography
-          variant='body1'
-          textAlign='center'
-          fontWeight='bold'
-          mt='10px'
-        >
-          {clientName}
-        </TitleTypography>
+        {title ? <TitleTypography>{title}</TitleTypography> : null}
         <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
           <Button variant='outlined' onClick={onClose}>
             Cancel
@@ -36,7 +35,7 @@ export default function ConfirmCreateClientModal({
           <Button
             variant='contained'
             onClick={() => {
-              onAdd()
+              onClick()
               onClose()
             }}
           >

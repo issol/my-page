@@ -182,9 +182,24 @@ export const ClientStatus = [
 ]
 
 export const OrderStatus = [
-  { label: 'In preparation', value: 'In preparation' },
-  { label: 'In progress', value: 'In progress' },
-  { label: 'Completed', value: 'Completed' },
-  { label: 'Invoiced', value: 'Invoiced' },
-  { label: 'Canceled', value: 'Canceled' },
+  {
+    value: 'In preparation',
+    label: 'In preparation',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Completed',
+    label: 'Completed',
+  },
+  {
+    value: 'Invoiced',
+    label: 'Invoiced',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
 ]

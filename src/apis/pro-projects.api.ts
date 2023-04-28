@@ -56,13 +56,11 @@ export const getProProjectList = async (
   }
 }
 
-export const getWorkNameFilterList = async (
-  id: number,
-): Promise<Array<{ value: string; label: string }>> => {
+export const getWorkNameFilterList = async (): Promise<
+  Array<{ value: string; label: string }>
+> => {
   try {
-    const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project-title-filter`,
-    )
+    const { data } = await axios.get(`/api/enough/u/client/work/list`)
     return data
   } catch (e: any) {
     return [{ value: '', label: '' }]

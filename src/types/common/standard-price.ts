@@ -1,8 +1,11 @@
+import { CreateClientResType } from '../client/client'
+
 export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
 export type StandardPriceListType = {
   id: number
   isStandard: boolean
   priceName: string
+  client?: CreateClientResType | null
   category: string
   serviceType: string[]
   currency: CurrencyType

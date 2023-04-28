@@ -69,6 +69,8 @@ export default function ProjectTeamForm({
   watch,
   memberList,
 }: Props) {
+  const setValueOptions = { shouldValidate: true, shouldDirty: true }
+
   function renderHeader(title: string) {
     return (
       <HeaderCell align='left' sx={{ width: '30%' }}>
@@ -77,7 +79,7 @@ export default function ProjectTeamForm({
     )
   }
 
-  function renderMemberField(name: `teams.${number}.id`) {
+  function renderMemberField(name: `teams.${number}.id`, idx: number) {
     return (
       <Controller
         name={name}
@@ -91,7 +93,10 @@ export default function ProjectTeamForm({
               value: item.value,
               label: item.label,
             }))}
-            onChange={(e, v) => field.onChange(v.value)}
+            onChange={(e, v) => {
+              field.onChange(v.value)
+              setValue(`teams.${idx}.name`, v.label, setValueOptions)
+            }}
             disableClearable
             value={
               !field?.value
@@ -170,7 +175,7 @@ export default function ProjectTeamForm({
                 </Typography>
               </TableCell>
               <TableCell align='left'>
-                {renderMemberField(`teams.${idx}.id`)}
+                {renderMemberField(`teams.${idx}.id`, idx)}
               </TableCell>
               <TableCell align='left'>
                 {renderJobTitleField(`teams.${idx}.id`)}
@@ -187,7 +192,7 @@ export default function ProjectTeamForm({
           <TableRow>
             <TableCell align='left'>
               <Button
-                onClick={() => append({ type: 'member', id: null })}
+                onClick={() => append({ type: 'member', id: null, name: '' })}
                 variant='contained'
                 disabled={!isValid}
                 sx={{ p: 0.7, minWidth: 26 }}

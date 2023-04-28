@@ -44,18 +44,14 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 type Props = {
   mode: 'create' | 'update'
   control: Control<CompanyInfoFormType, any>
-  //   getValues: UseFormGetValues<CompanyInfoFormType>
   setValue: UseFormSetValue<CompanyInfoFormType>
-  //   handleSubmit: UseFormHandleSubmit<CompanyInfoFormType>
   errors: FieldErrors<CompanyInfoFormType>
   watch: UseFormWatch<CompanyInfoFormType>
 }
 export default function CompanyInfoForm({
   mode,
   control,
-  //   getValues,
   setValue,
-  //   handleSubmit,
   errors,
   watch,
 }: Props) {

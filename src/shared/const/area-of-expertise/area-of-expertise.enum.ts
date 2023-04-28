@@ -47,5 +47,5 @@ export enum AreaOfExpertise {
   'Voice-over' = 'Voice-over',
   'Webcomics' = 'Webcomics',
   'Webnovel/Books/E-books' = 'Webnovel/Books/E-books',
-  'YouTub' = 'YouTub',
+  'YouTube' = 'YouTube',
 }

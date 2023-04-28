@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** mui
 import {
@@ -20,17 +20,8 @@ import Icon from 'src/@core/components/icon'
 
 // ** react hook form
 import {
-  useForm,
-  useFieldArray,
   Control,
   Controller,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -47,23 +38,18 @@ import { ClientFormType } from '@src/types/schema/client.schema'
 import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import { saveClientFormData } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<ClientFormType, any>
-  getValues: UseFormGetValues<ClientFormType>
   setValue: UseFormSetValue<ClientFormType>
-  errors: FieldErrors<ClientFormType>
-  isValid: boolean
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: string; label: string }>
 }
 
 export default function RegisterClientForm({
   control,
-  getValues,
   setValue,
-  errors,
-  isValid,
   watch,
   clientList,
 }: Props) {
@@ -82,13 +68,28 @@ export default function RegisterClientForm({
     email: string
     label?: string
   } | null>(null)
-  const [contactPersonList, setContactPersonList] = useState<Array<any>>([
-    { value: null, label: 'Not applicable' },
-  ])
-  const defaultFilter: Array<any> = [{ value: null, label: 'Not applicable' }]
 
-  console.log(contactPersonList)
-  function getDetail(id: number) {
+  const defaultFilter: Array<any> = [
+    { value: 'Not applicable', label: 'Not applicable' },
+  ]
+  const [contactPersonList, setContactPersonList] = useState<Array<any>>([
+    ...defaultFilter,
+  ])
+
+  const clientId = watch('clientId')
+
+  useEffect(() => {
+    if (!clientId) return
+    getDetail(clientId!, false)
+  }, [clientId])
+
+  useEffect(() => {
+    contactPerson?.label === 'Not applicable'
+      ? saveClientFormData({ timezone: clientDetail?.timezone })
+      : saveClientFormData({ timezone: contactPerson?.timezone })
+  }, [contactPerson, clientDetail])
+
+  function getDetail(id: number, resetClientId = true) {
     return getClientDetail(id)
       .then(res => {
         setClientDetail(res)
@@ -96,11 +97,17 @@ export default function RegisterClientForm({
           const result = res.contactPersons.map(item => ({
             ...item,
             value: item.id,
-            label: getLegalName({
-              firstName: item.firstName!,
-              middleName: item.middleName,
-              lastName: item.lastName!,
-            }),
+            label: !item?.jobTitle
+              ? getLegalName({
+                  firstName: item.firstName!,
+                  middleName: item.middleName,
+                  lastName: item.lastName!,
+                })
+              : `${getLegalName({
+                  firstName: item.firstName!,
+                  middleName: item.middleName,
+                  lastName: item.lastName!,
+                })} / ${item.jobTitle}`,
           }))
           setContactPersonList(defaultFilter.concat(result))
         } else {
@@ -113,14 +120,15 @@ export default function RegisterClientForm({
       })
       .finally(() => {
         setContactPerson(null)
-        setValue('contactPersonId', null, {
-          shouldDirty: true,
-          shouldValidate: true,
-        })
+        if (resetClientId) {
+          setValue('contactPersonId', null, {
+            shouldDirty: true,
+            shouldValidate: true,
+          })
+        }
       })
   }
 
-  console.log(getValues())
   function getPhoneNumber(
     code: string | undefined,
     phone: string | undefined | null,
@@ -153,69 +161,63 @@ export default function RegisterClientForm({
         <Controller
           name='clientId'
           control={control}
-          render={({ field }) => (
-            <Autocomplete
-              autoHighlight
-              fullWidth
-              {...field}
-              options={clientList.map(item => ({
-                value: item.value,
-                label: item.label,
-              }))}
-              onChange={(e, v) => {
-                field.onChange(v.value)
-                getDetail(Number(v.value))
-              }}
-              disableClearable
-              value={
-                !field?.value
-                  ? { value: '', label: '' }
-                  : clientList.filter(
-                      item => item.value === field.value?.toString(),
-                    )[0]
-              }
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  label='Company name*'
-                  inputProps={{
-                    ...params.inputProps,
-                  }}
-                />
-              )}
-            />
-          )}
+          render={({ field: { value, onChange } }) => {
+            const selectedClient = clientList.find(
+              item => item.value === value?.toString(),
+            )
+            return (
+              <Autocomplete
+                autoHighlight
+                fullWidth
+                options={clientList}
+                onChange={(e, v) => {
+                  onChange(v ? v.value : '')
+                  if (v) {
+                    getDetail(Number(v.value))
+                  }
+                }}
+                disableClearable
+                value={selectedClient || { value: '', label: '' }}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label='Company name*'
+                    inputProps={{
+                      ...params.inputProps,
+                    }}
+                  />
+                )}
+              />
+            )
+          }}
         />
       </Grid>
       <Grid item xs={6}>
         <Controller
           name='contactPersonId'
           control={control}
-          render={({ field }) => {
+          render={({ field: { value, onChange } }) => {
+            const personList = contactPersonList.map(item => ({
+              value: item.value.toString(),
+              label: item.label,
+            }))
+            const selectedPerson = personList.find(
+              item => item.value === value?.toString(),
+            )
             return (
               <Autocomplete
                 autoHighlight
                 fullWidth
-                {...field}
-                options={contactPersonList.map(item => ({
-                  value: item.value,
-                  label: item.label,
-                }))}
+                options={personList}
                 onChange={(e, v) => {
-                  field.onChange(v.value)
+                  onChange(v.value)
                   const res = contactPersonList.filter(
                     item => item.id === Number(v.value),
                   )
                   setContactPerson(res.length ? res[0] : v)
                 }}
                 disableClearable
-                value={
-                  !field?.value
-                    ? defaultFilter[0]
-                    : contactPersonList.filter(
-                        item => item.value === field.value,
-                      )[0]
-                }
+                value={selectedPerson || { value: '', label: '' }}
                 renderInput={params => (
                   <TextField
                     {...params}

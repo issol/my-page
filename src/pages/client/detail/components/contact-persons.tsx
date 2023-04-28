@@ -40,7 +40,12 @@ import useModal from '@src/hooks/useModal'
 
 // ** components
 import ContactPersonList from '../../components/list/contact-person-list'
-import AddContactPersonForm from '../../components/forms/add-contact-person-form'
+import ContactPersonDetailModal from '../../components/modals/contact-person-detail-modal'
+import DeleteContactPersonModal from '../../components/modals/delete-contact-person-modal'
+import CannotDeleteContactPersonModal from '../../components/modals/cannot-delete-contact-person-modal'
+import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
+import AddContactPersonConfirmModal from '../../components/modals/add-contact-person-confirm-modal'
+
 import DiscardContactPersonModal from '../../components/modals/discard-contact-person-modal'
 
 // ** fetch & mutation
@@ -53,9 +58,6 @@ import {
 
 // ** toast
 import { toast } from 'react-hot-toast'
-import ContactPersonDetailModal from '../../components/modals/contact-person-detail-modal'
-import DeleteContactPersonModal from '../../components/modals/delete-contact-person-modal'
-import CannotDeleteContactPersonModal from '../../components/modals/cannot-delete-contact-person-modal'
 
 type Props = {
   clientId: number
@@ -65,7 +67,6 @@ type Props = {
   isCreatable: boolean
 }
 
-/* TODO : delete 추가 */
 export default function ContactPersons({
   clientId,
   clientInfo,
@@ -79,6 +80,7 @@ export default function ContactPersons({
   const { openModal, closeModal } = useModal()
 
   const [open, setOpen] = useState(false)
+  const [openAdd, setOpenAdd] = useState(false)
   const [openDiscard, setOpenDiscard] = useState(false)
   const [pageSize, setPageSize] = useState(10)
 
@@ -324,23 +326,58 @@ export default function ContactPersons({
       <Dialog open={open} maxWidth='lg'>
         <DialogContent style={{ padding: '50px 60px' }}>
           <Grid container spacing={6}>
+            <Grid item xs={12} display='flex' justifyContent='flex-start'>
+              <Typography variant='h5'>Add contact person</Typography>
+            </Grid>
             <AddContactPersonForm
-              mode={formMode}
-              idx={0}
+              fields={fields.length ? [fields[0]] : []}
               control={control}
               errors={errors}
-              handleSubmit={handleSubmit}
-              onSubmit={onSubmit}
               watch={watch}
-              isValid={isValid}
-              getValues={getValues}
-              onCancel={() => cancelUpdateForm()}
-              onDiscard={() => {
-                setOpen(false)
-                setOpenDiscard(true)
-                reset({ contactPersons: [] })
-              }}
             />
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              gap='22px'
+              justifyContent='center'
+            >
+              {formMode === 'create' ? (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => {
+                    setOpen(false)
+                    setOpenDiscard(true)
+                  }}
+                >
+                  Discard
+                </Button>
+              ) : (
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => cancelUpdateForm()}
+                >
+                  Cancel
+                </Button>
+              )}
+
+              {formMode === 'create' ? (
+                <Button
+                  variant='contained'
+                  type='button'
+                  disabled={!isValid}
+                  onClick={() => setOpenAdd(true)}
+                >
+                  Add
+                </Button>
+              ) : (
+                <Button variant='contained' type='submit' disabled={!isValid}>
+                  Save
+                </Button>
+              )}
+            </Grid>
           </Grid>
         </DialogContent>
       </Dialog>
@@ -350,14 +387,17 @@ export default function ContactPersons({
           reset({ contactPersons: [] })
         }}
         onCancel={() => {
-          const data = watch('contactPersons')?.[0]
-          data && update(0, data)
           setOpen(true)
           setOpenDiscard(false)
         }}
         onClose={() => {
           setOpenDiscard(false)
         }}
+      />
+      <AddContactPersonConfirmModal
+        open={openAdd}
+        onAdd={() => onSubmit(getValues())}
+        onClose={() => setOpenAdd(false)}
       />
     </Card>
   )
