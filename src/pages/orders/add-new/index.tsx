@@ -23,14 +23,19 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import { itemSchema } from '@src/types/schema/item.schema'
+import { ItemType } from '@src/types/common/item.type'
 import { removeClientFormData } from '@src/shared/auth/storage'
 
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
-import ClientQuotesFormContainer from '@src/pages/quotes/components/form-container/client-container'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import LanguagesAndItemsContainer from '@src/pages/components/form-container/languages-and-items/languages-and-items-container'
+
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import {
   orderProjectInfoDefaultValue,
@@ -38,13 +43,8 @@ import {
 } from '@src/types/schema/orders-project-info.schema'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 
-import LanguagesAndItemsContainer from '@src/pages/components/form-container/languages-and-items/languages-and-items-container'
-import { StandardPriceListType } from '@src/types/common/standard-price'
-import { itemDefaultValue, itemSchema } from '@src/types/schema/item.schema'
-import { ItemType } from '@src/types/common/item.type'
 import { AuthContext } from '@src/context/AuthContext'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 export type languageType = {
   id: string
