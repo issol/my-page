@@ -84,7 +84,7 @@ export default function LanguagesAndItemsContainer({
   handleBack,
 }: Props) {
   const { data: prices, isSuccess } = useGetPriceList({ clientId: clientId! })
-  console.log(prices)
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -143,12 +143,15 @@ export default function LanguagesAndItemsContainer({
           update={updateItems}
           isValid={isItemValid}
           teamMembers={teamMembers}
+          languagePairs={languagePairs}
+          setLanguagePairs={setLanguagePairs}
+          getPriceOptions={getPriceOptions}
         />
       </Grid>
       <Grid item xs={12}>
         <Button
           startIcon={<Icon icon='material-symbols:add' />}
-          //   disabled={isAddItemDisabled()}
+          disabled={isAddItemDisabled()}
           onClick={addNewItem}
         >
           <Typography

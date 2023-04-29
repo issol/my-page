@@ -42,6 +42,7 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { defaultOption } from '../form-container/languages-and-items/languages-and-items-container'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
   languagePairs: languageType[]
@@ -96,7 +97,7 @@ export default function AddLanguagePairForm({
         children: (
           <DeleteConfirmModal
             message='Are you sure you want to delete this language pair?'
-            title={`${findLanguageLabel(row.source)} -> ${findLanguageLabel(
+            title={`${languageHelper(row.source)} -> ${languageHelper(
               row.target,
             )}`}
             onDelete={deleteLanguage}
@@ -110,7 +111,7 @@ export default function AddLanguagePairForm({
         children: (
           <SimpleAlertModal
             message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${findLanguageLabel(row.source)} -> ${findLanguageLabel(
+            title={`${languageHelper(row.source)} -> ${languageHelper(
               row.target,
             )}`}
             onClose={() => closeModal('cannot-delete-language')}
@@ -125,10 +126,6 @@ export default function AddLanguagePairForm({
       copyOriginal.splice(idx, 1)
       setLanguagePairs([...copyOriginal])
     }
-  }
-
-  function findLanguageLabel(lang: string) {
-    return languageList.find(item => item.value === lang)?.label || ''
   }
 
   function setPrice(
@@ -243,13 +240,12 @@ export default function AddLanguagePairForm({
                   if (matchingPrice.length === 1) {
                     setPrice(matchingPrice[0], idx)
                   }
-                  // console.log(options)
                   return (
                     <TableRow hover tabIndex={-1} key={row.id}>
                       <TableCell>
                         <Box display='flex' alignItems='center' gap='4px'>
                           <Typography fontWeight='bold' variant='body2'>
-                            {findLanguageLabel(row.source)}
+                            {languageHelper(row.source)}
                           </Typography>
 
                           <Icon
@@ -258,7 +254,7 @@ export default function AddLanguagePairForm({
                             opacity={0.7}
                           />
                           <Typography fontWeight='bold' variant='body2'>
-                            {findLanguageLabel(row.target)}
+                            {languageHelper(row.target)}
                           </Typography>
                         </Box>
                       </TableCell>

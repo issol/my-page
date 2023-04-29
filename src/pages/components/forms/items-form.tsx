@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
 
 // ** style component
 import {
@@ -38,6 +38,9 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { MemberType } from '@src/types/schema/project-team.schema'
+import { languageType } from '@src/pages/orders/add-new'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -51,6 +54,13 @@ type Props = {
   update: UseFieldArrayUpdate<{ items: ItemType[] }, 'items'>
   isValid: boolean
   teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
+
+  languagePairs: languageType[]
+  setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
+  getPriceOptions: (
+    source: string,
+    target: string,
+  ) => Array<StandardPriceListType & { groupName: string }>
 }
 export default function ItemForm({
   control,
@@ -64,9 +74,13 @@ export default function ItemForm({
   update,
   isValid,
   teamMembers,
+  languagePairs,
+  setLanguagePairs,
+  getPriceOptions,
 }: Props) {
   const defaultValue = { value: '', label: '' }
-
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
+  console.log(languagePairs)
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
   >([])
@@ -175,6 +189,99 @@ export default function ItemForm({
                   )}
                 />
               )}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Controller
+              name={`items.${idx}.source`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    options={languagePairs.sort((a, b) =>
+                      a.source.localeCompare(b.source),
+                    )}
+                    getOptionLabel={option =>
+                      `${languageHelper(option.source)} -> ${languageHelper(
+                        option.target,
+                      )}`
+                    }
+                    onChange={(e, v) => {
+                      onChange(v?.source ?? '')
+                      setValue(
+                        `items.${idx}.target`,
+                        v?.target ?? '',
+                        setValueOptions,
+                      )
+                      if (v?.price) {
+                        setValue(
+                          `items.${idx}.priceId`,
+                          v?.price?.id,
+                          setValueOptions,
+                        )
+                      }
+                    }}
+                    value={
+                      !value
+                        ? null
+                        : languagePairs.find(
+                            item =>
+                              item.source === value &&
+                              item.target === getValues(`items.${idx}.target`),
+                          )
+                    }
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        error={Boolean(errors?.items?.[idx]?.source)}
+                        label='Language pair*'
+                        placeholder='Language pair*'
+                      />
+                    )}
+                  />
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={6}>
+            <Controller
+              name={`items.${idx}.priceId`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                const options = getPriceOptions(
+                  getValues(`items.${idx}.source`),
+                  getValues(`items.${idx}.target`),
+                )
+                const matchingPrice = options.find(
+                  item => item.groupName === 'Matching price',
+                )
+                if (matchingPrice) {
+                  onChange(matchingPrice.id)
+                }
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    options={options}
+                    groupBy={option => option?.groupName}
+                    getOptionLabel={option => option.priceName}
+                    onChange={(e, v) => onChange(v?.id)}
+                    value={
+                      !value ? null : options.find(item => item.id === value)
+                    }
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        error={Boolean(errors?.items?.[idx]?.priceId)}
+                        label='Price*'
+                        placeholder='Price*'
+                      />
+                    )}
+                  />
+                )
+              }}
             />
           </Grid>
         </Grid>
