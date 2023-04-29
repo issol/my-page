@@ -12,15 +12,11 @@ export type PriceListFilterType = {
   clientId?: number
 }
 export const useGetPriceList = (filter: PriceListFilterType) => {
-  return useQuery<{ data: StandardPriceListType[]; count: number }>(
-    ['price-list', filter],
-    () => getPriceList(filter),
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: false,
-    },
-  )
+  return useQuery(['price-list', filter], () => getPriceList(filter), {
+    staleTime: 60 * 1000, // 1
+    keepPreviousData: true,
+    suspense: false,
+  })
 }
 
 export const useGetStandardPrices = () => {

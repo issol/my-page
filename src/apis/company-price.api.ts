@@ -13,14 +13,14 @@ import {
 
 export const getPriceList = async (
   filter: PriceListFilterType,
-): Promise<{ data: StandardPriceListType[]; count: number }> => {
+): Promise<StandardPriceListType[]> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/price/al?${makeQuery(filter)}`,
+      `/api/enough/u/price/preset?${makeQuery(filter)}`,
     )
     return data
   } catch (e: any) {
-    return { data: [], count: 0 }
+    return []
   }
 }
 

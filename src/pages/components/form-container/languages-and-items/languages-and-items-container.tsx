@@ -25,6 +25,8 @@ import {
 } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
 import { MemberType } from '@src/types/schema/project-team.schema'
+import { getPriceList } from '@src/apis/company-price.api'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 
 type Props = {
   tax: number
@@ -45,6 +47,23 @@ type Props = {
   teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
   handleBack: () => void
 }
+
+export const defaultOption: StandardPriceListType & { groupName: string } = {
+  id: 0,
+  isStandard: false,
+  priceName: 'Not applicable',
+  groupName: 'Not applicable',
+  category: '',
+  serviceType: [],
+  currency: 'USD',
+  catBasis: '',
+  decimalPlace: 0,
+  roundingProcedure: '',
+  languagePairs: [],
+  priceUnit: [],
+  catInterface: { memSource: [], memoQ: [] },
+}
+
 export default function LanguagesAndItemsContainer({
   tax,
   setTax,
@@ -64,16 +83,22 @@ export default function LanguagesAndItemsContainer({
   teamMembers,
   handleBack,
 }: Props) {
-  const { data: prices } = useGetPriceList({})
-
+  const { data: prices, isSuccess } = useGetPriceList({ clientId: clientId! })
+  console.log(prices)
   function getPriceOptions(source: string, target: string) {
-    // ** TODO
-    //clientId
-    //source, target
-    //api새로 추가되면 그거 쓰기..
-    if (clientId && prices?.data) {
-      prices?.data.filter(price => price?.client)
-    }
+    if (!isSuccess) return [defaultOption]
+    const filteredList = prices
+      .filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      })
+      .map(item => ({
+        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        ...item,
+      }))
+    return [defaultOption].concat(filteredList)
   }
 
   function isAddItemDisabled(): boolean {
@@ -102,6 +127,7 @@ export default function LanguagesAndItemsContainer({
         <AddLanguagePairForm
           languagePairs={languagePairs}
           setLanguagePairs={setLanguagePairs}
+          getPriceOptions={getPriceOptions}
         />
       </Grid>
       <Grid item xs={12} mt={6} mb={6}>

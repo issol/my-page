@@ -40,14 +40,21 @@ import { v4 as uuidv4 } from 'uuid'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import { defaultOption } from '../form-container/languages-and-items/languages-and-items-container'
 
 type Props = {
   languagePairs: languageType[]
   setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
+  getPriceOptions: (
+    source: string,
+    target: string,
+  ) => Array<StandardPriceListType & { groupName: string }>
 }
 export default function AddLanguagePairForm({
   languagePairs,
   setLanguagePairs,
+  getPriceOptions,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
@@ -78,6 +85,7 @@ export default function AddLanguagePairForm({
       price: null,
     }))
     setLanguagePairs(languagePairs.concat(value))
+    setLanguagePair({ source: '', target: [] })
   }
 
   function onDeleteLanguagePair(row: languageType) {
@@ -121,6 +129,21 @@ export default function AddLanguagePairForm({
 
   function findLanguageLabel(lang: string) {
     return languageList.find(item => item.value === lang)?.label || ''
+  }
+
+  function setPrice(
+    v:
+      | (StandardPriceListType & {
+          groupName?: string
+        })
+      | null,
+    idx: number,
+  ) {
+    if (!v) return
+    const newPairs = [...languagePairs]
+    delete v?.groupName
+    newPairs[idx].price = v
+    setLanguagePairs(newPairs)
   }
 
   return (
@@ -213,6 +236,14 @@ export default function AddLanguagePairForm({
               {languagePairs
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, idx) => {
+                  const options = getPriceOptions(row.source, row.target)
+                  const matchingPrice = options.filter(
+                    item => item.groupName === 'Matching price',
+                  )
+                  if (matchingPrice.length === 1) {
+                    setPrice(matchingPrice[0], idx)
+                  }
+                  // console.log(options)
                   return (
                     <TableRow hover tabIndex={-1} key={row.id}>
                       <TableCell>
@@ -234,25 +265,22 @@ export default function AddLanguagePairForm({
                       <TableCell>
                         <Autocomplete
                           value={
-                            !languagePair?.source
-                              ? defaultValue
-                              : languageList.find(
-                                  item => item.value === languagePair.source,
-                                )
+                            !row.price
+                              ? null
+                              : options.find(
+                                  item =>
+                                    item.priceName === row.price?.priceName,
+                                ) || defaultOption
                           }
                           size='small'
                           sx={{ width: 300 }}
-                          options={languageList}
-                          onChange={(e, v) =>
-                            setLanguagePair({
-                              ...languagePair,
-                              source: v?.value ?? '',
-                            })
-                          }
+                          options={options}
+                          groupBy={option => option?.groupName}
+                          onChange={(e, v) => setPrice(v, idx)}
                           id='autocomplete-controlled'
-                          getOptionLabel={option => option.label}
+                          getOptionLabel={option => option.priceName}
                           renderInput={params => (
-                            <TextField {...params} placeholder='Source' />
+                            <TextField {...params} placeholder='Price' />
                           )}
                         />
                       </TableCell>
