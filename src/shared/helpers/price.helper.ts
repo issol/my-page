@@ -2,6 +2,15 @@ import { CurrencyType } from '@src/types/common/standard-price'
 import { locale } from '../const/locale'
 import { RoundingProcedureObj } from '../const/rounding-procedure/rounding-procedure'
 
+export function getPrice(
+  price: number | string,
+  priceFactor: number | string | null,
+) {
+  if (!priceFactor) return Number(price)
+  if (isNaN(Number(price)) || isNaN(Number(priceFactor))) return 0
+  return Number(price) * Number(priceFactor)
+}
+
 export function formatCurrency(num: number | string, currency: CurrencyType) {
   const currentLocale = locale[currency]
   const formatter = new Intl.NumberFormat(currentLocale, {
@@ -31,6 +40,7 @@ export function formatByRoundingProcedure(
     } else {
       type = Number(roundingType)
     }
+
     switch (type) {
       case 0:
         return price.toFixed(decimalPlace)

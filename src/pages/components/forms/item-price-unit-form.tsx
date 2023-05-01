@@ -47,23 +47,40 @@ import {
 import { defaultOption } from '../form-container/languages-and-items/languages-and-items-container'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
-import { Control, Controller, useFieldArray } from 'react-hook-form'
+import {
+  Control,
+  Controller,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormWatch,
+  useFieldArray,
+} from 'react-hook-form'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+  getPrice,
+} from '@src/shared/helpers/price.helper'
+import UnitPriceInputField from './unit-price-input-field'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   itemName: `items.${number}.detail`
   isValid: boolean
-  parentData: ItemType
   priceData: StandardPriceListType | null
+  getValues: UseFormGetValues<{ items: ItemType[] }>
 }
 
-// ** TODO : priceId === NOT_APPLICABLE_PRICE 일 때 form도 제작하기
+/* TODO : priceId === NOT_APPLICABLE_PRICE 일 때 form도 제작하기
+price unit이 child까지 함께 선택 된 경우 form도 같이 append하기
+unitPrice저장 시 priceFactor이 함께 계산된 금액이 저장되도록 하기
+
+*/
 export default function ItemPriceUnitForm({
   control,
   itemName,
   isValid,
-  parentData,
   priceData,
+  getValues,
 }: Props) {
   const {
     fields: details,
@@ -74,7 +91,14 @@ export default function ItemPriceUnitForm({
     control,
     name: itemName,
   })
-  //   console.log(priceData)
+
+  const handleMaskedFieldClick = () => {
+    const inputField: HTMLElement | null = document.getElementById(
+      'priceUnitInputField',
+    )
+    if (inputField) inputField.focus()
+  }
+
   function appendDetail() {
     append({
       quantity: 0,
@@ -82,7 +106,7 @@ export default function ItemPriceUnitForm({
       unitPrice: 0,
       prices: 0,
       unit: '',
-      currency: 'USD',
+      currency: priceData?.currency ?? 'USD',
     })
   }
 
@@ -116,8 +140,184 @@ export default function ItemPriceUnitForm({
     return nestedData
   }
 
-  const [open, setOpen] = useState(false)
-  const [priceUnit, setPriceUnit] = useState<NestedPriceUnitType | null>(null)
+  function renderPrices(
+    savedValue: ItemDetailType,
+    currentPrice: number | string,
+    priceFactor: number | null,
+  ) {
+    if (savedValue.unit === 'Percent') return '-'
+    else {
+      return formatCurrency(
+        formatByRoundingProcedure(
+          getPrice(Number(currentPrice) * savedValue.quantity, priceFactor),
+          priceData?.decimalPlace!,
+          priceData?.roundingProcedure!,
+          savedValue.currency,
+        ),
+        savedValue.currency,
+      )
+    }
+  }
+
+  function Row({ idx }: { idx: number }) {
+    const savedValue = getValues(`${itemName}.${idx}`)
+    const [open, setOpen] = useState(false)
+    const [currentPrice, setCurrentPrice] = useState<number | string>(
+      savedValue.unitPrice,
+    )
+    const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
+
+    return (
+      <TableRow hover tabIndex={-1}>
+        <TableCell>
+          <Controller
+            name={`${itemName}.${idx}.quantity`}
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              return (
+                <Box>
+                  <TextField
+                    placeholder='0'
+                    type='number'
+                    value={value}
+                    sx={{ maxWidth: '80px', padding: 0 }}
+                    inputProps={{ inputMode: 'decimal' }}
+                    onChange={onChange}
+                  />
+                  {savedValue.unit === 'Percent' ? '%' : null}
+                </Box>
+              )
+            }}
+          />
+        </TableCell>
+        <TableCell>
+          <Controller
+            name={`${itemName}.${idx}.priceUnit`}
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              const options = nestSubPriceUnits()
+              const findValue =
+                priceData?.priceUnit?.find(item => item.title === value) || null
+              return (
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  options={options}
+                  groupBy={option => option?.groupName}
+                  getOptionLabel={option => option.title}
+                  renderOption={(props, option, state) => {
+                    return (
+                      <Box>
+                        <Box
+                          component='li'
+                          padding='4px 0'
+                          {...props}
+                          onClick={() => {
+                            setOpen(false)
+                            onChange(option.title)
+                            update(idx, {
+                              ...savedValue,
+                              quantity: option.quantity ?? 0,
+                              unit: option.unit,
+                              unitPrice: option.price ?? 0,
+                            })
+                          }}
+                        >
+                          {option.title}
+                        </Box>
+                        {option?.subPriceUnits?.map(sub => (
+                          <Box
+                            component='li'
+                            padding='4px 0'
+                            className={props.className}
+                            key={sub.id}
+                            role={props.role}
+                            onClick={() => {
+                              setOpen(false)
+                              onChange(sub.title)
+                              update(idx, {
+                                ...savedValue,
+                                quantity: sub.quantity ?? 0,
+                                unit: sub.unit,
+                                unitPrice: sub.price ?? 0,
+                              })
+                            }}
+                          >
+                            <Icon
+                              icon='material-symbols:subdirectory-arrow-right'
+                              opacity={0.7}
+                            />
+                            {sub.title}
+                          </Box>
+                        ))}
+                      </Box>
+                    )
+                  }}
+                  open={open}
+                  onOpen={() => setOpen(true)}
+                  onClose={() => setOpen(false)}
+                  value={
+                    findValue
+                      ? {
+                          ...findValue,
+                          subPriceUnits: [],
+                          groupName: '',
+                        }
+                      : null
+                  }
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Price unit*'
+                      placeholder='Price unit*'
+                    />
+                  )}
+                />
+              )
+            }}
+          />
+        </TableCell>
+        <TableCell align='center'>
+          <Controller
+            name={`${itemName}.${idx}.unitPrice`}
+            control={control}
+            render={({ field: { value, onChange } }) => {
+              const unitPrice = formatCurrency(
+                formatByRoundingProcedure(
+                  getPrice(value, priceFactor),
+                  priceData?.decimalPlace!,
+                  priceData?.roundingProcedure!,
+                  savedValue.currency,
+                ),
+                savedValue.currency,
+              )
+
+              return (
+                <UnitPriceInputField
+                  onChange={onChange}
+                  value={value}
+                  savedValue={savedValue}
+                  setCurrentPrice={setCurrentPrice}
+                  unitPrice={unitPrice}
+                />
+              )
+            }}
+          />
+        </TableCell>
+        <TableCell align='center'>currency</TableCell>
+        <TableCell align='center'>
+          <Typography>
+            {renderPrices(savedValue, currentPrice, priceFactor)}
+          </Typography>
+        </TableCell>
+        <TableCell align='center'>
+          <IconButton onClick={() => remove(idx)}>
+            <Icon icon='mdi:trash-outline' />
+          </IconButton>
+        </TableCell>
+      </TableRow>
+    )
+  }
 
   return (
     <Grid item xs={12}>
@@ -141,120 +341,7 @@ export default function ItemPriceUnitForm({
           </TableHead>
           <TableBody>
             {details?.map((row, idx) => (
-              <TableRow hover tabIndex={-1} key={row.id}>
-                <TableCell>
-                  <Controller
-                    name={`${itemName}.${idx}.quantity`}
-                    control={control}
-                    render={({ field: { value, onChange } }) => {
-                      return (
-                        <TextField
-                          placeholder='0'
-                          type='number'
-                          value={value}
-                          sx={{ maxWidth: '80px', padding: 0 }}
-                          inputProps={{ inputMode: 'decimal' }}
-                          onChange={onChange}
-                        />
-                      )
-                    }}
-                  />
-                </TableCell>
-                <TableCell>
-                  <Controller
-                    name={`${itemName}.${idx}.priceUnit`}
-                    control={control}
-                    render={({ field: { value, onChange } }) => {
-                      const options = nestSubPriceUnits()
-                      return (
-                        <Autocomplete
-                          autoHighlight
-                          fullWidth
-                          options={options}
-                          groupBy={option => option?.groupName}
-                          getOptionLabel={option => option.title}
-                          renderOption={(props, option, state) => {
-                            return (
-                              <Box>
-                                <Box
-                                  component='li'
-                                  padding='4px 0'
-                                  {...props}
-                                  onClick={() => {
-                                    setOpen(false)
-                                    onChange(option.title)
-                                    setPriceUnit(option)
-                                  }}
-                                >
-                                  {option.title}
-                                </Box>
-                                {option?.subPriceUnits?.map(sub => (
-                                  <Box
-                                    component='li'
-                                    padding='4px 0'
-                                    className={props.className}
-                                    key={sub.id}
-                                    role={props.role}
-                                    onClick={() => {
-                                      setOpen(false)
-                                      onChange(sub.title)
-                                      setPriceUnit(sub)
-                                    }}
-                                  >
-                                    <Icon
-                                      icon='material-symbols:subdirectory-arrow-right'
-                                      opacity={0.7}
-                                    />
-                                    {sub.title}
-                                  </Box>
-                                ))}
-                              </Box>
-                            )
-                          }}
-                          open={open}
-                          onOpen={() => setOpen(true)}
-                          onClose={() => setOpen(false)}
-                          value={priceUnit}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label='Price unit*'
-                              placeholder='Price unit*'
-                            />
-                          )}
-                        />
-                      )
-                    }}
-                  />
-                </TableCell>
-                <TableCell align='center'>
-                  <Controller
-                    name={`${itemName}.${idx}.unitPrice`}
-                    control={control}
-                    render={({ field: { value, onChange } }) => {
-                      return (
-                        <TextField
-                          placeholder='0.00'
-                          //   type='number'
-                          // ** TODO : decimal 등 옵션 적용해서 표기하기
-                          value={value.toString()}
-                          sx={{ maxWidth: '80px', padding: 0 }}
-                          onChange={onChange}
-                        />
-                      )
-                    }}
-                  />
-                </TableCell>
-                <TableCell align='center'>currency</TableCell>
-                <TableCell align='center'>
-                  <Typography>00000</Typography>
-                </TableCell>
-                <TableCell align='center'>
-                  <IconButton onClick={() => remove(idx)}>
-                    <Icon icon='mdi:trash-outline' />
-                  </IconButton>
-                </TableCell>
-              </TableRow>
+              <Row key={row.id} idx={idx} />
             ))}
             <TableRow hover tabIndex={-1}>
               <TableCell colSpan={6}>

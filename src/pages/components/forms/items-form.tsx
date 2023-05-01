@@ -104,16 +104,18 @@ export default function ItemForm({
   }, [teamMembers])
 
   function onChangeLanguagePair(v: languageType | null, idx: number) {
+    const copyLangPair = [...languagePairs]
+    setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
     }
+
     setIsDeletable()
     function setIsDeletable() {
       if (v?.id) {
         const idx = languagePairs.map(item => item.id).indexOf(v.id)
         if (idx !== -1) {
-          const copyLangPair = [...languagePairs]
           copyLangPair[idx].isDeletable = false
           setLanguagePairs([...copyLangPair])
         }
@@ -130,7 +132,7 @@ export default function ItemForm({
           message='Are you sure you want to delete this item?'
           onClose={() => closeModal('delete-item')}
           onDelete={() => {
-            const index = findIndex()
+            const index = findLangPairIndex(value.source, value.target)
             const copyLangPair = [...languagePairs]
             copyLangPair[index].isDeletable = true
             remove(idx)
@@ -138,23 +140,25 @@ export default function ItemForm({
         />
       ),
     })
+  }
 
-    function findIndex() {
-      for (let i = 0; i < languagePairs.length; i++) {
-        if (
-          languagePairs[i].source === value.source &&
-          languagePairs[i].target === value.target
-        ) {
-          return i
-        }
+  function findLangPairIndex(source: string, target: string) {
+    for (let i = 0; i < languagePairs.length; i++) {
+      if (
+        languagePairs[i].source === source &&
+        languagePairs[i].target === target
+      ) {
+        return i
       }
-      return -1
     }
+    return -1
   }
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const data = getValues(`items.${idx}`)
+    console.log('languagePairs : ', languagePairs)
+    console.log('data', data)
     return (
       <Box style={{ border: '1px solid #F5F5F7', borderRadius: '8px' }}>
         <Grid container spacing={6} padding='14px'>
@@ -265,7 +269,7 @@ export default function ItemForm({
                       )}`
                     }
                     onChange={(e, v) => {
-                      onChange(v?.source ?? '')
+                      // onChange(v?.source ?? '')
                       onChangeLanguagePair(v, idx)
                     }}
                     value={
@@ -312,7 +316,28 @@ export default function ItemForm({
                     options={options}
                     groupBy={option => option?.groupName}
                     getOptionLabel={option => option.priceName}
-                    onChange={(e, v) => onChange(v?.id)}
+                    onChange={(e, v) => {
+                      onChange(v?.id)
+                      // setValue(
+                      //   `items.${idx}.priceId`,
+                      //   v?.id ?? null,
+                      //   setValueOptions,
+                      // )
+                      // console.log(v.id, languagePairs)
+                      const value = getValues().items[idx]
+                      console.log('vvv', v)
+                      if (v) {
+                        const index = findLangPairIndex(
+                          value?.source!,
+                          value?.target!,
+                        )
+                        if (index !== -1) {
+                          const copyLangPair = [...languagePairs]
+                          copyLangPair[index].price = v
+                          setLanguagePairs(copyLangPair)
+                        }
+                      }
+                    }}
                     value={
                       value === null
                         ? null
@@ -341,11 +366,12 @@ export default function ItemForm({
               !!data.priceId &&
               data.priceId !== NOT_APPLICABLE_PRICE
             }
-            parentData={data}
+            // parentData={data}
             priceData={
               languagePairs.find(item => data?.priceId === item?.price?.id)
                 ?.price ?? null
             }
+            getValues={getValues}
           />
           {/* price unit */}
 

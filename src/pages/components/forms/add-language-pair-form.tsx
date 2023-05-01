@@ -136,10 +136,12 @@ export default function AddLanguagePairForm({
       | null,
     idx: number,
   ) {
+    console.log(v)
     if (!v) return
     const newPairs = [...languagePairs]
     delete v?.groupName
     newPairs[idx].price = v
+    console.log('newPairs', newPairs)
     setLanguagePairs(newPairs)
   }
 

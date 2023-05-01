@@ -16,9 +16,9 @@ export type ItemType = {
 
 export type ItemDetailType = {
   quantity: number
-  priceUnit: string
+  priceUnit: string // title
   unitPrice: number
-  prices: number
+  prices: number | string
   unit: string
   currency: CurrencyType
 }
