@@ -4,6 +4,7 @@ import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
+  Divider,
   Grid,
   IconButton,
   TextField,
@@ -41,6 +42,8 @@ import { MemberType } from '@src/types/schema/project-team.schema'
 import { languageType } from '@src/pages/orders/add-new'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
+import useModal from '@src/hooks/useModal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -78,9 +81,10 @@ export default function ItemForm({
   setLanguagePairs,
   getPriceOptions,
 }: Props) {
+  const { openModal, closeModal } = useModal()
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-  console.log(languagePairs)
+
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
   >([])
@@ -96,6 +100,55 @@ export default function ItemForm({
       setContactPersonList(list)
     }
   }, [teamMembers])
+
+  function onChangeLanguagePair(v: languageType | null, idx: number) {
+    setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
+    if (v?.price) {
+      setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
+    }
+    setIsDeletable()
+    function setIsDeletable() {
+      if (v?.id) {
+        const idx = languagePairs.map(item => item.id).indexOf(v.id)
+        if (idx !== -1) {
+          const copyLangPair = [...languagePairs]
+          copyLangPair[idx].isDeletable = false
+          setLanguagePairs([...copyLangPair])
+        }
+      }
+    }
+  }
+
+  function onItemRemove(idx: number) {
+    const value = getValues(`items.${idx}`)
+    openModal({
+      type: 'delete-item',
+      children: (
+        <DeleteConfirmModal
+          message='Are you sure you want to delete this item?'
+          onClose={() => closeModal('delete-item')}
+          onDelete={() => {
+            const index = findIndex()
+            const copyLangPair = [...languagePairs]
+            copyLangPair[index].isDeletable = true
+            remove(idx)
+          }}
+        />
+      ),
+    })
+
+    function findIndex() {
+      for (let i = 0; i < languagePairs.length; i++) {
+        if (
+          languagePairs[i].source === value.source &&
+          languagePairs[i].target === value.target
+        ) {
+          return i
+        }
+      }
+      return -1
+    }
+  }
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
@@ -120,7 +173,7 @@ export default function ItemForm({
                 </IconButton>
                 <Typography fontWeight={500}>01.</Typography>
               </Box>
-              <IconButton onClick={() => remove(idx)}>
+              <IconButton onClick={() => onItemRemove(idx)}>
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
             </Box>
@@ -210,18 +263,7 @@ export default function ItemForm({
                     }
                     onChange={(e, v) => {
                       onChange(v?.source ?? '')
-                      setValue(
-                        `items.${idx}.target`,
-                        v?.target ?? '',
-                        setValueOptions,
-                      )
-                      if (v?.price) {
-                        setValue(
-                          `items.${idx}.priceId`,
-                          v?.price?.id,
-                          setValueOptions,
-                        )
-                      }
+                      onChangeLanguagePair(v, idx)
                     }}
                     value={
                       !value
@@ -284,6 +326,44 @@ export default function ItemForm({
               }}
             />
           </Grid>
+          {/* price unit */}
+          {/* price unit */}
+
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <Typography variant='h6' mb='24px'>
+              Item description
+            </Typography>
+            <Controller
+              name={`items.${idx}.description`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <>
+                    <TextField
+                      rows={4}
+                      multiline
+                      fullWidth
+                      label='Write down an item description.'
+                      value={value ?? ''}
+                      onChange={onChange}
+                      inputProps={{ maxLength: 500 }}
+                    />
+                    <Typography variant='body2' mt='12px' textAlign='right'>
+                      {value?.length ?? 0}/500
+                    </Typography>
+                  </>
+                )
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          {/* TM analysis */}
+          {/* TM analysis */}
         </Grid>
       </Box>
     )
