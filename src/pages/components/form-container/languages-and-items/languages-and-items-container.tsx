@@ -48,8 +48,9 @@ type Props = {
   handleBack: () => void
 }
 
+export const NOT_APPLICABLE_PRICE = -0
 export const defaultOption: StandardPriceListType & { groupName: string } = {
-  id: 0,
+  id: NOT_APPLICABLE_PRICE,
   isStandard: false,
   priceName: 'Not applicable',
   groupName: 'Not applicable',

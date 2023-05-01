@@ -44,6 +44,8 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import ItemPriceUnitForm from './item-price-unit-form'
+import { NOT_APPLICABLE_PRICE } from '../form-container/languages-and-items/languages-and-items-container'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -152,6 +154,7 @@ export default function ItemForm({
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
+    const data = getValues(`items.${idx}`)
     return (
       <Box style={{ border: '1px solid #F5F5F7', borderRadius: '8px' }}>
         <Grid container spacing={6} padding='14px'>
@@ -311,7 +314,9 @@ export default function ItemForm({
                     getOptionLabel={option => option.priceName}
                     onChange={(e, v) => onChange(v?.id)}
                     value={
-                      !value ? null : options.find(item => item.id === value)
+                      value === null
+                        ? null
+                        : options.find(item => item.id === value)
                     }
                     renderInput={params => (
                       <TextField
@@ -327,11 +332,23 @@ export default function ItemForm({
             />
           </Grid>
           {/* price unit */}
+          <ItemPriceUnitForm
+            control={control}
+            itemName={`items.${idx}.detail`}
+            isValid={
+              !!data.source &&
+              !!data.target &&
+              !!data.priceId &&
+              data.priceId !== NOT_APPLICABLE_PRICE
+            }
+            parentData={data}
+            priceData={
+              languagePairs.find(item => data?.priceId === item?.price?.id)
+                ?.price ?? null
+            }
+          />
           {/* price unit */}
 
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
           <Grid item xs={12}>
             <Typography variant='h6' mb='24px'>
               Item description

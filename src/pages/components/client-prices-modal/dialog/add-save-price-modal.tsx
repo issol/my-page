@@ -170,7 +170,7 @@ const AddSavePriceModal = ({
         setValueOptions,
       )
       setValue('decimalPlace', selected.decimalPlace)
-      setValue('memoForPrice', selected.memoForPrice, setValueOptions)
+      setValue('memoForPrice', selected?.memoForPrice ?? '', setValueOptions)
 
       const roundingLabel =
         //@ts-ignore
