@@ -157,8 +157,6 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const data = getValues(`items.${idx}`)
-    console.log('languagePairs : ', languagePairs)
-    console.log('data', data)
     return (
       <Box style={{ border: '1px solid #F5F5F7', borderRadius: '8px' }}>
         <Grid container spacing={6} padding='14px'>
@@ -323,9 +321,7 @@ export default function ItemForm({
                       //   v?.id ?? null,
                       //   setValueOptions,
                       // )
-                      // console.log(v.id, languagePairs)
                       const value = getValues().items[idx]
-                      console.log('vvv', v)
                       if (v) {
                         const index = findLangPairIndex(
                           value?.source!,
@@ -363,8 +359,7 @@ export default function ItemForm({
             isValid={
               !!data.source &&
               !!data.target &&
-              !!data.priceId &&
-              data.priceId !== NOT_APPLICABLE_PRICE
+              (!!data.priceId || data.priceId === NOT_APPLICABLE_PRICE)
             }
             // parentData={data}
             priceData={

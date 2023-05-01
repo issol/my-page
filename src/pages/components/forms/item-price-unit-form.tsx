@@ -91,14 +91,7 @@ export default function ItemPriceUnitForm({
     control,
     name: itemName,
   })
-
-  const handleMaskedFieldClick = () => {
-    const inputField: HTMLElement | null = document.getElementById(
-      'priceUnitInputField',
-    )
-    if (inputField) inputField.focus()
-  }
-
+  console.log(priceData)
   function appendDetail() {
     append({
       quantity: 0,
@@ -147,15 +140,16 @@ export default function ItemPriceUnitForm({
   ) {
     if (savedValue.unit === 'Percent') return '-'
     else {
-      return formatCurrency(
-        formatByRoundingProcedure(
-          getPrice(Number(currentPrice) * savedValue.quantity, priceFactor),
-          priceData?.decimalPlace!,
-          priceData?.roundingProcedure!,
-          savedValue.currency,
-        ),
+      const result = formatByRoundingProcedure(
+        getPrice(Number(currentPrice) * savedValue.quantity, priceFactor),
+        priceData?.decimalPlace!,
+        priceData?.roundingProcedure!,
         savedValue.currency,
       )
+
+      return isNaN(Number(result))
+        ? 0
+        : formatCurrency(result, savedValue.currency)
     }
   }
 
