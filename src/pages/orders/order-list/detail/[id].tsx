@@ -107,6 +107,7 @@ const OrderDetail = () => {
   }
 
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    dispatch(setOrderLang(lang))
     openModal({
       type: 'PreviewModal',
       children: (

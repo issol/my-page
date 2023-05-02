@@ -38,7 +38,12 @@ export default function MakeTable({ rows }: { rows: Row[] }) {
                 {index === 0 ? (
                   <Typography
                     variant='subtitle1'
-                    sx={{ fontWeight: 600, padding: '20px', width: '100%' }}
+                    sx={{
+                      fontWeight: 600,
+                      padding: '20px',
+                      width: '100%',
+                      fontSize: '14px',
+                    }}
                   >
                     [{languageHelper(row.source)} &rarr;{' '}
                     {languageHelper(row.target)}

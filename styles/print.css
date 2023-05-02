@@ -62,7 +62,7 @@
 
 .subtitle1 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
   font-size: 1rem;
   line-height: 1.75;
@@ -72,9 +72,9 @@
 
 .subtitle2 {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 400;
-  font-size: 1rem;
+
   line-height: 1.75;
   letter-spacing: 0.15px;
   color: rgba(76, 78, 100, 0.87);
@@ -82,8 +82,9 @@
 
 .subtitle3 {
   margin: 0;
+  font-size: 14px;
   font-weight: 500;
-  font-size: 0.875rem;
+
   line-height: 1.57;
   letter-spacing: 0.1px;
   color: rgba(76, 78, 100, 0.6);
@@ -227,7 +228,7 @@
   width: 400px;
   vertical-align: inherit;
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: 12px;
   line-height: 1.429;
   letter-spacing: 0.15px;
   color: rgba(76, 78, 100, 0.87);
@@ -247,7 +248,7 @@
   justify-content: center;
   vertical-align: inherit;
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: 12px;
   line-height: 1.429;
   letter-spacing: 0.15px;
   color: rgba(76, 78, 100, 0.87);
@@ -267,7 +268,7 @@
   justify-content: center;
   vertical-align: inherit;
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: 12px;
   line-height: 1.429;
   letter-spacing: 0.15px;
   color: rgba(76, 78, 100, 0.87);
@@ -287,7 +288,7 @@
 
   vertical-align: inherit;
   font-weight: 400;
-  font-size: 0.875rem;
+  font-size: 12px;
   line-height: 1.429;
   letter-spacing: 0.15px;
   color: rgba(76, 78, 100, 0.87);
@@ -305,18 +306,6 @@
 
 .table-body {
   display: table-row-group;
-  width: 100%;
-}
-
-.item-name {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-  font-size: 1rem;
-  line-height: 1.75;
-  letter-spacing: 0.15px;
-  color: rgba(76, 78, 100, 0.87);
-  padding: 20px;
   width: 100%;
 }
 
@@ -447,9 +436,9 @@
 
 .primary-subtitle {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 1rem;
+
   line-height: 1.75;
   letter-spacing: 0.15px;
   color: #666cff;
@@ -457,9 +446,9 @@
 
 .primary-width-subtitle {
   margin: 0;
-  font-size: 16px;
+  font-size: 14px;
   font-weight: 600;
-  font-size: 1rem;
+
   line-height: 1.75;
   letter-spacing: 0.15px;
   color: #666cff;

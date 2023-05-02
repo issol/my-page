@@ -72,7 +72,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: lang === 'EN' ? 600 : 800 }}
+            sx={{ fontWeight: lang === 'EN' ? 600 : 800, fontSize: '14px' }}
           >
             {/* {data.adminCompanyName} */}
             {lang === 'EN' ? 'GloZ Inc.' : '글로지(주)'}
@@ -96,15 +96,17 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
           padding: '20px',
         }}
       >
-        <Typography variant='subtitle1'>No. {data.corporationId}</Typography>
+        <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
+          No. {data.corporationId}
+        </Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: lang === 'EN' ? 600 : 800 }}
+            sx={{ fontWeight: lang === 'EN' ? 600 : 800, fontSize: '14px' }}
           >
             {lang === 'EN' ? 'Order date:' : '주문일:'}
           </Typography>
-          <Typography variant='subtitle1'>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {FullDateTimezoneHelper(data.orderedAt, user?.timezone)}
           </Typography>
         </Box>
@@ -118,11 +120,11 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
           >
             <Typography
               variant='subtitle1'
-              sx={{ fontWeight: lang === 'EN' ? 600 : 800 }}
+              sx={{ fontWeight: lang === 'EN' ? 600 : 800, fontSize: '14px' }}
             >
               {lang === 'EN' ? 'Project due date:' : '마감일:'}
             </Typography>
-            <Typography variant='subtitle1'>
+            <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
               {FullDateTimezoneHelper(
                 data.projectDueAt.date,
                 data.projectDueAt.timezone,
@@ -137,11 +139,14 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               gap: '10px',
             }}
           >
-            <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+            <Typography
+              variant='subtitle1'
+              sx={{ fontWeight: 600, fontSize: '14px' }}
+            >
               PM:
             </Typography>
             <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
-              <Typography variant='subtitle1'>
+              <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
                 {getLegalName({
                   firstName: data.pm.firstName,
                   middleName: data.pm.middleName,
@@ -150,7 +155,9 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                 &nbsp;
               </Typography>
               <Divider orientation='vertical' flexItem variant='middle' />
-              <Typography variant='subtitle1'>&nbsp;{data.pm.email}</Typography>
+              <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
+                &nbsp;{data.pm.email}
+              </Typography>
             </Box>
           </Box>
         </Box>
@@ -172,15 +179,20 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             flex: 1,
           }}
         >
-          <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+          <Typography
+            variant='subtitle1'
+            sx={{ fontWeight: 600, fontSize: '14px' }}
+          >
             Order confirmation for:
           </Typography>
-          <Typography variant='subtitle1'>{data.companyName}</Typography>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
+            {data.companyName}
+          </Typography>
         </Box>
         <Box sx={{ display: 'flex', gap: '3px', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', gap: '3px', alignItems: 'center' }}>
             {data.contactPerson ? (
-              <Typography variant='subtitle1'>
+              <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
                 {getLegalName({
                   firstName: data.contactPerson.firstName!,
                   middleName: data.contactPerson.middleName!,
@@ -192,24 +204,24 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             {data.contactPerson && data.contactPerson.jobTitle ? (
               <>
                 <Divider orientation='vertical' flexItem variant='middle' />
-                <Typography variant='subtitle1'>
+                <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
                   &nbsp;{data.contactPerson.jobTitle}
                 </Typography>
               </>
             ) : null}
           </Box>
           {getAddress(data.clientAddress) === '-' ? null : (
-            <Typography variant='subtitle1'>
+            <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
               {getAddress(data.clientAddress)}
             </Typography>
           )}
 
-          <Typography variant='subtitle1'>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {data.contactPerson
               ? data.contactPerson.email
               : data.client.client.email}
           </Typography>
-          <Typography variant='subtitle1'>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
             {getPhoneNumber(
               data.contactPerson !== null
                 ? data.contactPerson.mobile!
@@ -240,11 +252,13 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
         >
           <Typography
             variant='subtitle1'
-            sx={{ fontWeight: lang === 'EN' ? 600 : 800 }}
+            sx={{ fontWeight: lang === 'EN' ? 600 : 800, fontSize: '14px' }}
           >
             {lang === 'EN' ? 'Project name:' : '업무내역:'}
           </Typography>
-          <Typography variant='subtitle1'>{data.projectName}</Typography>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
+            {data.projectName}
+          </Typography>
         </Box>
       </Box>
       <Box sx={{ paddingRight: '6px' }}>
@@ -363,20 +377,20 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                 display: 'flex',
                 justifyContent: 'flex-end',
                 gap: '50px',
-                paddingRight: '75px',
+                paddingRight: '87px',
                 mt: '10px',
               }}
               className='total-price'
             >
               <Typography
                 variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF' }}
+                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
               >
                 Total:
               </Typography>
               <Typography
                 variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF' }}
+                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
               >
                 {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')}
               </Typography>
@@ -386,8 +400,13 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
       </Box>
       <Box sx={{ marginTop: '15px', padding: '20px' }} className='thxTo'>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-          <Typography variant='subtitle1'>Yours sincerely,</Typography>
-          <Typography variant='subtitle1' sx={{ fontWeight: 600 }}>
+          <Typography variant='subtitle1' sx={{ fontSize: '14px' }}>
+            Yours sincerely,
+          </Typography>
+          <Typography
+            variant='subtitle1'
+            sx={{ fontWeight: 600, fontSize: '14px' }}
+          >
             The GloZ team
           </Typography>
         </Box>
