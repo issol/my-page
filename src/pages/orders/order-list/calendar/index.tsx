@@ -55,9 +55,7 @@ const OrderListCalendar = ({ user }: Props) => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetOrderListCalendar(
-    `${year}-${month}`,
-  )
+  const { data, refetch, isLoading } = useGetOrderListCalendar(year, month)
   const [event, setEvent] = useState<Array<OrderListCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
@@ -68,7 +66,7 @@ const OrderListCalendar = ({ user }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
 
   const handleRowClick = (row: OrderListType) => {
-    router.push(`/orders/detail/${row.id}`)
+    router.push(`/orders/order-list/detail/${row.id}`)
   }
 
   const isSelected = (index: number) => {

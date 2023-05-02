@@ -12,15 +12,18 @@ import {
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import {
+  ChangeEvent,
   MouseEvent,
   Suspense,
   SyntheticEvent,
   useContext,
+  useEffect,
   useState,
 } from 'react'
 import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import {
+  OrderDownloadData,
   ProjectTeamCellType,
   ProjectTeamType,
   VersionHistoryType,
@@ -36,21 +39,50 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { useRouter } from 'next/router'
 import {
   useGetClient,
+  useGetLangItem,
   useGetProjectInfo,
   useGetProjectTeam,
 } from '@src/queries/order/order.query'
 import DownloadOrderModal from './components/modal/download-order-modal'
+import OrderPreview from './components/order-preview'
+import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
+import { setOrder, setOrderLang } from '@src/store/order'
+interface Detail {
+  id: number
+  quantity: number
+  priceUnit: string
+  unit: string
+  price: number
+  totalPrice: number
+}
 
+export interface Row {
+  id: number
+  name: string
+  source: string
+  target: string
+  detail: Detail[]
+}
 const OrderDetail = () => {
   const router = useRouter()
 
   const { id } = router.query
 
   const [value, setValue] = useState<string>('project')
+  const dispatch = useAppDispatch()
 
-  const { data: projectInfo, isLoading } = useGetProjectInfo(Number(id!))
-  const { data: projectTeam } = useGetProjectTeam(Number(id!))
-  const { data: client } = useGetClient(Number(id!))
+  const { data: projectInfo, isLoading: projectInfoLoading } =
+    useGetProjectInfo(Number(id!))
+  const { data: projectTeam, isLoading: projectTeamLoading } =
+    useGetProjectTeam(Number(id!))
+  const { data: client, isLoading: clientLoading } = useGetClient(Number(id!))
+  const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
+    Number(id!),
+  )
+
+  const order = useAppSelector(state => state.order)
+
+  const [orders, setOrders] = useState<OrderDownloadData | null>(null)
 
   const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
@@ -74,8 +106,29 @@ const OrderDetail = () => {
     })
   }
 
+  const onClickPreview = (lang: 'EN' | 'KO') => {
+    openModal({
+      type: 'PreviewModal',
+      children: (
+        <OrderPreview
+          onClose={() => closeModal('PreviewModal')}
+          data={order.orderTotalData!}
+          lang={lang}
+        />
+      ),
+    })
+  }
+
   const onClickDownloadOrder = () => {
-    openModal({ type: 'DownloadOrderModal', children: <DownloadOrderModal /> })
+    openModal({
+      type: 'DownloadOrderModal',
+      children: (
+        <DownloadOrderModal
+          onClose={() => closeModal('DownloadOrderModal')}
+          onClick={onClickPreview}
+        />
+      ),
+    })
   }
 
   const versionHistoryColumns: GridColumns<VersionHistoryType> = [
@@ -117,6 +170,48 @@ const OrderDetail = () => {
       },
     },
   ]
+
+  useEffect(() => {
+    if (
+      !projectInfoLoading &&
+      !projectTeamLoading &&
+      !clientLoading &&
+      !langItemLoading
+    ) {
+      console.log('hi')
+      const pm = projectTeam!.find(value => value.position === 'projectManager')
+      const res: OrderDownloadData = {
+        adminCompanyName: 'GloZ Inc.',
+        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+        corporationId: projectInfo!.corporationId,
+        orderedAt: projectInfo!.orderedAt,
+        projectDueAt: {
+          date: projectInfo!.projectDueAt.date,
+          timezone: projectInfo!.projectDueAt.timezone,
+        },
+        pm: {
+          firstName: pm?.firstName!,
+          lastName: pm?.lastName!,
+          email: pm?.email!,
+          middleName: pm?.middleName!,
+        },
+        companyName: client!.client.name,
+        projectName: projectInfo!.projectName,
+        client: client!,
+        contactPerson: client!.contactPerson,
+        clientAddress: client!.clientAddress,
+        langItem: langItem!,
+      }
+      dispatch(setOrder(res))
+    }
+  }, [
+    dispatch,
+    projectInfoLoading,
+    projectTeamLoading,
+    clientLoading,
+    langItemLoading,
+  ])
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -137,7 +232,10 @@ const OrderDetail = () => {
               gap: '8px',
             }}
           >
-            <IconButton sx={{ padding: '0 !important', height: '24px' }}>
+            <IconButton
+              sx={{ padding: '0 !important', height: '24px' }}
+              onClick={() => router.push('/orders/order-list')}
+            >
               <Icon icon='mdi:chevron-left' width={24} height={24} />
             </IconButton>
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
@@ -215,6 +313,7 @@ const OrderDetail = () => {
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>
                 <ProjectTeam
+                  type='detail'
                   list={projectTeam!}
                   listCount={projectTeam?.length!}
                   columns={getProjectTeamColumns()}

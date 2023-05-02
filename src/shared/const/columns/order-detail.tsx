@@ -1,5 +1,6 @@
 import { Box } from '@mui/material'
 import { GridColumns } from '@mui/x-data-grid'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
   ProjectTeamCellType,
   ProjectTeamType,
@@ -27,7 +28,15 @@ export const getProjectTeamColumns = () => {
       sortable: false,
       renderHeader: () => <Box>Member</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
-        return <Box>{row.member}</Box>
+        return (
+          <Box>
+            {getLegalName({
+              firstName: row.firstName,
+              middleName: row.middleName,
+              lastName: row.lastName,
+            })}
+          </Box>
+        )
       },
     },
     {

@@ -198,11 +198,11 @@ export default function OrderList() {
               }}
             >
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>See only my Orders</Typography>
+                <Typography>See only my orders</Typography>
                 <Switch checked={seeMyOrders} onChange={handleSeeMyOrders} />
               </Box>
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                <Typography>Hide completed Orders</Typography>
+                <Typography>Hide completed orders</Typography>
                 <Switch
                   checked={hideCompletedOrders}
                   onChange={handleHideCompletedOrders}

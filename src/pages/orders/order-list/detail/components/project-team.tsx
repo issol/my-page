@@ -1,7 +1,15 @@
-import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  IconButton,
+  Typography,
+} from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { ProjectTeamType } from '@src/types/orders/order-detail'
 import { Dispatch, SetStateAction } from 'react'
+import Icon from '@src/@core/components/icon'
 
 type Props = {
   list: Array<ProjectTeamType>
@@ -11,6 +19,7 @@ type Props = {
   setPageSize: Dispatch<SetStateAction<number>>
   page: number
   setPage: Dispatch<SetStateAction<number>>
+  type: string
 }
 
 const ProjectTeam = ({
@@ -21,21 +30,27 @@ const ProjectTeam = ({
   setPageSize,
   page,
   setPage,
+  type,
 }: Props) => {
   console.log(list)
 
   return (
     <Card>
-      <CardHeader
-        title={
-          <Box display='flex' justifyContent='space-between'>
-            <Typography variant='h6'>
-              Project team ({listCount ?? 0})
-            </Typography>
-          </Box>
-        }
-        sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-      ></CardHeader>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          padding: '15px 20px',
+        }}
+      >
+        <Typography variant='h6'>Project team</Typography>
+        {type === 'detail' ? (
+          <IconButton>
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        ) : null}
+      </Box>
       <Box
         sx={{
           '& .MuiDataGrid-columnHeaderTitle': {

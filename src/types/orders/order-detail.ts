@@ -3,14 +3,18 @@ import { OrderStatusType } from './order-list'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
-import { number } from 'yup'
+import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 
-type PositionType = 'Supervisor' | 'Project manager' | 'Team member'
+type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
 export type ProjectTeamType = {
-  id: number
+  id: string
+  userId: number
   position: PositionType
-  member: string
+  firstName: string
+  middleName: string | null
+  lastName: string
+  email: string
   jobTitle: string
 }
 
@@ -61,4 +65,24 @@ export type VersionHistoryType = {
   email: string
   downloadedAt: string
   history: HistoryType
+}
+
+export type OrderDownloadData = {
+  adminCompanyName: string
+  companyAddress: string
+  corporationId: string
+  orderedAt: string
+  projectDueAt: { date: string; timezone: CountryType }
+  pm: {
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
+  companyName: string
+  projectName: string
+  client: ClientType
+  contactPerson: ContactPersonType | null
+  clientAddress: ClientAddressType[]
+  langItem: Row[]
 }

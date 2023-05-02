@@ -29,13 +29,16 @@ export const getOrderList = async (
 }
 
 export const getOrderListCalendar = async (
-  date: string,
+  year: number,
+  month: number,
 ): Promise<{ data: OrderListCalendarEventType[]; totalCount: number }> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
   const color_overdue = 'overdue'
 
   try {
-    const { data } = await axios.get(`/api/enough/u/pro/project?date=${date}`)
+    const { data } = await axios.get(
+      `/api/enough/u/order/list?year=${year}&month=${month}`,
+    )
 
     return data
 

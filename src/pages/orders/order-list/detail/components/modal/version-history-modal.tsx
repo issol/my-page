@@ -113,6 +113,7 @@ const VersionHistoryModal = ({ history }: Props) => {
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
             <ProjectTeam
+              type='history'
               list={history.history.projectTeam}
               listCount={history.history.projectTeam.length}
               columns={getProjectTeamColumns()}

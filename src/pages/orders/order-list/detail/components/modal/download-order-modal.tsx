@@ -1,6 +1,27 @@
-import { Box, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  FormControlLabel,
+  Radio,
+  RadioGroup,
+  Typography,
+} from '@mui/material'
+import { useAppDispatch } from '@src/hooks/useRedux'
+import { setOrderLang } from '@src/store/order'
+import { ChangeEvent, useState } from 'react'
 
-const DownloadOrderModal = () => {
+type Props = {
+  onClose: any
+  onClick: (lang: 'EN' | 'KO') => void
+}
+
+const DownloadOrderModal = ({ onClose, onClick }: Props) => {
+  const [lang, setLang] = useState<string | null>(null)
+
+  const handleLangChange = (event: ChangeEvent<HTMLInputElement>) => {
+    setLang(event.target.value)
+  }
+
   return (
     <Box
       sx={{
@@ -35,6 +56,63 @@ const DownloadOrderModal = () => {
           </Box>
 
           <Typography variant='h6'>Download order</Typography>
+          <Typography variant='subtitle2' sx={{ fontSize: '16px' }}>
+            Select template language
+          </Typography>
+        </Box>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'center',
+          }}
+        >
+          <RadioGroup
+            row
+            sx={{
+              padding: '12px 0px',
+              justifyContent: 'center',
+              display: 'flex',
+            }}
+            aria-label='controlled'
+            name='controlled'
+            value={lang}
+            onChange={handleLangChange}
+          >
+            <FormControlLabel
+              value='English'
+              control={<Radio />}
+              label='English'
+              sx={{
+                marginLeft: '0 !important',
+                '& .MuiTypography-root': {
+                  fontWeight: 600,
+                },
+              }}
+            />
+            <FormControlLabel
+              value='Korean'
+              control={<Radio />}
+              label='Korean'
+              sx={{
+                '& .MuiTypography-root': {
+                  fontWeight: 600,
+                },
+              }}
+            />
+          </RadioGroup>
+        </Box>
+
+        <Box sx={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
+          <Button variant='outlined' onClick={onClose}>
+            Cancel
+          </Button>
+          <Button
+            variant='contained'
+            onClick={() => onClick(lang && lang === 'English' ? 'EN' : 'KO')}
+            disabled={lang === null}
+          >
+            Preview
+          </Button>
         </Box>
       </Box>
     </Box>
