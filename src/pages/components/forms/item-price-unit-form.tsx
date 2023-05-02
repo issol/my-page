@@ -44,7 +44,6 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { defaultOption } from '../form-container/languages-and-items/languages-and-items-container'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
@@ -61,11 +60,13 @@ import {
   formatCurrency,
   getPrice,
 } from '@src/shared/helpers/price.helper'
+import { CurrencyList } from '@src/shared/const/currency/currency'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
   isValid: boolean
+  isNotApplicable: boolean
   priceData: StandardPriceListType | null
   getValues: UseFormGetValues<{ items: ItemType[] }>
   trigger: UseFormTrigger<{ items: ItemType[] }>
@@ -80,13 +81,14 @@ export default function ItemPriceUnitForm({
   control,
   index,
   isValid,
+  isNotApplicable,
   priceData,
   getValues,
   trigger,
   setValue,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-  console.log('priceData', priceData)
+
   const {
     fields: details,
     append,
@@ -97,6 +99,7 @@ export default function ItemPriceUnitForm({
     name: itemName,
   })
   const { openModal, closeModal } = useModal()
+  // console.log('priceData', priceData)
 
   function appendDetail() {
     append({
@@ -170,7 +173,7 @@ export default function ItemPriceUnitForm({
     })
   }
 
-  function getPercentPrice(idx: number) {
+  function getEachPrice(idx: number) {
     trigger()
     const data = getValues(itemName)
     if (!data?.length) {
@@ -192,6 +195,7 @@ export default function ItemPriceUnitForm({
       })
     } else {
       const prices = detail.unitPrice * detail.quantity
+      console.log(priceData)
       setValue(`items.${index}.detail.${idx}.prices`, prices, {
         shouldDirty: true,
         shouldValidate: true,
@@ -217,7 +221,7 @@ export default function ItemPriceUnitForm({
                     placeholder='0'
                     type='number'
                     value={value}
-                    onBlur={() => getPercentPrice(idx)}
+                    onBlur={() => getEachPrice(idx)}
                     sx={{ maxWidth: '80px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -271,7 +275,7 @@ export default function ItemPriceUnitForm({
                               priceFactor: priceFactor?.toString(),
                             })
                             getTotalPrice()
-                            getPercentPrice(idx)
+                            getEachPrice(idx)
                           }}
                         >
                           {option?.quantity && option?.quantity >= 2
@@ -298,7 +302,7 @@ export default function ItemPriceUnitForm({
                                 priceFactor: priceFactor?.toString(),
                               })
                               getTotalPrice()
-                              getPercentPrice(idx)
+                              getEachPrice(idx)
                             }}
                           >
                             <Icon
@@ -351,7 +355,7 @@ export default function ItemPriceUnitForm({
                     onChange(e)
                   }}
                   onBlur={e => {
-                    getPercentPrice(idx)
+                    getEachPrice(idx)
                   }}
                   sx={{ maxWidth: '80px', padding: 0 }}
                 />
@@ -359,18 +363,49 @@ export default function ItemPriceUnitForm({
             }}
           />
         </TableCell>
-        <TableCell align='center'>currency</TableCell>
+        <TableCell align='center'>
+          {isNotApplicable ? (
+            <Controller
+              name={`${itemName}.${0}.currency`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    options={CurrencyList}
+                    onChange={(e, v) => {
+                      if (v?.value) onChange(v.value)
+                    }}
+                    value={
+                      CurrencyList.find(item => item.value === value) || null
+                    }
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Currency*'
+                        placeholder='Currency*'
+                      />
+                    )}
+                  />
+                )
+              }}
+            />
+          ) : null}
+        </TableCell>
         <TableCell align='center'>
           <Typography>
-            {formatCurrency(
-              formatByRoundingProcedure(
-                Number(savedValue.prices),
-                priceData?.decimalPlace!,
-                priceData?.roundingProcedure!,
-                priceData?.currency!,
-              ),
-              priceData?.currency ?? 'USD',
-            )}
+            {!priceData
+              ? 0
+              : formatCurrency(
+                  formatByRoundingProcedure(
+                    Number(savedValue.prices),
+                    priceData?.decimalPlace!,
+                    priceData?.roundingProcedure!,
+                    priceData?.currency!,
+                  ),
+                  priceData?.currency ?? 'USD',
+                )}
           </Typography>
         </TableCell>
         <TableCell align='center'>

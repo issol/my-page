@@ -40,13 +40,12 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { MemberType } from '@src/types/schema/project-team.schema'
-import { languageType } from '@src/pages/orders/add-new'
+import { NOT_APPLICABLE_PRICE, languageType } from '@src/pages/orders/add-new'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ItemPriceUnitForm from './item-price-unit-form'
-import { NOT_APPLICABLE_PRICE } from '../form-container/languages-and-items/languages-and-items-container'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -55,7 +54,6 @@ type Props = {
   watch: UseFormWatch<{ items: ItemType[] }>
   errors: FieldErrors<{ items: ItemType[] }>
   fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
-  append: UseFieldArrayAppend<{ items: ItemType[] }, 'items'>
   remove: UseFieldArrayRemove
   update: UseFieldArrayUpdate<{ items: ItemType[] }, 'items'>
   isValid: boolean
@@ -68,6 +66,7 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
   trigger: UseFormTrigger<{ items: ItemType[] }>
+  handleSubmit: any
 }
 export default function ItemForm({
   control,
@@ -76,7 +75,6 @@ export default function ItemForm({
   watch,
   errors,
   fields,
-  append,
   remove,
   update,
   isValid,
@@ -85,6 +83,7 @@ export default function ItemForm({
   setLanguagePairs,
   getPriceOptions,
   trigger,
+  handleSubmit,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const defaultValue = { value: '', label: '' }
@@ -161,7 +160,13 @@ export default function ItemForm({
     const [cardOpen, setCardOpen] = useState(true)
     const data = getValues(`items.${idx}`)
     return (
-      <Box style={{ border: '1px solid #F5F5F7', borderRadius: '8px' }}>
+      <Box
+        style={{
+          border: '1px solid #F5F5F7',
+          borderRadius: '8px',
+          marginBottom: '14px',
+        }}
+      >
         <Grid container spacing={6} padding='14px'>
           <Grid item xs={12}>
             <Box
@@ -179,227 +184,235 @@ export default function ItemForm({
                     }`}
                   />
                 </IconButton>
-                <Typography fontWeight={500}>01.</Typography>
+                <Typography fontWeight={500}>
+                  {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}
+                </Typography>
               </Box>
               <IconButton onClick={() => onItemRemove(idx)}>
                 <Icon icon='mdi:trash-outline' />
               </IconButton>
             </Box>
           </Grid>
-          <Grid item xs={12}>
-            <Controller
-              name={`items.${idx}.name`}
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <TextField
-                  fullWidth
-                  autoFocus
-                  label='Item name*'
-                  variant='outlined'
-                  value={value ?? ''}
-                  onChange={onChange}
-                  inputProps={{ maxLength: 200 }}
-                  error={Boolean(errors?.items?.[idx]?.name)}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Controller
-              name={`items.${idx}.dueAt`}
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <FullWidthDatePicker
-                  showTimeSelect
-                  timeFormat='HH:mm'
-                  timeIntervals={15}
-                  selected={!value ? null : new Date(value)}
-                  dateFormat='MM/dd/yyyy h:mm aa'
-                  onChange={onChange}
-                  customInput={<CustomInput label='Item due date*' />}
-                />
-              )}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Controller
-              name={`items.${idx}.contactPersonId`}
-              control={control}
-              render={({ field: { value, onChange } }) => (
-                <Autocomplete
-                  autoHighlight
-                  fullWidth
-                  options={contactPersonList}
-                  onChange={(e, v) => {
-                    onChange(v?.value ?? '')
-                  }}
-                  value={
-                    !value
-                      ? defaultValue
-                      : contactPersonList.find(
-                          item => item.value === value.toString(),
-                        )
-                  }
-                  renderInput={params => (
+          {cardOpen ? (
+            <>
+              <Grid item xs={12}>
+                <Controller
+                  name={`items.${idx}.name`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
                     <TextField
-                      {...params}
-                      error={Boolean(errors?.items?.[idx]?.contactPersonId)}
-                      label='Contact person for job*'
-                      placeholder='Contact person for job*'
+                      fullWidth
+                      label='Item name*'
+                      variant='outlined'
+                      value={value ?? ''}
+                      onChange={onChange}
+                      inputProps={{ maxLength: 200 }}
+                      error={Boolean(errors?.items?.[idx]?.name)}
                     />
                   )}
                 />
-              )}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Controller
-              name={`items.${idx}.source`}
-              control={control}
-              render={({ field: { value, onChange } }) => {
-                return (
-                  <Autocomplete
-                    autoHighlight
-                    fullWidth
-                    options={languagePairs.sort((a, b) =>
-                      a.source.localeCompare(b.source),
-                    )}
-                    getOptionLabel={option =>
-                      `${languageHelper(option.source)} -> ${languageHelper(
-                        option.target,
-                      )}`
-                    }
-                    onChange={(e, v) => {
-                      onChangeLanguagePair(v, idx)
-                    }}
-                    value={
-                      !value
-                        ? null
-                        : languagePairs.find(
-                            item =>
-                              item.source === value &&
-                              item.target === getValues(`items.${idx}.target`),
-                          )
-                    }
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        error={Boolean(errors?.items?.[idx]?.source)}
-                        label='Language pair*'
-                        placeholder='Language pair*'
-                      />
-                    )}
-                  />
-                )
-              }}
-            />
-          </Grid>
-          <Grid item xs={6}>
-            <Controller
-              name={`items.${idx}.priceId`}
-              control={control}
-              render={({ field: { value, onChange } }) => {
-                const options = getPriceOptions(
-                  getValues(`items.${idx}.source`),
-                  getValues(`items.${idx}.target`),
-                )
-                const matchingPrice = options.find(
-                  item => item.groupName === 'Matching price',
-                )
-                if (matchingPrice) {
-                  onChange(matchingPrice.id)
-                }
-                return (
-                  <Autocomplete
-                    autoHighlight
-                    fullWidth
-                    options={options}
-                    groupBy={option => option?.groupName}
-                    getOptionLabel={option => option.priceName}
-                    onChange={(e, v) => {
-                      onChange(v?.id)
-                      const value = getValues().items[idx]
-                      if (v) {
-                        const index = findLangPairIndex(
-                          value?.source!,
-                          value?.target!,
-                        )
-                        if (index !== -1) {
-                          const copyLangPair = [...languagePairs]
-                          copyLangPair[index].price = v
-                          setLanguagePairs(copyLangPair)
-                        }
-                      }
-                    }}
-                    value={
-                      value === null
-                        ? null
-                        : options.find(item => item.id === value)
-                    }
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        error={Boolean(errors?.items?.[idx]?.priceId)}
-                        label='Price*'
-                        placeholder='Price*'
-                      />
-                    )}
-                  />
-                )
-              }}
-            />
-          </Grid>
-          {/* price unit */}
-          <ItemPriceUnitForm
-            index={idx}
-            control={control}
-            isValid={
-              !!data.source &&
-              !!data.target &&
-              (!!data.priceId || data.priceId === NOT_APPLICABLE_PRICE)
-            }
-            priceData={
-              languagePairs.find(item => data?.priceId === item?.price?.id)
-                ?.price ?? null
-            }
-            getValues={getValues}
-            trigger={trigger}
-            setValue={setValue}
-          />
-          {/* price unit */}
-
-          <Grid item xs={12}>
-            <Typography variant='h6' mb='24px'>
-              Item description
-            </Typography>
-            <Controller
-              name={`items.${idx}.description`}
-              control={control}
-              render={({ field: { value, onChange } }) => {
-                return (
-                  <>
-                    <TextField
-                      rows={4}
-                      multiline
-                      fullWidth
-                      label='Write down an item description.'
-                      value={value ?? ''}
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name={`items.${idx}.dueAt`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <FullWidthDatePicker
+                      showTimeSelect
+                      timeFormat='HH:mm'
+                      timeIntervals={15}
+                      selected={!value ? null : new Date(value)}
+                      dateFormat='MM/dd/yyyy h:mm aa'
                       onChange={onChange}
-                      inputProps={{ maxLength: 500 }}
+                      customInput={<CustomInput label='Item due date*' />}
                     />
-                    <Typography variant='body2' mt='12px' textAlign='right'>
-                      {value?.length ?? 0}/500
-                    </Typography>
-                  </>
-                )
-              }}
-            />
-          </Grid>
-          <Grid item xs={12}>
-            <Divider />
-          </Grid>
-          {/* TM analysis */}
-          {/* TM analysis */}
+                  )}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name={`items.${idx}.contactPersonId`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => (
+                    <Autocomplete
+                      autoHighlight
+                      fullWidth
+                      options={contactPersonList}
+                      onChange={(e, v) => {
+                        onChange(v?.value ?? '')
+                      }}
+                      value={
+                        !value
+                          ? defaultValue
+                          : contactPersonList.find(
+                              item => item.value === value.toString(),
+                            )
+                      }
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          error={Boolean(errors?.items?.[idx]?.contactPersonId)}
+                          label='Contact person for job*'
+                          placeholder='Contact person for job*'
+                        />
+                      )}
+                    />
+                  )}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name={`items.${idx}.source`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        options={languagePairs.sort((a, b) =>
+                          a.source.localeCompare(b.source),
+                        )}
+                        getOptionLabel={option =>
+                          `${languageHelper(option.source)} -> ${languageHelper(
+                            option.target,
+                          )}`
+                        }
+                        onChange={(e, v) => {
+                          onChangeLanguagePair(v, idx)
+                        }}
+                        value={
+                          !value
+                            ? null
+                            : languagePairs.find(
+                                item =>
+                                  item.source === value &&
+                                  item.target ===
+                                    getValues(`items.${idx}.target`),
+                              )
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            error={Boolean(errors?.items?.[idx]?.source)}
+                            label='Language pair*'
+                            placeholder='Language pair*'
+                          />
+                        )}
+                      />
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <Controller
+                  name={`items.${idx}.priceId`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    const options = getPriceOptions(
+                      getValues(`items.${idx}.source`),
+                      getValues(`items.${idx}.target`),
+                    )
+                    const matchingPrice = options.find(
+                      item => item.groupName === 'Matching price',
+                    )
+                    if (matchingPrice) {
+                      onChange(matchingPrice.id)
+                    }
+                    return (
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        options={options}
+                        groupBy={option => option?.groupName}
+                        getOptionLabel={option => option.priceName}
+                        onChange={(e, v) => {
+                          onChange(v?.id)
+                          const value = getValues().items[idx]
+                          if (v) {
+                            const index = findLangPairIndex(
+                              value?.source!,
+                              value?.target!,
+                            )
+                            if (index !== -1) {
+                              const copyLangPair = [...languagePairs]
+                              copyLangPair[index].price = v
+                              setLanguagePairs(copyLangPair)
+                            }
+                          }
+                        }}
+                        value={
+                          value === null
+                            ? null
+                            : options.find(item => item.id === value)
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            error={Boolean(errors?.items?.[idx]?.priceId)}
+                            label='Price*'
+                            placeholder='Price*'
+                          />
+                        )}
+                      />
+                    )
+                  }}
+                />
+              </Grid>
+              {/* price unit */}
+              <ItemPriceUnitForm
+                index={idx}
+                control={control}
+                isValid={
+                  !!data.source &&
+                  !!data.target &&
+                  (!!data.priceId || data.priceId === NOT_APPLICABLE_PRICE)
+                }
+                isNotApplicable={data.priceId === NOT_APPLICABLE_PRICE}
+                priceData={
+                  languagePairs.find(item => data?.priceId === item?.price?.id)
+                    ?.price ?? null
+                }
+                getValues={getValues}
+                trigger={trigger}
+                setValue={setValue}
+              />
+
+              {/* price unit */}
+
+              <Grid item xs={12}>
+                <Typography variant='h6' mb='24px'>
+                  Item description
+                </Typography>
+                <Controller
+                  name={`items.${idx}.description`}
+                  control={control}
+                  render={({ field: { value, onChange } }) => {
+                    return (
+                      <>
+                        <TextField
+                          rows={4}
+                          multiline
+                          fullWidth
+                          label='Write down an item description.'
+                          value={value ?? ''}
+                          onChange={onChange}
+                          inputProps={{ maxLength: 500 }}
+                        />
+                        <Typography variant='body2' mt='12px' textAlign='right'>
+                          {value?.length ?? 0}/500
+                        </Typography>
+                      </>
+                    )
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              {/* TM analysis */}
+              {/* TM analysis */}
+            </>
+          ) : null}
         </Grid>
       </Box>
     )

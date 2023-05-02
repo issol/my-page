@@ -9,7 +9,7 @@ import { useQuery } from 'react-query'
 export type PriceListFilterType = {
   source?: string
   target?: string
-  clientId?: number
+  clientId?: number | null
 }
 export const useGetPriceList = (filter: PriceListFilterType) => {
   return useQuery(['price-list', filter], () => getPriceList(filter), {

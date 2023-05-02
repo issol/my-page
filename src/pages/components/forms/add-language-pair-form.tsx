@@ -34,14 +34,14 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { languageType } from '@src/pages/orders/add-new'
+import { defaultOption, languageType } from '@src/pages/orders/add-new'
 
 import { v4 as uuidv4 } from 'uuid'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
-import { defaultOption } from '../form-container/languages-and-items/languages-and-items-container'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {

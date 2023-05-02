@@ -5,7 +5,15 @@ import { useRouter } from 'next/router'
 import useModal from '@src/hooks/useModal'
 
 // ** mui
-import { Box, Button, Card, Grid, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+} from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 import { useForm, Controller, useFieldArray } from 'react-hook-form'
@@ -34,7 +42,6 @@ import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import LanguagesAndItemsContainer from '@src/pages/components/form-container/languages-and-items/languages-and-items-container'
 
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import {
@@ -45,6 +52,9 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 
 import { AuthContext } from '@src/context/AuthContext'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useGetPriceList } from '@src/queries/company/standard-price'
+import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
+import ItemForm from '@src/pages/components/forms/items-form'
 
 export type languageType = {
   id: string
@@ -53,6 +63,24 @@ export type languageType = {
   price: StandardPriceListType | null
   isDeletable?: boolean
 }
+
+export const NOT_APPLICABLE_PRICE = -0
+export const defaultOption: StandardPriceListType & { groupName: string } = {
+  id: NOT_APPLICABLE_PRICE,
+  isStandard: false,
+  priceName: 'Not applicable',
+  groupName: 'Not applicable',
+  category: '',
+  serviceType: [],
+  currency: 'USD',
+  catBasis: '',
+  decimalPlace: 0,
+  roundingProcedure: '',
+  languagePairs: [],
+  priceUnit: [],
+  catInterface: { memSource: [], memoQ: [] },
+}
+
 export default function AddNewQuotes() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
@@ -180,6 +208,10 @@ export default function AddNewQuotes() {
   })
 
   // ** step4
+  const { data: prices, isSuccess } = useGetPriceList({
+    clientId: getClientValue('clientId'),
+  })
+
   const {
     control: itemControl,
     getValues: getItem,
@@ -187,6 +219,7 @@ export default function AddNewQuotes() {
     watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
+    handleSubmit,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
     mode: 'onChange',
@@ -203,7 +236,44 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
+  console.log('getItem() : ', getItem(), itemErrors)
 
+  function getPriceOptions(source: string, target: string) {
+    if (!isSuccess) return [defaultOption]
+    const filteredList = prices
+      .filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      })
+      .map(item => ({
+        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        ...item,
+      }))
+    return [defaultOption].concat(filteredList)
+  }
+
+  function isAddItemDisabled(): boolean {
+    if (!languagePairs.length) return true
+    return languagePairs.some(item => !item?.price)
+  }
+
+  function addNewItem() {
+    const teamMembers = getTeamValues()?.teams
+    const projectManager = teamMembers.find(
+      item => item.type === 'projectManagerId',
+    )
+    appendItems({
+      name: '',
+      source: '',
+      target: '',
+      contactPersonId: projectManager?.id!,
+      priceId: null,
+      detail: [],
+      totalPrice: 0,
+    })
+  }
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -290,26 +360,91 @@ export default function AddNewQuotes() {
           </Card>
         ) : (
           <Card sx={{ padding: '24px' }}>
-            <LanguagesAndItemsContainer
-              tax={tax}
-              setTax={setTax}
-              languagePairs={languagePairs}
-              setLanguagePairs={setLanguagePairs}
-              clientId={getClientValue('clientId')}
-              itemControl={itemControl}
-              getItem={getItem}
-              setItem={setItem}
-              itemWatch={itemWatch}
-              itemErrors={itemErrors}
-              items={items}
-              appendItems={appendItems}
-              removeItems={removeItems}
-              updateItems={updateItems}
-              isItemValid={isItemValid}
-              teamMembers={getTeamValues()?.teams}
-              handleBack={handleBack}
-              trigger={itemTrigger}
-            />
+            <Grid container>
+              <Grid item xs={12}>
+                <AddLanguagePairForm
+                  languagePairs={languagePairs}
+                  setLanguagePairs={setLanguagePairs}
+                  getPriceOptions={getPriceOptions}
+                />
+              </Grid>
+              <Grid item xs={12} mt={6} mb={6}>
+                <ItemForm
+                  control={itemControl}
+                  getValues={getItem}
+                  setValue={setItem}
+                  watch={itemWatch}
+                  errors={itemErrors}
+                  fields={items}
+                  remove={removeItems}
+                  update={updateItems}
+                  isValid={isItemValid}
+                  teamMembers={getTeamValues()?.teams}
+                  languagePairs={languagePairs}
+                  setLanguagePairs={setLanguagePairs}
+                  getPriceOptions={getPriceOptions}
+                  trigger={itemTrigger}
+                  handleSubmit={handleSubmit}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Button
+                  startIcon={<Icon icon='material-symbols:add' />}
+                  disabled={isAddItemDisabled()}
+                  onClick={addNewItem}
+                >
+                  <Typography
+                    color={isAddItemDisabled() ? 'secondary' : 'primary'}
+                    sx={{ textDecoration: 'underline' }}
+                  >
+                    Add new item
+                  </Typography>
+                </Button>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                padding='24px'
+                alignItems='center'
+                justifyContent='space-between'
+                mt={6}
+                mb={6}
+                sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+              >
+                <Typography>Tax</Typography>
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <TextField
+                    size='small'
+                    type='number'
+                    value={tax}
+                    sx={{ maxWidth: '120px', padding: 0 }}
+                    inputProps={{ inputMode: 'decimal' }}
+                    onChange={e => {
+                      if (e.target.value.length > 10) return
+                      setTax(Number(e.target.value))
+                    }}
+                  />
+                  %
+                </Box>
+              </Grid>
+              <Grid item xs={12} display='flex' justifyContent='space-between'>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleBack}
+                >
+                  <Icon icon='material-symbols:arrow-back-rounded' />
+                  Previous
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isItemValid} /* onClick={onNextStep} */
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         )}
       </Grid>
