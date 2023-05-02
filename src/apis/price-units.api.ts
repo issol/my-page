@@ -1,6 +1,7 @@
 import axios from 'src/configs/axios'
 import logger from '@src/@core/utils/logger'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import { PriceUnitListType } from '@src/types/common/standard-price'
 
 export type PriceUnitDataType = {
   data: Array<PriceUnitType>
@@ -44,6 +45,21 @@ export const getPriceUnitList = async (
       data: [],
       count: 0,
       totalCount: 0,
+    }
+  }
+}
+
+export const getAllPriceUnitList = async (): Promise<{
+  data: Array<PriceUnitListType>
+  count: number
+}> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/price/unit/al/combo`)
+    return data
+  } catch (e: any) {
+    return {
+      data: [],
+      count: 0,
     }
   }
 }

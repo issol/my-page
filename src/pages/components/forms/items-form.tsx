@@ -41,7 +41,10 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { MemberType } from '@src/types/schema/project-team.schema'
 import { NOT_APPLICABLE_PRICE, languageType } from '@src/pages/orders/add-new'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import {
+  PriceUnitListType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
@@ -51,14 +54,11 @@ type Props = {
   control: Control<{ items: ItemType[] }, any>
   getValues: UseFormGetValues<{ items: ItemType[] }>
   setValue: UseFormSetValue<{ items: ItemType[] }>
-  watch: UseFormWatch<{ items: ItemType[] }>
   errors: FieldErrors<{ items: ItemType[] }>
   fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
   remove: UseFieldArrayRemove
-  update: UseFieldArrayUpdate<{ items: ItemType[] }, 'items'>
   isValid: boolean
   teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
-
   languagePairs: languageType[]
   setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
   getPriceOptions: (
@@ -66,24 +66,22 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
   trigger: UseFormTrigger<{ items: ItemType[] }>
-  handleSubmit: any
+  priceUnitsList: Array<PriceUnitListType>
 }
 export default function ItemForm({
   control,
   getValues,
   setValue,
-  watch,
   errors,
   fields,
   remove,
-  update,
   isValid,
   teamMembers,
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
   trigger,
-  handleSubmit,
+  priceUnitsList,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const defaultValue = { value: '', label: '' }
@@ -375,6 +373,7 @@ export default function ItemForm({
                 getValues={getValues}
                 trigger={trigger}
                 setValue={setValue}
+                priceUnitsList={priceUnitsList}
               />
 
               {/* price unit */}

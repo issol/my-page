@@ -71,6 +71,7 @@ type Props = {
   getValues: UseFormGetValues<{ items: ItemType[] }>
   trigger: UseFormTrigger<{ items: ItemType[] }>
   setValue: UseFormSetValue<{ items: ItemType[] }>
+  priceUnitsList: Array<PriceUnitListType>
 }
 
 /* TODO : priceId === NOT_APPLICABLE_PRICE 일 때 form도 제작하기
@@ -86,6 +87,7 @@ export default function ItemPriceUnitForm({
   getValues,
   trigger,
   setValue,
+  priceUnitsList,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
 
@@ -119,18 +121,29 @@ export default function ItemPriceUnitForm({
 
   const nestSubPriceUnits = () => {
     const nestedData: Array<NestedPriceUnitType> = []
-    if (priceData?.priceUnit.length) {
-      const data = priceData?.priceUnit
+    const priceUnit = priceUnitsList.map(item => ({
+      ...item,
+      subPriceUnits: [],
+      groupName: 'Price unit',
+    }))
+    const matchingUnit = priceData?.priceUnit?.map(item => ({
+      ...item,
+      subPriceUnits: [],
+      groupName: 'Matching price unit',
+    }))
+    const data = matchingUnit?.concat(priceUnit)
+    if (data?.length) {
+      console.log(data)
       data.forEach(item => {
         if (item.parentPriceUnitId === null) {
-          const parentItem = {
-            ...item,
-            subPriceUnits: [],
-            groupName: 'Matching price unit',
-          }
-          nestedData.push(parentItem)
+          // const parentItem = {
+          //   ...item,
+          //   subPriceUnits: [],
+          //   groupName: 'Matching price unit',
+          // }
+          nestedData.push(item)
           data.forEach(subItem => {
-            if (subItem.parentPriceUnitId === parentItem.priceUnitId) {
+            if (subItem.parentPriceUnitId === item.priceUnitId) {
               // @ts-ignore
               parentItem.subPriceUnits.push(subItem)
             }

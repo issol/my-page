@@ -55,6 +55,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
+import { useGetAllPriceList } from '@src/queries/price-units.query'
 
 export type languageType = {
   id: string
@@ -211,15 +212,14 @@ export default function AddNewQuotes() {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: getClientValue('clientId'),
   })
+  const { data: priceUnitsList } = useGetAllPriceList()
 
   const {
     control: itemControl,
     getValues: getItem,
     setValue: setItem,
-    watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
-    handleSubmit,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
     mode: 'onChange',
@@ -373,18 +373,16 @@ export default function AddNewQuotes() {
                   control={itemControl}
                   getValues={getItem}
                   setValue={setItem}
-                  watch={itemWatch}
                   errors={itemErrors}
                   fields={items}
                   remove={removeItems}
-                  update={updateItems}
                   isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
                   trigger={itemTrigger}
-                  handleSubmit={handleSubmit}
+                  priceUnitsList={priceUnitsList?.data || []}
                 />
               </Grid>
               <Grid item xs={12}>
