@@ -37,4 +37,5 @@ export const itemSchema = yup.object().shape({
   description: yup.string().nullable(),
   analysis: yup.array().of(yup.number().nullable()),
   totalPrice: yup.number().required(FormErrors.required),
+  priceFactor: yup.string().nullable(),
 })

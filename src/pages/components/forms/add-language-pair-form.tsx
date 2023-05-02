@@ -136,12 +136,10 @@ export default function AddLanguagePairForm({
       | null,
     idx: number,
   ) {
-    console.log(v)
     if (!v) return
     const newPairs = [...languagePairs]
     delete v?.groupName
     newPairs[idx].price = v
-    console.log('newPairs', newPairs)
     setLanguagePairs(newPairs)
   }
 
@@ -274,7 +272,9 @@ export default function AddLanguagePairForm({
                           sx={{ width: 300 }}
                           options={options}
                           groupBy={option => option?.groupName}
-                          onChange={(e, v) => setPrice(v, idx)}
+                          onChange={(e, v) => {
+                            setPrice(v, idx)
+                          }}
                           id='autocomplete-controlled'
                           getOptionLabel={option => option.priceName}
                           renderInput={params => (

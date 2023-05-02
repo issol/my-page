@@ -52,6 +52,7 @@ import {
   Controller,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
   useFieldArray,
 } from 'react-hook-form'
@@ -60,28 +61,32 @@ import {
   formatCurrency,
   getPrice,
 } from '@src/shared/helpers/price.helper'
-import UnitPriceInputField from './unit-price-input-field'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
-  itemName: `items.${number}.detail`
+  index: number
   isValid: boolean
   priceData: StandardPriceListType | null
   getValues: UseFormGetValues<{ items: ItemType[] }>
+  trigger: UseFormTrigger<{ items: ItemType[] }>
+  setValue: UseFormSetValue<{ items: ItemType[] }>
 }
 
 /* TODO : priceId === NOT_APPLICABLE_PRICE 일 때 form도 제작하기
 price unit이 child까지 함께 선택 된 경우 form도 같이 append하기
-unitPrice저장 시 priceFactor이 함께 계산된 금액이 저장되도록 하기
 
 */
 export default function ItemPriceUnitForm({
   control,
-  itemName,
+  index,
   isValid,
   priceData,
   getValues,
+  trigger,
+  setValue,
 }: Props) {
+  const itemName: `items.${number}.detail` = `items.${index}.detail`
+  console.log('priceData', priceData)
   const {
     fields: details,
     append,
@@ -92,6 +97,7 @@ export default function ItemPriceUnitForm({
     name: itemName,
   })
   const { openModal, closeModal } = useModal()
+
   function appendDetail() {
     append({
       quantity: 0,
@@ -133,26 +139,6 @@ export default function ItemPriceUnitForm({
     return nestedData
   }
 
-  function renderPrices(
-    savedValue: ItemDetailType,
-    currentPrice: number | string,
-    priceFactor: number | null,
-  ) {
-    if (savedValue.unit === 'Percent') return '-'
-    else {
-      const result = formatByRoundingProcedure(
-        getPrice(Number(currentPrice) * savedValue.quantity, priceFactor),
-        priceData?.decimalPlace!,
-        priceData?.roundingProcedure!,
-        savedValue.currency,
-      )
-
-      return isNaN(Number(result))
-        ? 0
-        : formatCurrency(result, savedValue.currency)
-    }
-  }
-
   function onDeletePriceUnit(idx: number, title: string) {
     openModal({
       type: 'delete-unit',
@@ -167,12 +153,55 @@ export default function ItemPriceUnitForm({
     })
   }
 
+  function getTotalPrice(isRefresh = false) {
+    if (isRefresh) {
+      trigger()
+    }
+    let total = 0
+    const data = getValues(itemName)
+    if (data?.length) {
+      data.forEach(item => {
+        total += Number(item.prices)
+      })
+    }
+    setValue(`items.${index}.totalPrice`, total, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
+  }
+
+  function getPercentPrice(idx: number) {
+    trigger()
+    const data = getValues(itemName)
+    if (!data?.length) {
+      return
+    }
+    const detail = data?.[idx]
+    if (detail && detail.unit === 'Percent') {
+      let prices = 0
+      let total = 0
+      const percentQuantity = data[idx].quantity
+      const generalPrices = data.filter(item => item.unit !== 'Percent')
+      generalPrices.forEach(item => {
+        prices += item.unitPrice
+      })
+      total = prices * (percentQuantity / 100)
+      setValue(`items.${index}.detail.${idx}.prices`, total, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    } else {
+      const prices = detail.unitPrice * detail.quantity
+      setValue(`items.${index}.detail.${idx}.prices`, prices, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+  }
+
   function Row({ idx }: { idx: number }) {
     const savedValue = getValues(`${itemName}.${idx}`)
     const [open, setOpen] = useState(false)
-    const [currentPrice, setCurrentPrice] = useState<number | string>(
-      savedValue.unitPrice,
-    )
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
 
     return (
@@ -183,14 +212,17 @@ export default function ItemPriceUnitForm({
             control={control}
             render={({ field: { value, onChange } }) => {
               return (
-                <Box>
+                <Box display='flex' alignItems='center' gap='8px'>
                   <TextField
                     placeholder='0'
                     type='number'
                     value={value}
+                    onBlur={() => getPercentPrice(idx)}
                     sx={{ maxWidth: '80px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
-                    onChange={onChange}
+                    onChange={e => {
+                      onChange(e)
+                    }}
                   />
                   {savedValue.unit === 'Percent' ? '%' : null}
                 </Box>
@@ -233,8 +265,13 @@ export default function ItemPriceUnitForm({
                               ...savedValue,
                               quantity: option.quantity ?? 0,
                               unit: option.unit,
-                              unitPrice: option.price ?? 0,
+                              unitPrice: priceFactor
+                                ? priceFactor * option.price
+                                : option.price,
+                              priceFactor: priceFactor?.toString(),
                             })
+                            getTotalPrice()
+                            getPercentPrice(idx)
                           }}
                         >
                           {option?.quantity && option?.quantity >= 2
@@ -255,8 +292,13 @@ export default function ItemPriceUnitForm({
                                 ...savedValue,
                                 quantity: sub.quantity ?? 0,
                                 unit: sub.unit,
-                                unitPrice: sub.price ?? 0,
+                                unitPrice: priceFactor
+                                  ? priceFactor * sub.price
+                                  : sub.price,
+                                priceFactor: priceFactor?.toString(),
                               })
+                              getTotalPrice()
+                              getPercentPrice(idx)
                             }}
                           >
                             <Icon
@@ -300,23 +342,18 @@ export default function ItemPriceUnitForm({
             name={`${itemName}.${idx}.unitPrice`}
             control={control}
             render={({ field: { value, onChange } }) => {
-              const unitPrice = formatCurrency(
-                formatByRoundingProcedure(
-                  getPrice(value, priceFactor),
-                  priceData?.decimalPlace!,
-                  priceData?.roundingProcedure!,
-                  savedValue.currency,
-                ),
-                savedValue.currency,
-              )
-
               return (
-                <UnitPriceInputField
-                  onChange={onChange}
+                <TextField
+                  placeholder='0.00'
                   value={value}
-                  savedValue={savedValue}
-                  setCurrentPrice={setCurrentPrice}
-                  unitPrice={unitPrice}
+                  disabled={savedValue.unit === 'Percent'}
+                  onChange={e => {
+                    onChange(e)
+                  }}
+                  onBlur={e => {
+                    getPercentPrice(idx)
+                  }}
+                  sx={{ maxWidth: '80px', padding: 0 }}
                 />
               )
             }}
@@ -325,7 +362,15 @@ export default function ItemPriceUnitForm({
         <TableCell align='center'>currency</TableCell>
         <TableCell align='center'>
           <Typography>
-            {renderPrices(savedValue, currentPrice, priceFactor)}
+            {formatCurrency(
+              formatByRoundingProcedure(
+                Number(savedValue.prices),
+                priceData?.decimalPlace!,
+                priceData?.roundingProcedure!,
+                priceData?.currency!,
+              ),
+              priceData?.currency ?? 'USD',
+            )}
           </Typography>
         </TableCell>
         <TableCell align='center'>
@@ -386,8 +431,20 @@ export default function ItemPriceUnitForm({
                   gap='8px'
                   justifyContent='flex-end'
                 >
-                  <Typography fontWeight='bold'>$ 123.123</Typography>
-                  <IconButton>
+                  <Typography fontWeight='bold'>
+                    {!priceData
+                      ? 0
+                      : formatCurrency(
+                          formatByRoundingProcedure(
+                            getValues(`items.${index}.totalPrice`),
+                            priceData?.decimalPlace!,
+                            priceData?.roundingProcedure!,
+                            priceData?.currency!,
+                          ),
+                          priceData?.currency ?? 'USD',
+                        )}
+                  </Typography>
+                  <IconButton onClick={() => getTotalPrice(true)}>
                     <Icon icon='material-symbols:refresh' />
                   </IconButton>
                 </Box>

@@ -21,4 +21,5 @@ export type ItemDetailType = {
   prices: number | string
   unit: string
   currency: CurrencyType
+  priceFactor?: string | null
 }

@@ -24,6 +24,7 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 
@@ -66,6 +67,7 @@ type Props = {
     source: string,
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
+  trigger: UseFormTrigger<{ items: ItemType[] }>
 }
 export default function ItemForm({
   control,
@@ -82,6 +84,7 @@ export default function ItemForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
+  trigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const defaultValue = { value: '', label: '' }
@@ -134,8 +137,8 @@ export default function ItemForm({
           onDelete={() => {
             const index = findLangPairIndex(value.source, value.target)
             const copyLangPair = [...languagePairs]
-            copyLangPair[index].isDeletable = true
             remove(idx)
+            if (index !== -1) copyLangPair[index].isDeletable = true
           }}
         />
       ),
@@ -267,7 +270,6 @@ export default function ItemForm({
                       )}`
                     }
                     onChange={(e, v) => {
-                      // onChange(v?.source ?? '')
                       onChangeLanguagePair(v, idx)
                     }}
                     value={
@@ -316,11 +318,6 @@ export default function ItemForm({
                     getOptionLabel={option => option.priceName}
                     onChange={(e, v) => {
                       onChange(v?.id)
-                      // setValue(
-                      //   `items.${idx}.priceId`,
-                      //   v?.id ?? null,
-                      //   setValueOptions,
-                      // )
                       const value = getValues().items[idx]
                       if (v) {
                         const index = findLangPairIndex(
@@ -354,19 +351,20 @@ export default function ItemForm({
           </Grid>
           {/* price unit */}
           <ItemPriceUnitForm
+            index={idx}
             control={control}
-            itemName={`items.${idx}.detail`}
             isValid={
               !!data.source &&
               !!data.target &&
               (!!data.priceId || data.priceId === NOT_APPLICABLE_PRICE)
             }
-            // parentData={data}
             priceData={
               languagePairs.find(item => data?.priceId === item?.price?.id)
                 ?.price ?? null
             }
             getValues={getValues}
+            trigger={trigger}
+            setValue={setValue}
           />
           {/* price unit */}
 

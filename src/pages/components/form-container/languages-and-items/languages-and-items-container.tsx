@@ -21,6 +21,7 @@ import {
   UseFieldArrayUpdate,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
   UseFormWatch,
 } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
@@ -46,6 +47,7 @@ type Props = {
   isItemValid: boolean
   teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
   handleBack: () => void
+  trigger: UseFormTrigger<{ items: ItemType[] }>
 }
 
 export const NOT_APPLICABLE_PRICE = -0
@@ -83,6 +85,7 @@ export default function LanguagesAndItemsContainer({
   isItemValid,
   teamMembers,
   handleBack,
+  trigger,
 }: Props) {
   const { data: prices, isSuccess } = useGetPriceList({ clientId: clientId! })
 
@@ -147,6 +150,7 @@ export default function LanguagesAndItemsContainer({
           languagePairs={languagePairs}
           setLanguagePairs={setLanguagePairs}
           getPriceOptions={getPriceOptions}
+          trigger={trigger}
         />
       </Grid>
       <Grid item xs={12}>

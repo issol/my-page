@@ -185,6 +185,7 @@ export default function AddNewQuotes() {
     getValues: getItem,
     setValue: setItem,
     watch: itemWatch,
+    trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
@@ -307,6 +308,7 @@ export default function AddNewQuotes() {
               isItemValid={isItemValid}
               teamMembers={getTeamValues()?.teams}
               handleBack={handleBack}
+              trigger={itemTrigger}
             />
           </Card>
         )}
