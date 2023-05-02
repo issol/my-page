@@ -1,12 +1,5 @@
 // ** react
-import {
-  ChangeEvent,
-  Dispatch,
-  Fragment,
-  SetStateAction,
-  useEffect,
-  useState,
-} from 'react'
+import { useRef, useState } from 'react'
 
 // ** MUI Imports
 import Paper from '@mui/material/Paper'
@@ -16,7 +9,6 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TablePagination from '@mui/material/TablePagination'
 import {
   Autocomplete,
   Box,
@@ -29,36 +21,29 @@ import {
 
 import styled from 'styled-components'
 
-// ** value
-import { getGloLanguage } from '@src/shared/transformer/language.transformer'
-
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { languageType } from '@src/pages/orders/add-new'
 
 import { v4 as uuidv4 } from 'uuid'
 import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 import {
   Control,
   Controller,
+  FieldArrayWithId,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  UseFormWatch,
   useFieldArray,
 } from 'react-hook-form'
 import {
   formatByRoundingProcedure,
   formatCurrency,
-  getPrice,
 } from '@src/shared/helpers/price.helper'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 
@@ -115,43 +100,39 @@ export default function ItemPriceUnitForm({
   }
 
   type NestedPriceUnitType = PriceUnitListType & {
-    subPriceUnits?: NestedPriceUnitType[]
+    subPriceUnits: PriceUnitListType[]
     groupName: string
   }
 
+  const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
+
   const nestSubPriceUnits = () => {
     const nestedData: Array<NestedPriceUnitType> = []
-    const priceUnit = priceUnitsList.map(item => ({
+    const priceUnit: Array<NestedPriceUnitType> = priceUnitsList.map(item => ({
       ...item,
       subPriceUnits: [],
       groupName: 'Price unit',
     }))
-    const matchingUnit = priceData?.priceUnit?.map(item => ({
-      ...item,
-      subPriceUnits: [],
-      groupName: 'Matching price unit',
-    }))
+    const matchingUnit: Array<NestedPriceUnitType> =
+      priceData?.priceUnit?.map(item => ({
+        ...item,
+        subPriceUnits: [],
+        groupName: 'Matching price unit',
+      })) || []
     const data = matchingUnit?.concat(priceUnit)
     if (data?.length) {
-      console.log(data)
       data.forEach(item => {
         if (item.parentPriceUnitId === null) {
-          // const parentItem = {
-          //   ...item,
-          //   subPriceUnits: [],
-          //   groupName: 'Matching price unit',
-          // }
           nestedData.push(item)
           data.forEach(subItem => {
             if (subItem.parentPriceUnitId === item.priceUnitId) {
-              // @ts-ignore
-              parentItem.subPriceUnits.push(subItem)
+              item.subPriceUnits.push(subItem)
             }
           })
         }
       })
     }
-
+    allPriceUnits.current = data
     return nestedData
   }
 
@@ -187,40 +168,36 @@ export default function ItemPriceUnitForm({
   }
 
   function getEachPrice(idx: number) {
-    trigger()
     const data = getValues(itemName)
-    if (!data?.length) {
-      return
-    }
+    if (!data?.length) return
+
+    trigger()
+    let prices = 0
     const detail = data?.[idx]
     if (detail && detail.unit === 'Percent') {
-      let prices = 0
-      let total = 0
       const percentQuantity = data[idx].quantity
       const generalPrices = data.filter(item => item.unit !== 'Percent')
       generalPrices.forEach(item => {
+        console.log(item.unitPrice)
         prices += item.unitPrice
       })
-      total = prices * (percentQuantity / 100)
-      setValue(`items.${index}.detail.${idx}.prices`, total, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
+      prices *= percentQuantity / 100
     } else {
-      const prices = detail.unitPrice * detail.quantity
-      console.log(priceData)
-      setValue(`items.${index}.detail.${idx}.prices`, prices, {
-        shouldDirty: true,
-        shouldValidate: true,
-      })
+      prices = detail.unitPrice * detail.quantity
     }
+    console.log('prices : ', prices)
+    setValue(`items.${index}.detail.${idx}.prices`, prices, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
   }
 
-  function Row({ idx }: { idx: number }) {
+  const Row = ({ idx }: { idx: number }) => {
     const savedValue = getValues(`${itemName}.${idx}`)
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
-
+    const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
+    // console.log('minimumPrice : ', minimumPrice)
     return (
       <TableRow hover tabIndex={-1}>
         <TableCell>
@@ -237,9 +214,7 @@ export default function ItemPriceUnitForm({
                     onBlur={() => getEachPrice(idx)}
                     sx={{ maxWidth: '80px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      onChange(e)
-                    }}
+                    onChange={onChange}
                   />
                   {savedValue.unit === 'Percent' ? '%' : null}
                 </Box>
@@ -254,7 +229,8 @@ export default function ItemPriceUnitForm({
             render={({ field: { value, onChange } }) => {
               const options = nestSubPriceUnits()
               const findValue =
-                priceData?.priceUnit?.find(item => item.title === value) || null
+                allPriceUnits?.current?.find(item => item.title === value) ||
+                null
               return (
                 <Autocomplete
                   autoHighlight
@@ -362,7 +338,7 @@ export default function ItemPriceUnitForm({
               return (
                 <TextField
                   placeholder='0.00'
-                  value={value}
+                  value={savedValue.unit === 'Percent' ? '-' : value}
                   disabled={savedValue.unit === 'Percent'}
                   onChange={e => {
                     onChange(e)

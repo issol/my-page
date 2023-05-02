@@ -222,7 +222,7 @@ export default function AddNewQuotes() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -236,7 +236,7 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
-  console.log('getItem() : ', getItem(), itemErrors)
+  // console.log('getItem() : ', getItem(), itemErrors)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
