@@ -91,7 +91,7 @@ export default function ItemPriceUnitForm({
     control,
     name: itemName,
   })
-  console.log(priceData)
+  const { openModal, closeModal } = useModal()
   function appendDetail() {
     append({
       quantity: 0,
@@ -153,6 +153,20 @@ export default function ItemPriceUnitForm({
     }
   }
 
+  function onDeletePriceUnit(idx: number, title: string) {
+    openModal({
+      type: 'delete-unit',
+      children: (
+        <DeleteConfirmModal
+          message='Are you sure you want to delete this price unit?'
+          title={title}
+          onClose={() => closeModal('delete-unit')}
+          onDelete={() => remove(idx)}
+        />
+      ),
+    })
+  }
+
   function Row({ idx }: { idx: number }) {
     const savedValue = getValues(`${itemName}.${idx}`)
     const [open, setOpen] = useState(false)
@@ -198,7 +212,13 @@ export default function ItemPriceUnitForm({
                   fullWidth
                   options={options}
                   groupBy={option => option?.groupName}
-                  getOptionLabel={option => option.title}
+                  getOptionLabel={option => {
+                    const title =
+                      option?.quantity && option?.quantity >= 2
+                        ? `${option.title} ${option?.quantity}`
+                        : option.title
+                    return title
+                  }}
                   renderOption={(props, option, state) => {
                     return (
                       <Box>
@@ -217,7 +237,9 @@ export default function ItemPriceUnitForm({
                             })
                           }}
                         >
-                          {option.title}
+                          {option?.quantity && option?.quantity >= 2
+                            ? `${option.title} ${option?.quantity}`
+                            : option.title}
                         </Box>
                         {option?.subPriceUnits?.map(sub => (
                           <Box
@@ -241,7 +263,9 @@ export default function ItemPriceUnitForm({
                               icon='material-symbols:subdirectory-arrow-right'
                               opacity={0.7}
                             />
-                            {sub.title}
+                            {sub?.quantity && sub?.quantity >= 2
+                              ? `${sub.title} ${sub?.quantity}`
+                              : sub.title}
                           </Box>
                         ))}
                       </Box>
@@ -305,7 +329,9 @@ export default function ItemPriceUnitForm({
           </Typography>
         </TableCell>
         <TableCell align='center'>
-          <IconButton onClick={() => remove(idx)}>
+          <IconButton
+            onClick={() => onDeletePriceUnit(idx, savedValue.priceUnit)}
+          >
             <Icon icon='mdi:trash-outline' />
           </IconButton>
         </TableCell>
