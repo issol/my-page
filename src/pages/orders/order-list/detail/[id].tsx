@@ -99,6 +99,8 @@ const OrderDetail = () => {
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
 
+  const [projectInfoEdit, setProjectInfoEdit] = useState(false)
+
   const onClickVersionHistoryRow = (history: VersionHistoryType) => {
     openModal({
       type: 'versionHistoryModal',
@@ -304,7 +306,12 @@ const OrderDetail = () => {
             </TabList>
             <TabPanel value='project' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectInfo type={'detail'} projectInfo={projectInfo!} />
+                <ProjectInfo
+                  type={'detail'}
+                  projectInfo={projectInfo!}
+                  edit={projectInfoEdit}
+                  setEdit={setProjectInfoEdit}
+                />
               </Suspense>
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}></TabPanel>
