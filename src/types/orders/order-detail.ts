@@ -56,7 +56,7 @@ export type ClientType = {
 export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
-  projectTeam: ProjectTeamType[]
+  projectTeam: ProjectTeamListType[]
 }
 
 export type VersionHistoryType = {
