@@ -2,6 +2,7 @@ import styled from 'styled-components'
 import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
+import { OrderStatusType } from '@src/types/orders/order-list'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -217,4 +218,22 @@ export const ExtraNumberChip = styled(Chip)`
   border: 1px solid rgba(76, 78, 100, 0.6);
   border-radius: 16px;
   color: #6d788d;
+`
+
+export const OrderStatusChip = styled(Chip)<{
+  status: OrderStatusType
+}>`
+  border: none;
+  ${({ status }) =>
+    status === 'In preparation'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #F572D8; color: #F572D8;`
+      : status === 'In progress'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color :#FDB528;`
+      : status === 'Completed'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color :#72E128;`
+      : status === 'Invoiced'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #9B6CD8; color: #9B6CD8;`
+      : status === 'Canceled'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
+      : null};
 `

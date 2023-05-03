@@ -20,6 +20,7 @@ export type ClientAddressType = {
   zipCode?: string
   createdAt?: string
   updatedAt?: string
+  isSelected?: boolean
 }
 
 export const clientAddressDefaultValue: ClientAddressFormType = {

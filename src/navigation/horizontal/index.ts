@@ -22,7 +22,24 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'mdi:account-star-outline',
       action: 'read',
       subject: 'client',
-      path: `/client`,
+
+      children: [
+        {
+          title: 'Client List',
+          path: `/client`,
+          action: 'read',
+
+          icon: 'solar:dollar-minimalistic-bold',
+          subject: 'client',
+        },
+        {
+          title: 'Client guidelines',
+          path: `/client/client-guideline`,
+          action: 'read',
+          icon: 'mdi:playlist-check',
+          subject: 'client',
+        },
+      ],
     },
     {
       title: 'Recruiting',
@@ -113,7 +130,7 @@ const navigation = (): HorizontalNavItemsType => {
     },
     {
       title: 'Orders',
-      icon: 'mdi:briefcase-outline',
+      icon: 'material-symbols:list-alt-outline-sharp',
       action: 'read',
       subject: 'order_list',
       children: [

@@ -310,6 +310,7 @@ export default function AddNewQuotes() {
               isValid={isTeamValid}
               watch={teamWatch}
               onNextStep={onNextStep}
+              type='create'
             />
           </Card>
         ) : activeStep === 1 ? (
@@ -321,6 +322,7 @@ export default function AddNewQuotes() {
               watch={clientWatch}
               handleBack={handleBack}
               onNextStep={onNextStep}
+              type='create'
             />
           </Card>
         ) : activeStep === 2 ? (
