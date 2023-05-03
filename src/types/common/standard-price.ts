@@ -13,7 +13,7 @@ export type StandardPriceListType = {
 
   decimalPlace: number
   roundingProcedure: string
-  memoForPrice?: string
+  memoForPrice?: string | undefined
   languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
   catInterface: {
