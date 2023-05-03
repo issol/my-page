@@ -219,9 +219,11 @@ export default function PriceUnitTable({
             ) : null}
 
             {!list.data?.length ? (
-              <TableCell colSpan={6} align='center'>
-                <Typography>There are no price units</Typography>
-              </TableCell>
+              <TableRow>
+                <TableCell colSpan={6} align='center'>
+                  <Typography>There are no price units</Typography>
+                </TableCell>
+              </TableRow>
             ) : (
               list.data?.map(row => <Row key={row.id} row={row} />)
             )}
