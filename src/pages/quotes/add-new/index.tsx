@@ -157,6 +157,7 @@ export default function AddNewQuotes() {
               isValid={isTeamValid}
               watch={teamWatch}
               onNextStep={onNextStep}
+              type='create'
             />
           </Card>
         ) : activeStep === 1 ? (
@@ -164,12 +165,14 @@ export default function AddNewQuotes() {
             <ClientQuotesFormContainer
               control={clientControl}
               // reset={clientReset}
-
+              // getValues={getClientValue}
               setValue={setClientValue}
+              // errors={clientErrors}
               isValid={isClientValid}
               watch={clientWatch}
               handleBack={handleBack}
               onNextStep={onNextStep}
+              type='create'
             />
           </Card>
         ) : activeStep === 2 ? (

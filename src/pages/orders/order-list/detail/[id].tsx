@@ -25,7 +25,7 @@ import OrderDetailClient from './components/client'
 import {
   OrderDownloadData,
   ProjectTeamCellType,
-  ProjectTeamType,
+  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -47,6 +47,7 @@ import DownloadOrderModal from './components/modal/download-order-modal'
 import OrderPreview from './components/order-preview'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 interface Detail {
   id: number
   quantity: number
@@ -79,7 +80,9 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
-
+  const [projectInfoEdit, setProjectInfoEdit] = useState(false)
+  const [clientEdit, setClientEdit] = useState(false)
+  const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const order = useAppSelector(state => state.order)
 
   const [orders, setOrders] = useState<OrderDownloadData | null>(null)
@@ -87,6 +90,25 @@ const OrderDetail = () => {
   const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
   const handleChange = (event: SyntheticEvent, newValue: string) => {
+    if (projectInfoEdit || clientEdit || projectTeamEdit) {
+      openModal({
+        type: 'EditAlertModal',
+        children: (
+          <EditAlertModal
+            onClose={() => closeModal('EditAlertModal')}
+            onClick={() => {
+              closeModal('EditAlertModal')
+              setValue(newValue)
+              setProjectInfoEdit(false)
+              setClientEdit(false)
+              setProjectTeamEdit(false)
+            }}
+          />
+        ),
+      })
+      return
+    }
+
     setValue(newValue)
   }
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -98,8 +120,6 @@ const OrderDetail = () => {
 
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
-
-  const [projectInfoEdit, setProjectInfoEdit] = useState(false)
 
   const onClickVersionHistoryRow = (history: VersionHistoryType) => {
     openModal({
@@ -235,12 +255,15 @@ const OrderDetail = () => {
               gap: '8px',
             }}
           >
-            <IconButton
-              sx={{ padding: '0 !important', height: '24px' }}
-              onClick={() => router.push('/orders/order-list')}
-            >
-              <Icon icon='mdi:chevron-left' width={24} height={24} />
-            </IconButton>
+            {projectInfoEdit || projectTeamEdit || clientEdit ? null : (
+              <IconButton
+                sx={{ padding: '0 !important', height: '24px' }}
+                onClick={() => router.push('/orders/order-list')}
+              >
+                <Icon icon='mdi:chevron-left' width={24} height={24} />
+              </IconButton>
+            )}
+
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <img src='/images/icons/order-icons/book.svg' alt='' />
               <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
@@ -316,7 +339,12 @@ const OrderDetail = () => {
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}></TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
-              <OrderDetailClient type={'detail'} client={client!} />
+              <OrderDetailClient
+                type={'detail'}
+                client={client!}
+                edit={clientEdit}
+                setEdit={setClientEdit}
+              />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>
@@ -329,6 +357,8 @@ const OrderDetail = () => {
                   setPage={setProjectTeamListPage}
                   pageSize={projectTeamListPageSize}
                   setPageSize={setProjectTeamListPageSize}
+                  edit={projectTeamEdit}
+                  setEdit={setProjectTeamEdit}
                 />
               </Suspense>
             </TabPanel>

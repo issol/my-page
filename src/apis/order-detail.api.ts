@@ -3,7 +3,7 @@ import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import {
   ClientType,
   ProjectInfoType,
-  ProjectTeamType,
+  ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
@@ -14,7 +14,7 @@ export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
 
 export const getProjectTeam = async (
   id: number,
-): Promise<ProjectTeamType[]> => {
+): Promise<ProjectTeamListType[]> => {
   const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
 
   return data.members

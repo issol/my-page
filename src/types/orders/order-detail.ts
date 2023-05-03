@@ -7,7 +7,7 @@ import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 
 type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
-export type ProjectTeamType = {
+export type ProjectTeamListType = {
   id: string
   userId: number
   position: PositionType
@@ -19,7 +19,7 @@ export type ProjectTeamType = {
 }
 
 export type ProjectTeamCellType = {
-  row: ProjectTeamType
+  row: ProjectTeamListType
 }
 
 export type ProjectInfoType = {
@@ -56,7 +56,7 @@ export type ClientType = {
 export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
-  projectTeam: ProjectTeamType[]
+  projectTeam: ProjectTeamListType[]
 }
 
 export type VersionHistoryType = {

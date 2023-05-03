@@ -34,6 +34,7 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import EidtSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 
 type Props = {
   type: string
@@ -47,6 +48,11 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
   const onClickDiscard = () => {
     setEdit(false)
     closeModal('DiscardModal')
+  }
+
+  const onClickSave = () => {
+    setEdit(false)
+    closeModal('EditSaveModal')
   }
 
   const {
@@ -94,7 +100,21 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
                 >
                   Cancel
                 </Button>
-                <Button variant='contained' disabled={!isProjectInfoValid}>
+                <Button
+                  variant='contained'
+                  disabled={!isProjectInfoValid}
+                  onClick={() =>
+                    openModal({
+                      type: 'EditSaveModal',
+                      children: (
+                        <EidtSaveModal
+                          onClose={() => closeModal('EditSaveModal')}
+                          onClick={onClickSave}
+                        />
+                      ),
+                    })
+                  }
+                >
                   Save
                 </Button>
               </Box>
