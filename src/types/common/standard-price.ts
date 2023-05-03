@@ -77,7 +77,7 @@ export type AddNewPriceType = {
   catBasis: string
   decimalPlace: number
   roundingProcedure: number
-  memoForPrice: string
+  memoForPrice?: string | undefined
 }
 
 export type AddNewLanguagePair = {
