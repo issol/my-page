@@ -11,9 +11,9 @@ export type ContactPersonType<T extends number | string = number> = {
   id?: T
   personType?: PersonType
   firstName?: string
-  middleName?: string
+  middleName?: string | null
   lastName?: string
-  department?: string
+  department?: string | null
   jobTitle?: string
   timezone: {
     phone: string
@@ -21,9 +21,9 @@ export type ContactPersonType<T extends number | string = number> = {
     label: string
   }
   email: string
-  phone?: string
-  mobile?: string
-  fax?: string
+  phone?: string | null
+  mobile?: string | null
+  fax?: string | null
   memo?: string
   isReferred?: boolean
 }

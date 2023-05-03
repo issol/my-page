@@ -33,7 +33,8 @@ export type ProjectInfoType = {
   expertise: string[]
   revenueFrom: string
   projectName: string
-  projectDueAt: { date: string; timezone: CountryType }
+  projectDueAt: string
+  projectDueAtTimezone: CountryType
   projectDescription: string
 }
 

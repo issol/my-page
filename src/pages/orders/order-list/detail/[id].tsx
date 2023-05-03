@@ -42,12 +42,16 @@ import {
   useGetLangItem,
   useGetProjectInfo,
   useGetProjectTeam,
+  useGetVersionHistory,
 } from '@src/queries/order/order.query'
 import DownloadOrderModal from './components/modal/download-order-modal'
 import OrderPreview from './components/order-preview'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
+import { useMutation, useQueryClient } from 'react-query'
+import { deleteOrder } from '@src/apis/order-detail.api'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 interface Detail {
   id: number
   quantity: number
@@ -80,15 +84,28 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
+  const { data: versionHistory, isLoading: versionHistoryLoading } =
+    useGetVersionHistory(Number(id!))
   const [projectInfoEdit, setProjectInfoEdit] = useState(false)
   const [clientEdit, setClientEdit] = useState(false)
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const order = useAppSelector(state => state.order)
 
-  const [orders, setOrders] = useState<OrderDownloadData | null>(null)
+  const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
+  const [projectTeamListPageSize, setProjectTeamListPageSize] =
+    useState<number>(10)
+
+  const [versionHistoryListPage, setVersionHistoryListPage] =
+    useState<number>(0)
+
+  const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
+    useState<number>(5)
 
   const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     if (projectInfoEdit || clientEdit || projectTeamEdit) {
       openModal({
@@ -111,20 +128,47 @@ const OrderDetail = () => {
 
     setValue(newValue)
   }
-  const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
-  const [projectTeamListPageSize, setProjectTeamListPageSize] =
-    useState<number>(10)
 
-  const [versionHistoryListPage, setVersionHistoryListPage] =
-    useState<number>(0)
+  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries('orderList')
+      router.push('/orders/order-list')
+    },
+  })
 
-  const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
-    useState<number>(5)
+  const handleRestoreVersion = () => {
+    // TODO API 연결
+  }
+
+  const onClickRestoreVersion = () => {
+    openModal({
+      type: 'RestoreConfirmModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('RestoreConfirmModal')}
+          onClick={() => {
+            closeModal('RestoreConfirmModal')
+            closeModal('VersionHistoryModal')
+            handleRestoreVersion()
+          }}
+          title='Are you sure you want to restore this version?'
+          vary='error'
+          rightButtonText='Restore'
+        />
+      ),
+    })
+  }
 
   const onClickVersionHistoryRow = (history: VersionHistoryType) => {
     openModal({
-      type: 'versionHistoryModal',
-      children: <VersionHistoryModal history={history} />,
+      type: 'VersionHistoryModal',
+      children: (
+        <VersionHistoryModal
+          history={history}
+          onClose={() => closeModal('VersionHistoryModal')}
+          onClick={onClickRestoreVersion}
+        />
+      ),
     })
   }
 
@@ -209,8 +253,8 @@ const OrderDetail = () => {
         corporationId: projectInfo!.corporationId,
         orderedAt: projectInfo!.orderedAt,
         projectDueAt: {
-          date: projectInfo!.projectDueAt.date,
-          timezone: projectInfo!.projectDueAt.timezone,
+          date: projectInfo!.projectDueAt,
+          timezone: projectInfo!.projectDueAtTimezone,
         },
         pm: {
           firstName: pm?.firstName!,
@@ -363,16 +407,16 @@ const OrderDetail = () => {
               </Suspense>
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>
-              {/* <VersionHistory
-                list={versionHistory}
-                listCount={versionHistory.length}
+              <VersionHistory
+                list={versionHistory!}
+                listCount={versionHistory?.length!}
                 columns={versionHistoryColumns}
                 page={versionHistoryListPage}
                 setPage={setVersionHistoryListPage}
                 pageSize={versionHistoryListPageSize}
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}
-              /> */}
+              />
             </TabPanel>
           </TabContext>
         </Box>

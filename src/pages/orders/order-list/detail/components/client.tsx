@@ -19,7 +19,7 @@ type Props = {
   type: string
   client: ClientType
   edit: boolean
-  setEdit: Dispatch<SetStateAction<boolean>>
+  setEdit?: Dispatch<SetStateAction<boolean>>
 }
 
 const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
@@ -42,12 +42,12 @@ const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
   })
 
   const onClickDiscard = () => {
-    setEdit(false)
+    setEdit!(false)
     closeModal('DiscardModal')
   }
 
   const onClickSave = () => {
-    setEdit(false)
+    setEdit!(false)
     closeModal('EditSaveModal')
   }
 
@@ -98,7 +98,7 @@ const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
           {type === 'detail' ? (
             <IconButton
               sx={{ position: 'absolute', top: 0, right: 0 }}
-              onClick={() => setEdit(true)}
+              onClick={() => setEdit!(true)}
             >
               <IconifyIcon icon='mdi:pencil-outline' width={24} height={24} />
             </IconButton>
