@@ -2,7 +2,7 @@ import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** mui
-import { Button, Grid } from '@mui/material'
+import { Box, Button, Grid } from '@mui/material'
 
 // ** types
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -40,6 +40,8 @@ type Props = {
   isValid: boolean
   watch: UseFormWatch<ProjectTeamType>
   onNextStep: () => void
+  handleCancel?: () => void
+  type: string
 }
 
 export default function ProjectTeamFormContainer({
@@ -54,6 +56,8 @@ export default function ProjectTeamFormContainer({
   isValid,
   watch,
   onNextStep,
+  handleCancel,
+  type,
 }: Props) {
   const { user } = useContext(AuthContext)
   const { data } = useGetMemberList()
@@ -84,12 +88,28 @@ export default function ProjectTeamFormContainer({
           }
         />
       </Grid>
-
-      <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-          Next <Icon icon='material-symbols:arrow-forward-rounded' />
-        </Button>
-      </Grid>
+      {type === 'create' ? (
+        <Grid item xs={12} display='flex' justifyContent='flex-end'>
+          <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
+            Next <Icon icon='material-symbols:arrow-forward-rounded' />
+          </Button>
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <Button variant='outlined' color='secondary' onClick={handleCancel}>
+              Cancel
+            </Button>
+            <Button
+              variant='contained'
+              disabled={!isValid}
+              onClick={onNextStep}
+            >
+              Save
+            </Button>
+          </Box>
+        </Grid>
+      )}
     </Grid>
   )
 }

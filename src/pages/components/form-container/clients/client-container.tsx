@@ -2,7 +2,14 @@
 import { useEffect, useState } from 'react'
 
 // ** mui
-import { Button, Dialog, DialogContent, Grid, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Dialog,
+  DialogContent,
+  Grid,
+  Typography,
+} from '@mui/material'
 
 // ** types
 import { CreateClientBodyType } from '@src/apis/client.api'
@@ -62,6 +69,7 @@ type Props = {
   watch: UseFormWatch<ClientFormType>
   handleBack: () => void
   onNextStep: () => void
+  type: string
 }
 export default function ClientQuotesFormContainer({
   control,
@@ -70,6 +78,7 @@ export default function ClientQuotesFormContainer({
   watch,
   handleBack,
   onNextStep,
+  type,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -279,15 +288,32 @@ export default function ClientQuotesFormContainer({
         />
       </Grid>
 
-      <Grid item xs={12} display='flex' justifyContent='space-between'>
-        <Button variant='outlined' color='secondary' onClick={handleBack}>
-          <Icon icon='material-symbols:arrow-back-rounded' />
-          Previous
-        </Button>
-        <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-          Next <Icon icon='material-symbols:arrow-forward-rounded' />
-        </Button>
-      </Grid>
+      {type === 'create' ? (
+        <Grid item xs={12} display='flex' justifyContent='space-between'>
+          <Button variant='outlined' color='secondary' onClick={handleBack}>
+            <Icon icon='material-symbols:arrow-back-rounded' />
+            Previous
+          </Button>
+          <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
+            Next <Icon icon='material-symbols:arrow-forward-rounded' />
+          </Button>
+        </Grid>
+      ) : (
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
+            <Button variant='outlined' color='secondary' onClick={handleBack}>
+              Cancel
+            </Button>
+            <Button
+              variant='contained'
+              disabled={!isValid}
+              onClick={onNextStep}
+            >
+              Save
+            </Button>
+          </Box>
+        </Grid>
+      )}
 
       {/* Add new client modal */}
       <Dialog open={openForm} maxWidth='lg'>
