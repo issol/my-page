@@ -1,7 +1,7 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import {
-  ProjectTeamType,
+  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { Dispatch, SetStateAction } from 'react'

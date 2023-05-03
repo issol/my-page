@@ -24,8 +24,8 @@ const OrderListCalendarView = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      start: item.orderDate,
-      end: item.projectDueDate,
+      start: item.orderedAt,
+      end: item.projectDueAt,
       title: item.projectName,
     }
   })

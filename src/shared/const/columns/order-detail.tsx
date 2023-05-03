@@ -3,11 +3,11 @@ import { GridColumns } from '@mui/x-data-grid'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
   ProjectTeamCellType,
-  ProjectTeamType,
+  ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 
 export const getProjectTeamColumns = () => {
-  const columns: GridColumns<ProjectTeamType> = [
+  const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
       flex: 0.3,

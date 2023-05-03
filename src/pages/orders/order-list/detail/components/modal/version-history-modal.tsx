@@ -121,6 +121,8 @@ const VersionHistoryModal = ({ history }: Props) => {
               pageSize={pageSize}
               setPage={setPage}
               setPageSize={setPageSize}
+              edit={false}
+              setEdit={() => console.log('no')}
             />
           </TabPanel>
         </TabContext>
