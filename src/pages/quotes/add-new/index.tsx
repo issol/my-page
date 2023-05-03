@@ -28,7 +28,7 @@ import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import ClientQuotesFormContainer from '../components/form-container/client-container'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 
 export default function AddNewQuotes() {
   const router = useRouter()
@@ -163,10 +163,9 @@ export default function AddNewQuotes() {
           <Card sx={{ padding: '24px' }}>
             <ClientQuotesFormContainer
               control={clientControl}
-              reset={clientReset}
-              getValues={getClientValue}
+              // reset={clientReset}
+
               setValue={setClientValue}
-              errors={clientErrors}
               isValid={isClientValid}
               watch={clientWatch}
               handleBack={handleBack}

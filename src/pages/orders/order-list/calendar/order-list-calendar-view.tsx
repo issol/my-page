@@ -4,10 +4,8 @@ import { useRef } from 'react'
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-
-// ** types
-
 import { OrderListCalendarEventType } from '@src/apis/order-list.api'
+// ** types
 
 type Props = {
   event: Array<OrderListCalendarEventType>
@@ -24,8 +22,8 @@ const OrderListCalendarView = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      start: item.orderDate,
-      end: item.projectDueDate,
+      start: item.orderedAt,
+      end: item.projectDueAt,
       title: item.projectName,
     }
   })
