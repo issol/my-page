@@ -83,7 +83,10 @@ export default function ItemForm({
   const { openModal, closeModal } = useModal()
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-
+  const [showMinimum, setShowMinimum] = useState({
+    checked: false,
+    show: false,
+  })
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
   >([])
@@ -371,6 +374,8 @@ export default function ItemForm({
                 trigger={trigger}
                 setValue={setValue}
                 priceUnitsList={priceUnitsList}
+                showMinimum={showMinimum}
+                setShowMinimum={setShowMinimum}
               />
 
               {/* price unit */}

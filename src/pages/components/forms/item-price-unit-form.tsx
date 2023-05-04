@@ -46,6 +46,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import { CurrencyList } from '@src/shared/const/currency/currency'
+import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -57,12 +58,10 @@ type Props = {
   trigger: UseFormTrigger<{ items: ItemType[] }>
   setValue: UseFormSetValue<{ items: ItemType[] }>
   priceUnitsList: Array<PriceUnitListType>
+  showMinimum: { checked: boolean; show: boolean }
+  setShowMinimum: (n: { checked: boolean; show: boolean }) => void
 }
 
-/* TODO : priceId === NOT_APPLICABLE_PRICE 일 때 form도 제작하기
-price unit이 child까지 함께 선택 된 경우 form도 같이 append하기
-
-*/
 export default function ItemPriceUnitForm({
   control,
   index,
@@ -73,9 +72,12 @@ export default function ItemPriceUnitForm({
   trigger,
   setValue,
   priceUnitsList,
+  showMinimum,
+  setShowMinimum,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-  // console.log(priceData)
+  const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
+
   const {
     fields: details,
     append,
@@ -86,7 +88,6 @@ export default function ItemPriceUnitForm({
     name: itemName,
   })
   const { openModal, closeModal } = useModal()
-  // console.log('priceData', priceData)
 
   function appendDetail() {
     append({
@@ -157,10 +158,18 @@ export default function ItemPriceUnitForm({
     let total = 0
     const data = getValues(itemName)
     if (data?.length) {
-      data.forEach(item => {
-        total += Number(item.prices)
-      })
+      if (minimumPrice && showMinimum.show) {
+        data.forEach(item => {
+          total += item.unit === 'Percent' ? Number(item.prices) : 0
+        })
+        total += minimumPrice
+      } else {
+        data.forEach(item => {
+          total += Number(item.prices)
+        })
+      }
     }
+
     setValue(`items.${index}.totalPrice`, total, {
       shouldDirty: true,
       shouldValidate: true,
@@ -176,30 +185,65 @@ export default function ItemPriceUnitForm({
     const detail = data?.[idx]
     if (detail && detail.unit === 'Percent') {
       const percentQuantity = data[idx].quantity
-      const generalPrices = data.filter(item => item.unit !== 'Percent')
-      generalPrices.forEach(item => {
-        // console.log(item.unitPrice)
-        prices += item.unitPrice
-      })
-      prices *= percentQuantity / 100
+      if (minimumPrice && showMinimum.show) {
+        prices = (percentQuantity / 100) * minimumPrice
+      } else {
+        const generalPrices = data.filter(item => item.unit !== 'Percent')
+        generalPrices.forEach(item => {
+          prices += item.unitPrice
+        })
+        prices *= percentQuantity / 100
+      }
     } else {
       prices = detail.unitPrice * detail.quantity
     }
-    // console.log('prices : ', prices)
+
     setValue(`items.${index}.detail.${idx}.prices`, prices, {
       shouldDirty: true,
       shouldValidate: true,
     })
   }
 
+  function onItemBoxLeave() {
+    const isMinimumPriceConfirmed =
+      !!minimumPrice &&
+      minimumPrice > getValues(`items.${index}.totalPrice`) &&
+      showMinimum.checked
+
+    const isNotMinimum =
+      !minimumPrice || minimumPrice <= getValues(`items.${index}.totalPrice`)
+
+    if (!isMinimumPriceConfirmed && !isNotMinimum) {
+      setShowMinimum({ ...showMinimum, show: true })
+      openModal({
+        type: 'info-minimum',
+        children: (
+          <InfoConfirmModal
+            onClose={() => {
+              closeModal('info-minimum')
+              setShowMinimum({ show: true, checked: true })
+            }}
+            message='The minimum price has been applied to the item(s).'
+          />
+        ),
+      })
+    }
+    getTotalPrice(true)
+  }
+
   const Row = ({ idx }: { idx: number }) => {
     const savedValue = getValues(`${itemName}.${idx}`)
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
-    const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
-    // console.log('minimumPrice : ', minimumPrice)
+
     return (
-      <TableRow hover tabIndex={-1} onBlur={() => getTotalPrice(true)}>
+      <TableRow
+        hover
+        tabIndex={-1}
+        onBlur={() => {
+          getEachPrice(idx)
+        }}
+      >
         <TableCell>
           <Controller
             name={`${itemName}.${idx}.quantity`}
@@ -211,7 +255,6 @@ export default function ItemPriceUnitForm({
                     placeholder='0'
                     type='number'
                     value={value}
-                    onBlur={() => getEachPrice(idx)}
                     sx={{ maxWidth: '80px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={onChange}
@@ -252,7 +295,6 @@ export default function ItemPriceUnitForm({
                           padding='4px 0'
                           {...props}
                           onClick={() => {
-                            console.log('option : ', option?.subPriceUnits)
                             setOpen(false)
                             onChange(option.title)
                             update(idx, {
@@ -277,8 +319,6 @@ export default function ItemPriceUnitForm({
                                 })
                               })
                             }
-                            getTotalPrice()
-                            getEachPrice(idx)
                           }}
                         >
                           {option?.quantity && option?.quantity >= 2
@@ -304,8 +344,6 @@ export default function ItemPriceUnitForm({
                                   : sub.price,
                                 priceFactor: priceFactor?.toString(),
                               })
-                              getTotalPrice()
-                              getEachPrice(idx)
                             }}
                           >
                             <Icon
@@ -356,9 +394,6 @@ export default function ItemPriceUnitForm({
                   disabled={savedValue.unit === 'Percent'}
                   onChange={e => {
                     onChange(e)
-                  }}
-                  onBlur={e => {
-                    getEachPrice(idx)
                   }}
                   sx={{ maxWidth: '80px', padding: 0 }}
                 />
@@ -423,7 +458,7 @@ export default function ItemPriceUnitForm({
   }
 
   return (
-    <Grid item xs={12}>
+    <Grid item xs={12} onBlur={onItemBoxLeave}>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
@@ -446,6 +481,46 @@ export default function ItemPriceUnitForm({
             {details?.map((row, idx) => (
               <Row key={row.id} idx={idx} />
             ))}
+            {showMinimum.show ? (
+              <TableRow hover tabIndex={-1} onBlur={() => onItemBoxLeave()}>
+                <TableCell>
+                  <Typography color='primary'>1</Typography>
+                </TableCell>
+                <TableCell>
+                  <Typography color='primary'>
+                    Minimum price per item
+                  </Typography>
+                </TableCell>
+                <TableCell align='center'>
+                  <Typography color='primary'>{minimumPrice}</Typography>
+                </TableCell>
+                <TableCell align='center'></TableCell>
+                <TableCell align='center'>
+                  <Typography color='primary'>
+                    {!priceData
+                      ? 0
+                      : formatCurrency(
+                          formatByRoundingProcedure(
+                            minimumPrice ?? 0,
+                            priceData?.decimalPlace!,
+                            priceData?.roundingProcedure!,
+                            priceData?.currency!,
+                          ),
+                          priceData?.currency ?? 'USD',
+                        )}
+                  </Typography>
+                </TableCell>
+                <TableCell align='center'>
+                  <IconButton
+                    onClick={() =>
+                      setShowMinimum({ show: false, checked: true })
+                    }
+                  >
+                    <Icon icon='mdi:trash-outline' />
+                  </IconButton>
+                </TableCell>
+              </TableRow>
+            ) : null}
             <TableRow hover tabIndex={-1}>
               <TableCell colSpan={6}>
                 <Button
