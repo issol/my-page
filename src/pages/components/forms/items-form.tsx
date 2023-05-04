@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
+  Button,
   Divider,
   Grid,
   IconButton,
@@ -55,6 +56,7 @@ import useModal from '@src/hooks/useModal'
 // ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ItemPriceUnitForm from './item-price-unit-form'
+import TmAnalysisForm from './tm-analysis-form'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -419,6 +421,27 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
+              {/* const itemName: `items.${number}.detail` = `items.${index}.detail` */}
+              <Grid item xs={12}>
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
+                >
+                  <Typography variant='h6' mb='24px'>
+                    TM analysis
+                  </Typography>
+                  <Button
+                    size='small'
+                    variant='contained'
+                    disabled={!data?.priceId || !data?.source || !data?.target}
+                  >
+                    Upload files
+                  </Button>
+                </Box>
+                <TmAnalysisForm />
+              </Grid>
+
               {/* TM analysis */}
             </>
           ) : null}
