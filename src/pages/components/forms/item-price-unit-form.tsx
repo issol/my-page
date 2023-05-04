@@ -199,7 +199,7 @@ export default function ItemPriceUnitForm({
     const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
     // console.log('minimumPrice : ', minimumPrice)
     return (
-      <TableRow hover tabIndex={-1}>
+      <TableRow hover tabIndex={-1} onBlur={() => getTotalPrice(true)}>
         <TableCell>
           <Controller
             name={`${itemName}.${idx}.quantity`}
@@ -252,6 +252,7 @@ export default function ItemPriceUnitForm({
                           padding='4px 0'
                           {...props}
                           onClick={() => {
+                            console.log('option : ', option?.subPriceUnits)
                             setOpen(false)
                             onChange(option.title)
                             update(idx, {
@@ -263,6 +264,19 @@ export default function ItemPriceUnitForm({
                                 : option.price,
                               priceFactor: priceFactor?.toString(),
                             })
+                            if (option?.subPriceUnits?.length) {
+                              option.subPriceUnits.forEach(item => {
+                                append({
+                                  ...savedValue,
+                                  quantity: item.quantity!,
+                                  priceUnit: item.title,
+                                  unit: item.unit,
+                                  unitPrice: priceFactor
+                                    ? priceFactor * item.price
+                                    : item.price,
+                                })
+                              })
+                            }
                             getTotalPrice()
                             getEachPrice(idx)
                           }}
