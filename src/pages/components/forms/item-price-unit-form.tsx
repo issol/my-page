@@ -75,7 +75,7 @@ export default function ItemPriceUnitForm({
   priceUnitsList,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-
+  // console.log(priceData)
   const {
     fields: details,
     append,
@@ -178,14 +178,14 @@ export default function ItemPriceUnitForm({
       const percentQuantity = data[idx].quantity
       const generalPrices = data.filter(item => item.unit !== 'Percent')
       generalPrices.forEach(item => {
-        console.log(item.unitPrice)
+        // console.log(item.unitPrice)
         prices += item.unitPrice
       })
       prices *= percentQuantity / 100
     } else {
       prices = detail.unitPrice * detail.quantity
     }
-    console.log('prices : ', prices)
+    // console.log('prices : ', prices)
     setValue(`items.${index}.detail.${idx}.prices`, prices, {
       shouldDirty: true,
       shouldValidate: true,

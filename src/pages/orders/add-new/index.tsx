@@ -274,6 +274,11 @@ export default function AddNewQuotes() {
       totalPrice: 0,
     })
   }
+
+  function onSubmit() {
+    //
+  }
+
   return (
     <Grid container spacing={6}>
       <PageHeader
@@ -439,7 +444,8 @@ export default function AddNewQuotes() {
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={!isItemValid} /* onClick={onNextStep} */
+                  disabled={!isItemValid}
+                  onClick={onSubmit}
                 >
                   Save
                 </Button>
