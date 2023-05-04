@@ -1,3 +1,4 @@
+// ** react
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 
 // ** style component
@@ -36,14 +37,22 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+
+// ** types & validation
 import { MemberType } from '@src/types/schema/project-team.schema'
 import { NOT_APPLICABLE_PRICE, languageType } from '@src/pages/orders/add-new'
 import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
+
+// ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ItemPriceUnitForm from './item-price-unit-form'
 
@@ -356,7 +365,7 @@ export default function ItemForm({
                   }}
                 />
               </Grid>
-              {/* price unit */}
+              {/* price unit start */}
               <ItemPriceUnitForm
                 index={idx}
                 control={control}
@@ -377,8 +386,7 @@ export default function ItemForm({
                 showMinimum={showMinimum}
                 setShowMinimum={setShowMinimum}
               />
-
-              {/* price unit */}
+              {/* price unit end */}
 
               <Grid item xs={12}>
                 <Typography variant='h6' mb='24px'>

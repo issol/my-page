@@ -11,12 +11,14 @@ import {
   Card,
   Grid,
   IconButton,
+  TableCell,
   TextField,
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
+import styled from 'styled-components'
 
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -35,6 +37,12 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
 import { removeClientFormData } from '@src/shared/auth/storage'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
+import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
@@ -42,21 +50,19 @@ import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
-
-import { AuthContext } from '@src/context/AuthContext'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { useGetPriceList } from '@src/queries/company/standard-price'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
+
+// ** context
+import { AuthContext } from '@src/context/AuthContext'
+
+// ** helpers
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+
+// ** apis
+import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
-import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import {
   createItemsForOrder,
   createLangPairForOrder,
@@ -540,3 +546,24 @@ AddNewQuotes.acl = {
   subject: 'quotes',
   action: 'create',
 }
+
+export const HeaderCell = styled(TableCell)`
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    #666cff;
+  height: 20px;
+  position: relative;
+  text-transform: none;
+  &::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    right: 0px;
+    width: 2px;
+    height: 30%;
+    background: rgba(76, 78, 100, 0.12);
+  }
+`

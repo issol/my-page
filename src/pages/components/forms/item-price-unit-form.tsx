@@ -1,7 +1,7 @@
 // ** react
 import { useRef, useState } from 'react'
 
-// ** MUI Imports
+// ** styled components
 import Paper from '@mui/material/Paper'
 import Table from '@mui/material/Table'
 import TableRow from '@mui/material/TableRow'
@@ -18,34 +18,44 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-
-import styled from 'styled-components'
+import { HeaderCell } from '@src/pages/orders/add-new'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-import { v4 as uuidv4 } from 'uuid'
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+
+// ** types
 import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { ItemDetailType, ItemType } from '@src/types/common/item.type'
+import { ItemType } from '@src/types/common/item.type'
+
+// ** react hook form
 import {
   Control,
   Controller,
-  FieldArrayWithId,
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
   useFieldArray,
 } from 'react-hook-form'
+
+// ** helpers
 import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+
+// ** values
 import { CurrencyList } from '@src/shared/const/currency/currency'
+
+// ** components
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 type Props = {
@@ -569,24 +579,3 @@ export default function ItemPriceUnitForm({
     </Grid>
   )
 }
-
-const HeaderCell = styled(TableCell)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #666cff;
-  height: 20px;
-  position: relative;
-  text-transform: none;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    right: 0px;
-    width: 2px;
-    height: 30%;
-    background: rgba(76, 78, 100, 0.12);
-  }
-`
