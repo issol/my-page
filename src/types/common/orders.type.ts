@@ -1,5 +1,4 @@
 import { CountryType } from '../sign/personalInfoTypes'
-import { ProjectInfoFormType } from './orders-and-quotes.type'
 
 export type OrderStatusType =
   | 'In preparation'
@@ -21,11 +20,6 @@ export type OrderProjectInfoFormType = {
   orderDate: string
   projectDueDate: { date: string; timezone: CountryType }
   tax: number
-}
-
-export type CreateOrderProjectInfoFormType = ProjectInfoFormType & {
-  status: OrderStatusType
-  revenueFrom: 'United States' | 'Korea' | 'Singapore' | 'Japan'
 }
 
 export type CreateOrderInfoRes = {

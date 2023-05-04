@@ -4,20 +4,16 @@ import { ItemType } from '@src/types/common/item.type'
 import {
   ClientFormType,
   LanguagePairsType,
-  ProjectInfoFormType,
+  ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import {
   CreateOrderInfoRes,
-  CreateOrderProjectInfoFormType,
+  OrderProjectInfoFormType,
 } from '@src/types/common/orders.type'
-import {
-  OrderListFilterType,
-  OrderListType,
-} from '@src/types/orders/order-list'
 
-export type CreateOrderFormType = CreateOrderProjectInfoFormType &
+export type CreateOrderFormType = ProjectTeamFormType &
   ClientFormType &
-  ProjectInfoFormType
+  OrderProjectInfoFormType
 
 // ** step 1-3
 export const createOrderInfo = async (

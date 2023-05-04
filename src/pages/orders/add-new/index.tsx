@@ -56,6 +56,12 @@ import { useGetPriceList } from '@src/queries/company/standard-price'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import {
+  createItemsForOrder,
+  createLangPairForOrder,
+  createOrderInfo,
+} from '@src/apis/order.api'
 
 export type languageType = {
   id: string
@@ -92,8 +98,6 @@ export default function AddNewQuotes() {
   const [activeStep, setActiveStep] = useState<number>(3)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-
-  const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -187,8 +191,8 @@ export default function AddNewQuotes() {
   } = useForm<ClientFormType>({
     mode: 'onChange',
     defaultValues: {
-      clientId: null,
-      contactPersonId: null,
+      clientId: 0,
+      contactPersonId: 0,
       addressType: 'shipping',
     },
     resolver: yupResolver(clientSchema),
@@ -236,7 +240,6 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
-  // console.log('getItem() : ', getItem(), itemErrors)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -275,8 +278,83 @@ export default function AddNewQuotes() {
     })
   }
 
+  // ** TODO : not applicable일 경우 어떤 값을 보낼지 문의하기. null을 보낼 수는 없음.
   function onSubmit() {
-    //
+    const teams = transformTeamData(getTeamValues())
+    const clients: any = {
+      ...getClientValue(),
+      contactPersonId:
+        getClientValue().contactPersonId === 'Not applicable'
+          ? null
+          : getClientValue().contactPersonId,
+    }
+    const projectInfo = { ...getProjectInfo(), tax }
+    const items = getItem().items
+    const langs = languagePairs.map(item => {
+      if (item?.price?.id) {
+        return {
+          source: item.source,
+          target: item.target,
+          priceId: item.price.id,
+        }
+      }
+      return {
+        source: item.source,
+        target: item.target,
+      }
+    })
+    const stepOneData = { ...teams, ...clients, ...projectInfo }
+    createOrderInfo(stepOneData)
+      .then(res => {
+        if (res.id) {
+          Promise.all([
+            createLangPairForOrder(res.id, langs),
+            createItemsForOrder(res.id, items),
+          ])
+            .then(() => {
+              router.push(`/orders/order-list/detail/${res.id}`)
+            })
+            .catch(e => onRequestError())
+        }
+      })
+      .catch(e => onRequestError())
+    // console.log('item : ', getItem()) //TODO analysis추가되면 다시 테스트, 그대로 보내되, items밖으로 꺼낸 배열을 보내면 됨
+  }
+
+  function onRequestError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+  function transformTeamData(data: ProjectTeamType) {
+    let result: ProjectTeamFormType = {
+      projectManagerId: 0,
+      supervisorId: undefined,
+      member: [],
+    }
+
+    data.teams.forEach(item => {
+      if (item.type === 'supervisorId') {
+        !item.id
+          ? delete result.supervisorId
+          : (result.supervisorId = Number(item.id))
+      } else if (item.type === 'projectManagerId') {
+        result.projectManagerId = Number(item.id)!
+      } else if (item.type === 'member') {
+        // if (!item.id) {
+        //   result.member = undefined
+        // } else {
+        //   result?.member?.push(Number(item.id)!)
+        // }
+        if (!result.member) {
+          result.member = []
+        }
+        result.member.push(item.id!)
+      }
+    })
+    if (!result.member || !result?.member?.length) delete result.member
+
+    return result
   }
 
   return (

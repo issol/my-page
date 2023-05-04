@@ -2,46 +2,29 @@ import { OrderStatusType } from './orders.type'
 import { CurrencyType } from './standard-price'
 
 export type ProjectTeamFormType = {
-  supervisorId?: number
+  supervisorId?: number | null
   projectManagerId: number
   member?: Array<number>
 }
 
 export type ClientFormType = {
   clientId: number
-  contactPersonId: number
+  contactPersonId?: number | null
   addressType: 'billing' | 'shipping'
 }
 
-export type ProjectInfoFormType = {
-  quoteDate: string
-  workName?: string
-  projectName: string
-  projectDescription?: string
-  category?: string
-  serviceType?: Array<string>
-  expertise?: Array<string>
-  quoteDeadline?: string
-  quoteDeadlineTimezone?: string
-  expiredAt?: string
-  expiredTimezone?: string
-  estimatedAt?: string
-  estimatedTimezone?: string
-  tax: number
-}
-
 export type LanguagePairsType = {
-  id: number
+  id?: number
   source: string
   target: string
-  priceId: number
+  priceId?: number
 }
 
 export type ItemType = {
   id?: number
   name: string
   dueAt: string
-  contactPersonId?: number
+  contactPersonId?: number | null
   source: string
   target: string
   priceId: number

@@ -2,8 +2,8 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
 export type ClientFormType = {
-  clientId: number | null
-  contactPersonId: number | 'Not applicable' | null
+  clientId: number
+  contactPersonId: number | 'Not applicable'
   addressType: 'billing' | 'shipping'
 }
 
