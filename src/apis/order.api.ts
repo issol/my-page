@@ -58,3 +58,18 @@ export const createItemsForOrder = async (
     throw new Error(e)
   }
 }
+
+export const getTmAnalysisData = async (
+  toolName: 'memsource' | 'memoq',
+  fileName: string,
+  userId: number,
+): Promise<any> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/csv/parse/${toolName}?user=${userId}&fileName=${fileName}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

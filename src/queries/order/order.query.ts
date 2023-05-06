@@ -5,6 +5,7 @@ import {
   getProjectTeam,
 } from '@src/apis/order-detail.api'
 import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
+import { getTmAnalysisData } from '@src/apis/order.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
@@ -70,4 +71,24 @@ export const useGetLangItem = (id: number) => {
 
     suspense: true,
   })
+}
+export const useGetTmAnalysisData = (
+  toolName: 'memsource' | 'memoq',
+  fileName: string,
+  userId: number,
+) => {
+  return useQuery(
+    [`TM-data`, toolName, fileName, userId],
+    () => getTmAnalysisData(toolName, fileName, userId),
+    {
+      staleTime: 60 * 1000, // 1
+      keepPreviousData: true,
+      suspense: true,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
 }
