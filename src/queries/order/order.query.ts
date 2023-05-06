@@ -5,7 +5,10 @@ import {
   getProjectTeam,
 } from '@src/apis/order-detail.api'
 import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
-import { getTmAnalysisData } from '@src/apis/order.api'
+import {
+  getMemoQAnalysisData,
+  getMemsourceAnalysisData,
+} from '@src/apis/order.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
@@ -72,18 +75,38 @@ export const useGetLangItem = (id: number) => {
     suspense: true,
   })
 }
-export const useGetTmAnalysisData = (
-  toolName: 'memsource' | 'memoq',
-  fileName: string,
-  userId: number,
+export const useGetMemoQAnalysisData = (
+  fileName: string | undefined,
+  userId: number | undefined,
 ) => {
   return useQuery(
-    [`TM-data`, toolName, fileName, userId],
-    () => getTmAnalysisData(toolName, fileName, userId),
+    [`TM-data`, fileName, userId],
+    () => getMemoQAnalysisData(fileName, userId),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
+      enabled: !!fileName && !!userId,
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+}
+export const useGetMemsourceAnalysisData = (
+  fileName: string | undefined,
+  userId: number | undefined,
+) => {
+  return useQuery(
+    [`TM-data`, fileName, userId],
+    () => getMemsourceAnalysisData(fileName, userId),
+    {
+      staleTime: 60 * 1000, // 1
+      keepPreviousData: true,
+      suspense: true,
+      enabled: !!fileName && !!userId,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

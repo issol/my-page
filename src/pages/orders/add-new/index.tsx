@@ -68,6 +68,7 @@ import {
   createLangPairForOrder,
   createOrderInfo,
 } from '@src/apis/order.api'
+import { useDropzone } from 'react-dropzone'
 
 export type languageType = {
   id: string
@@ -362,7 +363,7 @@ export default function AddNewQuotes() {
 
     return result
   }
-
+  console.log(console.log('리랜더'))
   return (
     <Grid container spacing={6}>
       <PageHeader

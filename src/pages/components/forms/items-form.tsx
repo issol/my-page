@@ -1,5 +1,11 @@
 // ** react
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 // ** style component
 import {
@@ -52,11 +58,20 @@ import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useDropzone } from 'react-dropzone'
 
 // ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ItemPriceUnitForm from './item-price-unit-form'
 import TmAnalysisForm from './tm-analysis-form'
+
+import { FileType } from '@src/types/common/file.type'
+import { toast } from 'react-hot-toast'
+import { AuthContext } from '@src/context/AuthContext'
+import {
+  useGetMemoQAnalysisData,
+  useGetMemsourceAnalysisData,
+} from '@src/queries/order/order.query'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -92,12 +107,15 @@ export default function ItemForm({
   priceUnitsList,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const { user } = useContext(AuthContext)
+
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
   const [showMinimum, setShowMinimum] = useState({
     checked: false,
     show: false,
   })
+
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
   >([])
@@ -166,8 +184,46 @@ export default function ItemForm({
   }
 
   const Row = ({ idx }: { idx: number }) => {
+    const [files, setFiles] = useState<File[]>([])
     const [cardOpen, setCardOpen] = useState(true)
+    const [tmInfo, setTimInfo] = useState<{
+      toolName: 'memsource' | 'memoq' | undefined
+      fileName: string
+    }>({ toolName: undefined, fileName: '' })
     const data = getValues(`items.${idx}`)
+
+    const { data: memoQData } = useGetMemoQAnalysisData(
+      tmInfo.fileName,
+      user?.id!,
+    )
+    const { data: memSource } = useGetMemsourceAnalysisData(
+      tmInfo.fileName,
+      user?.id!,
+    )
+
+    // ** Hooks
+    const { getRootProps, getInputProps } = useDropzone({
+      maxFiles: 2,
+      maxSize: 52428800,
+      accept: { 'text/csv': ['.cvs'] },
+      onDrop: (acceptedFiles: File[]) => {
+        setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
+      },
+      onDropRejected: () => {
+        toast.error('Maximum size is 50 MB.', {
+          duration: 2000,
+        })
+      },
+    })
+
+    const handleRemoveFile = (file: FileType) => {
+      const uploadedFiles = files
+      const filtered = uploadedFiles.filter(
+        (i: FileType) => i.name !== file.name,
+      )
+      setFiles([...filtered])
+    }
+
     return (
       <Box
         style={{
@@ -389,7 +445,6 @@ export default function ItemForm({
                 setShowMinimum={setShowMinimum}
               />
               {/* price unit end */}
-
               <Grid item xs={12}>
                 <Typography variant='h6' mb='24px'>
                   Item description
@@ -421,7 +476,6 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              {/* const itemName: `items.${number}.detail` = `items.${index}.detail` */}
               <Grid item xs={12}>
                 <Box
                   display='flex'
@@ -431,17 +485,20 @@ export default function ItemForm({
                   <Typography variant='h6' mb='24px'>
                     TM analysis
                   </Typography>
-                  <Button
-                    size='small'
-                    variant='contained'
-                    disabled={!data?.priceId || !data?.source || !data?.target}
-                  >
-                    Upload files
-                  </Button>
-                </Box>
-                <TmAnalysisForm />
-              </Grid>
 
+                  <div {...getRootProps({ className: 'dropzone' })}>
+                    <Button
+                      size='small'
+                      variant='contained'
+                      // disabled={!data?.priceId || !data?.source || !data?.target}
+                    >
+                      <input {...getInputProps()} />
+                      Upload files
+                    </Button>
+                  </div>
+                </Box>
+                <TmAnalysisForm files={files} removeFile={handleRemoveFile} />
+              </Grid>
               {/* TM analysis */}
             </>
           ) : null}
@@ -461,7 +518,7 @@ export default function ItemForm({
         justifyContent='space-between'
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
-        Items (1)
+        Items ({fields.length ?? 0})
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />
