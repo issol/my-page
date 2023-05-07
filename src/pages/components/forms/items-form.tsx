@@ -196,9 +196,7 @@ export default function ItemForm({
     const priceData =
       languagePairs.find(item => itemData?.priceId === item?.price?.id)
         ?.price ?? null
-    console.log('priceData', priceData)
     const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
-    console.log('minimumPrice', minimumPrice)
     const {
       fields: details,
       append,
@@ -230,15 +228,14 @@ export default function ItemForm({
       let total = 0
       const data = getValues(itemName)
       if (data?.length) {
-        if (minimumPrice && showMinimum.show) {
+        const price = data.reduce((res, item) => (res = +item.prices), 0)
+        if (minimumPrice && showMinimum.show && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
           total += minimumPrice
         } else {
-          data.forEach(item => {
-            total += Number(item.prices)
-          })
+          total = price
         }
       }
 
@@ -251,8 +248,6 @@ export default function ItemForm({
     function getEachPrice(index: number) {
       const data = getValues(itemName)
       if (!data?.length) return
-
-      trigger()
       let prices = 0
       const detail = data?.[index]
       if (detail && detail.unit === 'Percent') {
