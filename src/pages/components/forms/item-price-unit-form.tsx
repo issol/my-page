@@ -23,12 +23,6 @@ import { HeaderCell } from '@src/pages/orders/add-new'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// ** hooks
-import useModal from '@src/hooks/useModal'
-
-// ** components
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-
 // ** types
 import {
   PriceUnitListType,
@@ -40,10 +34,10 @@ import { ItemType } from '@src/types/common/item.type'
 import {
   Control,
   Controller,
+  FieldArrayWithId,
+  UseFieldArrayAppend,
+  UseFieldArrayUpdate,
   UseFormGetValues,
-  UseFormSetValue,
-  UseFormTrigger,
-  useFieldArray,
 } from 'react-hook-form'
 
 // ** helpers
@@ -55,60 +49,50 @@ import {
 // ** values
 import { CurrencyList } from '@src/shared/const/currency/currency'
 
-// ** components
-import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
-
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
-  isValid: boolean
-  isNotApplicable: boolean
+  priceUnitsList: Array<PriceUnitListType>
+  minimumPrice: number | null
+  details: FieldArrayWithId<
+    { items: ItemType[] },
+    `items.${number}.detail`,
+    'id'
+  >[]
   priceData: StandardPriceListType | null
   getValues: UseFormGetValues<{ items: ItemType[] }>
-  trigger: UseFormTrigger<{ items: ItemType[] }>
-  setValue: UseFormSetValue<{ items: ItemType[] }>
-  priceUnitsList: Array<PriceUnitListType>
+  append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
+  update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
+  getTotalPrice: (n?: boolean) => void
+  getEachPrice: (idx: number) => void
+  onDeletePriceUnit: (idx: number, title: string) => void
+  onItemBoxLeave: () => void
+  isValid: boolean
   showMinimum: { checked: boolean; show: boolean }
   setShowMinimum: (n: { checked: boolean; show: boolean }) => void
+  isNotApplicable: boolean
 }
 
 export default function ItemPriceUnitForm({
   control,
   index,
-  isValid,
-  isNotApplicable,
+  minimumPrice,
+  details,
   priceData,
   getValues,
-  trigger,
-  setValue,
-  priceUnitsList,
+  append,
+  update,
+  getTotalPrice,
+  getEachPrice,
+  onDeletePriceUnit,
+  onItemBoxLeave,
+  isValid,
   showMinimum,
   setShowMinimum,
+  isNotApplicable,
+  priceUnitsList,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-  const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
-
-  const {
-    fields: details,
-    append,
-    update,
-    remove,
-  } = useFieldArray({
-    control,
-    name: itemName,
-  })
-  const { openModal, closeModal } = useModal()
-
-  function appendDetail() {
-    append({
-      quantity: 0,
-      priceUnit: '',
-      unitPrice: 0,
-      prices: 0,
-      unit: '',
-      currency: priceData?.currency ?? 'USD',
-    })
-  }
 
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
@@ -145,100 +129,6 @@ export default function ItemPriceUnitForm({
     }
     allPriceUnits.current = data
     return nestedData
-  }
-
-  function onDeletePriceUnit(idx: number, title: string) {
-    openModal({
-      type: 'delete-unit',
-      children: (
-        <DeleteConfirmModal
-          message='Are you sure you want to delete this price unit?'
-          title={title}
-          onClose={() => closeModal('delete-unit')}
-          onDelete={() => remove(idx)}
-        />
-      ),
-    })
-  }
-
-  function getTotalPrice(isRefresh = false) {
-    if (isRefresh) {
-      trigger()
-    }
-    let total = 0
-    const data = getValues(itemName)
-    if (data?.length) {
-      if (minimumPrice && showMinimum.show) {
-        data.forEach(item => {
-          total += item.unit === 'Percent' ? Number(item.prices) : 0
-        })
-        total += minimumPrice
-      } else {
-        data.forEach(item => {
-          total += Number(item.prices)
-        })
-      }
-    }
-
-    setValue(`items.${index}.totalPrice`, total, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-  }
-
-  function getEachPrice(idx: number) {
-    const data = getValues(itemName)
-    if (!data?.length) return
-
-    trigger()
-    let prices = 0
-    const detail = data?.[idx]
-    if (detail && detail.unit === 'Percent') {
-      const percentQuantity = data[idx].quantity
-      if (minimumPrice && showMinimum.show) {
-        prices = (percentQuantity / 100) * minimumPrice
-      } else {
-        const generalPrices = data.filter(item => item.unit !== 'Percent')
-        generalPrices.forEach(item => {
-          prices += item.unitPrice
-        })
-        prices *= percentQuantity / 100
-      }
-    } else {
-      prices = detail.unitPrice * detail.quantity
-    }
-
-    setValue(`items.${index}.detail.${idx}.prices`, prices, {
-      shouldDirty: true,
-      shouldValidate: true,
-    })
-  }
-
-  function onItemBoxLeave() {
-    const isMinimumPriceConfirmed =
-      !!minimumPrice &&
-      minimumPrice > getValues(`items.${index}.totalPrice`) &&
-      showMinimum.checked
-
-    const isNotMinimum =
-      !minimumPrice || minimumPrice <= getValues(`items.${index}.totalPrice`)
-
-    if (!isMinimumPriceConfirmed && !isNotMinimum) {
-      setShowMinimum({ ...showMinimum, show: true })
-      openModal({
-        type: 'info-minimum',
-        children: (
-          <InfoConfirmModal
-            onClose={() => {
-              closeModal('info-minimum')
-              setShowMinimum({ show: true, checked: true })
-            }}
-            message='The minimum price has been applied to the item(s).'
-          />
-        ),
-      })
-    }
-    getTotalPrice(true)
   }
 
   const Row = ({ idx }: { idx: number }) => {
@@ -534,7 +424,16 @@ export default function ItemPriceUnitForm({
             <TableRow hover tabIndex={-1}>
               <TableCell colSpan={6}>
                 <Button
-                  onClick={appendDetail}
+                  onClick={() =>
+                    append({
+                      quantity: 0,
+                      priceUnit: '',
+                      unitPrice: 0,
+                      prices: 0,
+                      unit: '',
+                      currency: priceData?.currency ?? 'USD',
+                    })
+                  }
                   variant='contained'
                   disabled={!isValid}
                   sx={{ p: 0.7, minWidth: 26 }}

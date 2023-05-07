@@ -76,17 +76,18 @@ export const useGetLangItem = (id: number) => {
   })
 }
 export const useGetMemoQAnalysisData = (
+  tool: 'memsource' | 'memoq' | undefined,
   fileName: string | undefined,
   userId: number | undefined,
 ) => {
   return useQuery(
-    [`TM-data`, fileName, userId],
+    [`TM-data-memoq`, tool, fileName, userId],
     () => getMemoQAnalysisData(fileName, userId),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
-      enabled: !!fileName && !!userId,
+      enabled: !!fileName && !!userId && tool === 'memoq',
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
@@ -96,17 +97,18 @@ export const useGetMemoQAnalysisData = (
   )
 }
 export const useGetMemsourceAnalysisData = (
+  tool: 'memsource' | 'memoq' | undefined,
   fileName: string | undefined,
   userId: number | undefined,
 ) => {
   return useQuery(
-    [`TM-data`, fileName, userId],
+    [`TM-data-memsource`, tool, fileName, userId],
     () => getMemsourceAnalysisData(fileName, userId),
     {
       staleTime: 60 * 1000, // 1
       keepPreviousData: true,
       suspense: true,
-      enabled: !!fileName && !!userId,
+      enabled: !!fileName && !!userId && tool === 'memsource',
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',

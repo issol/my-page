@@ -10,7 +10,8 @@ export type ItemType = {
   priceId: number | null
   detail?: Array<ItemDetailType>
   description?: string
-  analysis?: number[] //file id를 보내기
+  // analysis?: number[] //file id를 보내기
+  analysis?: { name: string; size: number }[]
   totalPrice: number
 }
 

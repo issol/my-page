@@ -18,72 +18,142 @@ import {
 } from '@mui/material'
 import { HeaderCell } from '@src/pages/orders/add-new'
 import { FileType } from '@src/types/common/file.type'
-import { ReactNode } from 'react'
+import { Fragment, ReactNode } from 'react'
 import { Icon } from '@iconify/react'
-
-/* TODO
-1. 파일 다운로드 form 만들기
-2. 파일 형식 및 용량 제한 걸기
-3. 백엔드의 response와 item의 price uint 데이터 받아 display
-*/
+import { Control, useFieldArray } from 'react-hook-form'
+import { ItemType } from '@src/types/common/item.type'
+import { useDropzone } from 'react-dropzone'
+import { toast } from 'react-hot-toast'
 
 type Props = {
-  files: File[]
-  removeFile: (file: FileType) => void
+  control: Control<{ items: ItemType[] }, any>
+  index: number
+  onViewAnalysis: (tool: 'memsource' | 'memoq', name: string) => void
 }
-export default function TmAnalysisForm({ files, removeFile }: Props) {
+export default function TmAnalysisForm({
+  control,
+  index,
+  onViewAnalysis,
+}: Props) {
+  const itemName: `items.${number}.analysis` = `items.${index}.analysis`
+  const { fields, append, update, remove } = useFieldArray({
+    control,
+    name: itemName,
+  })
+
+  const MAXIMUM_FILE_SIZE = 50000000
+
+  // ** Hooks
+  const { getRootProps, getInputProps } = useDropzone({
+    maxFiles: 2,
+    maxSize: MAXIMUM_FILE_SIZE,
+    accept: { 'text/csv': ['.cvs'] },
+    onDrop: (acceptedFiles: File[]) => {
+      // TODO : 여기서 api로 파일 put하기
+      const totalFileSize = reducer(fields) + reducer(acceptedFiles)
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        return onError()
+      }
+
+      acceptedFiles.forEach(item => {
+        append({ name: item.name, size: item.size })
+      })
+    },
+    onDropRejected: () => onError(),
+  })
+
+  function onError() {
+    toast.error('Maximum size is 50 MB.', {
+      duration: 2000,
+    })
+  }
+
+  function reducer(value: { size: number; name: string }[]) {
+    return value.reduce((res, item) => (res += item.size), 0)
+  }
+
+  function onDeleteFile(idx: number) {
+    // TODO : file delete api호출
+    remove(idx)
+  }
+
   return (
-    <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
-      <Table stickyHeader aria-label='sticky table'>
-        <TableHead>
-          <TableRow>
-            {['CAT interface', 'Target language', 'File name', ''].map(
-              (item, idx) => (
-                <HeaderCell key={idx} align='left'>
-                  {item}
-                </HeaderCell>
-              ),
-            )}
-          </TableRow>
-        </TableHead>
-        <TableBody>
-          {!files.length ? (
-            <TableRow hover tabIndex={-1}>
-              <TableCell colSpan={4} align='center'>
-                Upload TM files to analyze and register price units
-              </TableCell>
+    <Fragment>
+      <Box display='flex' alignItems='center' justifyContent='space-between'>
+        <Typography variant='h6' mb='24px'>
+          TM analysis
+        </Typography>
+
+        <div {...getRootProps({ className: 'dropzone' })}>
+          <Button
+            size='small'
+            variant='contained'
+            // disabled={!data?.priceId || !data?.source || !data?.target}
+          >
+            <input {...getInputProps()} />
+            Upload files
+          </Button>
+        </div>
+      </Box>
+      <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+        <Table stickyHeader aria-label='sticky table'>
+          <TableHead>
+            <TableRow>
+              {['CAT interface', 'Target language', 'File name', ''].map(
+                (item, idx) => (
+                  <HeaderCell key={idx} align='left'>
+                    {item}
+                  </HeaderCell>
+                ),
+              )}
             </TableRow>
-          ) : (
-            files.map(item => (
-              <TableRow hover tabIndex={-1} key={item.name}>
-                <TableCell>
+          </TableHead>
+          <TableBody>
+            {!fields.length ? (
+              <TableRow hover tabIndex={-1}>
+                <TableCell colSpan={4} align='center'>
                   Upload TM files to analyze and register price units
-                </TableCell>
-                <TableCell>
-                  Upload TM files to analyze and register price units
-                </TableCell>
-                <TableCell style={{ maxWidth: '330px' }}>{item.name}</TableCell>
-                <TableCell style={{ minWidth: '200px' }}>
-                  <Box
-                    display='flex'
-                    alignItems='center'
-                    justifyContent='space-between'
-                  >
-                    <Button size='small' variant='outlined'>
-                      View analysis
-                    </Button>
-                    <IconButton
-                    // onClick={() => onDeletePriceUnit(idx, savedValue.priceUnit)}
-                    >
-                      <Icon icon='mdi:trash-outline' />
-                    </IconButton>
-                  </Box>
                 </TableCell>
               </TableRow>
-            ))
-          )}
-        </TableBody>
-      </Table>
-    </TableContainer>
+            ) : (
+              fields.map((item, idx) => (
+                <TableRow hover tabIndex={-1} key={item.name}>
+                  <TableCell>
+                    Upload TM files to analyze and register price units
+                  </TableCell>
+                  <TableCell>
+                    Upload TM files to analyze and register price units
+                  </TableCell>
+                  <TableCell style={{ maxWidth: '330px' }}>
+                    {item.name}
+                  </TableCell>
+                  <TableCell style={{ minWidth: '200px' }}>
+                    <Box
+                      display='flex'
+                      alignItems='center'
+                      justifyContent='space-between'
+                    >
+                      <Button
+                        size='small'
+                        variant='outlined' // TODO : tool은 동적으로 들어가게 수정해야 함.
+                        onClick={e => {
+                          e.stopPropagation()
+                          onViewAnalysis('memoq', item.name)
+                        }}
+                      >
+                        View analysis
+                      </Button>
+                      <IconButton onClick={() => onDeleteFile(idx)}>
+                        <Icon icon='mdi:trash-outline' />
+                      </IconButton>
+                    </Box>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
+      </TableContainer>
+    </Fragment>
   )
 }

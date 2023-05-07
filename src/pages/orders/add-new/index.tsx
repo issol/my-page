@@ -9,6 +9,8 @@ import {
   Box,
   Button,
   Card,
+  Dialog,
+  DialogContent,
   Grid,
   IconButton,
   TableCell,
@@ -69,6 +71,8 @@ import {
   createOrderInfo,
 } from '@src/apis/order.api'
 import { useDropzone } from 'react-dropzone'
+import CopyOrdersList from '../order-list/components/copy-order-list'
+import { OrderListType } from '@src/types/orders/order-list'
 
 export type languageType = {
   id: string
@@ -348,11 +352,6 @@ export default function AddNewQuotes() {
       } else if (item.type === 'projectManagerId') {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
-        // if (!item.id) {
-        //   result.member = undefined
-        // } else {
-        //   result?.member?.push(Number(item.id)!)
-        // }
         if (!result.member) {
           result.member = []
         }
@@ -363,16 +362,44 @@ export default function AddNewQuotes() {
 
     return result
   }
-  console.log(console.log('리랜더'))
+
+  function onCopyOrder(data: OrderListType | null) {
+    console.log(data)
+    closeModal('copy-order')
+  }
+
   return (
     <Grid container spacing={6}>
       <PageHeader
         title={
-          <Box display='flex' alignItems='center' gap='8px'>
-            <IconButton onClick={() => router.back()}>
-              <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
-            </IconButton>
-            <Typography variant='h5'>Create new order</Typography>
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
+          >
+            <Box display='flex' alignItems='center' gap='8px'>
+              <IconButton onClick={() => router.back()}>
+                <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
+              </IconButton>
+              <Typography variant='h5'>Create new order</Typography>
+            </Box>
+            <Button
+              variant='outlined'
+              startIcon={<Icon icon='ic:baseline-file-download' />}
+              onClick={() =>
+                openModal({
+                  type: 'copy-order',
+                  children: (
+                    <CopyOrdersList
+                      onCopy={onCopyOrder}
+                      onClose={() => closeModal('copy-order')}
+                    />
+                  ),
+                })
+              }
+            >
+              Copy order
+            </Button>
           </Box>
         }
       />

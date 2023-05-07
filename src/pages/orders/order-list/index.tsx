@@ -27,7 +27,7 @@ import OrderListCalendar from './calendar'
 export type FilterType = {
   orderDate: Date[]
   projectDueDate: Date[]
-  revenueFrom: Array<{ label: string; value: string }>
+  revenueFrom?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: string }>
   client: Array<{ label: string; value: string }>
@@ -128,7 +128,7 @@ export default function OrderList() {
     } = data
 
     const filter: OrderListFilterType = {
-      revenueFrom: revenueFrom.map(value => value.value),
+      revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       status: status.map(value => value.value),
       client: client.map(value => value.value),
       serviceType: serviceType.map(value => value.value),

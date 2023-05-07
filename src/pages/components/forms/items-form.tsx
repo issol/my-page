@@ -31,6 +31,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
+  useFieldArray,
 } from 'react-hook-form'
 
 // ** types
@@ -72,6 +73,12 @@ import {
   useGetMemoQAnalysisData,
   useGetMemsourceAnalysisData,
 } from '@src/queries/order/order.query'
+import { MemoQModal } from '../modals/memoq-modal'
+import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
+import {
+  getMemoQAnalysisData,
+  getMemsourceAnalysisData,
+} from '@src/apis/order.api'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -184,44 +191,169 @@ export default function ItemForm({
   }
 
   const Row = ({ idx }: { idx: number }) => {
-    const [files, setFiles] = useState<File[]>([])
     const [cardOpen, setCardOpen] = useState(true)
-    const [tmInfo, setTimInfo] = useState<{
-      toolName: 'memsource' | 'memoq' | undefined
-      fileName: string
-    }>({ toolName: undefined, fileName: '' })
-    const data = getValues(`items.${idx}`)
+    const itemData = getValues(`items.${idx}`)
 
-    const { data: memoQData } = useGetMemoQAnalysisData(
-      tmInfo.fileName,
-      user?.id!,
-    )
-    const { data: memSource } = useGetMemsourceAnalysisData(
-      tmInfo.fileName,
-      user?.id!,
-    )
-
-    // ** Hooks
-    const { getRootProps, getInputProps } = useDropzone({
-      maxFiles: 2,
-      maxSize: 52428800,
-      accept: { 'text/csv': ['.cvs'] },
-      onDrop: (acceptedFiles: File[]) => {
-        setFiles(acceptedFiles.map((file: File) => Object.assign(file)))
-      },
-      onDropRejected: () => {
-        toast.error('Maximum size is 50 MB.', {
-          duration: 2000,
-        })
-      },
+    /* price unit */
+    const itemName: `items.${number}.detail` = `items.${idx}.detail`
+    const priceData =
+      languagePairs.find(item => itemData?.priceId === item?.price?.id)
+        ?.price ?? null
+    const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
+    const {
+      fields: details,
+      append,
+      update,
+      remove,
+    } = useFieldArray({
+      control,
+      name: itemName,
     })
 
-    const handleRemoveFile = (file: FileType) => {
-      const uploadedFiles = files
-      const filtered = uploadedFiles.filter(
-        (i: FileType) => i.name !== file.name,
-      )
-      setFiles([...filtered])
+    function onDeletePriceUnit(idx: number, title: string) {
+      openModal({
+        type: 'delete-unit',
+        children: (
+          <DeleteConfirmModal
+            message='Are you sure you want to delete this price unit?'
+            title={title}
+            onClose={() => closeModal('delete-unit')}
+            onDelete={() => remove(idx)}
+          />
+        ),
+      })
+    }
+
+    function getTotalPrice(isRefresh = false) {
+      if (isRefresh) {
+        trigger()
+      }
+      let total = 0
+      const data = getValues(itemName)
+      if (data?.length) {
+        if (minimumPrice && showMinimum.show) {
+          data.forEach(item => {
+            total += item.unit === 'Percent' ? Number(item.prices) : 0
+          })
+          total += minimumPrice
+        } else {
+          data.forEach(item => {
+            total += Number(item.prices)
+          })
+        }
+      }
+
+      setValue(`items.${idx}.totalPrice`, total, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    function getEachPrice(index: number) {
+      const data = getValues(itemName)
+      if (!data?.length) return
+
+      trigger()
+      let prices = 0
+      const detail = data?.[index]
+      if (detail && detail.unit === 'Percent') {
+        const percentQuantity = data[index].quantity
+        if (minimumPrice && showMinimum.show) {
+          prices = (percentQuantity / 100) * minimumPrice
+        } else {
+          const generalPrices = data.filter(item => item.unit !== 'Percent')
+          generalPrices.forEach(item => {
+            prices += item.unitPrice
+          })
+          prices *= percentQuantity / 100
+        }
+      } else {
+        prices = detail.unitPrice * detail.quantity
+      }
+
+      setValue(`items.${idx}.detail.${index}.prices`, prices, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    }
+
+    function onItemBoxLeave() {
+      const isMinimumPriceConfirmed =
+        !!minimumPrice &&
+        minimumPrice > getValues(`items.${idx}.totalPrice`) &&
+        showMinimum.checked
+
+      const isNotMinimum =
+        !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
+
+      if (!isMinimumPriceConfirmed && !isNotMinimum) {
+        setShowMinimum({ ...showMinimum, show: true })
+        openModal({
+          type: 'info-minimum',
+          children: (
+            <InfoConfirmModal
+              onClose={() => {
+                closeModal('info-minimum')
+                setShowMinimum({ show: true, checked: true })
+              }}
+              message='The minimum price has been applied to the item(s).'
+            />
+          ),
+        })
+      }
+      getTotalPrice(true)
+    }
+
+    /* tm analysis */
+    function onCopyAnalysis(data: any) {
+      console.log(data)
+    }
+
+    function onViewAnalysis(tool: 'memsource' | 'memoq', name: string) {
+      if (tool === 'memoq') {
+        getMemoQAnalysisData(name, user?.id!)
+          .then(res => {
+            openModal({
+              type: 'memoq-modal',
+              children: (
+                <MemoQModal
+                  fileName={name}
+                  onClose={() => closeModal('memoq-modal')}
+                  data={res || []}
+                  priceData={priceData}
+                  onCopyAnalysis={onCopyAnalysis}
+                  details={details}
+                />
+              ),
+            })
+          })
+          .catch(e => {
+            toast.error('Something went wrong. Please try again.', {
+              position: 'bottom-left',
+            })
+          })
+      } else if (tool === 'memsource') {
+        getMemsourceAnalysisData(name, user?.id!)
+          .then(res => {
+            console.log('memsourceData', res)
+            // openModal({
+            //   type: 'memsource-modal',
+            //   children: (
+            //     <MemoQModal
+            //       onClose={() => closeModal('memoq-modal')}
+            //       data={res || []}
+            //       priceData={priceData}
+            //       onCopyAnalysis={onCopyAnalysis}
+            //     />
+            //   ),
+            // })
+          })
+          .catch(e => {
+            toast.error('Something went wrong. Please try again.', {
+              position: 'bottom-left',
+            })
+          })
+      }
     }
 
     return (
@@ -425,21 +557,25 @@ export default function ItemForm({
               </Grid>
               {/* price unit start */}
               <ItemPriceUnitForm
-                index={idx}
                 control={control}
-                isValid={
-                  !!data.source &&
-                  !!data.target &&
-                  (!!data.priceId || data.priceId === NOT_APPLICABLE_PRICE)
-                }
-                isNotApplicable={data.priceId === NOT_APPLICABLE_PRICE}
-                priceData={
-                  languagePairs.find(item => data?.priceId === item?.price?.id)
-                    ?.price ?? null
-                }
+                index={idx}
+                minimumPrice={minimumPrice}
+                details={details}
+                priceData={priceData}
                 getValues={getValues}
-                trigger={trigger}
-                setValue={setValue}
+                append={append}
+                update={update}
+                getTotalPrice={getTotalPrice}
+                getEachPrice={getEachPrice}
+                onDeletePriceUnit={onDeletePriceUnit}
+                onItemBoxLeave={onItemBoxLeave}
+                isValid={
+                  !!itemData.source &&
+                  !!itemData.target &&
+                  (!!itemData.priceId ||
+                    itemData.priceId === NOT_APPLICABLE_PRICE)
+                }
+                isNotApplicable={itemData.priceId === NOT_APPLICABLE_PRICE}
                 priceUnitsList={priceUnitsList}
                 showMinimum={showMinimum}
                 setShowMinimum={setShowMinimum}
@@ -477,27 +613,11 @@ export default function ItemForm({
               </Grid>
               {/* TM analysis */}
               <Grid item xs={12}>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  justifyContent='space-between'
-                >
-                  <Typography variant='h6' mb='24px'>
-                    TM analysis
-                  </Typography>
-
-                  <div {...getRootProps({ className: 'dropzone' })}>
-                    <Button
-                      size='small'
-                      variant='contained'
-                      // disabled={!data?.priceId || !data?.source || !data?.target}
-                    >
-                      <input {...getInputProps()} />
-                      Upload files
-                    </Button>
-                  </div>
-                </Box>
-                <TmAnalysisForm files={files} removeFile={handleRemoveFile} />
+                <TmAnalysisForm
+                  control={control}
+                  index={idx}
+                  onViewAnalysis={onViewAnalysis}
+                />
               </Grid>
               {/* TM analysis */}
             </>
