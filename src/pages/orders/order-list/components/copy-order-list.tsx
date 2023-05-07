@@ -27,11 +27,11 @@ type OrderListCellType = {
 
 type Props = {
   onClose: () => void
-  onCopy: (data: OrderListType | null) => void
+  onCopy: (data: number | null) => void
 }
 
 export default function CopyOrdersList({ onClose, onCopy }: Props) {
-  const [selected, setSelected] = useState<OrderListType | null>(null)
+  const [selected, setSelected] = useState<number | null>(null)
   const [search, setSearch] = useState('')
   const [activeSearch, setActiveSearch] = useState('')
   const [skip, setSkip] = useState(0)
@@ -56,8 +56,8 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
             sx={{ padding: 0 }}
             value={row.id}
             size='small'
-            onClick={() => setSelected(row)}
-            checked={!selected ? false : selected.id === row.id}
+            onClick={() => setSelected(row.id)}
+            checked={!selected ? false : selected === row.id}
           />
         )
       },

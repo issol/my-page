@@ -39,7 +39,10 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
 import { removeClientFormData } from '@src/shared/auth/storage'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import {
+  OrderProjectInfoFormType,
+  OrderStatusType,
+} from '@src/types/common/orders.type'
 import {
   orderProjectInfoDefaultValue,
   orderProjectInfoSchema,
@@ -73,6 +76,13 @@ import {
 import { useDropzone } from 'react-dropzone'
 import CopyOrdersList from '../order-list/components/copy-order-list'
 import { OrderListType } from '@src/types/orders/order-list'
+import {
+  getClient,
+  getLangItems,
+  getProjectInfo,
+  getProjectTeam,
+} from '@src/apis/order-detail.api'
+import { MemberType } from '@src/types/schema/project-team.schema'
 
 export type languageType = {
   id: string
@@ -157,8 +167,8 @@ export default function AddNewQuotes() {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
-    handleSubmit: submitTeam,
     watch: teamWatch,
+    reset: resetTeam,
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
@@ -212,7 +222,7 @@ export default function AddNewQuotes() {
   // ** step3
   const {
     control: projectInfoControl,
-    getValues: getProjectInfo,
+    getValues: getProjectInfoValues,
     setValue: setProjectInfo,
     watch: projectInfoWatch,
     reset: projectInfoReset,
@@ -299,7 +309,7 @@ export default function AddNewQuotes() {
           ? null
           : getClientValue().contactPersonId,
     }
-    const projectInfo = { ...getProjectInfo(), tax }
+    const projectInfo = { ...getProjectInfoValues(), tax }
     const items = getItem().items
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -363,9 +373,103 @@ export default function AddNewQuotes() {
     return result
   }
 
-  function onCopyOrder(data: OrderListType | null) {
-    console.log(data)
+  function onCopyOrder(id: number | null) {
     closeModal('copy-order')
+    if (id) {
+      getProjectTeam(id)
+        .then(res => {
+          const teams: Array<{
+            type: MemberType
+            id: number | null
+            name: string
+          }> = res.map(item => ({
+            type:
+              item.position === 'projectManager'
+                ? 'projectManagerId'
+                : item.position === 'supervisor'
+                ? 'supervisorId'
+                : 'member',
+            id: item.userId,
+            name: getLegalName({
+              firstName: item?.firstName!,
+              middleName: item?.middleName,
+              lastName: item?.lastName!,
+            }),
+          }))
+          resetTeam({ teams })
+        })
+        .catch(e => {
+          return
+        })
+
+      getClient(id)
+        .then(res => {
+          clientReset({
+            clientId: res.client.clientId,
+            contactPersonId: res?.contactPerson?.id ?? 'Not applicable',
+            addressType: res.addressType as 'billing' | 'shipping',
+          })
+        })
+        .catch(e => {
+          return
+        })
+      getProjectInfo(id)
+        .then(res => {
+          projectInfoReset({
+            status: 'In preparation' as OrderStatusType,
+            orderDate: Date(),
+            workName: res?.workName ?? '',
+            projectName: res?.projectName ?? '',
+            projectDescription: '',
+            category: res?.category ?? '',
+            serviceType: res?.serviceType ?? [],
+            expertise: res?.expertise ?? [],
+            revenueFrom: res?.revenueFrom ?? null,
+            projectDueDate: {
+              date: res?.projectDueAt ?? '',
+              timezone: res?.projectDueTimezone ?? {
+                label: '',
+                phone: '',
+                code: '',
+              },
+            },
+          })
+          setTax(res?.tax ?? 0)
+        })
+        .catch(e => {
+          return
+        })
+      getLangItems(id).then(res => {
+        if (res.length) {
+          setLanguagePairs(
+            res.map(item => ({
+              id: String(item.id),
+              source: item.source,
+              target: item.target,
+              price: item.priceId
+                ? getPriceOptions(item.source, item.target).filter(
+                    price => price.id === item.priceId,
+                  )[0]
+                : null,
+              isDeletable: false,
+            })),
+          )
+          const result = res.map(item => {
+            return {
+              id: item.id,
+              name: item.name,
+              source: item.source,
+              target: item.target,
+              priceId: item.priceId,
+              detail: !item?.detail?.length ? [] : item.detail,
+              // analysis?: { name: string; size: number }[]
+              totalPrice: item?.totalPrice ?? 0,
+            }
+          })
+          itemReset({ items: result })
+        }
+      })
+    }
   }
 
   return (

@@ -26,6 +26,7 @@ export const getClient = async (id: number): Promise<ClientType> => {
   return data
 }
 
+//TODO : getLangItems 데이터에 priceId, totalPrice, analysis 같이 와야 함
 export const getLangItems = async (id: number): Promise<Row[]> => {
   const res = [
     {

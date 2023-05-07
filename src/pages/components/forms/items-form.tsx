@@ -69,10 +69,7 @@ import TmAnalysisForm from './tm-analysis-form'
 import { FileType } from '@src/types/common/file.type'
 import { toast } from 'react-hot-toast'
 import { AuthContext } from '@src/context/AuthContext'
-import {
-  useGetMemoQAnalysisData,
-  useGetMemsourceAnalysisData,
-} from '@src/queries/order/order.query'
+
 import { MemoQModal } from '../modals/memoq-modal'
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 import {
@@ -199,7 +196,9 @@ export default function ItemForm({
     const priceData =
       languagePairs.find(item => itemData?.priceId === item?.price?.id)
         ?.price ?? null
+    console.log('priceData', priceData)
     const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
+    console.log('minimumPrice', minimumPrice)
     const {
       fields: details,
       append,
@@ -270,7 +269,6 @@ export default function ItemForm({
       } else {
         prices = detail.unitPrice * detail.quantity
       }
-
       setValue(`items.${idx}.detail.${index}.prices`, prices, {
         shouldDirty: true,
         shouldValidate: true,

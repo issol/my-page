@@ -353,7 +353,9 @@ export default function ProjectInfoForm({
                 disabled={!category}
                 multiple
                 options={
-                  !category ? ServiceTypeList : ServiceTypePair[category]
+                  !category || !ServiceTypePair[category]
+                    ? ServiceTypeList
+                    : ServiceTypePair[category]
                 }
                 onChange={(e, v) => {
                   onChange(v.map(item => item.value))
@@ -388,7 +390,7 @@ export default function ProjectInfoForm({
                 disabled={!category}
                 multiple
                 options={
-                  !category
+                  !category || !AreaOfExpertisePair[category]
                     ? AreaOfExpertiseList
                     : AreaOfExpertisePair[category]
                 }

@@ -4,8 +4,9 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
+import { RevenueFormType } from '../common/orders.type'
 
-type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
+export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
 export type ProjectTeamListType = {
   id: string
@@ -31,10 +32,13 @@ export type ProjectInfoType = {
   category: string
   serviceType: string[]
   expertise: string[]
-  revenueFrom: string
+  revenueFrom: RevenueFormType
   projectName: string
-  projectDueAt: { date: string; timezone: CountryType }
+  // projectDueAt: { date: string; timezone: CountryType }
+  projectDueAt: string
+  projectDueTimezone: CountryType
   projectDescription: string
+  tax: number
 }
 
 export type ClientType = {

@@ -19,6 +19,8 @@ export interface Row {
   source: string
   target: string
   detail: Detail[]
+  priceId?: number
+  totalPrice?: number
 }
 
 export default function MakeTable({ rows }: { rows: Row[] }) {

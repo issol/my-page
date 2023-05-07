@@ -219,6 +219,7 @@ export default function ItemPriceUnitForm({
                                 })
                               })
                             }
+                            getEachPrice(idx)
                           }}
                         >
                           {option?.quantity && option?.quantity >= 2
@@ -244,6 +245,7 @@ export default function ItemPriceUnitForm({
                                   : sub.price,
                                 priceFactor: priceFactor?.toString(),
                               })
+                              getEachPrice(idx)
                             }}
                           >
                             <Icon

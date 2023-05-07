@@ -222,7 +222,11 @@ export default function ClientQuotesFormContainer({
           { ...contactPersonData[0], clientId: res.clientId },
         ]).then(res => {
           if (res.length) {
-            setValue('contactPersonId', res[0]?.id ?? null, setValueOptions)
+            setValue(
+              'contactPersonId',
+              res[0]?.id ?? 'Not applicable',
+              setValueOptions,
+            )
           }
 
           setOpenForm(false)

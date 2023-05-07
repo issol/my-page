@@ -40,6 +40,9 @@ import styled from 'styled-components'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
+import { getUserInfo } from '@src/apis/user.api'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useState } from 'react'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -69,6 +72,13 @@ export default function ProjectTeamForm({
   watch,
   memberList,
 }: Props) {
+  const [list, setList] = useState<
+    Array<{
+      value: string
+      label: string
+      jobTitle: string | undefined
+    }>
+  >(memberList)
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
 
   function renderHeader(title: string) {
@@ -79,43 +89,63 @@ export default function ProjectTeamForm({
     )
   }
 
+  function findMemberValue(value: number | null) {
+    let findValue = list.find(item => item.value === value?.toString())
+    if (!findValue) {
+      getUserInfo(value!)
+        .then(res => {
+          setList(
+            list.concat({
+              value: String(res.userId),
+              label: getLegalName({
+                firstName: res?.firstName!,
+                middleName: res?.middleName,
+                lastName: res?.lastName!,
+              }),
+              jobTitle: res.jobTitle ?? '',
+            }),
+          )
+          findValue = list.find(item => item.value === value?.toString())
+        })
+        .catch(e => {
+          findValue = { value: '', label: '', jobTitle: '' }
+        })
+    }
+    return findValue || { value: '', label: '', jobTitle: '' }
+  }
   function renderMemberField(name: `teams.${number}.id`, idx: number) {
     return (
       <Controller
         name={name}
         control={control}
-        render={({ field }) => (
-          <Autocomplete
-            autoHighlight
-            fullWidth
-            {...field}
-            options={memberList.map(item => ({
-              value: item.value,
-              label: item.label,
-            }))}
-            onChange={(e, v) => {
-              field.onChange(v.value)
-              setValue(`teams.${idx}.name`, v.label, setValueOptions)
-            }}
-            disableClearable
-            value={
-              !field?.value
-                ? { value: '', label: '' }
-                : memberList.filter(
-                    item => item.value === field.value?.toString(),
-                  )[0]
-            }
-            renderInput={params => (
-              <TextField
-                {...params}
-                label='Member'
-                inputProps={{
-                  ...params.inputProps,
-                }}
-              />
-            )}
-          />
-        )}
+        render={({ field }) => {
+          return (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              options={list.map(item => ({
+                value: item.value,
+                label: item.label,
+              }))}
+              onChange={(e, v) => {
+                field.onChange(v.value)
+                setValue(`teams.${idx}.name`, v.label, setValueOptions)
+              }}
+              disableClearable
+              value={findMemberValue(field.value)}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Member'
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )
+        }}
       />
     )
   }
@@ -130,9 +160,8 @@ export default function ProjectTeamForm({
             fullWidth
             disabled={true}
             value={
-              memberList.filter(
-                item => item.value === field?.value?.toString(),
-              )[0]?.jobTitle || '-'
+              list.filter(item => item.value === field?.value?.toString())[0]
+                ?.jobTitle || '-'
             }
           />
         )}
