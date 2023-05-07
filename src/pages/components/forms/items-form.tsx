@@ -92,7 +92,6 @@ type Props = {
     source: string,
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
-  trigger: UseFormTrigger<{ items: ItemType[] }>
   priceUnitsList: Array<PriceUnitListType>
 }
 export default function ItemForm({
@@ -107,7 +106,6 @@ export default function ItemForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
-  trigger,
   priceUnitsList,
 }: Props) {
   const { openModal, closeModal } = useModal()
@@ -221,10 +219,7 @@ export default function ItemForm({
       })
     }
 
-    function getTotalPrice(isRefresh = false) {
-      if (isRefresh) {
-        trigger()
-      }
+    function getTotalPrice() {
       let total = 0
       const data = getValues(itemName)
       if (data?.length) {
@@ -294,7 +289,7 @@ export default function ItemForm({
           ),
         })
       }
-      getTotalPrice(true)
+      getTotalPrice()
     }
 
     /* tm analysis */

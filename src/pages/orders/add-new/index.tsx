@@ -604,7 +604,6 @@ export default function AddNewQuotes() {
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
-                  trigger={itemTrigger}
                   priceUnitsList={priceUnitsList?.data || []}
                 />
               </Grid>

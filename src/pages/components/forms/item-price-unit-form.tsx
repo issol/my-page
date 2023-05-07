@@ -468,7 +468,7 @@ export default function ItemPriceUnitForm({
                           priceData?.currency ?? 'USD',
                         )}
                   </Typography>
-                  <IconButton onClick={() => getTotalPrice(true)}>
+                  <IconButton onClick={() => getTotalPrice()}>
                     <Icon icon='material-symbols:refresh' />
                   </IconButton>
                 </Box>
