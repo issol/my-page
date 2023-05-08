@@ -61,6 +61,7 @@ import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<ClientFormType, any>
@@ -224,7 +225,7 @@ export default function ClientQuotesFormContainer({
           if (res.length) {
             setValue(
               'contactPersonId',
-              res[0]?.id ?? 'Not applicable',
+              res[0]?.id ?? NOT_APPLICABLE,
               setValueOptions,
             )
           }

@@ -48,7 +48,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** types & validation
 import { MemberType } from '@src/types/schema/project-team.schema'
-import { NOT_APPLICABLE_PRICE, languageType } from '@src/pages/orders/add-new'
+import { languageType } from '@src/pages/orders/add-new'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -76,6 +76,7 @@ import {
   getMemoQAnalysisData,
   getMemsourceAnalysisData,
 } from '@src/apis/order.api'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -560,10 +561,9 @@ export default function ItemForm({
                 isValid={
                   !!itemData.source &&
                   !!itemData.target &&
-                  (!!itemData.priceId ||
-                    itemData.priceId === NOT_APPLICABLE_PRICE)
+                  (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
                 }
-                isNotApplicable={itemData.priceId === NOT_APPLICABLE_PRICE}
+                isNotApplicable={itemData.priceId === NOT_APPLICABLE}
                 priceUnitsList={priceUnitsList}
                 showMinimum={showMinimum}
                 setShowMinimum={setShowMinimum}

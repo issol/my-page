@@ -83,6 +83,7 @@ import {
   getProjectTeam,
 } from '@src/apis/order-detail.api'
 import { MemberType } from '@src/types/schema/project-team.schema'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 export type languageType = {
   id: string
@@ -92,9 +93,8 @@ export type languageType = {
   isDeletable?: boolean
 }
 
-export const NOT_APPLICABLE_PRICE = -0
 export const defaultOption: StandardPriceListType & { groupName: string } = {
-  id: NOT_APPLICABLE_PRICE,
+  id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
   groupName: 'Not applicable',
@@ -238,7 +238,6 @@ export default function AddNewQuotes() {
     clientId: getClientValue('clientId'),
   })
   const { data: priceUnitsList } = useGetAllPriceList()
-
   const {
     control: itemControl,
     getValues: getItem,
@@ -305,7 +304,7 @@ export default function AddNewQuotes() {
     const clients: any = {
       ...getClientValue(),
       contactPersonId:
-        getClientValue().contactPersonId === 'Not applicable'
+        getClientValue().contactPersonId === NOT_APPLICABLE
           ? null
           : getClientValue().contactPersonId,
     }
@@ -406,7 +405,7 @@ export default function AddNewQuotes() {
         .then(res => {
           clientReset({
             clientId: res.client.clientId,
-            contactPersonId: res?.contactPerson?.id ?? 'Not applicable',
+            contactPersonId: res?.contactPerson?.id ?? NOT_APPLICABLE,
             addressType: res.addressType as 'billing' | 'shipping',
           })
         })
@@ -604,7 +603,7 @@ export default function AddNewQuotes() {
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
-                  priceUnitsList={priceUnitsList?.data || []}
+                  priceUnitsList={priceUnitsList || []}
                 />
               </Grid>
               <Grid item xs={12}>

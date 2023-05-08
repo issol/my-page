@@ -39,6 +39,7 @@ import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { saveClientFormData } from '@src/shared/auth/storage'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<ClientFormType, any>
@@ -70,7 +71,7 @@ export default function RegisterClientForm({
   } | null>(null)
 
   const defaultFilter: Array<any> = [
-    { value: 'Not applicable', label: 'Not applicable' },
+    { value: NOT_APPLICABLE, label: 'Not applicable' },
   ]
   const [contactPersonList, setContactPersonList] = useState<Array<any>>([
     ...defaultFilter,
@@ -121,7 +122,7 @@ export default function RegisterClientForm({
       .finally(() => {
         setContactPerson(null)
         if (resetClientId) {
-          setValue('contactPersonId', null, {
+          setValue('contactPersonId', NOT_APPLICABLE, {
             shouldDirty: true,
             shouldValidate: true,
           })

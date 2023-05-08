@@ -93,13 +93,12 @@ export default function ItemPriceUnitForm({
   priceUnitsList,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
     groupName: string
   }
-
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
+  console.log(getValues())
 
   const nestSubPriceUnits = () => {
     const nestedData: Array<NestedPriceUnitType> = []
