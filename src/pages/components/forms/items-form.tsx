@@ -70,7 +70,6 @@ import { FileType } from '@src/types/common/file.type'
 import { toast } from 'react-hot-toast'
 import { AuthContext } from '@src/context/AuthContext'
 
-import { MemoQModal } from '../modals/memoq-modal'
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'

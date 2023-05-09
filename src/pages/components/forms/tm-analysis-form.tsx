@@ -28,7 +28,7 @@ import {
   getMemoQAnalysisData,
   getMemsourceAnalysisData,
 } from '@src/apis/order.api'
-import { MemoQModal } from '../modals/memoq-modal'
+import { MemoQModal } from '../modals/tm-analysis/memoq-modal'
 import useModal from '@src/hooks/useModal'
 import { AuthContext } from '@src/context/AuthContext'
 import { StandardPriceListType } from '@src/types/common/standard-price'

@@ -41,7 +41,7 @@ import {
   getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
-import { onCopyAnalysisParamType } from '../forms/items-form'
+import { onCopyAnalysisParamType } from '../../forms/items-form'
 
 type Props = {
   fileName: string
@@ -70,6 +70,7 @@ export function MemoQModal({
     null,
   )
   const [page, setPage] = useState<number>(0)
+  const catBasis = priceData?.catBasis
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
   const detailUnitIds = details.map(item => item.priceUnitId)
   //TODO : catInter는 id를 임시로 집어넣은 임시 데이터. 사용처는 나중에 priceData?.catInterface?.memoQ로 바꾸면 됨
@@ -143,7 +144,7 @@ export function MemoQModal({
         result.push(
           renderPrice(
             header,
-            priceData?.catBasis === 'Words'
+            catBasis === 'Words'
               ? checked[header]?.Words || '0'
               : checked[header]?.Characters || '0',
           ),
@@ -229,16 +230,13 @@ export function MemoQModal({
               <Table stickyHeader aria-label='sticky table'>
                 <TableHead>
                   <TableRow>
-                    {[
-                      'Match',
-                      'Price unit',
-                      `${priceData?.catBasis} (%)`,
-                      'Prices',
-                    ].map((item, idx) => (
-                      <HeaderCell key={idx} align='left'>
-                        {item}
-                      </HeaderCell>
-                    ))}
+                    {['Match', 'Price unit', `${catBasis} (%)`, 'Prices'].map(
+                      (item, idx) => (
+                        <HeaderCell key={idx} align='left'>
+                          {item}
+                        </HeaderCell>
+                      ),
+                    )}
                   </TableRow>
                 </TableHead>
                 <TableBody>
@@ -250,7 +248,7 @@ export function MemoQModal({
                         <TableCell>{renderPriceUnitTitle(header)}</TableCell>
                         {/* Words or Character */}
                         <TableCell>
-                          {priceData?.catBasis === 'Words'
+                          {catBasis === 'Words'
                             ? item[header]?.Words
                             : item[header]?.Characters}{' '}
                           ({item[header]?.Percent}%)
@@ -262,7 +260,7 @@ export function MemoQModal({
                           }) ${formatByRoundingProcedure(
                             renderPrice(
                               header,
-                              priceData?.catBasis === 'Words'
+                              catBasis === 'Words'
                                 ? item[header]?.Words || '0'
                                 : item[header]?.Characters || '0',
                             ).prices,
