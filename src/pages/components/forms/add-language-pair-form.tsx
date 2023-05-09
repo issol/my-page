@@ -88,13 +88,21 @@ export default function AddLanguagePairForm({
   }
 
   function onAddLanguagePair() {
-    const value = languagePair.target.map(item => ({
-      id: uuidv4(),
-      source: languagePair.source,
-      target: item,
-      price: null,
-    }))
-    setLanguagePairs(languagePairs.concat(value))
+    const result: Array<languageType> = []
+
+    languagePair?.target?.forEach(target => {
+      const isDuplicated = languagePairs.some(
+        pair => languagePair.source === pair.source && pair.target === target,
+      )
+      if (isDuplicated) return
+      result.push({
+        id: uuidv4(),
+        source: languagePair.source,
+        target,
+        price: null,
+      })
+    })
+    setLanguagePairs(languagePairs.concat(result))
     setLanguagePair({ source: '', target: [] })
   }
 
