@@ -39,11 +39,14 @@ export const itemSchema = yup.object().shape({
         }),
       ),
       description: yup.string().nullable(),
-      // analysis: yup.array().of(yup.number().nullable()),
+      // analysis: yup.array().of(yup.number().nullable()),id: number | null
       analysis: yup.array().of(
         yup.object().shape({
+          // id: yup.number().nullable(),
           name: yup.string(),
           size: yup.number(),
+          // toolName: yup.string().nullable(),
+          // targetLanguage: yup.string().nullable(),
         }),
       ),
       totalPrice: yup.number().required(FormErrors.required),

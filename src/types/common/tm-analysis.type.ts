@@ -1,4 +1,5 @@
 export type MemSourceType = {
+  id: number
   toolName: 'memesource' | 'memoq'
   calculationBasis: Array<'Words' | 'Character'>
   targetLanguage: string | null
@@ -6,6 +7,7 @@ export type MemSourceType = {
 }
 
 export type MemoQType = {
+  id: number
   toolName: 'memesource' | 'memoq'
   calculationBasis: Array<'Words' | 'Character'>
   targetLanguage: string | null

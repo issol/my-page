@@ -70,6 +70,7 @@ export const getMemoQAnalysisData = async (
     // )
     // return data
     return {
+      id: 1,
       toolName: 'memoq',
       calculationBasis: ['Words'],
       targetLanguage: 'en',
@@ -137,6 +138,7 @@ export const getMemoQAnalysisData = async (
     }
   } catch (e: any) {
     return {
+      id: -0,
       toolName: 'memoq',
       calculationBasis: ['Words'],
       targetLanguage: null,
@@ -155,6 +157,7 @@ export const getMemsourceAnalysisData = async (
     // )
     // return data
     return {
+      id: 1,
       toolName: 'memesource',
       calculationBasis: ['Words'],
       targetLanguage: 'ko',
@@ -245,6 +248,7 @@ export const getMemsourceAnalysisData = async (
     }
   } catch (e: any) {
     return {
+      id: -0,
       toolName: 'memesource',
       calculationBasis: ['Character'],
       targetLanguage: null,

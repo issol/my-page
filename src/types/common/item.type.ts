@@ -1,4 +1,5 @@
 import { CurrencyType } from './standard-price'
+import { MemoQType } from './tm-analysis.type'
 
 export type ItemType = {
   id?: number
@@ -11,7 +12,11 @@ export type ItemType = {
   detail?: Array<ItemDetailType>
   description?: string
   // analysis?: number[] //file id를 보내기
-  analysis?: { name: string; size: number }[]
+  analysis?: {
+    name: string
+    size: number
+    data: MemoQType | null
+  }[]
   totalPrice: number
 }
 
