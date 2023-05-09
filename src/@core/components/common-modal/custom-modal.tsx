@@ -6,6 +6,7 @@ type Props = {
   onClose: any
   onClick: any
   title: string
+  subtitle?: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   leftButtonText?: string
   rightButtonText: string
@@ -15,6 +16,7 @@ const CustomModal = ({
   onClose,
   onClick,
   title,
+  subtitle,
   vary,
   leftButtonText,
   rightButtonText,
@@ -24,8 +26,6 @@ const CustomModal = ({
       sx={{
         maxWidth: '361px',
         width: '100%',
-        maxHeight: '228px',
-        height: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
         borderRadius: '10px',
@@ -50,9 +50,23 @@ const CustomModal = ({
         >
           <AlertIcon type={vary} />
 
-          <Typography variant='body1' textAlign='center' mt='10px'>
+          <Typography
+            variant='body2'
+            textAlign='center'
+            mt='10px'
+            sx={{ fontSize: '16px' }}
+          >
             {title}
           </Typography>
+          {subtitle ? (
+            <Typography
+              variant='body2'
+              textAlign='center'
+              sx={{ fontWeight: 700, fontSize: '16px' }}
+            >
+              {subtitle}
+            </Typography>
+          ) : null}
         </Box>
 
         <Box

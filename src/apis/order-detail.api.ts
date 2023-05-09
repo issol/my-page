@@ -16,9 +16,12 @@ export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
 export const getProjectTeam = async (
   id: number,
 ): Promise<ProjectTeamListType[]> => {
-  const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
-
-  return data.members
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
+    return data.members
+  } catch (e) {
+    return []
+  }
 }
 
 export const getClient = async (id: number): Promise<ClientType> => {

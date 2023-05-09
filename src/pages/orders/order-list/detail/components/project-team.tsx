@@ -19,6 +19,7 @@ import { ProjectTeamListType } from '@src/types/orders/order-detail'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   list: Array<ProjectTeamListType>

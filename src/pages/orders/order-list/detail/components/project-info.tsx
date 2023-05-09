@@ -34,7 +34,8 @@ import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-for
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EidtSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   type: string
@@ -67,6 +68,27 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
     defaultValues: orderProjectInfoDefaultValue,
     resolver: yupResolver(orderProjectInfoSchema),
   })
+
+  const handleDeleteOrder = () => {
+    closeModal('DeleteOrderModal')
+    console.log('delete')
+  }
+
+  const onClickDelete = () => {
+    openModal({
+      type: 'DeleteOrderModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('DeleteOrderModal')}
+          onClick={handleDeleteOrder}
+          title='Are you sure you want to delete this order?'
+          vary='error'
+          rightButtonText='Delete'
+          subtitle={`[${projectInfo.corporationId}] ${projectInfo.projectName}}`}
+        />
+      ),
+    })
+  }
 
   return (
     <>
@@ -112,7 +134,7 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
                       openModal({
                         type: 'EditSaveModal',
                         children: (
-                          <EidtSaveModal
+                          <EditSaveModal
                             onClose={() => closeModal('EditSaveModal')}
                             onClick={onClickSave}
                           />
@@ -522,7 +544,13 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
         <Grid xs={12} container sx={{ mt: '24px' }}>
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
-              <Button variant='outlined' fullWidth color='error' size='large'>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                onClick={onClickDelete}
+              >
                 Delete this order
               </Button>
             </Card>
