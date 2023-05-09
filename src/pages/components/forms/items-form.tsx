@@ -195,7 +195,14 @@ export default function ItemForm({
     const priceData =
       languagePairs.find(item => itemData?.priceId === item?.price?.id)
         ?.price ?? null
-    const minimumPrice = priceData?.languagePairs?.[0]?.minimumPrice || null
+    const sourceLanguage = getValues(`items.${idx}.source`)
+    const targetLanguage = getValues(`items.${idx}.target`)
+    const languagePairData = priceData?.languagePairs?.find(
+      i => i.source === sourceLanguage && i.target === targetLanguage,
+    )
+    const minimumPrice = languagePairData?.minimumPrice
+    const priceFactor = languagePairData?.priceFactor
+
     const {
       fields: details,
       append,
@@ -298,52 +305,52 @@ export default function ItemForm({
       console.log(data)
     }
 
-    function onViewAnalysis(tool: 'memsource' | 'memoq', name: string) {
-      if (tool === 'memoq') {
-        getMemoQAnalysisData(name, user?.id!)
-          .then(res => {
-            openModal({
-              type: 'memoq-modal',
-              children: (
-                <MemoQModal
-                  fileName={name}
-                  onClose={() => closeModal('memoq-modal')}
-                  data={res || []}
-                  priceData={priceData}
-                  onCopyAnalysis={onCopyAnalysis}
-                  details={details}
-                />
-              ),
-            })
-          })
-          .catch(e => {
-            toast.error('Something went wrong. Please try again.', {
-              position: 'bottom-left',
-            })
-          })
-      } else if (tool === 'memsource') {
-        getMemsourceAnalysisData(name, user?.id!)
-          .then(res => {
-            console.log('memsourceData', res)
-            // openModal({
-            //   type: 'memsource-modal',
-            //   children: (
-            //     <MemoQModal
-            //       onClose={() => closeModal('memoq-modal')}
-            //       data={res || []}
-            //       priceData={priceData}
-            //       onCopyAnalysis={onCopyAnalysis}
-            //     />
-            //   ),
-            // })
-          })
-          .catch(e => {
-            toast.error('Something went wrong. Please try again.', {
-              position: 'bottom-left',
-            })
-          })
-      }
-    }
+    // function onViewAnalysis(tool: 'memsource' | 'memoq', name: string) {
+    //   if (tool === 'memoq') {
+    //     getMemoQAnalysisData(name, user?.id!)
+    //       .then(res => {
+    //         openModal({
+    //           type: 'memoq-modal',
+    //           children: (
+    //             <MemoQModal
+    //               fileName={name}
+    //               onClose={() => closeModal('memoq-modal')}
+    //               data={res}
+    //               priceData={priceData}
+    //               onCopyAnalysis={onCopyAnalysis}
+    //               details={details}
+    //             />
+    //           ),
+    //         })
+    //       })
+    //       .catch(e => {
+    //         toast.error('Something went wrong. Please try again.', {
+    //           position: 'bottom-left',
+    //         })
+    //       })
+    //   } else if (tool === 'memsource') {
+    //     getMemsourceAnalysisData(name, user?.id!)
+    //       .then(res => {
+    //         console.log('memsourceData', res)
+    //         // openModal({
+    //         //   type: 'memsource-modal',
+    //         //   children: (
+    //         //     <MemoQModal
+    //         //       onClose={() => closeModal('memoq-modal')}
+    //         //       data={res || []}
+    //         //       priceData={priceData}
+    //         //       onCopyAnalysis={onCopyAnalysis}
+    //         //     />
+    //         //   ),
+    //         // })
+    //       })
+    //       .catch(e => {
+    //         toast.error('Something went wrong. Please try again.', {
+    //           position: 'bottom-left',
+    //         })
+    //       })
+    //   }
+    // }
 
     return (
       <Box
@@ -604,7 +611,10 @@ export default function ItemForm({
                 <TmAnalysisForm
                   control={control}
                   index={idx}
-                  onViewAnalysis={onViewAnalysis}
+                  details={details}
+                  priceData={priceData}
+                  onCopyAnalysis={onCopyAnalysis}
+                  // onViewAnalysis={onViewAnalysis}
                 />
               </Grid>
               {/* TM analysis */}

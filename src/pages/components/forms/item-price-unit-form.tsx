@@ -53,7 +53,7 @@ type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
   priceUnitsList: Array<PriceUnitListType>
-  minimumPrice: number | null
+  minimumPrice: number | undefined
   details: FieldArrayWithId<
     { items: ItemType[] },
     `items.${number}.detail`,
@@ -98,7 +98,6 @@ export default function ItemPriceUnitForm({
     groupName: string
   }
   const allPriceUnits = useRef<Array<NestedPriceUnitType>>([])
-  console.log(getValues())
 
   const nestSubPriceUnits = () => {
     const nestedData: Array<NestedPriceUnitType> = []
