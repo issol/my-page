@@ -439,9 +439,9 @@ export default function AddNewQuotes() {
           return
         })
       getLangItems(id).then(res => {
-        if (res.length) {
+        if (res) {
           setLanguagePairs(
-            res.map(item => ({
+            res?.languagePairs?.map(item => ({
               id: String(item.id),
               source: item.source,
               target: item.target,
@@ -453,7 +453,7 @@ export default function AddNewQuotes() {
               isDeletable: false,
             })),
           )
-          const result = res.map(item => {
+          const result = res?.items?.map(item => {
             return {
               id: item.id,
               name: item.name,
@@ -461,7 +461,7 @@ export default function AddNewQuotes() {
               target: item.target,
               priceId: item.priceId,
               detail: !item?.detail?.length ? [] : item.detail,
-              // analysis?: { name: string; size: number }[]
+              analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
             }
           })

@@ -197,6 +197,7 @@ export default function ItemPriceUnitForm({
                             onChange(option.title)
                             update(idx, {
                               ...savedValue,
+                              priceUnitId: option.id,
                               quantity: option.quantity ?? 0,
                               unit: option.unit,
                               unitPrice: priceFactor
@@ -208,6 +209,7 @@ export default function ItemPriceUnitForm({
                               option.subPriceUnits.forEach(item => {
                                 append({
                                   ...savedValue,
+                                  priceUnitId: option.id,
                                   quantity: item.quantity!,
                                   priceUnit: item.title,
                                   unit: item.unit,
@@ -426,6 +428,7 @@ export default function ItemPriceUnitForm({
                 <Button
                   onClick={() =>
                     append({
+                      priceUnitId: -0,
                       quantity: 0,
                       priceUnit: '',
                       unitPrice: 0,

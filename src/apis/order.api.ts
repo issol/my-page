@@ -36,7 +36,7 @@ export const createLangPairForOrder = async (
   try {
     const { data } = await axios.post(
       `/api/enough/u/order/language-pair?orderId=${orderId}`,
-      form,
+      { data: form },
     )
     return data
   } catch (e: any) {
@@ -52,7 +52,7 @@ export const createItemsForOrder = async (
   try {
     const { data } = await axios.post(
       `/api/enough/u/order/item?orderId=${orderId}`,
-      form,
+      { items: form },
     )
     return data
   } catch (e: any) {

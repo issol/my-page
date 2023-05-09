@@ -5,6 +5,7 @@ import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import { RevenueFormType } from '../common/orders.type'
+import { ItemType } from '../common/item.type'
 
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
@@ -34,7 +35,6 @@ export type ProjectInfoType = {
   expertise: string[]
   revenueFrom: RevenueFormType
   projectName: string
-  // projectDueAt: { date: string; timezone: CountryType }
   projectDueAt: string
   projectDueTimezone: CountryType
   projectDescription: string
@@ -89,4 +89,15 @@ export type OrderDownloadData = {
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
   langItem: Row[]
+}
+
+export type LanguageAndItemType = {
+  id: number
+  languagePairs: Array<{
+    id: number
+    source: string
+    target: string
+    priceId: number | null
+  }>
+  items: ItemType[]
 }
