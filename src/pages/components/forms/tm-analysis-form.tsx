@@ -18,23 +18,45 @@ import {
 } from '@mui/material'
 import { HeaderCell } from '@src/pages/orders/add-new'
 import { FileType } from '@src/types/common/file.type'
-import { Fragment, ReactNode } from 'react'
+import { Fragment, ReactNode, useContext } from 'react'
 import { Icon } from '@iconify/react'
-import { Control, useFieldArray } from 'react-hook-form'
+import { Control, FieldArrayWithId, useFieldArray } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
 import { useDropzone } from 'react-dropzone'
 import { toast } from 'react-hot-toast'
+import {
+  getMemoQAnalysisData,
+  getMemsourceAnalysisData,
+} from '@src/apis/order.api'
+import { MemoQModal } from '../modals/memoq-modal'
+import useModal from '@src/hooks/useModal'
+import { AuthContext } from '@src/context/AuthContext'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import languageHelper from '@src/shared/helpers/language.helper'
+import { onCopyAnalysisParamType } from './items-form'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
-  onViewAnalysis: (tool: 'memsource' | 'memoq', name: string) => void
+  priceData: StandardPriceListType | null
+  priceFactor: number | undefined
+  onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
+  details: FieldArrayWithId<
+    { items: ItemType[] },
+    `items.${number}.detail`,
+    'id'
+  >[]
 }
 export default function TmAnalysisForm({
   control,
   index,
-  onViewAnalysis,
+  priceData,
+  priceFactor,
+  onCopyAnalysis,
+  details,
 }: Props) {
+  const { user } = useContext(AuthContext)
+  const { openModal, closeModal } = useModal()
   const itemName: `items.${number}.analysis` = `items.${index}.analysis`
   const { fields, append, update, remove } = useFieldArray({
     control,
@@ -45,7 +67,7 @@ export default function TmAnalysisForm({
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
-    maxFiles: 2,
+    multiple: false,
     maxSize: MAXIMUM_FILE_SIZE,
     accept: { 'text/csv': ['.cvs'] },
     onDrop: (acceptedFiles: File[]) => {
@@ -54,9 +76,12 @@ export default function TmAnalysisForm({
       if (totalFileSize > MAXIMUM_FILE_SIZE) {
         return onError()
       }
-
-      acceptedFiles.forEach(item => {
-        append({ name: item.name, size: item.size })
+      getMemoQAnalysisData(acceptedFiles[0].name, user?.id!).then(res => {
+        append({
+          name: acceptedFiles[0].name,
+          size: acceptedFiles[0].size,
+          data: res,
+        })
       })
     },
     onDropRejected: () => onError(),
@@ -77,6 +102,47 @@ export default function TmAnalysisForm({
     remove(idx)
   }
 
+  function onViewAnalysis(index: number, name: string) {
+    // } else if (tool === 'memsource') {
+    //   getMemsourceAnalysisData(name, user?.id!)
+    //     .then(res => {
+    //       console.log('memsourceData', res)
+    //       // openModal({
+    //       //   type: 'memsource-modal',
+    //       //   children: (
+    //       //     <MemoQModal
+    //       //       onClose={() => closeModal('memoq-modal')}
+    //       //       data={res || []}
+    //       //       priceData={priceData}
+    //       //       onCopyAnalysis={onCopyAnalysis}
+    //       //     />
+    //       //   ),
+    //       // })
+    //     })
+    //     .catch(e => {
+    //       toast.error('Something went wrong. Please try again.', {
+    //         position: 'bottom-left',
+    //       })
+    //     })
+    // }
+    if (fields[index].data !== null) {
+      openModal({
+        type: 'memoq-modal',
+        children: (
+          <MemoQModal
+            fileName={name}
+            onClose={() => closeModal('memoq-modal')}
+            data={fields[index].data!}
+            priceData={priceData}
+            priceFactor={priceFactor}
+            onCopyAnalysis={onCopyAnalysis}
+            details={details}
+          />
+        ),
+      })
+    }
+  }
+
   return (
     <Fragment>
       <Box display='flex' alignItems='center' justifyContent='space-between'>
@@ -88,6 +154,7 @@ export default function TmAnalysisForm({
           <Button
             size='small'
             variant='contained'
+            //TODO : disabled 해제하기
             // disabled={!data?.priceId || !data?.source || !data?.target}
           >
             <input {...getInputProps()} />
@@ -117,12 +184,12 @@ export default function TmAnalysisForm({
               </TableRow>
             ) : (
               fields.map((item, idx) => (
-                <TableRow hover tabIndex={-1} key={item.name}>
-                  <TableCell>
-                    Upload TM files to analyze and register price units
+                <TableRow hover tabIndex={-1} key={item.id}>
+                  <TableCell style={{ textTransform: 'capitalize' }}>
+                    {item?.data?.toolName}
                   </TableCell>
                   <TableCell>
-                    Upload TM files to analyze and register price units
+                    {languageHelper(item?.data?.targetLanguage)}
                   </TableCell>
                   <TableCell style={{ maxWidth: '330px' }}>
                     {item.name}
@@ -138,7 +205,7 @@ export default function TmAnalysisForm({
                         variant='outlined' // TODO : tool은 동적으로 들어가게 수정해야 함.
                         onClick={e => {
                           e.stopPropagation()
-                          onViewAnalysis('memoq', item.name)
+                          onViewAnalysis(idx, item?.name)
                         }}
                       >
                         View analysis

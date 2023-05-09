@@ -1,9 +1,8 @@
 import { Icon } from '@iconify/react'
 import {
   Box,
+  Button,
   Card,
-  CardContent,
-  Chip,
   Dialog,
   DialogContent,
   Divider,
@@ -21,46 +20,71 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
-import { MemoQDataType } from '@src/apis/order.api'
-import { ChangeEvent, useEffect, useState } from 'react'
+import { ChangeEvent, useState } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
 import styled from 'styled-components'
-import { StandardPriceListType } from '@src/types/common/standard-price'
-import { TitleTypography } from '@src/@core/styles/typography'
+import {
+  CatInterfaceType,
+  StandardPriceListType,
+} from '@src/types/common/standard-price'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { FieldArrayWithId } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
+import {
+  MemoQData,
+  MemoQInterface,
+  MemoQType,
+} from '@src/types/common/tm-analysis.type'
+import languageHelper from '@src/shared/helpers/language.helper'
+import {
+  formatCurrency,
+  getCurrencyMark,
+} from '@src/shared/helpers/price.helper'
+import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
+import { onCopyAnalysisParamType } from '../forms/items-form'
 
 type Props = {
   fileName: string
   onClose: () => void
-  data: MemoQDataType[]
+  data: MemoQType
   priceData: StandardPriceListType | null
-  onCopyAnalysis: any
+  priceFactor: number | undefined
   details: FieldArrayWithId<
     { items: ItemType[] },
     `items.${number}.detail`,
     'id'
   >[]
+  onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
 }
 
-/* TODO : 부모한테 받을거 : priceData */
 export function MemoQModal({
   fileName,
   onClose,
   data,
   priceData,
+  priceFactor,
   details,
+  onCopyAnalysis,
 }: Props) {
-  const [checked, setChecked] = useState<
-    (MemoQDataType & { id: number }) | null
-  >(null)
+  const [checked, setChecked] = useState<(MemoQData & { id?: number }) | null>(
+    null,
+  )
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
-  console.log(priceData)
-  console.log(details)
-  console.log(priceData?.catBasis)
-  console.log(priceData?.catInterface)
+  const detailUnitIds = details.map(item => item.priceUnitId)
+  //TODO : catInter는 id를 임시로 집어넣은 임시 데이터. 사용처는 나중에 priceData?.catInterface?.memoQ로 바꾸면 됨
+  const catInter = priceData?.catInterface?.memoQ.map((item, idx) => ({
+    ...item,
+    priceUnitPairId: 204 || 0,
+  }))
+
+  const catInterfaces: CatInterfaceType[] =
+    catInter
+      ?.filter(item => detailUnitIds?.includes(item.priceUnitPairId))
+      .map(item => ({
+        ...item,
+        chips: item.chips.filter(chip => chip.selected),
+      })) || []
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -71,13 +95,107 @@ export function MemoQModal({
     setPage(0)
   }
 
-  const Row = ({ idx, item }: { idx: number; item: MemoQDataType }) => {
-    const [cardOpen, setCardOpen] = useState(false)
-    const filteredData = Object.keys(item).filter(
-      key => key !== 'File' && key !== 'Total',
-    )
+  function renderPrice(header: string, words: string) {
+    let prices = 0
+    let detailId = undefined
+    if (header === 'Total') {
+      detailId = header
+      const detailPrices: number =
+        details
+          .map(item => item.prices)
+          ?.reduce((res: number, price) => (res += Number(price)), 0) || 0
 
-    // priceData?.catInterface.memoQ
+      prices = priceFactor
+        ? priceFactor * detailPrices * Number(words)
+        : detailPrices * Number(words)
+    } else {
+      catInterfaces?.forEach((item, idx) => {
+        if (item.chips.find(chip => chip.title === header)) {
+          const data = catInterfaces[idx]
+          detailId = details.find(
+            detail => detail.priceUnitId === data.priceUnitPairId,
+          )?.id
+          const detailPrices =
+            Number(
+              details.find(
+                detail => detail.priceUnitId === data.priceUnitPairId,
+              )?.prices,
+            ) || 0
+
+          prices = priceFactor
+            ? priceFactor * detailPrices * Number(words)
+            : detailPrices * Number(words)
+        }
+      })
+    }
+
+    return { detailId: detailId, prices }
+  }
+
+  function onSubmit() {
+    let result: any = []
+    if (checked) {
+      delete checked.id
+      const headers: Array<MemoQInterface> = Object.keys(checked).filter(
+        key => key !== 'File' && key !== 'Chars/Word',
+      ) as Array<MemoQInterface>
+      headers.forEach(header => {
+        result.push(
+          renderPrice(
+            header,
+            priceData?.catBasis === 'Words'
+              ? checked[header]?.Words || '0'
+              : checked[header]?.Characters || '0',
+          ),
+        )
+      })
+    }
+    onCopyAnalysis(result)
+  }
+  function renderPriceUnitTitle(header: string) {
+    let res = '-'
+    catInterfaces?.forEach((item, idx) => {
+      if (item.chips.find(chip => chip.title === header)) {
+        const data = catInterfaces[idx]
+        const prices: number =
+          Number(
+            details.find(detail => detail.priceUnitId === data.priceUnitPairId)
+              ?.prices,
+          ) || 0
+        if (data?.priceUnitUnit === 'Percent') {
+          res = `${data.priceUnitTitle}% at ${formatCurrency(
+            formatByRoundingProcedure(
+              priceFactor ? prices * priceFactor : prices,
+              priceData?.decimalPlace!,
+              priceData?.roundingProcedure!,
+              priceData?.currency!,
+            ),
+            priceData?.currency ?? 'USD',
+          )}`
+        } else {
+          res = `${data.priceUnitQuantity} ${
+            data.priceUnitTitle
+          } at ${formatCurrency(
+            formatByRoundingProcedure(
+              priceFactor ? prices * priceFactor : prices,
+              priceData?.decimalPlace!,
+              priceData?.roundingProcedure!,
+              priceData?.currency!,
+            ),
+            priceData?.currency ?? 'USD',
+          )}`
+          return
+        }
+      }
+    })
+    return res
+  }
+
+  const Row = ({ idx, item }: { idx: number; item: MemoQData }) => {
+    const [cardOpen, setCardOpen] = useState(idx === 0 ? true : false)
+    const filteredData: Array<MemoQInterface> = Object.keys(item).filter(
+      key => key !== 'File' && key !== 'Chars/Word',
+    ) as Array<MemoQInterface>
 
     return (
       <Grid item xs={12}>
@@ -124,13 +242,35 @@ export function MemoQModal({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {filteredData.map((item, i) => {
+                  {filteredData.map((header, i) => {
                     return (
                       <TableRow key={i}>
-                        <TableCell>{item}</TableCell>
-                        <TableCell>{item}</TableCell>
-                        <TableCell>{item}</TableCell>
-                        <TableCell>{item}</TableCell>
+                        <TableCell>{header}</TableCell>
+                        {/* Price unit */}
+                        <TableCell>{renderPriceUnitTitle(header)}</TableCell>
+                        {/* Words or Character */}
+                        <TableCell>
+                          {priceData?.catBasis === 'Words'
+                            ? item[header]?.Words
+                            : item[header]?.Characters}{' '}
+                          ({item[header]?.Percent}%)
+                        </TableCell>
+                        {/* Prices */}
+                        <TableCell>
+                          {`(${getCurrencyMark(priceData?.currency)}${
+                            priceData?.currency
+                          }) ${formatByRoundingProcedure(
+                            renderPrice(
+                              header,
+                              priceData?.catBasis === 'Words'
+                                ? item[header]?.Words || '0'
+                                : item[header]?.Characters || '0',
+                            ).prices,
+                            priceData?.decimalPlace!,
+                            priceData?.roundingProcedure!,
+                            priceData?.currency!,
+                          )}`}
+                        </TableCell>
                       </TableRow>
                     )
                   })}
@@ -154,7 +294,7 @@ export function MemoQModal({
             justifyContent='space-between'
           >
             <Typography variant='h5'>
-              Analysis result ({data.length || 0})
+              Analysis result ({data?.data?.length || 0})
             </Typography>
             <IconButton onClick={onClose}>
               <Icon icon='ic:sharp-close' />
@@ -170,7 +310,8 @@ export function MemoQModal({
                 size='small'
                 color='primary'
                 skin='light'
-                label='Memsource'
+                style={{ textTransform: 'capitalize' }}
+                label={data?.toolName}
               />
             </Box>
           </Grid>
@@ -185,13 +326,13 @@ export function MemoQModal({
           <Grid item xs={12}>
             <Box display='flex' alignItems='center' gap='32px'>
               <Typography fontWeight='bold'>Target language</Typography>
-              <Typography>English</Typography>
+              <Typography>{languageHelper(data?.targetLanguage)}</Typography>
             </Box>
           </Grid>
           <Grid item xs={12}>
             <Divider />
           </Grid>
-          {data
+          {data.data
             ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
             ?.map((item, idx) => (
               <Row key={idx} idx={idx} item={item} />
@@ -200,12 +341,17 @@ export function MemoQModal({
             <TablePagination
               rowsPerPageOptions={[5, 15, 30]}
               component='div'
-              count={data.length}
+              count={data.data.length}
               rowsPerPage={rowsPerPage}
               page={page}
               onPageChange={handleChangePage}
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
+          </Grid>
+          <Grid item xs={12} display='flex' justifyContent='center'>
+            <Button variant='contained' disabled={!checked} onClick={onSubmit}>
+              Copy selected result to item
+            </Button>
           </Grid>
         </Grid>
       </DialogContent>

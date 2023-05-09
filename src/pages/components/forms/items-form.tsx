@@ -72,10 +72,7 @@ import { AuthContext } from '@src/context/AuthContext'
 
 import { MemoQModal } from '../modals/memoq-modal'
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
-import {
-  getMemoQAnalysisData,
-  getMemsourceAnalysisData,
-} from '@src/apis/order.api'
+
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
@@ -94,6 +91,11 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
   priceUnitsList: Array<PriceUnitListType>
+}
+
+export type onCopyAnalysisParamType = {
+  detailId: 'Total' | string
+  prices: number
 }
 export default function ItemForm({
   control,
@@ -301,7 +303,7 @@ export default function ItemForm({
     }
 
     /* tm analysis */
-    function onCopyAnalysis(data: any) {
+    function onCopyAnalysis(data: onCopyAnalysisParamType[]) {
       console.log(data)
     }
 
