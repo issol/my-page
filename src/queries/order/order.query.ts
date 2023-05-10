@@ -3,6 +3,7 @@ import {
   getLangItems,
   getProjectInfo,
   getProjectTeam,
+  getVersionHistory,
 } from '@src/apis/order-detail.api'
 import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
 import {
@@ -116,4 +117,11 @@ export const useGetMemsourceAnalysisData = (
       },
     },
   )
+}
+export const useGetVersionHistory = (id: number) => {
+  return useQuery([`VersionHistory-${id}`, id], () => getVersionHistory(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: true,
+  })
 }

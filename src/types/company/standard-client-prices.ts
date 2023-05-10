@@ -8,5 +8,5 @@ export type AddPriceType = {
   catBasis: { label: string; value: string }
   decimalPlace: number
   roundingProcedure: { label: string; value: number }
-  memoForPrice: string
+  memoForPrice: string | undefined
 }

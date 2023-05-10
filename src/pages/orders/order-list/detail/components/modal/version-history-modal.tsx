@@ -13,9 +13,11 @@ import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 
 type Props = {
   history: VersionHistoryType
+  onClose: any
+  onClick: any
 }
 
-const VersionHistoryModal = ({ history }: Props) => {
+const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
   const [value, setValue] = useState<string>('1')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -96,7 +98,11 @@ const VersionHistoryModal = ({ history }: Props) => {
             value='1'
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
-            {/* <ProjectInfo type='history' /> */}
+            <ProjectInfo
+              type='history'
+              projectInfo={history.history.projectInfo}
+              edit={false}
+            />
           </TabPanel>
           <TabPanel
             value='2'
@@ -106,7 +112,11 @@ const VersionHistoryModal = ({ history }: Props) => {
             value='3'
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
-            {/* <OrderDetailClient type='history' /> */}
+            <OrderDetailClient
+              type='history'
+              client={history.history.client}
+              edit={false}
+            />
           </TabPanel>
           <TabPanel
             value='4'
@@ -134,10 +144,15 @@ const VersionHistoryModal = ({ history }: Props) => {
             alignItems: 'center',
           }}
         >
-          <Button variant='outlined' color='secondary' sx={{ width: '226px' }}>
+          <Button
+            variant='outlined'
+            color='secondary'
+            sx={{ width: '226px' }}
+            onClick={onClose}
+          >
             Close
           </Button>
-          <Button variant='contained' sx={{ width: '226px' }}>
+          <Button variant='contained' sx={{ width: '226px' }} onClick={onClick}>
             Restore this version
           </Button>
         </Box>

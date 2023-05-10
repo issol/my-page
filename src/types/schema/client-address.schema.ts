@@ -11,13 +11,13 @@ export type ClientAddressFormType = {
 
 export type ClientAddressType = {
   addressType?: 'billing' | 'shipping' | 'additional'
-  name?: string
-  baseAddress?: string //street1
-  detailAddress?: string //street2
-  city?: string
-  state?: string
-  country?: string
-  zipCode?: string
+  name?: string | null
+  baseAddress?: string | null //street1
+  detailAddress?: string | null //street2
+  city?: string | null
+  state?: string | null
+  country?: string | null
+  zipCode?: string | null
   createdAt?: string
   updatedAt?: string
   isSelected?: boolean

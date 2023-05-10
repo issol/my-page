@@ -20,6 +20,9 @@ function ModalContainer() {
     event.stopPropagation()
     closeModal(name)
   }
+
+  console.log(modalList)
+
   const renderModal = modalList?.map(
     ({ type, children, isCloseable = true }: ModalType) => {
       return (
