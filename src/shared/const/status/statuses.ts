@@ -203,3 +203,50 @@ export const OrderStatus = [
     label: 'Canceled',
   },
 ]
+
+export const JobStatus = [
+  {
+    value: 'In preparation',
+    label: 'In preparation',
+  },
+  {
+    value: 'Requested',
+    label: 'Requested',
+  },
+  {
+    value: 'In progress',
+    label: 'In progress',
+  },
+  {
+    value: 'Overdue',
+    label: 'Overdue',
+  },
+  {
+    value: 'Delivered',
+    label: 'Delivered',
+  },
+  {
+    value: 'Approved',
+    label: 'Approved',
+  },
+  {
+    value: 'Invoice created',
+    label: 'Invoice created',
+  },
+  {
+    value: 'Invoice accepted',
+    label: 'Invoice accepted',
+  },
+  {
+    value: 'Paid',
+    label: 'Paid',
+  },
+  {
+    value: 'Without invoice',
+    label: 'Without invoice',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]

@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -10,12 +10,36 @@ import { Box } from '@mui/system'
 
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
+import useModal from '@src/hooks/useModal'
+import JobInfoDetailView from './detail-view'
 
 type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
 export default function JobList({ id, user }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
+  const { openModal, closeModal } = useModal()
+
+  useEffect(() => {
+    openModal({
+      type: 'JobDetailViewModal',
+      children: (
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            maxHeight: '90vh',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+            overflow: 'scroll',
+          }}
+        >
+          <JobInfoDetailView />
+        </Box>
+      ),
+    })
+  }, [])
 
   return (
     <Box display='flex' flexDirection='column'>
