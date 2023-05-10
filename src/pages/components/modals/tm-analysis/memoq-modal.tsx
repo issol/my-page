@@ -20,7 +20,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
 import styled from 'styled-components'
 import {
@@ -31,6 +31,7 @@ import { TableTitleTypography } from '@src/@core/styles/typography'
 import { FieldArrayWithId } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
 import {
+  CatCalculationType,
   MemoQData,
   MemoQInterface,
   MemoQType,
@@ -42,6 +43,8 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import { onCopyAnalysisParamType } from '../../forms/items-form'
+import useModal from '@src/hooks/useModal'
+import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 type Props = {
   fileName: string
@@ -66,11 +69,12 @@ export function MemoQModal({
   details,
   onCopyAnalysis,
 }: Props) {
+  const { openModal, closeModal } = useModal() //추가
   const [checked, setChecked] = useState<(MemoQData & { id?: number }) | null>(
     null,
   )
   const [page, setPage] = useState<number>(0)
-  const catBasis = priceData?.catBasis
+  const catBasis = priceData?.catBasis as CatCalculationType //추가
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
   const detailUnitIds = details.map(item => item.priceUnitId)
   //TODO : catInter는 id를 임시로 집어넣은 임시 데이터. 사용처는 나중에 priceData?.catInterface?.memoQ로 바꾸면 됨
@@ -86,6 +90,39 @@ export function MemoQModal({
         ...item,
         chips: item.chips.filter(chip => chip.selected),
       })) || []
+
+  useEffect(() => {
+    //추가
+    if (!data.calculationBasis.includes(catBasis)) {
+      openModal({
+        isCloseable: false,
+        type: 'catBasis-not-match',
+        children: (
+          <ConfirmModal
+            message="The CAT interface doesn't match. Please check the price setting or the file."
+            onClose={() => {
+              closeModal('catBasis-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    } else if (data.toolName! == 'memesource' || data.toolName !== 'memoq') {
+      openModal({
+        isCloseable: false,
+        type: 'tool-not-match',
+        children: (
+          <ConfirmModal
+            message='Only files with all CAT Tool matches can be analyzed.'
+            onClose={() => {
+              closeModal('tool-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    }
+  }, [data])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)

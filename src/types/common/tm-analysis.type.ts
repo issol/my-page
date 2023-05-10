@@ -1,7 +1,8 @@
+export type CatCalculationType = 'Words' | 'Character'
 export type MemSourceType = {
   id: number
   toolName: 'memesource' | 'memoq'
-  calculationBasis: Array<'Words' | 'Character'>
+  calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
   data: Array<MemSourceData>
 }
@@ -9,7 +10,7 @@ export type MemSourceType = {
 export type MemoQType = {
   id: number
   toolName: 'memesource' | 'memoq'
-  calculationBasis: Array<'Words' | 'Character'>
+  calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
   data: Array<MemoQData>
 }
