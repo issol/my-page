@@ -137,6 +137,10 @@ const SetPriceUnitModal = ({
     name: 'pair',
   })
 
+  useEffect(() => {
+    console.log("pairFields",pairFields)
+  }, pairFields)
+
   const calculateRoundedRatio = (total: number, value: number) => {
     const ratio = (value / total) * 100
     const roundedRatio = ratio.toFixed(5)
@@ -856,7 +860,8 @@ const SetPriceUnitModal = ({
                 type='submit'
                 disabled={pairFields.some(item => {
                   return !item.weighting || !item.quantity || !item.price
-                })}
+                }) || pairFields.length === 0
+              }
               >
                 Save
               </Button>
