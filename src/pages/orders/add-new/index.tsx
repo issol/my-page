@@ -403,6 +403,7 @@ export default function AddNewQuotes() {
 
       getClient(id)
         .then(res => {
+          console.log('client : ', res)
           clientReset({
             clientId: res.client.clientId,
             contactPersonId: res?.contactPerson?.id ?? null,
@@ -445,11 +446,11 @@ export default function AddNewQuotes() {
               id: String(item.id),
               source: item.source,
               target: item.target,
-              price: item.priceId
-                ? getPriceOptions(item.source, item.target).filter(
-                    price => price.id === item.priceId,
-                  )[0]
-                : null,
+              price: !item?.price
+                ? null
+                : getPriceOptions(item.source, item.target).filter(
+                    price => price.id === item?.price?.id!,
+                  )[0],
               isDeletable: false,
             })),
           )

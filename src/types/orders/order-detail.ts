@@ -6,6 +6,7 @@ import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import { RevenueFormType } from '../common/orders.type'
 import { ItemType } from '../common/item.type'
+import { CurrencyType } from '../common/standard-price'
 
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
@@ -97,7 +98,18 @@ export type LanguageAndItemType = {
     id: number
     source: string
     target: string
-    priceId: number | null
+    price: {
+      id: number
+      name: string
+      isStandard: boolean
+      category: 'Dubbing'
+      serviceType: ['Audio description']
+      currency: CurrencyType
+      calculationBasis: string
+      rounding: number
+      numberPlace: number
+      authorId: number
+    } | null
   }>
   items: ItemType[]
 }

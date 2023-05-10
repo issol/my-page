@@ -31,41 +31,31 @@ export const getClient = async (id: number): Promise<ClientType> => {
   return data
 }
 
+type ItemResType = {
+  id: number
+  contactPersonId: null | number
+  itemName: string
+  dueAt: string
+  sourceLanguage: string
+  targetLanguage: string
+  priceId: number
+  description: string | null
+  totalPrice: string
+}
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
-    // return data;
+    const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
     return {
-      id: 1,
-      languagePairs: [{ id: 1, source: 'en', target: 'ko', priceId: null }],
-      items: [
-        {
-          id: 1,
-          name: 'Kim bon',
-          dueAt: Date(),
-          contactPersonId: 5,
-          source: 'en',
-          target: 'ko',
-          priceId: null,
-          detail: [
-            {
-              priceUnitId: 1,
-              quantity: 2,
-              priceUnit: 'title',
-              unitPrice: 2000,
-              prices: 30000,
-              unit: 'Graphic',
-              currency: 'USD',
-              priceFactor: '1.5',
-            },
-          ],
-          description: null,
-          analysis: [],
-          totalPrice: 20000,
-        },
-      ],
+      ...data,
+      items: data.items.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })),
     }
   } catch (e: any) {
     throw new Error(e)
