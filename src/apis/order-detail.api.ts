@@ -102,11 +102,12 @@ export const getVersionHistory = async (
           orderedAt: '2023-03-21T08:20:46.678Z',
 
           projectDueAt: '2023-03-21T08:20:46.678Z',
-          projectDueAtTimezone: {
+          projectDueTimezone: {
             code: 'string',
             label: 'string',
             phone: 'string',
           },
+          tax: 10,
         },
         client: {
           addressType: 'billing',

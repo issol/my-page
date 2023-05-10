@@ -254,7 +254,7 @@ const OrderDetail = () => {
         orderedAt: projectInfo!.orderedAt,
         projectDueAt: {
           date: projectInfo!.projectDueAt,
-          timezone: projectInfo!.projectDueAtTimezone,
+          timezone: projectInfo!.projectDueTimezone,
         },
         pm: {
           firstName: pm?.firstName!,
