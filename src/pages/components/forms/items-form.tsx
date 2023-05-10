@@ -66,8 +66,6 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 import ItemPriceUnitForm from './item-price-unit-form'
 import TmAnalysisForm from './tm-analysis-form'
 
-import { FileType } from '@src/types/common/file.type'
-import { toast } from 'react-hot-toast'
 import { AuthContext } from '@src/context/AuthContext'
 
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
@@ -111,7 +109,6 @@ export default function ItemForm({
   priceUnitsList,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const { user } = useContext(AuthContext)
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -303,7 +300,23 @@ export default function ItemForm({
 
     /* tm analysis */
     function onCopyAnalysis(data: onCopyAnalysisParamType[]) {
-      console.log(data)
+      const availableData = data.filter(
+        item => item.detailId !== 'Total' && item.detailId !== undefined,
+      )
+      const total = data.find(item => item.detailId === 'Total')?.prices
+      if (!availableData.length) return
+      availableData.forEach(data => {
+        const idx = details.map(item => item.id).indexOf(data.detailId)
+        if (idx !== -1) {
+          update(idx, { ...details[idx], prices: data.prices })
+        }
+      })
+      if (total) {
+        setValue(`items.${idx}.totalPrice`, total, {
+          shouldDirty: true,
+          shouldValidate: true,
+        })
+      }
     }
 
     return (

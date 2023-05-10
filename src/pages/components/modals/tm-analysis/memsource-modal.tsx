@@ -20,7 +20,7 @@ import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
 
-import { ChangeEvent, useState } from 'react'
+import { ChangeEvent, useEffect, useState } from 'react'
 import CustomChip from 'src/@core/components/mui/chip'
 import styled from 'styled-components'
 import {
@@ -31,6 +31,7 @@ import { TableTitleTypography } from '@src/@core/styles/typography'
 import { FieldArrayWithId } from 'react-hook-form'
 import { ItemType } from '@src/types/common/item.type'
 import {
+  CatCalculationType,
   MemSourceData,
   MemSourceInterface,
   MemSourceType,
@@ -42,6 +43,8 @@ import {
 } from '@src/shared/helpers/price.helper'
 import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
 import { onCopyAnalysisParamType } from '../../forms/items-form'
+import useModal from '@src/hooks/useModal'
+import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 type Props = {
   fileName: string
@@ -66,26 +69,54 @@ export default function MemsourceModal({
   details,
   onCopyAnalysis,
 }: Props) {
+  const { openModal, closeModal } = useModal()
   const [checked, setChecked] = useState<
     (MemSourceData & { id?: number }) | null
   >(null)
   const [page, setPage] = useState<number>(0)
-  const catBasis = priceData?.catBasis
+  const catBasis = priceData?.catBasis as CatCalculationType
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
   const detailUnitIds = details.map(item => item.priceUnitId)
-  //TODO : catInter는 id를 임시로 집어넣은 임시 데이터. 사용처는 나중에 priceData?.catInterface?.memoQ로 바꾸면 됨
-  const catInter = priceData?.catInterface?.memoQ.map((item, idx) => ({
-    ...item,
-    priceUnitPairId: 204 || 0,
-  }))
 
   const catInterfaces: CatInterfaceType[] =
-    catInter
+    priceData?.catInterface?.memSource
       ?.filter(item => detailUnitIds?.includes(item.priceUnitPairId))
       .map(item => ({
         ...item,
         chips: item.chips.filter(chip => chip.selected),
       })) || []
+
+  useEffect(() => {
+    if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+      openModal({
+        isCloseable: false,
+        type: 'catBasis-not-match',
+        children: (
+          <ConfirmModal
+            message="The CAT interface doesn't match. Please check the price setting or the file."
+            onClose={() => {
+              closeModal('catBasis-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    } else if (data.toolName !== 'Memsource') {
+      openModal({
+        isCloseable: false,
+        type: 'tool-not-match',
+        children: (
+          <ConfirmModal
+            message='Only files with all CAT Tool matches can be analyzed.'
+            onClose={() => {
+              closeModal('tool-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    }
+  }, [data, priceData, catInterfaces])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -99,36 +130,23 @@ export default function MemsourceModal({
   function renderPrice(header: string, words: string) {
     let prices = 0
     let detailId = undefined
-    if (header === 'Total') {
-      detailId = header
-      const detailPrices: number =
-        details
-          .map(item => item.prices)
-          ?.reduce((res: number, price) => (res += Number(price)), 0) || 0
+    catInterfaces?.forEach((item, idx) => {
+      if (item.chips.find(chip => chip.title === header)) {
+        const data = catInterfaces[idx]
+        detailId = details.find(
+          detail => detail.priceUnitId === data.priceUnitPairId,
+        )?.id
+        const detailPrices =
+          Number(
+            details.find(detail => detail.priceUnitId === data.priceUnitPairId)
+              ?.prices,
+          ) || 0
 
-      prices = priceFactor
-        ? priceFactor * detailPrices * Number(words)
-        : detailPrices * Number(words)
-    } else {
-      catInterfaces?.forEach((item, idx) => {
-        if (item.chips.find(chip => chip.title === header)) {
-          const data = catInterfaces[idx]
-          detailId = details.find(
-            detail => detail.priceUnitId === data.priceUnitPairId,
-          )?.id
-          const detailPrices =
-            Number(
-              details.find(
-                detail => detail.priceUnitId === data.priceUnitPairId,
-              )?.prices,
-            ) || 0
-
-          prices = priceFactor
-            ? priceFactor * detailPrices * Number(words)
-            : detailPrices * Number(words)
-        }
-      })
-    }
+        prices = priceFactor
+          ? priceFactor * detailPrices * Number(words)
+          : detailPrices * Number(words)
+      }
+    })
 
     return { detailId: detailId, prices }
   }
@@ -138,7 +156,7 @@ export default function MemsourceModal({
     if (checked) {
       delete checked.id
       const headers: Array<MemSourceInterface> = Object.keys(checked).filter(
-        key => key !== 'File' && key !== 'Chars/Word',
+        key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
       ) as Array<MemSourceInterface>
       headers.forEach(header => {
         result.push(
@@ -150,8 +168,20 @@ export default function MemsourceModal({
           ),
         )
       })
+      result.push({
+        detailId: 'Total',
+        prices: headers.reduce((res, header) => {
+          return (res += renderPrice(
+            header,
+            catBasis === 'Words'
+              ? checked[header]?.Words || '0'
+              : checked[header]?.Characters || '0',
+          ).prices)
+        }, 0),
+      })
     }
     onCopyAnalysis(result)
+    onClose()
   }
   function renderPriceUnitTitle(header: string) {
     let res = '-'
@@ -195,7 +225,7 @@ export default function MemsourceModal({
   const Row = ({ idx, item }: { idx: number; item: MemSourceData }) => {
     const [cardOpen, setCardOpen] = useState(idx === 0 ? true : false)
     const filteredData: Array<MemSourceInterface> = Object.keys(item).filter(
-      key => key !== 'File' && key !== 'Chars/Word',
+      key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
     ) as Array<MemSourceInterface>
 
     return (
@@ -212,7 +242,9 @@ export default function MemsourceModal({
                 onChange={() => setChecked({ ...item, id: idx })}
                 checked={checked?.id === idx}
               />
-              <Typography fontWeight={500}>{`File ${idx + 1}`}</Typography>
+              <Typography fontWeight={500}>
+                {idx === 0 ? 'Total' : `File ${idx + 1}`}
+              </Typography>
             </Box>
 
             <IconButton onClick={() => setCardOpen(!cardOpen)}>
@@ -251,7 +283,7 @@ export default function MemsourceModal({
                           {catBasis === 'Words'
                             ? item[header]?.Words
                             : item[header]?.Characters}{' '}
-                          ({item[header]?.Percent}%)
+                          ({Number(item[header]?.Percent)?.toFixed(1)}%)
                         </TableCell>
                         {/* Prices */}
                         <TableCell>
@@ -272,6 +304,31 @@ export default function MemsourceModal({
                       </TableRow>
                     )
                   })}
+                  <TableRow>
+                    <TableCell>Total</TableCell>
+                    {/* Price unit */}
+                    <TableCell></TableCell>
+                    {/* Words or Character */}
+                    <TableCell></TableCell>
+                    {/* Prices */}
+                    <TableCell>
+                      {`(${getCurrencyMark(priceData?.currency)}${
+                        priceData?.currency
+                      }) ${formatByRoundingProcedure(
+                        filteredData.reduce((res, header) => {
+                          return (res += renderPrice(
+                            header,
+                            catBasis === 'Words'
+                              ? item[header]?.Words || '0'
+                              : item[header]?.Characters || '0',
+                          ).prices)
+                        }, 0),
+                        priceData?.decimalPlace!,
+                        priceData?.roundingProcedure!,
+                        priceData?.currency!,
+                      )}`}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>

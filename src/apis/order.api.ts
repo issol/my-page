@@ -1,6 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   ClientFormType,
   LanguagePairsType,
@@ -47,7 +47,7 @@ export const createLangPairForOrder = async (
 // ** step 4-2
 export const createItemsForOrder = async (
   orderId: number,
-  form: Array<ItemType>,
+  form: Array<PostItemType>,
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
@@ -60,199 +60,21 @@ export const createItemsForOrder = async (
   }
 }
 
-export const getMemoQAnalysisData = async (
-  fileName: string | undefined,
-  userId: number | undefined,
-): Promise<MemoQType> => {
+export const postCatToolFile = async (
+  form: FormData,
+): Promise<MemoQType | MemSourceType> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/csv/parse/memoq?user=${userId}&fileName=${fileName}`,
-    // )
-    // return data
-    return {
-      id: 1,
-      toolName: 'memoq',
-      calculationBasis: ['Words'],
-      targetLanguage: 'en',
-      data: [
-        {
-          File: '[eng] \\\\Mac\\Home\\Documents\\Tappytoon\\1. 버림받은 황비 180\\1권_026.docx',
-          'Chars/Word': '3.08',
-          'X-translated': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '101%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          Repetitions: {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '100%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '95% - 99%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '85% - 94%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '75% - 84%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          '50% - 74%': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          'No Match': {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          Fragments: {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-          Total: {
-            Words: '5',
-            Characters: '5',
-            Percent: '12',
-          },
-        },
-      ],
-    }
+    const { data } = await axios.post(`/api/enough/u/cat-tool/csv/parse`, form)
+    return data
   } catch (e: any) {
-    return {
-      id: -0,
-      toolName: 'memoq',
-      calculationBasis: ['Words'],
-      targetLanguage: null,
-      data: [],
-    }
+    throw new Error(e)
   }
 }
 
-export const getMemsourceAnalysisData = async (
-  fileName: string | undefined,
-  userId: number | undefined,
-): Promise<MemSourceType> => {
+export const deleteCatToolFile = async (id: number) => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/csv/parse/memsource?user=${userId}&fileName=${fileName}`,
-    // )
-    // return data
-    return {
-      id: 1,
-      toolName: 'memesource',
-      calculationBasis: ['Words'],
-      targetLanguage: 'ko',
-      data: [
-        {
-          File: '외전 14화.docx | ko_kr>en_us',
-          'Tagging Errors': '5',
-          'Chars/Word': '3.06',
-          'Context Match': {
-            Words: '5',
-            Percent: '5',
-          },
-          Repetitions: {
-            Words: '5',
-            Percent: '5',
-          },
-          '100%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '95% - 99%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '85% - 94%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '75% - 84%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '50% - 74%': {
-            Words: '5',
-            Percent: '5',
-          },
-          'No Match': {
-            Words: '5',
-            Percent: '5',
-          },
-          Total: {
-            Words: '5',
-            Percent: '5',
-          },
-        },
-        {
-          File: '외전 33화.docx | ko_kr>en_us',
-          'Tagging Errors': '5',
-          'Chars/Word': '3.06',
-          'Context Match': {
-            Words: '5',
-            Percent: '5',
-          },
-          Repetitions: {
-            Words: '5',
-            Percent: '5',
-          },
-          '100%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '95% - 99%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '85% - 94%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '75% - 84%': {
-            Words: '5',
-            Percent: '5',
-          },
-          '50% - 74%': {
-            Words: '5',
-            Percent: '5',
-          },
-          'No Match': {
-            Words: '5',
-            Percent: '5',
-          },
-          Total: {
-            Words: '5',
-            Percent: '5',
-          },
-        },
-      ],
-    }
+    return await axios.delete(`/api/enough/u/cat-tool/TM/${id}`)
   } catch (e: any) {
-    return {
-      id: -0,
-      toolName: 'memesource',
-      calculationBasis: ['Character'],
-      targetLanguage: null,
-      data: [],
-    }
+    throw new Error(e)
   }
 }
