@@ -212,8 +212,8 @@ export default function AddNewQuotes() {
   } = useForm<ClientFormType>({
     mode: 'onChange',
     defaultValues: {
-      clientId: 0,
-      contactPersonId: 0,
+      clientId: null,
+      contactPersonId: null,
       addressType: 'shipping',
     },
     resolver: yupResolver(clientSchema),
@@ -298,7 +298,6 @@ export default function AddNewQuotes() {
     })
   }
 
-  // ** TODO : not applicable일 경우 어떤 값을 보낼지 문의하기. null을 보낼 수는 없음.
   function onSubmit() {
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
@@ -405,7 +404,7 @@ export default function AddNewQuotes() {
         .then(res => {
           clientReset({
             clientId: res.client.clientId,
-            contactPersonId: res?.contactPerson?.id ?? NOT_APPLICABLE,
+            contactPersonId: res?.contactPerson?.id ?? null,
             addressType: res.addressType as 'billing' | 'shipping',
           })
         })
