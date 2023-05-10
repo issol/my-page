@@ -5,6 +5,7 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
@@ -34,8 +35,8 @@ const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
   } = useForm<ClientFormType>({
     mode: 'onChange',
     defaultValues: {
-      clientId: null,
-      contactPersonId: null,
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
       addressType: 'shipping',
     },
     resolver: yupResolver(clientSchema),

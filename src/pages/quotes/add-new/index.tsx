@@ -29,6 +29,7 @@ import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 export default function AddNewQuotes() {
   const router = useRouter()
@@ -116,8 +117,8 @@ export default function AddNewQuotes() {
   } = useForm<ClientFormType>({
     mode: 'onChange',
     defaultValues: {
-      clientId: null,
-      contactPersonId: null,
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
       addressType: 'shipping',
     },
     resolver: yupResolver(clientSchema),
