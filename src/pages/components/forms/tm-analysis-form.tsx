@@ -6,18 +6,9 @@ import TableHead from '@mui/material/TableHead'
 import TableBody from '@mui/material/TableBody'
 import TableCell from '@mui/material/TableCell'
 import TableContainer from '@mui/material/TableContainer'
-import TablePagination from '@mui/material/TablePagination'
-import {
-  Autocomplete,
-  Box,
-  Button,
-  Grid,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Button, IconButton, Typography } from '@mui/material'
 import { HeaderCell } from '@src/pages/orders/add-new'
-import { FileType } from '@src/types/common/file.type'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { Fragment, ReactNode, useContext } from 'react'
 import { Icon } from '@iconify/react'
 import { Control, FieldArrayWithId, useFieldArray } from 'react-hook-form'
@@ -27,7 +18,6 @@ import { toast } from 'react-hot-toast'
 import { deleteCatToolFile, postCatToolFile } from '@src/apis/order.api'
 import MemoQModal from '../modals/tm-analysis/memoq-modal'
 import useModal from '@src/hooks/useModal'
-import { AuthContext } from '@src/context/AuthContext'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { onCopyAnalysisParamType } from './items-form'
@@ -54,7 +44,6 @@ export default function TmAnalysisForm({
   onCopyAnalysis,
   details,
 }: Props) {
-  const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
   const itemName: `items.${number}.analysis` = `items.${index}.analysis`
   const { fields, append, update, remove } = useFieldArray({
@@ -76,13 +65,19 @@ export default function TmAnalysisForm({
       }
       const formData = new FormData()
       formData.append('files', acceptedFiles[0])
-      postCatToolFile(formData).then(res => {
-        append({
-          name: acceptedFiles[0].name,
-          size: Number(res.size) ?? acceptedFiles[0].size,
-          data: res,
+      postCatToolFile(formData)
+        .then(res => {
+          append({
+            name: acceptedFiles[0].name,
+            size: Number(res.size) ?? acceptedFiles[0].size,
+            data: res,
+          })
         })
-      })
+        .catch(e => {
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        })
     },
     onDropRejected: () => onError(),
   })
@@ -151,8 +146,7 @@ export default function TmAnalysisForm({
           <Button
             size='small'
             variant='contained'
-            //TODO : disabled 해제하기
-            // disabled={!data?.priceId || !data?.source || !data?.target}
+            disabled={!priceData || priceData.id === NOT_APPLICABLE}
           >
             <input {...getInputProps()} />
             Upload files

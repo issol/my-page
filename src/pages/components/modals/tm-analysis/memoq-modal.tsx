@@ -86,38 +86,37 @@ export default function MemoQModal({
         chips: item.chips.filter(chip => chip.selected),
       })) || []
 
-  // TODO : 주석해제하기
-  // useEffect(() => {
-  //   if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
-  //     openModal({
-  //       isCloseable: false,
-  //       type: 'catBasis-not-match',
-  //       children: (
-  //         <ConfirmModal
-  //           message="The CAT interface doesn't match. Please check the price setting or the file."
-  //           onClose={() => {
-  //             closeModal('catBasis-not-match')
-  //             onClose()
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   } else if (data.toolName !== 'Memoq') {
-  //     openModal({
-  //       isCloseable: false,
-  //       type: 'tool-not-match',
-  //       children: (
-  //         <ConfirmModal
-  //           message='Only files with all CAT Tool matches can be analyzed.'
-  //           onClose={() => {
-  //             closeModal('tool-not-match')
-  //             onClose()
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   }
-  // }, [data, priceData, catInterfaces])
+  useEffect(() => {
+    if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+      openModal({
+        isCloseable: false,
+        type: 'catBasis-not-match',
+        children: (
+          <ConfirmModal
+            message="The CAT interface doesn't match. Please check the price setting or the file."
+            onClose={() => {
+              closeModal('catBasis-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    } else if (data.toolName !== 'Memoq') {
+      openModal({
+        isCloseable: false,
+        type: 'tool-not-match',
+        children: (
+          <ConfirmModal
+            message='Only files with all CAT Tool matches can be analyzed.'
+            onClose={() => {
+              closeModal('tool-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    }
+  }, [data, priceData, catInterfaces])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -182,6 +181,7 @@ export default function MemoQModal({
       })
     }
     onCopyAnalysis(result)
+    onClose()
   }
   function renderPriceUnitTitle(header: string) {
     let res = '-'
