@@ -116,7 +116,7 @@ export default function AddNewQuotes() {
   const { openModal, closeModal } = useModal()
 
   // ** stepper
-  const [activeStep, setActiveStep] = useState<number>(3)
+  const [activeStep, setActiveStep] = useState<number>(0)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
@@ -173,9 +173,8 @@ export default function AddNewQuotes() {
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
     defaultValues: {
-      // ** TODO : test데이터 지.우.기 (id : null 로 수정하기)
       teams: [
-        { type: 'supervisorId', id: 7 },
+        { type: 'supervisorId', id: null },
         {
           type: 'projectManagerId',
           id: user?.userId!,
@@ -185,7 +184,7 @@ export default function AddNewQuotes() {
             lastName: user?.lastName!,
           }),
         },
-        { type: 'member', id: 5 },
+        { type: 'member', id: null },
       ],
     },
     resolver: yupResolver(projectTeamSchema),
@@ -308,7 +307,10 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const projectInfo = { ...getProjectInfoValues(), tax }
-    const items = getItem().items
+    const items = getItem().items.map(item => ({
+      ...item,
+      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+    }))
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -337,7 +339,6 @@ export default function AddNewQuotes() {
         }
       })
       .catch(e => onRequestError())
-    // console.log('item : ', getItem()) //TODO analysis추가되면 다시 테스트, 그대로 보내되, items밖으로 꺼낸 배열을 보내면 됨
   }
 
   function onRequestError() {
