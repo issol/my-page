@@ -6,10 +6,6 @@ import {
   getVersionHistory,
 } from '@src/apis/order-detail.api'
 import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
-import {
-  getMemoQAnalysisData,
-  getMemsourceAnalysisData,
-} from '@src/apis/order.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
@@ -76,48 +72,7 @@ export const useGetLangItem = (id: number) => {
     suspense: true,
   })
 }
-export const useGetMemoQAnalysisData = (
-  tool: 'memsource' | 'memoq' | undefined,
-  fileName: string | undefined,
-  userId: number | undefined,
-) => {
-  return useQuery(
-    [`TM-data-memoq`, tool, fileName, userId],
-    () => getMemoQAnalysisData(fileName, userId),
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
-      enabled: !!fileName && !!userId && tool === 'memoq',
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
-}
-export const useGetMemsourceAnalysisData = (
-  tool: 'memsource' | 'memoq' | undefined,
-  fileName: string | undefined,
-  userId: number | undefined,
-) => {
-  return useQuery(
-    [`TM-data-memsource`, tool, fileName, userId],
-    () => getMemsourceAnalysisData(fileName, userId),
-    {
-      staleTime: 60 * 1000, // 1
-      keepPreviousData: true,
-      suspense: true,
-      enabled: !!fileName && !!userId && tool === 'memsource',
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
-}
+
 export const useGetVersionHistory = (id: number) => {
   return useQuery([`VersionHistory-${id}`, id], () => getVersionHistory(id), {
     staleTime: 60 * 1000, // 1

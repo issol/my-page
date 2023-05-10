@@ -1,17 +1,20 @@
+export type ToolNameType = 'Memsource' | 'Memoq'
 export type CatCalculationType = 'Words' | 'Character'
 export type MemSourceType = {
   id: number
-  toolName: 'memesource' | 'memoq'
+  toolName: ToolNameType
   calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
+  size: string
   data: Array<MemSourceData>
 }
 
 export type MemoQType = {
   id: number
-  toolName: 'memesource' | 'memoq'
+  toolName: ToolNameType
   calculationBasis: Array<CatCalculationType>
   targetLanguage: string | null
+  size: string
   data: Array<MemoQData>
 }
 

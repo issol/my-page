@@ -69,60 +69,55 @@ export default function MemoQModal({
   details,
   onCopyAnalysis,
 }: Props) {
-  const { openModal, closeModal } = useModal() //추가
+  const { openModal, closeModal } = useModal()
   const [checked, setChecked] = useState<(MemoQData & { id?: number }) | null>(
     null,
   )
   const [page, setPage] = useState<number>(0)
-  const catBasis = priceData?.catBasis as CatCalculationType //추가
+  const catBasis = priceData?.catBasis as CatCalculationType
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
   const detailUnitIds = details.map(item => item.priceUnitId)
-  //TODO : catInter는 id를 임시로 집어넣은 임시 데이터. 사용처는 나중에 priceData?.catInterface?.memoQ로 바꾸면 됨
-  const catInter = priceData?.catInterface?.memoQ.map((item, idx) => ({
-    ...item,
-    priceUnitPairId: 204 || 0,
-  }))
 
   const catInterfaces: CatInterfaceType[] =
-    catInter
+    priceData?.catInterface?.memoQ
       ?.filter(item => detailUnitIds?.includes(item.priceUnitPairId))
       .map(item => ({
         ...item,
         chips: item.chips.filter(chip => chip.selected),
       })) || []
 
-  useEffect(() => {
-    //추가
-    if (!data.calculationBasis.includes(catBasis)) {
-      openModal({
-        isCloseable: false,
-        type: 'catBasis-not-match',
-        children: (
-          <ConfirmModal
-            message="The CAT interface doesn't match. Please check the price setting or the file."
-            onClose={() => {
-              closeModal('catBasis-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
-    } else if (data.toolName! == 'memesource' || data.toolName !== 'memoq') {
-      openModal({
-        isCloseable: false,
-        type: 'tool-not-match',
-        children: (
-          <ConfirmModal
-            message='Only files with all CAT Tool matches can be analyzed.'
-            onClose={() => {
-              closeModal('tool-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
-    }
-  }, [data])
+  // TODO : 주석해제하기
+  // useEffect(() => {
+  //   if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+  //     openModal({
+  //       isCloseable: false,
+  //       type: 'catBasis-not-match',
+  //       children: (
+  //         <ConfirmModal
+  //           message="The CAT interface doesn't match. Please check the price setting or the file."
+  //           onClose={() => {
+  //             closeModal('catBasis-not-match')
+  //             onClose()
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   } else if (data.toolName !== 'Memoq') {
+  //     openModal({
+  //       isCloseable: false,
+  //       type: 'tool-not-match',
+  //       children: (
+  //         <ConfirmModal
+  //           message='Only files with all CAT Tool matches can be analyzed.'
+  //           onClose={() => {
+  //             closeModal('tool-not-match')
+  //             onClose()
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   }
+  // }, [data, priceData, catInterfaces])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -136,36 +131,23 @@ export default function MemoQModal({
   function renderPrice(header: string, words: string) {
     let prices = 0
     let detailId = undefined
-    if (header === 'Total') {
-      detailId = header
-      const detailPrices: number =
-        details
-          .map(item => item.prices)
-          ?.reduce((res: number, price) => (res += Number(price)), 0) || 0
+    catInterfaces?.forEach((item, idx) => {
+      if (item.chips.find(chip => chip.title === header)) {
+        const data = catInterfaces[idx]
+        detailId = details.find(
+          detail => detail.priceUnitId === data.priceUnitPairId,
+        )?.id
+        const detailPrices =
+          Number(
+            details.find(detail => detail.priceUnitId === data.priceUnitPairId)
+              ?.prices,
+          ) || 0
 
-      prices = priceFactor
-        ? priceFactor * detailPrices * Number(words)
-        : detailPrices * Number(words)
-    } else {
-      catInterfaces?.forEach((item, idx) => {
-        if (item.chips.find(chip => chip.title === header)) {
-          const data = catInterfaces[idx]
-          detailId = details.find(
-            detail => detail.priceUnitId === data.priceUnitPairId,
-          )?.id
-          const detailPrices =
-            Number(
-              details.find(
-                detail => detail.priceUnitId === data.priceUnitPairId,
-              )?.prices,
-            ) || 0
-
-          prices = priceFactor
-            ? priceFactor * detailPrices * Number(words)
-            : detailPrices * Number(words)
-        }
-      })
-    }
+        prices = priceFactor
+          ? priceFactor * detailPrices * Number(words)
+          : detailPrices * Number(words)
+      }
+    })
 
     return { detailId: detailId, prices }
   }
@@ -175,7 +157,7 @@ export default function MemoQModal({
     if (checked) {
       delete checked.id
       const headers: Array<MemoQInterface> = Object.keys(checked).filter(
-        key => key !== 'File' && key !== 'Chars/Word',
+        key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
       ) as Array<MemoQInterface>
       headers.forEach(header => {
         result.push(
@@ -186,6 +168,17 @@ export default function MemoQModal({
               : checked[header]?.Characters || '0',
           ),
         )
+      })
+      result.push({
+        detailId: 'Total',
+        prices: headers.reduce((res, header) => {
+          return (res += renderPrice(
+            header,
+            catBasis === 'Words'
+              ? checked[header]?.Words || '0'
+              : checked[header]?.Characters || '0',
+          ).prices)
+        }, 0),
       })
     }
     onCopyAnalysis(result)
@@ -232,7 +225,7 @@ export default function MemoQModal({
   const Row = ({ idx, item }: { idx: number; item: MemoQData }) => {
     const [cardOpen, setCardOpen] = useState(idx === 0 ? true : false)
     const filteredData: Array<MemoQInterface> = Object.keys(item).filter(
-      key => key !== 'File' && key !== 'Chars/Word',
+      key => key !== 'File' && key !== 'Total' && key !== 'Chars/Word',
     ) as Array<MemoQInterface>
 
     return (
@@ -249,7 +242,9 @@ export default function MemoQModal({
                 onChange={() => setChecked({ ...item, id: idx })}
                 checked={checked?.id === idx}
               />
-              <Typography fontWeight={500}>{`File ${idx + 1}`}</Typography>
+              <Typography fontWeight={500}>
+                {idx === 0 ? 'Total' : `File ${idx + 1}`}
+              </Typography>
             </Box>
 
             <IconButton onClick={() => setCardOpen(!cardOpen)}>
@@ -288,7 +283,7 @@ export default function MemoQModal({
                           {catBasis === 'Words'
                             ? item[header]?.Words
                             : item[header]?.Characters}{' '}
-                          ({item[header]?.Percent}%)
+                          ({Number(item[header]?.Percent)?.toFixed(1)}%)
                         </TableCell>
                         {/* Prices */}
                         <TableCell>
@@ -309,6 +304,31 @@ export default function MemoQModal({
                       </TableRow>
                     )
                   })}
+                  <TableRow>
+                    <TableCell>Total</TableCell>
+                    {/* Price unit */}
+                    <TableCell></TableCell>
+                    {/* Words or Character */}
+                    <TableCell></TableCell>
+                    {/* Prices */}
+                    <TableCell>
+                      {`(${getCurrencyMark(priceData?.currency)}${
+                        priceData?.currency
+                      }) ${formatByRoundingProcedure(
+                        filteredData.reduce((res, header) => {
+                          return (res += renderPrice(
+                            header,
+                            catBasis === 'Words'
+                              ? item[header]?.Words || '0'
+                              : item[header]?.Characters || '0',
+                          ).prices)
+                        }, 0),
+                        priceData?.decimalPlace!,
+                        priceData?.roundingProcedure!,
+                        priceData?.currency!,
+                      )}`}
+                    </TableCell>
+                  </TableRow>
                 </TableBody>
               </Table>
             </TableContainer>

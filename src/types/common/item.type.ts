@@ -1,11 +1,11 @@
 import { CurrencyType } from './standard-price'
-import { MemoQType } from './tm-analysis.type'
+import { MemSourceType, MemoQType } from './tm-analysis.type'
 
 export type ItemType = Omit<PostItemType, 'analysis'> & {
   analysis?: {
     name: string
     size: number
-    data: MemoQType | null
+    data: MemoQType | MemSourceType | null
   }[]
 }
 
