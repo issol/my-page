@@ -60,7 +60,7 @@ type Props = {
   onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
 }
 
-export function MemoQModal({
+export default function MemoQModal({
   fileName,
   onClose,
   data,

@@ -57,7 +57,7 @@ type Props = {
   onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
 }
 
-export function MemsourceModal({
+export default function MemsourceModal({
   fileName,
   onClose,
   data,
