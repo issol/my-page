@@ -1,6 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   ClientFormType,
   LanguagePairsType,
@@ -47,7 +47,7 @@ export const createLangPairForOrder = async (
 // ** step 4-2
 export const createItemsForOrder = async (
   orderId: number,
-  form: Array<ItemType>,
+  form: Array<PostItemType>,
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
