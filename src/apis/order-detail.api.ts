@@ -2,6 +2,7 @@ import axios from '@src/configs/axios'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import {
   ClientType,
+  LanguageAndItemType,
   ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
@@ -30,71 +31,45 @@ export const getClient = async (id: number): Promise<ClientType> => {
   return data
 }
 
-export const getLangItems = async (id: number): Promise<Row[]> => {
-  const res = [
-    {
+export const getLangItems = async (
+  id: number,
+): Promise<LanguageAndItemType> => {
+  try {
+    // const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
+    // return data;
+    return {
       id: 1,
-      name: 'College Student diary_EN_KO',
-
-      source: 'en',
-      target: 'ko',
-
-      detail: [
-        {
-          id: 0,
-          quantity: 1,
-          priceUnit: 'X3 Words Translation',
-          unit: 'Words',
-          price: 10,
-          totalPrice: 10,
-        },
+      languagePairs: [{ id: 1, source: 'en', target: 'ko', priceId: null }],
+      items: [
         {
           id: 1,
-          quantity: 120,
-          priceUnit: 'Words Translation 100% Match',
-          unit: 'Words',
-          price: 10,
-          totalPrice: 1200,
+          name: 'Kim bon',
+          dueAt: Date(),
+          contactPersonId: 5,
+          source: 'en',
+          target: 'ko',
+          priceId: null,
+          detail: [
+            {
+              priceUnitId: 1,
+              quantity: 2,
+              priceUnit: 'title',
+              unitPrice: 2000,
+              prices: 30000,
+              unit: 'Graphic',
+              currency: 'USD',
+              priceFactor: '1.5',
+            },
+          ],
+          description: null,
+          analysis: [],
+          totalPrice: 20000,
         },
       ],
-    },
-
-    {
-      id: 2,
-      name: 'College Student 1234',
-
-      source: 'en',
-      target: 'ko',
-
-      detail: [
-        {
-          id: 0,
-          quantity: 1,
-          priceUnit: 'X3 Words Translation111',
-          unit: 'Words',
-          price: 10,
-          totalPrice: 10,
-        },
-        {
-          id: 1,
-          quantity: 120,
-          priceUnit: 'Words Translation 100% Match111111111',
-          unit: 'Words',
-          price: 10,
-          totalPrice: 1200,
-        },
-        {
-          id: 2,
-          quantity: 120,
-          priceUnit: 'Words Translation 100% Match111111111',
-          unit: 'Words',
-          price: 10,
-          totalPrice: 1200,
-        },
-      ],
-    },
-  ]
-  return res
+    }
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
 
 export const deleteOrder = async (id: number): Promise<void> => {
@@ -127,11 +102,12 @@ export const getVersionHistory = async (
           orderedAt: '2023-03-21T08:20:46.678Z',
 
           projectDueAt: '2023-03-21T08:20:46.678Z',
-          projectDueAtTimezone: {
+          projectDueTimezone: {
             code: 'string',
             label: 'string',
             phone: 'string',
           },
+          tax: 10,
         },
         client: {
           addressType: 'billing',

@@ -61,6 +61,7 @@ import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<ClientFormType, any>
@@ -222,7 +223,11 @@ export default function ClientQuotesFormContainer({
           { ...contactPersonData[0], clientId: res.clientId },
         ]).then(res => {
           if (res.length) {
-            setValue('contactPersonId', res[0]?.id ?? null, setValueOptions)
+            setValue(
+              'contactPersonId',
+              res[0]?.id ?? NOT_APPLICABLE,
+              setValueOptions,
+            )
           }
 
           setOpenForm(false)

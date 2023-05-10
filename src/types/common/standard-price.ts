@@ -138,13 +138,11 @@ export type CatInterfaceType = {
   priceUnitUnit: string
   perWords: number
   priceUnitPrice: number
-  chips: [
-    {
-      id: number
-      title: string
-      selected: boolean
-    },
-  ]
+  chips: Array<{
+    id: number
+    title: string
+    selected: boolean
+  }>
 }
 
 export type CatInterfaceParams = {

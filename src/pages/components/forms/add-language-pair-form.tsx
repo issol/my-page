@@ -4,7 +4,6 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
-  useEffect,
   useState,
 } from 'react'
 
@@ -27,21 +26,31 @@ import {
   Typography,
 } from '@mui/material'
 
-import styled from 'styled-components'
-
 // ** value
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { defaultOption, languageType } from '@src/pages/orders/add-new'
+import {
+  HeaderCell,
+  defaultOption,
+  languageType,
+} from '@src/pages/orders/add-new'
 
+// ** third parties
 import { v4 as uuidv4 } from 'uuid'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** components
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
+// ** type
 import { StandardPriceListType } from '@src/types/common/standard-price'
 
+// ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
@@ -79,13 +88,21 @@ export default function AddLanguagePairForm({
   }
 
   function onAddLanguagePair() {
-    const value = languagePair.target.map(item => ({
-      id: uuidv4(),
-      source: languagePair.source,
-      target: item,
-      price: null,
-    }))
-    setLanguagePairs(languagePairs.concat(value))
+    const result: Array<languageType> = []
+
+    languagePair?.target?.forEach(target => {
+      const isDuplicated = languagePairs.some(
+        pair => languagePair.source === pair.source && pair.target === target,
+      )
+      if (isDuplicated) return
+      result.push({
+        id: uuidv4(),
+        source: languagePair.source,
+        target,
+        price: null,
+      })
+    })
+    setLanguagePairs(languagePairs.concat(result))
     setLanguagePair({ source: '', target: [] })
   }
 
@@ -306,24 +323,3 @@ export default function AddLanguagePairForm({
     </Fragment>
   )
 }
-
-const HeaderCell = styled(TableCell)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #666cff;
-  height: 20px;
-  position: relative;
-  text-transform: none;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    right: 0px;
-    width: 2px;
-    height: 30%;
-    background: rgba(76, 78, 100, 0.12);
-  }
-`

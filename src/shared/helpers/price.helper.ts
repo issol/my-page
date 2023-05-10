@@ -11,6 +11,17 @@ export function getPrice(
   return Number(price) * Number(priceFactor)
 }
 
+export function getCurrencyMark(currency: CurrencyType | null | undefined) {
+  if (!currency) return ''
+  const currentLocale = locale[currency!]
+  const formatter = new Intl.NumberFormat(currentLocale, {
+    style: 'currency',
+    currency: currency,
+    minimumFractionDigits: 2,
+  })
+  const currencySymbol = formatter.format(0)?.replace(/\d./g, '').trim()
+  return currencySymbol
+}
 export function formatCurrency(num: number | string, currency: CurrencyType) {
   const currentLocale = locale[currency]
   const formatter = new Intl.NumberFormat(currentLocale, {

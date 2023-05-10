@@ -1,6 +1,11 @@
-type Type = 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+export type AlertType =
+  | 'error'
+  | 'info'
+  | 'error-report'
+  | 'progress'
+  | 'successful'
 
-export default function AlertIcon({ type }: { type: Type }) {
+export default function AlertIcon({ type }: { type: AlertType }) {
   const basePath = '/images/icons/project-icons/'
 
   function getIconPath() {
