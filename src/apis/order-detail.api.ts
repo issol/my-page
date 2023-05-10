@@ -20,8 +20,8 @@ export const getProjectTeam = async (
   try {
     const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
     return data.members
-  } catch (e) {
-    return []
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
 
