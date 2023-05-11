@@ -47,18 +47,20 @@ import {
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { countries } from 'src/@fake-db/autocomplete'
-import { getClientFormData } from '@src/shared/auth/storage'
+
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
   setValue: UseFormSetValue<OrderProjectInfoFormType>
   watch: UseFormWatch<OrderProjectInfoFormType>
   errors: FieldErrors<OrderProjectInfoFormType>
+  clientTimezone?: CountryType | undefined
 }
 export default function ProjectInfoForm({
   control,
   setValue,
   watch,
   errors,
+  clientTimezone,
 }: Props) {
   const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
@@ -75,19 +77,11 @@ export default function ProjectInfoForm({
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const clientData = getClientFormData()
-
   useEffect(() => {
-    if (clientData) {
-      if (clientData?.timezone) {
-        setValue(
-          'projectDueDate.timezone',
-          clientData?.timezone!,
-          setValueOptions,
-        )
-      }
+    if (clientTimezone) {
+      setValue('projectDueDate.timezone', clientTimezone, setValueOptions)
     }
-  }, [])
+  }, [clientTimezone])
 
   useEffect(() => {
     if (isSuccess) {
@@ -471,7 +465,9 @@ export default function ProjectInfoForm({
               autoHighlight
               fullWidth
               {...field}
-              value={field.value}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable

@@ -67,26 +67,3 @@ export function removeRememberMe() {
     window.localStorage.removeItem(authConfig.rememberId)
   }
 }
-
-/* handle client form data */
-export function getClientFormData(): ClientDataType | undefined {
-  if (typeof window === 'object') {
-    const data = window.sessionStorage.getItem('client-form-data')
-    return !data ? undefined : JSON.parse(data)
-  }
-}
-
-type ClientDataType = {
-  timezone?: CountryType
-}
-export function saveClientFormData(data: ClientDataType) {
-  if (typeof window === 'object') {
-    window.sessionStorage.setItem('client-form-data', JSON.stringify(data))
-  }
-}
-
-export function removeClientFormData() {
-  if (typeof window === 'object') {
-    window.sessionStorage.removeItem('client-form-data')
-  }
-}
