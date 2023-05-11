@@ -89,7 +89,7 @@ export type OrderDownloadData = {
   client: ClientType
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: Row[]
+  langItem: LanguageAndItemType
 }
 
 export type LanguageAndItemType = {

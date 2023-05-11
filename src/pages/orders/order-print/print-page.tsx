@@ -371,7 +371,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem} />
+            {/* <MakeTable rows={data.langItem} /> */}
             <Box
               sx={{
                 display: 'flex',
@@ -392,7 +392,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                 variant='subtitle1'
                 sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
               >
-                {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')}
+                {/* {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')} */}
               </Typography>
             </Box>
           </Table>
