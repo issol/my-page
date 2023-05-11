@@ -36,7 +36,7 @@ export const getLangItems = async (
 ): Promise<LanguageAndItemType> => {
   try {
     // const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
-    // return data;
+    // return data
     return {
       id: 1,
       languagePairs: [{ id: 1, source: 'en', target: 'ko', priceId: null }],
