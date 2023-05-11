@@ -23,7 +23,13 @@ const JobInfoDetailView = () => {
       >
         <Icon icon='mdi:close'></Icon>
       </IconButton>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: 'column',
+          gap: '15px',
+        }}
+      >
         <Box
           sx={{
             display: 'flex',
