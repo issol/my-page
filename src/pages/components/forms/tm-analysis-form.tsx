@@ -29,7 +29,7 @@ type Props = {
   index: number
   priceData: StandardPriceListType | null
   priceFactor: number | undefined
-  onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
+  onCopyAnalysis: (data: onCopyAnalysisParamType) => void
   details: FieldArrayWithId<
     { items: ItemType[] },
     `items.${number}.detail`,
@@ -112,7 +112,6 @@ export default function TmAnalysisForm({
               priceData={priceData}
               priceFactor={priceFactor}
               onCopyAnalysis={onCopyAnalysis}
-              details={details}
             />
           ),
         })
@@ -127,7 +126,6 @@ export default function TmAnalysisForm({
               priceData={priceData}
               priceFactor={priceFactor}
               onCopyAnalysis={onCopyAnalysis}
-              details={details}
             />
           ),
         })

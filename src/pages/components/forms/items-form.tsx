@@ -35,7 +35,7 @@ import {
 } from 'react-hook-form'
 
 // ** types
-import { ItemType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -90,10 +90,18 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
 }
 
-export type onCopyAnalysisParamType = {
-  detailId: 'Total' | string
-  prices: number
+export type DetailNewDataType = {
+  priceUnitPairId: number
+  priceUnitTitle: string
+  priceUnitQuantity: number
+  priceUnitUnit: string
+  perWords: number
+  priceUnitPrice: number
 }
+export type onCopyAnalysisParamType = {
+  newData: DetailNewDataType | null
+  prices: number
+}[]
 export default function ItemForm({
   control,
   getValues,
@@ -299,24 +307,24 @@ export default function ItemForm({
     }
 
     /* tm analysis */
-    function onCopyAnalysis(data: onCopyAnalysisParamType[]) {
-      const availableData = data.filter(
-        item => item.detailId !== 'Total' && item.detailId !== undefined,
-      )
-      const total = data.find(item => item.detailId === 'Total')?.prices
-      if (!availableData.length) return
-      availableData.forEach(data => {
-        const idx = details.map(item => item.id).indexOf(data.detailId)
-        if (idx !== -1) {
-          update(idx, { ...details[idx], prices: data.prices })
-        }
-      })
-      if (total) {
-        setValue(`items.${idx}.totalPrice`, total, {
-          shouldDirty: true,
-          shouldValidate: true,
+    function onCopyAnalysis(data: onCopyAnalysisParamType) {
+      const availableData = data.filter(item => item.newData !== null)
+      if (!availableData?.length) return
+
+      availableData.forEach(item => {
+        const newData = item.newData!
+        append({
+          priceUnitId: newData.priceUnitPairId,
+          quantity: newData.priceUnitQuantity,
+          priceUnit: newData.priceUnitTitle,
+          unit: newData.priceUnitUnit,
+          currency: priceData?.currency || 'USD',
+          unitPrice: newData.priceUnitPrice,
+          prices: item.prices,
+          priceFactor: priceFactor ? String(priceFactor) : null,
         })
-      }
+      })
+      getTotalPrice()
     }
 
     return (
