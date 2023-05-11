@@ -5,11 +5,12 @@ import styled from 'styled-components'
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Typography } from '@mui/material'
+import { Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
+import JobListView from './list-view'
 
 type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
@@ -18,14 +19,9 @@ export default function JobList({ id, user }: Props) {
   const [menu, setMenu] = useState<MenuType>('list')
 
   return (
-    <Box display='flex' flexDirection='column'>
-      <PageHeader title={<Typography variant='h5'>Job list</Typography>} />
-      <Box
-        display='flex'
-        width={'100%'}
-        justifyContent='right'
-        padding='10px 0 24px'
-      >
+    <Grid container spacing={6} className='match-height'>
+      <Grid item xs={12} display='flex' alignItems='center'>
+        <PageHeader title={<Typography variant='h5'>Job list</Typography>} />
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'
@@ -39,20 +35,13 @@ export default function JobList({ id, user }: Props) {
             value='calendar'
             onClick={e => setMenu(e.currentTarget.value as MenuType)}
           >
-            Calendar view
+            Job tracker
           </CustomBtn>
         </ButtonGroup>
-      </Box>
-      <Box>
-        {menu === 'list' ? (
-          <Box
-            sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}
-          ></Box>
-        ) : (
-          <Box>Calendar</Box>
-        )}
-      </Box>
-    </Box>
+      </Grid>
+
+      {menu === 'list' ? <JobListView /> : <Box>Job tracker</Box>}
+    </Grid>
   )
 }
 
