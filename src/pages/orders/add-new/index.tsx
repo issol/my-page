@@ -585,6 +585,7 @@ export default function AddNewQuotes() {
             <Grid container>
               <Grid item xs={12}>
                 <AddLanguagePairForm
+                  type='create'
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}

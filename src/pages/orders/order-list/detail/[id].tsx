@@ -52,6 +52,9 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { deleteOrder } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import LanguageAndItem from './components/language-item'
+import { defaultOption, languageType } from '../../add-new'
+import { useGetPriceList } from '@src/queries/company/standard-price'
 interface Detail {
   id: number
   quantity: number
@@ -84,6 +87,12 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
+  const { data: prices, isSuccess } = useGetPriceList({
+    clientId: 0,
+  })
+
+  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
   const { data: versionHistory, isLoading: versionHistoryLoading } =
     useGetVersionHistory(Number(id!))
@@ -238,6 +247,22 @@ const OrderDetail = () => {
     },
   ]
 
+  const getPriceOptions = (source: string, target: string) => {
+    if (!isSuccess) return [defaultOption]
+    const filteredList = prices
+      .filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      })
+      .map(item => ({
+        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        ...item,
+      }))
+    return [defaultOption].concat(filteredList)
+  }
+
   useEffect(() => {
     if (
       !projectInfoLoading &&
@@ -245,8 +270,20 @@ const OrderDetail = () => {
       !clientLoading &&
       !langItemLoading
     ) {
-      console.log('hi')
       const pm = projectTeam!.find(value => value.position === 'projectManager')
+      setLanguagePairs(
+        langItem!.languagePairs!.map(item => ({
+          id: String(item.id),
+          source: item.source,
+          target: item.target,
+          price: item.priceId
+            ? getPriceOptions(item.source, item.target).filter(
+                price => price.id === item.priceId,
+              )[0]
+            : null,
+          isDeletable: false,
+        })),
+      )
       const res: OrderDownloadData = {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
@@ -381,7 +418,14 @@ const OrderDetail = () => {
                 />
               </Suspense>
             </TabPanel>
-            <TabPanel value='item' sx={{ pt: '24px' }}></TabPanel>
+            <TabPanel value='item' sx={{ pt: '24px' }}>
+              <LanguageAndItem
+                languagePairs={languagePairs!}
+                setLanguagePairs={setLanguagePairs}
+                getPriceOptions={getPriceOptions}
+                items={langItem?.items!}
+              />
+            </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
               <OrderDetailClient
                 type={'detail'}

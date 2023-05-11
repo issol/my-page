@@ -36,6 +36,9 @@ import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useMutation } from 'react-query'
+import { patchProjectInfo } from '@src/apis/order-detail.api'
+import toast from 'react-hot-toast'
 
 type Props = {
   type: string
@@ -46,14 +49,31 @@ type Props = {
 const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
   const { openModal, closeModal } = useModal()
 
+  const patchProjectInfoMutation = useMutation(
+    (data: { id: number; form: OrderProjectInfoFormType }) =>
+      patchProjectInfo(data.id, data.form),
+    {
+      onSuccess: () => {
+        setEdit!(false)
+        closeModal('EditSaveModal')
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
   const onClickDiscard = () => {
     setEdit!(false)
     closeModal('DiscardModal')
   }
 
   const onClickSave = () => {
-    setEdit!(false)
-    closeModal('EditSaveModal')
+    const data = getProjectInfo()
+    patchProjectInfoMutation.mutate({ id: projectInfo.id, form: data })
   }
 
   const {

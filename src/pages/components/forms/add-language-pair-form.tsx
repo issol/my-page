@@ -60,11 +60,13 @@ type Props = {
     source: string,
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
+  type: string
 }
 export default function AddLanguagePairForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
+  type,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
@@ -174,57 +176,63 @@ export default function AddLanguagePairForm({
         <Typography variant='h6'>
           Language pairs ({languagePairs.length ?? 0})
         </Typography>
-        <Box display='flex' alignItems='center' gap='15px'>
-          <Autocomplete
-            value={
-              !languagePair?.source
-                ? defaultValue
-                : languageList.find(item => item.value === languagePair.source)
-            }
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({ ...languagePair, source: v?.value ?? '' })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Source' />}
-          />
-          <IconButton>
-            <Icon icon='material-symbols:arrow-forward' />
-          </IconButton>
-          <Autocomplete
-            value={
-              !languagePair?.target.length
-                ? []
-                : languageList.filter(item =>
-                    languagePair.target.includes(item.value),
-                  )
-            }
-            multiple
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({
-                ...languagePair,
-                target: v.map(item => item.value),
-              })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Target' />}
-          />
-          <Button
-            size='small'
-            variant='contained'
-            onClick={onAddLanguagePair}
-            disabled={!languagePair?.source || !languagePair?.target?.length}
-          >
-            Add
-          </Button>
-        </Box>
+        {type === 'detail' ? (
+          <></>
+        ) : (
+          <Box display='flex' alignItems='center' gap='15px'>
+            <Autocomplete
+              value={
+                !languagePair?.source
+                  ? defaultValue
+                  : languageList.find(
+                      item => item.value === languagePair.source,
+                    )
+              }
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({ ...languagePair, source: v?.value ?? '' })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Source' />}
+            />
+            <IconButton>
+              <Icon icon='material-symbols:arrow-forward' />
+            </IconButton>
+            <Autocomplete
+              value={
+                !languagePair?.target.length
+                  ? []
+                  : languageList.filter(item =>
+                      languagePair.target.includes(item.value),
+                    )
+              }
+              multiple
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({
+                  ...languagePair,
+                  target: v.map(item => item.value),
+                })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Target' />}
+            />
+            <Button
+              size='small'
+              variant='contained'
+              onClick={onAddLanguagePair}
+              disabled={!languagePair?.source || !languagePair?.target?.length}
+            >
+              Add
+            </Button>
+          </Box>
+        )}
       </Grid>
       {/* table */}
       <Grid item xs={12}>
