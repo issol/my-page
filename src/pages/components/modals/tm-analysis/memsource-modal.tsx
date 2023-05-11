@@ -42,7 +42,10 @@ import {
   getCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 import { formatByRoundingProcedure } from '@src/shared/helpers/price.helper'
-import { onCopyAnalysisParamType } from '../../forms/items-form'
+import {
+  DetailNewDataType,
+  onCopyAnalysisParamType,
+} from '../../forms/items-form'
 import useModal from '@src/hooks/useModal'
 import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
@@ -52,12 +55,7 @@ type Props = {
   data: MemSourceType
   priceData: StandardPriceListType | null
   priceFactor: number | undefined
-  details: FieldArrayWithId<
-    { items: ItemType[] },
-    `items.${number}.detail`,
-    'id'
-  >[]
-  onCopyAnalysis: (data: onCopyAnalysisParamType[]) => void
+  onCopyAnalysis: (data: onCopyAnalysisParamType) => void
 }
 
 export default function MemsourceModal({
@@ -66,7 +64,6 @@ export default function MemsourceModal({
   data,
   priceData,
   priceFactor,
-  details,
   onCopyAnalysis,
 }: Props) {
   const { openModal, closeModal } = useModal()
@@ -76,47 +73,45 @@ export default function MemsourceModal({
   const [page, setPage] = useState<number>(0)
   const catBasis = priceData?.catBasis as CatCalculationType
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
-  const detailUnitIds = details.map(item => item.priceUnitId)
 
   const catInterfaces: CatInterfaceType[] =
-    priceData?.catInterface?.memSource
-      ?.filter(item => detailUnitIds?.includes(item.priceUnitPairId))
-      .map(item => ({
-        ...item,
-        chips: item.chips.filter(chip => chip.selected),
-      })) || []
+    priceData?.catInterface?.memSource.map(item => ({
+      ...item,
+      chips: item.chips.filter(chip => chip.selected),
+    })) || []
 
-  useEffect(() => {
-    if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
-      openModal({
-        isCloseable: false,
-        type: 'catBasis-not-match',
-        children: (
-          <ConfirmModal
-            message="The CAT interface doesn't match. Please check the price setting or the file."
-            onClose={() => {
-              closeModal('catBasis-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
-    } else if (data.toolName !== 'Memsource') {
-      openModal({
-        isCloseable: false,
-        type: 'tool-not-match',
-        children: (
-          <ConfirmModal
-            message='Only files with all CAT Tool matches can be analyzed.'
-            onClose={() => {
-              closeModal('tool-not-match')
-              onClose()
-            }}
-          />
-        ),
-      })
-    }
-  }, [data, priceData, catInterfaces])
+  // TODO : 주석 해제하기
+  // useEffect(() => {
+  //   if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+  //     openModal({
+  //       isCloseable: false,
+  //       type: 'catBasis-not-match',
+  //       children: (
+  //         <ConfirmModal
+  //           message="The CAT interface doesn't match. Please check the price setting or the file."
+  //           onClose={() => {
+  //             closeModal('catBasis-not-match')
+  //             onClose()
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   } else if (data.toolName !== 'Memsource') {
+  //     openModal({
+  //       isCloseable: false,
+  //       type: 'tool-not-match',
+  //       children: (
+  //         <ConfirmModal
+  //           message='Only files with all CAT Tool matches can be analyzed.'
+  //           onClose={() => {
+  //             closeModal('tool-not-match')
+  //             onClose()
+  //           }}
+  //         />
+  //       ),
+  //     })
+  //   }
+  // }, [data, priceData, catInterfaces])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -127,32 +122,29 @@ export default function MemsourceModal({
     setPage(0)
   }
 
-  function renderPrice(header: string, words: string) {
+  function renderPrice(header: string, words: number) {
     let prices = 0
-    let detailId = undefined
+    let newData: DetailNewDataType | null = null
+
     catInterfaces?.forEach((item, idx) => {
       if (item.chips.find(chip => chip.title === header)) {
-        const data = catInterfaces[idx]
-        detailId = details.find(
-          detail => detail.priceUnitId === data.priceUnitPairId,
-        )?.id
-        const detailPrices =
-          Number(
-            details.find(detail => detail.priceUnitId === data.priceUnitPairId)
-              ?.prices,
-          ) || 0
+        newData = catInterfaces[idx]
+        const detailPrices = newData.priceUnitPrice
+        const perWords = newData.perWords
+        const calculatedWordsCount =
+          words && perWords ? words / perWords : words
 
-        prices = priceFactor
-          ? priceFactor * detailPrices * Number(words)
-          : detailPrices * Number(words)
+        const newPrice = calculatedWordsCount * detailPrices
+
+        prices = priceFactor ? priceFactor * newPrice : newPrice
       }
     })
 
-    return { detailId: detailId, prices }
+    return { newData, prices }
   }
 
   function onSubmit() {
-    let result: any = []
+    let result: onCopyAnalysisParamType = []
     if (checked) {
       delete checked.id
       const headers: Array<MemSourceInterface> = Object.keys(checked).filter(
@@ -163,21 +155,10 @@ export default function MemsourceModal({
           renderPrice(
             header,
             catBasis === 'Words'
-              ? checked[header]?.Words || '0'
-              : checked[header]?.Characters || '0',
+              ? Number(checked[header]?.Words) || 0
+              : Number(checked[header]?.Characters) || 0,
           ),
         )
-      })
-      result.push({
-        detailId: 'Total',
-        prices: headers.reduce((res, header) => {
-          return (res += renderPrice(
-            header,
-            catBasis === 'Words'
-              ? checked[header]?.Words || '0'
-              : checked[header]?.Characters || '0',
-          ).prices)
-        }, 0),
       })
     }
     onCopyAnalysis(result)
@@ -188,11 +169,7 @@ export default function MemsourceModal({
     catInterfaces?.forEach((item, idx) => {
       if (item.chips.find(chip => chip.title === header)) {
         const data = catInterfaces[idx]
-        const prices: number =
-          Number(
-            details.find(detail => detail.priceUnitId === data.priceUnitPairId)
-              ?.prices,
-          ) || 0
+        const prices: number = data.priceUnitPrice
         if (data?.priceUnitUnit === 'Percent') {
           res = `${data.priceUnitTitle}% at ${formatCurrency(
             formatByRoundingProcedure(
@@ -293,8 +270,8 @@ export default function MemsourceModal({
                             renderPrice(
                               header,
                               catBasis === 'Words'
-                                ? item[header]?.Words || '0'
-                                : item[header]?.Characters || '0',
+                                ? Number(item[header]?.Words) || 0
+                                : Number(item[header]?.Characters) || 0,
                             ).prices,
                             priceData?.decimalPlace!,
                             priceData?.roundingProcedure!,
@@ -319,8 +296,8 @@ export default function MemsourceModal({
                           return (res += renderPrice(
                             header,
                             catBasis === 'Words'
-                              ? item[header]?.Words || '0'
-                              : item[header]?.Characters || '0',
+                              ? Number(item[header]?.Words) || 0
+                              : Number(item[header]?.Characters) || 0,
                           ).prices)
                         }, 0),
                         priceData?.decimalPlace!,

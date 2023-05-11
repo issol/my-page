@@ -38,7 +38,6 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
-import { removeClientFormData } from '@src/shared/auth/storage'
 import {
   OrderProjectInfoFormType,
   OrderStatusType,
@@ -142,10 +141,6 @@ export default function AddNewQuotes() {
       title: ' Languages & Items',
     },
   ]
-
-  useEffect(() => {
-    return removeClientFormData()
-  }, [])
 
   // ** confirm page leaving
   router.beforePopState(() => {
@@ -403,10 +398,14 @@ export default function AddNewQuotes() {
 
       getClient(id)
         .then(res => {
+          const addressType = res.clientAddress.find(
+            address => address.isSelected,
+          )?.addressType
           clientReset({
             clientId: res.client.clientId,
             contactPersonId: res?.contactPerson?.id ?? null,
-            addressType: res.addressType as 'billing' | 'shipping',
+            addressType:
+              addressType === 'additional' ? 'shipping' : addressType,
           })
         })
         .catch(e => {
@@ -445,11 +444,11 @@ export default function AddNewQuotes() {
               id: String(item.id),
               source: item.source,
               target: item.target,
-              price: item.priceId
-                ? getPriceOptions(item.source, item.target).filter(
-                    price => price.id === item.priceId,
-                  )[0]
-                : null,
+              price: !item?.price
+                ? null
+                : getPriceOptions(item.source, item.target).filter(
+                    price => price.id === item?.price?.id!,
+                  )[0],
               isDeletable: false,
             })),
           )
@@ -554,6 +553,7 @@ export default function AddNewQuotes() {
                   setValue={setProjectInfo}
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
+                  clientTimezone={getClientValue('contacts.timezone')}
                 />
                 <Grid
                   item

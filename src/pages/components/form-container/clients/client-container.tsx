@@ -51,7 +51,6 @@ import { ClientFormType } from '@src/types/schema/client.schema'
 // ** fetches & mutations
 import { useGetClientList } from '@src/queries/client.query'
 import { createClient, createContactPerson } from '@src/apis/client.api'
-import { saveClientFormData } from '@src/shared/auth/storage'
 
 // ** components
 import RegisterClientForm from '@src/pages/components/forms/register-client-form'
@@ -155,7 +154,7 @@ export default function ClientQuotesFormContainer({
   })
 
   const [clients, setClients] = useState<
-    Array<{ value: string; label: string }>
+    Array<{ value: /* string */ number; label: string }>
   >([])
   const {
     data: clientList,
@@ -170,7 +169,7 @@ export default function ClientQuotesFormContainer({
     if (isSuccess) {
       setClients(
         clientList.data.map(item => ({
-          value: item.clientId.toString(),
+          value: item.clientId,
           label: item.name,
         })),
       )
@@ -249,7 +248,6 @@ export default function ClientQuotesFormContainer({
       clientAddresses: address,
       ...getContactPersonValues()!,
     }
-    saveClientFormData(data)
     openModal({
       type: 'create-client',
       children: (

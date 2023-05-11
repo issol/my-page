@@ -12,12 +12,6 @@ import {
   Typography,
 } from '@mui/material'
 
-// ** types
-import { ProjectTeamType } from '@src/types/schema/project-team.schema'
-
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
 // ** react hook form
 import {
   Control,
@@ -38,14 +32,13 @@ import { ClientFormType } from '@src/types/schema/client.schema'
 import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { saveClientFormData } from '@src/shared/auth/storage'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  clientList: Array<{ value: string; label: string }>
+  clientList: Array<{ value: number; label: string }>
 }
 
 export default function RegisterClientForm({
@@ -78,6 +71,7 @@ export default function RegisterClientForm({
   ])
 
   const clientId = watch('clientId')
+  const contracts = watch('contacts')
 
   useEffect(() => {
     if (!clientId) return
@@ -85,9 +79,35 @@ export default function RegisterClientForm({
   }, [clientId])
 
   useEffect(() => {
-    contactPerson?.label === 'Not applicable'
-      ? saveClientFormData({ timezone: clientDetail?.timezone })
-      : saveClientFormData({ timezone: contactPerson?.timezone })
+    const contracts: {
+      timezone?: CountryType
+      phone?: string | null
+      mobile?: string | null
+      fax?: string | null
+      email?: string | null
+      addresses?: ClientAddressType[]
+    } = {
+      timezone: { phone: '', label: '', code: '' },
+      phone: '',
+      mobile: '',
+      fax: '',
+      email: '',
+    }
+    if (!contactPerson?.label || contactPerson?.label === 'Not applicable') {
+      contracts.timezone = clientDetail?.timezone
+      contracts.phone = clientDetail?.phone
+      contracts.mobile = clientDetail?.mobile
+      contracts.fax = clientDetail?.fax
+      contracts.email = clientDetail?.email
+    } else {
+      contracts.timezone = contactPerson?.timezone
+      contracts.phone = contactPerson?.phone
+      contracts.mobile = contactPerson?.mobile
+      contracts.fax = contactPerson?.fax
+      contracts.email = contactPerson?.email
+    }
+    contracts.addresses = clientDetail?.clientAddresses
+    setValue('contacts', contracts)
   }, [contactPerson, clientDetail])
 
   function getDetail(id: number, resetClientId = true) {
@@ -163,9 +183,7 @@ export default function RegisterClientForm({
           name='clientId'
           control={control}
           render={({ field: { value, onChange } }) => {
-            const selectedClient = clientList.find(
-              item => item.value === value?.toString(),
-            )
+            const selectedClient = clientList.find(item => item.value === value)
             return (
               <Autocomplete
                 autoHighlight
@@ -178,7 +196,7 @@ export default function RegisterClientForm({
                   }
                 }}
                 disableClearable
-                value={selectedClient || { value: '', label: '' }}
+                value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField
                     {...params}
@@ -199,12 +217,10 @@ export default function RegisterClientForm({
           control={control}
           render={({ field: { value, onChange } }) => {
             const personList = contactPersonList.map(item => ({
-              value: item.value.toString(),
+              value: item.value,
               label: item.label,
             }))
-            const selectedPerson = personList.find(
-              item => item.value === value?.toString(),
-            )
+            const selectedPerson = personList.find(item => item.value === value)
             return (
               <Autocomplete
                 autoHighlight
@@ -244,11 +260,7 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Time zone'
           value={
-            contactPerson === null
-              ? '-'
-              : contactPerson?.label === 'Not applicable'
-              ? getGmtTime(clientDetail?.timezone?.code)
-              : getGmtTime(contactPerson?.timezone?.code)
+            !contracts?.timezone ? '-' : getGmtTime(contracts?.timezone?.code)
           }
           disabled={true}
         />
@@ -258,17 +270,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Telephone'
           value={
-            contactPerson === null
+            !contracts?.phone
               ? '-'
-              : contactPerson?.label === 'Not applicable'
-              ? getPhoneNumber(
-                  clientDetail?.timezone?.phone,
-                  clientDetail?.phone,
-                )
-              : getPhoneNumber(
-                  contactPerson?.timezone?.phone,
-                  contactPerson?.phone,
-                )
+              : getPhoneNumber(contracts?.timezone?.phone, contracts?.phone)
           }
           disabled={true}
         />
@@ -278,17 +282,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Mobile phone'
           value={
-            contactPerson === null
+            !contracts?.mobile
               ? '-'
-              : contactPerson?.label === 'Not applicable'
-              ? getPhoneNumber(
-                  clientDetail?.timezone?.phone,
-                  clientDetail?.mobile,
-                )
-              : getPhoneNumber(
-                  contactPerson?.timezone?.phone,
-                  contactPerson?.mobile,
-                )
+              : getPhoneNumber(contracts?.timezone?.phone, contracts?.mobile)
           }
           disabled={true}
         />
@@ -298,14 +294,9 @@ export default function RegisterClientForm({
           fullWidth
           placeholder='Fax'
           value={
-            contactPerson === null
-              ? ''
-              : contactPerson?.label === 'Not applicable'
-              ? getPhoneNumber(clientDetail?.timezone?.phone, clientDetail?.fax)
-              : getPhoneNumber(
-                  contactPerson?.timezone?.phone,
-                  contactPerson?.fax,
-                )
+            !contracts?.fax
+              ? '-'
+              : getPhoneNumber(contracts?.timezone?.phone, contracts?.fax)
           }
           disabled={true}
         />
@@ -314,13 +305,7 @@ export default function RegisterClientForm({
         <TextField
           fullWidth
           placeholder='Email'
-          value={
-            contactPerson === null
-              ? ''
-              : contactPerson?.label === 'Not applicable'
-              ? clientDetail?.email
-              : contactPerson?.email
-          }
+          value={!contracts?.email ? '-' : contracts?.email}
           disabled={true}
         />
       </Grid>
@@ -346,7 +331,7 @@ export default function RegisterClientForm({
                 onChange={(e, v) => field.onChange('shipping')}
                 checked={field.value === 'shipping'}
                 label={`Shipping address ${getAddress(
-                  clientDetail?.clientAddresses,
+                  contracts?.addresses,
                   'shipping',
                 )}`}
               />
@@ -356,7 +341,7 @@ export default function RegisterClientForm({
                 checked={field.value === 'billing'}
                 control={<Radio />}
                 label={`Billing address ${getAddress(
-                  clientDetail?.clientAddresses,
+                  contracts?.addresses,
                   'billing',
                 )}`}
               />
