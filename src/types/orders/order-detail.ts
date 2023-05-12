@@ -73,6 +73,7 @@ export type VersionHistoryType = {
 }
 
 export type OrderDownloadData = {
+  orderId: number
   adminCompanyName: string
   companyAddress: string
   corporationId: string

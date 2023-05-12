@@ -6,7 +6,7 @@ import { ClientAddressType } from './client-address.schema'
 export type ClientFormType = {
   clientId: number | null
   contactPersonId: number | null
-  addressType: 'billing' | 'shipping'
+  addressType: 'billing' | 'shipping' | 'additional'
   /* contacts값은 서버에는 보내지 않고 보여주기용 데이터 */
   contacts?: {
     timezone?: CountryType
