@@ -25,6 +25,9 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
+import { useMutation } from 'react-query'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import { patchProjectInfo } from '@src/apis/order-detail.api'
 
 type Props = {
   data: OrderDownloadData
@@ -36,12 +39,22 @@ type Props = {
 const PrintOrderPage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
+
+  const patchProjectInfoMutation = useMutation(
+    (data: { id: number; form: { downloadedAt: string } }) =>
+      patchProjectInfo(data.id, data.form),
+    {},
+  )
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
         window.onafterprint = () => {
           router.back()
           dispatch(resetOrderLang('EN'))
+          patchProjectInfoMutation.mutate({
+            id: data.orderId,
+            form: { downloadedAt: Date() },
+          })
         }
         window.print()
       }, 300)

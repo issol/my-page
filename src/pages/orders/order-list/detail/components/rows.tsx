@@ -59,8 +59,14 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   className='table-row'
                   sx={{
                     // '& > *': { borderBottom: 'unset' },
-                    maxHeight: value.priceUnit.length > 30 ? '60px' : '30px',
-                    height: value.priceUnit.length > 30 ? '60px' : '30px',
+                    maxHeight:
+                      value.priceUnit && value.priceUnit.length > 30
+                        ? '60px'
+                        : '30px',
+                    height:
+                      value.priceUnit && value.priceUnit.length > 30
+                        ? '60px'
+                        : '30px',
                     display: 'flex',
 
                     background: index % 2 === 0 ? '#ffffff' : '#F5F5F7',

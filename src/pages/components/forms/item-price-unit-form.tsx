@@ -145,168 +145,200 @@ export default function ItemPriceUnitForm({
         }}
       >
         <TableCell>
-          <Controller
-            name={`${itemName}.${idx}.quantity`}
-            control={control}
-            render={({ field: { value, onChange } }) => {
-              return (
-                <Box display='flex' alignItems='center' gap='8px'>
-                  <TextField
-                    placeholder='0'
-                    type='number'
-                    value={value}
-                    sx={{ maxWidth: '80px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={onChange}
-                  />
-                  {savedValue.unit === 'Percent' ? '%' : null}
-                </Box>
-              )
-            }}
-          />
+          {type === 'detail' ? (
+            <Box display='flex' alignItems='center' gap='8px' height={38}>
+              <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
+                {getValues(`${itemName}.${idx}.quantity`)}
+              </Typography>
+            </Box>
+          ) : (
+            <Controller
+              name={`${itemName}.${idx}.quantity`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <Box display='flex' alignItems='center' gap='8px'>
+                    <TextField
+                      placeholder='0'
+                      type='number'
+                      value={value}
+                      sx={{ maxWidth: '80px', padding: 0 }}
+                      inputProps={{ inputMode: 'decimal' }}
+                      onChange={onChange}
+                    />
+                    {savedValue.unit === 'Percent' ? '%' : null}
+                  </Box>
+                )
+              }}
+            />
+          )}
         </TableCell>
         <TableCell>
-          <Controller
-            name={`${itemName}.${idx}.priceUnit`}
-            control={control}
-            render={({ field: { value, onChange } }) => {
-              const options = nestSubPriceUnits()
-              const findValue =
-                allPriceUnits?.current?.find(item => item.title === value) ||
-                null
-              return (
-                <Autocomplete
-                  autoHighlight
-                  fullWidth
-                  options={options}
-                  groupBy={option => option?.groupName}
-                  getOptionLabel={option => {
-                    const title =
-                      option?.quantity && option?.quantity >= 2
-                        ? `${option.title} ${option?.quantity}`
-                        : option.title
-                    return title
-                  }}
-                  renderOption={(props, option, state) => {
-                    return (
-                      <Box>
-                        <Box
-                          component='li'
-                          padding='4px 0'
-                          {...props}
-                          onClick={() => {
-                            setOpen(false)
-                            onChange(option.title)
-                            update(idx, {
-                              ...savedValue,
-                              priceUnitId: option.id,
-                              quantity: option.quantity ?? 0,
-                              unit: option.unit,
-                              unitPrice: priceFactor
-                                ? priceFactor * option.price
-                                : option.price,
-                              priceFactor: priceFactor?.toString(),
-                            })
-                            if (option?.subPriceUnits?.length) {
-                              option.subPriceUnits.forEach(item => {
-                                append({
-                                  ...savedValue,
-                                  priceUnitId: option.id,
-                                  quantity: item.quantity!,
-                                  priceUnit: item.title,
-                                  unit: item.unit,
-                                  unitPrice: priceFactor
-                                    ? priceFactor * item.price
-                                    : item.price,
-                                })
-                              })
-                            }
-                            getEachPrice(idx)
-                          }}
-                        >
-                          {option?.quantity && option?.quantity >= 2
-                            ? `${option.title} ${option?.quantity}`
-                            : option.title}
-                        </Box>
-                        {option?.subPriceUnits?.map(sub => (
+          {type === 'detail' ? (
+            <Box display='flex' alignItems='center' gap='8px' height={38}>
+              <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
+                {getValues(`${itemName}.${idx}.priceUnit`) ?? '-'}
+              </Typography>
+            </Box>
+          ) : (
+            <Controller
+              name={`${itemName}.${idx}.priceUnit`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                const options = nestSubPriceUnits()
+                const findValue =
+                  allPriceUnits?.current?.find(item => item.title === value) ||
+                  null
+                return (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    options={options}
+                    groupBy={option => option?.groupName}
+                    getOptionLabel={option => {
+                      const title =
+                        option?.quantity && option?.quantity >= 2
+                          ? `${option.title} ${option?.quantity}`
+                          : option.title
+                      return title
+                    }}
+                    renderOption={(props, option, state) => {
+                      return (
+                        <Box>
                           <Box
                             component='li'
                             padding='4px 0'
-                            className={props.className}
-                            key={sub.id}
-                            role={props.role}
+                            {...props}
                             onClick={() => {
                               setOpen(false)
-                              onChange(sub.title)
+                              onChange(option.title)
                               update(idx, {
                                 ...savedValue,
-                                quantity: sub.quantity ?? 0,
-                                unit: sub.unit,
+                                priceUnitId: option.id,
+                                quantity: option.quantity ?? 0,
+                                unit: option.unit,
                                 unitPrice: priceFactor
-                                  ? priceFactor * sub.price
-                                  : sub.price,
+                                  ? priceFactor * option.price
+                                  : option.price,
                                 priceFactor: priceFactor?.toString(),
                               })
+                              if (option?.subPriceUnits?.length) {
+                                option.subPriceUnits.forEach(item => {
+                                  append({
+                                    ...savedValue,
+                                    priceUnitId: option.id,
+                                    quantity: item.quantity!,
+                                    priceUnit: item.title,
+                                    unit: item.unit,
+                                    unitPrice: priceFactor
+                                      ? priceFactor * item.price
+                                      : item.price,
+                                  })
+                                })
+                              }
                               getEachPrice(idx)
                             }}
                           >
-                            <Icon
-                              icon='material-symbols:subdirectory-arrow-right'
-                              opacity={0.7}
-                            />
-                            {sub?.quantity && sub?.quantity >= 2
-                              ? `${sub.title} ${sub?.quantity}`
-                              : sub.title}
+                            {option?.quantity && option?.quantity >= 2
+                              ? `${option.title} ${option?.quantity}`
+                              : option.title}
                           </Box>
-                        ))}
-                      </Box>
-                    )
-                  }}
-                  open={open}
-                  onOpen={() => setOpen(true)}
-                  onClose={() => setOpen(false)}
-                  value={
-                    findValue
-                      ? {
-                          ...findValue,
-                          subPriceUnits: [],
-                          groupName: '',
-                        }
-                      : null
-                  }
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      label='Price unit*'
-                      placeholder='Price unit*'
-                    />
-                  )}
-                />
-              )
-            }}
-          />
+                          {option?.subPriceUnits?.map(sub => (
+                            <Box
+                              component='li'
+                              padding='4px 0'
+                              className={props.className}
+                              key={sub.id}
+                              role={props.role}
+                              onClick={() => {
+                                setOpen(false)
+                                onChange(sub.title)
+                                update(idx, {
+                                  ...savedValue,
+                                  quantity: sub.quantity ?? 0,
+                                  unit: sub.unit,
+                                  unitPrice: priceFactor
+                                    ? priceFactor * sub.price
+                                    : sub.price,
+                                  priceFactor: priceFactor?.toString(),
+                                })
+                                getEachPrice(idx)
+                              }}
+                            >
+                              <Icon
+                                icon='material-symbols:subdirectory-arrow-right'
+                                opacity={0.7}
+                              />
+                              {sub?.quantity && sub?.quantity >= 2
+                                ? `${sub.title} ${sub?.quantity}`
+                                : sub.title}
+                            </Box>
+                          ))}
+                        </Box>
+                      )
+                    }}
+                    open={open}
+                    onOpen={() => setOpen(true)}
+                    onClose={() => setOpen(false)}
+                    value={
+                      findValue
+                        ? {
+                            ...findValue,
+                            subPriceUnits: [],
+                            groupName: '',
+                          }
+                        : null
+                    }
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Price unit*'
+                        placeholder='Price unit*'
+                      />
+                    )}
+                  />
+                )
+              }}
+            />
+          )}
+        </TableCell>
+        <TableCell align={type === 'detail' ? 'left' : 'center'}>
+          {type === 'detail' ? (
+            <Box display='flex' alignItems='center' gap='8px' height={38}>
+              <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
+                {getValues(`${itemName}.${idx}.unitPrice`) ?? '-'}
+              </Typography>
+            </Box>
+          ) : (
+            <Controller
+              name={`${itemName}.${idx}.unitPrice`}
+              control={control}
+              render={({ field: { value, onChange } }) => {
+                return (
+                  <TextField
+                    placeholder='0.00'
+                    value={savedValue.unit === 'Percent' ? '-' : value}
+                    disabled={savedValue.unit === 'Percent'}
+                    onChange={e => {
+                      onChange(e)
+                    }}
+                    sx={{ maxWidth: '80px', padding: 0 }}
+                  />
+                )
+              }}
+            />
+          )}
         </TableCell>
         <TableCell align='center'>
-          <Controller
-            name={`${itemName}.${idx}.unitPrice`}
-            control={control}
-            render={({ field: { value, onChange } }) => {
-              return (
-                <TextField
-                  placeholder='0.00'
-                  value={savedValue.unit === 'Percent' ? '-' : value}
-                  disabled={savedValue.unit === 'Percent'}
-                  onChange={e => {
-                    onChange(e)
-                  }}
-                  sx={{ maxWidth: '80px', padding: 0 }}
-                />
-              )
-            }}
-          />
-        </TableCell>
-        <TableCell align='center'>
-          {isNotApplicable ? (
+          {type === 'detail' ? (
+            <Box display='flex' alignItems='center' gap='8px' height={38}>
+              <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
+                {isNotApplicable
+                  ? getValues(`${itemName}.${idx}.currency`) ?? '-'
+                  : null}
+              </Typography>
+            </Box>
+          ) : isNotApplicable ? (
             <Controller
               name={`${itemName}.${0}.currency`}
               control={control}
@@ -351,11 +383,13 @@ export default function ItemPriceUnitForm({
           </Typography>
         </TableCell>
         <TableCell align='center'>
-          <IconButton
-            onClick={() => onDeletePriceUnit(idx, savedValue.priceUnit)}
-          >
-            <Icon icon='mdi:trash-outline' />
-          </IconButton>
+          {type === 'detail' ? null : (
+            <IconButton
+              onClick={() => onDeletePriceUnit(idx, savedValue.priceUnit)}
+            >
+              <Icon icon='mdi:trash-outline' />
+            </IconButton>
+          )}
         </TableCell>
       </TableRow>
     )
@@ -415,13 +449,15 @@ export default function ItemPriceUnitForm({
                   </Typography>
                 </TableCell>
                 <TableCell align='center'>
-                  <IconButton
-                    onClick={() =>
-                      setShowMinimum({ show: false, checked: true })
-                    }
-                  >
-                    <Icon icon='mdi:trash-outline' />
-                  </IconButton>
+                  {type === 'detail' ? null : (
+                    <IconButton
+                      onClick={() =>
+                        setShowMinimum({ show: false, checked: true })
+                      }
+                    >
+                      <Icon icon='mdi:trash-outline' />
+                    </IconButton>
+                  )}
                 </TableCell>
               </TableRow>
             ) : null}

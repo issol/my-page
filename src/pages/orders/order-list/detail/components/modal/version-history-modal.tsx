@@ -117,6 +117,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               type='history'
               client={history.history.client}
               edit={false}
+              orderId={history.id}
             />
           </TabPanel>
           <TabPanel
@@ -134,6 +135,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               setPageSize={setPageSize}
               edit={false}
               setEdit={() => console.log('no')}
+              orderId={history.id}
             />
           </TabPanel>
         </TabContext>

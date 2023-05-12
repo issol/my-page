@@ -11,7 +11,19 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { Dispatch, SetStateAction } from 'react'
 import Icon from '@src/@core/components/icon'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
-import { useFieldArray, useForm } from 'react-hook-form'
+import {
+  Control,
+  FieldArrayWithId,
+  FieldErrors,
+  UseFieldArrayAppend,
+  UseFieldArrayRemove,
+  UseFieldArrayUpdate,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormWatch,
+  useFieldArray,
+  useForm,
+} from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { projectTeamSchema } from '@src/types/schema/project-team.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -20,6 +32,9 @@ import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useMutation, useQueryClient } from 'react-query'
+import { patchTeamForOrder } from '@src/apis/order-detail.api'
+import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 
 type Props = {
   list: Array<ProjectTeamListType>
@@ -32,6 +47,17 @@ type Props = {
   type: string
   edit: boolean
   setEdit: Dispatch<SetStateAction<boolean>>
+  teamControl?: Control<ProjectTeamType, any>
+  members?: FieldArrayWithId<ProjectTeamType, 'teams', 'id'>[]
+  appendMember?: UseFieldArrayAppend<ProjectTeamType, 'teams'>
+  removeMember?: UseFieldArrayRemove
+  updateMember?: UseFieldArrayUpdate<ProjectTeamType, 'teams'>
+  getTeamValues?: UseFormGetValues<ProjectTeamType>
+  setTeamValues?: UseFormSetValue<ProjectTeamType>
+  teamErrors?: FieldErrors<ProjectTeamType>
+  isTeamValid?: boolean
+  teamWatch?: UseFormWatch<ProjectTeamType>
+  orderId: number
 }
 
 const ProjectTeam = ({
@@ -45,36 +71,60 @@ const ProjectTeam = ({
   type,
   edit,
   setEdit,
+  teamControl,
+  members,
+  appendMember,
+  removeMember,
+  updateMember,
+  getTeamValues,
+  setTeamValues,
+  teamErrors,
+  isTeamValid,
+  teamWatch,
+  orderId,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const {
-    control: teamControl,
-    getValues: getTeamValues,
-    setValue: setTeamValues,
-    handleSubmit: submitTeam,
-    watch: teamWatch,
-    formState: { errors: teamErrors, isValid: isTeamValid },
-  } = useForm<ProjectTeamType>({
-    mode: 'onChange',
-    defaultValues: {
-      teams: [
-        { type: 'supervisorId', id: null },
-        { type: 'projectManagerId', id: null },
-        { type: 'member', id: null },
-      ],
-    },
-    resolver: yupResolver(projectTeamSchema),
-  })
+  const queryClient = useQueryClient()
 
-  const {
-    fields: members,
-    append: appendMember,
-    remove: removeMember,
-    update: updateMember,
-  } = useFieldArray({
-    control: teamControl,
-    name: 'teams',
-  })
+  function transformTeamData(data: ProjectTeamType) {
+    let result: ProjectTeamFormType = {
+      projectManagerId: 0,
+      supervisorId: undefined,
+      member: [],
+    }
+
+    data.teams.forEach(item => {
+      if (item.type === 'supervisorId') {
+        !item.id
+          ? delete result.supervisorId
+          : (result.supervisorId = Number(item.id))
+      } else if (item.type === 'projectManagerId') {
+        result.projectManagerId = Number(item.id)!
+      } else if (item.type === 'member') {
+        if (!result.member) {
+          result.member = []
+        }
+        result.member.push(item.id!)
+      }
+    })
+    // if (!result.member || !result?.member?.length) delete result.member
+
+    console.log(result)
+
+    return result
+  }
+
+  const patchProjectTeamMutation = useMutation(
+    (data: { id: number; form: ProjectTeamFormType }) =>
+      patchTeamForOrder(data.id, data.form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(`projectTeam-${orderId}`)
+        setEdit(false)
+        closeModal('EditSaveModal')
+      },
+    },
+  )
 
   const onClickDiscard = () => {
     setEdit(false)
@@ -82,8 +132,9 @@ const ProjectTeam = ({
   }
 
   const onClickSave = () => {
-    setEdit(false)
-    closeModal('EditSaveModal')
+    const teams = getTeamValues && transformTeamData(getTeamValues())
+
+    patchProjectTeamMutation.mutate({ id: orderId, form: teams! })
   }
 
   return (
@@ -91,16 +142,16 @@ const ProjectTeam = ({
       {edit ? (
         <Card sx={{ padding: '24px' }}>
           <ProjectTeamFormContainer
-            control={teamControl}
-            field={members}
-            append={appendMember}
-            remove={removeMember}
-            update={updateMember}
-            getValues={getTeamValues}
-            setValue={setTeamValues}
-            errors={teamErrors}
-            isValid={isTeamValid}
-            watch={teamWatch}
+            control={teamControl!}
+            field={members!}
+            append={appendMember!}
+            remove={removeMember!}
+            update={updateMember!}
+            getValues={getTeamValues!}
+            setValue={setTeamValues!}
+            errors={teamErrors!}
+            isValid={isTeamValid!}
+            watch={teamWatch!}
             onNextStep={() =>
               openModal({
                 type: 'EditSaveModal',

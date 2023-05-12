@@ -7,6 +7,7 @@ import {
   IconButton,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Typography,
 } from '@mui/material'
 import {
@@ -20,7 +21,10 @@ import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import {
+  OrderProjectInfoFormType,
+  OrderStatusType,
+} from '@src/types/common/orders.type'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import {
   orderProjectInfoDefaultValue,
@@ -29,7 +33,7 @@ import {
 import { useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Dispatch, SetStateAction, useEffect } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
@@ -53,6 +57,7 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
+  const [value, setValue] = useState<string>(projectInfo.status)
 
   const {
     control: projectInfoControl,
@@ -85,6 +90,15 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
     },
   )
 
+  const handleChange = (event: SelectChangeEvent) => {
+    setValue(event.target.value as string)
+    const data = getProjectInfo()
+    patchProjectInfoMutation.mutate({
+      id: projectInfo.id,
+      form: { ...data, status: event.target.value as OrderStatusType },
+    })
+  }
+
   const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
     onSuccess: () => {
       closeModal('DeleteOrderModal')
@@ -116,6 +130,7 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
 
   useEffect(() => {
     if (projectInfo) {
+      setValue(projectInfo.status)
       const res = {
         ...projectInfo,
         orderDate: projectInfo.orderedAt ?? Date(),
@@ -293,7 +308,8 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
                       />
                     ) : (
                       <Select
-                        defaultValue={projectInfo.status}
+                        value={value}
+                        onChange={handleChange}
                         size='small'
                         sx={{ width: '253px' }}
                       >

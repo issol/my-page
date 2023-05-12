@@ -21,6 +21,7 @@ export type OrderProjectInfoFormType = {
   projectDueDate: { date: string; timezone: CountryType }
   projectDueAt: string
   projectDueTimezone: CountryType
+
   tax: number
 }
 

@@ -403,6 +403,7 @@ const OrderDetail = () => {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
 
       const res: OrderDownloadData = {
+        orderId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: projectInfo!.corporationId,
@@ -622,6 +623,7 @@ const OrderDetail = () => {
                 client={client!}
                 edit={clientEdit}
                 setEdit={setClientEdit}
+                orderId={Number(id!)}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
@@ -637,6 +639,17 @@ const OrderDetail = () => {
                   setPageSize={setProjectTeamListPageSize}
                   edit={projectTeamEdit}
                   setEdit={setProjectTeamEdit}
+                  teamControl={teamControl}
+                  members={members}
+                  appendMember={appendMember}
+                  removeMember={removeMember}
+                  updateMember={updateMember}
+                  getTeamValues={getTeamValues}
+                  setTeamValues={setTeamValues}
+                  teamErrors={teamErrors}
+                  isTeamValid={isTeamValid}
+                  teamWatch={teamWatch}
+                  orderId={Number(id!)}
                 />
               </Suspense>
             </TabPanel>
