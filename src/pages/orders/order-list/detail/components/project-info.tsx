@@ -29,52 +29,30 @@ import {
 import { useForm } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { useMutation } from 'react-query'
-import { patchProjectInfo } from '@src/apis/order-detail.api'
+import { useMutation, useQueryClient } from 'react-query'
+import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
 import toast from 'react-hot-toast'
+import { Router, useRouter } from 'next/router'
+import dayjs from 'dayjs'
 
 type Props = {
   type: string
   projectInfo: ProjectInfoType
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
+  orderId: number
 }
-const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
+const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
   const { openModal, closeModal } = useModal()
-
-  const patchProjectInfoMutation = useMutation(
-    (data: { id: number; form: OrderProjectInfoFormType }) =>
-      patchProjectInfo(data.id, data.form),
-    {
-      onSuccess: () => {
-        setEdit!(false)
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-        closeModal('EditSaveModal')
-      },
-    },
-  )
-
-  const onClickDiscard = () => {
-    setEdit!(false)
-    closeModal('DiscardModal')
-  }
-
-  const onClickSave = () => {
-    const data = getProjectInfo()
-    patchProjectInfoMutation.mutate({ id: projectInfo.id, form: data })
-  }
+  const router = useRouter()
+  const queryClient = useQueryClient()
 
   const {
     control: projectInfoControl,
@@ -89,10 +67,66 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
     resolver: yupResolver(orderProjectInfoSchema),
   })
 
+  const patchProjectInfoMutation = useMutation(
+    (data: { id: number; form: OrderProjectInfoFormType }) =>
+      patchProjectInfo(data.id, data.form),
+    {
+      onSuccess: () => {
+        setEdit!(false)
+        queryClient.invalidateQueries(`projectInfo-${orderId}`)
+        closeModal('EditSaveModal')
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
+  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
+    onSuccess: () => {
+      closeModal('DeleteOrderModal')
+      router.push('/orders/order-list')
+      queryClient.invalidateQueries('orderList')
+    },
+  })
+
+  const onClickDiscard = () => {
+    setEdit!(false)
+    closeModal('DiscardModal')
+  }
+
+  const onClickSave = () => {
+    const data = getProjectInfo()
+    const res = {
+      ...data,
+      projectDueAt: data.projectDueDate.date,
+      projectDueTimezone: data.projectDueDate.timezone,
+    }
+
+    patchProjectInfoMutation.mutate({ id: projectInfo.id, form: res })
+  }
+
   const handleDeleteOrder = () => {
-    closeModal('DeleteOrderModal')
+    deleteOrderMutation.mutate(orderId)
     console.log('delete')
   }
+
+  useEffect(() => {
+    if (projectInfo) {
+      const res = {
+        ...projectInfo,
+        orderDate: projectInfo.orderedAt ?? Date(),
+        projectDueDate: {
+          date: projectInfo.projectDueAt ?? '',
+          timezone: projectInfo.projectDueTimezone,
+        },
+      }
+      projectInfoReset(res)
+    }
+  }, [projectInfo])
 
   const onClickDelete = () => {
     openModal({
@@ -503,11 +537,10 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit }: Props) => {
                         width: '100%',
                       }}
                     >
-                      {FullDateTimezoneHelper(projectInfo.projectDueAt, {
-                        code: 'KR',
-                        label: 'Korea, Republic of',
-                        phone: '82',
-                      })}
+                      {FullDateTimezoneHelper(
+                        projectInfo.projectDueAt,
+                        projectInfo.projectDueTimezone,
+                      )}
                     </Typography>
                   </Box>
                 </Box>

@@ -71,6 +71,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { FullDateHelper } from '@src/shared/helpers/date.helper'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -88,6 +89,7 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
   priceUnitsList: Array<PriceUnitListType>
+  type: string
 }
 
 export type DetailNewDataType = {
@@ -115,6 +117,7 @@ export default function ItemForm({
   setLanguagePairs,
   getPriceOptions,
   priceUnitsList,
+  type,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -195,6 +198,7 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
+    console.log(itemData)
 
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -335,7 +339,7 @@ export default function ItemForm({
           marginBottom: '14px',
         }}
       >
-        <Grid container spacing={6} padding='14px'>
+        <Grid container spacing={6} padding='20px'>
           <Grid item xs={12}>
             <Box
               display='flex'
@@ -353,178 +357,299 @@ export default function ItemForm({
                   />
                 </IconButton>
                 <Typography fontWeight={500}>
-                  {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}
+                  {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
+                  {type === 'detail' ? getValues(`items.${idx}.name`) : null}
                 </Typography>
               </Box>
-              <IconButton onClick={() => onItemRemove(idx)}>
-                <Icon icon='mdi:trash-outline' />
-              </IconButton>
+              {type === 'detail' ? null : (
+                <IconButton onClick={() => onItemRemove(idx)}>
+                  <Icon icon='mdi:trash-outline' />
+                </IconButton>
+              )}
             </Box>
           </Grid>
           {cardOpen ? (
             <>
-              <Grid item xs={12}>
-                <Controller
-                  name={`items.${idx}.name`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <TextField
-                      fullWidth
-                      label='Item name*'
-                      variant='outlined'
-                      value={value ?? ''}
-                      onChange={onChange}
-                      inputProps={{ maxLength: 200 }}
-                      error={Boolean(errors?.items?.[idx]?.name)}
-                    />
-                  )}
-                />
+              {type === 'detail' ? null : (
+                <Grid item xs={12}>
+                  <Controller
+                    name={`items.${idx}.name`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <TextField
+                        fullWidth
+                        label='Item name*'
+                        variant='outlined'
+                        value={value ?? ''}
+                        onChange={onChange}
+                        inputProps={{ maxLength: 200 }}
+                        error={Boolean(errors?.items?.[idx]?.name)}
+                      />
+                    )}
+                  />
+                </Grid>
+              )}
+
+              <Grid item xs={6}>
+                {type === 'detail' ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      height: '54px',
+                      gap: '8px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography
+                      sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
+                      variant='body1'
+                    >
+                      Item due date
+                    </Typography>
+                    <Typography variant='body1' fontSize={14}>
+                      {FullDateHelper(getValues(`items.${idx}.dueAt`))}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Controller
+                    name={`items.${idx}.dueAt`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
+                      <FullWidthDatePicker
+                        showTimeSelect
+                        timeFormat='HH:mm'
+                        timeIntervals={15}
+                        selected={!value ? null : new Date(value)}
+                        dateFormat='MM/dd/yyyy h:mm aa'
+                        onChange={onChange}
+                        customInput={<CustomInput label='Item due date*' />}
+                      />
+                    )}
+                  />
+                )}
               </Grid>
               <Grid item xs={6}>
-                <Controller
-                  name={`items.${idx}.dueAt`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <FullWidthDatePicker
-                      showTimeSelect
-                      timeFormat='HH:mm'
-                      timeIntervals={15}
-                      selected={!value ? null : new Date(value)}
-                      dateFormat='MM/dd/yyyy h:mm aa'
-                      onChange={onChange}
-                      customInput={<CustomInput label='Item due date*' />}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Controller
-                  name={`items.${idx}.contactPersonId`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => (
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      options={contactPersonList}
-                      onChange={(e, v) => {
-                        onChange(v?.value ?? '')
-                      }}
-                      value={
-                        !value
-                          ? defaultValue
-                          : contactPersonList.find(
-                              item => item.value === value.toString(),
-                            )
+                {type === 'detail' ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      height: '54px',
+                      gap: '8px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography
+                      sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
+                      variant='body1'
+                    >
+                      Contact person for job
+                    </Typography>
+                    <Typography variant='body1' fontSize={14}>
+                      {
+                        contactPersonList.find(
+                          item =>
+                            item.value ===
+                            getValues(
+                              `items.${idx}.contactPersonId`,
+                            )?.toString(),
+                        )?.label
                       }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          error={Boolean(errors?.items?.[idx]?.contactPersonId)}
-                          label='Contact person for job*'
-                          placeholder='Contact person for job*'
-                        />
-                      )}
-                    />
-                  )}
-                />
-              </Grid>
-              <Grid item xs={6}>
-                <Controller
-                  name={`items.${idx}.source`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => {
-                    return (
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Controller
+                    name={`items.${idx}.contactPersonId`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => (
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={languagePairs.sort((a, b) =>
-                          a.source.localeCompare(b.source),
-                        )}
-                        getOptionLabel={option =>
-                          `${languageHelper(option.source)} -> ${languageHelper(
-                            option.target,
-                          )}`
-                        }
+                        options={contactPersonList}
                         onChange={(e, v) => {
-                          onChangeLanguagePair(v, idx)
+                          onChange(v?.value ?? '')
                         }}
                         value={
                           !value
-                            ? null
-                            : languagePairs.find(
-                                item =>
-                                  item.source === value &&
-                                  item.target ===
-                                    getValues(`items.${idx}.target`),
+                            ? defaultValue
+                            : contactPersonList.find(
+                                item => item.value === value.toString(),
                               )
                         }
                         renderInput={params => (
                           <TextField
                             {...params}
-                            error={Boolean(errors?.items?.[idx]?.source)}
-                            label='Language pair*'
-                            placeholder='Language pair*'
+                            error={Boolean(
+                              errors?.items?.[idx]?.contactPersonId,
+                            )}
+                            label='Contact person for job*'
+                            placeholder='Contact person for job*'
                           />
                         )}
                       />
-                    )
-                  }}
-                />
+                    )}
+                  />
+                )}
               </Grid>
               <Grid item xs={6}>
-                <Controller
-                  name={`items.${idx}.priceId`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => {
-                    const options = getPriceOptions(
-                      getValues(`items.${idx}.source`),
-                      getValues(`items.${idx}.target`),
-                    )
-                    const matchingPrice = options.find(
-                      item => item.groupName === 'Matching price',
-                    )
-                    if (matchingPrice) {
-                      onChange(matchingPrice.id)
-                    }
-                    return (
-                      <Autocomplete
-                        autoHighlight
-                        fullWidth
-                        options={options}
-                        groupBy={option => option?.groupName}
-                        getOptionLabel={option => option.priceName}
-                        onChange={(e, v) => {
-                          onChange(v?.id)
-                          const value = getValues().items[idx]
-                          if (v) {
-                            const index = findLangPairIndex(
-                              value?.source!,
-                              value?.target!,
-                            )
-                            if (index !== -1) {
-                              const copyLangPair = [...languagePairs]
-                              copyLangPair[index].price = v
-                              setLanguagePairs(copyLangPair)
-                            }
+                {type === 'detail' ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      height: '54px',
+                      gap: '8px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography
+                      sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
+                      variant='body1'
+                    >
+                      Language pair
+                    </Typography>
+                    <Typography variant='body1' fontSize={14}>
+                      {languageHelper(
+                        languagePairs.find(
+                          item =>
+                            item.source === getValues(`items.${idx}.source`) &&
+                            item.target === getValues(`items.${idx}.target`),
+                        )?.source,
+                      )}
+                      &nbsp;&rarr;&nbsp;
+                      {languageHelper(
+                        languagePairs.find(
+                          item =>
+                            item.source === getValues(`items.${idx}.source`) &&
+                            item.target === getValues(`items.${idx}.target`),
+                        )?.target,
+                      )}
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Controller
+                    name={`items.${idx}.source`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={languagePairs.sort((a, b) =>
+                            a.source.localeCompare(b.source),
+                          )}
+                          getOptionLabel={option =>
+                            `${languageHelper(
+                              option.source,
+                            )} -> ${languageHelper(option.target)}`
                           }
-                        }}
-                        value={
-                          value === null
-                            ? null
-                            : options.find(item => item.id === value)
-                        }
-                        renderInput={params => (
-                          <TextField
-                            {...params}
-                            error={Boolean(errors?.items?.[idx]?.priceId)}
-                            label='Price*'
-                            placeholder='Price*'
-                          />
-                        )}
-                      />
-                    )
-                  }}
-                />
+                          onChange={(e, v) => {
+                            onChangeLanguagePair(v, idx)
+                          }}
+                          value={
+                            !value
+                              ? null
+                              : languagePairs.find(
+                                  item =>
+                                    item.source === value &&
+                                    item.target ===
+                                      getValues(`items.${idx}.target`),
+                                )
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors?.items?.[idx]?.source)}
+                              label='Language pair*'
+                              placeholder='Language pair*'
+                            />
+                          )}
+                        />
+                      )
+                    }}
+                  />
+                )}
+              </Grid>
+              <Grid item xs={6}>
+                {type === 'detail' ? (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      height: '54px',
+                      gap: '8px',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography
+                      sx={{ width: '193px', fontWeight: 600, fontSize: '14px' }}
+                      variant='body1'
+                    >
+                      Price
+                    </Typography>
+                    <Typography variant='body1' fontSize={14}>
+                      {
+                        getPriceOptions(
+                          getValues(`items.${idx}.source`),
+                          getValues(`items.${idx}.target`),
+                        ).find(
+                          item => item.id === getValues(`items.${idx}.priceId`),
+                        )?.priceName
+                      }
+                    </Typography>
+                  </Box>
+                ) : (
+                  <Controller
+                    name={`items.${idx}.priceId`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      const options = getPriceOptions(
+                        getValues(`items.${idx}.source`),
+                        getValues(`items.${idx}.target`),
+                      )
+                      const matchingPrice = options.find(
+                        item => item.groupName === 'Matching price',
+                      )
+                      if (matchingPrice) {
+                        onChange(matchingPrice.id)
+                      }
+                      return (
+                        <Autocomplete
+                          autoHighlight
+                          fullWidth
+                          options={options}
+                          groupBy={option => option?.groupName}
+                          getOptionLabel={option => option.priceName}
+                          onChange={(e, v) => {
+                            onChange(v?.id)
+                            const value = getValues().items[idx]
+                            if (v) {
+                              const index = findLangPairIndex(
+                                value?.source!,
+                                value?.target!,
+                              )
+                              if (index !== -1) {
+                                const copyLangPair = [...languagePairs]
+                                copyLangPair[index].price = v
+                                setLanguagePairs(copyLangPair)
+                              }
+                            }
+                          }}
+                          value={
+                            value === null
+                              ? null
+                              : options.find(item => item.id === value)
+                          }
+                          renderInput={params => (
+                            <TextField
+                              {...params}
+                              error={Boolean(errors?.items?.[idx]?.priceId)}
+                              label='Price*'
+                              placeholder='Price*'
+                            />
+                          )}
+                        />
+                      )
+                    }}
+                  />
+                )}
               </Grid>
               {/* price unit start */}
               <ItemPriceUnitForm
@@ -549,34 +674,45 @@ export default function ItemForm({
                 priceUnitsList={priceUnitsList}
                 showMinimum={showMinimum}
                 setShowMinimum={setShowMinimum}
+                type={type}
               />
               {/* price unit end */}
               <Grid item xs={12}>
-                <Typography variant='h6' mb='24px'>
+                <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                   Item description
                 </Typography>
-                <Controller
-                  name={`items.${idx}.description`}
-                  control={control}
-                  render={({ field: { value, onChange } }) => {
-                    return (
-                      <>
-                        <TextField
-                          rows={4}
-                          multiline
-                          fullWidth
-                          label='Write down an item description.'
-                          value={value ?? ''}
-                          onChange={onChange}
-                          inputProps={{ maxLength: 500 }}
-                        />
-                        <Typography variant='body2' mt='12px' textAlign='right'>
-                          {value?.length ?? 0}/500
-                        </Typography>
-                      </>
-                    )
-                  }}
-                />
+                {type === 'detail' ? (
+                  <Typography>
+                    {getValues(`items.${idx}.description`)}
+                  </Typography>
+                ) : (
+                  <Controller
+                    name={`items.${idx}.description`}
+                    control={control}
+                    render={({ field: { value, onChange } }) => {
+                      return (
+                        <>
+                          <TextField
+                            rows={4}
+                            multiline
+                            fullWidth
+                            label='Write down an item description.'
+                            value={value ?? ''}
+                            onChange={onChange}
+                            inputProps={{ maxLength: 500 }}
+                          />
+                          <Typography
+                            variant='body2'
+                            mt='12px'
+                            textAlign='right'
+                          >
+                            {value?.length ?? 0}/500
+                          </Typography>
+                        </>
+                      )
+                    }}
+                  />
+                )}
               </Grid>
               <Grid item xs={12}>
                 <Divider />
@@ -590,6 +726,7 @@ export default function ItemForm({
                   priceData={priceData}
                   priceFactor={priceFactor}
                   onCopyAnalysis={onCopyAnalysis}
+                  type={type}
                 />
               </Grid>
               {/* TM analysis */}
@@ -611,7 +748,7 @@ export default function ItemForm({
         justifyContent='space-between'
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
-        Items ({fields.length ?? 0})
+        <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />

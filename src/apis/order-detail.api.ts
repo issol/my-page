@@ -211,5 +211,5 @@ export const patchProjectInfo = async (
   id: number,
   form: OrderProjectInfoFormType,
 ) => {
-  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+  await axios.patch(`/api/enough/u/order/${id}`, { data: form })
 }

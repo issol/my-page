@@ -605,6 +605,7 @@ export default function AddNewQuotes() {
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
+                  type='create'
                 />
               </Grid>
               <Grid item xs={12}>

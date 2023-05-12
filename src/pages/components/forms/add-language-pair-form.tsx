@@ -68,6 +68,8 @@ export default function AddLanguagePairForm({
   getPriceOptions,
   type,
 }: Props) {
+  console.log(languagePairs)
+
   const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
@@ -79,6 +81,11 @@ export default function AddLanguagePairForm({
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
+
+  const header =
+    type === 'detail'
+      ? ['Language pair', 'Price']
+      : ['Language pair', 'Price', '']
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -240,7 +247,7 @@ export default function AddLanguagePairForm({
           <Table stickyHeader aria-label='sticky table'>
             <TableHead>
               <TableRow>
-                {['Language pair', 'Price', ''].map((item, idx) => (
+                {header.map((item, idx) => (
                   <HeaderCell key={idx} align='left'>
                     {item}
                   </HeaderCell>
@@ -284,34 +291,42 @@ export default function AddLanguagePairForm({
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Autocomplete
-                          value={
-                            !row.price
-                              ? null
-                              : options.find(
-                                  item =>
-                                    item.priceName === row.price?.priceName,
-                                ) || defaultOption
-                          }
-                          size='small'
-                          sx={{ width: 300 }}
-                          options={options}
-                          groupBy={option => option?.groupName}
-                          onChange={(e, v) => {
-                            setPrice(v, idx)
-                          }}
-                          id='autocomplete-controlled'
-                          getOptionLabel={option => option.priceName}
-                          renderInput={params => (
-                            <TextField {...params} placeholder='Price' />
-                          )}
-                        />
+                        {type === 'detail' ? (
+                          <Typography variant='body1' fontSize={14}>
+                            {row.price?.priceName}
+                          </Typography>
+                        ) : (
+                          <Autocomplete
+                            value={
+                              !row.price
+                                ? null
+                                : options.find(
+                                    item =>
+                                      item.priceName === row.price?.priceName,
+                                  ) || defaultOption
+                            }
+                            size='small'
+                            sx={{ width: 300 }}
+                            options={options}
+                            groupBy={option => option?.groupName}
+                            onChange={(e, v) => {
+                              setPrice(v, idx)
+                            }}
+                            id='autocomplete-controlled'
+                            getOptionLabel={option => option.priceName}
+                            renderInput={params => (
+                              <TextField {...params} placeholder='Price' />
+                            )}
+                          />
+                        )}
                       </TableCell>
-                      <TableCell align='center'>
-                        <IconButton onClick={() => onDeleteLanguagePair(row)}>
-                          <Icon icon='mdi:trash-outline' />
-                        </IconButton>
-                      </TableCell>
+                      {type === 'detail' ? null : (
+                        <TableCell align='center'>
+                          <IconButton onClick={() => onDeleteLanguagePair(row)}>
+                            <Icon icon='mdi:trash-outline' />
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   )
                 })}
