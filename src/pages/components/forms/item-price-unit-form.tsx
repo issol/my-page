@@ -71,6 +71,7 @@ type Props = {
   showMinimum: { checked: boolean; show: boolean }
   setShowMinimum: (n: { checked: boolean; show: boolean }) => void
   isNotApplicable: boolean
+  type: string
 }
 
 export default function ItemPriceUnitForm({
@@ -91,6 +92,7 @@ export default function ItemPriceUnitForm({
   setShowMinimum,
   isNotApplicable,
   priceUnitsList,
+  type,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
   type NestedPriceUnitType = PriceUnitListType & {
@@ -423,28 +425,30 @@ export default function ItemPriceUnitForm({
                 </TableCell>
               </TableRow>
             ) : null}
-            <TableRow hover tabIndex={-1}>
-              <TableCell colSpan={6}>
-                <Button
-                  onClick={() =>
-                    append({
-                      priceUnitId: -0,
-                      quantity: 0,
-                      priceUnit: '',
-                      unitPrice: 0,
-                      prices: 0,
-                      unit: '',
-                      currency: priceData?.currency ?? 'USD',
-                    })
-                  }
-                  variant='contained'
-                  disabled={!isValid}
-                  sx={{ p: 0.7, minWidth: 26 }}
-                >
-                  <Icon icon='material-symbols:add' />
-                </Button>
-              </TableCell>
-            </TableRow>
+            {type === 'detail' ? null : (
+              <TableRow hover tabIndex={-1}>
+                <TableCell colSpan={6}>
+                  <Button
+                    onClick={() =>
+                      append({
+                        priceUnitId: -0,
+                        quantity: 0,
+                        priceUnit: '',
+                        unitPrice: 0,
+                        prices: 0,
+                        unit: '',
+                        currency: priceData?.currency ?? 'USD',
+                      })
+                    }
+                    variant='contained'
+                    disabled={!isValid}
+                    sx={{ p: 0.7, minWidth: 26 }}
+                  >
+                    <Icon icon='material-symbols:add' />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )}
             <TableRow tabIndex={-1}>
               <TableCell colSpan={5} align='right'>
                 <Typography fontWeight='bold'>Total price</Typography>
@@ -469,9 +473,11 @@ export default function ItemPriceUnitForm({
                           priceData?.currency ?? 'USD',
                         )}
                   </Typography>
-                  <IconButton onClick={() => getTotalPrice()}>
-                    <Icon icon='material-symbols:refresh' />
-                  </IconButton>
+                  {type === 'detail' ? null : (
+                    <IconButton onClick={() => getTotalPrice()}>
+                      <Icon icon='material-symbols:refresh' />
+                    </IconButton>
+                  )}
                 </Box>
               </TableCell>
             </TableRow>

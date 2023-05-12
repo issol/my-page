@@ -102,6 +102,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               type='history'
               projectInfo={history.history.projectInfo}
               edit={false}
+              orderId={history.id}
             />
           </TabPanel>
           <TabPanel

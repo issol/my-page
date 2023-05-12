@@ -60,12 +60,16 @@ type Props = {
     source: string,
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
+  type: string
 }
 export default function AddLanguagePairForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
+  type,
 }: Props) {
+  console.log(languagePairs)
+
   const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
@@ -77,6 +81,11 @@ export default function AddLanguagePairForm({
 
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
+
+  const header =
+    type === 'detail'
+      ? ['Language pair', 'Price']
+      : ['Language pair', 'Price', '']
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
@@ -174,57 +183,63 @@ export default function AddLanguagePairForm({
         <Typography variant='h6'>
           Language pairs ({languagePairs.length ?? 0})
         </Typography>
-        <Box display='flex' alignItems='center' gap='15px'>
-          <Autocomplete
-            value={
-              !languagePair?.source
-                ? defaultValue
-                : languageList.find(item => item.value === languagePair.source)
-            }
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({ ...languagePair, source: v?.value ?? '' })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Source' />}
-          />
-          <IconButton>
-            <Icon icon='material-symbols:arrow-forward' />
-          </IconButton>
-          <Autocomplete
-            value={
-              !languagePair?.target.length
-                ? []
-                : languageList.filter(item =>
-                    languagePair.target.includes(item.value),
-                  )
-            }
-            multiple
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({
-                ...languagePair,
-                target: v.map(item => item.value),
-              })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Target' />}
-          />
-          <Button
-            size='small'
-            variant='contained'
-            onClick={onAddLanguagePair}
-            disabled={!languagePair?.source || !languagePair?.target?.length}
-          >
-            Add
-          </Button>
-        </Box>
+        {type === 'detail' ? (
+          <></>
+        ) : (
+          <Box display='flex' alignItems='center' gap='15px'>
+            <Autocomplete
+              value={
+                !languagePair?.source
+                  ? defaultValue
+                  : languageList.find(
+                      item => item.value === languagePair.source,
+                    )
+              }
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({ ...languagePair, source: v?.value ?? '' })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Source' />}
+            />
+            <IconButton>
+              <Icon icon='material-symbols:arrow-forward' />
+            </IconButton>
+            <Autocomplete
+              value={
+                !languagePair?.target.length
+                  ? []
+                  : languageList.filter(item =>
+                      languagePair.target.includes(item.value),
+                    )
+              }
+              multiple
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({
+                  ...languagePair,
+                  target: v.map(item => item.value),
+                })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Target' />}
+            />
+            <Button
+              size='small'
+              variant='contained'
+              onClick={onAddLanguagePair}
+              disabled={!languagePair?.source || !languagePair?.target?.length}
+            >
+              Add
+            </Button>
+          </Box>
+        )}
       </Grid>
       {/* table */}
       <Grid item xs={12}>
@@ -232,7 +247,7 @@ export default function AddLanguagePairForm({
           <Table stickyHeader aria-label='sticky table'>
             <TableHead>
               <TableRow>
-                {['Language pair', 'Price', ''].map((item, idx) => (
+                {header.map((item, idx) => (
                   <HeaderCell key={idx} align='left'>
                     {item}
                   </HeaderCell>
@@ -276,34 +291,42 @@ export default function AddLanguagePairForm({
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Autocomplete
-                          value={
-                            !row.price
-                              ? null
-                              : options.find(
-                                  item =>
-                                    item.priceName === row.price?.priceName,
-                                ) || defaultOption
-                          }
-                          size='small'
-                          sx={{ width: 300 }}
-                          options={options}
-                          groupBy={option => option?.groupName}
-                          onChange={(e, v) => {
-                            setPrice(v, idx)
-                          }}
-                          id='autocomplete-controlled'
-                          getOptionLabel={option => option.priceName}
-                          renderInput={params => (
-                            <TextField {...params} placeholder='Price' />
-                          )}
-                        />
+                        {type === 'detail' ? (
+                          <Typography variant='body1' fontSize={14}>
+                            {row.price?.priceName}
+                          </Typography>
+                        ) : (
+                          <Autocomplete
+                            value={
+                              !row.price
+                                ? null
+                                : options.find(
+                                    item =>
+                                      item.priceName === row.price?.priceName,
+                                  ) || defaultOption
+                            }
+                            size='small'
+                            sx={{ width: 300 }}
+                            options={options}
+                            groupBy={option => option?.groupName}
+                            onChange={(e, v) => {
+                              setPrice(v, idx)
+                            }}
+                            id='autocomplete-controlled'
+                            getOptionLabel={option => option.priceName}
+                            renderInput={params => (
+                              <TextField {...params} placeholder='Price' />
+                            )}
+                          />
+                        )}
                       </TableCell>
-                      <TableCell align='center'>
-                        <IconButton onClick={() => onDeleteLanguagePair(row)}>
-                          <Icon icon='mdi:trash-outline' />
-                        </IconButton>
-                      </TableCell>
+                      {type === 'detail' ? null : (
+                        <TableCell align='center'>
+                          <IconButton onClick={() => onDeleteLanguagePair(row)}>
+                            <Icon icon='mdi:trash-outline' />
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   )
                 })}

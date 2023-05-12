@@ -52,6 +52,20 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { deleteOrder } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import LanguageAndItem from './components/language-item'
+import { defaultOption, languageType } from '../../add-new'
+import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { ItemType } from '@src/types/common/item.type'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { itemSchema } from '@src/types/schema/item.schema'
+import { useGetAllPriceList } from '@src/queries/price-units.query'
+import {
+  MemberType,
+  ProjectTeamType,
+  projectTeamSchema,
+} from '@src/types/schema/project-team.schema'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 interface Detail {
   id: number
   quantity: number
@@ -72,6 +86,7 @@ const OrderDetail = () => {
   const router = useRouter()
 
   const { id } = router.query
+  const { user } = useContext(AuthContext)
 
   const [value, setValue] = useState<string>('project')
   const dispatch = useAppDispatch()
@@ -81,15 +96,79 @@ const OrderDetail = () => {
   const { data: projectTeam, isLoading: projectTeamLoading } =
     useGetProjectTeam(Number(id!))
   const { data: client, isLoading: clientLoading } = useGetClient(Number(id!))
+
+  const { data: versionHistory, isLoading: versionHistoryLoading } =
+    useGetVersionHistory(Number(id!))
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
 
-  const { data: versionHistory, isLoading: versionHistoryLoading } =
-    useGetVersionHistory(Number(id!))
+  const { data: priceUnitsList } = useGetAllPriceList()
+
+  const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    trigger: itemTrigger,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: isItemValid },
+  } = useForm<{ items: ItemType[] }>({
+    mode: 'onBlur',
+    defaultValues: { items: [] },
+    resolver: yupResolver(itemSchema),
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
+  })
+
+  const {
+    control: teamControl,
+    getValues: getTeamValues,
+    setValue: setTeamValues,
+    watch: teamWatch,
+    reset: resetTeam,
+    formState: { errors: teamErrors, isValid: isTeamValid },
+  } = useForm<ProjectTeamType>({
+    mode: 'onChange',
+    defaultValues: {
+      teams: [
+        { type: 'supervisorId', id: null },
+        {
+          type: 'projectManagerId',
+          id: user?.userId!,
+          name: getLegalName({
+            firstName: user?.firstName!,
+            middleName: user?.middleName,
+            lastName: user?.lastName!,
+          }),
+        },
+        { type: 'member', id: null },
+      ],
+    },
+    resolver: yupResolver(projectTeamSchema),
+  })
+
+  const {
+    fields: members,
+    append: appendMember,
+    remove: removeMember,
+    update: updateMember,
+  } = useFieldArray({
+    control: teamControl,
+    name: 'teams',
+  })
+
   const [projectInfoEdit, setProjectInfoEdit] = useState(false)
   const [clientEdit, setClientEdit] = useState(false)
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
+  const [langItemsEdit, setLangItemsEdit] = useState(false)
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -102,12 +181,83 @@ const OrderDetail = () => {
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
 
-  const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
+  const { data: prices, isSuccess } = useGetPriceList({
+    clientId: client?.client.clientId,
+  })
+
+  function getPriceOptions(source: string, target: string) {
+    if (!isSuccess) return [defaultOption]
+    const filteredList = prices
+      .filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      })
+      .map(item => ({
+        groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+        ...item,
+      }))
+    return [defaultOption].concat(filteredList)
+  }
+
+  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const initializeData = () => {
+    setLanguagePairs(
+      langItem?.languagePairs?.map(item => ({
+        id: String(item.id),
+        source: item.source,
+        target: item.target,
+        price: !item?.price
+          ? null
+          : getPriceOptions(item.source, item.target).filter(
+              price => price.id === item?.price?.id!,
+            )[0],
+        isDeletable: false,
+      }))!,
+    )
+    const result = langItem?.items?.map(item => {
+      return {
+        id: item.id,
+        name: item.name,
+        source: item.source,
+        target: item.target,
+        priceId: item.priceId,
+        detail: !item?.detail?.length ? [] : item.detail,
+        contactPersonId: item.contactPersonId,
+        description: item.description,
+        analysis: item.analysis ?? [],
+        totalPrice: item?.totalPrice ?? 0,
+        dueAt: item?.dueAt,
+      }
+    })
+    itemReset({ items: result })
+    const teams: Array<{
+      type: MemberType
+      id: number | null
+      name: string
+    }> = projectTeam!.map(item => ({
+      type:
+        item.position === 'projectManager'
+          ? 'projectManagerId'
+          : item.position === 'supervisor'
+          ? 'supervisorId'
+          : 'member',
+      id: item.userId,
+      name: getLegalName({
+        firstName: item?.firstName!,
+        middleName: item?.middleName,
+        lastName: item?.lastName!,
+      }),
+    }))
+    resetTeam({ teams })
+  }
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
-    if (projectInfoEdit || clientEdit || projectTeamEdit) {
+    if (projectInfoEdit || clientEdit || projectTeamEdit || langItemsEdit) {
       openModal({
         type: 'EditAlertModal',
         children: (
@@ -119,11 +269,16 @@ const OrderDetail = () => {
               setProjectInfoEdit(false)
               setClientEdit(false)
               setProjectTeamEdit(false)
+              setLangItemsEdit(false)
             }}
           />
         ),
       })
       return
+    }
+
+    if (newValue === 'item') {
+      initializeData()
     }
 
     setValue(newValue)
@@ -245,8 +400,8 @@ const OrderDetail = () => {
       !clientLoading &&
       !langItemLoading
     ) {
-      console.log('hi')
       const pm = projectTeam!.find(value => value.position === 'projectManager')
+
       const res: OrderDownloadData = {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
@@ -279,6 +434,59 @@ const OrderDetail = () => {
     langItemLoading,
   ])
 
+  useEffect(() => {
+    if (langItem) {
+      setLanguagePairs(
+        langItem?.languagePairs?.map(item => ({
+          id: String(item.id),
+          source: item.source,
+          target: item.target,
+          price: !item?.price
+            ? null
+            : getPriceOptions(item.source, item.target).filter(
+                price => price.id === item?.price?.id!,
+              )[0],
+          isDeletable: false,
+        }))!,
+      )
+      const result = langItem?.items?.map(item => {
+        return {
+          id: item.id,
+          name: item.name,
+          source: item.source,
+          target: item.target,
+          priceId: item.priceId,
+          detail: !item?.detail?.length ? [] : item.detail,
+          contactPersonId: item.contactPersonId,
+          description: item.description,
+          analysis: item.analysis ?? [],
+          totalPrice: item?.totalPrice ?? 0,
+          dueAt: item?.dueAt,
+        }
+      })
+      itemReset({ items: result })
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = projectTeam!.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      resetTeam({ teams })
+    }
+  }, [langItem])
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -299,7 +507,10 @@ const OrderDetail = () => {
               gap: '8px',
             }}
           >
-            {projectInfoEdit || projectTeamEdit || clientEdit ? null : (
+            {projectInfoEdit ||
+            projectTeamEdit ||
+            clientEdit ||
+            langItemsEdit ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
                 onClick={() => router.push('/orders/order-list')}
@@ -378,10 +589,33 @@ const OrderDetail = () => {
                   projectInfo={projectInfo!}
                   edit={projectInfoEdit}
                   setEdit={setProjectInfoEdit}
+                  orderId={Number(id!)}
                 />
               </Suspense>
             </TabPanel>
-            <TabPanel value='item' sx={{ pt: '24px' }}></TabPanel>
+            <TabPanel value='item' sx={{ pt: '24px' }}>
+              <LanguageAndItem
+                langItem={langItem!}
+                languagePairs={languagePairs!}
+                setLanguagePairs={setLanguagePairs}
+                clientId={client?.client.clientId!}
+                itemControl={itemControl}
+                getItem={getItem}
+                setItem={setItem}
+                itemTrigger={itemTrigger}
+                itemErrors={itemErrors}
+                isItemValid={isItemValid}
+                priceUnitsList={priceUnitsList || []}
+                items={items}
+                removeItems={removeItems}
+                getTeamValues={getTeamValues}
+                projectTax={projectInfo!.tax}
+                appendItems={appendItems}
+                orderId={Number(id!)}
+                langItemsEdit={langItemsEdit}
+                setLangItemsEdit={setLangItemsEdit}
+              />
+            </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
               <OrderDetailClient
                 type={'detail'}

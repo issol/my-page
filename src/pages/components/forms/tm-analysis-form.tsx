@@ -35,6 +35,7 @@ type Props = {
     `items.${number}.detail`,
     'id'
   >[]
+  type: string
 }
 export default function TmAnalysisForm({
   control,
@@ -43,6 +44,7 @@ export default function TmAnalysisForm({
   priceFactor,
   onCopyAnalysis,
   details,
+  type,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const itemName: `items.${number}.analysis` = `items.${index}.analysis`
@@ -136,20 +138,21 @@ export default function TmAnalysisForm({
   return (
     <Fragment>
       <Box display='flex' alignItems='center' justifyContent='space-between'>
-        <Typography variant='h6' mb='24px'>
+        <Typography variant='subtitle1' mb='24px' fontWeight={600}>
           TM analysis
         </Typography>
-
-        <div {...getRootProps({ className: 'dropzone' })}>
-          <Button
-            size='small'
-            variant='contained'
-            disabled={!priceData || priceData.id === NOT_APPLICABLE}
-          >
-            <input {...getInputProps()} />
-            Upload files
-          </Button>
-        </div>
+        {type === 'detail' ? null : (
+          <div {...getRootProps({ className: 'dropzone' })}>
+            <Button
+              size='small'
+              variant='contained'
+              disabled={!priceData || priceData.id === NOT_APPLICABLE}
+            >
+              <input {...getInputProps()} />
+              Upload files
+            </Button>
+          </div>
+        )}
       </Box>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
@@ -168,7 +171,9 @@ export default function TmAnalysisForm({
             {!fields.length ? (
               <TableRow hover tabIndex={-1}>
                 <TableCell colSpan={4} align='center'>
-                  Upload TM files to analyze and register price units
+                  {type === 'detail'
+                    ? 'There are no TM files uploaded'
+                    : 'Upload TM files to analyze and register price units'}
                 </TableCell>
               </TableRow>
             ) : (

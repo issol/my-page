@@ -1,7 +1,10 @@
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import MakeTable, { Row } from '../order-list/detail/components/rows'
 import { useEffect } from 'react'
-import { OrderDownloadData } from '@src/types/orders/order-detail'
+import {
+  LanguageAndItemType,
+  OrderDownloadData,
+} from '@src/types/orders/order-detail'
 import { useRouter } from 'next/router'
 import {
   Box,
@@ -45,14 +48,9 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
     }
   }, [type])
 
-  function calculateTotalPriceRows(rows: Row[]): number {
-    return rows.reduce((total, row) => {
-      return (
-        total +
-        row.detail.reduce((subtotal, item) => {
-          return subtotal + item.totalPrice
-        }, 0)
-      )
+  function calculateTotalPriceRows(rows: LanguageAndItemType): number {
+    return rows.items.reduce((total, row) => {
+      return total + row.totalPrice
     }, 0)
   }
 
@@ -371,13 +369,13 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               </TableRow>
             </TableHead>
 
-            {/* <MakeTable rows={data.langItem} /> */}
+            <MakeTable rows={data.langItem.items} />
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
                 gap: '50px',
-                paddingRight: '87px',
+                paddingRight: '10%',
                 mt: '10px',
               }}
               className='total-price'
@@ -392,7 +390,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
                 variant='subtitle1'
                 sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
               >
-                {/* {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')} */}
+                {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')}
               </Typography>
             </Box>
           </Table>
