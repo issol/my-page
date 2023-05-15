@@ -19,7 +19,10 @@ import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import { LanguagePairsType } from '@src/types/common/orders-and-quotes.type'
+import {
+  LanguagePairsPostType,
+  LanguagePairsType,
+} from '@src/types/common/orders-and-quotes.type'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -136,15 +139,17 @@ const LanguageAndItem = ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
-    const langs: LanguagePairsType[] = languagePairs.map(item => {
+    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
+          langPairId: Number(item.id),
           source: item.source,
           target: item.target,
           priceId: item.price.id,
         }
       }
       return {
+        langPairId: Number(item.id),
         source: item.source,
         target: item.target,
       }

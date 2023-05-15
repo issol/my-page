@@ -85,7 +85,7 @@ import { MemberType } from '@src/types/schema/project-team.schema'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 export type languageType = {
-  id: string
+  id: number | string
   source: string
   target: string
   price: StandardPriceListType | null

@@ -20,6 +20,14 @@ export type LanguagePairsType = {
   priceId?: number
 }
 
+export type LanguagePairsPostType = {
+  langPairId: number
+
+  source: string
+  target: string
+  priceId?: number
+}
+
 export type ItemType = {
   id?: number
   name: string
