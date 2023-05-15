@@ -57,6 +57,7 @@ export default function TmAnalysisForm({
   const { getRootProps, getInputProps } = useDropzone({
     multiple: false,
     maxSize: MAXIMUM_FILE_SIZE,
+    disabled: !priceData || priceData.id === NOT_APPLICABLE,
     accept: { 'text/csv': ['.cvs'] },
     onDrop: (acceptedFiles: File[]) => {
       const totalFileSize = reducer(fields) + reducer(acceptedFiles)
