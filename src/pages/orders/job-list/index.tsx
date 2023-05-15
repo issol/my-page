@@ -10,7 +10,7 @@ import { Box } from '@mui/system'
 
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
-import JobListView from './list-view'
+import JobListView from './list-view/list-view'
 
 type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'

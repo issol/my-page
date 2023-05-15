@@ -241,16 +241,14 @@ export default function Filters({
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      selected={new Date()}
-                      startDate={filter.jobStartDateStart}
-                      endDate={filter.jobStartDateEnd}
+                      startDate={filter.startedAt[0]}
+                      endDate={filter.startedAt[1]}
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
                       onChange={e => {
                         setFilter({
                           ...filter,
-                          jobStartDateStart: e[0],
-                          jobStartDateEnd: e[1],
+                          startedAt: e,
                         })
                       }}
                       popperPlacement={popperPlacement}
@@ -265,16 +263,14 @@ export default function Filters({
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      selected={new Date()}
-                      startDate={filter.jobDueDateStart}
-                      endDate={filter.jobDueDateEnd}
+                      startDate={filter.dueAt[0]}
+                      endDate={filter.dueAt[1]}
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
                       onChange={e => {
                         setFilter({
                           ...filter,
-                          jobDueDateStart: e[0],
-                          jobDueDateEnd: e[1],
+                          dueAt: e,
                         })
                       }}
                       popperPlacement={popperPlacement}

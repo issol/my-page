@@ -6,19 +6,19 @@ import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
+import { useGetJobsList } from '@src/queries/jobs.query'
+import JobsList from './list'
 
 export type FilterType = {
   status?: string[]
   client?: string[]
   category?: string[]
   serviceType?: string[]
-  jobStartDateStart?: Date | null
-  jobStartDateEnd?: Date | null
-  jobDueDateStart?: Date | null
-  jobDueDateEnd?: Date | null
+  startedAt: Array<Date | null>
+  dueAt: Array<Date | null>
   search?: string //filter for Work name, Project name
-  mine?: boolean
-  hidePaidJobs?: boolean
+  isMyJobs?: boolean
+  isHidePaid?: boolean
   skip: number
   take: number
 }
@@ -28,13 +28,11 @@ export const initialFilter: FilterType = {
   client: [],
   category: [],
   serviceType: [],
-  jobStartDateStart: null,
-  jobStartDateEnd: null,
-  jobDueDateStart: null,
-  jobDueDateEnd: null,
+  startedAt: [null, null],
+  dueAt: [null, null],
   search: '',
-  mine: false,
-  hidePaidJobs: false,
+  isMyJobs: false,
+  isHidePaid: false,
   skip: 0,
   take: 10,
 }
@@ -49,12 +47,7 @@ export default function JobListView() {
     Array<ConstType>
   >([])
 
-  const data = {
-    data: [],
-    count: 0,
-  }
-  const isLoading = false
-  //   const { data: list, isLoading } = useGetClientList(activeFilter)
+  const { data: list, isLoading } = useGetJobsList(activeFilter)
 
   useEffect(() => {
     const newFilter = findServiceTypeFilter()
@@ -82,28 +75,18 @@ export default function JobListView() {
   }
 
   function findServiceTypeFilter() {
-    let category: Array<ConstType> = []
-    if (filter.category?.length) {
-      filter.category.forEach(item => {
-        if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
-        category = category.concat(
-          ServiceTypePair[item as keyof typeof ServiceTypePair],
-        )
-      })
-    }
+    const category =
+      filter.category
+        ?.map(item => ServiceTypePair[item as keyof typeof ServiceTypePair])
+        .filter(item => item !== undefined)
+        .flat() || []
 
-    if (category?.length) {
-      const result = category.reduce(
-        (acc: Array<ConstType>, item: ConstType) => {
-          const found = acc.find(ac => ac.value === item.value)
-          if (!found) return acc.concat(item)
-          return acc
-        },
-        [],
-      )
-      return result
-    }
-    return ServiceTypeList
+    const uniqueCategory = category.filter(
+      (item, index, self) =>
+        index === self.findIndex(i => i.value === item.value),
+    )
+
+    return uniqueCategory.length ? uniqueCategory : ServiceTypeList
   }
 
   return (
@@ -128,24 +111,39 @@ export default function JobListView() {
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only my jobs</Typography>
           <Switch
-            checked={activeFilter.mine}
+            checked={activeFilter.isMyJobs}
             onChange={e =>
-              setActiveFilter({ ...activeFilter, mine: e.target.checked })
+              setActiveFilter({ ...activeFilter, isMyJobs: e.target.checked })
             }
           />
         </Box>
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>Hide paid jobs</Typography>
           <Switch
-            checked={activeFilter.hidePaidJobs}
+            checked={activeFilter.isHidePaid}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                hidePaidJobs: e.target.checked,
+                isHidePaid: e.target.checked,
               })
             }
           />
         </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <JobsList
+          isLoading={isLoading}
+          list={list || { data: [], totalCount: 0 }}
+          pageSize={activeFilter.take}
+          skip={skip}
+          setSkip={(n: number) => {
+            setSkip(n)
+            setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+          }}
+          setPageSize={(n: number) =>
+            setActiveFilter({ ...activeFilter, take: n })
+          }
+        />
       </Grid>
     </Fragment>
   )
