@@ -1,4 +1,4 @@
-import { Grid } from '@mui/material'
+import { Box, Grid, Switch, Typography } from '@mui/material'
 import { Fragment, useEffect, useState } from 'react'
 import Filters from './filter'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
@@ -116,6 +116,36 @@ export default function JobListView() {
           setFilter={setFilter}
           serviceTypeOptions={serviceTypeOptions}
         />
+      </Grid>
+      <Grid
+        item
+        xs={12}
+        display='flex'
+        gap='10px'
+        alignItems='center'
+        justifyContent='flex-end'
+      >
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Typography>See only my jobs</Typography>
+          <Switch
+            checked={activeFilter.mine}
+            onChange={e =>
+              setActiveFilter({ ...activeFilter, mine: e.target.checked })
+            }
+          />
+        </Box>
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Typography>Hide paid jobs</Typography>
+          <Switch
+            checked={activeFilter.hidePaidJobs}
+            onChange={e =>
+              setActiveFilter({
+                ...activeFilter,
+                hidePaidJobs: e.target.checked,
+              })
+            }
+          />
+        </Box>
       </Grid>
     </Fragment>
   )

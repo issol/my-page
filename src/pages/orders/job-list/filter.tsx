@@ -53,8 +53,6 @@ type Props = {
   onSearch: () => void
   onReset: () => void
   serviceTypeOptions: Array<ConstType>
-  //   jobTypeOption: Array<Filter>
-  //   roleOption: Array<Filter>
 }
 
 export default function Filters({
@@ -63,9 +61,7 @@ export default function Filters({
   onSearch,
   onReset,
   serviceTypeOptions,
-}: //   jobTypeOption,
-//   roleOption,
-Props) {
+}: Props) {
   const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
@@ -318,7 +314,11 @@ Props) {
                     >
                       Reset
                     </Button>
-                    <Button variant='contained' size='medium' type='submit'>
+                    <Button
+                      variant='contained'
+                      size='medium'
+                      onClick={onSearch}
+                    >
                       Search
                     </Button>
                   </Box>
