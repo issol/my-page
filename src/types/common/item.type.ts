@@ -25,6 +25,7 @@ export type PostItemType = {
 
 export type ItemDetailType = {
   priceUnitId: number
+  priceUnit?: string | null
   quantity: number
   unitPrice: number
   prices: number | string

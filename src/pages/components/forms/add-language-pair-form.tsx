@@ -258,7 +258,7 @@ export default function AddLanguagePairForm({
                                 ? null
                                 : options.find(
                                     item => item.id === row.price?.id,
-                                  ) || defaultOption
+                                  ) || null
                             }
                             size='small'
                             sx={{ width: 300 }}
