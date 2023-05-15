@@ -19,6 +19,9 @@ export type OrderProjectInfoFormType = {
   revenueFrom: RevenueFormType
   orderDate: string
   projectDueDate: { date: string; timezone: CountryType }
+  projectDueAt: string
+  projectDueTimezone: CountryType
+
   tax: number
 }
 

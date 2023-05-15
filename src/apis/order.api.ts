@@ -78,3 +78,33 @@ export const deleteCatToolFile = async (id: number) => {
     throw new Error(e)
   }
 }
+
+export const patchLangPairForOrder = async (
+  orderId: number,
+  form: Array<LanguagePairsType>,
+) => {
+  try {
+    const { data } = await axios.put(
+      `/api/enough/u/order/language-pair?orderId=${orderId}`,
+      { data: form },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const patchItemsForOrder = async (
+  orderId: number,
+  form: Array<PostItemType>,
+) => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/order/item?orderId=${orderId}`,
+      { items: form },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

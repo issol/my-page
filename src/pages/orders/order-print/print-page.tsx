@@ -1,7 +1,10 @@
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import MakeTable, { Row } from '../order-list/detail/components/rows'
 import { useEffect } from 'react'
-import { OrderDownloadData } from '@src/types/orders/order-detail'
+import {
+  LanguageAndItemType,
+  OrderDownloadData,
+} from '@src/types/orders/order-detail'
 import { useRouter } from 'next/router'
 import {
   Box,
@@ -22,6 +25,9 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
+import { useMutation } from 'react-query'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import { patchProjectInfo } from '@src/apis/order-detail.api'
 
 type Props = {
   data: OrderDownloadData
@@ -33,26 +39,31 @@ type Props = {
 const PrintOrderPage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
+
+  const patchProjectInfoMutation = useMutation(
+    (data: { id: number; form: { downloadedAt: string } }) =>
+      patchProjectInfo(data.id, data.form),
+    {},
+  )
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
         window.onafterprint = () => {
           router.back()
           dispatch(resetOrderLang('EN'))
+          patchProjectInfoMutation.mutate({
+            id: data.orderId,
+            form: { downloadedAt: Date() },
+          })
         }
         window.print()
       }, 300)
     }
   }, [type])
 
-  function calculateTotalPriceRows(rows: Row[]): number {
-    return rows.reduce((total, row) => {
-      return (
-        total +
-        row.detail.reduce((subtotal, item) => {
-          return subtotal + item.totalPrice
-        }, 0)
-      )
+  function calculateTotalPriceRows(rows: LanguageAndItemType): number {
+    return rows.items.reduce((total, row) => {
+      return total + row.totalPrice
     }, 0)
   }
 
@@ -371,13 +382,13 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
               </TableRow>
             </TableHead>
 
-            <MakeTable rows={data.langItem} />
+            <MakeTable rows={data.langItem.items} />
             <Box
               sx={{
                 display: 'flex',
                 justifyContent: 'flex-end',
                 gap: '50px',
-                paddingRight: '87px',
+                paddingRight: '10%',
                 mt: '10px',
               }}
               className='total-price'
