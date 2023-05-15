@@ -30,6 +30,7 @@ import {
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
+// ** schema & types
 import {
   CompanyInfoFormType,
   companyInfoDefaultValue,
@@ -60,6 +61,8 @@ import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** values
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {

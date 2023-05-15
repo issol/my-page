@@ -9,8 +9,6 @@ import {
   Box,
   Button,
   Card,
-  Dialog,
-  DialogContent,
   Grid,
   IconButton,
   TableCell,
@@ -20,6 +18,7 @@ import {
 import PageHeader from '@src/@core/components/page-header'
 import styled from 'styled-components'
 
+// ** react hook form
 import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -47,6 +46,7 @@ import {
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
@@ -57,12 +57,15 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
 import { useGetPriceList } from '@src/queries/company/standard-price'
@@ -72,20 +75,15 @@ import {
   createLangPairForOrder,
   createOrderInfo,
 } from '@src/apis/order.api'
-import { useDropzone } from 'react-dropzone'
 import CopyOrdersList from '../order-list/components/copy-order-list'
-import { OrderListType } from '@src/types/orders/order-list'
 import {
   getClient,
   getLangItems,
   getProjectInfo,
   getProjectTeam,
 } from '@src/apis/order-detail.api'
-import { MemberType } from '@src/types/schema/project-team.schema'
+
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import languageHelper from '@src/shared/helpers/language.helper'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 export type languageType = {
   id: number | string

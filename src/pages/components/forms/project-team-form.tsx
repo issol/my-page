@@ -91,7 +91,7 @@ export default function ProjectTeamForm({
 
   function findMemberValue(value: number | null) {
     let findValue = list.find(item => item.value === value?.toString())
-    if (!findValue) {
+    if (!findValue && value) {
       getUserInfo(value!)
         .then(res => {
           setList(

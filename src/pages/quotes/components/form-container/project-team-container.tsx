@@ -25,7 +25,11 @@ import {
 
 // ** components
 import ProjectTeamForm from '@src/pages/components/forms/project-team-form'
+
+// ** fetch
 import { useGetMemberList } from '@src/queries/quotes.query'
+
+// ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {

@@ -32,11 +32,17 @@ import {
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
-import { OrderStatus } from '@src/shared/const/status/statuses'
+
+// ** fetch
 import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** components
 import AddConfirmModal from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 
+// ** values
 import { CategoryList } from '@src/shared/const/category/categories'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { ServiceTypePair } from '@src/shared/const/service-type/service-types'
@@ -45,8 +51,11 @@ import {
   AreaOfExpertiseList,
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { countries } from 'src/@fake-db/autocomplete'
+import { OrderStatus } from '@src/shared/const/status/statuses'
+
+// ** types
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>

@@ -31,17 +31,12 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import {
-  HeaderCell,
-  defaultOption,
-  languageType,
-} from '@src/pages/orders/add-new'
+
+// ** parent value imports
+import { HeaderCell, languageType } from '@src/pages/orders/add-new'
 
 // ** third parties
 import { v4 as uuidv4 } from 'uuid'
-
-// ** hooks
-import useModal from '@src/hooks/useModal'
 
 // ** type
 import { StandardPriceListType } from '@src/types/common/standard-price'
