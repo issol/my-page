@@ -31,20 +31,15 @@ import styled from 'styled-components'
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// **values
-import { JobList } from 'src/shared/const/job/jobs'
-import { RoleList } from 'src/shared/const/role/roles'
-import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
-
-import { getGloLanguage } from 'src/shared/transformer/language.transformer'
+// ** values
+import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
+import { CategoryList } from '@src/shared/const/category/categories'
+import { JobStatus } from '@src/shared/const/status/statuses'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 // ** types
 import { FilterType } from './list-view'
-import { JobStatus } from '@src/shared/const/status/statuses'
-import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
-import { CategoryList } from '@src/shared/const/category/categories'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 type Filter = { value: string; label: string }
 type Props = {
@@ -62,9 +57,7 @@ export default function Filters({
   onReset,
   serviceTypeOptions,
 }: Props) {
-  const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
-
   const theme = useTheme()
   const { direction } = theme
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
@@ -79,7 +72,7 @@ export default function Filters({
   ): Array<{ value: string; label: string }> {
     return !filter[keyName]
       ? option[0]
-      : option.filter((item: { value: string; label: string }) =>
+      : option?.filter((item: { value: string; label: string }) =>
           filter[keyName]?.includes(item.value),
         )
   }
@@ -106,7 +99,7 @@ export default function Filters({
           <Collapse in={collapsed}>
             <CardContent>
               <Grid container spacing={6} rowSpacing={4}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <FormControl fullWidth>
                       <Autocomplete
@@ -140,7 +133,7 @@ export default function Filters({
                     </FormControl>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <FormControl fullWidth>
                       <Autocomplete
@@ -174,7 +167,7 @@ export default function Filters({
                     </FormControl>
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <FormControl fullWidth>
                       <Autocomplete
@@ -203,7 +196,7 @@ export default function Filters({
                     </FormControl>
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <Autocomplete
                       autoHighlight
@@ -236,13 +229,13 @@ export default function Filters({
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      startDate={filter.startedAt[0]}
-                      endDate={filter.startedAt[1]}
+                      startDate={filter?.startedAt?.[0] ?? null}
+                      endDate={filter?.startedAt?.[1] ?? null}
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
                       onChange={e => {
@@ -258,13 +251,13 @@ export default function Filters({
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
                       monthsShown={2}
-                      startDate={filter.dueAt[0]}
-                      endDate={filter.dueAt[1]}
+                      startDate={filter?.dueAt?.[0] ?? null}
+                      endDate={filter?.dueAt?.[1] ?? null}
                       placeholderText='MM/DD/YYYY - MM/DD/YYYY'
                       id='date-range-picker-months'
                       onChange={e => {
@@ -280,7 +273,7 @@ export default function Filters({
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={6}>
+                <Grid item xs={12} sm={12} md={6}>
                   <FormControl fullWidth>
                     <InputLabel>Search projects</InputLabel>
                     <OutlinedInput

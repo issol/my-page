@@ -14,8 +14,8 @@ export type FilterType = {
   client?: string[]
   category?: string[]
   serviceType?: string[]
-  startedAt: Array<Date | null>
-  dueAt: Array<Date | null>
+  startedAt?: Array<Date | null>
+  dueAt?: Array<Date | null>
   search?: string //filter for Work name, Project name
   isMyJobs?: boolean
   isHidePaid?: boolean
