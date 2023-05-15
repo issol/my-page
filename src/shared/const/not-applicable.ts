@@ -1,1 +1,1 @@
-export const NOT_APPLICABLE = -0
+export const NOT_APPLICABLE = -1
