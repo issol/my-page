@@ -1,25 +1,28 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
+import { CountryType } from '../sign/personalInfoTypes'
+import { ClientAddressType } from './client-address.schema'
 
 export type ClientFormType = {
   clientId: number | null
-  contactPersonId: number | 'Not applicable' | null
-  addressType: 'billing' | 'shipping'
+  contactPersonId: number | null
+  addressType: 'billing' | 'shipping' | 'additional'
+  /* contacts값은 서버에는 보내지 않고 보여주기용 데이터 */
+  contacts?: {
+    timezone?: CountryType
+    phone?: string | null
+    mobile?: string | null
+    fax?: string | null
+    email?: string | null
+    addresses?: ClientAddressType[]
+  }
 }
 
 export const clientSchema = yup.object().shape({
   clientId: yup.number().required(FormErrors.required),
-  contactPersonId: yup
-    .mixed()
-    .test('valid-contactPersonId', FormErrors.required, value =>
-      customValidation(value),
-    ),
+  contactPersonId: yup.number().required(FormErrors.required),
   addressType: yup
     .string()
     .oneOf(['shipping', 'billing'])
     .required(FormErrors.required),
 })
-
-const customValidation = (value: any) => {
-  return value === 'Not applicable' || (!isNaN(value) && !!value)
-}

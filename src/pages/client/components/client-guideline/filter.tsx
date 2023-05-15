@@ -101,37 +101,35 @@ export default function Filters({
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <FormControl fullWidth>
-                  <Autocomplete
-                    autoHighlight
-                    fullWidth
-                    multiple
-                    options={CategoryList}
-                    value={filterValue(CategoryList, 'category')}
-                    onChange={(e, v) =>
-                      setFilter({
-                        ...filter,
-                        category: v.map(item => item.value),
-                      })
-                    }
-                    filterSelectedOptions
-                    id='category'
-                    getOptionLabel={option => option.label}
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        label='Category'
-                        placeholder='Category'
-                      />
-                    )}
-                    renderOption={(props, option, { selected }) => (
-                      <li {...props}>
-                        <Checkbox checked={selected} sx={{ mr: 2 }} />
-                        {option.label}
-                      </li>
-                    )}
-                  />
-                </FormControl>
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  multiple
+                  options={CategoryList}
+                  value={filterValue(CategoryList, 'category')}
+                  onChange={(e, v) =>
+                    setFilter({
+                      ...filter,
+                      category: v.map(item => item.value),
+                    })
+                  }
+                  filterSelectedOptions
+                  id='category'
+                  getOptionLabel={option => option.label}
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      label='Category'
+                      placeholder='Category'
+                    />
+                  )}
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox checked={selected} sx={{ mr: 2 }} />
+                      {option.label}
+                    </li>
+                  )}
+                />
               </FormControl>
             </Grid>
             <Grid item xs={6}>

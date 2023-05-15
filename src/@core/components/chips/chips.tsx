@@ -3,6 +3,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 import { OrderStatusType } from '@src/types/orders/order-list'
+import { JobStatusType } from '@src/types/jobs/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -181,32 +182,33 @@ export const ProStatusChip = styled(Chip)<{ status: string }>`
       : null};
 `
 
-export const ClientStatusChip = styled(Chip)<{
-  status: StatusType
-}>`
-  border: none;
-  ${({ status }) =>
-    status === 'New'
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
-      : status === 'Active'
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #64C623; color :#64C623;`
-      : status === 'Inactive'
-      ? `background: #EDEFF1; color : rgba(76, 78, 100, 0.38);`
-      : status === 'Contacted'
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #DF9F23; color: #DF9F23;`
-      : status === 'Blocked'
-      ? 'background: #626471; color:#F7F7F9;'
-      : null};
-`
-export const CatInterfaceChip = styled(Chip)<{
-  status: boolean
-}>`
-  border: none;
-  ${({ status }) =>
-    status
-      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FA8773; color: #FA8773; font-weight: 600; `
-      : ` background: rgba(76, 78, 100, 0.12); color: rgba(76, 78, 100, 0.6);`};
-`
+export const ClientStatusChip =
+  //
+  styled(Chip)<{ status: StatusType }>`
+    border: none;
+    ${({ status }) =>
+      status === 'New'
+        ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+        : status === 'Active'
+        ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #64C623; color :#64C623;`
+        : status === 'Inactive'
+        ? `background: #EDEFF1; color : rgba(76, 78, 100, 0.38);`
+        : status === 'Contacted'
+        ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #DF9F23; color: #DF9F23;`
+        : status === 'Blocked'
+        ? 'background: #626471; color:#F7F7F9;'
+        : null};
+  `
+export const CatInterfaceChip =
+  //
+  styled(Chip)<{ status: boolean }>`
+    //
+    border: none;
+    ${({ status }) =>
+      status
+        ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FA8773; color: #FA8773; font-weight: 600; `
+        : ` background: rgba(76, 78, 100, 0.12); color: rgba(76, 78, 100, 0.6);`};
+  `
 
 export const ExtraNumberChip = styled(Chip)`
   background: linear-gradient(
@@ -220,9 +222,8 @@ export const ExtraNumberChip = styled(Chip)`
   color: #6d788d;
 `
 
-export const OrderStatusChip = styled(Chip)<{
-  status: OrderStatusType
-}>`
+export const OrderStatusChip = styled(Chip)<{ status: OrderStatusType }>`
+  // //
   border: none;
   ${({ status }) =>
     status === 'In preparation'
@@ -237,3 +238,42 @@ export const OrderStatusChip = styled(Chip)<{
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
       : null};
 `
+
+export function JobsStatusChip(status: JobStatusType) {
+  const color =
+    status === 'In preparation'
+      ? '#F572D8'
+      : status === 'Requested'
+      ? '#A81988'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Delivered'
+      ? '#1A6BBA'
+      : status === 'In progress'
+      ? '#FDB528'
+      : status === 'Invoice accepted'
+      ? '#9B6CD8'
+      : status === 'Invoice created'
+      ? '#F572D8'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Paid'
+      ? '#1B8332'
+      : status === 'Approved'
+      ? '#64C623'
+      : status === 'Without invoice'
+      ? '#75571C'
+      : ''
+
+  return (
+    <CustomChip
+      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}

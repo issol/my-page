@@ -4,7 +4,6 @@ import {
   Dispatch,
   Fragment,
   SetStateAction,
-  useEffect,
   useState,
 } from 'react'
 
@@ -27,21 +26,22 @@ import {
   Typography,
 } from '@mui/material'
 
-import styled from 'styled-components'
-
 // ** value
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { defaultOption, languageType } from '@src/pages/orders/add-new'
 
+// ** parent value imports
+import { HeaderCell, languageType } from '@src/pages/orders/add-new'
+
+// ** third parties
 import { v4 as uuidv4 } from 'uuid'
-import useModal from '@src/hooks/useModal'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
+// ** type
 import { StandardPriceListType } from '@src/types/common/standard-price'
 
+// ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
@@ -51,13 +51,16 @@ type Props = {
     source: string,
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
+  type: string
+  onDeleteLanguagePair: (row: languageType) => void
 }
 export default function AddLanguagePairForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
+  type,
+  onDeleteLanguagePair,
 }: Props) {
-  const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
 
@@ -69,6 +72,11 @@ export default function AddLanguagePairForm({
   const [page, setPage] = useState<number>(0)
   const [rowsPerPage, setRowsPerPage] = useState<number>(5)
 
+  const header =
+    type === 'detail'
+      ? ['Language pair', 'Price']
+      : ['Language pair', 'Price', '']
+
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
   }
@@ -79,53 +87,22 @@ export default function AddLanguagePairForm({
   }
 
   function onAddLanguagePair() {
-    const value = languagePair.target.map(item => ({
-      id: uuidv4(),
-      source: languagePair.source,
-      target: item,
-      price: null,
-    }))
-    setLanguagePairs(languagePairs.concat(value))
+    const result: Array<languageType> = []
+
+    languagePair?.target?.forEach(target => {
+      const isDuplicated = languagePairs.some(
+        pair => languagePair.source === pair.source && pair.target === target,
+      )
+      if (isDuplicated) return
+      result.push({
+        id: uuidv4(),
+        source: languagePair.source,
+        target,
+        price: null,
+      })
+    })
+    setLanguagePairs(languagePairs.concat(result))
     setLanguagePair({ source: '', target: [] })
-  }
-
-  function onDeleteLanguagePair(row: languageType) {
-    const isDeletable = row?.isDeletable === undefined ? true : row.isDeletable
-    if (isDeletable) {
-      openModal({
-        type: 'delete-language',
-        children: (
-          <DeleteConfirmModal
-            message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onDelete={deleteLanguage}
-            onClose={() => closeModal('delete-language')}
-          />
-        ),
-      })
-    } else {
-      openModal({
-        type: 'cannot-delete-language',
-        children: (
-          <SimpleAlertModal
-            message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onClose={() => closeModal('cannot-delete-language')}
-          />
-        ),
-      })
-    }
-
-    function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
-      const copyOriginal = [...languagePairs]
-      copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
-    }
   }
 
   function setPrice(
@@ -157,57 +134,63 @@ export default function AddLanguagePairForm({
         <Typography variant='h6'>
           Language pairs ({languagePairs.length ?? 0})
         </Typography>
-        <Box display='flex' alignItems='center' gap='15px'>
-          <Autocomplete
-            value={
-              !languagePair?.source
-                ? defaultValue
-                : languageList.find(item => item.value === languagePair.source)
-            }
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({ ...languagePair, source: v?.value ?? '' })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Source' />}
-          />
-          <IconButton>
-            <Icon icon='material-symbols:arrow-forward' />
-          </IconButton>
-          <Autocomplete
-            value={
-              !languagePair?.target.length
-                ? []
-                : languageList.filter(item =>
-                    languagePair.target.includes(item.value),
-                  )
-            }
-            multiple
-            size='small'
-            sx={{ width: 250 }}
-            options={languageList}
-            onChange={(e, v) =>
-              setLanguagePair({
-                ...languagePair,
-                target: v.map(item => item.value),
-              })
-            }
-            id='autocomplete-controlled'
-            getOptionLabel={option => option.label}
-            renderInput={params => <TextField {...params} label='Target' />}
-          />
-          <Button
-            size='small'
-            variant='contained'
-            onClick={onAddLanguagePair}
-            disabled={!languagePair?.source || !languagePair?.target?.length}
-          >
-            Add
-          </Button>
-        </Box>
+        {type === 'detail' ? (
+          <></>
+        ) : (
+          <Box display='flex' alignItems='center' gap='15px'>
+            <Autocomplete
+              value={
+                !languagePair?.source
+                  ? defaultValue
+                  : languageList.find(
+                      item => item.value === languagePair.source,
+                    )
+              }
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({ ...languagePair, source: v?.value ?? '' })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Source' />}
+            />
+            <IconButton>
+              <Icon icon='material-symbols:arrow-forward' />
+            </IconButton>
+            <Autocomplete
+              value={
+                !languagePair?.target.length
+                  ? []
+                  : languageList.filter(item =>
+                      languagePair.target.includes(item.value),
+                    )
+              }
+              multiple
+              size='small'
+              sx={{ width: 250 }}
+              options={languageList}
+              onChange={(e, v) =>
+                setLanguagePair({
+                  ...languagePair,
+                  target: v.map(item => item.value),
+                })
+              }
+              id='autocomplete-controlled'
+              getOptionLabel={option => option.label}
+              renderInput={params => <TextField {...params} label='Target' />}
+            />
+            <Button
+              size='small'
+              variant='contained'
+              onClick={onAddLanguagePair}
+              disabled={!languagePair?.source || !languagePair?.target?.length}
+            >
+              Add
+            </Button>
+          </Box>
+        )}
       </Grid>
       {/* table */}
       <Grid item xs={12}>
@@ -215,7 +198,7 @@ export default function AddLanguagePairForm({
           <Table stickyHeader aria-label='sticky table'>
             <TableHead>
               <TableRow>
-                {['Language pair', 'Price', ''].map((item, idx) => (
+                {header.map((item, idx) => (
                   <HeaderCell key={idx} align='left'>
                     {item}
                   </HeaderCell>
@@ -259,34 +242,41 @@ export default function AddLanguagePairForm({
                         </Box>
                       </TableCell>
                       <TableCell>
-                        <Autocomplete
-                          value={
-                            !row.price
-                              ? null
-                              : options.find(
-                                  item =>
-                                    item.priceName === row.price?.priceName,
-                                ) || defaultOption
-                          }
-                          size='small'
-                          sx={{ width: 300 }}
-                          options={options}
-                          groupBy={option => option?.groupName}
-                          onChange={(e, v) => {
-                            setPrice(v, idx)
-                          }}
-                          id='autocomplete-controlled'
-                          getOptionLabel={option => option.priceName}
-                          renderInput={params => (
-                            <TextField {...params} placeholder='Price' />
-                          )}
-                        />
+                        {type === 'detail' ? (
+                          <Typography variant='body1' fontSize={14}>
+                            {row.price?.priceName}
+                          </Typography>
+                        ) : (
+                          <Autocomplete
+                            value={
+                              !row.price
+                                ? null
+                                : options.find(
+                                    item => item.id === row.price?.id,
+                                  ) || null
+                            }
+                            size='small'
+                            sx={{ width: 300 }}
+                            options={options}
+                            groupBy={option => option?.groupName}
+                            onChange={(e, v) => {
+                              setPrice(v, idx)
+                            }}
+                            id='autocomplete-controlled'
+                            getOptionLabel={option => option.priceName}
+                            renderInput={params => (
+                              <TextField {...params} placeholder='Price' />
+                            )}
+                          />
+                        )}
                       </TableCell>
-                      <TableCell align='center'>
-                        <IconButton onClick={() => onDeleteLanguagePair(row)}>
-                          <Icon icon='mdi:trash-outline' />
-                        </IconButton>
-                      </TableCell>
+                      {type === 'detail' ? null : (
+                        <TableCell align='center'>
+                          <IconButton onClick={() => onDeleteLanguagePair(row)}>
+                            <Icon icon='mdi:trash-outline' />
+                          </IconButton>
+                        </TableCell>
+                      )}
                     </TableRow>
                   )
                 })}
@@ -306,24 +296,3 @@ export default function AddLanguagePairForm({
     </Fragment>
   )
 }
-
-const HeaderCell = styled(TableCell)`
-  background: linear-gradient(
-      0deg,
-      rgba(255, 255, 255, 0.88),
-      rgba(255, 255, 255, 0.88)
-    ),
-    #666cff;
-  height: 20px;
-  position: relative;
-  text-transform: none;
-  &::before {
-    content: '';
-    position: absolute;
-    top: 20px;
-    right: 0px;
-    width: 2px;
-    height: 30%;
-    background: rgba(76, 78, 100, 0.12);
-  }
-`

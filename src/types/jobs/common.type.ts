@@ -1,0 +1,12 @@
+export type JobStatusType =
+  | 'In preparation'
+  | 'Requested'
+  | 'In progress'
+  | 'Overdue'
+  | 'Delivered'
+  | 'Approved'
+  | 'Invoice created'
+  | 'Invoice accepted'
+  | 'Paid'
+  | 'Without invoice'
+  | 'Canceled'

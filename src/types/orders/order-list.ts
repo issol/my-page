@@ -15,7 +15,7 @@ export type OrderListFilterType = {
   orderDateTo?: string
   projectDueDateFrom?: string
   projectDueDateTo?: string
-  revenueFrom: string[]
+  revenueFrom?: string[]
   mine?: string
   hideCompleted?: string
 }

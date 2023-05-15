@@ -3,8 +3,11 @@ import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
+import { patchClientForOrder } from '@src/apis/order-detail.api'
+
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
@@ -12,18 +15,34 @@ import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ClientType } from '@src/types/orders/order-detail'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useEffect } from 'react'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 
 type Props = {
   type: string
   client: ClientType
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
+  orderId: number
 }
 
-const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
+const OrderDetailClient = ({ type, client, edit, setEdit, orderId }: Props) => {
+  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
+
+  const patchClientMutation = useMutation(
+    (data: { id: number; form: ClientFormType }) =>
+      patchClientForOrder(data.id, data.form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries(`Client-${orderId}`)
+        setEdit!(false)
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
   const {
     control: clientControl,
     getValues: getClientValue,
@@ -34,8 +53,8 @@ const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
   } = useForm<ClientFormType>({
     mode: 'onChange',
     defaultValues: {
-      clientId: null,
-      contactPersonId: null,
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
       addressType: 'shipping',
     },
     resolver: yupResolver(clientSchema),
@@ -47,9 +66,26 @@ const OrderDetailClient = ({ type, client, edit, setEdit }: Props) => {
   }
 
   const onClickSave = () => {
-    setEdit!(false)
-    closeModal('EditSaveModal')
+    const clients: any = {
+      ...getClientValue(),
+      contactPersonId:
+        getClientValue().contactPersonId === NOT_APPLICABLE
+          ? null
+          : getClientValue().contactPersonId,
+    }
+    patchClientMutation.mutate({ id: orderId, form: clients })
   }
+
+  useEffect(() => {
+    if (client) {
+      clientReset({
+        clientId: client.client.clientId,
+        contactPersonId: client.contactPerson?.id,
+        addressType: client.clientAddress.find(value => value.isSelected)
+          ?.addressType!,
+      })
+    }
+  }, [client, clientReset])
 
   return (
     <Card sx={{ padding: '24px' }}>

@@ -4,8 +4,11 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
+import { RevenueFormType } from '../common/orders.type'
+import { ItemType } from '../common/item.type'
+import { CurrencyType } from '../common/standard-price'
 
-type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
+export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
 export type ProjectTeamListType = {
   id: string
@@ -31,11 +34,12 @@ export type ProjectInfoType = {
   category: string
   serviceType: string[]
   expertise: string[]
-  revenueFrom: string
+  revenueFrom: RevenueFormType
   projectName: string
   projectDueAt: string
-  projectDueAtTimezone: CountryType
+  projectDueTimezone: CountryType
   projectDescription: string
+  tax: number
 }
 
 export type ClientType = {
@@ -69,6 +73,7 @@ export type VersionHistoryType = {
 }
 
 export type OrderDownloadData = {
+  orderId: number
   adminCompanyName: string
   companyAddress: string
   corporationId: string
@@ -85,5 +90,27 @@ export type OrderDownloadData = {
   client: ClientType
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: Row[]
+  langItem: LanguageAndItemType
+}
+
+export type LanguageAndItemType = {
+  id: number
+  languagePairs: Array<{
+    id: number
+    source: string
+    target: string
+    price: {
+      id: number
+      name: string
+      isStandard: boolean
+      category: 'Dubbing'
+      serviceType: ['Audio description']
+      currency: CurrencyType
+      calculationBasis: string
+      rounding: number
+      numberPlace: number
+      authorId: number
+    } | null
+  }>
+  items: ItemType[]
 }

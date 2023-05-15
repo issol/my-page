@@ -122,7 +122,7 @@ const navigation = (): HorizontalNavItemsType => {
       ],
     },
     {
-      title: 'Orders',
+      title: 'Quotes',
       icon: 'material-symbols:request-quote-outline',
       path: '/quotes',
       action: 'read',

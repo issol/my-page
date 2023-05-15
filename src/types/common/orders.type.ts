@@ -7,6 +7,7 @@ export type OrderStatusType =
   | 'Invoiced'
   | 'Canceled'
 
+export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
 export type OrderProjectInfoFormType = {
   status: OrderStatusType
   workName?: string
@@ -15,8 +16,51 @@ export type OrderProjectInfoFormType = {
   category?: string
   serviceType?: Array<string>
   expertise?: Array<string>
-  revenueFrom: 'United States' | 'Korea' | 'Singapore' | 'Japan'
+  revenueFrom: RevenueFormType
   orderDate: string
   projectDueDate: { date: string; timezone: CountryType }
+  projectDueAt: string
+  projectDueTimezone: CountryType
+
   tax: number
+}
+
+export type CreateOrderInfoRes = {
+  adminCompanyName: string
+  workName: string
+  projectName: string
+  projectDescription: string | null
+  category: string | null
+  serviceType: string[]
+  expertise: string[]
+  status: OrderStatusType
+  constructorId: number
+  supervisorId: number
+  projectManagerId: number
+  members: number[]
+  revenueFrom: RevenueFormType
+  addressType: 'billing' | 'shipping'
+  tax: number
+  orderedAt: string
+  orderTimezone: {
+    phone: string
+    code: string
+    label: string
+  }
+  projectDueAt: string
+  projectDueTimezone: {
+    phone: string
+    code: string
+    label: string
+  }
+  client: {
+    clientId: number
+  }
+  contactPerson: {
+    id: number
+  }
+  corporationId: string
+  operatorId: null | number
+  downloadedAt: null | string
+  id: number
 }
