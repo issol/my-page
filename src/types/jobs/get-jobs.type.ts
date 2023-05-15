@@ -19,6 +19,7 @@ export type JobsListType = {
 }
 
 export type JobsTrackerListType = {
+  id: number
   client: { name: string; email: string }
   name: string //work name
   category: string
@@ -34,7 +35,14 @@ export type JobsTrackerDetailType = {
   itemDueDate: string
   contactPerson: { id: number; name: string }
   jobDueDate: string
-  assignedPro: { id: number; name: string; jobTitle: string }
+  assignedPro: {
+    id: number
+    name: string
+    jobTitle: string
+    email: string
+    isOnboarded: boolean
+    isActive: boolean
+  } | null
   serviceType: string
   source: string
   target: string

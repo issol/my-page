@@ -54,6 +54,7 @@ export const getJobsTrackerList = async (
     return {
       data: [
         {
+          id: 1,
           client: { name: 'bon', email: 'bon@glozinc.com' },
           name: 'Job name',
           category: 'Dubbing',
@@ -72,6 +73,7 @@ export const getJobsTrackerList = async (
   }
 }
 export const getJobsTrackerDetail = async (
+  id: number,
   filter: FilterType,
 ): Promise<{
   workName: string
@@ -93,7 +95,14 @@ export const getJobsTrackerDetail = async (
           itemDueDate: Date(),
           contactPerson: { id: 12, name: 'bon' },
           jobDueDate: Date(),
-          assignedPro: { id: 1, name: 'Kitty', jobTitle: 'Manager' },
+          assignedPro: {
+            id: 1,
+            name: 'Kitty',
+            jobTitle: 'Manager',
+            email: 'bon@glozinc.com',
+            isActive: true,
+            isOnboarded: true,
+          },
           serviceType: 'DTP',
           source: 'en',
           target: 'ko',
@@ -107,5 +116,19 @@ export const getJobsTrackerDetail = async (
       data: [],
       totalCount: 0,
     }
+  }
+}
+
+export const updateIsDelivered = async (
+  isDelivered: boolean,
+  trackerId: number,
+) => {
+  try {
+    // const { data } = await axios.get(
+    //   `/api/enough/u/order/list?${makeQuery(filter)}`,
+    // )
+    // return data
+  } catch (error: any) {
+    throw new Error(error)
   }
 }

@@ -6,7 +6,7 @@ import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
-import { useGetJobsList } from '@src/queries/jobs.query'
+import { useGetJobsList, useGetJobsTrackerList } from '@src/queries/jobs.query'
 import { ClientRowType } from '@src/apis/client.api'
 import JobsTrackerList from './list'
 
@@ -41,7 +41,7 @@ export default function JobTrackerView({ clients }: Props) {
     Array<ConstType>
   >([])
 
-  const { data: list, isLoading } = useGetJobsList(activeFilter)
+  const { data: list, isLoading } = useGetJobsTrackerList(activeFilter)
 
   useEffect(() => {
     const newFilter = findServiceTypeFilter()

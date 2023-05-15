@@ -1,4 +1,7 @@
-import { JobsListType } from '@src/types/jobs/get-jobs.type'
+import {
+  JobsListType,
+  JobsTrackerListType,
+} from '@src/types/jobs/get-jobs.type'
 
 import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
 
@@ -19,7 +22,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 
 type CellType = {
-  row: JobsListType
+  row: JobsTrackerListType
 }
 
 type Props = {
@@ -28,7 +31,7 @@ type Props = {
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
   list: {
-    data: Array<JobsListType> | []
+    data: Array<JobsTrackerListType> | []
     totalCount: number
   }
   isLoading: boolean
@@ -45,7 +48,7 @@ export default function JobsTrackerList({
   const { user } = useContext(AuthContext)
   const router = useRouter()
 
-  const columns: GridColumns<JobsListType> = [
+  const columns: GridColumns<JobsTrackerListType> = [
     {
       flex: 0.1,
       minWidth: 210,
@@ -74,7 +77,7 @@ export default function JobsTrackerList({
       sortable: false,
       renderHeader: () => <Box>Work name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.jobName}</Typography>
+        return <Typography variant='body2'>{row?.name}</Typography>
       },
     },
     {
@@ -170,7 +173,7 @@ export default function JobsTrackerList({
             rowCount={list.totalCount}
             loading={isLoading}
             onCellClick={params => {
-              router.push(`/orders/job-list/${params.row.id}`)
+              router.push(`/orders/job-list/tracker-view/${params.row.id}`)
             }}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

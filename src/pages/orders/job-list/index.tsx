@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -13,13 +13,22 @@ import PageHeader from '@src/@core/components/page-header'
 import JobListView from './list-view/list-view'
 import JobTrackerView from './tracker-view/tracker-view'
 import { useGetClientList } from '@src/queries/client.query'
+import { useRouter } from 'next/router'
 
 type Props = { id: number; user: UserDataType }
-type MenuType = 'list' | 'calendar'
+type MenuType = 'list' | 'tracker'
 
 export default function JobList({ id, user }: Props) {
+  const router = useRouter()
+  const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('list')
   const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
+
+  useEffect(() => {
+    if (menuQuery && ['list', 'tracker'].includes(menuQuery)) {
+      setMenu(menuQuery)
+    }
+  }, [menuQuery])
 
   return (
     <Grid container spacing={6} className='match-height'>
@@ -40,8 +49,8 @@ export default function JobList({ id, user }: Props) {
             List view
           </CustomBtn>
           <CustomBtn
-            $focus={menu === 'calendar'}
-            value='calendar'
+            $focus={menu === 'tracker'}
+            value='tracker'
             onClick={e => setMenu(e.currentTarget.value as MenuType)}
           >
             Job tracker
@@ -64,6 +73,6 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
 `
 
 JobList.acl = {
-  subject: 'order_list',
+  subject: 'job_list',
   action: 'read',
 }
