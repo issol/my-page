@@ -1,3 +1,6 @@
+import { useContext, useState } from 'react'
+
+// ** style components
 import { Icon } from '@iconify/react'
 import {
   Box,
@@ -13,27 +16,36 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { StyledNextLink } from '@src/@core/components/customLink'
-
-import { AuthContext } from '@src/context/AuthContext'
-import { useGetJobsTrackeDetail } from '@src/queries/jobs.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { JobsTrackerDetailType } from '@src/types/jobs/get-jobs.type'
-import { useRouter } from 'next/router'
-import { useContext, useState } from 'react'
 import styled from 'styled-components'
-import Link from 'next/link'
 import { ServiceTypeChip } from '@src/@core/components/chips/chips'
-import languageHelper from '@src/shared/helpers/language.helper'
-import { useMutation, useQueryClient } from 'react-query'
-import { updateIsDelivered } from '@src/apis/jobs.api'
-import { toast } from 'react-hot-toast'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { job_list } from '@src/shared/const/permission-class'
 import {
   TableTitleTypography,
   TitleTypography,
 } from '@src/@core/styles/typography'
+
+// ** contexts
+import { AuthContext } from '@src/context/AuthContext'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+
+// ** apis
+import { useGetJobsTrackeDetail } from '@src/queries/jobs.query'
+import { updateIsDelivered } from '@src/apis/jobs.api'
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** helpers
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import languageHelper from '@src/shared/helpers/language.helper'
+
+// ** types
+import { JobsTrackerDetailType } from '@src/types/jobs/get-jobs.type'
+
+// ** NextJS
+import { useRouter } from 'next/router'
+import Link from 'next/link'
+
+// ** etc
+import { toast } from 'react-hot-toast'
+import { job_list } from '@src/shared/const/permission-class'
 
 export type DetailFilterType = {
   isMyJobs: boolean

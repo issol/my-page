@@ -1,25 +1,24 @@
-import {
-  JobsListType,
-  JobsTrackerListType,
-} from '@src/types/jobs/get-jobs.type'
-
-import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
-
+// ** style components
+import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from '@src/@core/components/customLink'
-import { useRouter } from 'next/router'
-import {
-  JobsStatusChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
+import { ServiceTypeChip } from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+
+// ** types
+import { JobsTrackerListType } from '@src/types/jobs/get-jobs.type'
+
+// ** NextJs
+import { useRouter } from 'next/router'
+
+// ** contexts
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
+
+// ** helpers
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { TableTitleTypography } from '@src/@core/styles/typography'
 
 type CellType = {
   row: JobsTrackerListType

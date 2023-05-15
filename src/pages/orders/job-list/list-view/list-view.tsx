@@ -1,14 +1,24 @@
-import { Box, Grid, Switch, Typography } from '@mui/material'
 import { Fragment, useEffect, useState } from 'react'
+
+// ** style components
+import { Box, Grid, Switch, Typography } from '@mui/material'
+
+// ** types
 import Filters from './filter'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
+import { ClientRowType } from '@src/apis/client.api'
+
+// ** values
 import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
+
+// ** apis
 import { useGetJobsList } from '@src/queries/jobs.query'
+
+// ** components
 import JobsList from './list'
-import { ClientRowType } from '@src/apis/client.api'
 
 export type FilterType = {
   status?: string[]

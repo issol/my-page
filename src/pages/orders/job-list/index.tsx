@@ -1,18 +1,21 @@
 import { useEffect, useState } from 'react'
 
+// ** style components
 import styled from 'styled-components'
-
-// ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
+
+// ** components
 import JobListView from './list-view/list-view'
 import JobTrackerView from './tracker-view/tracker-view'
+
+// ** apis
 import { useGetClientList } from '@src/queries/client.query'
+
+// ** NextJs
 import { useRouter } from 'next/router'
 
 type Props = { id: number; user: UserDataType }
