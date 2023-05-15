@@ -281,8 +281,7 @@ export default function AddLanguagePairForm({
                             !row.price
                               ? null
                               : options.find(
-                                  item =>
-                                    item.priceName === row.price?.priceName,
+                                  item => item.id === row.price?.id,
                                 ) || defaultOption
                           }
                           size='small'
