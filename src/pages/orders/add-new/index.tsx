@@ -83,13 +83,15 @@ import {
 } from '@src/apis/order-detail.api'
 import { MemberType } from '@src/types/schema/project-team.schema'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import languageHelper from '@src/shared/helpers/language.helper'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 export type languageType = {
   id: number | string
   source: string
   target: string
   price: StandardPriceListType | null
-  isDeletable?: boolean
 }
 
 export const defaultOption: StandardPriceListType & { groupName: string } = {
@@ -254,6 +256,49 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
+
+  function onDeleteLanguagePair(row: languageType) {
+    const isDeletable = !getItem()?.items?.length
+      ? true
+      : !getItem().items.some(
+          item => item.source === row.source && item.target === row.target,
+        )
+    if (isDeletable) {
+      openModal({
+        type: 'delete-language',
+        children: (
+          <DeleteConfirmModal
+            message='Are you sure you want to delete this language pair?'
+            title={`${languageHelper(row.source)} -> ${languageHelper(
+              row.target,
+            )}`}
+            onDelete={deleteLanguage}
+            onClose={() => closeModal('delete-language')}
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'cannot-delete-language',
+        children: (
+          <SimpleAlertModal
+            message='This language pair cannot be deleted because it’s already being used in the item.'
+            title={`${languageHelper(row.source)} -> ${languageHelper(
+              row.target,
+            )}`}
+            onClose={() => closeModal('cannot-delete-language')}
+          />
+        ),
+      })
+    }
+
+    function deleteLanguage() {
+      const idx = languagePairs.map(item => item.id).indexOf(row.id)
+      const copyOriginal = [...languagePairs]
+      copyOriginal.splice(idx, 1)
+      setLanguagePairs([...copyOriginal])
+    }
+  }
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -449,7 +494,6 @@ export default function AddNewQuotes() {
                 : getPriceOptions(item.source, item.target).filter(
                     price => price.id === item?.price?.id!,
                   )[0],
-              isDeletable: false,
             })),
           )
           const result = res?.items?.map(item => {
@@ -590,6 +634,7 @@ export default function AddNewQuotes() {
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
+                  onDeleteLanguagePair={onDeleteLanguagePair}
                 />
               </Grid>
               <Grid item xs={12} mt={6} mb={6}>

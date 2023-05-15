@@ -157,7 +157,6 @@ export default function ItemForm({
       if (v?.id) {
         const idx = languagePairs.map(item => item.id).indexOf(v.id)
         if (idx !== -1) {
-          copyLangPair[idx].isDeletable = false
           setLanguagePairs([...copyLangPair])
         }
       }
@@ -172,12 +171,7 @@ export default function ItemForm({
         <DeleteConfirmModal
           message='Are you sure you want to delete this item?'
           onClose={() => closeModal('delete-item')}
-          onDelete={() => {
-            const index = findLangPairIndex(value.source, value.target)
-            const copyLangPair = [...languagePairs]
-            remove(idx)
-            if (index !== -1) copyLangPair[index].isDeletable = true
-          }}
+          onDelete={() => remove(idx)}
         />
       ),
     })

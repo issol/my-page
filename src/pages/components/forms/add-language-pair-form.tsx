@@ -43,10 +43,6 @@ import { v4 as uuidv4 } from 'uuid'
 // ** hooks
 import useModal from '@src/hooks/useModal'
 
-// ** components
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-
 // ** type
 import { StandardPriceListType } from '@src/types/common/standard-price'
 
@@ -61,16 +57,15 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName: string }>
   type: string
+  onDeleteLanguagePair: (row: languageType) => void
 }
 export default function AddLanguagePairForm({
   languagePairs,
   setLanguagePairs,
   getPriceOptions,
   type,
+  onDeleteLanguagePair,
 }: Props) {
-  console.log(languagePairs)
-
-  const { openModal, closeModal } = useModal()
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
 
@@ -113,45 +108,6 @@ export default function AddLanguagePairForm({
     })
     setLanguagePairs(languagePairs.concat(result))
     setLanguagePair({ source: '', target: [] })
-  }
-
-  function onDeleteLanguagePair(row: languageType) {
-    const isDeletable = row?.isDeletable === undefined ? true : row.isDeletable
-    if (isDeletable) {
-      openModal({
-        type: 'delete-language',
-        children: (
-          <DeleteConfirmModal
-            message='Are you sure you want to delete this language pair?'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onDelete={deleteLanguage}
-            onClose={() => closeModal('delete-language')}
-          />
-        ),
-      })
-    } else {
-      openModal({
-        type: 'cannot-delete-language',
-        children: (
-          <SimpleAlertModal
-            message='This language pair cannot be deleted because it’s already being used in the item.'
-            title={`${languageHelper(row.source)} -> ${languageHelper(
-              row.target,
-            )}`}
-            onClose={() => closeModal('cannot-delete-language')}
-          />
-        ),
-      })
-    }
-
-    function deleteLanguage() {
-      const idx = languagePairs.map(item => item.id).indexOf(row.id)
-      const copyOriginal = [...languagePairs]
-      copyOriginal.splice(idx, 1)
-      setLanguagePairs([...copyOriginal])
-    }
   }
 
   function setPrice(
