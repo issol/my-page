@@ -20,8 +20,8 @@ export const itemSchema = yup.object().shape({
   items: yup.array().of(
     yup.object().shape({
       name: yup.string().required(FormErrors.required),
-      dueAt: yup.string().nullable(),
-      contactPersonId: yup.number().nullable(),
+      dueAt: yup.string().required(FormErrors.required),
+      contactPersonId: yup.string().required(FormErrors.required),
       source: yup.string().required(FormErrors.required),
       target: yup.string().required(FormErrors.required),
       priceId: yup.number().required(FormErrors.required),
@@ -29,7 +29,6 @@ export const itemSchema = yup.object().shape({
         yup.object().shape({
           priceUnitId: yup.number().required(FormErrors.required),
           quantity: yup.number().required(FormErrors.required),
-          priceUnit: yup.string().required(FormErrors.required),
           unitPrice: yup.number().nullable(),
           prices: yup.number().required(FormErrors.required),
           unit: yup.string().required(FormErrors.required),

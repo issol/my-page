@@ -465,6 +465,7 @@ export default function AddNewQuotes() {
             }
           })
           itemReset({ items: result })
+          itemTrigger()
         }
       })
     }

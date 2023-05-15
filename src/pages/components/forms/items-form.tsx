@@ -219,18 +219,8 @@ export default function ItemForm({
       name: itemName,
     })
 
-    function onDeletePriceUnit(idx: number, title: string) {
-      openModal({
-        type: 'delete-unit',
-        children: (
-          <DeleteConfirmModal
-            message='Are you sure you want to delete this price unit?'
-            title={title}
-            onClose={() => closeModal('delete-unit')}
-            onDelete={() => remove(idx)}
-          />
-        ),
-      })
+    function onDeletePriceUnit(idx: number) {
+      remove(idx)
     }
 
     function getTotalPrice() {
@@ -316,7 +306,7 @@ export default function ItemForm({
         append({
           priceUnitId: newData.priceUnitPairId,
           quantity: newData.priceUnitQuantity,
-          priceUnit: newData.priceUnitTitle,
+          // priceUnit: newData.priceUnitTitle,
           unit: newData.priceUnitUnit,
           currency: priceData?.currency || 'USD',
           unitPrice: newData.priceUnitPrice,
@@ -391,7 +381,7 @@ export default function ItemForm({
                       timeIntervals={15}
                       selected={!value ? null : new Date(value)}
                       dateFormat='MM/dd/yyyy h:mm aa'
-                      onChange={onChange}
+                      onChange={e => onChange(String(e))}
                       customInput={<CustomInput label='Item due date*' />}
                     />
                   )}
@@ -419,7 +409,7 @@ export default function ItemForm({
                       renderInput={params => (
                         <TextField
                           {...params}
-                          error={Boolean(errors?.items?.[idx]?.contactPersonId)}
+                          // error={Boolean(errors?.items?.[idx]?.contactPersonId)}
                           label='Contact person for job*'
                           placeholder='Contact person for job*'
                         />

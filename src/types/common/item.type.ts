@@ -26,7 +26,6 @@ export type PostItemType = {
 export type ItemDetailType = {
   priceUnitId: number
   quantity: number
-  priceUnit: string // title
   unitPrice: number
   prices: number | string
   unit: string

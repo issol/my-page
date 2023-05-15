@@ -65,7 +65,7 @@ type Props = {
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
   getTotalPrice: (n?: boolean) => void
   getEachPrice: (idx: number) => void
-  onDeletePriceUnit: (idx: number, title: string) => void
+  onDeletePriceUnit: (idx: number) => void
   onItemBoxLeave: () => void
   isValid: boolean
   showMinimum: { checked: boolean; show: boolean }
@@ -211,7 +211,6 @@ export default function ItemPriceUnitForm({
                                   ...savedValue,
                                   priceUnitId: option.id,
                                   quantity: item.quantity!,
-                                  priceUnit: item.title,
                                   unit: item.unit,
                                   unitPrice: priceFactor
                                     ? priceFactor * item.price
@@ -349,9 +348,7 @@ export default function ItemPriceUnitForm({
           </Typography>
         </TableCell>
         <TableCell align='center'>
-          <IconButton
-            onClick={() => onDeletePriceUnit(idx, savedValue.priceUnit)}
-          >
+          <IconButton onClick={() => onDeletePriceUnit(idx)}>
             <Icon icon='mdi:trash-outline' />
           </IconButton>
         </TableCell>
@@ -430,7 +427,6 @@ export default function ItemPriceUnitForm({
                     append({
                       priceUnitId: -0,
                       quantity: 0,
-                      priceUnit: '',
                       unitPrice: 0,
                       prices: 0,
                       unit: '',
