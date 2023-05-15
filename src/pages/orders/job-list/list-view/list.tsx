@@ -1,22 +1,30 @@
 import { JobsListType } from '@src/types/jobs/get-jobs.type'
 
+// ** style components
 import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
-
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from '@src/@core/components/customLink'
+import { TableTitleTypography } from '@src/@core/styles/typography'
+
+// ** NextJs
 import { useRouter } from 'next/router'
+
+// ** values
 import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
+
+// ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+
+// ** context
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { TableTitleTypography } from '@src/@core/styles/typography'
 
 type CellType = {
   row: JobsListType
@@ -173,16 +181,14 @@ export default function JobsList({
       minWidth: 180,
       field: 'totalPrice',
       headerName: 'Total price',
-      // hideSortIcons: true,
       disableColumnMenu: true,
-      // sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <div>
+          <Typography fontWeight={600}>
             {getCurrencyMark(row.currency)}
             {Number(row.totalPrice).toLocaleString()}
-          </div>
+          </Typography>
         )
       },
     },

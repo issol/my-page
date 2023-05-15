@@ -4,7 +4,10 @@ import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import { StyledNextLink } from '@src/@core/components/customLink'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  ExtraNumberChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 // ** types
@@ -96,7 +99,20 @@ export default function JobsTrackerList({
               type={row?.category}
               label={row?.category}
             />
-            <ServiceTypeChip size='small' label={row?.serviceType} />
+            <Box></Box>
+            {row?.serviceType.length ? (
+              <Box display='flex' gap='8px'>
+                <ServiceTypeChip size='small' label={row?.serviceType[0]} />
+                {row?.serviceType.length > 1 ? (
+                  <ExtraNumberChip
+                    size='small'
+                    label={`+ ${row?.serviceType.length - 1}`}
+                  />
+                ) : null}
+              </Box>
+            ) : (
+              ''
+            )}
           </Box>
         )
       },
@@ -107,16 +123,14 @@ export default function JobsTrackerList({
       minWidth: 180,
       field: 'totalPrice',
       headerName: 'Total price',
-      // hideSortIcons: true,
       disableColumnMenu: true,
-      // sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <div>
+          <Typography fontWeight={600}>
             {getCurrencyMark(row.currency)}
             {Number(row.totalPrice).toLocaleString()}
-          </div>
+          </Typography>
         )
       },
     },

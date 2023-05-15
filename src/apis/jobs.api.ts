@@ -58,7 +58,7 @@ export const getJobsTrackerList = async (
           client: { name: 'bon', email: 'bon@glozinc.com' },
           name: 'Job name',
           category: 'Dubbing',
-          serviceType: ['DTP'],
+          serviceType: ['DTP', 'Audio description'],
           currency: 'KRW',
           totalPrice: 123123123,
         },
