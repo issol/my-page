@@ -12,12 +12,15 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import Icon from '@src/@core/components/icon'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
 import useModal from '@src/hooks/useModal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
@@ -223,6 +226,49 @@ const LanguageAndItem = ({
     })
   }
 
+  function onDeleteLanguagePair(row: languageType) {
+    const isDeletable = !getItem()?.items?.length
+      ? true
+      : !getItem().items.some(
+          item => item.source === row.source && item.target === row.target,
+        )
+    if (isDeletable) {
+      openModal({
+        type: 'delete-language',
+        children: (
+          <DeleteConfirmModal
+            message='Are you sure you want to delete this language pair?'
+            title={`${languageHelper(row.source)} -> ${languageHelper(
+              row.target,
+            )}`}
+            onDelete={deleteLanguage}
+            onClose={() => closeModal('delete-language')}
+          />
+        ),
+      })
+    } else {
+      openModal({
+        type: 'cannot-delete-language',
+        children: (
+          <SimpleAlertModal
+            message='This language pair cannot be deleted because it’s already being used in the item.'
+            title={`${languageHelper(row.source)} -> ${languageHelper(
+              row.target,
+            )}`}
+            onClose={() => closeModal('cannot-delete-language')}
+          />
+        ),
+      })
+    }
+
+    function deleteLanguage() {
+      const idx = languagePairs.map(item => item.id).indexOf(row.id)
+      const copyOriginal = [...languagePairs]
+      copyOriginal.splice(idx, 1)
+      setLanguagePairs([...copyOriginal])
+    }
+  }
+
   return (
     <Card sx={{ padding: '24px' }}>
       <Grid xs={12} container>
@@ -251,6 +297,7 @@ const LanguageAndItem = ({
             setLanguagePairs={setLanguagePairs}
             getPriceOptions={getPriceOptions}
             type={langItemsEdit ? 'edit' : 'detail'}
+            onDeleteLanguagePair={onDeleteLanguagePair}
           />
         </Grid>
         <Grid item xs={12} mt={6} mb={6}>
