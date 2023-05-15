@@ -201,7 +201,10 @@ export default function AppliedRole({
           Skill test in progress
         </Button>
       )
-    } else if (jobInfo.requestStatus === 'Test assigned') {
+    } else if (
+      jobInfo!.requestStatus === 'Test in progress' && 
+      jobInfo!.testStatus === 'Skipped'
+    ) { // basic skip
       return (
         <Button
           fullWidth
