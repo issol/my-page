@@ -165,13 +165,13 @@ export default function ItemPriceUnitForm({
         </TableCell>
         <TableCell>
           <Controller
-            name={`${itemName}.${idx}.priceUnit`}
+            name={`${itemName}.${idx}.priceUnitId`}
             control={control}
             render={({ field: { value, onChange } }) => {
               const options = nestSubPriceUnits()
               const findValue =
-                allPriceUnits?.current?.find(item => item.title === value) ||
-                null
+                allPriceUnits?.current?.find(item => item.id === value) || null
+
               return (
                 <Autocomplete
                   autoHighlight
