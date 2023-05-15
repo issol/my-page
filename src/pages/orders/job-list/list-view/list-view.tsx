@@ -8,6 +8,7 @@ import {
 } from '@src/shared/const/service-type/service-types'
 import { useGetJobsList } from '@src/queries/jobs.query'
 import JobsList from './list'
+import { ClientRowType } from '@src/apis/client.api'
 
 export type FilterType = {
   status?: string[]
@@ -37,7 +38,11 @@ export const initialFilter: FilterType = {
   take: 10,
 }
 
-export default function JobListView() {
+type Props = {
+  clients: Array<ClientRowType>
+}
+
+export default function JobListView({ clients }: Props) {
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -94,6 +99,7 @@ export default function JobListView() {
       <Grid item xs={12}>
         <Filters
           filter={filter}
+          clients={clients}
           onReset={onReset}
           onSearch={onSearch}
           setFilter={setFilter}

@@ -40,14 +40,15 @@ import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 // ** types
 import { FilterType } from './list-view'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
+import { ClientRowType } from '@src/apis/client.api'
 
-type Filter = { value: string; label: string }
 type Props = {
   filter: FilterType
   setFilter: <T extends FilterType>(v: T) => void
   onSearch: () => void
   onReset: () => void
   serviceTypeOptions: Array<ConstType>
+  clients: Array<ClientRowType>
 }
 
 export default function Filters({
@@ -56,6 +57,7 @@ export default function Filters({
   onSearch,
   onReset,
   serviceTypeOptions,
+  clients,
 }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const theme = useTheme()
@@ -140,16 +142,18 @@ export default function Filters({
                         autoHighlight
                         fullWidth
                         multiple
-                        options={ClientListIncludeGloz}
-                        value={filterValue(ClientListIncludeGloz, 'client')}
+                        options={clients}
+                        value={clients.filter(client =>
+                          filter?.client?.includes(String(client.clientId)),
+                        )}
                         onChange={(e, v) =>
                           setFilter({
                             ...filter,
-                            client: v.map(i => i.value),
+                            client: v.map(i => String(i.clientId)),
                           })
                         }
                         filterSelectedOptions
-                        getOptionLabel={option => option.label}
+                        getOptionLabel={option => option?.name}
                         renderInput={params => (
                           <TextField
                             {...params}
@@ -160,7 +164,7 @@ export default function Filters({
                         renderOption={(props, option, { selected }) => (
                           <li {...props}>
                             <Checkbox checked={selected} sx={{ mr: 2 }} />
-                            {option.label}
+                            {option.name}
                           </li>
                         )}
                       />
