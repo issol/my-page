@@ -31,16 +31,23 @@ export const addJobInfoFormSchema = yup.object().shape({
     })
     .required(),
   showPro: yup.boolean().required(),
-  jobStartDate: yup.string().notRequired(),
-  jobStartDateTimezone: yup
+  jobStartDate: yup.date().nullable(),
+  jobStartDateTimezone: yup.object().shape({
+    code: yup.string().nullable(),
+    label: yup.string().nullable(),
+    phone: yup.string().nullable(),
+  }),
+
+  jobDueDate: yup.date().required(),
+  jobDueDateTimezone: yup
     .object()
     .shape({
       code: yup.string().required(),
       label: yup.string().required(),
       phone: yup.string().required(),
     })
-    .notRequired(),
-  jobDueDate: yup.string().required(),
-  jobDueDateTimezone: yup.string().required(),
-  jobDescription: yup.string().notRequired(),
+    .required(),
+  jobDescription: yup.string(),
 })
+
+export const addPricesFormSchema = yup.object().shape({})

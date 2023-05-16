@@ -6,6 +6,7 @@ import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import { SyntheticEvent, useState, MouseEvent } from 'react'
 import JobInfo from './components/job-info'
+import Prices from './components/prices'
 
 const JobInfoDetailView = () => {
   const { openModal, closeModal } = useModal()
@@ -82,7 +83,9 @@ const JobInfoDetailView = () => {
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
             <JobInfo />
           </TabPanel>
-          <TabPanel value='prices' sx={{ pt: '30px' }}></TabPanel>
+          <TabPanel value='prices' sx={{ pt: '30px' }}>
+            <Prices />
+          </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
           <TabPanel value='history' sx={{ pt: '30px' }}></TabPanel>
         </TabContext>
