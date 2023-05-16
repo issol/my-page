@@ -1,54 +1,74 @@
 import { useEffect, useState } from 'react'
 
-import styled from 'styled-components'
+// ** hooks
+import useModal from '@src/hooks/useModal'
 
-// ** MUI Imports
+// ** style components
+import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Grid, Typography } from '@mui/material'
-import { Box } from '@mui/system'
-
-import { UserDataType } from '@src/context/types'
+import { Box, Dialog, DialogContent, Grid, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import useModal from '@src/hooks/useModal'
-import JobInfoDetailView from './detail-view'
+
+// ** components
 import JobListView from './list-view/list-view'
+import JobTrackerView from './tracker-view/tracker-view'
 
-type Props = { id: number; user: UserDataType }
-type MenuType = 'list' | 'calendar'
+// ** apis
+import { useGetClientList } from '@src/queries/client.query'
 
-export default function JobList({ id, user }: Props) {
-  const [menu, setMenu] = useState<MenuType>('list')
+// ** NextJs
+import { useRouter } from 'next/router'
+import OrderList from './components/order-list'
+
+type MenuType = 'list' | 'tracker'
+
+export default function JobList() {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
+
+  const menuQuery = router.query.menu as MenuType
+  const [menu, setMenu] = useState<MenuType>('list')
+
+  const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
 
   useEffect(() => {
+    if (menuQuery && ['list', 'tracker'].includes(menuQuery)) {
+      setMenu(menuQuery)
+    }
+  }, [menuQuery])
+
+  useEffect(() => {
+    router.replace(`/orders/job-list/?menu=${menu}`)
+  }, [menu])
+
+  function onCreateNewJob() {
     openModal({
-      type: 'JobDetailViewModal',
+      type: 'order-list',
       children: (
-        <Box
-          sx={{
-            maxWidth: '1180px',
-            width: '100%',
-            maxHeight: '90vh',
-            background: '#ffffff',
-            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-            borderRadius: '10px',
-            overflow: 'scroll',
-            '&::-webkit-scrollbar': {
-              display: 'none',
-            },
-          }}
+        <Dialog
+          open={true}
+          onClose={() => closeModal('order-list')}
+          maxWidth='lg'
         >
-          <JobInfoDetailView />
-        </Box>
+          <DialogContent sx={{ padding: '50px' }}>
+            <OrderList onClose={() => closeModal('order-list')} />
+          </DialogContent>
+        </Dialog>
       ),
     })
-  }, [])
+  }
 
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={12} display='flex' alignItems='center'>
-        <PageHeader title={<Typography variant='h5'>Job list</Typography>} />
+        <PageHeader
+          title={
+            <Typography variant='h5'>
+              {menu === 'list' ? 'Job list' : 'Job tracker'}
+            </Typography>
+          }
+        />
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'
@@ -58,8 +78,8 @@ export default function JobList({ id, user }: Props) {
             List view
           </CustomBtn>
           <CustomBtn
-            $focus={menu === 'calendar'}
-            value='calendar'
+            $focus={menu === 'tracker'}
+            value='tracker'
             onClick={e => setMenu(e.currentTarget.value as MenuType)}
           >
             Job tracker
@@ -67,7 +87,17 @@ export default function JobList({ id, user }: Props) {
         </ButtonGroup>
       </Grid>
 
-      {menu === 'list' ? <JobListView /> : <Box>Job tracker</Box>}
+      {menu === 'list' ? (
+        <JobListView
+          clients={clients?.data || []}
+          onCreateNewJob={onCreateNewJob}
+        />
+      ) : (
+        <JobTrackerView
+          clients={clients?.data || []}
+          onCreateNewJob={onCreateNewJob}
+        />
+      )}
     </Grid>
   )
 }
@@ -78,6 +108,6 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
 `
 
 JobList.acl = {
-  subject: 'order_list',
+  subject: 'job_list',
   action: 'read',
 }

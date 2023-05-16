@@ -105,21 +105,6 @@ export default function AddLanguagePairForm({
     setLanguagePair({ source: '', target: [] })
   }
 
-  function setPrice(
-    v:
-      | (StandardPriceListType & {
-          groupName?: string
-        })
-      | null,
-    idx: number,
-  ) {
-    if (!v) return
-    const newPairs = [...languagePairs]
-    delete v?.groupName
-    newPairs[idx].price = v
-    setLanguagePairs(newPairs)
-  }
-
   return (
     <Fragment>
       <Grid
@@ -216,12 +201,26 @@ export default function AddLanguagePairForm({
               {languagePairs
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, idx) => {
+                  // value={
+                  //   !row.price
+                  //     ? null
+                  //     : options.find(
+                  //         item => item.id === row.price?.id,
+                  //       ) || null
+                  // }
+                  console.log('row.price', row.price)
+                  const updateIndex = languagePairs
+                    .map(item => item.id)
+                    .indexOf(row.id)
                   const options = getPriceOptions(row.source, row.target)
                   const matchingPrice = options.filter(
                     item => item.groupName === 'Matching price',
                   )
-                  if (matchingPrice.length === 1) {
-                    setPrice(matchingPrice[0], idx)
+                  if (matchingPrice.length === 1 && updateIndex !== -1) {
+                    // setPrice(matchingPrice[0], idx)
+                    const copyPairs = [...languagePairs]
+                    copyPairs[updateIndex].price = matchingPrice[0]
+                    setLanguagePairs(copyPairs)
                   }
                   return (
                     <TableRow hover tabIndex={-1} key={row.id}>
@@ -260,7 +259,9 @@ export default function AddLanguagePairForm({
                             options={options}
                             groupBy={option => option?.groupName}
                             onChange={(e, v) => {
-                              setPrice(v, idx)
+                              const copyPairs = [...languagePairs]
+                              copyPairs[updateIndex].price = v
+                              setLanguagePairs(copyPairs)
                             }}
                             id='autocomplete-controlled'
                             getOptionLabel={option => option.priceName}

@@ -47,7 +47,7 @@ import {
   onCopyAnalysisParamType,
 } from '../../forms/items-form'
 import useModal from '@src/hooks/useModal'
-import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 type Props = {
   fileName: string
@@ -86,7 +86,7 @@ export default function MemoQModal({
         isCloseable: false,
         type: 'catBasis-not-match',
         children: (
-          <ConfirmModal
+          <SimpleAlertModal
             message="The CAT interface doesn't match. Please check the price setting or the file."
             onClose={() => {
               closeModal('catBasis-not-match')
@@ -100,7 +100,7 @@ export default function MemoQModal({
         isCloseable: false,
         type: 'tool-not-match',
         children: (
-          <ConfirmModal
+          <SimpleAlertModal
             message='Only files with all CAT Tool matches can be analyzed.'
             onClose={() => {
               closeModal('tool-not-match')

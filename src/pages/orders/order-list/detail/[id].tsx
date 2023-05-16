@@ -82,14 +82,29 @@ export interface Row {
   target: string
   detail: Detail[]
 }
+
+type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 const OrderDetail = () => {
   const router = useRouter()
-
+  const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const { user } = useContext(AuthContext)
 
-  const [value, setValue] = useState<string>('project')
+  const [value, setValue] = useState<MenuType>('project')
   const dispatch = useAppDispatch()
+
+  useEffect(() => {
+    if (
+      menuQuery &&
+      ['project', 'history', 'team', 'client', 'item'].includes(menuQuery)
+    ) {
+      setValue(menuQuery)
+    }
+  }, [menuQuery])
+
+  useEffect(() => {
+    router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
+  }, [value])
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -216,7 +231,6 @@ const OrderDetail = () => {
           : getPriceOptions(item.source, item.target).filter(
               price => price.id === item?.price?.id!,
             )[0],
-        isDeletable: false,
       }))!,
     )
     const result = langItem?.items?.map(item => {
@@ -256,7 +270,7 @@ const OrderDetail = () => {
     resetTeam({ teams })
   }
 
-  const handleChange = (event: SyntheticEvent, newValue: string) => {
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     if (projectInfoEdit || clientEdit || projectTeamEdit || langItemsEdit) {
       openModal({
         type: 'EditAlertModal',
@@ -447,7 +461,6 @@ const OrderDetail = () => {
             : getPriceOptions(item.source, item.target).filter(
                 price => price.id === item?.price?.id!,
               )[0],
-          isDeletable: false,
         }))!,
       )
       const result = langItem?.items?.map(item => {

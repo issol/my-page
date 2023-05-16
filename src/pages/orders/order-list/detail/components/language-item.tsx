@@ -311,7 +311,6 @@ const LanguageAndItem = ({
             isValid={isItemValid}
             teamMembers={getTeamValues()?.teams}
             languagePairs={languagePairs}
-            setLanguagePairs={setLanguagePairs}
             getPriceOptions={getPriceOptions}
             priceUnitsList={priceUnitsList || []}
             type={langItemsEdit ? 'edit' : 'detail'}

@@ -1,31 +1,30 @@
-import { JobsListType } from '@src/types/jobs/jobs.type'
-
 // ** style components
-import { Tooltip, Typography } from '@mui/material'
+import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { TableTitleTypography } from '@src/@core/styles/typography'
-
-// ** NextJs
-import { useRouter } from 'next/router'
-
-// ** values
+import CardHeader from '@mui/material/CardHeader'
+import { StyledNextLink } from '@src/@core/components/customLink'
 import {
-  JobsStatusChip,
+  ExtraNumberChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 
-// ** helpers
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+// ** types
+import { JobsTrackerListType } from '@src/types/jobs/jobs.type'
 
-// ** context
+// ** NextJs
+import { useRouter } from 'next/router'
+
+// ** contexts
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
 
+// ** helpers
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+
 type CellType = {
-  row: JobsListType
+  row: JobsTrackerListType
 }
 
 type Props = {
@@ -34,13 +33,13 @@ type Props = {
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
   list: {
-    data: Array<JobsListType> | []
+    data: Array<JobsTrackerListType> | []
     totalCount: number
   }
   isLoading: boolean
 }
 
-export default function JobsList({
+export default function JobsTrackerList({
   skip,
   pageSize,
   setSkip,
@@ -51,35 +50,7 @@ export default function JobsList({
   const { user } = useContext(AuthContext)
   const router = useRouter()
 
-  const columns: GridColumns<JobsListType> = [
-    {
-      field: 'corporationId',
-      flex: 0.2,
-      minWidth: 140,
-      headerName: 'No.',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>No.</Box>,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Tooltip title={row.corporationId}>
-            <TableTitleTypography>{row.corporationId}</TableTitleTypography>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      flex: 0.05,
-      minWidth: 150,
-      field: 'status',
-      headerName: 'Status',
-      hideSortIcons: true,
-      disableColumnMenu: true,
-      sortable: false,
-      renderHeader: () => <Box>Status</Box>,
-      renderCell: ({ row }: CellType) => {
-        return JobsStatusChip(row.status)
-      },
-    },
+  const columns: GridColumns<JobsTrackerListType> = [
     {
       flex: 0.1,
       minWidth: 210,
@@ -102,13 +73,13 @@ export default function JobsList({
       flex: 0.1,
       minWidth: 180,
       field: 'jobName',
-      headerName: 'Project name',
+      headerName: 'Work name',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Project name</Box>,
+      renderHeader: () => <Box>Work name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.jobName}</Typography>
+        return <Typography variant='body2'>{row?.name}</Typography>
       },
     },
     {
@@ -128,52 +99,25 @@ export default function JobsList({
               type={row?.category}
               label={row?.category}
             />
-            <ServiceTypeChip size='small' label={row?.serviceType} />
+            <Box></Box>
+            {row?.serviceType.length ? (
+              <Box display='flex' gap='8px'>
+                <ServiceTypeChip size='small' label={row?.serviceType[0]} />
+                {row?.serviceType.length > 1 ? (
+                  <ExtraNumberChip
+                    size='small'
+                    label={`+ ${row?.serviceType.length - 1}`}
+                  />
+                ) : null}
+              </Box>
+            ) : (
+              ''
+            )}
           </Box>
         )
       },
     },
-    {
-      flex: 0.1,
-      minWidth: 180,
-      field: 'startedAt',
-      headerName: 'Job start date',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>Job start date</Box>,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Tooltip
-            title={FullDateTimezoneHelper(
-              row?.startedAt,
-              user?.timezone?.code!,
-            )}
-          >
-            <div>
-              {FullDateTimezoneHelper(row?.startedAt, user?.timezone?.code!)}
-            </div>
-          </Tooltip>
-        )
-      },
-    },
-    {
-      flex: 0.1,
-      minWidth: 180,
-      field: 'dueAt',
-      headerName: 'Job due date',
-      disableColumnMenu: true,
-      renderHeader: () => <Box>Job due date</Box>,
-      renderCell: ({ row }: CellType) => {
-        return (
-          <Tooltip
-            title={FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
-          >
-            <div>
-              {FullDateTimezoneHelper(row?.dueAt, user?.timezone?.code!)}
-            </div>
-          </Tooltip>
-        )
-      },
-    },
+
     {
       flex: 0.1,
       minWidth: 180,
@@ -226,9 +170,8 @@ export default function JobsList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
-        // TODO : 경로 변경해야 할 수 있음
         onCellClick={params => {
-          router.push(`/orders/job-list/detail-view/${params.row.id}`)
+          router.push(`/orders/job-list/tracker-view/${params.row.id}`)
         }}
         rowsPerPageOptions={[10, 25, 50]}
         pagination

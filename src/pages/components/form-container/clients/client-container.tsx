@@ -56,7 +56,7 @@ import { createClient, createContactPerson } from '@src/apis/client.api'
 // ** components
 import RegisterClientForm from '@src/pages/components/forms/register-client-form'
 import AddNewClientModal from '@src/pages/components/form-container/clients/add-new-client-modal'
-import ConfirmCreateClientModal from '@src/pages/client/components/modals/confirm-create-client-modal'
+import AddConfirmModal from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm-modal'
 
 // ** hooks
@@ -254,9 +254,10 @@ export default function ClientQuotesFormContainer({
     openModal({
       type: 'create-client',
       children: (
-        <ConfirmCreateClientModal
-          clientName={getCompanyInfoValues().name}
-          onAdd={() =>
+        <AddConfirmModal
+          message='Are you sure you want to add this client?'
+          title={getCompanyInfoValues().name}
+          onClick={() =>
             mutateClientData(
               {
                 ...getCompanyInfoValues(),
