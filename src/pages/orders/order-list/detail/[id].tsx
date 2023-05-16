@@ -216,7 +216,6 @@ const OrderDetail = () => {
           : getPriceOptions(item.source, item.target).filter(
               price => price.id === item?.price?.id!,
             )[0],
-        isDeletable: false,
       }))!,
     )
     const result = langItem?.items?.map(item => {
@@ -447,7 +446,6 @@ const OrderDetail = () => {
             : getPriceOptions(item.source, item.target).filter(
                 price => price.id === item?.price?.id!,
               )[0],
-          isDeletable: false,
         }))!,
       )
       const result = langItem?.items?.map(item => {
