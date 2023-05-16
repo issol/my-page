@@ -33,6 +33,10 @@ export default function JobList({ id, user }: Props) {
     }
   }, [menuQuery])
 
+  useEffect(() => {
+    router.replace(`/orders/job-list/?menu=${menu}`)
+  }, [menu])
+
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={12} display='flex' alignItems='center'>
