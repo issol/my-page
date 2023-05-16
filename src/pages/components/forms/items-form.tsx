@@ -57,7 +57,7 @@ import useModal from '@src/hooks/useModal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ItemPriceUnitForm from './item-price-unit-form'
 import TmAnalysisForm from './tm-analysis-form'
-import InfoConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // ** values
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
@@ -261,7 +261,7 @@ export default function ItemForm({
         openModal({
           type: 'info-minimum',
           children: (
-            <InfoConfirmModal
+            <SimpleAlertModal
               onClose={() => {
                 closeModal('info-minimum')
                 setShowMinimum({ show: true, checked: true })
