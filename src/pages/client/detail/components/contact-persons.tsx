@@ -41,11 +41,10 @@ import useModal from '@src/hooks/useModal'
 // ** components
 import ContactPersonList from '../../components/list/contact-person-list'
 import ContactPersonDetailModal from '../../components/modals/contact-person-detail-modal'
-import DeleteContactPersonModal from '../../components/modals/delete-contact-person-modal'
-import CannotDeleteContactPersonModal from '../../components/modals/cannot-delete-contact-person-modal'
+import DeleteConfirmModal from '../../components/modals/delete-confirm-modal'
 import AddContactPersonForm from '@src/pages/components/forms/add-contact-person-form'
 import AddContactPersonConfirmModal from '../../components/modals/add-contact-person-confirm-modal'
-
+import SimpleAlertModal from '../../components/modals/simple-alert-modal'
 import DiscardContactPersonModal from '../../components/modals/discard-contact-person-modal'
 
 // ** fetch & mutation
@@ -269,8 +268,9 @@ export default function ContactPersons({
         openModal({
           type: modalType.cannotDelete,
           children: (
-            <CannotDeleteContactPersonModal
-              open={true}
+            <SimpleAlertModal
+              message='This contact person cannot be deleted because it’s already registered
+          on other pages.'
               onClose={() => {
                 closeModal(modalType.cannotDelete)
               }}
@@ -281,8 +281,8 @@ export default function ContactPersons({
         openModal({
           type: modalType.deleteContactPerson,
           children: (
-            <DeleteContactPersonModal
-              open={true}
+            <DeleteConfirmModal
+              message='Are you sure you want to delete this contact person?'
               onDelete={() => deleteContactPersonMutation.mutate(data.id!)}
               onClose={() => {
                 closeModal(modalType.deleteContactPerson)

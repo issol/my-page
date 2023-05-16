@@ -24,7 +24,7 @@ import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
 import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
-import ConfirmCreateClientModal from '../components/modals/confirm-create-client-modal'
+import AddConfirmModal from '../components/modals/add-confirm-with-title-modal'
 import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
 import SetPriceUnitModal from '@src/pages/components/client-prices-modal/dialog/set-price-unit-modal'
 
@@ -487,9 +487,10 @@ export default function AddNewClient() {
     openModal({
       type: 'create-client',
       children: (
-        <ConfirmCreateClientModal
-          clientName={getCompanyInfoValues().name}
-          onAdd={() => createClientMutation.mutate(data)}
+        <AddConfirmModal
+          message='Are you sure you want to add this client?'
+          title={getCompanyInfoValues().name}
+          onClick={() => createClientMutation.mutate(data)}
           onClose={() => closeModal('create-client')}
         />
       ),
