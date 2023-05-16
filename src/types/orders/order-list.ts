@@ -1,5 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
+import { ProjectTeamListType } from './order-detail'
 
 export type OrderListFilterType = {
   take: number
@@ -38,6 +39,9 @@ export type OrderListType = {
   projectDueTimezone: CountryType
   currency: CurrencyType
   totalPrice: number
+  // TODO : projectTeams, isItems는 데이터 맞게 오는지 확인하고 수정해야 함
+  projectTeams: ProjectTeamListType[]
+  isItems: boolean
 }
 
 export type OrderStatusType =

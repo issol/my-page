@@ -1,3 +1,7 @@
+import { useRouter } from 'next/router'
+import { useContext, useState } from 'react'
+
+// ** style components
 import { Icon } from '@iconify/react'
 import {
   Box,
@@ -14,13 +18,22 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+
+// ** context
+import { AuthContext } from '@src/context/AuthContext'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** components
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
+// ** apis
 import { useGetOrderList } from '@src/queries/order/order.query'
+
+// ** types
 import { OrderListType } from '@src/types/orders/order-list'
-import { useRouter } from 'next/router'
-import { useState } from 'react'
 
 type FilterType = {
   search?: string
@@ -43,14 +56,12 @@ type Props = {
   onClose: () => void
 }
 
-// ** TODO : onSubmit함수 완료하기
-// no item표기하기, order detail로 이동할 때 탭메뉴 쿼리로 보내기
-
 export default function OrderList({ onClose }: Props) {
-  const { openModal, closeModal } = useModal()
   const router = useRouter()
+  const { user } = useContext(AuthContext)
+  const { openModal, closeModal } = useModal()
 
-  const [selected, setSelected] = useState<number | null>(null)
+  const [selected, setSelected] = useState<OrderListType | null>(null)
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>(initialFilter)
   const [activeFilter, setActiveFilter] = useState<FilterType>(initialFilter)
@@ -79,7 +90,11 @@ export default function OrderList({ onClose }: Props) {
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: OrderListCellType) => (
-        <Radio size='small' onChange={() => setSelected(row.id)} />
+        <Radio
+          size='small'
+          onChange={() => setSelected(row)}
+          checked={row.id === selected?.id}
+        />
       ),
     },
     {
@@ -114,7 +129,23 @@ export default function OrderList({ onClose }: Props) {
       sortable: false,
       renderHeader: () => <Box>Project name</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return <Box>{row.projectName}</Box>
+        return (
+          <Box width='100%' display='flex' justifyContent='space-between'>
+            <Typography fontWeight={600}>{row.projectName}</Typography>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                '& svg': { mr: 3, color: 'warning.main' },
+              }}
+            >
+              <Icon icon='mdi:alert-outline' fontSize={20} />
+              <Typography sx={{ color: 'warning.main' }} fontSize={12}>
+                No items
+              </Typography>
+            </Box>
+          </Box>
+        )
       },
     },
   ]
@@ -136,41 +167,54 @@ export default function OrderList({ onClose }: Props) {
   }
 
   function onSubmit() {
-    //order에 items가 없을 때
-    openModal({
-      type: 'no-items',
-      children: (
-        <ModalWithButtonName
-          iconType='error-report'
-          rightButtonName='Add item'
-          message='There are no items in the order. Please add an item before creating a job.'
-          onClick={() => {
-            router.push({
-              pathname: `/orders/order-list/detail/${selected}`,
-              query: { menu: 'item' },
-            })
-            onClose()
-          }}
-          onClose={() => closeModal('no-items')}
-        />
-      ),
-    })
-    //team이 아닐 때
-    // openModal({
-    //   type: 'not-a-team',
-    //   children: (
-    //     <SimpleAlertModal
-    //       message='You can only create jobs for orders where you are part of the project team.'
-    //       onClose={() => closeModal('not-a-team')}
-    //     />
-    //   ),
-    // })
+    if (!selected) return
+    const isTeamMember = !selected.projectTeams?.find(
+      team => team.userId === user?.userId,
+    )
+      ? false
+      : true
+    if (!selected.isItems) {
+      openModal({
+        type: 'no-items',
+        children: (
+          <ModalWithButtonName
+            iconType='error-report'
+            rightButtonName='Add item'
+            message='There are no items in the order. Please add an item before creating a job.'
+            onClick={() => {
+              router.push({
+                pathname: `/orders/order-list/detail/${selected.id}`,
+                query: { menu: 'item' },
+              })
+              onClose()
+            }}
+            onClose={() => closeModal('no-items')}
+          />
+        ),
+      })
+    } else if (!isTeamMember) {
+      openModal({
+        type: 'not-a-team',
+        children: (
+          <SimpleAlertModal
+            message='You can only create jobs for orders where you are part of the project team.'
+            onClose={() => closeModal('not-a-team')}
+          />
+        ),
+      })
+    } else {
+      onClose()
+      router.push({
+        pathname: '/orders/job-list/detail-view/',
+        query: { orderId: selected.id },
+      })
+    }
   }
 
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Typography variant='h6'>Select order</Typography>
+        <Typography variant='h5'>Select order</Typography>
       </Grid>
       <Grid item xs={12}>
         <FormControl fullWidth>
@@ -238,7 +282,7 @@ export default function OrderList({ onClose }: Props) {
           rows={orderList?.data ?? []}
           rowCount={orderList?.count ?? 0}
           loading={isLoading}
-          onCellClick={params => setSelected(params.row.id)}
+          onCellClick={params => setSelected(params.row)}
           rowsPerPageOptions={[10, 25, 50]}
           pagination
           page={skip}
