@@ -17,14 +17,18 @@ import { useGetClientList } from '@src/queries/client.query'
 
 // ** NextJs
 import { useRouter } from 'next/router'
+import useModal from '@src/hooks/useModal'
 
-type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'tracker'
 
-export default function JobList({ id, user }: Props) {
+export default function JobList() {
+  const { openModal, closeModal } = useModal()
+
   const router = useRouter()
+
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('list')
+
   const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
 
   useEffect(() => {

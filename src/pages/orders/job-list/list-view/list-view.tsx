@@ -1,7 +1,16 @@
 import { Fragment, useEffect, useState } from 'react'
 
 // ** style components
-import { Box, Grid, Switch, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Grid,
+  Switch,
+  Typography,
+} from '@mui/material'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 // ** types
 import Filters from './filter'
@@ -146,20 +155,38 @@ export default function JobListView({ clients }: Props) {
           />
         </Box>
       </Grid>
+
       <Grid item xs={12}>
-        <JobsList
-          isLoading={isLoading}
-          list={list || { data: [], totalCount: 0 }}
-          pageSize={activeFilter.take}
-          skip={skip}
-          setSkip={(n: number) => {
-            setSkip(n)
-            setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
-          }}
-          setPageSize={(n: number) =>
-            setActiveFilter({ ...activeFilter, take: n })
-          }
-        />
+        <Card>
+          <CardHeader
+            title={
+              <Box display='flex' justifyContent='space-between'>
+                <Typography variant='h6'>
+                  Jobs ({list?.totalCount ?? 0})
+                </Typography>{' '}
+                <Button variant='contained'>
+                  <StyledNextLink href='/orders/jobs/add-new' color='white'>
+                    Create new job
+                  </StyledNextLink>
+                </Button>
+              </Box>
+            }
+            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+          ></CardHeader>
+          <JobsList
+            isLoading={isLoading}
+            list={list || { data: [], totalCount: 0 }}
+            pageSize={activeFilter.take}
+            skip={skip}
+            setSkip={(n: number) => {
+              setSkip(n)
+              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+            }}
+            setPageSize={(n: number) =>
+              setActiveFilter({ ...activeFilter, take: n })
+            }
+          />
+        </Card>
       </Grid>
     </Fragment>
   )

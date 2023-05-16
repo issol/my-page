@@ -1,4 +1,12 @@
-import { Box, Grid, Switch, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  CardHeader,
+  Grid,
+  Switch,
+  Typography,
+} from '@mui/material'
 import { Fragment, useEffect, useState } from 'react'
 import Filters from './filter'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
@@ -9,6 +17,7 @@ import {
 import { useGetJobsList, useGetJobsTrackerList } from '@src/queries/jobs.query'
 import { ClientRowType } from '@src/apis/client.api'
 import JobsTrackerList from './list'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 export type FilterType = {
   client?: string[]
@@ -97,19 +106,36 @@ export default function JobTrackerView({ clients }: Props) {
       </Grid>
 
       <Grid item xs={12}>
-        <JobsTrackerList
-          isLoading={isLoading}
-          list={list || { data: [], totalCount: 0 }}
-          pageSize={activeFilter.take}
-          skip={skip}
-          setSkip={(n: number) => {
-            setSkip(n)
-            setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
-          }}
-          setPageSize={(n: number) =>
-            setActiveFilter({ ...activeFilter, take: n })
-          }
-        />
+        <Card>
+          <CardHeader
+            title={
+              <Box display='flex' justifyContent='space-between'>
+                <Typography variant='h6'>
+                  Works ({list?.totalCount ?? 0})
+                </Typography>{' '}
+                <Button variant='contained'>
+                  <StyledNextLink href='/orders/jobs/add-new' color='white'>
+                    Create new job
+                  </StyledNextLink>
+                </Button>
+              </Box>
+            }
+            sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
+          ></CardHeader>
+          <JobsTrackerList
+            isLoading={isLoading}
+            list={list || { data: [], totalCount: 0 }}
+            pageSize={activeFilter.take}
+            skip={skip}
+            setSkip={(n: number) => {
+              setSkip(n)
+              setActiveFilter({ ...activeFilter, skip: n * activeFilter.take! })
+            }}
+            setPageSize={(n: number) =>
+              setActiveFilter({ ...activeFilter, take: n })
+            }
+          />
+        </Card>
       </Grid>
     </Fragment>
   )

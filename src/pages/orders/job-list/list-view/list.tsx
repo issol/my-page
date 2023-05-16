@@ -1,11 +1,9 @@
 import { JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
-import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
+import { Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
-import { StyledNextLink } from '@src/@core/components/customLink'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 
 // ** NextJs
@@ -210,53 +208,36 @@ export default function JobsList({
     )
   }
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Jobs ({list.totalCount})</Typography>{' '}
-              <Button variant='contained'>
-                <StyledNextLink href='/orders/jobs/add-new' color='white'>
-                  Create new job
-                </StyledNextLink>
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
-            columns={columns}
-            rows={list.data}
-            rowCount={list.totalCount}
-            loading={isLoading}
-            onCellClick={params => {
-              router.push(`/orders/job-list/${params.row.id}`)
-            }}
-            rowsPerPageOptions={[10, 25, 50]}
-            pagination
-            page={skip}
-            pageSize={pageSize}
-            paginationMode='server'
-            onPageChange={setSkip}
-            disableSelectionOnClick
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
-    </Grid>
+    <Box
+      sx={{
+        '& .MuiDataGrid-columnHeaderTitle': {
+          textTransform: 'none',
+        },
+      }}
+    >
+      <DataGrid
+        autoHeight
+        components={{
+          NoRowsOverlay: () => NoList(),
+          NoResultsOverlay: () => NoList(),
+        }}
+        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        columns={columns}
+        rows={list.data}
+        rowCount={list.totalCount}
+        loading={isLoading}
+        onCellClick={params => {
+          router.push(`/orders/job-list/${params.row.id}`)
+        }}
+        rowsPerPageOptions={[10, 25, 50]}
+        pagination
+        page={skip}
+        pageSize={pageSize}
+        paginationMode='server'
+        onPageChange={setSkip}
+        disableSelectionOnClick
+        onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+      />
+    </Box>
   )
 }
