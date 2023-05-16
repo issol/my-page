@@ -7,7 +7,7 @@ import useModal from '@src/hooks/useModal'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Box, Grid, Typography } from '@mui/material'
+import { Box, Dialog, DialogContent, Grid, Typography } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
 // ** components
@@ -19,6 +19,7 @@ import { useGetClientList } from '@src/queries/client.query'
 
 // ** NextJs
 import { useRouter } from 'next/router'
+import OrderList from './components/order-list'
 
 type MenuType = 'list' | 'tracker'
 
@@ -40,6 +41,24 @@ export default function JobList() {
   useEffect(() => {
     router.replace(`/orders/job-list/?menu=${menu}`)
   }, [menu])
+
+  function onCreateNewJob() {
+    console.log('onCreateNewJob')
+    openModal({
+      type: 'order-list',
+      children: (
+        <Dialog
+          open={true}
+          onClose={() => closeModal('order-list')}
+          maxWidth='lg'
+        >
+          <DialogContent sx={{ padding: '50px' }}>
+            <OrderList onClose={() => closeModal('order-list')} />
+          </DialogContent>
+        </Dialog>
+      ),
+    })
+  }
 
   return (
     <Grid container spacing={6} className='match-height'>
@@ -70,9 +89,15 @@ export default function JobList() {
       </Grid>
 
       {menu === 'list' ? (
-        <JobListView clients={clients?.data || []} />
+        <JobListView
+          clients={clients?.data || []}
+          onCreateNewJob={onCreateNewJob}
+        />
       ) : (
-        <JobTrackerView clients={clients?.data || []} />
+        <JobTrackerView
+          clients={clients?.data || []}
+          onCreateNewJob={onCreateNewJob}
+        />
       )}
     </Grid>
   )

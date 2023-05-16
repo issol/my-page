@@ -226,8 +226,9 @@ export default function JobsList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
+        // TODO : 경로 변경해야 할 수 있음
         onCellClick={params => {
-          router.push(`/orders/job-list/${params.row.id}`)
+          router.push(`/orders/job-list/detail-view/${params.row.id}`)
         }}
         rowsPerPageOptions={[10, 25, 50]}
         pagination

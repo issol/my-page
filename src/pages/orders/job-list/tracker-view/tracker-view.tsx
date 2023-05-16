@@ -39,8 +39,9 @@ export const initialFilter: FilterType = {
 
 type Props = {
   clients: Array<ClientRowType>
+  onCreateNewJob: () => void
 }
-export default function JobTrackerView({ clients }: Props) {
+export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>({ ...initialFilter })
   const [activeFilter, setActiveFilter] = useState<FilterType>({
@@ -113,10 +114,8 @@ export default function JobTrackerView({ clients }: Props) {
                 <Typography variant='h6'>
                   Works ({list?.totalCount ?? 0})
                 </Typography>{' '}
-                <Button variant='contained'>
-                  <StyledNextLink href='/orders/jobs/add-new' color='white'>
-                    Create new job
-                  </StyledNextLink>
+                <Button variant='contained' onClick={onCreateNewJob}>
+                  Create new job
                 </Button>
               </Box>
             }
