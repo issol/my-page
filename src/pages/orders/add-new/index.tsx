@@ -646,7 +646,6 @@ export default function AddNewQuotes() {
                   isValid={isItemValid}
                   teamMembers={getTeamValues()?.teams}
                   languagePairs={languagePairs}
-                  setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='create'

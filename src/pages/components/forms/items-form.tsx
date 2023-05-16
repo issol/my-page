@@ -75,7 +75,6 @@ type Props = {
   isValid: boolean
   teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
   languagePairs: languageType[]
-  setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
   getPriceOptions: (
     source: string,
     target: string,
@@ -106,7 +105,6 @@ export default function ItemForm({
   isValid,
   teamMembers,
   languagePairs,
-  setLanguagePairs,
   getPriceOptions,
   priceUnitsList,
   type,
@@ -137,21 +135,10 @@ export default function ItemForm({
   }, [teamMembers])
 
   function onChangeLanguagePair(v: languageType | null, idx: number) {
-    const copyLangPair = [...languagePairs]
     setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
-    }
-
-    setIsDeletable()
-    function setIsDeletable() {
-      if (v?.id) {
-        const idx = languagePairs.map(item => item.id).indexOf(v.id)
-        if (idx !== -1) {
-          setLanguagePairs([...copyLangPair])
-        }
-      }
     }
   }
 
@@ -184,13 +171,14 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
-    console.log(itemData)
+    console.log('itemData : ', itemData)
 
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
     const priceData =
-      languagePairs.find(item => itemData?.priceId === item?.price?.id)
-        ?.price ?? null
+      getPriceOptions(itemData.source, itemData.target).find(
+        price => price.id === itemData.priceId,
+      ) || null
     const sourceLanguage = getValues(`items.${idx}.source`)
     const targetLanguage = getValues(`items.${idx}.target`)
     const languagePairData = priceData?.languagePairs?.find(
@@ -601,7 +589,6 @@ export default function ItemForm({
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]
                                 copyLangPair[index].price = v
-                                setLanguagePairs(copyLangPair)
                               }
                             }
                           }}
