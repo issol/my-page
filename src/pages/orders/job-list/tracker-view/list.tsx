@@ -11,7 +11,7 @@ import {
 import { JobTypeChip } from '@src/@core/components/chips/chips'
 
 // ** types
-import { JobsTrackerListType } from '@src/types/jobs/get-jobs.type'
+import { JobsTrackerListType } from '@src/types/jobs/jobs.type'
 
 // ** NextJs
 import { useRouter } from 'next/router'

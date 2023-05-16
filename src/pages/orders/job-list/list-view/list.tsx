@@ -1,4 +1,4 @@
-import { JobsListType } from '@src/types/jobs/get-jobs.type'
+import { JobsListType } from '@src/types/jobs/jobs.type'
 
 // ** style components
 import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'

@@ -5,7 +5,7 @@ import {
   JobsListType,
   JobsTrackerDetailType,
   JobsTrackerListType,
-} from '@src/types/jobs/get-jobs.type'
+} from '@src/types/jobs/jobs.type'
 
 export const getJobsList = async (
   filter: FilterType,

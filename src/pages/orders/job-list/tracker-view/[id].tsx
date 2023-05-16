@@ -37,7 +37,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** types
-import { JobsTrackerDetailType } from '@src/types/jobs/get-jobs.type'
+import { JobsTrackerDetailType } from '@src/types/jobs/jobs.type'
 
 // ** NextJS
 import { useRouter } from 'next/router'
