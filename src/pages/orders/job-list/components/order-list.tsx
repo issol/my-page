@@ -15,10 +15,11 @@ import {
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import useModal from '@src/hooks/useModal'
-import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
+import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { useGetOrderList } from '@src/queries/order/order.query'
 import { OrderListType } from '@src/types/orders/order-list'
+import { useRouter } from 'next/router'
 import { useState } from 'react'
 
 type FilterType = {
@@ -41,8 +42,13 @@ type OrderListCellType = {
 type Props = {
   onClose: () => void
 }
+
+// ** TODO : onSubmit함수 완료하기
+// no item표기하기, order detail로 이동할 때 탭메뉴 쿼리로 보내기
+
 export default function OrderList({ onClose }: Props) {
   const { openModal, closeModal } = useModal()
+  const router = useRouter()
 
   const [selected, setSelected] = useState<number | null>(null)
   const [skip, setSkip] = useState(0)
@@ -131,17 +137,34 @@ export default function OrderList({ onClose }: Props) {
 
   function onSubmit() {
     //order에 items가 없을 때
-
-    //team이 아닐 때
     openModal({
-      type: 'not-a-team',
+      type: 'no-items',
       children: (
-        <SimpleAlertModal
-          message='You can only create jobs for orders where you are part of the project team.'
-          onClose={() => closeModal('not-a-team')}
+        <ModalWithButtonName
+          iconType='error-report'
+          rightButtonName='Add item'
+          message='There are no items in the order. Please add an item before creating a job.'
+          onClick={() => {
+            router.push({
+              pathname: `/orders/order-list/detail/${selected}`,
+              query: { menu: 'item' },
+            })
+            onClose()
+          }}
+          onClose={() => closeModal('no-items')}
         />
       ),
     })
+    //team이 아닐 때
+    // openModal({
+    //   type: 'not-a-team',
+    //   children: (
+    //     <SimpleAlertModal
+    //       message='You can only create jobs for orders where you are part of the project team.'
+    //       onClose={() => closeModal('not-a-team')}
+    //     />
+    //   ),
+    // })
   }
 
   return (

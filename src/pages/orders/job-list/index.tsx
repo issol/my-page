@@ -43,7 +43,6 @@ export default function JobList() {
   }, [menu])
 
   function onCreateNewJob() {
-    console.log('onCreateNewJob')
     openModal({
       type: 'order-list',
       children: (

@@ -121,7 +121,7 @@ export const getJobsTrackerDetail = async (
 
 export const updateIsDelivered = async (
   isDelivered: boolean,
-  trackerId: number,
+  trackerId: number, // => jobId로 보내기
 ) => {
   try {
     // const { data } = await axios.get(
