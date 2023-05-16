@@ -28,8 +28,7 @@ import {
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import { FieldArrayWithId } from 'react-hook-form'
-import { ItemType } from '@src/types/common/item.type'
+
 import {
   CatCalculationType,
   MemSourceData,
@@ -47,7 +46,7 @@ import {
   onCopyAnalysisParamType,
 } from '../../forms/items-form'
 import useModal from '@src/hooks/useModal'
-import ConfirmModal from '@src/pages/client/components/modals/info-confirm-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 type Props = {
   fileName: string
@@ -80,38 +79,37 @@ export default function MemsourceModal({
       chips: item.chips.filter(chip => chip.selected),
     })) || []
 
-  // TODO : 주석 해제하기
-  // useEffect(() => {
-  //   if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
-  //     openModal({
-  //       isCloseable: false,
-  //       type: 'catBasis-not-match',
-  //       children: (
-  //         <ConfirmModal
-  //           message="The CAT interface doesn't match. Please check the price setting or the file."
-  //           onClose={() => {
-  //             closeModal('catBasis-not-match')
-  //             onClose()
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   } else if (data.toolName !== 'Memsource') {
-  //     openModal({
-  //       isCloseable: false,
-  //       type: 'tool-not-match',
-  //       children: (
-  //         <ConfirmModal
-  //           message='Only files with all CAT Tool matches can be analyzed.'
-  //           onClose={() => {
-  //             closeModal('tool-not-match')
-  //             onClose()
-  //           }}
-  //         />
-  //       ),
-  //     })
-  //   }
-  // }, [data, priceData, catInterfaces])
+  useEffect(() => {
+    if (!data.calculationBasis.includes(catBasis) || !catInterfaces.length) {
+      openModal({
+        isCloseable: false,
+        type: 'catBasis-not-match',
+        children: (
+          <SimpleAlertModal
+            message="The CAT interface doesn't match. Please check the price setting or the file."
+            onClose={() => {
+              closeModal('catBasis-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    } else if (data.toolName !== 'Memsource') {
+      openModal({
+        isCloseable: false,
+        type: 'tool-not-match',
+        children: (
+          <SimpleAlertModal
+            message='Only files with all CAT Tool matches can be analyzed.'
+            onClose={() => {
+              closeModal('tool-not-match')
+              onClose()
+            }}
+          />
+        ),
+      })
+    }
+  }, [data, priceData, catInterfaces])
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage)
