@@ -4,11 +4,11 @@ import { useEffect, useState } from 'react'
 import styled from 'styled-components'
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Grid, Typography } from '@mui/material'
+import { Box, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import PageHeader from '@src/@core/components/page-header'
-
-// ** components
+import useModal from '@src/hooks/useModal'
+import JobInfoDetailView from './detail-view'
 import JobListView from './list-view/list-view'
 import JobTrackerView from './tracker-view/tracker-view'
 
@@ -17,17 +17,36 @@ import { useGetClientList } from '@src/queries/client.query'
 
 // ** NextJs
 import { useRouter } from 'next/router'
-import useModal from '@src/hooks/useModal'
 
 type MenuType = 'list' | 'tracker'
 
 export default function JobList() {
-  const { openModal, closeModal } = useModal()
-
   const router = useRouter()
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('list')
+  const { openModal, closeModal } = useModal()
+
+  useEffect(() => {
+    openModal({
+      type: 'JobDetailViewModal',
+      children: (
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            maxHeight: '90vh',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+            overflow: 'scroll',
+          }}
+        >
+          <JobInfoDetailView />
+        </Box>
+      ),
+    })
+  }, [])
 
   const { data: clients } = useGetClientList({ take: 1000, skip: 0 })
 
