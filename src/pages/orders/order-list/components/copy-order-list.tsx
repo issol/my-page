@@ -15,11 +15,8 @@ import {
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { useGetOrderList } from '@src/queries/order/order.query'
-import {
-  OrderListFilterType,
-  OrderListType,
-} from '@src/types/orders/order-list'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { OrderListType } from '@src/types/orders/order-list'
+import { useState } from 'react'
 
 type OrderListCellType = {
   row: OrderListType
@@ -56,7 +53,7 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
             sx={{ padding: 0 }}
             value={row.id}
             size='small'
-            onClick={() => setSelected(row.id)}
+            onChange={() => setSelected(row.id)}
             checked={!selected ? false : selected === row.id}
           />
         )
@@ -177,9 +174,7 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
               rows={orderList?.data ?? []}
               rowCount={orderList?.count ?? 0}
               loading={isLoading}
-              // onCellClick={params => {
-              //   handleRowClick(params.row)
-              // }}
+              onCellClick={params => setSelected(params.row.id)}
               rowsPerPageOptions={[10, 25, 50]}
               pagination
               page={skip}
