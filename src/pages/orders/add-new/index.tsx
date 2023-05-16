@@ -84,6 +84,7 @@ import {
 } from '@src/apis/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { getPriceList } from '@src/apis/company-price.api'
 
 export type languageType = {
   id: number | string
@@ -410,7 +411,8 @@ export default function AddNewQuotes() {
     return result
   }
 
-  function onCopyOrder(id: number | null) {
+  async function onCopyOrder(id: number | null) {
+    const priceList = await getPriceList({})
     closeModal('copy-order')
     if (id) {
       getProjectTeam(id)
@@ -483,16 +485,17 @@ export default function AddNewQuotes() {
       getLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
-            res?.languagePairs?.map(item => ({
-              id: String(item.id),
-              source: item.source,
-              target: item.target,
-              price: !item?.price
-                ? null
-                : getPriceOptions(item.source, item.target).filter(
-                    price => price.id === item?.price?.id!,
-                  )[0],
-            })),
+            res?.languagePairs?.map(item => {
+              return {
+                id: String(item.id),
+                source: item.source,
+                target: item.target,
+                price: !item?.price
+                  ? null
+                  : priceList.find(price => price.id === item?.price?.id) ||
+                    null,
+              }
+            }),
           )
           const result = res?.items?.map(item => {
             return {
