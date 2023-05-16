@@ -14,6 +14,8 @@ import ClientInfo from './company-info'
 import ClientAddresses from './addresses'
 import ContactPersons from './contact-persons'
 import ClientMemo from './memo-for-client'
+import DeleteConfirmModal from '../../components/modals/delete-confirm-modal'
+import SimpleAlertModal from '../../components/modals/simple-alert-modal'
 
 // ** mutation & fetch
 import { useMutation, useQueryClient } from 'react-query'
@@ -21,8 +23,6 @@ import { deleteClient } from '@src/apis/client.api'
 
 // ** toast
 import { toast } from 'react-hot-toast'
-import DeleteClientModal from '../../components/modals/delete-client-modal'
-import CannotDeleteClientModal from '../../components/modals/cannot-delete-client.modal'
 import { useRouter } from 'next/router'
 
 type Props = {
@@ -67,9 +67,10 @@ export default function ClientProfile({
       openModal({
         type: 'cannot-delete-client',
         children: (
-          <CannotDeleteClientModal
-            open={true}
-            clientName={clientInfo?.name!}
+          <SimpleAlertModal
+            message='This client cannot be deleted because it’s already registered on other
+            pages.'
+            title={clientInfo?.name!}
             onClose={() => closeModal('cannot-delete-client')}
           />
         ),
@@ -78,9 +79,9 @@ export default function ClientProfile({
       openModal({
         type: 'delete-client',
         children: (
-          <DeleteClientModal
-            open={true}
-            clientName={clientInfo?.name!}
+          <DeleteConfirmModal
+            message='Are you sure you want to delete this client?'
+            title={clientInfo?.name!}
             onDelete={() => createClientMemoMutation.mutate()}
             onClose={() => closeModal('delete-client')}
           />
