@@ -34,6 +34,9 @@ export default function JobList({ id, user }: Props) {
             boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
             borderRadius: '10px',
             overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
           }}
         >
           <JobInfoDetailView />

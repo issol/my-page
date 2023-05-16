@@ -16,7 +16,7 @@ import {
   AddJobInfoFormType,
   AddJobInfoType,
 } from '@src/types/orders/job-detail'
-import { addJobInfoFormSchema } from '@src/types/schema/job-info.schema'
+import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { Controller, useForm } from 'react-hook-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -83,13 +83,17 @@ const JobInfo = () => {
         .concat(acceptedFiles)
         .reduce((acc: File[], file: File) => {
           let result = fileSize
+
           acc.concat(file).forEach((file: FileType) => (result += file.size))
+          setFileSize(result)
           if (result > MAXIMUM_FILE_SIZE) {
             //  TODO : show exceed file size modal
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
             if (!found) acc.push(file)
+            console.log(acc)
+
             return acc
           }
         }, [])
@@ -118,16 +122,19 @@ const JobInfo = () => {
   }
 
   useEffect(() => {
-    // 1. useEffect를 사용해서 컴포넌트가 처음 렌더링 됐을 때 아래 내용이 실행된다.
     const timer = setTimeout(() => {
       setSuccess(false)
-      // 2. setTimeout 함수를 이용해서 3초 후 setToastState의 값이 false가 되도록 만든다.
     }, 3000)
     return () => {
       clearTimeout(timer)
       // 3. 그리고 실행됐던 setTimeout 함수를 없애는 clearTimeout 함수를 이용한다.
     }
   }, [success])
+
+  useEffect(() => {
+    setValue('serviceType', { value: 'Translation', label: 'Translation' })
+    setValue('showPro', false)
+  }, [])
 
   return (
     <>
@@ -506,7 +513,7 @@ const JobInfo = () => {
           </Box>
           <Divider />
           <Box mt='20px' sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Button variant='contained' onClick={onSubmit}>
+            <Button variant='contained' onClick={onSubmit} disabled={!isValid}>
               Save draft
             </Button>
           </Box>
