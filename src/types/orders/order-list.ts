@@ -39,8 +39,7 @@ export type OrderListType = {
   projectDueTimezone: CountryType
   currency: CurrencyType
   totalPrice: number
-  // TODO : projectTeams, isItems는 데이터 맞게 오는지 확인하고 수정해야 함
-  projectTeams: ProjectTeamListType[]
+  isTeamMember: boolean
   isItems: boolean
 }
 

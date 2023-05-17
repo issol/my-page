@@ -1,4 +1,5 @@
 import {
+  getJobHistory,
   getJobsList,
   getJobsTrackerDetail,
   getJobsTrackerList,
@@ -40,4 +41,14 @@ export const useGetJobsTrackeDetail = (
       keepPreviousData: true,
     },
   )
+}
+export const useGetJobHistory = (
+  id: number,
+  filter: { skip: number; take: number },
+) => {
+  return useQuery(['jobHistory', filter], () => getJobHistory(id, filter), {
+    staleTime: 60 * 1000, // 1
+    suspense: false,
+    keepPreviousData: true,
+  })
 }

@@ -2,7 +2,7 @@ import { CurrencyType } from '../common/standard-price'
 import { JobStatusType } from './common.type'
 
 export type JobsListType = {
-  id: string
+  id: number
   corporationId: string // O-000010-TRA-001
   status: JobStatusType
   client: {
@@ -46,4 +46,11 @@ export type JobsTrackerDetailType = {
   serviceType: string
   source: string
   target: string
+}
+
+export type JobHistoryType = {
+  id: number
+  version: number
+  requestor: string
+  createdAt: string
 }

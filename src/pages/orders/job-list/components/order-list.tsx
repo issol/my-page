@@ -168,11 +168,6 @@ export default function OrderList({ onClose }: Props) {
 
   function onSubmit() {
     if (!selected) return
-    const isTeamMember = !selected.projectTeams?.find(
-      team => team.userId === user?.userId,
-    )
-      ? false
-      : true
     if (!selected.isItems) {
       openModal({
         type: 'no-items',
@@ -192,7 +187,7 @@ export default function OrderList({ onClose }: Props) {
           />
         ),
       })
-    } else if (!isTeamMember) {
+    } else if (!selected.isTeamMember) {
       openModal({
         type: 'not-a-team',
         children: (

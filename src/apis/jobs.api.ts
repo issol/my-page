@@ -1,7 +1,9 @@
 import axios from '@src/configs/axios'
+
 import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
+  JobHistoryType,
   JobsListType,
   JobsTrackerDetailType,
   JobsTrackerListType,
@@ -18,7 +20,7 @@ export const getJobsList = async (
     return {
       data: [
         {
-          id: '123',
+          id: 123,
           corporationId: 'O-000010-TRA-001', // O-000010-TRA-001
           status: 'Approved',
           client: {
@@ -130,5 +132,30 @@ export const updateIsDelivered = async (
     // return data
   } catch (error: any) {
     throw new Error(error)
+  }
+}
+
+export const getJobHistory = async (
+  id: number,
+  filter: { skip: number; take: number },
+): Promise<{ data: JobHistoryType[]; totalCount: number }> => {
+  try {
+    // const data = axios.get(`/api/enough/u/order/list?${makeQuery(filter)}`)
+    return {
+      data: [
+        {
+          id: 1,
+          version: 1,
+          requestor: 'bon@glozinc.com',
+          createdAt: Date(),
+        },
+      ],
+      totalCount: 1,
+    }
+  } catch (e: any) {
+    return {
+      data: [],
+      totalCount: 0,
+    }
   }
 }
