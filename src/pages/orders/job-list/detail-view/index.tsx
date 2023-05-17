@@ -7,6 +7,7 @@ import useModal from '@src/hooks/useModal'
 import { SyntheticEvent, useState, MouseEvent } from 'react'
 import JobInfo from './components/job-info'
 import Prices from './components/prices'
+import JobHistory from './components/history'
 
 const JobInfoDetailView = () => {
   const { openModal, closeModal } = useModal()
@@ -87,7 +88,9 @@ const JobInfoDetailView = () => {
             <Prices />
           </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
-          <TabPanel value='history' sx={{ pt: '30px' }}></TabPanel>
+          <TabPanel value='history' sx={{ pt: '30px' }}>
+            <JobHistory id={1} />
+          </TabPanel>
         </TabContext>
       </Box>
     </Box>
@@ -95,6 +98,11 @@ const JobInfoDetailView = () => {
 }
 
 export default JobInfoDetailView
+
+JobInfoDetailView.acl = {
+  subject: 'job_list',
+  action: 'read',
+}
 
 const CustomTab = styled(Tab)`
   text-transform: none;
