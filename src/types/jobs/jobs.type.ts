@@ -54,3 +54,40 @@ export type JobHistoryType = {
   requestor: string
   createdAt: string
 }
+
+export type JobInfoDetailType = {
+  id: number
+  jobName: string
+  status: JobStatusType
+  contactPerson: string
+  serviceType: string
+  sourceLanguage: string
+  targetLanguage: string
+  startedAt: string
+  dueAt: string
+  description: string
+  isShowDescription: boolean
+  files: Array<{
+    name: string
+    size: number
+    file: string // s3 key
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  }>
+}
+
+export type JobPricesDetailType = {
+  id: number
+  sourceLanguage: string
+  targetLanguage: string
+  priceId: number
+  totalPrice: number
+  currency: CurrencyType
+  priceName: string
+  data: Array<{
+    quantity: number
+    priceUnitTitle: string
+    priceUnitId: number
+    unitPrice: number
+    prices: number
+  }>
+}

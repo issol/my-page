@@ -136,7 +136,7 @@ export default function JobHistory({ id }: Props) {
                     <DialogContent sx={{ padding: '50px' }}>
                       <HistoryDetail
                         id={params.row.id}
-                        title={`Request .${params.row.version} ${params.row.id}`}
+                        title={`[Request .${params.row.version}] ${params.row.id}`}
                         onClose={() => closeModal('history-detail')}
                       />
                     </DialogContent>

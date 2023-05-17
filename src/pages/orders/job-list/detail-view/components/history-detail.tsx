@@ -28,7 +28,7 @@ export default function HistoryDetail({ id, title, onClose }: Props) {
           <IconButton>
             <Icon icon='material-symbols:arrow-back-ios' />
           </IconButton>
-          <Typography variant='h6'>[{title}]</Typography>
+          <Typography variant='h6'>{title}</Typography>
         </Box>
       </Grid>
 
