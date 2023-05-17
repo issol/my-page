@@ -8,14 +8,24 @@ import Typography from '@mui/material/Typography'
 import { MouseEvent, useState } from 'react'
 import { SyntheticEvent } from 'react-draft-wysiwyg'
 import styled from 'styled-components'
+import HistoryAssignPro from './history-assign-pro'
 
 type Props = {
   id: number
   title: string
   onClose: () => void
 }
+
+/* TODO
+  JobInfo, Prices 컴포넌트 이식하기
+  Assign pro에 데이터 제대로 넘기기
+
+*/
 export default function HistoryDetail({ id, title, onClose }: Props) {
   const [value, setValue] = useState<string>('jobInfo')
+
+  const [proListSkip, setProListSkip] = useState(0)
+  const [proPageSize, setProPageSize] = useState(10)
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -24,9 +34,9 @@ export default function HistoryDetail({ id, title, onClose }: Props) {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Box display='flex' alignItems='center'>
-          <IconButton>
-            <Icon icon='material-symbols:arrow-back-ios' />
+        <Box display='flex' alignItems='center' gap='8px'>
+          <IconButton onClick={onClose}>
+            <Icon icon='material-symbols:arrow-back-ios-new' />
           </IconButton>
           <Typography variant='h6'>{title}</Typography>
         </Box>
@@ -79,22 +89,17 @@ export default function HistoryDetail({ id, title, onClose }: Props) {
             </Typography>
           </TabPanel>
           <TabPanel value='assignPro'>
-            <Typography>
-              Danish tiramisu jujubes cupcake chocolate bar cake cheesecake
-              chupa chups. Macaroon ice cream tootsie roll carrot cake gummi
-              bears.
-            </Typography>
+            <HistoryAssignPro
+              list={{ data: [], totalCount: 0 }}
+              isLoading={false}
+              pageSize={proPageSize}
+              setPageSize={setProPageSize}
+              skip={proListSkip}
+              setSkip={setProListSkip}
+            />
           </TabPanel>
         </Grid>
       </TabContext>
-
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
-      <Grid item xs={12}></Grid>
     </Grid>
   )
 }
