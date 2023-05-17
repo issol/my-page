@@ -151,6 +151,28 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
+        jobInfo!.requestStatus === 'Test assigned' &&
+        jobInfo.testStatus === 'Awaiting assignment' &&
+        (skillTest && skillTest.status !== 'NO_TEST')
+      ) {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background:
+                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128;',
+              border: '1px solid rgba(255, 255, 255, 0.88)',
+              color: '#64C623',
+            },
+          }}
+        >
+          Test assigned
+        </Button>
+      )
+    } else if (
       basicTest &&
       jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Basic in progress' ||
