@@ -154,8 +154,8 @@ const Pro = () => {
       search: search,
       take: proListPageSize,
       skip: proListPageSize * proListPage,
-      sortId: 'desc',
-      sortDate: 'desc',
+      sortId: 'DESC',
+      sortDate: 'DESC',
     }
 
     setFilters(filter)
