@@ -56,7 +56,7 @@ export default function SkillTestActionModal({
         >
           <Image
             src={`/images/icons/alert/${
-              type === 'Awaiting assignment' || type === 'Skill failed'
+              type === 'Awaiting assignment' || type === 'Skill failed' || type === 'Cancelled'
                 ? 'alert-error-color'
                 : 'alert-success'
             }.svg`}
@@ -84,7 +84,9 @@ export default function SkillTestActionModal({
             Are you sure you want to&nbsp;
             {type === 'Awaiting assignment' ? (
               'cancel this skill test?'
-            ) : type === 'Skill in progress' ? (
+            ) : type === 'Cancelled' ? (
+              'cancel this skill test?'
+            ): type === 'Skill in progress' ? (
               'proceed this skill test?'
             ) : type === 'Skill failed' ? (
               <>
@@ -101,7 +103,7 @@ export default function SkillTestActionModal({
               </>
             ) : null}
           </Typography>
-          {type === 'Skill failed' ? (
+          {(type === 'Skill failed' || type === 'Cancelled') ? (
             <Typography
               variant='subtitle2'
               sx={{ fontSize: '16px', fontWeight: 600, textAlign: 'center' }}
@@ -153,6 +155,8 @@ export default function SkillTestActionModal({
               ? 'Cancel'
               : type === 'Skill failed'
               ? 'Cancel'
+              : type === 'Cancelled'
+              ? 'No'
               : null}
           </Button>
           <Button
@@ -171,6 +175,8 @@ export default function SkillTestActionModal({
               ? 'Proceed'
               : type === 'Skill failed'
               ? 'Fail'
+              : type === 'Cancelled'
+              ? 'Cancel'
               : null}
           </Button>
         </Box>
