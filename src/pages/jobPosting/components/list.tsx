@@ -32,7 +32,7 @@ type Props = {
   setPageSize: (num: number) => void
   list: {
     data: Array<JobPostingDataType> | []
-    count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -202,7 +202,7 @@ export default function JobPostingList({
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>
-                Job posting ({list?.count | 0})
+                Job posting ({list?.totalCount | 0})
               </Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink href='/jobPosting/post' color='white'>
@@ -221,7 +221,7 @@ export default function JobPostingList({
             }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
-            rowCount={list.count || 0}
+            rowCount={list.totalCount || 0}
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

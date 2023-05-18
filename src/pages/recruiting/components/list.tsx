@@ -38,7 +38,7 @@ type Props = {
   setPageSize: (num: number) => void
   list: {
     data: Array<RecruitingDataType> | []
-    count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -212,7 +212,7 @@ export default function RecruitingList({
           title={
             <Box display='flex' justifyContent='space-between'>
               <Typography variant='h6'>
-                Recruiting list ({list?.count | 0})
+                Recruiting list ({list?.totalCount | 0})
               </Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink href='/recruiting/post' color='white'>
@@ -253,7 +253,7 @@ export default function RecruitingList({
             }}
             onRowClick={e => moveToDetail(e)}
             rows={list.data}
-            rowCount={list.count}
+            rowCount={list.totalCount}
             loading={isLoading}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

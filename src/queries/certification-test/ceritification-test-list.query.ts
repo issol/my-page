@@ -8,7 +8,7 @@ import {
 export const useGetTestMaterialList = (
   filters: TestMaterialFilterPayloadType,
 ) => {
-  return useQuery<{ data: TestMaterialListType[]; count: number }>(
+  return useQuery<{ data: TestMaterialListType[]; totalCount: number }>(
     ['test-material-list', filters],
     () => getTestMaterialList(filters),
     {

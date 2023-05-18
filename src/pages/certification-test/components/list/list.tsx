@@ -20,7 +20,7 @@ type Props = {
   setTestMaterialListPage: Dispatch<SetStateAction<number>>
   testMaterialListPageSize: number
   setTestMaterialListPageSize: Dispatch<SetStateAction<number>>
-  testMaterialList: { data: TestMaterialListType[]; count: number }
+  testMaterialList: { data: TestMaterialListType[]; totalCount: number }
   setFilters: any
   router: NextRouter
   user: UserDataType
@@ -49,7 +49,7 @@ export default function TestMaterialList({
           }}
         >
           <Typography variant='h6'>
-            {`Test materials (${testMaterialList?.count ?? 0})`}
+            {`Test materials (${testMaterialList?.totalCount ?? 0})`}
           </Typography>
           <Button
             variant='contained'
@@ -119,7 +119,7 @@ export default function TestMaterialList({
             pageSize={testMaterialListPageSize}
             rowsPerPageOptions={[10, 25, 50]}
             page={testMaterialListPage}
-            rowCount={testMaterialList?.count ?? 0}
+            rowCount={testMaterialList?.totalCount ?? 0}
             onCellClick={params => {
               router.push(`/certification-test/detail/${params.row.id}`)
             }}
