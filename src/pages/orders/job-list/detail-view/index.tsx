@@ -31,6 +31,7 @@ import { AuthContext } from '@src/context/AuthContext'
 type Props = {
   tab?: string
 }
+import JobHistory from './components/history'
 
 const JobInfoDetailView = ({ tab }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -163,7 +164,10 @@ const JobInfoDetailView = ({ tab }: Props) => {
           <TabPanel value='assignPro' sx={{ pt: '30px' }}>
             <AssignPro user={user!} />
           </TabPanel>
-          <TabPanel value='history' sx={{ pt: '30px' }}></TabPanel>
+          <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
+          <TabPanel value='history' sx={{ pt: '30px' }}>
+            <JobHistory id={1} />
+          </TabPanel>
         </TabContext>
       </Box>
     </Box>
@@ -171,6 +175,11 @@ const JobInfoDetailView = ({ tab }: Props) => {
 }
 
 export default JobInfoDetailView
+
+JobInfoDetailView.acl = {
+  subject: 'job_list',
+  action: 'read',
+}
 
 const CustomTab = styled(Tab)`
   text-transform: none;

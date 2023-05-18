@@ -425,7 +425,7 @@ export default function JobTrackerDetail() {
               </Box>
             }
             sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-          ></CardHeader>
+          />
           <Box
             sx={{
               '& .MuiDataGrid-columnHeaderTitle': {
