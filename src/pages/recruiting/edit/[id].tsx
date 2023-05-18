@@ -817,7 +817,7 @@ export default function RecruitingEdit() {
             pageSize={pageSize}
             setSkip={setSkip}
             setPageSize={setPageSize}
-            list={list || { data: [], count: 0 }}
+            list={list || { data: [], totalCount: 0 }}
             isLoading={isLoading}
           />
         </DatePickerWrapper>
