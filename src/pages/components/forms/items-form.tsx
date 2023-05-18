@@ -73,7 +73,7 @@ type Props = {
   fields: FieldArrayWithId<{ items: ItemType[] }, 'items', 'id'>[]
   remove: UseFieldArrayRemove
   isValid: boolean
-  teamMembers: Array<{ type: MemberType; id: number | null; name?: string }>
+  teamMembers?: Array<{ type: MemberType; id: number | null; name?: string }>
   languagePairs: languageType[]
   getPriceOptions: (
     source: string,
@@ -123,7 +123,7 @@ export default function ItemForm({
   >([])
 
   useEffect(() => {
-    if (teamMembers.length) {
+    if (teamMembers && teamMembers.length) {
       const list = teamMembers
         .filter(item => item.id !== null)
         .map(item => ({

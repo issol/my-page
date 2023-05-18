@@ -277,3 +277,19 @@ export function JobsStatusChip(status: JobStatusType) {
     />
   )
 }
+
+export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
+  border: none;
+  ${({ status }) =>
+    status === 'Request accepted'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
+      : status === 'Request rejected'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : status === 'Requested'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
+      : status === 'Assigned'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+      : status === 'Canceled'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : null};
+`

@@ -20,6 +20,8 @@ import { useGetClientList } from '@src/queries/client.query'
 // ** NextJs
 import { useRouter } from 'next/router'
 import OrderList from './components/order-list'
+import JobInfoDetailView from './detail-view'
+import { useGetAllPriceList } from '@src/queries/price-units.query'
 
 type MenuType = 'list' | 'tracker'
 
@@ -62,6 +64,33 @@ export default function JobList() {
   return (
     <Grid container spacing={6} className='match-height'>
       <Grid item xs={12} display='flex' alignItems='center'>
+        <Button
+          onClick={() =>
+            openModal({
+              type: 'JobDetailViewModal',
+              children: (
+                <Box
+                  sx={{
+                    maxWidth: '1180px',
+                    width: '100%',
+                    maxHeight: '90vh',
+                    background: '#ffffff',
+                    boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+                    borderRadius: '10px',
+                    overflow: 'scroll',
+                    '&::-webkit-scrollbar': {
+                      display: 'none',
+                    },
+                  }}
+                >
+                  <JobInfoDetailView />
+                </Box>
+              ),
+            })
+          }
+        >
+          Click
+        </Button>
         <PageHeader
           title={
             <Typography variant='h5'>

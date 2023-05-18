@@ -250,3 +250,26 @@ export const JobStatus = [
     label: 'Canceled',
   },
 ]
+
+export const AssignmentStatus = [
+  {
+    value: 'Requested',
+    label: 'Requested',
+  },
+  {
+    value: 'Request accepted',
+    label: 'Request accepted',
+  },
+  {
+    value: 'Request rejected',
+    label: 'Request rejected',
+  },
+  {
+    value: 'Assigned',
+    label: 'Assigned',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]
