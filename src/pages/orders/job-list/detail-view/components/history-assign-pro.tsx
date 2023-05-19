@@ -42,7 +42,7 @@ type Props = {
 type CellType = {
   row: AssignProType
 }
-/** TODO : AssignProType 수정 (import하기)
+/** TODO: AssignProType 수정 (import하기)
  * 부모 컴포넌트에서 list, isLoading 데이터 수정하기
  * Link클릭 시 해당 프로의 디테일로 잘 이동하는지 체크
  */

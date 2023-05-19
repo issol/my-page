@@ -5,7 +5,11 @@ import {
   getProjectTeam,
   getVersionHistory,
 } from '@src/apis/order-detail.api'
-import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
+import {
+  getOrderList,
+  getOrderListCalendar,
+  getOrderListForJob,
+} from '@src/apis/order-list.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
@@ -18,6 +22,18 @@ export const useGetOrderList = (filter: OrderListFilterType) => {
     suspense: false,
     keepPreviousData: true,
   })
+}
+export const useGetOrderListForJob = (filter: OrderListFilterType) => {
+  return useQuery(
+    ['orderListForJob', filter],
+    () => getOrderListForJob(filter),
+    {
+      staleTime: 60 * 1000, // 1
+
+      suspense: false,
+      keepPreviousData: true,
+    },
+  )
 }
 
 export const useGetOrderListCalendar = (year: number, month: number) => {

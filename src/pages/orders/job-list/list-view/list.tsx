@@ -108,7 +108,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Project name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.projectName}</Typography>
+        return <Typography variant='body2'>{row?.jobName}</Typography>
       },
     },
     {

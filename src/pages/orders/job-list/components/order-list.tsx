@@ -30,10 +30,10 @@ import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // ** apis
-import { useGetOrderList } from '@src/queries/order/order.query'
+import { useGetOrderListForJob } from '@src/queries/order/order.query'
 
 // ** types
-import { OrderListType } from '@src/types/orders/order-list'
+import { OrderListForJobType } from '@src/types/orders/order-list'
 
 type FilterType = {
   search?: string
@@ -49,7 +49,7 @@ const initialFilter = {
 }
 
 type OrderListCellType = {
-  row: OrderListType
+  row: OrderListForJobType
 }
 
 type Props = {
@@ -61,12 +61,12 @@ export default function OrderList({ onClose }: Props) {
   const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
 
-  const [selected, setSelected] = useState<OrderListType | null>(null)
+  const [selected, setSelected] = useState<OrderListForJobType | null>(null)
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] = useState<FilterType>(initialFilter)
   const [activeFilter, setActiveFilter] = useState<FilterType>(initialFilter)
 
-  const { data: orderList, isLoading } = useGetOrderList(activeFilter)
+  const { data: orderList, isLoading } = useGetOrderListForJob(activeFilter)
 
   function onSearch() {
     setActiveFilter({
@@ -81,7 +81,7 @@ export default function OrderList({ onClose }: Props) {
     setActiveFilter({ ...initialFilter })
   }
 
-  const columns: GridColumns<OrderListType> = [
+  const columns: GridColumns<OrderListForJobType> = [
     {
       field: '',
       flex: 0.01,
@@ -132,18 +132,20 @@ export default function OrderList({ onClose }: Props) {
         return (
           <Box width='100%' display='flex' justifyContent='space-between'>
             <Typography fontWeight={600}>{row.projectName}</Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                '& svg': { mr: 3, color: 'warning.main' },
-              }}
-            >
-              <Icon icon='mdi:alert-outline' fontSize={20} />
-              <Typography sx={{ color: 'warning.main' }} fontSize={12}>
-                No items
-              </Typography>
-            </Box>
+            {!row.items.length ? (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  '& svg': { mr: 3, color: 'warning.main' },
+                }}
+              >
+                <Icon icon='mdi:alert-outline' fontSize={20} />
+                <Typography sx={{ color: 'warning.main' }} fontSize={12}>
+                  No items
+                </Typography>
+              </Box>
+            ) : null}
           </Box>
         )
       },
@@ -168,7 +170,7 @@ export default function OrderList({ onClose }: Props) {
 
   function onSubmit() {
     if (!selected) return
-    if (!selected.isItems) {
+    if (!selected?.items?.length) {
       openModal({
         type: 'no-items',
         children: (

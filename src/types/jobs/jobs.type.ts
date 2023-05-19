@@ -9,7 +9,7 @@ export type JobsListType = {
     name: string
     email: string
   }
-  projectName: string
+  jobName: string
   category: string // order의 category
   serviceType: string // job의 serviceType
   startedAt: string
