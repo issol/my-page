@@ -802,8 +802,9 @@ function OnboardingDetail() {
     filePath: string
     fileName: string
     fileExtension: string
-  }) => {
-    getPresignedUrlforCommon('resume',encodeURIComponent(file.filePath))
+  }, fileType: string
+  ) => {
+    getPresignedUrlforCommon(fileType, encodeURIComponent(file.filePath))
     .then(res => {
       file.url = res.url
       setModal(

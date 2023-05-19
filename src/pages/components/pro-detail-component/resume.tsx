@@ -16,6 +16,7 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import Slider from 'react-slick'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
+import { FileType } from 'src/shared/const/signedURLFileType'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -24,7 +25,7 @@ type Props = {
     filePath: string
     fileName: string
     fileExtension: string
-  }) => void
+  }, fileType: string) => void
 }
 
 export default function Resume({ userInfo, onClickResume }: Props) {
@@ -183,7 +184,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickResume(value)}
+                    onClick={() => onClickResume(value, FileType.RESUME)}
                   >
                     <Box
                       sx={{
