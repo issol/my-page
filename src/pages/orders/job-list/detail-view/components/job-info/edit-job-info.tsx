@@ -34,7 +34,7 @@ import FileItem from '@src/@core/components/fileItem'
 import { v4 as uuidv4 } from 'uuid'
 import toast, { Toaster, resolveValue } from 'react-hot-toast'
 
-const JobInfo = () => {
+const EditJobInfo = () => {
   const theme = useTheme()
   const { direction } = theme
   const toastContainer = useRef(null)
@@ -524,4 +524,4 @@ const JobInfo = () => {
   )
 }
 
-export default JobInfo
+export default EditJobInfo

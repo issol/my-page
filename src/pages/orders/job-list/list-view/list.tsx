@@ -228,8 +228,8 @@ export default function JobsList({
         loading={isLoading}
         onCellClick={params => {
           router.push({
-            pathname: '/orders/job-list/detail-view/',
-            query: { jobId: params.row.id },
+            pathname: '/orders/job-list/details/',
+            query: { orderId: params.row.id, jobId: 8 },
           })
         }}
         rowsPerPageOptions={[10, 25, 50]}

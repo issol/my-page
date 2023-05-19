@@ -200,7 +200,7 @@ export default function OrderList({ onClose }: Props) {
     } else {
       onClose()
       router.push({
-        pathname: '/orders/job-list/detail-view/',
+        pathname: '/orders/job-list/details/',
         query: { orderId: selected.id },
       })
     }

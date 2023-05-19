@@ -14,12 +14,12 @@ import {
   useEffect,
   useContext,
 } from 'react'
-import JobInfo from './components/job-info'
+
 import Prices from './components/prices'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, JobType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
 import { is } from 'date-fns/locale'
@@ -30,13 +30,18 @@ import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
   tab?: string
+  row: JobType
 }
 import JobHistory from './components/history'
+import EditJobInfo from './components/job-info/edit-job-info'
+import ViewJobInfo from './components/job-info/view-job-info'
 
-const JobInfoDetailView = ({ tab }: Props) => {
+const JobInfoDetailView = ({ tab, row }: Props) => {
   const { openModal, closeModal } = useModal()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const { user } = useContext(AuthContext)
+
+  const [editJobInfo, setEditJobInfo] = useState(false)
 
   const { data: priceUnitsList } = useGetAllPriceList()
 
@@ -103,7 +108,7 @@ const JobInfoDetailView = ({ tab }: Props) => {
           }}
         >
           <img src='/images/icons/order-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>TRA-001</Typography>
+          <Typography variant='h5'>{row.corporationId}</Typography>
         </Box>
 
         <TabContext value={value}>
@@ -144,7 +149,11 @@ const JobInfoDetailView = ({ tab }: Props) => {
             />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            <JobInfo />
+            {row.jobName === null || editJobInfo ? (
+              <EditJobInfo />
+            ) : (
+              <ViewJobInfo row={row} />
+            )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <Suspense>
