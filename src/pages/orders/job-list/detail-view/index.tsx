@@ -1,21 +1,82 @@
+'use client'
+
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
 import { Box, IconButton, Tab, Typography, styled } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
-import { SyntheticEvent, useState, MouseEvent } from 'react'
+import {
+  SyntheticEvent,
+  useState,
+  MouseEvent,
+  Suspense,
+  useEffect,
+  useContext,
+} from 'react'
 import JobInfo from './components/job-info'
 import Prices from './components/prices'
-import JobHistory from './components/history'
+import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { PriceUnitListType } from '@src/types/common/standard-price'
+import { useFieldArray, useForm } from 'react-hook-form'
+import { ItemType } from '@src/types/common/item.type'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
+import { is } from 'date-fns/locale'
+import AssignPro from './components/assign-pro/assign-pro'
+import { AssignProFilterPostType } from '@src/types/orders/job-detail'
+import { useGetAssignProList } from '@src/queries/order/job.query'
+import { AuthContext } from '@src/context/AuthContext'
 
-const JobInfoDetailView = () => {
+type Props = {
+  tab?: string
+}
+
+const JobInfoDetailView = ({ tab }: Props) => {
   const { openModal, closeModal } = useModal()
-  const [value, setValue] = useState<string>('jobInfo')
+  const [value, setValue] = useState<string>(tab ?? 'jobInfo')
+  const { user } = useContext(AuthContext)
+
+  const { data: priceUnitsList } = useGetAllPriceList()
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
+  const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    trigger: itemTrigger,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: isItemValid },
+  } = useForm<{ items: ItemType[] }>({
+    mode: 'onBlur',
+    defaultValues: { items: [] },
+    resolver: yupResolver(jobItemSchema),
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
+  })
+
+  useEffect(() => {
+    appendItems({
+      name: '',
+      source: 'en',
+      target: 'ko',
+      contactPersonId: 0,
+      priceId: null,
+      detail: [],
+      totalPrice: 0,
+    })
+  }, [])
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
@@ -85,12 +146,24 @@ const JobInfoDetailView = () => {
             <JobInfo />
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
-            <Prices />
+            <Suspense>
+              <Prices
+                priceUnitsList={priceUnitsList ?? []}
+                itemControl={itemControl}
+                itemErrors={itemErrors}
+                getItem={getItem}
+                setItem={setItem}
+                itemTrigger={itemTrigger}
+                itemReset={itemReset}
+                isItemValid={isItemValid}
+                appendItems={appendItems}
+              />
+            </Suspense>
           </TabPanel>
-          <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
-          <TabPanel value='history' sx={{ pt: '30px' }}>
-            <JobHistory id={1} />
+          <TabPanel value='assignPro' sx={{ pt: '30px' }}>
+            <AssignPro user={user!} />
           </TabPanel>
+          <TabPanel value='history' sx={{ pt: '30px' }}></TabPanel>
         </TabContext>
       </Box>
     </Box>

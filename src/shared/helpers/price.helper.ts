@@ -67,6 +67,7 @@ export function formatByRoundingProcedure(
       }
     }
     const rounded = Math.round(price / decimalPlace) * decimalPlace
+
     return rounded
   } catch (e) {
     return 0

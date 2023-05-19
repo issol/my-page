@@ -32,7 +32,7 @@ export const useGetAllPriceList = () => {
       return getAllPriceUnitList()
     },
     {
-      suspense: true,
+      suspense: false,
       staleTime: 60 * 1000,
       keepPreviousData: true,
       onError: () => {
