@@ -23,32 +23,32 @@ type Props = {
 }
 
 interface DataType {
-  stats: number
+  stats: string
   title: string
   color: ThemeColor
   icon: ReactElement
 }
 
-const salesData: DataType[] = [
-  {
-    stats: 900,
-    color: 'primary',
-    title: 'Onboarded',
-    icon: <Icon icon='mdi:airplane-takeoff' />,
-  },
-  {
-    stats: 102,
-    color: 'warning',
-    title: 'Testing',
-    icon: <Icon icon='mdi:poll' />,
-  },
-  {
-    color: 'info',
-    stats: 300,
-    title: 'Waiting',
-    icon: <Icon icon='mdi:clock-time-four' />,
-  },
-]
+// const salesData: DataType[] = [
+//   {
+//     stats: 900,
+//     color: 'primary',
+//     title: 'Onboarded',
+//     icon: <Icon icon='mdi:airplane-takeoff' />,
+//   },
+//   {
+//     stats: 102,
+//     color: 'warning',
+//     title: 'Testing',
+//     icon: <Icon icon='mdi:poll' />,
+//   },
+//   {
+//     color: 'info',
+//     stats: 300,
+//     title: 'Waiting',
+//     icon: <Icon icon='mdi:clock-time-four' />,
+//   },
+// ]
 
 const renderStats = (data: DataType[]) => {
   return data.map((value: DataType, index: number) => (
@@ -79,7 +79,7 @@ const Overview = ({ onboardingStatistic }: Props) => {
   const data: DataType[] = Object.entries(onboardingStatistic).map(
     (key, value) => {
       return {
-        stats: value,
+        stats: `${key[1].toLocaleString()}`,
         color: 'primary',
         title: key[0],
         icon:

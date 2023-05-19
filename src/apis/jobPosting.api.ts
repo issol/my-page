@@ -23,7 +23,7 @@ export const getJobPostingList = async (
   filters: FilterType,
 ): Promise<{
   data: Array<JobPostingDataType> | []
-  count: number
+  totalCount: number
 }> => {
   try {
     const { data } = await axios.get(
@@ -36,7 +36,7 @@ export const getJobPostingList = async (
   } catch (e: any) {
     return {
       data: [],
-      count: 0,
+      totalCount: 0,
     }
   }
 }

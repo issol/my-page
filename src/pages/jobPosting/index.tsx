@@ -118,7 +118,7 @@ export default function jobPosting() {
         setPageSize={(n: number) =>
           setActiveFilter({ ...activeFilter, take: n })
         }
-        list={list || { data: [], count: 0 }}
+        list={list || { data: [], totalCount: 0 }}
         isLoading={isLoading}
       />
     </Grid>

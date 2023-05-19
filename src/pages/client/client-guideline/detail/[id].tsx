@@ -555,7 +555,10 @@ const ClientGuidelineDetail = () => {
                 </Box>
               </Card>
               <Card style={{ marginTop: '24px' }}>
-                <Box
+                {
+                  isAuthor('delete', currentVersion?.userId!) 
+                  || isAuthor('update', currentVersion?.userId!) 
+                  ? (<Box
                   sx={{
                     padding: '20px',
                     display: 'flex',
@@ -586,7 +589,7 @@ const ClientGuidelineDetail = () => {
                   ) : (
                     ''
                   )}
-                </Box>
+                </Box>) : null}
               </Card>
             </Grid>
           </Grid>

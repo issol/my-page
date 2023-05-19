@@ -66,9 +66,11 @@ import {
 import { CountryType } from 'src/types/sign/personalInfoTypes'
 
 // ** values
-import { JobList } from 'src/shared/const/job/jobs'
+import { JobList, ProJobPair } from 'src/shared/const/job/jobs'
+import { RoleList, ProRolePair } from 'src/shared/const/role/roles'
+
 import { RecruitingStatus } from 'src/shared/const/status/statuses'
-import { RoleList } from 'src/shared/const/role/roles'
+
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { countries } from 'src/@fake-db/autocomplete'
 import JobPostingListModal from '../components/jobPosting-modal'
@@ -107,6 +109,10 @@ export default function RecruitingPost() {
     dueDateTimezone: { code: '', label: '', phone: '' },
     jobPostLink: '',
   }
+
+  type FilterState = Array<{ value: string; label: string }>
+  const [jobTypeOption, setJobTypeOption] = useState<FilterState>([])
+  const [roleOption, setRoleOption] = useState<FilterState>([])
 
   const {
     control,
@@ -254,6 +260,33 @@ export default function RecruitingPost() {
     postMutation.mutate(filteredForm)
   }
 
+  const currJobType = watch('jobType')
+  const currRole = watch('role')
+  function findDynamicFilterOptions(
+    type: 'role' | 'jobType',
+  ): Array<{ value: string; label: string }> {
+    switch (type) {
+      case 'jobType':
+        const key = currJobType.value as keyof typeof ProRolePair
+        return ProRolePair[key]?.length ? [...ProRolePair[key]] : []
+      case 'role':
+        const roleKey = currRole.value as keyof typeof ProJobPair
+        return ProJobPair[roleKey]?.length ? [...ProJobPair[roleKey]] : []
+      default:
+        return []
+    }
+  }
+
+  useEffect(() => {
+    const newFilter = findDynamicFilterOptions('jobType')
+    setRoleOption(newFilter)
+  }, [currJobType])
+
+  useEffect(() => {
+    const newFilter = findDynamicFilterOptions('role')
+    setJobTypeOption(newFilter)
+  }, [currRole])
+
   return (
     <DatePickerWrapper>
       <form>
@@ -367,7 +400,7 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={JobList}
+                          options={!jobTypeOption.length ? JobList : jobTypeOption}
                           value={value}
                           filterSelectedOptions
                           onChange={(e, v) => {
@@ -404,7 +437,7 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={RoleList}
+                          options={!roleOption.length ? RoleList : roleOption}
                           value={value}
                           filterSelectedOptions
                           onChange={(e, v) => {
@@ -696,7 +729,7 @@ export default function RecruitingPost() {
         pageSize={pageSize}
         setSkip={setSkip}
         setPageSize={setPageSize}
-        list={list || { data: [], count: 0 }}
+        list={list || { data: [], totalCount: 0 }}
         isLoading={isLoading}
       />
     </DatePickerWrapper>

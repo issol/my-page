@@ -220,6 +220,11 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Job type / Role</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
+        row.jobInfo.sort((a, b) => {
+          const dateA = new Date(a.createdAt).getTime();
+          const dateB = new Date(b.createdAt).getTime();
+          return dateB - dateA;
+        });
         const jobInfo = row.jobInfo.map(value => ({
           jobType: value.jobType,
           role: value.role,

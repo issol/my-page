@@ -143,7 +143,6 @@ export default function ItemForm({
   }
 
   function onItemRemove(idx: number) {
-    const value = getValues(`items.${idx}`)
     openModal({
       type: 'delete-item',
       children: (

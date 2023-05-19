@@ -39,7 +39,7 @@ export default function OnboardingList({
     <Grid item xs={12}>
       <Card>
         <CardHeader
-          title={`Pros (${onboardingProListCount})`}
+          title={`Pros (${onboardingProListCount.toLocaleString()})`}
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
         ></CardHeader>
         <Box

@@ -97,6 +97,66 @@ export default function AppliedRole({
             </Grid>
           </>
         )
+      } else if (
+        // no test case 1, jobInfo.requestStatus가 Awaiting assignment일 경우
+        basicTest &&
+        skillTest &&
+        ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||
+          (basicTest!.status !== 'NO_TEST' && skillTest!.status === 'NO_TEST'))
+      ) {
+        if (
+          jobInfo.role === 'DTPer' ||
+          jobInfo.role === 'DTP QCer' ||
+          jobInfo.jobType === 'Interpretation'
+        ) {
+          return (
+            <>
+              <Grid item md={4} lg={4} xs={4}>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  sx={{
+                    border: '1px solid rgba(255, 77, 73, 0.5)',
+                    color: '#FF4D49',
+                  }}
+                  onClick={() => {
+                    onClickRejectOrPause(jobInfo, 'reject')
+                  }}
+                >
+                  Reject
+                </Button>
+              </Grid>
+              <Grid item md={8} lg={8} xs={8}>
+                <Button
+                  fullWidth
+                  variant='contained'
+                  onClick={() => {
+                    onClickCertify(jobInfo)
+                  }}
+                >
+                  Certify
+                </Button>
+              </Grid>
+            </>
+          )
+        } else {
+          return (
+            <Button
+              fullWidth
+              variant='contained'
+              disabled
+              sx={{
+                '&.Mui-disabled': {
+                  background: 'rgba(76, 78, 100, 0.12)',
+                  border: 'none',
+                  color: ' rgba(76, 78, 100, 0.38)',
+                },
+              }}
+            >
+              No certification test created
+            </Button>
+          )
+        }
       } else {
         return (
           <>
@@ -151,6 +211,28 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
+        jobInfo!.requestStatus === 'Test assigned' &&
+        jobInfo.testStatus === 'Awaiting assignment' &&
+        (skillTest && skillTest.status !== 'NO_TEST')
+      ) {
+      return (
+        <Button
+          fullWidth
+          variant='contained'
+          disabled
+          sx={{
+            '&.Mui-disabled': {
+              background:
+                'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128;',
+              border: '1px solid rgba(114, 225, 40, 0.5)',
+              color: '#64C623',
+            },
+          }}
+        >
+          Test assigned
+        </Button>
+      )
+    } else if (
       basicTest &&
       jobInfo!.requestStatus === 'Test in progress' &&
       (jobInfo!.testStatus === 'Basic in progress' ||
@@ -202,8 +284,11 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
-      jobInfo!.requestStatus === 'Test in progress' && 
-      jobInfo!.testStatus === 'Skipped'
+      (jobInfo!.requestStatus === 'Test in progress' && 
+      jobInfo!.testStatus === 'Skipped') ||
+      (jobInfo!.requestStatus === 'Test in progress' && 
+      basicTest && basicTest.status === 'NO_TEST' &&
+      skillTest && skillTest.status === 'Awaiting assignment')
     ) { // basic skip
       return (
         <Button
@@ -223,6 +308,7 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
+      // no test case 2, jobInfo.requestStatus에 상관없이 체크
       basicTest &&
       skillTest &&
       ((basicTest!.status === 'NO_TEST' && skillTest!.status === 'NO_TEST') ||

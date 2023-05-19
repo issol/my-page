@@ -39,7 +39,7 @@ type Props = {
   setPageSize: (num: number) => void
   list: {
     data: Array<JobPostingDataType> | []
-    count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -199,7 +199,7 @@ export default function JobPostingListModal({
             title={
               <Box display='flex' justifyContent='space-between'>
                 <Typography variant='h6'>
-                  Job posting list ({list?.count | 0})
+                  Job posting list ({list?.totalCount | 0})
                 </Typography>
               </Box>
             }
@@ -213,7 +213,7 @@ export default function JobPostingListModal({
               }}
               // onRowClick={e => moveToDetail(e)}
               rows={list.data}
-              rowCount={list.count}
+              rowCount={list.totalCount}
               loading={isLoading}
               rowsPerPageOptions={[5, 15, 30]}
               pagination

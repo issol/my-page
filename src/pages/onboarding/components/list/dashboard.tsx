@@ -7,6 +7,7 @@ import CardNormal from 'src/@core/components/card-statistics/card-normal'
 
 import Overview from 'src/@core/components/card-statistics/card-overview'
 
+import logger from '@src/@core/utils/logger'
 type Props = {
   totalStatistics: { todayRegisteredUser: number; totalUser: number }
   onboardingStatistic: { onboarded: number; testing: number; waiting: number }
@@ -15,7 +16,8 @@ export default function OnboardingDashboard({
   totalStatistics,
   onboardingStatistic,
 }: Props) {
-  console.log(totalStatistics)
+  logger.debug(totalStatistics)
+  logger.debug(onboardingStatistic)
 
   return (
     <Grid item xs={12}>
