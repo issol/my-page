@@ -20,6 +20,7 @@ type Props = {
   userInfo: OnboardingProDetailsType
   onClickContracts: (file: {
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
   }) => void
@@ -32,6 +33,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
     file:
       | {
           url: string
+          filePath: string
           fileName: string
           fileExtension: string
         }[]

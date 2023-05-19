@@ -91,11 +91,13 @@ export type OnboardingUserType = {
   resume?: Array<{
     id: number
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
   }>
   contracts?: Array<{
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
   }>

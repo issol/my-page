@@ -21,6 +21,7 @@ type Props = {
   userInfo: OnboardingProDetailsType
   onClickResume: (file: {
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
   }) => void
@@ -33,6 +34,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
     file:
       | {
           url: string
+          filePath: string
           fileName: string
           fileExtension: string
         }[]

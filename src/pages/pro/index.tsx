@@ -36,6 +36,7 @@ import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-
 import { AuthContext } from '@src/context/AuthContext'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
+import { getPresignedUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -92,16 +93,21 @@ const Pro = () => {
   const onClickFile = (file: {
     id: number
     url: string
+    filePath : string
     fileName: string
     fileExtension: string
   }) => {
-    setModal(
-      <FilePreviewDownloadModal
-        open={true}
-        onClose={() => setModal(null)}
-        docs={[file]}
-      />,
-    )
+    getPresignedUrlforCommon('resume',encodeURIComponent(file.filePath))
+    .then(res => {
+      file.url = res.url
+      setModal(
+        <FilePreviewDownloadModal
+          open={true}
+          onClose={() => setModal(null)}
+          docs={[file]}
+        />,
+      )
+    })
   }
 
   const onClickResetButton = () => {

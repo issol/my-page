@@ -10,12 +10,14 @@ type Props = {
   resume: Array<{
     id: number
     fileName: string
+    filePath: string
     url: string
     fileExtension: string
   }>
   onClickFile: (file: {
     id: number
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
   }) => void
