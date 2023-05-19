@@ -447,7 +447,7 @@ const RecruitingDetail = () => {
             </Grid>
             <Grid item md={3} xs={12}>
               <Card>
-                <Box
+                {isWriter || isMaster ? (<Box
                   sx={{
                     padding: '20px',
                     display: 'flex',
@@ -487,7 +487,7 @@ const RecruitingDetail = () => {
                   ) : (
                     ''
                   )}
-                </Box>
+                </Box>) : null}
               </Card>
             </Grid>
           </Grid>

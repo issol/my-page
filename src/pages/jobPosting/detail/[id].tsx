@@ -377,7 +377,7 @@ const JobPostingDetail = () => {
                 </Box>
               </Card>
               <Card style={{ marginTop: '24px' }}>
-                <Box
+                {isDeletable || isUpdatable ? (<Box
                   sx={{
                     padding: '20px',
                     display: 'flex',
@@ -405,7 +405,7 @@ const JobPostingDetail = () => {
                       Edit
                     </Button>
                   ) : null}
-                </Box>
+                </Box>) : null}
               </Card>
             </Grid>
           </Grid>
