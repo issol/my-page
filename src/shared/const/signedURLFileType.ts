@@ -1,4 +1,4 @@
-export const FileType = {
+export const DownloadFileType = {
   RESUME: 'resume',
   CONTRACTS: 'contracts',
   GUIDELINE: 'guideline',
