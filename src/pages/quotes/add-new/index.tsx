@@ -58,6 +58,8 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import ItemForm from '@src/pages/components/forms/items-form'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-form'
 
 export type languageType = {
   id: number | string
@@ -434,7 +436,41 @@ export default function AddNewQuotes() {
             />
           </Card>
         ) : activeStep === 2 ? (
-          <Card sx={{ padding: '24px' }}>Project Info</Card>
+          <Card sx={{ padding: '24px' }}>
+            <DatePickerWrapper>
+              <Grid container spacing={6}>
+                <ProjectInfoForm
+                  control={projectInfoControl}
+                  setValue={setProjectInfo}
+                  watch={projectInfoWatch}
+                  errors={projectInfoErrors}
+                  clientTimezone={getClientValue('contacts.timezone')}
+                />
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  justifyContent='space-between'
+                >
+                  <Button
+                    variant='outlined'
+                    color='secondary'
+                    onClick={handleBack}
+                  >
+                    <Icon icon='material-symbols:arrow-back-rounded' />
+                    Previous
+                  </Button>
+                  <Button
+                    variant='contained'
+                    disabled={!isProjectInfoValid}
+                    onClick={onNextStep}
+                  >
+                    Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                  </Button>
+                </Grid>
+              </Grid>
+            </DatePickerWrapper>
+          </Card>
         ) : (
           <Card sx={{ padding: '24px' }}>
             <Grid container>

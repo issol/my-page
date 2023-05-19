@@ -4,7 +4,7 @@ import { OrderStatusType } from '../common/orders.type'
 import { QuoteStatusType } from '../common/quotes.type'
 
 export const quotesProjectInfoDefaultValue = {
-  status: 'In preparation' as QuoteStatusType,
+  status: 'New' as QuoteStatusType,
   projectName: '',
   quoteDate: Date(),
 }

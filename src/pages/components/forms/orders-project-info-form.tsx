@@ -208,6 +208,8 @@ export default function ProjectInfoForm({
                 options={workName || []}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
+                  setIsAddMode(false)
+                  setOpenPopper(false)
                 }}
                 value={
                   !value || !workName
@@ -278,7 +280,10 @@ export default function ProjectInfoForm({
                 <Button
                   variant='outlined'
                   size='small'
-                  onClick={() => setIsAddMode(false)}
+                  onClick={() => {
+                    setIsAddMode(false)
+                    setOpenPopper(false)
+                  }}
                 >
                   Cancel
                 </Button>
