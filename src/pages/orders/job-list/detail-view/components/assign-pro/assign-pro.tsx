@@ -31,6 +31,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
+import { JobType } from '@src/types/common/item.type'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -57,9 +58,10 @@ const defaultFilters: AssignProFilterPostType = {
 
 type Props = {
   user: UserDataType
+  row: JobType
 }
 
-const AssignPro = ({ user }: Props) => {
+const AssignPro = ({ user, row }: Props) => {
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -133,7 +135,7 @@ const AssignPro = ({ user }: Props) => {
             },
           }}
         >
-          <Message info={info} user={user} />
+          <Message info={info} user={user} row={row} />
         </Box>
       ),
     })

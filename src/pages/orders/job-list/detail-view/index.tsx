@@ -171,7 +171,7 @@ const JobInfoDetailView = ({ tab, row }: Props) => {
             </Suspense>
           </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}>
-            <AssignPro user={user!} />
+            <AssignPro user={user!} row={row} />
           </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
           <TabPanel value='history' sx={{ pt: '30px' }}>
