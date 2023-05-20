@@ -101,10 +101,10 @@ const ProjectTeam = ({
       } else if (item.type === 'projectManagerId') {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
-        if (!result.member) {
+        if (!item.id) {
           result.member = []
         }
-        result.member.push(item.id!)
+        result?.member?.push(item.id!)
       }
     })
     // if (!result.member || !result?.member?.length) delete result.member
