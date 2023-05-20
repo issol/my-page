@@ -181,6 +181,45 @@ export const ClientStatus = [
   },
 ]
 
+export const QuotesStatus = [
+  {
+    value: 'New',
+    label: 'New',
+  },
+  {
+    value: 'In preparation',
+    label: 'In preparation',
+  },
+  {
+    value: 'Review before submission',
+    label: 'Review before submission',
+  },
+  {
+    value: 'Pending',
+    label: 'Pending',
+  },
+  {
+    value: 'Expired',
+    label: 'Expired',
+  },
+  {
+    value: 'Rejected',
+    label: 'Rejected',
+  },
+  {
+    value: 'Accepted',
+    label: 'Accepted',
+  },
+  {
+    value: 'Changed into order',
+    label: 'Changed into order',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]
+
 export const OrderStatus = [
   {
     value: 'In preparation',

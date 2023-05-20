@@ -1,4 +1,4 @@
-import { useContext, useEffect, useRef, useState } from 'react'
+import { useContext, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -16,7 +16,7 @@ import {
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
 
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, useFieldArray } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Icon Imports
@@ -30,36 +30,46 @@ import {
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
-
-// ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
-import Stepper from '@src/pages/components/stepper'
-import ProjectTeamFormContainer from '../components/form-container/project-team-container'
-import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { AuthContext } from '@src/context/AuthContext'
-import { StandardPriceListType } from '@src/types/common/standard-price'
-
-import { getPriceList } from '@src/apis/company-price.api'
 import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import languageHelper from '@src/shared/helpers/language.helper'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+
+// ** components
+import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
+import Stepper from '@src/pages/components/stepper'
+import ProjectTeamFormContainer from '../components/form-container/project-team-container'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemForm from '@src/pages/components/forms/items-form'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-form'
+
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+
+// ** helpers
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import languageHelper from '@src/shared/helpers/language.helper'
+
+// ** contexts
+import { AuthContext } from '@src/context/AuthContext'
+
+// ** apis
+import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetAllPriceList } from '@src/queries/price-units.query'
+import {
+  createItemsForQuotes,
+  createLangPairForQuotes,
+  createQuotesInfo,
+} from '@src/apis/quotes.api'
 
 export type languageType = {
   id: number | string
@@ -312,6 +322,7 @@ export default function AddNewQuotes() {
   }
 
   function onSubmit() {
+    console.log(getTeamValues())
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -339,20 +350,20 @@ export default function AddNewQuotes() {
       }
     })
     const stepOneData = { ...teams, ...clients, ...projectInfo }
-    // createOrderInfo(stepOneData)
-    //   .then(res => {
-    //     if (res.id) {
-    //       Promise.all([
-    //         createLangPairForOrder(res.id, langs),
-    //         createItemsForOrder(res.id, items),
-    //       ])
-    //         .then(() => {
-    //           router.push(`/orders/order-list/detail/${res.id}`)
-    //         })
-    //         .catch(e => onRequestError())
-    //     }
-    //   })
-    //   .catch(e => onRequestError())
+    createQuotesInfo(stepOneData)
+      .then(res => {
+        if (res.id) {
+          Promise.all([
+            createLangPairForQuotes(res.id, langs),
+            createItemsForQuotes(res.id, items),
+          ])
+            .then(() => {
+              router.push(`/quotes/detail/${res.id}`)
+            })
+            .catch(e => onRequestError())
+        }
+      })
+      .catch(e => onRequestError())
   }
 
   function onRequestError() {
@@ -375,14 +386,15 @@ export default function AddNewQuotes() {
       } else if (item.type === 'projectManagerId') {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
-        if (!result.member) {
+        if (!item.id) {
           result.member = []
+        } else {
+          result?.member?.push(item.id!)
         }
-        result.member.push(item.id!)
       }
     })
     if (!result.member || !result?.member?.length) delete result.member
-
+    console.log('get members', result)
     return result
   }
 

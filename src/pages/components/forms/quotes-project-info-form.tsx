@@ -49,9 +49,8 @@ import {
   AreaOfExpertisePair,
   AreaOfExpertiseList,
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
-import { RevenueFrom } from '@src/shared/const/revenue-from'
 import { countries } from 'src/@fake-db/autocomplete'
-import { OrderStatus } from '@src/shared/const/status/statuses'
+import { QuotesStatus } from '@src/shared/const/status/statuses'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -179,14 +178,14 @@ export default function ProjectInfoForm({
             <Autocomplete
               autoHighlight
               fullWidth
-              options={OrderStatus}
+              options={QuotesStatus}
               onChange={(e, v) => {
                 onChange(v?.value ?? '')
               }}
               value={
                 !value
                   ? defaultValue
-                  : OrderStatus.find(item => item.value === value)
+                  : QuotesStatus.find(item => item.value === value)
               }
               renderInput={params => (
                 <TextField
@@ -475,7 +474,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Time zone*'
+                  label='Time zone'
                   error={Boolean(errors?.projectDueDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
@@ -527,7 +526,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Time zone*'
+                  label='Time zone'
                   error={Boolean(errors?.projectDueDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
@@ -579,7 +578,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Time zone*'
+                  label='Time zone'
                   error={Boolean(errors?.projectDueDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
@@ -631,7 +630,7 @@ export default function ProjectInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
-                  label='Time zone*'
+                  label='Time zone'
                   error={Boolean(errors?.projectDueDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
