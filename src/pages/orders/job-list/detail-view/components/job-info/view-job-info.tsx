@@ -19,13 +19,14 @@ import { FileType } from '@src/types/common/file.type'
 import { JobType } from '@src/types/common/item.type'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { ro } from 'date-fns/locale'
-import { useState } from 'react'
+import { Dispatch, SetStateAction, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   row: JobType
+  setEditJobInfo: Dispatch<SetStateAction<boolean>>
 }
-const ViewJobInfo = ({ row }: Props) => {
+const ViewJobInfo = ({ row, setEditJobInfo }: Props) => {
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
 
@@ -75,7 +76,11 @@ const ViewJobInfo = ({ row }: Props) => {
         <Typography variant='subtitle2'>
           *Changes will only be applied to new requests
         </Typography>
-        <Button variant='outlined' disabled={!!row.assignedPro}>
+        <Button
+          variant='outlined'
+          // disabled={!!row.assignedPro}
+          onClick={() => setEditJobInfo(true)}
+        >
           <Icon icon='mdi:pencil-outline' fontSize={24} />
           &nbsp; Edit before request
         </Button>

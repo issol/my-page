@@ -504,7 +504,7 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              <Box>{row.prices ?? '-'}</Box>
+                              <Box>{row.prices?.totalPrice ?? '-'}</Box>
                             </TableCell>
 
                             {separateLine()}

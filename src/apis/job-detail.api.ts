@@ -49,8 +49,8 @@ export const getAssignProList = async (
       email: 'leriel@glozinc.com',
       status: 'Onboard',
       responseRate: 30,
-      assignmentStatus: 'Requested',
-      assignmentDate: null,
+      assignmentStatus: 'Assigned',
+      assignmentDate: '2022-05-17T14:13:15Z',
       message: {
         id: 0,
         unReadCount: 2,
@@ -94,6 +94,24 @@ export const getJobDetails = async (id: number) => {
                 code: 'KR',
                 label: 'Korea, Republic of',
                 phone: '82',
+              },
+              prices: {
+                id: 27,
+                priceId: 24,
+                sourceLanguage: 'en',
+                targetLanguage: 'ko',
+                priceName: 'Test',
+                currency: 'KRW',
+                totalPrice: 150,
+                data: [
+                  {
+                    quantity: 1,
+                    priceUnitTitle: 'CAT discount',
+                    priceUnitId: 53,
+                    unitPrice: 150,
+                    prices: 150,
+                  },
+                ],
               },
               dueTimezone: {
                 code: 'KR',

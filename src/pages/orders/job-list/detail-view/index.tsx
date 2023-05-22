@@ -15,7 +15,7 @@ import {
   useContext,
 } from 'react'
 
-import Prices from './components/prices'
+import Prices from './components/prices/edit-prices'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -35,6 +35,8 @@ type Props = {
 import JobHistory from './components/history'
 import EditJobInfo from './components/job-info/edit-job-info'
 import ViewJobInfo from './components/job-info/view-job-info'
+import ViewPrices from './components/prices/view-prices'
+import EditPrices from './components/prices/edit-prices'
 
 const JobInfoDetailView = ({ tab, row }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -42,6 +44,7 @@ const JobInfoDetailView = ({ tab, row }: Props) => {
   const { user } = useContext(AuthContext)
 
   const [editJobInfo, setEditJobInfo] = useState(false)
+  const [editPrices, setEditPrices] = useState(false)
 
   const { data: priceUnitsList } = useGetAllPriceList()
 
@@ -73,16 +76,34 @@ const JobInfoDetailView = ({ tab, row }: Props) => {
   })
 
   useEffect(() => {
-    appendItems({
-      name: '',
-      source: 'en',
-      target: 'ko',
-      contactPersonId: 0,
-      priceId: null,
-      detail: [],
-      totalPrice: 0,
-    })
-  }, [])
+    if (row.prices) {
+      const result = [
+        {
+          id: row.prices?.id!,
+          name: row.prices?.priceName!,
+          source: row.prices?.sourceLanguage!,
+          target: row.prices?.targetLanguage!,
+          priceId: row.prices?.priceId!,
+          detail: !row.prices?.data.length ? [] : row.prices?.data!,
+          contactPersonId: 0,
+          totalPrice: row.prices?.totalPrice!,
+        },
+      ]
+      itemReset({ items: result })
+    } else {
+      appendItems({
+        name: '',
+        source: 'en',
+        target: 'ko',
+        contactPersonId: 0,
+        priceId: null,
+        detail: [],
+        totalPrice: 0,
+      })
+    }
+  }, [row])
+
+  console.log(!!row.prices)
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
@@ -152,22 +173,40 @@ const JobInfoDetailView = ({ tab, row }: Props) => {
             {row.jobName === null || editJobInfo ? (
               <EditJobInfo />
             ) : (
-              <ViewJobInfo row={row} />
+              <ViewJobInfo row={row} setEditJobInfo={setEditJobInfo} />
             )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <Suspense>
-              <Prices
-                priceUnitsList={priceUnitsList ?? []}
-                itemControl={itemControl}
-                itemErrors={itemErrors}
-                getItem={getItem}
-                setItem={setItem}
-                itemTrigger={itemTrigger}
-                itemReset={itemReset}
-                isItemValid={isItemValid}
-                appendItems={appendItems}
-              />
+              {row.prices && !editPrices ? (
+                <ViewPrices
+                  row={row}
+                  priceUnitsList={priceUnitsList ?? []}
+                  itemControl={itemControl}
+                  itemErrors={itemErrors}
+                  getItem={getItem}
+                  setItem={setItem}
+                  itemTrigger={itemTrigger}
+                  itemReset={itemReset}
+                  isItemValid={isItemValid}
+                  appendItems={appendItems}
+                  fields={items}
+                  setEditPrices={setEditPrices}
+                />
+              ) : (
+                <EditPrices
+                  priceUnitsList={priceUnitsList ?? []}
+                  itemControl={itemControl}
+                  itemErrors={itemErrors}
+                  getItem={getItem}
+                  setItem={setItem}
+                  itemTrigger={itemTrigger}
+                  itemReset={itemReset}
+                  isItemValid={isItemValid}
+                  appendItems={appendItems}
+                  fields={items}
+                />
+              )}
             </Suspense>
           </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}>

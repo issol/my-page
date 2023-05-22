@@ -64,6 +64,12 @@ export type AssignProListType = {
   responseRate: number | null
   assignmentStatus: string | null
   assignmentDate: string | null
+  files?: Array<{
+    name: string
+    size: number
+    file: string // s3 key
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  }>
   message: {
     id: number
     unReadCount: number

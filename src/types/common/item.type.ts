@@ -1,4 +1,5 @@
 import { JobStatusType } from '../jobs/common.type'
+import { JobPricesDetailType } from '../jobs/jobs.type'
 import { CountryType } from '../sign/personalInfoTypes'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
@@ -68,7 +69,7 @@ export type JobType = {
     isActive: boolean
     isOnboarded: boolean
   }
-  prices?: number
+  prices?: JobPricesDetailType
   feedback?: string
 
   files: Array<{

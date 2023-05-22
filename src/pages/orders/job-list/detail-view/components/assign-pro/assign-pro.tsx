@@ -32,6 +32,7 @@ import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
 import { JobType } from '@src/types/common/item.type'
+import SourceFileUpload from './source-file'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -141,6 +142,31 @@ const AssignPro = ({ user, row }: Props) => {
     })
   }
 
+  const onClickSourceFileToPro = (info: AssignProListType) => {
+    closeModal('JobDetailViewModal')
+    openModal({
+      type: 'SourceFileUploadModal',
+      children: (
+        <Box
+          sx={{
+            maxWidth: '1180px',
+            width: '100%',
+            maxHeight: '90vh',
+            background: '#ffffff',
+            boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+            borderRadius: '10px',
+            overflow: 'scroll',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
+        >
+          <SourceFileUpload info={info} row={row} />
+        </Box>
+      ),
+    })
+  }
+
   const columns: GridColumns<AssignProListType> = [
     {
       minWidth: 310,
@@ -241,6 +267,11 @@ const AssignPro = ({ user, row }: Props) => {
               <Button variant='outlined' sx={{ height: '30px' }} size='small'>
                 Assign
               </Button>
+            )}
+            {row.assignmentStatus === 'Assigned' && (
+              <IconButton onClick={() => onClickSourceFileToPro(row)}>
+                <Icon icon='ic:outline-upload-file' color='#666cff' />
+              </IconButton>
             )}
           </Box>
         )

@@ -94,6 +94,8 @@ export default function ItemPriceUnitForm({
   priceUnitsList,
   type,
 }: Props) {
+  console.log(details)
+
   const itemName: `items.${number}.detail` = `items.${index}.detail`
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]

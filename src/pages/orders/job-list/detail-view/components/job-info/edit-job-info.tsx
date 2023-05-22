@@ -61,7 +61,7 @@ const EditJobInfo = () => {
   })
 
   const description = watch('jobDescription')
-  const MAXIMUM_FILE_SIZE = 50000000
+  const MAXIMUM_FILE_SIZE = 20000000
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
