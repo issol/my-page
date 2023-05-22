@@ -192,7 +192,10 @@ export default function AppliedRole({
           </>
         )
       }
-    } else if (jobInfo.testStatus === 'Skill failed') {
+    } else if (
+      jobInfo.testStatus === 'Skill failed' ||
+      jobInfo.testStatus === 'Cancelled'
+    ) {
       return (
         <Button
           fullWidth
@@ -574,7 +577,9 @@ export default function AppliedRole({
                                 ?.status === 'Awaiting assignment'
                             ) &&
                             value.test.find(data => data.testType === 'skill')
-                              ?.status !== 'Skill failed' ? (
+                              ?.status !== 'Skill failed' &&
+                            value.test.find(data => data.testType === 'skill')
+                              ?.status !== 'Cancelled' ? (
                               <Button
                                 variant='outlined'
                                 size='small'
