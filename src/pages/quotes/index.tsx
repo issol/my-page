@@ -5,7 +5,7 @@ import styled from 'styled-components'
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
-import { Switch, Typography } from '@mui/material'
+import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import FormControlLabel from '@mui/material/FormControlLabel'
 // ** components
@@ -26,6 +26,8 @@ import { CategoryList } from '@src/shared/const/category/categories'
 import QuotesFilters from './list/filters'
 import { useGetQuotesList } from '@src/queries/quotes.query'
 import QuotesList from './list/list'
+import CalendarContainer from './calendar'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -226,20 +228,39 @@ export default function Quotes({ id, user }: Props) {
                 />
               </Box>
             </Box>
-
-            <QuotesList
-              skip={quoteListPage}
-              setSkip={setClientInvoiceListPage}
-              pageSize={quoteListPageSize}
-              setPageSize={setClientInvoiceListPageSize}
-              list={list || { data: [], totalCount: 0 }}
-              isLoading={isLoading}
-            />
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader
+                  title={
+                    <Box display='flex' justifyContent='space-between'>
+                      <Typography variant='h6'>
+                        Clients ({list?.totalCount ?? 0})
+                      </Typography>{' '}
+                      <Button variant='contained'>
+                        <StyledNextLink href='/quotes/add-new' color='white'>
+                          Create new quote
+                        </StyledNextLink>
+                      </Button>
+                    </Box>
+                  }
+                  sx={{
+                    pb: 4,
+                    '& .MuiCardHeader-title': { letterSpacing: '.15px' },
+                  }}
+                />
+                <QuotesList
+                  skip={quoteListPage}
+                  setSkip={setClientInvoiceListPage}
+                  pageSize={quoteListPageSize}
+                  setPageSize={setClientInvoiceListPageSize}
+                  list={list || { data: [], totalCount: 0 }}
+                  isLoading={isLoading}
+                />
+              </Card>
+            </Grid>
           </Box>
         ) : (
-          // <CalendarContainer id={id} sort={sort} setSort={setSort} />
-          <Box>Calendar</Box>
-          // <ClientInvoiceCalendarContainer id={id} user={user} />
+          <CalendarContainer />
         )}
       </Box>
     </Box>

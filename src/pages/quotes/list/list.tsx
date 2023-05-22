@@ -224,53 +224,36 @@ export default function QuotesList({
   }
 
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Clients ({list.totalCount})</Typography>{' '}
-              <Button variant='contained'>
-                <StyledNextLink href='/quotes/add-new' color='white'>
-                  Create new quote
-                </StyledNextLink>
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
-            columns={columns}
-            rows={list.data}
-            rowCount={list.totalCount ?? 0}
-            loading={isLoading}
-            // onCellClick={params => {
-            //   router.push(`/client/detail/${params.row.clientId}`)
-            // }}
-            rowsPerPageOptions={[10, 25, 50]}
-            pagination
-            page={skip}
-            pageSize={pageSize}
-            paginationMode='server'
-            onPageChange={setSkip}
-            disableSelectionOnClick
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
-    </Grid>
+    <Box
+      sx={{
+        '& .MuiDataGrid-columnHeaderTitle': {
+          textTransform: 'none',
+        },
+      }}
+    >
+      <DataGrid
+        autoHeight
+        components={{
+          NoRowsOverlay: () => NoList(),
+          NoResultsOverlay: () => NoList(),
+        }}
+        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        columns={columns}
+        rows={list.data}
+        rowCount={list.totalCount ?? 0}
+        loading={isLoading}
+        // onCellClick={params => {
+        //   router.push(`/client/detail/${params.row.clientId}`)
+        // }}
+        rowsPerPageOptions={[10, 25, 50]}
+        pagination
+        page={skip}
+        pageSize={pageSize}
+        paginationMode='server'
+        onPageChange={setSkip}
+        disableSelectionOnClick
+        onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+      />
+    </Box>
   )
 }

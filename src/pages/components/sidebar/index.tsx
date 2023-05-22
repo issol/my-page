@@ -7,7 +7,6 @@ import Box from '@mui/material/Box'
 
 // ** styles
 import styled from 'styled-components'
-import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 
 // ** types
 import { Button } from '@mui/material'
@@ -37,26 +36,6 @@ export default function CalendarSideBar<T>({
   handleLeftSidebarToggle,
   setCurrentListId,
 }: Props<T>) {
-  const bgColors = UseBgColor()
-
-  // const colors: UseBgColorType = {
-  //   primary: { ...bgColors.primaryLight },
-  //   secondary: { ...bgColors.secondaryLight },
-  //   success: { ...bgColors.successLight },
-  //   error: {
-  //     color: 'rgba(76, 78, 100, 0.87)',
-  //     backgroundColor: hexToRGBA('#8C3131', 0.12),
-  //   },
-  //   warning: { ...bgColors.warningLight },
-  //   info: { ...bgColors.infoLight },
-  //   overdue: {
-  //     color: bgColors.errorLight.color,
-  //     backgroundColor:
-  //       'linear-gradient(135deg, rgba(255, 77, 73, 0.2) 25%, transparent 25%, transparent 50%, rgba(255, 77, 73, 0.2) 50%, rgba(255, 77, 73, 0.2) 75%, transparent 75%, transparent)',
-  //     backgroundSize: '5px 5px',
-  //   },
-  // }
-
   const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
     new Date(new Date().getFullYear(), month),
   )
