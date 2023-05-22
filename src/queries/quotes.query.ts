@@ -1,8 +1,13 @@
-import { MemberListType, getMemberList } from '@src/apis/quotes.api'
+import {
+  MemberListType,
+  getMemberList,
+  getQuotesList,
+} from '@src/apis/quotes.api'
+import { FilterType } from '@src/pages/quotes'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { QuotesFilterType } from '@src/types/quotes/quote'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { FilterType } from 'src/pages/client'
 
 export const useGetMemberList = () => {
   return useQuery(
@@ -32,6 +37,19 @@ export const useGetMemberList = () => {
           position: 'bottom-left',
         })
       },
+    },
+  )
+}
+export const useGetQuotesList = (filter: QuotesFilterType) => {
+  return useQuery(
+    ['get-quotes/list'],
+    () => {
+      return getQuotesList(filter)
+    },
+    {
+      suspense: true,
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
     },
   )
 }

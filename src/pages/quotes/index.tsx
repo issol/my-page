@@ -24,6 +24,8 @@ import { QuotesFilterType } from '@src/types/quotes/quote'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import QuotesFilters from './list/filters'
+import { useGetQuotesList } from '@src/queries/quotes.query'
+import QuotesList from './list/list'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -86,8 +88,7 @@ export default function Quotes({ id, user }: Props) {
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
 
-  const { data: clientInvoiceList, isLoading } =
-    useGetClientInvoiceList(filters)
+  const { data: list, isLoading } = useGetQuotesList(filters)
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -226,21 +227,14 @@ export default function Quotes({ id, user }: Props) {
               </Box>
             </Box>
 
-            {/* <ClientInvoiceList
-              list={clientInvoiceList?.data!}
-              listCount={clientInvoiceList?.totalCount!}
+            <QuotesList
+              skip={quoteListPage}
+              setSkip={setClientInvoiceListPage}
+              pageSize={quoteListPageSize}
+              setPageSize={setClientInvoiceListPageSize}
+              list={list || { data: [], totalCount: 0 }}
               isLoading={isLoading}
-              listPage={clientInvoiceListPage}
-              listPageSize={clientInvoiceListPageSize}
-              setListPage={setClientInvoiceListPage}
-              setListPageSize={setClientInvoiceListPageSize}
-              handleRowClick={handleRowClick}
-              isSelected={isSelected}
-              selected={selected}
-              user={user}
-              title='Invoices'
-              isCardHeader={true}
-            /> */}
+            />
           </Box>
         ) : (
           // <CalendarContainer id={id} sort={sort} setSort={setSort} />

@@ -25,3 +25,26 @@ export type QuotesProjectInfoFormType = {
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
 }
+
+export type QuotesListType = {
+  id: string
+  corporationId: string
+  status: QuoteStatusType
+  projectName: string
+  client: {
+    name: string
+    email: string
+  }
+  contactPerson: {
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+  }
+  category: string
+  serviceType: Array<string>
+  quoteDate: string
+  quoteDeadline: string
+  quoteExpiry: string
+  totalPrice: number
+}

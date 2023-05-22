@@ -1,5 +1,4 @@
 import axios from 'src/configs/axios'
-import logger from '@src/@core/utils/logger'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { UserDataType } from '@src/context/types'
@@ -8,8 +7,12 @@ import {
   LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesListType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import { PostItemType } from '@src/types/common/item.type'
+import { QuotesFilterType } from '@src/types/quotes/quote'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -21,6 +24,19 @@ export const getMemberList = async (): Promise<Array<MemberListType>> => {
     return data
   } catch (e: any) {
     return []
+  }
+}
+export const getQuotesList = async (
+  filter: QuotesFilterType,
+): Promise<{ data: Array<QuotesListType>; totalCount: number }> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/quote?${makeQuery(filter)}`)
+    return data
+  } catch (e: any) {
+    return {
+      data: [],
+      totalCount: 0,
+    }
   }
 }
 
@@ -42,12 +58,12 @@ export const createQuotesInfo = async (
 
 // ** step 4-1
 export const createLangPairForQuotes = async (
-  orderId: number,
+  quoteId: number,
   form: Array<LanguagePairsType>,
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
-      `/api/enough/u/order/language-pair?orderId=${orderId}`,
+      `/api/enough/u/quote/language/pair?quoteId=${quoteId}`,
       { data: form },
     )
     return data
