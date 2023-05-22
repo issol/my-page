@@ -221,11 +221,11 @@ const App = (props: ExtendedAppProps) => {
             <title>{`${themeConfig.templateName}`}</title>
             <meta
               name='description'
-              content={`${themeConfig.templateName} – Material Design React Admin Dashboard Template – is the most developer friendly & highly customizable Admin Dashboard Template based on MUI v5.`}
+              content={`${themeConfig.templateName} – E'nuff`}
             />
             <meta
               name='keywords'
-              content='Material Design, MUI, Admin Template, React Admin Template'
+              content={`E'nuff`}
             />
             <meta
               name='viewport'
