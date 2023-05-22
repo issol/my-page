@@ -1,6 +1,7 @@
 import {
   Card,
   InputLabel,
+  TextField,
   MenuItem,
   SelectChangeEvent,
   Typography,
@@ -130,26 +131,37 @@ export default function About({
               flexDirection: 'column',
             }}
           >
-            <FormControl fullWidth>
-              <InputLabel id='controlled-select-label'>Status</InputLabel>
-              <Select
-                value={status}
-                defaultValue={status}
-                label='Status'
-                id='controlled-select'
-                onChange={handleChangeStatus}
-                labelId='controlled-select-label'
-                disabled={type === 'onboarding'}
-              >
-                {Object.values(ProStatus).map(value => {
-                  return (
-                    <MenuItem key={uuidv4()} value={value.value}>
-                      {value.label}
-                    </MenuItem>
-                  )
-                })}
-              </Select>
-            </FormControl>
+            {type === 'onboarding' ? (
+              <FormControl fullWidth>
+                <TextField 
+                  disabled 
+                  id='about-status-textfield' 
+                  label='Status' 
+                  defaultValue={userInfo.status ? userInfo.status : ' '} // 온보딩이 진행중인 경우엔 상태값이 없음, 공백으로 빈칸 처리함
+                />
+              </FormControl>
+            ) : (
+              <FormControl fullWidth>
+                <InputLabel id='controlled-select-label'>Status</InputLabel>
+                <Select
+                  value={userInfo.status}
+                  defaultValue={userInfo.status}
+                  label='Status'
+                  id='controlled-select'
+                  onChange={handleChangeStatus}
+                  labelId='controlled-select-label'
+                  disabled={type === 'onboarding'}
+                >
+                  {Object.values(ProStatus).map(value => {
+                    return (
+                      <MenuItem key={uuidv4()} value={value.value}>
+                        {value.label}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              </FormControl>
+            )}
           </Box>
         </>
       </Box>
