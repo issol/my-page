@@ -17,6 +17,7 @@ import Slider from 'react-slick'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { DownloadFileType } from 'src/shared/const/signedURLFileType'
+import { getPresignedUrlforCommon } from 'src/apis/common.api'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -43,31 +44,40 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   ) => {
     if (file) {
       file.map(value => {
-        fetch(value.url, { method: 'GET' })
-          .then(res => {
-            return res.blob()
-          })
-          .then(blob => {
-            const url = window.URL.createObjectURL(blob)
-            const a = document.createElement('a')
-            a.href = url
-            a.download = `${value.fileName}.${value.fileExtension}`
-            document.body.appendChild(a)
-            a.click()
-            setTimeout((_: any) => {
-              window.URL.revokeObjectURL(url)
-            }, 60000)
-            a.remove()
-            // onClose()
-          })
-          .catch(error =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
+        getPresignedUrlforCommon(DownloadFileType.RESUME, encodeURIComponent(value.filePath))
+        .then(res => {
+          const previewFile = {
+            url: res.url,
+            fileName: value.fileName,
+            fileExtension: value.fileExtension
+          }
+          console.log("previewFile",previewFile)
+          fetch(previewFile.url, { method: 'GET' })
+            .then(res => {
+              return res.blob()
+            })
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `${value.fileName}.${value.fileExtension}`
+              document.body.appendChild(a)
+              a.click()
+              setTimeout((_: any) => {
+                window.URL.revokeObjectURL(url)
+              }, 60000)
+              a.remove()
+              // onClose()
+            })
+            .catch(error =>
+              toast.error(
+                'Something went wrong while uploading files. Please try again.',
+                {
+                  position: 'bottom-left',
+                },
+              ),
+            )
+        })
       })
     }
   }

@@ -248,7 +248,7 @@ const CertificationTestDetail = () => {
     const path = getFilePath(
       [
         'testPaper',
-        currentVersion?.testType === 'Basic test' ? 'basic' : 'skill',
+        currentVersion?.testType === 'basic' ? 'basic' : 'skill',
         currentVersion?.jobType!,
         currentVersion?.role!,
         language,
@@ -266,14 +266,13 @@ const CertificationTestDetail = () => {
                 ? getUserTokenFromBrowser()
                 : null,
           },
+          responseType: 'blob',
         })
         .then(res => {
           console.log('upload client guideline file success :', res)
-          const url = window.URL.createObjectURL(new Blob([res.data]))
           const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', `${fileName}`)
-          document.body.appendChild(link)
+          link.href = window.URL.createObjectURL(new Blob([res.data]))
+          link.download = `${fileName}`
           link.click()
         })
         .catch(err =>

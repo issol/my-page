@@ -31,7 +31,6 @@ export const getPresignedUrlforCommon = async (
 ) => {
   try {
     const { data } = await axios.get(
-      ///api/enough/u/s3/signed-url?type=resume&filePath=5/resume/camylla-battani-AoqgGAqrLpU-unsplash.jpg
       `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
     )
     return data
@@ -48,6 +47,14 @@ export const postFiles = async (url: string, formData: FormData) => {
         'Bearer ' + typeof window === 'object'
           ? getUserTokenFromBrowser()
           : null,
+    },
+  })
+}
+
+export const uploadFileToS3 = async (url: string, file: any) => {
+  return originalAxios.put(url, file, {
+    headers: {
+      'Content-Type': file.type,
     },
   })
 }
