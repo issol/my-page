@@ -56,7 +56,7 @@ import {
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
-import { postFiles } from 'src/apis/common.api'
+import { postFiles, uploadFileToS3 } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
@@ -374,7 +374,6 @@ const ClientGuidelineForm = () => {
     }
     // file upload
     if (data.file.length) {
-      const formData = new FormData()
       const fileInfo: Array<FilePostType> = []
       const paths: string[] = data?.file?.map(file =>
         getFilePath(
@@ -394,8 +393,7 @@ const ClientGuidelineForm = () => {
             size: data.file[idx]?.size,
             fileUrl: paths[idx],
           })
-          formData.append(`file`, data.file[idx])
-          return postFiles(url, formData)
+          return uploadFileToS3(url, data.file[idx])
         })
         Promise.all(promiseArr)
           .then(res => {

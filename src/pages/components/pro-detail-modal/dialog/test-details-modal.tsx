@@ -61,6 +61,7 @@ import {
   getHistory,
   getReviewer,
   requestReviewer,
+  cancelReviewer,
 } from 'src/apis/onboarding.api'
 import { UserDataType } from '@src/context/types'
 
@@ -207,6 +208,16 @@ export default function TestDetailsModal({
     },
   )
 
+  const cancelReviewerMutation = useMutation(
+    (value: { testId: number }) =>
+      cancelReviewer(value.testId),
+    {
+      onSuccess: (data, variables) => {
+        queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
+      },
+    },
+  )
+
   const onChangeTestStatus = (
     event: SyntheticEvent,
     newValue: { value: string; label: string } | null,
@@ -236,11 +247,10 @@ export default function TestDetailsModal({
     })
   }
 
-  const reassignReviewer = () => {
-    // assignReviewerMutation.mutate({
-    //   id: acceptedId,
-    //   status: 'Re assign',
-    // })
+  const onClickReassignReviewer = () => {
+    cancelReviewerMutation.mutate({
+      testId: skillTest.testId
+    })
   }
 
   const onClickRequestReview = (reviewer: AssignReviewerType | null) => {
@@ -780,7 +790,7 @@ export default function TestDetailsModal({
                       variant='outlined'
                       disabled={!isAccepted}
                       color={isAccepted ? 'primary' : 'secondary'}
-                      onClick={reassignReviewer}
+                      onClick={onClickReassignReviewer}
                     >
                       Re-assign
                     </Button>

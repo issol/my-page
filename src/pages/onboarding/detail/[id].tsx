@@ -802,15 +802,20 @@ function OnboardingDetail() {
     filePath: string
     fileName: string
     fileExtension: string
-  }) => {
-    getPresignedUrlforCommon('resume',encodeURIComponent(file.filePath))
+  }, fileType: string
+  ) => {
+    getPresignedUrlforCommon(fileType, encodeURIComponent(file.filePath))
     .then(res => {
-      file.url = res.url
+      const previewFile = {
+        url: res.url,
+        fileName: file.fileName,
+        fileExtension: file.fileExtension
+      }
       setModal(
         <FilePreviewDownloadModal
           open={true}
           onClose={() => setModal(null)}
-          docs={[file]}
+          docs={[previewFile]}
         />,
       )
     })

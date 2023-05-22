@@ -56,7 +56,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 
 // ** fetches
-import { postFiles } from 'src/apis/common.api'
+import { postFiles, uploadFileToS3  } from 'src/apis/common.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
@@ -666,7 +666,6 @@ const TestMaterialPost = () => {
 
     // file upload
     if (data.file?.length) {
-      const formData = new FormData()
       const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
         []
       const language =
@@ -694,8 +693,7 @@ const TestMaterialPost = () => {
             size: data.file[idx]?.size,
             fileKey: paths[idx],
           })
-          formData.append(`file`, data.file[idx])
-          return postFiles(url, formData)
+          return uploadFileToS3(url, data.file[idx])
         })
         Promise.all(promiseArr)
           .then(res => {
