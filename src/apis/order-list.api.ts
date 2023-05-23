@@ -28,30 +28,17 @@ export const getOrderList = async (
     }
   }
 }
-export const getOrderListForJob = async (
-  filter: OrderListFilterType,
-): Promise<{ data: OrderListForJobType[]; count: number }> => {
-  try {
-    const { data } = await axios.get<{
-      data: OrderListForJobType[]
-      count: number
-    }>(`/api/enough/u/order/job?${makeQuery(filter)}`)
-
-    return data
-  } catch (error) {
-    return {
-      data: [],
-      count: 0,
-    }
-  }
-}
 
 export const getOrderListInJob = async (
   filter: OrderListFilterType,
-): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
+): Promise<{
+  data: OrderListForJobType[]
+  count: number
+  totalCount: number
+}> => {
   try {
     const { data } = await axios.get<{
-      data: OrderListType[]
+      data: OrderListForJobType[]
       count: number
       totalCount: number
     }>(`/api/enough/u/order/job?${makeQuery(filter)}`)
