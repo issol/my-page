@@ -1,5 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
+import { ProjectTeamListType } from './order-detail'
 
 export type OrderListFilterType = {
   take: number
@@ -18,6 +19,7 @@ export type OrderListFilterType = {
   revenueFrom?: string[]
   mine?: string
   hideCompleted?: string
+  ordersWithoutJobs?: boolean
 }
 
 export type OrderListType = {
@@ -37,6 +39,8 @@ export type OrderListType = {
   projectDueTimezone: CountryType
   currency: CurrencyType
   totalPrice: number
+  isTeamMember: boolean
+  isItems: boolean
 }
 
 export type OrderStatusType =

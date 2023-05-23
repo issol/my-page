@@ -421,7 +421,7 @@ export const AutoCompleteComponent = styled(Card)<CardProps>(
   ({ theme, dropdownClose }) => ({
     '& .MuiAutocomplete-inputRoot': {
       height: !dropdownClose && '56px;',
-      flexWrap: dropdownClose ? 'wrap;' : 'noWrap;',
+      flexWrap: dropdownClose ? 'wrap;' : 'nowrap;',
     },
   }),
 )

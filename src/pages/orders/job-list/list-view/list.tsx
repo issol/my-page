@@ -1,22 +1,28 @@
-import { JobsListType } from '@src/types/jobs/get-jobs.type'
+import { JobsListType } from '@src/types/jobs/jobs.type'
 
-import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
-
+// ** style components
+import { Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
-import { StyledNextLink } from '@src/@core/components/customLink'
+import { TableTitleTypography } from '@src/@core/styles/typography'
+
+// ** NextJs
 import { useRouter } from 'next/router'
+
+// ** values
 import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
+
+// ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+
+// ** context
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { TableTitleTypography } from '@src/@core/styles/typography'
 
 type CellType = {
   row: JobsListType
@@ -102,7 +108,7 @@ export default function JobsList({
       sortable: false,
       renderHeader: () => <Box>Project name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.jobName}</Typography>
+        return <Typography variant='body2'>{row?.projectName}</Typography>
       },
     },
     {
@@ -173,16 +179,14 @@ export default function JobsList({
       minWidth: 180,
       field: 'totalPrice',
       headerName: 'Total price',
-      // hideSortIcons: true,
       disableColumnMenu: true,
-      // sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <div>
+          <Typography fontWeight={600}>
             {getCurrencyMark(row.currency)}
             {Number(row.totalPrice).toLocaleString()}
-          </div>
+          </Typography>
         )
       },
     },
@@ -204,53 +208,39 @@ export default function JobsList({
     )
   }
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Jobs ({list.totalCount})</Typography>{' '}
-              <Button variant='contained'>
-                <StyledNextLink href='/orders/jobs/add-new' color='white'>
-                  Create new job
-                </StyledNextLink>
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
-            columns={columns}
-            rows={list.data}
-            rowCount={list.totalCount}
-            loading={isLoading}
-            onCellClick={params => {
-              router.push(`/orders/job-list/${params.row.id}`)
-            }}
-            rowsPerPageOptions={[10, 25, 50]}
-            pagination
-            page={skip}
-            pageSize={pageSize}
-            paginationMode='server'
-            onPageChange={setSkip}
-            disableSelectionOnClick
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
-    </Grid>
+    <Box
+      sx={{
+        '& .MuiDataGrid-columnHeaderTitle': {
+          textTransform: 'none',
+        },
+      }}
+    >
+      <DataGrid
+        autoHeight
+        components={{
+          NoRowsOverlay: () => NoList(),
+          NoResultsOverlay: () => NoList(),
+        }}
+        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        columns={columns}
+        rows={list.data}
+        rowCount={list.totalCount}
+        loading={isLoading}
+        onCellClick={params => {
+          router.push({
+            pathname: '/orders/job-list/details/',
+            query: { orderId: params.row.id, jobId: 8 },
+          })
+        }}
+        rowsPerPageOptions={[10, 25, 50]}
+        pagination
+        page={skip}
+        pageSize={pageSize}
+        paginationMode='server'
+        onPageChange={setSkip}
+        disableSelectionOnClick
+        onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+      />
+    </Box>
   )
 }
