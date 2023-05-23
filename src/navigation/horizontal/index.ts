@@ -132,7 +132,7 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Orders',
       icon: 'material-symbols:list-alt-outline-sharp',
       action: 'read',
-      subject: 'order_list',
+      subject: 'order',
       children: [
         {
           title: 'Order List',
@@ -140,7 +140,7 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
 
           icon: 'solar:dollar-minimalistic-bold',
-          subject: 'order_list',
+          subject: 'order',
         },
         {
           title: 'Job List',

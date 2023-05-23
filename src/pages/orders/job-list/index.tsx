@@ -51,6 +51,6 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
 `
 
 JobList.acl = {
-  subject: 'order_list',
+  subject: 'order',
   action: 'read',
 }
