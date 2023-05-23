@@ -1,3 +1,4 @@
+import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ProjectTeamListType } from './order-detail'
@@ -59,18 +60,8 @@ export type OrderListForJobType = {
   currency: CurrencyType
   totalPrice: number
   isTeamMember: boolean
-  items: {
-    id: number
-    contactPersonId: number
-    itemName: string
-    dueAt: string
-    sourceLanguage: string
-    targetLanguage: string
-    priceId: number
-    description: string
-    totalPrice: string
-  }[]
-  // isItems: boolean
+  isItems: boolean
+  items: ItemType[]
 }
 
 export type OrderStatusType =

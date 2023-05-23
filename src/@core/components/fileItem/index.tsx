@@ -28,7 +28,11 @@ export default function FileItem({ file, onClick, onClear }: Props) {
         </div>
       </div>
       {onClear && (
-        <IconButton onClick={() => onClear && onClear(file)}>
+        <IconButton
+          onClick={event => {
+            onClear && onClear(file)
+          }}
+        >
           <Icon icon='mdi:close' fontSize={20} />
         </IconButton>
       )}

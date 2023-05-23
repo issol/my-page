@@ -386,10 +386,13 @@ export default function ItemPriceUnitForm({
                 )}
           </Typography>
         </TableCell>
+
         <TableCell align='center'>
-          <IconButton onClick={() => onDeletePriceUnit(idx)}>
-            <Icon icon='mdi:trash-outline' />
-          </IconButton>
+          {type === 'detail' ? null : (
+            <IconButton onClick={() => onDeletePriceUnit(idx)}>
+              <Icon icon='mdi:trash-outline' />
+            </IconButton>
+          )}
         </TableCell>
       </TableRow>
     )

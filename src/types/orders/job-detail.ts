@@ -6,12 +6,12 @@ export type AddJobInfoType = {
   contactPerson: string
   serviceType: string
   languagePair: string
-  jobStartDate?: string
-  jobStartDateTimezone?: CountryType
-  jobDueDate: string
-  jobDueDateTimezone: CountryType
-  jobDescription?: string
-  showPro?: boolean
+  startedAt?: string
+  startTimezone?: CountryType
+  dueAt: string
+  dueTimezone: CountryType
+  description?: string
+  isShowDescription?: boolean
 }
 
 export type AddJobInfoFormType = {
@@ -20,12 +20,12 @@ export type AddJobInfoFormType = {
   contactPerson: { label: string; value: string }
   serviceType: { label: string; value: string }
   languagePair: { label: string; value: string }
-  jobStartDate?: Date
-  jobStartDateTimezone?: CountryType
-  jobDueDate: Date
-  jobDueDateTimezone: CountryType
-  jobDescription?: string
-  showPro: boolean
+  startedAt?: Date
+  startTimezone?: CountryType
+  dueAt: Date
+  dueTimezone: CountryType
+  description?: string
+  isShowDescription: boolean
 }
 
 export type AssignProFilterType = {
@@ -64,7 +64,13 @@ export type AssignProListType = {
   responseRate: number | null
   assignmentStatus: string | null
   assignmentDate: string | null
-  message: {
+  files?: Array<{
+    name: string
+    size: number
+    file: string // s3 key
+    type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+  }>
+  message?: {
     id: number
     unReadCount: number
     contents:

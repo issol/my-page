@@ -1,4 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
+import { AssignProListType } from '../orders/job-detail'
+import { CountryType } from '../sign/personalInfoTypes'
 import { JobStatusType } from './common.type'
 
 export type JobsListType = {
@@ -53,10 +55,14 @@ export type JobHistoryType = {
   version: number
   requestor: string
   createdAt: string
+  jobInfo: JobInfoDetailType
+  prices: JobPricesDetailType
+  assignPro: { data: Array<AssignProListType>; totalCount: number }
 }
 
 export type JobInfoDetailType = {
   id: number
+  corporationId: string
   jobName: string
   status: JobStatusType
   contactPerson: string
@@ -65,6 +71,8 @@ export type JobInfoDetailType = {
   targetLanguage: string
   startedAt: string
   dueAt: string
+  startTimezone: CountryType
+  dueTimezone: CountryType
   description: string
   isShowDescription: boolean
   files: Array<{
@@ -79,7 +87,7 @@ export type JobPricesDetailType = {
   id: number
   sourceLanguage: string
   targetLanguage: string
-  priceId: number
+  priceId: number | null
   totalPrice: number
   currency: CurrencyType
   priceName: string

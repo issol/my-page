@@ -8,7 +8,7 @@ import {
 import {
   getOrderList,
   getOrderListCalendar,
-  getOrderListForJob,
+  getOrderListInJob,
 } from '@src/apis/order-list.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
@@ -16,24 +16,16 @@ import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 export const useGetOrderList = (filter: OrderListFilterType) => {
-  return useQuery(['orderList', filter], () => getOrderList(filter), {
+  return useQuery(['orderList', filter], () => getOrderList(filter), {})
+}
+
+export const useGetOrderListInJob = (filter: OrderListFilterType) => {
+  return useQuery(['orderListInJob', filter], () => getOrderListInJob(filter), {
     staleTime: 60 * 1000, // 1
 
     suspense: false,
     keepPreviousData: true,
   })
-}
-export const useGetOrderListForJob = (filter: OrderListFilterType) => {
-  return useQuery(
-    ['orderListForJob', filter],
-    () => getOrderListForJob(filter),
-    {
-      staleTime: 60 * 1000, // 1
-
-      suspense: false,
-      keepPreviousData: true,
-    },
-  )
 }
 
 export const useGetOrderListCalendar = (year: number, month: number) => {
