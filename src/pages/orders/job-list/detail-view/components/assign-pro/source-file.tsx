@@ -11,12 +11,14 @@ import JobInfoDetailView from '../..'
 import { JobType } from '@src/types/common/item.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { AssignmentStatusChip } from '@src/@core/components/chips/chips'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
 
 type Props = {
   info: AssignProListType
   row: JobType
+  orderDetail: ProjectInfoType
 }
-const SourceFileUpload = ({ info, row }: Props) => {
+const SourceFileUpload = ({ info, row, orderDetail }: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = 20000000
 
@@ -121,7 +123,11 @@ const SourceFileUpload = ({ info, row }: Props) => {
                       },
                     }}
                   >
-                    <JobInfoDetailView tab={'assignPro'} row={row} />
+                    <JobInfoDetailView
+                      tab={'assignPro'}
+                      row={row}
+                      orderDetail={orderDetail}
+                    />
                   </Box>
                 ),
               })

@@ -10,7 +10,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
-import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import {
+  JobsStatusChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 import FileItem from '@src/@core/components/fileItem'
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -24,9 +27,10 @@ import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   row: JobType
-  setEditJobInfo: Dispatch<SetStateAction<boolean>>
+  setEditJobInfo?: Dispatch<SetStateAction<boolean>>
+  type: string
 }
-const ViewJobInfo = ({ row, setEditJobInfo }: Props) => {
+const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
 
@@ -65,26 +69,29 @@ const ViewJobInfo = ({ row, setEditJobInfo }: Props) => {
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <Typography variant='subtitle2'>
-          *Changes will only be applied to new requests
-        </Typography>
-        <Button
-          variant='outlined'
-          // disabled={!!row.assignedPro}
-          onClick={() => setEditJobInfo(true)}
+      {type === 'history' ? null : (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: '10px',
+          }}
         >
-          <Icon icon='mdi:pencil-outline' fontSize={24} />
-          &nbsp; Edit before request
-        </Button>
-      </Box>
+          <Typography variant='subtitle2'>
+            *Changes will only be applied to new requests
+          </Typography>
+          <Button
+            variant='outlined'
+            // disabled={!!row.assignedPro}
+            onClick={() => setEditJobInfo && setEditJobInfo(true)}
+          >
+            <Icon icon='mdi:pencil-outline' fontSize={24} />
+            &nbsp; Edit before request
+          </Button>
+        </Box>
+      )}
+
       <Card sx={{ padding: '20px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '18.5px' }}>
           <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
@@ -110,20 +117,24 @@ const ViewJobInfo = ({ row, setEditJobInfo }: Props) => {
               >
                 Status
               </Typography>
-              <Select
-                value={jobStatus}
-                onChange={handleChange}
-                size='small'
-                sx={{ width: '253px' }}
-              >
-                {JobStatus.map(status => {
-                  return (
-                    <MenuItem key={uuidv4()} value={status.value}>
-                      {status.label}
-                    </MenuItem>
-                  )
-                })}
-              </Select>
+              {type === 'history' ? (
+                JobsStatusChip(row.status)
+              ) : (
+                <Select
+                  value={jobStatus}
+                  onChange={handleChange}
+                  size='small'
+                  sx={{ width: '253px' }}
+                >
+                  {JobStatus.map(status => {
+                    return (
+                      <MenuItem key={uuidv4()} value={status.value}>
+                        {status.label}
+                      </MenuItem>
+                    )
+                  })}
+                </Select>
+              )}
             </Box>
             <Box sx={{ flex: 1, display: 'flex', alignItems: 'center' }}>
               <Typography
@@ -257,42 +268,47 @@ const ViewJobInfo = ({ row, setEditJobInfo }: Props) => {
           </Typography>
         </Box>
       </Box>
-      <Divider />
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-        <Box
-          sx={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-          }}
-        >
-          <Typography variant='body1' fontWeight={600}>
-            Target files from Pro
-          </Typography>
-          <Button variant='contained'>
-            <Icon icon='mdi:download' fontSize={18} />
-            &nbsp; Download all
-          </Button>
-        </Box>
-        {row.files.filter(value => value.type === 'TARGET').length > 0 ? (
-          <Box
-            sx={{
-              display: 'grid',
-              gridTemplateColumns: 'repeat(2, 1fr)',
+      {type === 'history' ? null : (
+        <>
+          <Divider />
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '10px',
+              }}
+            >
+              <Typography variant='body1' fontWeight={600}>
+                Target files from Pro
+              </Typography>
+              <Button variant='contained'>
+                <Icon icon='mdi:download' fontSize={18} />
+                &nbsp; Download all
+              </Button>
+            </Box>
+            {row.files.filter(value => value.type === 'TARGET').length > 0 ? (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
 
-              width: '100%',
-              gap: '20px',
-            }}
-          >
-            {fileList(row.files, 'TARGET')}
+                  width: '100%',
+                  gap: '20px',
+                }}
+              >
+                {fileList(row.files, 'TARGET')}
+              </Box>
+            ) : (
+              <Typography variant='subtitle2'>
+                There are no files delivered from Pro
+              </Typography>
+            )}
           </Box>
-        ) : (
-          <Typography variant='subtitle2'>
-            There are no files delivered from Pro
-          </Typography>
-        )}
-      </Box>
-      <Divider />
+          <Divider />
+        </>
+      )}
+
       {row.assignedPro ? (
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>

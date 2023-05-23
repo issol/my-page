@@ -37,6 +37,7 @@ import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../detail-view'
+import { useGetProjectInfo } from '@src/queries/order/order.query'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -45,7 +46,8 @@ const JobDetails = () => {
 
   const { orderId, jobId } = router.query
 
-  const { data: jobDetails } = useGetJobDetails(Number(orderId!))
+  const { data: jobDetails } = useGetJobDetails(Number(jobId!))
+  const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
 
   const [serviceType, setServiceType] = useState<
     { label: string; value: string }[]
@@ -121,7 +123,7 @@ const JobDetails = () => {
             },
           }}
         >
-          <JobInfoDetailView row={row} />
+          <JobInfoDetailView row={row} orderDetail={orderDetail!} />
         </Box>
       ),
     })

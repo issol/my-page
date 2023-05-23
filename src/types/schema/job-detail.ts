@@ -30,7 +30,7 @@ export const addJobInfoFormSchema = yup.object().shape({
       value: yup.string().required(),
     })
     .required(),
-  showPro: yup.boolean().required(),
+  isShowDescription: yup.boolean().required(),
   jobStartDate: yup.date().nullable(),
   jobStartDateTimezone: yup.object().shape({
     code: yup.string().nullable(),

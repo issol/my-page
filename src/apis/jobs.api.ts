@@ -141,6 +141,7 @@ export const getJobHistory = async (
 ): Promise<{ data: JobHistoryType[]; totalCount: number }> => {
   try {
     // const data = axios.get(`/api/enough/u/order/list?${makeQuery(filter)}`)
+    // const data = axios.get(`/api/enough/u/job/${id}/history`)
     return {
       data: [
         {
@@ -148,6 +149,79 @@ export const getJobHistory = async (
           version: 1,
           requestor: 'bon@glozinc.com',
           createdAt: Date(),
+          jobInfo: {
+            id: 1,
+            corporationId: 'DTP-000001',
+            description: 'Test',
+            jobName: 'Episode 1 - Translation',
+            status: 'In preparation',
+            contactPerson: 'Aria Jeong',
+            serviceType: 'Translation',
+            sourceLanguage: 'en',
+            targetLanguage: 'ko',
+            startedAt: '2022-05-17T14:13:15Z',
+            dueAt: '2022-05-20T14:13:15Z',
+            startTimezone: {
+              code: 'KR',
+              label: 'Korea, Republic of',
+              phone: '82',
+            },
+            dueTimezone: {
+              code: 'KR',
+              label: 'Korea, Republic of',
+              phone: '82',
+            },
+
+            isShowDescription: true,
+            files: [
+              {
+                name: 'test-file',
+                size: 100000,
+                file: 'https://gloground.com',
+                type: 'SAMPLE',
+              },
+              {
+                name: 'test-file2',
+                size: 100500,
+                file: 'https://gloground.com',
+                type: 'TARGET',
+              },
+            ],
+          },
+          assignPro: {
+            data: [
+              {
+                id: '1',
+                firstName: 'Kim',
+                middleName: 'Minji',
+                lastName: 'Leriel',
+                email: 'leriel@glozinc.com',
+                status: 'Onboard',
+                responseRate: 20,
+                assignmentStatus: 'Request accepted',
+                assignmentDate: '2022-05-17T14:13:15Z',
+              },
+            ],
+            totalCount: 1,
+          },
+          prices: {
+            id: 27,
+            priceId: 24,
+            sourceLanguage: 'en',
+            targetLanguage: 'ko',
+            priceName: 'Test',
+            currency: 'KRW',
+            totalPrice: 150,
+            data: [
+              {
+                quantity: 1,
+                priceUnitTitle: 'CAT discount',
+                priceUnitId: 53,
+                unitPrice: 150,
+                prices: 150,
+              },
+            ],
+          },
         },
       ],
       totalCount: 1,
