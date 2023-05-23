@@ -210,7 +210,7 @@ export default function OrdersList({
           alignItems: 'center',
         }}
       >
-        <Typography variant='subtitle1'>There are no clients</Typography>
+        <Typography variant='subtitle1'>There are no orders</Typography>
       </Box>
     )
   }

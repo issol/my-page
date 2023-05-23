@@ -64,3 +64,13 @@ export class client_comment {
     })
   }
 }
+
+export class job_list {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_comment.prototype.constructor, 'name', {
+      value: 'job_list',
+    })
+  }
+}
