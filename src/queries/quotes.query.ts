@@ -2,6 +2,7 @@ import {
   MemberListType,
   getMemberList,
   getQuotesCalendarData,
+  getQuotesDetail,
   getQuotesList,
 } from '@src/apis/quotes.api'
 import { FilterType } from '@src/pages/quotes'
@@ -67,6 +68,20 @@ export const useGetQuotesCalendarData = (
       suspense: true,
       staleTime: 60 * 1000,
       keepPreviousData: true,
+    },
+  )
+}
+export const useGetQuotesDetail = (id: number) => {
+  return useQuery(
+    ['get-quotes/detail', id],
+    () => {
+      return getQuotesDetail(id)
+    },
+    {
+      suspense: true,
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
+      // enabled: !!id,
     },
   )
 }

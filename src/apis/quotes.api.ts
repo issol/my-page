@@ -163,3 +163,14 @@ export const createItemsForQuotes = async (
     throw new Error(e)
   }
 }
+
+export const getQuotesDetail = async (id: number): Promise<any> => {
+  try {
+    const data = axios.get(`/api/enough/u/quote/${id}`)
+    return data
+    return
+  } catch (e: any) {
+    // throw new Error(e)
+    return null
+  }
+}
