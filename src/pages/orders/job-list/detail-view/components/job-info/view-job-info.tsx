@@ -346,7 +346,7 @@ const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
             <Box
               sx={{ display: 'flex', justifyContent: 'flex-end', mt: '20px' }}
             >
-              <Button variant='contained'>
+              <Button variant='contained' disabled={jobFeedback?.length === 0}>
                 <Icon icon='mdi:send-outline' fontSize={18} />
                 &nbsp;&nbsp;Send feedback to Pro
               </Button>

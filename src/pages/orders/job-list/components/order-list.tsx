@@ -30,7 +30,10 @@ import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 // ** apis
-import { useGetOrderList } from '@src/queries/order/order.query'
+import {
+  useGetOrderList,
+  useGetOrderListInJob,
+} from '@src/queries/order/order.query'
 
 // ** types
 import { OrderListType } from '@src/types/orders/order-list'
@@ -66,7 +69,7 @@ export default function OrderList({ onClose }: Props) {
   const [filter, setFilter] = useState<FilterType>(initialFilter)
   const [activeFilter, setActiveFilter] = useState<FilterType>(initialFilter)
 
-  const { data: orderList, isLoading } = useGetOrderList(activeFilter)
+  const { data: orderList, isLoading } = useGetOrderListInJob(activeFilter)
 
   function onSearch() {
     setActiveFilter({
@@ -83,12 +86,13 @@ export default function OrderList({ onClose }: Props) {
 
   const columns: GridColumns<OrderListType> = [
     {
-      field: '',
-      flex: 0.01,
-      minWidth: 80,
+      minWidth: 70,
+      field: 'action',
       headerName: '',
+      hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => <Box></Box>,
       renderCell: ({ row }: OrderListCellType) => (
         <Radio
           size='small'
@@ -103,6 +107,7 @@ export default function OrderList({ onClose }: Props) {
       minWidth: 120,
       headerName: 'No.',
       disableColumnMenu: true,
+
       renderHeader: () => (
         <Box
           sx={{
@@ -132,18 +137,20 @@ export default function OrderList({ onClose }: Props) {
         return (
           <Box width='100%' display='flex' justifyContent='space-between'>
             <Typography fontWeight={600}>{row.projectName}</Typography>
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                '& svg': { mr: 3, color: 'warning.main' },
-              }}
-            >
-              <Icon icon='mdi:alert-outline' fontSize={20} />
-              <Typography sx={{ color: 'warning.main' }} fontSize={12}>
-                No items
-              </Typography>
-            </Box>
+            {row.isItems ? null : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  '& svg': { mr: 3, color: 'warning.main' },
+                }}
+              >
+                <Icon icon='mdi:alert-outline' fontSize={20} />
+                <Typography sx={{ color: 'warning.main' }} fontSize={12}>
+                  No items
+                </Typography>
+              </Box>
+            )}
           </Box>
         )
       },
@@ -267,28 +274,44 @@ export default function OrderList({ onClose }: Props) {
         </Box>
       </Grid>
       <Grid item xs={12}>
-        <DataGrid
-          autoHeight
-          components={{
-            NoRowsOverlay: () => NoList(),
-            NoResultsOverlay: () => NoList(),
-          }}
-          columns={columns}
-          rows={orderList?.data ?? []}
-          rowCount={orderList?.count ?? 0}
-          loading={isLoading}
-          onCellClick={params => setSelected(params.row)}
-          rowsPerPageOptions={[10, 25, 50]}
-          pagination
-          page={skip}
-          pageSize={activeFilter.take}
-          paginationMode='server'
-          onPageChange={setSkip}
-          onPageSizeChange={newPageSize =>
-            setActiveFilter({ ...activeFilter, take: newPageSize })
-          }
-          disableSelectionOnClick
-        />
+        <Box>
+          <DataGrid
+            autoHeight
+            components={{
+              NoRowsOverlay: () => NoList(),
+              NoResultsOverlay: () => NoList(),
+            }}
+            sx={{
+              '& .MuiDataGrid-columnHeaders': {
+                borderRadius: '0px',
+              },
+            }}
+            columns={columns}
+            rows={orderList?.data ?? []}
+            rowCount={orderList?.totalCount ?? 0}
+            loading={isLoading}
+            onCellClick={params => setSelected(params.row)}
+            rowsPerPageOptions={[10, 25, 50]}
+            pagination
+            page={skip}
+            pageSize={activeFilter.take}
+            paginationMode='server'
+            onPageChange={(newPage: number) => {
+              setActiveFilter((prevState: FilterType) => ({
+                ...prevState,
+                skip: newPage * prevState.take,
+              }))
+              setSkip(newPage)
+            }}
+            onPageSizeChange={(newPageSize: number) => {
+              setActiveFilter((prevState: FilterType) => ({
+                ...prevState,
+                take: newPageSize,
+              }))
+            }}
+            disableSelectionOnClick
+          />
+        </Box>
       </Grid>
       <Grid item xs={12}>
         <Box display='flex' justifyContent='center' gap='15px'>
