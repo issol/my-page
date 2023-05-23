@@ -15,9 +15,7 @@ import useModal from '@src/hooks/useModal'
 
 // ** modals
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
-
-// ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
+import MoveSignupModal from '@src/pages/components/modals/confirm-save-modals/move-signup-modal'
 
 // ** fetch
 import { useMutation } from 'react-query'
@@ -61,14 +59,24 @@ export default function GoogleButton() {
         }
       },
       onError: err => {
+        logger.debug("Fail Google login",err)
         if (err === 'NOT_A_MEMBER') {
-          router.replace(
-            {
-              pathname: '/signup/',
-              query: { email: emailRef.current },
-            },
-            '/signup/',
-          )
+          openModal({
+            type: 'move-signup-modal',
+            children: (
+              <MoveSignupModal
+                onClose={() => closeModal('move-signup-modal')}
+                onConfirm={() =>           
+                  router.replace(
+                  {
+                    pathname: '/signup/',
+                    query: { email: emailRef.current },
+                  },
+                  '/signup/',
+                )}
+              />
+            ),
+          })
         } else {
           toast.error('Something went wrong. Please try again.', {
             position: 'bottom-left',
