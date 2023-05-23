@@ -959,6 +959,7 @@ function OnboardingDetail() {
                   timezone: userInfo?.timezone!,
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
+                  status: userInfo?.status!,
                 }}
                 type='onboarding'
               />

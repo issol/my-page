@@ -86,9 +86,9 @@ export const useGetOnboardingProDetails = (userId: number) => {
 
         // res['resume'] = resume
         // res['contracts'] = resume
-        res['dateOfBirth'] = '2023-03-05T09:38:00.564Z'
-        res['status'] = 'Onboard'
-        res['residence'] = 'South Korea (Seoul)'
+        // res['dateOfBirth'] = '2023-03-05T09:38:00.564Z'
+        // res['status'] = 'Onboard'
+        // res['residence'] = 'South Korea (Seoul)'
 
         return res
       },
