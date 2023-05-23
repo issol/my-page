@@ -10,6 +10,15 @@ import styled from 'styled-components'
 // ** context
 import { useAuth } from 'src/hooks/useAuth'
 
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+// ** modals
+import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
+
+// ** components
+import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
+
 // ** fetch
 import { useMutation } from 'react-query'
 import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
@@ -26,6 +35,7 @@ export default function GoogleButton() {
 
   // ** Hooks
   const auth = useAuth()
+  const { openModal, closeModal } = useModal()
 
   useEffect(() => {
     generateGoogleLoginButton()
@@ -36,8 +46,19 @@ export default function GoogleButton() {
     {
       onSuccess: res => {
         logger.info('google auth success res : ', res)
-        auth.updateUserInfo(res)
-        router.replace('/')
+        if (!res.accessToken) {
+          openModal({
+            type: 'signup-not-approval-modal',
+            children: (
+              <SignupNotApprovalModal
+                onClose={() => closeModal('signup-not-approval-modal')}
+              />
+            ),
+          })
+        } else {
+          auth.updateUserInfo(res)
+          router.replace('/')
+        }
       },
       onError: err => {
         if (err === 'NOT_A_MEMBER') {
