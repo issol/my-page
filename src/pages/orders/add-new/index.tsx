@@ -109,7 +109,7 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
@@ -720,8 +720,8 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
-  subject: 'quotes',
+AddNewOrder.acl = {
+  subject: 'order',
   action: 'create',
 }
 
