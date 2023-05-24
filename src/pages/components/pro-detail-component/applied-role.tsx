@@ -567,6 +567,7 @@ export default function AppliedRole({
                                   data => data.testType === 'skill',
                                 )?.status === 'NO_TEST')
                             ) &&
+                            value.requestStatus !== 'Certified' &&
                             value.requestStatus !== 'Awaiting assignment' &&
                             value.requestStatus !== 'Paused' &&
                             value.requestStatus !== 'Rejected' &&
