@@ -426,13 +426,10 @@ export default function AddNewQuotes() {
               append={appendMember}
               remove={removeMember}
               update={updateMember}
-              getValues={getTeamValues}
               setValue={setTeamValues}
               errors={teamErrors}
               isValid={isTeamValid}
               watch={teamWatch}
-              onNextStep={onNextStep}
-              type='create'
             />
           </Card>
         ) : activeStep === 1 ? (

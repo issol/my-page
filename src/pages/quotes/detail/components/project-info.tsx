@@ -16,137 +16,184 @@ import styled from 'styled-components'
 
 // ** values
 import { QuotesStatus } from '@src/shared/const/status/statuses'
+import { ProjectInfoType } from '@src/types/common/quotes.type'
+import { Fragment } from 'react'
+import {
+  FullDateHelper,
+  FullDateTimezoneHelper,
+} from '@src/shared/helpers/date.helper'
 
 type Props = {
+  project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
 }
 
-export default function QuotesProjectInfoDetail({ setEditMode }: Props) {
+// TODO : status 변경 api 붙이기
+export default function QuotesProjectInfoDetail({
+  project,
+  setEditMode,
+}: Props) {
   return (
-    <Grid container spacing={6}>
-      <Grid
-        item
-        xs={12}
-        mb={4}
-        display='flex'
-        alignItems='center'
-        justifyContent='space-between'
-      >
-        <Typography variant='h6'>TODO title</Typography>
-        <IconButton onClick={() => setEditMode(true)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
-      </Grid>
+    <Fragment>
+      {!project ? null : (
+        <Grid container spacing={6}>
+          <Grid
+            item
+            xs={12}
+            mb={4}
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
+          >
+            <Typography variant='h6'>{project.projectName}</Typography>
+            <IconButton onClick={() => setEditMode(true)}>
+              <Icon icon='mdi:pencil-outline' />
+            </IconButton>
+          </Grid>
 
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Quote date</CustomTypo>
-          <CustomTypo variant='body2'>TODO quote date</CustomTypo>
-        </LabelContainer>
-      </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Quote date</CustomTypo>
+              <CustomTypo variant='body2'>
+                {FullDateHelper(project.quoteDate)}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
 
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Status</CustomTypo>
-          <Autocomplete
-            autoHighlight
-            fullWidth
-            options={QuotesStatus}
-            // onChange={(e, v) => {
-            //   onChange(v?.value ?? '')
-            // }}
-            // value={
-            //   !value
-            //     ? defaultValue
-            //     : QuotesStatus.find(item => item.value === value)
-            // }
-            renderInput={params => (
-              <TextField
-                {...params}
-                // error={Boolean(errors.status)}
-                placeholder='Status'
-                size='small'
-                sx={{ maxWidth: '300px' }}
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Status</CustomTypo>
+              <Autocomplete
+                autoHighlight
+                fullWidth
+                options={QuotesStatus}
+                // onChange={(e, v) => {
+                //   onChange(v?.value ?? '')
+                // }}
+                value={
+                  QuotesStatus.find(item => item.value === project.status) ||
+                  null
+                }
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    placeholder='Status'
+                    size='small'
+                    sx={{ maxWidth: '300px' }}
+                  />
+                )}
               />
-            )}
-          />
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontSize={14} fontWeight={600}>
-            Work name
-          </CustomTypo>
-          <CustomTypo variant='body2'>TODO workname</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Category</CustomTypo>
-          <Box>
-            <JobTypeChip size='small' label='Webnovel' type='Webnovel' />
-          </Box>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontSize={14} fontWeight={600}>
-            Service type
-          </CustomTypo>
-          <Box display='flex' alignItems='center' gap='8px'>
-            {['test', 'test2'].map((item, idx) => (
-              <ServiceTypeChip key={idx} label={item} size='small' />
-            ))}
-          </Box>
-        </LabelContainer>
-      </Grid>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontSize={14} fontWeight={600}>
+                Work name
+              </CustomTypo>
+              <CustomTypo variant='body2'>{project.workName}</CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Category</CustomTypo>
+              <Box>
+                {!project.category ? (
+                  '-'
+                ) : (
+                  <JobTypeChip
+                    size='small'
+                    label={project.category}
+                    type={project.category}
+                  />
+                )}
+              </Box>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontSize={14} fontWeight={600}>
+                Service type
+              </CustomTypo>
+              <Box display='flex' alignItems='center' gap='8px'>
+                {project.serviceType?.map((item, idx) => (
+                  <ServiceTypeChip key={idx} label={item} size='small' />
+                ))}
+              </Box>
+            </LabelContainer>
+          </Grid>
 
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
-          <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Quote deadline</CustomTypo>
-          <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Quote expiry date</CustomTypo>
-          <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Estimated delivery date</CustomTypo>
-          <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={6}>
-        <LabelContainer>
-          <CustomTypo fontWeight={600}>Project due date</CustomTypo>
-          <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-        </LabelContainer>
-      </Grid>
-      <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={12}>
-        <CustomTypo fontWeight={600} mb={6}>
-          Project description
-        </CustomTypo>
-        <CustomTypo variant='body2'>TODO romanticlkfj</CustomTypo>
-      </Grid>
-    </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
+              <CustomTypo variant='body2'>
+                {project.expertise ?? '-'}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Quote deadline</CustomTypo>
+              <CustomTypo variant='body2'>
+                {FullDateTimezoneHelper(
+                  project.quoteDeadline,
+                  project.quoteDeadlineTimezone,
+                )}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Quote expiry date</CustomTypo>
+              <CustomTypo variant='body2'>
+                {FullDateTimezoneHelper(
+                  project.quoteExpiryDate,
+                  project.quoteExpiryDateTimezone,
+                )}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Estimated delivery date</CustomTypo>
+              <CustomTypo variant='body2'>
+                {FullDateTimezoneHelper(
+                  project.estimatedDeliveryDate,
+                  project.estimatedDeliveryDateTimezone,
+                )}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={6}>
+            <LabelContainer>
+              <CustomTypo fontWeight={600}>Project due date</CustomTypo>
+              <CustomTypo variant='body2'>
+                {FullDateTimezoneHelper(
+                  project.projectDueAt,
+                  project.projectDueTimezone,
+                )}
+              </CustomTypo>
+            </LabelContainer>
+          </Grid>
+          <Grid item xs={12}>
+            <Divider />
+          </Grid>
+          <Grid item xs={12}>
+            <CustomTypo fontWeight={600} mb={6}>
+              Project description
+            </CustomTypo>
+            <CustomTypo variant='body2'>
+              {project.projectDescription}
+            </CustomTypo>
+          </Grid>
+        </Grid>
+      )}
+    </Fragment>
   )
 }
 

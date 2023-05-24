@@ -1,7 +1,14 @@
 import { Dispatch, SetStateAction } from 'react'
 
 // ** style components
-import { Box, Grid, IconButton, TextField, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Grid,
+  IconButton,
+  TextField,
+  Typography,
+} from '@mui/material'
 import styled from 'styled-components'
 import { Icon } from '@iconify/react'
 
@@ -74,7 +81,8 @@ type Props = {
     },
     'items'
   >
-  quoteId: number
+  tax: number
+  setTax: (n: number) => void
   isEditMode: boolean
   setIsEditMode: (n: boolean) => void
 }
@@ -92,7 +100,10 @@ export default function QuotesLanguageItemsDetail({
   isItemValid,
   itemControl,
   getTeamValues,
+  appendItems,
   isEditMode,
+  tax,
+  setTax,
   setIsEditMode,
 }: Props) {
   const { openModal, closeModal } = useModal()
@@ -159,10 +170,31 @@ export default function QuotesLanguageItemsDetail({
     }
   }
 
+  function isAddItemDisabled(): boolean {
+    if (!languagePairs.length) return true
+    return languagePairs.some(item => !item?.price)
+  }
+
+  function addNewItem() {
+    const teamMembers = getTeamValues()?.teams
+    const projectManager = teamMembers.find(
+      item => item.type === 'projectManagerId',
+    )
+    appendItems({
+      name: '',
+      source: '',
+      target: '',
+      contactPersonId: projectManager?.id!,
+      priceId: null,
+      detail: [],
+      totalPrice: 0,
+    })
+  }
+
   return (
     <Grid container>
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <IconButton onClick={() => setIsEditMode(true)}>
+        <IconButton onClick={() => setIsEditMode(!isEditMode)}>
           <Icon icon='mdi:pencil-outline' />
         </IconButton>
       </Grid>
@@ -195,6 +227,23 @@ export default function QuotesLanguageItemsDetail({
         />
       </Grid>
 
+      {isEditMode ? (
+        <Grid item xs={12}>
+          <Button
+            startIcon={<Icon icon='material-symbols:add' />}
+            disabled={isAddItemDisabled()}
+            onClick={addNewItem}
+          >
+            <Typography
+              color={isAddItemDisabled() ? 'secondary' : 'primary'}
+              sx={{ textDecoration: 'underline' }}
+            >
+              Add new item
+            </Typography>
+          </Button>
+        </Grid>
+      ) : null}
+
       {/* tax */}
       <Grid
         item
@@ -214,13 +263,13 @@ export default function QuotesLanguageItemsDetail({
               <TextField
                 size='small'
                 type='number'
-                // value={tax}
+                value={tax}
                 sx={{ maxWidth: '120px', padding: 0 }}
                 inputProps={{ inputMode: 'decimal' }}
-                // onChange={e => {
-                //   if (e.target.value.length > 10) return
-                //   setTax(Number(e.target.value))
-                // }}
+                onChange={e => {
+                  if (e.target.value.length > 10) return
+                  setTax(Number(e.target.value))
+                }}
               />
               %
             </>

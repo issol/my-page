@@ -2,7 +2,6 @@ import {
   Fragment,
   MouseEvent,
   Suspense,
-  SyntheticEvent,
   useContext,
   useEffect,
   useState,
@@ -37,12 +36,19 @@ import { useRouter } from 'next/router'
 // ** components
 import QuotesProjectInfoDetail from './components/project-info'
 import QuotesLanguageItemsDetail from './components/language-items'
+import QuotesClientDetail from './components/client'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-form'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
 
 // ** type & validation
 import {
+  MemberType,
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
@@ -59,21 +65,28 @@ import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
-import QuotesClientDetail from './components/client'
-import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
-import useModal from '@src/hooks/useModal'
-import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 
+// ** hook
+import useModal from '@src/hooks/useModal'
+
+// ** apis
+import {
+  useGetClient,
+  useGetLangItem,
+  useGetProjectInfo,
+  useGetProjectTeam,
+} from '@src/queries/quotes.query'
+import { getPriceList } from '@src/apis/company-price.api'
+import { DataGrid } from '@mui/x-data-grid'
+import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
+import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
 /**
  * TODO
- * 각 데이터 fetch
- * form reset
- * form 컴포넌트 import
  * save, delete함수 추가
  * download quote, create order기능 구현
+ * version history구현
  */
 
 export default function QuotesDetail() {
@@ -88,11 +101,6 @@ export default function QuotesDetail() {
 
   const dispatch = useAppDispatch()
 
-  /* form edit states */
-  const [editProject, setEditProject] = useState(false)
-  const [editItems, setEditItems] = useState(false)
-  const [editClient, setEditClient] = useState(false)
-
   useEffect(() => {
     if (
       menuQuery &&
@@ -104,13 +112,13 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     router.replace(`/quotes/detail/${id}?menu=${menu}`)
-  }, [menu])
-
-  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
-    setMenu(newValue)
-  }
+  }, [menu, id])
 
   // ** 1. Project info
+  const [editProject, setEditProject] = useState(false)
+  const { data: project, isLoading: isProjectLoading } = useGetProjectInfo(
+    Number(id),
+  )
   const {
     control: projectInfoControl,
     getValues: getProjectInfoValues,
@@ -119,12 +127,48 @@ export default function QuotesDetail() {
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<QuotesProjectInfoFormType>({
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: quotesProjectInfoDefaultValue,
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
+  useEffect(() => {
+    if (!isProjectLoading && project) {
+      projectInfoReset({
+        status: project.status,
+        workName: project.workName,
+        projectName: project.projectName,
+        projectDescription: project.projectDescription,
+        category: project.category,
+        serviceType: project.serviceType,
+        expertise: project.expertise,
+        quoteDate: project.quoteDate,
+        projectDueDate: {
+          date: project.projectDueAt,
+          timezone: project.projectDueTimezone,
+        },
+        quoteDeadline: {
+          date: project.quoteDeadline,
+          timezone: project.quoteDeadlineTimezone,
+        },
+        quoteExpiryDate: {
+          date: project.quoteExpiryDate,
+          timezone: project.quoteExpiryDateTimezone,
+        },
+        estimatedDeliveryDate: {
+          date: project.estimatedDeliveryDate,
+          timezone: project.estimatedDeliveryDateTimezone,
+        },
+      })
+      setTax(project.tax)
+    }
+  }, [isProjectLoading])
+
   // ** 2. Language & Items
+  const [editItems, setEditItems] = useState(false)
+  const { data: itemsWithLang, isLoading: isItemLoading } = useGetLangItem(
+    Number(id),
+  )
   const [tax, setTax] = useState(0)
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const {
@@ -150,7 +194,43 @@ export default function QuotesDetail() {
     name: 'items',
   })
 
+  useEffect(() => {
+    if (!isItemLoading && itemsWithLang) {
+      ;(async function () {
+        const priceList = await getPriceList({})
+        setLanguagePairs(
+          itemsWithLang?.languagePairs?.map(item => {
+            return {
+              id: String(item.id),
+              source: item.source,
+              target: item.target,
+              price: !item?.price
+                ? null
+                : priceList.find(price => price.id === item?.price?.id) || null,
+            }
+          }),
+        )
+        const result = itemsWithLang?.items?.map(item => {
+          return {
+            id: item.id,
+            name: item.name,
+            source: item.source,
+            target: item.target,
+            priceId: item.priceId,
+            detail: !item?.detail?.length ? [] : item.detail,
+            analysis: item.analysis ?? [],
+            totalPrice: item?.totalPrice ?? 0,
+          }
+        })
+        itemReset({ items: result })
+        itemTrigger()
+      })()
+    }
+  }, [isItemLoading])
+
   // ** 3. Client
+  const [editClient, setEditClient] = useState(false)
+  const { data: client, isLoading: isClientLoading } = useGetClient(Number(id))
   const {
     control: clientControl,
     getValues: getClientValue,
@@ -168,13 +248,31 @@ export default function QuotesDetail() {
     resolver: yupResolver(clientSchema),
   })
 
+  useEffect(() => {
+    if (!isClientLoading && client) {
+      const addressType = client.clientAddress.find(
+        address => address.isSelected,
+      )?.addressType
+      clientReset({
+        clientId: client.client.clientId,
+        contactPersonId: client?.contactPerson?.id ?? null,
+        addressType: addressType === 'additional' ? 'shipping' : addressType,
+      })
+    }
+  }, [isClientLoading])
+
   // ** 4. Project team
+  const [editTeam, setEditTeam] = useState(false)
+  const [teamPage, setTeamPage] = useState(0)
+  const [teamPageSize, setTeamPageSize] = useState(10)
+  const { data: team, isLoading: isTeamLoading } = useGetProjectTeam(Number(id))
   const {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
     handleSubmit: submitTeam,
     watch: teamWatch,
+    reset: resetTeam,
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
     mode: 'onChange',
@@ -206,6 +304,30 @@ export default function QuotesDetail() {
     name: 'teams',
   })
 
+  useEffect(() => {
+    if (!isTeamLoading && team) {
+      const teams: Array<{
+        type: MemberType
+        id: number | null
+        name: string
+      }> = team.map(item => ({
+        type:
+          item.position === 'projectManager'
+            ? 'projectManagerId'
+            : item.position === 'supervisor'
+            ? 'supervisorId'
+            : 'member',
+        id: item.userId,
+        name: getLegalName({
+          firstName: item?.firstName!,
+          middleName: item?.middleName,
+          lastName: item?.lastName!,
+        }),
+      }))
+      resetTeam({ teams })
+    }
+  }, [isTeamLoading])
+
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: getClientValue('clientId'),
   })
@@ -213,6 +335,43 @@ export default function QuotesDetail() {
 
   function onClientSave() {
     //
+  }
+
+  function onDiscard(callback: () => void) {
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <DiscardModal
+          onClose={() => {
+            callback()
+            closeModal('DiscardModal')
+          }}
+          onClick={() => {
+            setEditClient(false)
+            closeModal('DiscardModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  function renderSubmitButton(
+    onCancel: () => void,
+    onSave: () => void,
+    isValid: boolean,
+  ) {
+    return (
+      <Grid item xs={12}>
+        <Box display='flex' gap='16px' justifyContent='center'>
+          <Button variant='outlined' color='secondary' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant='contained' disabled={!isValid} onClick={onSave}>
+            Save
+          </Button>
+        </Box>
+      </Grid>
+    )
   }
 
   return (
@@ -278,7 +437,7 @@ export default function QuotesDetail() {
       <Grid item xs={12}>
         <TabContext value={menu}>
           <TabList
-            onChange={handleChange}
+            onChange={(e, v) => setMenu(v)}
             aria-label='Order detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
@@ -323,10 +482,35 @@ export default function QuotesDetail() {
           {/* Project info */}
           <TabPanel value='project' sx={{ pt: '24px' }}>
             <Suspense>
-              {editProject ? null : (
+              {editProject ? (
+                <Card sx={{ padding: '24px' }}>
+                  <DatePickerWrapper>
+                    <Grid container spacing={6}>
+                      <ProjectInfoForm
+                        control={projectInfoControl}
+                        setValue={setProjectInfo}
+                        watch={projectInfoWatch}
+                        errors={projectInfoErrors}
+                        clientTimezone={getClientValue('contacts.timezone')}
+                      />
+                      {renderSubmitButton(
+                        () =>
+                          onDiscard(() => {
+                            setEditProject(false)
+                          }),
+                        () => null,
+                        isProjectInfoValid,
+                      )}
+                    </Grid>
+                  </DatePickerWrapper>
+                </Card>
+              ) : (
                 <Fragment>
                   <Card sx={{ padding: '24px' }}>
-                    <QuotesProjectInfoDetail setEditMode={setEditProject} />
+                    <QuotesProjectInfoDetail
+                      project={project}
+                      setEditMode={setEditProject}
+                    />
                   </Card>
                   <Grid container sx={{ mt: '24px' }}>
                     <Grid item xs={4}>
@@ -364,121 +548,135 @@ export default function QuotesDetail() {
                   removeItems={removeItems}
                   getTeamValues={getTeamValues}
                   appendItems={appendItems}
-                  quoteId={Number(id)}
+                  tax={tax}
+                  setTax={setTax}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
                 />
-                {editItems ? (
-                  <Grid item xs={12}>
-                    <Box display='flex' gap='16px' justifyContent='center'>
-                      <Button
-                        variant='outlined'
-                        color='secondary' /* onClick={handleBack} */
-                      >
-                        Cancel
-                      </Button>
-                      <Button
-                        variant='contained'
-                        disabled={!isItemValid}
-                        // onClick={onClickSave}
-                      >
-                        Save
-                      </Button>
-                    </Box>
-                  </Grid>
-                ) : null}
+                {editItems
+                  ? renderSubmitButton(
+                      () =>
+                        onDiscard(() => {
+                          setEditItems(false)
+                        }),
+                      () => null,
+                      isItemValid,
+                    )
+                  : null}
               </CardContent>
             </Card>
           </TabPanel>
           <TabPanel value='client' sx={{ pt: '24px' }}>
-            {/* {editClient ? null : (
-              <Card sx={{ padding: '24px' }}>
+            <Card sx={{ padding: '24px' }}>
+              {editClient ? (
+                <Grid container spacing={6}>
+                  <ClientQuotesFormContainer
+                    control={clientControl}
+                    setValue={setClientValue}
+                    watch={clientWatch}
+                  />
+                  <Grid item xs={12}>
+                    {renderSubmitButton(
+                      () =>
+                        onDiscard(() => {
+                          setEditClient(false)
+                        }),
+                      () =>
+                        openModal({
+                          type: 'EditSaveModal',
+                          children: (
+                            <EditSaveModal
+                              onClose={() => closeModal('EditSaveModal')}
+                              onClick={onClientSave}
+                            />
+                          ),
+                        }),
+                      isClientValid,
+                    )}
+                  </Grid>
+                </Grid>
+              ) : (
                 <QuotesClientDetail
-                  client={client!}
+                  client={client}
                   setIsEditMode={setEditClient}
                 />
-              </Card>
-            )} */}
-            <Grid container spacing={6}>
-              <ClientQuotesFormContainer
-                control={clientControl}
-                setValue={setClientValue}
-                watch={clientWatch}
-              />
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '16px',
-                  }}
-                >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    onClick={() =>
-                      openModal({
-                        type: 'DiscardModal',
-                        children: (
-                          <DiscardModal
-                            onClose={() => closeModal('DiscardModal')}
-                            onClick={() => {
-                              setEditClient(false)
-                              closeModal('DiscardModal')
-                            }}
-                          />
-                        ),
-                      })
-                    }
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant='contained'
-                    disabled={!isClientValid}
-                    onClick={() =>
-                      openModal({
-                        type: 'EditSaveModal',
-                        children: (
-                          <EditSaveModal
-                            onClose={() => closeModal('EditSaveModal')}
-                            onClick={onClientSave}
-                          />
-                        ),
-                      })
-                    }
-                  >
-                    Save
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
+              )}
+            </Card>
           </TabPanel>
           <TabPanel value='team' sx={{ pt: '24px' }}>
             <Suspense>
-              {/* <ProjectTeam
-                  type='detail'
-                  list={projectTeam!}
-                  listCount={projectTeam?.length!}
-                  columns={getProjectTeamColumns()}
-                  page={projectTeamListPage}
-                  setPage={setProjectTeamListPage}
-                  pageSize={projectTeamListPageSize}
-                  setPageSize={setProjectTeamListPageSize}
-                  edit={projectTeamEdit}
-                  setEdit={setProjectTeamEdit}
-                  teamControl={teamControl}
-                  members={members}
-                  appendMember={appendMember}
-                  removeMember={removeMember}
-                  updateMember={updateMember}
-                  getTeamValues={getTeamValues}
-                  setTeamValues={setTeamValues}
-                  teamErrors={teamErrors}
-                  isTeamValid={isTeamValid}
-                  teamWatch={teamWatch}
-                  orderId={Number(id!)}
-                /> */}
+              {editTeam ? (
+                <Card sx={{ padding: '24px' }}>
+                  <Grid container spacing={6}>
+                    <ProjectTeamFormContainer
+                      control={teamControl}
+                      field={members}
+                      append={appendMember}
+                      remove={removeMember}
+                      update={updateMember}
+                      setValue={setTeamValues}
+                      errors={teamErrors}
+                      isValid={isTeamValid}
+                      watch={teamWatch}
+                    />
+                    {renderSubmitButton(
+                      () =>
+                        onDiscard(() => {
+                          setEditTeam(false)
+                        }),
+                      () =>
+                        openModal({
+                          type: 'EditSaveModal',
+                          children: (
+                            <EditSaveModal
+                              onClose={() => closeModal('EditSaveModal')}
+                              onClick={onClientSave}
+                            />
+                          ),
+                        }),
+                      isTeamValid,
+                    )}
+                  </Grid>
+                </Card>
+              ) : (
+                <Card>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                      padding: '15px 20px',
+                    }}
+                  >
+                    <Typography variant='h6'>Project team</Typography>
+                    <IconButton onClick={() => setEditTeam(!editTeam)}>
+                      <Icon icon='mdi:pencil-outline' />
+                    </IconButton>
+                  </Box>
+                  <Box
+                    sx={{
+                      '& .MuiDataGrid-columnHeaderTitle': {
+                        textTransform: 'none',
+                      },
+                    }}
+                  >
+                    <DataGrid
+                      autoHeight
+                      getRowId={row => row.userId}
+                      columns={getProjectTeamColumns()}
+                      rows={team ?? []}
+                      rowCount={team?.length ?? 0}
+                      rowsPerPageOptions={[10, 25, 50]}
+                      pagination
+                      page={teamPage}
+                      pageSize={teamPageSize}
+                      onPageChange={setTeamPage}
+                      onPageSizeChange={setTeamPageSize}
+                      disableSelectionOnClick
+                    />
+                  </Box>
+                </Card>
+              )}
             </Suspense>
           </TabPanel>
           <TabPanel value='history' sx={{ pt: '24px' }}>
