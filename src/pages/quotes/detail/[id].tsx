@@ -59,6 +59,11 @@ import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
+import QuotesClientDetail from './components/client'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import useModal from '@src/hooks/useModal'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
@@ -73,8 +78,10 @@ type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
 export default function QuotesDetail() {
   const router = useRouter()
-  const { id } = router.query
   const { user } = useContext(AuthContext)
+  const { id } = router.query
+
+  const { openModal, closeModal } = useModal()
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('project')
@@ -84,6 +91,7 @@ export default function QuotesDetail() {
   /* form edit states */
   const [editProject, setEditProject] = useState(false)
   const [editItems, setEditItems] = useState(false)
+  const [editClient, setEditClient] = useState(false)
 
   useEffect(() => {
     if (
@@ -202,6 +210,10 @@ export default function QuotesDetail() {
     clientId: getClientValue('clientId'),
   })
   const { data: priceUnitsList } = useGetAllPriceList()
+
+  function onClientSave() {
+    //
+  }
 
   return (
     <Grid container spacing={6}>
@@ -356,39 +368,91 @@ export default function QuotesDetail() {
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
                 />
+                {editItems ? (
+                  <Grid item xs={12}>
+                    <Box display='flex' gap='16px' justifyContent='center'>
+                      <Button
+                        variant='outlined'
+                        color='secondary' /* onClick={handleBack} */
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant='contained'
+                        disabled={!isItemValid}
+                        // onClick={onClickSave}
+                      >
+                        Save
+                      </Button>
+                    </Box>
+                  </Grid>
+                ) : null}
               </CardContent>
             </Card>
-
-            {/* <LanguageAndItem
-                langItem={langItem!}
-                languagePairs={languagePairs!}
-                setLanguagePairs={setLanguagePairs}
-                clientId={client?.client.clientId!}
-                itemControl={itemControl}
-                getItem={getItem}
-                setItem={setItem}
-                itemTrigger={itemTrigger}
-                itemErrors={itemErrors}
-                isItemValid={isItemValid}
-                priceUnitsList={priceUnitsList || []}
-                items={items}
-                removeItems={removeItems}
-                getTeamValues={getTeamValues}
-                projectTax={projectInfo!.tax}
-                appendItems={appendItems}
-                orderId={Number(id!)}
-                langItemsEdit={langItemsEdit}
-                setLangItemsEdit={setLangItemsEdit}
-              /> */}
           </TabPanel>
           <TabPanel value='client' sx={{ pt: '24px' }}>
-            {/* <OrderDetailClient
-                type={'detail'}
-                client={client!}
-                edit={clientEdit}
-                setEdit={setClientEdit}
-                orderId={Number(id!)}
-              /> */}
+            {/* {editClient ? null : (
+              <Card sx={{ padding: '24px' }}>
+                <QuotesClientDetail
+                  client={client!}
+                  setIsEditMode={setEditClient}
+                />
+              </Card>
+            )} */}
+            <Grid container spacing={6}>
+              <ClientQuotesFormContainer
+                control={clientControl}
+                setValue={setClientValue}
+                watch={clientWatch}
+              />
+              <Grid item xs={12}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'center',
+                    gap: '16px',
+                  }}
+                >
+                  <Button
+                    variant='outlined'
+                    color='secondary'
+                    onClick={() =>
+                      openModal({
+                        type: 'DiscardModal',
+                        children: (
+                          <DiscardModal
+                            onClose={() => closeModal('DiscardModal')}
+                            onClick={() => {
+                              setEditClient(false)
+                              closeModal('DiscardModal')
+                            }}
+                          />
+                        ),
+                      })
+                    }
+                  >
+                    Cancel
+                  </Button>
+                  <Button
+                    variant='contained'
+                    disabled={!isClientValid}
+                    onClick={() =>
+                      openModal({
+                        type: 'EditSaveModal',
+                        children: (
+                          <EditSaveModal
+                            onClose={() => closeModal('EditSaveModal')}
+                            onClick={onClientSave}
+                          />
+                        ),
+                      })
+                    }
+                  >
+                    Save
+                  </Button>
+                </Box>
+              </Grid>
+            </Grid>
           </TabPanel>
           <TabPanel value='team' sx={{ pt: '24px' }}>
             <Suspense>
