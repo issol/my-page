@@ -48,3 +48,25 @@ export type QuotesListType = {
   quoteExpiry: string
   totalPrice: number
 }
+
+export type ProjectInfoType = {
+  id: number
+  corporationId: string
+  quoteDate: string
+  status: QuoteStatusType
+  workName: string
+  category: string
+  serviceType: string[]
+  expertise: string[]
+  projectName: string
+  projectDescription: string
+  projectDueAt: string
+  projectDueTimezone: CountryType
+  quoteDeadline: string
+  quoteDeadlineTimezone: CountryType
+  quoteExpiryDate: string
+  quoteExpiryDateTimezone: CountryType
+  estimatedDeliveryDate: string
+  estimatedDeliveryDateTimezone: CountryType
+  tax: number
+}

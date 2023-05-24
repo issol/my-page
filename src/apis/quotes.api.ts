@@ -4,16 +4,23 @@ import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { UserDataType } from '@src/context/types'
 import {
   ClientFormType,
+  ItemResType,
   LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import {
+  ProjectInfoType,
   QuoteStatusType,
   QuotesListType,
   QuotesProjectInfoFormType,
 } from '@src/types/common/quotes.type'
 import { PostItemType } from '@src/types/common/item.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
+import {
+  ClientType,
+  LanguageAndItemType,
+  ProjectTeamListType,
+} from '@src/types/orders/order-detail'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -172,5 +179,60 @@ export const getQuotesDetail = async (id: number): Promise<any> => {
   } catch (e: any) {
     // throw new Error(e)
     return null
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const getProjectTeam = async (
+  id: number,
+): Promise<ProjectTeamListType[]> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
+    return data.members
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const getClient = async (id: number): Promise<ClientType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
+
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const getLangItems = async (
+  id: number,
+): Promise<LanguageAndItemType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
+    return {
+      ...data,
+      items: data.items.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })),
+    }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
+
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

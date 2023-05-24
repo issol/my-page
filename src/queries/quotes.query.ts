@@ -1,8 +1,11 @@
 import {
   MemberListType,
+  getClient,
+  getLangItems,
   getMemberList,
+  getProjectInfo,
+  getProjectTeam,
   getQuotesCalendarData,
-  getQuotesDetail,
   getQuotesList,
 } from '@src/apis/quotes.api'
 import { FilterType } from '@src/pages/quotes'
@@ -71,17 +74,47 @@ export const useGetQuotesCalendarData = (
     },
   )
 }
-export const useGetQuotesDetail = (id: number) => {
-  return useQuery(
-    ['get-quotes/detail', id],
-    () => {
-      return getQuotesDetail(id)
-    },
-    {
-      suspense: true,
-      staleTime: 60 * 1000,
-      keepPreviousData: true,
-      // enabled: !!id,
-    },
-  )
+
+export const useGetProjectInfo = (id: number) => {
+  return useQuery([`quotes-projectInfo-${id}`, id], () => getProjectInfo(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: true,
+  })
 }
+
+export const useGetProjectTeam = (id: number) => {
+  return useQuery([`quotes-projectTeam-${id}`, id], () => getProjectTeam(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: true,
+
+    select: data => {
+      return data.map(value => ({ ...value, id: value.id }))
+    },
+  })
+}
+
+export const useGetClient = (id: number) => {
+  return useQuery([`quotes-client-${id}`, id], () => getClient(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: true,
+  })
+}
+
+export const useGetLangItem = (id: number) => {
+  return useQuery([`quotes-langItem-${id}`, id], () => getLangItems(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: true,
+  })
+}
+
+// export const useGetVersionHistory = (id: number) => {
+//   return useQuery([`VersionHistory-${id}`, id], () => getVersionHistory(id), {
+//     staleTime: 60 * 1000, // 1
+
+//     suspense: true,
+//   })
+// }
