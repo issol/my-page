@@ -3,6 +3,7 @@ import {
   Button,
   Card,
   CardHeader,
+  Grid,
   IconButton,
   Typography,
 } from '@mui/material'
@@ -141,41 +142,59 @@ const ProjectTeam = ({
     <>
       {edit ? (
         <Card sx={{ padding: '24px' }}>
-          <ProjectTeamFormContainer
-            control={teamControl!}
-            field={members!}
-            append={appendMember!}
-            remove={removeMember!}
-            update={updateMember!}
-            getValues={getTeamValues!}
-            setValue={setTeamValues!}
-            errors={teamErrors!}
-            isValid={isTeamValid!}
-            watch={teamWatch!}
-            onNextStep={() =>
-              openModal({
-                type: 'EditSaveModal',
-                children: (
-                  <EditSaveModal
-                    onClose={() => closeModal('EditSaveModal')}
-                    onClick={onClickSave}
-                  />
-                ),
-              })
-            }
-            handleCancel={() =>
-              openModal({
-                type: 'DiscardModal',
-                children: (
-                  <DiscardModal
-                    onClose={() => closeModal('DiscardModal')}
-                    onClick={onClickDiscard}
-                  />
-                ),
-              })
-            }
-            type='edit'
-          />
+          <Grid container spacing={6}>
+            <ProjectTeamFormContainer
+              control={teamControl!}
+              field={members!}
+              append={appendMember!}
+              remove={removeMember!}
+              update={updateMember!}
+              setValue={setTeamValues!}
+              errors={teamErrors!}
+              isValid={isTeamValid!}
+              watch={teamWatch!}
+            />
+            <Grid item xs={12}>
+              <Box
+                sx={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+              >
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() =>
+                    openModal({
+                      type: 'DiscardModal',
+                      children: (
+                        <DiscardModal
+                          onClose={() => closeModal('DiscardModal')}
+                          onClick={onClickDiscard}
+                        />
+                      ),
+                    })
+                  }
+                >
+                  Cancel
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isTeamValid}
+                  onClick={() =>
+                    openModal({
+                      type: 'EditSaveModal',
+                      children: (
+                        <EditSaveModal
+                          onClose={() => closeModal('EditSaveModal')}
+                          onClick={onClickSave}
+                        />
+                      ),
+                    })
+                  }
+                >
+                  Save
+                </Button>
+              </Box>
+            </Grid>
+          </Grid>
         </Card>
       ) : (
         <Card>

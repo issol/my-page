@@ -563,20 +563,28 @@ export default function AddNewOrder() {
       <Grid item xs={12}>
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
-            <ProjectTeamFormContainer
-              control={teamControl}
-              field={members}
-              append={appendMember}
-              remove={removeMember}
-              update={updateMember}
-              getValues={getTeamValues}
-              setValue={setTeamValues}
-              errors={teamErrors}
-              isValid={isTeamValid}
-              watch={teamWatch}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ProjectTeamFormContainer
+                control={teamControl}
+                field={members}
+                append={appendMember}
+                remove={removeMember}
+                update={updateMember}
+                setValue={setTeamValues}
+                errors={teamErrors}
+                isValid={isTeamValid}
+                watch={teamWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='flex-end'>
+                <Button
+                  variant='contained'
+                  disabled={!isTeamValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
