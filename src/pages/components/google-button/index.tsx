@@ -16,6 +16,7 @@ import useModal from '@src/hooks/useModal'
 // ** modals
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 import MoveSignupModal from '@src/pages/components/modals/confirm-save-modals/move-signup-modal'
+import ServerErrorModal from '@src/pages/components/modals/confirm-modals/server-error-modal'
 
 // ** fetch
 import { useMutation } from 'react-query'
@@ -66,7 +67,7 @@ export default function GoogleButton() {
             children: (
               <MoveSignupModal
                 onClose={() => closeModal('move-signup-modal')}
-                onConfirm={() =>           
+                onConfirm={() =>        
                   router.replace(
                   {
                     pathname: '/signup/',
@@ -74,6 +75,15 @@ export default function GoogleButton() {
                   },
                   '/signup/',
                 )}
+              />
+            ),
+          })
+        } else if (err === 'SERVER_ERROR') {
+          openModal({
+            type: 'server-error-modal',
+            children: (
+              <ServerErrorModal
+                onClose={() => closeModal('server-error-modal')}
               />
             ),
           })
