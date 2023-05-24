@@ -580,15 +580,30 @@ export default function AddNewOrder() {
           </Card>
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
-            <ClientQuotesFormContainer
-              control={clientControl}
-              setValue={setClientValue}
-              isValid={isClientValid}
-              watch={clientWatch}
-              handleBack={handleBack}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ClientQuotesFormContainer
+                control={clientControl}
+                setValue={setClientValue}
+                watch={clientWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='space-between'>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleBack}
+                >
+                  <Icon icon='material-symbols:arrow-back-rounded' />
+                  Previous
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isClientValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>

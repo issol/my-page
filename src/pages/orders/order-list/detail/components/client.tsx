@@ -1,5 +1,13 @@
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  IconButton,
+  Typography,
+} from '@mui/material'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
@@ -90,38 +98,53 @@ const OrderDetailClient = ({ type, client, edit, setEdit, orderId }: Props) => {
   return (
     <Card sx={{ padding: '24px' }}>
       {edit ? (
-        <ClientQuotesFormContainer
-          control={clientControl}
-          // reset={clientReset}
-          // getValues={getClientValue}
-          setValue={setClientValue}
-          // errors={clientErrors}
-          isValid={isClientValid}
-          watch={clientWatch}
-          handleBack={() =>
-            openModal({
-              type: 'DiscardModal',
-              children: (
-                <DiscardModal
-                  onClose={() => closeModal('DiscardModal')}
-                  onClick={onClickDiscard}
-                />
-              ),
-            })
-          }
-          onNextStep={() =>
-            openModal({
-              type: 'EditSaveModal',
-              children: (
-                <EditSaveModal
-                  onClose={() => closeModal('EditSaveModal')}
-                  onClick={onClickSave}
-                />
-              ),
-            })
-          }
-          type='edit'
-        />
+        <Grid container spacing={6}>
+          <ClientQuotesFormContainer
+            control={clientControl}
+            setValue={setClientValue}
+            watch={clientWatch}
+          />
+          <Grid item xs={12}>
+            <Box
+              sx={{ display: 'flex', justifyContent: 'center', gap: '16px' }}
+            >
+              <Button
+                variant='outlined'
+                color='secondary'
+                onClick={() =>
+                  openModal({
+                    type: 'DiscardModal',
+                    children: (
+                      <DiscardModal
+                        onClose={() => closeModal('DiscardModal')}
+                        onClick={onClickDiscard}
+                      />
+                    ),
+                  })
+                }
+              >
+                Cancel
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!isClientValid}
+                onClick={() =>
+                  openModal({
+                    type: 'EditSaveModal',
+                    children: (
+                      <EditSaveModal
+                        onClose={() => closeModal('EditSaveModal')}
+                        onClick={onClickSave}
+                      />
+                    ),
+                  })
+                }
+              >
+                Save
+              </Button>
+            </Box>
+          </Grid>
+        </Grid>
       ) : (
         <Box
           sx={{
