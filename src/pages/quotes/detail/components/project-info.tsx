@@ -22,16 +22,19 @@ import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
+import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 
 type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
+  isUpdatable: boolean
 }
 
 // TODO : status 변경 api 붙이기
 export default function QuotesProjectInfoDetail({
   project,
   setEditMode,
+  isUpdatable,
 }: Props) {
   return (
     <Fragment>
@@ -46,9 +49,11 @@ export default function QuotesProjectInfoDetail({
             justifyContent='space-between'
           >
             <Typography variant='h6'>{project.projectName}</Typography>
-            <IconButton onClick={() => setEditMode(true)}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable ? (
+              <IconButton onClick={() => setEditMode(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            ) : null}
           </Grid>
 
           <Grid item xs={6}>
@@ -63,26 +68,34 @@ export default function QuotesProjectInfoDetail({
           <Grid item xs={6}>
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
-              <Autocomplete
-                autoHighlight
-                fullWidth
-                options={QuotesStatus}
-                // onChange={(e, v) => {
-                //   onChange(v?.value ?? '')
-                // }}
-                value={
-                  QuotesStatus.find(item => item.value === project.status) ||
-                  null
-                }
-                renderInput={params => (
-                  <TextField
-                    {...params}
-                    placeholder='Status'
-                    size='small'
-                    sx={{ maxWidth: '300px' }}
-                  />
-                )}
-              />
+              {isUpdatable ? (
+                <Autocomplete
+                  autoHighlight
+                  fullWidth
+                  options={QuotesStatus}
+                  // onChange={(e, v) => {
+                  //   onChange(v?.value ?? '')
+                  // }}
+                  value={
+                    QuotesStatus.find(item => item.value === project.status) ||
+                    null
+                  }
+                  renderInput={params => (
+                    <TextField
+                      {...params}
+                      placeholder='Status'
+                      size='small'
+                      sx={{ maxWidth: '300px' }}
+                    />
+                  )}
+                />
+              ) : (
+                <QuoteStatusChip
+                  size='small'
+                  label={project.status}
+                  status={project.status}
+                />
+              )}
             </LabelContainer>
           </Grid>
           <Grid item xs={12}>

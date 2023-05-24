@@ -7,6 +7,7 @@ import {
   getProjectTeam,
   getQuotesCalendarData,
   getQuotesList,
+  getVersionHistory,
 } from '@src/apis/quotes.api'
 import { FilterType } from '@src/pages/quotes'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -111,10 +112,9 @@ export const useGetLangItem = (id: number) => {
   })
 }
 
-// export const useGetVersionHistory = (id: number) => {
-//   return useQuery([`VersionHistory-${id}`, id], () => getVersionHistory(id), {
-//     staleTime: 60 * 1000, // 1
-
-//     suspense: true,
-//   })
-// }
+export const useGetVersionHistory = (id: number) => {
+  return useQuery([`quotes-history-${id}`, id], () => getVersionHistory(id), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
+  })
+}

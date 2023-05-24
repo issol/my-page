@@ -20,6 +20,7 @@ import {
   ClientType,
   LanguageAndItemType,
   ProjectTeamListType,
+  VersionHistoryType,
 } from '@src/types/orders/order-detail'
 
 export type MemberListType = Pick<
@@ -232,6 +233,34 @@ export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
     const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
 
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteQuotes = async (id: number): Promise<void> => {
+  try {
+    await axios.delete(`/api/enough/u/quote/${id}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const getVersionHistory = async (
+  id: number,
+): Promise<VersionHistoryType[]> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/history`)
+    return data
+  } catch (e: any) {
+    return []
+  }
+}
+
+export const restoreVersion = async (id: number): Promise<void> => {
+  try {
+    await axios.post(`/api/enough/u/quote/history/${id}`)
   } catch (e: any) {
     throw new Error(e)
   }

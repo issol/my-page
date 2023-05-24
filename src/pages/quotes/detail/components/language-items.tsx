@@ -85,6 +85,7 @@ type Props = {
   setTax: (n: number) => void
   isEditMode: boolean
   setIsEditMode: (n: boolean) => void
+  isUpdatable: boolean
 }
 
 export default function QuotesLanguageItemsDetail({
@@ -105,6 +106,7 @@ export default function QuotesLanguageItemsDetail({
   tax,
   setTax,
   setIsEditMode,
+  isUpdatable,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetPriceList({
@@ -194,9 +196,11 @@ export default function QuotesLanguageItemsDetail({
   return (
     <Grid container>
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        <IconButton onClick={() => setIsEditMode(!isEditMode)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
+        {isUpdatable ? (
+          <IconButton onClick={() => setIsEditMode(!isEditMode)}>
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        ) : null}
       </Grid>
       {/* languages */}
       <Grid item xs={12} mt={6}>

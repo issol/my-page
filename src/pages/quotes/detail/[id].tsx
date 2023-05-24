@@ -23,6 +23,7 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
+import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
 import { AuthContext } from '@src/context/AuthContext'
@@ -42,6 +43,8 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -75,22 +78,36 @@ import {
   useGetLangItem,
   useGetProjectInfo,
   useGetProjectTeam,
+  useGetVersionHistory,
 } from '@src/queries/quotes.query'
+import { deleteQuotes, restoreVersion } from '@src/apis/quotes.api'
 import { getPriceList } from '@src/apis/company-price.api'
-import { DataGrid } from '@mui/x-data-grid'
+
+// ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
-import ProjectTeamFormContainer from '../components/form-container/project-team-container'
+
+// ** react query
+import { useMutation, useQueryClient } from 'react-query'
+import { toast } from 'react-hot-toast'
+import VersionHistory from '@src/pages/orders/order-list/detail/components/version-history'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { VersionHistoryType } from '@src/types/orders/order-detail'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { quotes } from '@src/shared/const/permission-class'
+
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
 /**
  * TODO
- * save, delete함수 추가
+ * save 함수 추가
+ * project info status변경 api추가
  * download quote, create order기능 구현
  * version history구현
  */
 
 export default function QuotesDetail() {
   const router = useRouter()
+  const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
   const { id } = router.query
 
@@ -98,6 +115,12 @@ export default function QuotesDetail() {
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('project')
+
+  const User = new quotes(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+  const isCreatable = ability.can('create', User)
 
   const dispatch = useAppDispatch()
 
@@ -113,6 +136,8 @@ export default function QuotesDetail() {
   useEffect(() => {
     router.replace(`/quotes/detail/${id}?menu=${menu}`)
   }, [menu, id])
+
+  const queryClient = useQueryClient()
 
   // ** 1. Project info
   const [editProject, setEditProject] = useState(false)
@@ -333,6 +358,93 @@ export default function QuotesDetail() {
   })
   const { data: priceUnitsList } = useGetAllPriceList()
 
+  // ** Version history
+  const [historyPage, setHistoryPage] = useState(0)
+  const [historyPageSize, setHistoryPageSize] = useState(10)
+  const { data: versionHistory, isLoading: versionHistoryLoading } =
+    useGetVersionHistory(Number(id!))
+
+  const versionHistoryColumns: GridColumns<VersionHistoryType> = [
+    {
+      field: 'position',
+      flex: 0.3,
+      minWidth: 419,
+      headerName: 'Position',
+      disableColumnMenu: true,
+      renderHeader: () => <Box>Version</Box>,
+      renderCell: ({ row }: { row: VersionHistoryType }) => {
+        return <Box>Ver. {row.version}</Box>
+      },
+    },
+    {
+      minWidth: 420,
+      field: 'member',
+      headerName: 'Member',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Account</Box>,
+      renderCell: ({ row }: { row: VersionHistoryType }) => {
+        return <Box>{row.email}</Box>
+      },
+    },
+    {
+      minWidth: 410,
+      field: 'jobTitle',
+      headerName: 'Job title',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Date&Time</Box>,
+      renderCell: ({ row }: { row: VersionHistoryType }) => {
+        return (
+          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+        )
+      },
+    },
+  ]
+
+  const restoreMutation = useMutation((id: number) => restoreVersion(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(`quotes-history-${id}`)
+    },
+    onError: () => onMutationError(),
+  })
+
+  // const onClickRestoreVersion = () => {
+  //   openModal({
+  //     type: 'RestoreConfirmModal',
+  //     children: (
+  //       <CustomModal
+  //         onClose={() => closeModal('RestoreConfirmModal')}
+  //         onClick={() => {
+  //           closeModal('RestoreConfirmModal')
+  //           closeModal('VersionHistoryModal')
+  //           restoreMutation.mutate(Number(id))
+  //         }}
+  //         title='Are you sure you want to restore this version?'
+  //         vary='error'
+  //         rightButtonText='Restore'
+  //       />
+  //     ),
+  //   })
+  // }
+
+  const onClickVersionHistoryRow = (history: VersionHistoryType) => {
+    console.log(history)
+    // openModal({
+    //   type: 'VersionHistoryModal',
+    //   children: (
+    //     <VersionHistoryModal
+    //       history={history}
+    //       onClose={() => closeModal('VersionHistoryModal')}
+    //       onClick={onClickRestoreVersion}
+    //     />
+    //   ),
+    // })
+  }
+
+  // ** Submits(save)
   function onClientSave() {
     //
   }
@@ -374,6 +486,36 @@ export default function QuotesDetail() {
     )
   }
 
+  const deleteQuotesMutation = useMutation((id: number) => deleteQuotes(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({
+        queryKey: ['get-quotes/list', 'get-quotes/calendar'],
+      })
+      router.push('/quotes')
+    },
+    onError: () => onMutationError(),
+  })
+
+  const onClickDelete = () => {
+    openModal({
+      type: 'DeleteOrderModal',
+      children: (
+        <DeleteConfirmModal
+          onClose={() => closeModal('DeleteOrderModal')}
+          onDelete={() => deleteQuotesMutation.mutate(Number(id))}
+          message='Are you sure you want to delete this order?'
+          title={`[${project?.corporationId}] ${project?.projectName}`}
+        />
+      ),
+    })
+  }
+
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -394,17 +536,14 @@ export default function QuotesDetail() {
               gap: '8px',
             }}
           >
-            {/* {projectInfoEdit ||
-            projectTeamEdit ||
-            clientEdit ||
-            langItemsEdit ? null : (
+            {editProject || editItems || editClient || editTeam ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
                 onClick={() => router.push('/orders/order-list')}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
-            )} */}
+            )}
             <IconButton
               sx={{ padding: '0 !important', height: '24px' }}
               onClick={() => router.push('/quotes')}
@@ -412,8 +551,13 @@ export default function QuotesDetail() {
               <Icon icon='mdi:chevron-left' width={24} height={24} />
             </IconButton>
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <img src='/images/icons/quotes-icons/book.png' alt='' />
-              {/* <Typography variant='h5'>{projectInfo?.corporationId}</Typography> */}
+              <img
+                src='/images/icons/quotes-icons/book.png'
+                alt=''
+                width='50px'
+                height='50px'
+              />
+              <Typography variant='h5'>{project?.corporationId}</Typography>
             </Box>
           </Box>
           <Box display='flex' alignItems='center' gap='14px'>
@@ -510,6 +654,7 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
+                      isUpdatable={isUpdatable}
                     />
                   </Card>
                   <Grid container sx={{ mt: '24px' }}>
@@ -520,7 +665,8 @@ export default function QuotesDetail() {
                           fullWidth
                           color='error'
                           size='large'
-                          // onClick={onClickDelete}
+                          disabled={!isDeletable}
+                          onClick={onClickDelete}
                         >
                           Delete this quote
                         </Button>
@@ -552,6 +698,7 @@ export default function QuotesDetail() {
                   setTax={setTax}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
+                  isUpdatable={isUpdatable}
                 />
                 {editItems
                   ? renderSubmitButton(
@@ -599,6 +746,7 @@ export default function QuotesDetail() {
                 <QuotesClientDetail
                   client={client}
                   setIsEditMode={setEditClient}
+                  isUpdatable={isUpdatable}
                 />
               )}
             </Card>
@@ -649,9 +797,11 @@ export default function QuotesDetail() {
                     }}
                   >
                     <Typography variant='h6'>Project team</Typography>
-                    <IconButton onClick={() => setEditTeam(!editTeam)}>
-                      <Icon icon='mdi:pencil-outline' />
-                    </IconButton>
+                    {isUpdatable ? (
+                      <IconButton onClick={() => setEditTeam(!editTeam)}>
+                        <Icon icon='mdi:pencil-outline' />
+                      </IconButton>
+                    ) : null}
                   </Box>
                   <Box
                     sx={{
@@ -680,16 +830,16 @@ export default function QuotesDetail() {
             </Suspense>
           </TabPanel>
           <TabPanel value='history' sx={{ pt: '24px' }}>
-            {/* <VersionHistory
-                list={versionHistory!}
-                listCount={versionHistory?.length!}
-                columns={versionHistoryColumns}
-                page={versionHistoryListPage}
-                setPage={setVersionHistoryListPage}
-                pageSize={versionHistoryListPageSize}
-                setPageSize={setVersionHistoryListPageSize}
-                onClickRow={onClickVersionHistoryRow}
-              /> */}
+            <VersionHistory
+              list={versionHistory || []}
+              listCount={versionHistory?.length!}
+              columns={versionHistoryColumns}
+              page={historyPage}
+              setPage={setHistoryPage}
+              pageSize={historyPageSize}
+              setPageSize={setHistoryPageSize}
+              onClickRow={onClickVersionHistoryRow}
+            />
           </TabPanel>
         </TabContext>
       </Grid>

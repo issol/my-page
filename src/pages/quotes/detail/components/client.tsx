@@ -14,9 +14,14 @@ import { ClientType } from '@src/types/orders/order-detail'
 type Props = {
   client: ClientType | undefined
   setIsEditMode: (n: boolean) => void
+  isUpdatable: boolean
 }
 
-export default function QuotesClientDetail({ client, setIsEditMode }: Props) {
+export default function QuotesClientDetail({
+  client,
+  setIsEditMode,
+  isUpdatable,
+}: Props) {
   return (
     <Box
       sx={{
@@ -26,12 +31,14 @@ export default function QuotesClientDetail({ client, setIsEditMode }: Props) {
         gap: '30px',
       }}
     >
-      <IconButton
-        sx={{ position: 'absolute', top: 0, right: 0 }}
-        onClick={() => setIsEditMode(true)}
-      >
-        <IconifyIcon icon='mdi:pencil-outline' width={24} height={24} />
-      </IconButton>
+      {isUpdatable ? (
+        <IconButton
+          sx={{ position: 'absolute', top: 0, right: 0 }}
+          onClick={() => setIsEditMode(true)}
+        >
+          <IconifyIcon icon='mdi:pencil-outline' width={24} height={24} />
+        </IconButton>
+      ) : null}
 
       {client !== undefined ? (
         <>
