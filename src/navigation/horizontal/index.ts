@@ -59,7 +59,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/jobPosting`,
           icon: 'ic:baseline-home-repair-service',
           action: 'read',
-          subject: 'job_posting',
+          subject: 'recruiting',
         },
       ],
     },
