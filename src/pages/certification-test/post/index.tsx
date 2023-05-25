@@ -887,7 +887,7 @@ const TestMaterialPost = () => {
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               value={value}
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -976,7 +976,7 @@ const TestMaterialPost = () => {
                               render={({ field: { onChange, value } }) => (
                                 <Autocomplete
                                   fullWidth
-                                  filterSelectedOptions
+                                  // filterSelectedOptions
                                   value={value}
                                   onChange={(e, v) => {
                                     if (!v) onChange({ value: '', label: '' })

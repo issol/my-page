@@ -52,7 +52,7 @@ export default function Filters({
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
-    filterSelectedOptions: true,
+    // filterSelectedOptions: true,
     getOptionLabel: (val: { label: string; value: string }) => val.label,
   }
 

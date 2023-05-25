@@ -88,7 +88,7 @@ export default function ClientListFilter({
                           status: v.map(item => item.value),
                         })
                       }
-                      filterSelectedOptions
+                      // filterSelectedOptions
                       id='status'
                       getOptionLabel={option => option.label}
                       renderInput={params => (

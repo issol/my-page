@@ -523,7 +523,7 @@ const ClientGuidelineEdit = () => {
                               fullWidth
                               disabled
                               options={ClientListIncludeGloz}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -560,7 +560,7 @@ const ClientGuidelineEdit = () => {
                               fullWidth
                               options={CategoryList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -597,7 +597,7 @@ const ClientGuidelineEdit = () => {
                             fullWidth
                             options={ServiceTypeList}
                             value={value}
-                            filterSelectedOptions
+                            // filterSelectedOptions
                             onChange={(e, v) => {
                               if (!v) onChange({ value: '', label: '' })
                               else onChange(v)

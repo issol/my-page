@@ -81,7 +81,7 @@ export default function Filters({
                     setFilter({ ...filter, client: v.map(item => item.value) })
                   }
                   options={ClientListIncludeGloz}
-                  filterSelectedOptions
+                  // filterSelectedOptions
                   id='client'
                   getOptionLabel={option => option.label}
                   renderInput={params => (
@@ -116,7 +116,7 @@ export default function Filters({
                         category: v.map(item => item.value),
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='category'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -143,7 +143,7 @@ export default function Filters({
                   fullWidth
                   multiple
                   disableCloseOnSelect
-                  options={serviceType || []}
+                  options={ServiceTypeList || []}
                   value={filterValue(ServiceTypeList, 'serviceType')}
                   onChange={(e, v) =>
                     setFilter({
@@ -151,7 +151,7 @@ export default function Filters({
                       serviceType: v.map(item => item.value),
                     })
                   }
-                  filterSelectedOptions
+                  // filterSelectedOptions
                   id='serviceType'
                   getOptionLabel={option => option.label}
                   renderInput={params => (
