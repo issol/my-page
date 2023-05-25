@@ -97,8 +97,11 @@ export type QuoteDownloadData = {
   adminCompanyName: string
   companyAddress: string
   corporationId: string
-  orderedAt: string
-  projectDueAt: { date: string; timezone: CountryType }
+  quoteDate: string
+  projectDueDate: { date: string; timezone: CountryType | undefined }
+  quoteDeadline: { date: string; timezone: CountryType | undefined }
+  quoteExpiryDate: { date: string; timezone: CountryType | undefined }
+  estimatedDeliveryDate: { date: string; timezone: CountryType | undefined }
   pm: {
     email: string
     firstName: string
@@ -107,8 +110,8 @@ export type QuoteDownloadData = {
   }
   companyName: string
   projectName: string
-  client: ClientType
+  client: ClientType | undefined
   contactPerson: ContactPersonType | null
   clientAddress: ClientAddressType[]
-  langItem: LanguageAndItemType
+  langItem: LanguageAndItemType | undefined
 }
