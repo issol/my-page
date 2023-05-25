@@ -1,4 +1,10 @@
-import { ClientType, ProjectTeamListType } from '../orders/order-detail'
+import {
+  ClientType,
+  LanguageAndItemType,
+  ProjectTeamListType,
+} from '../orders/order-detail'
+import { ClientAddressType } from '../schema/client-address.schema'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type QuoteStatusType =
@@ -83,4 +89,26 @@ export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
   projectTeam: ProjectTeamListType[]
+}
+
+// TODO: 스키마수정하기
+export type QuoteDownloadData = {
+  quoteId: number
+  adminCompanyName: string
+  companyAddress: string
+  corporationId: string
+  orderedAt: string
+  projectDueAt: { date: string; timezone: CountryType }
+  pm: {
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
+  companyName: string
+  projectName: string
+  client: ClientType
+  contactPerson: ContactPersonType | null
+  clientAddress: ClientAddressType[]
+  langItem: LanguageAndItemType
 }
