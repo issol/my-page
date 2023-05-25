@@ -48,9 +48,9 @@ export const StatusCode = {
 
 export const ApiErrorHandler = (error: AxiosError, email = '') => {
   const errorData = error.config?.data
-
-  const { method, url, params, headers } = error.config! // axios의 error객체
-  const { data, status } = error.response!
+  console.log('sentry', error.config)
+  const { method, url, params, headers } = error?.config || {} // axios의 error객체
+  const { data, status } = error.response || { data: null, status: null }
   if (status !== 401) {
     Sentry.withScope((scope: Sentry.Scope) => {
       scope.setTransactionName(`${status} Error`)
@@ -67,7 +67,7 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
         data,
       })
 
-      scope.setFingerprint([method!, status.toString(), url!])
+      scope.setFingerprint([method!, status ? status.toString() : '', url!])
       scope.setTag('Api Error', `${status}`)
       scope.setTag('email', email)
       scope.setUser({ email: email })
@@ -75,9 +75,9 @@ export const ApiErrorHandler = (error: AxiosError, email = '') => {
 
       const err: any = new Error(`${error.message}`)
 
-      if (Object.keys(StatusCode).includes(status.toString())) {
+      if (Object.keys(StatusCode).includes(status ? status.toString() : '')) {
         for (const [key, value] of Object.entries(StatusCode)) {
-          if (key === status.toString()) err.name = value
+          if (status && key === status.toString()) err.name = value
         }
       }
 
