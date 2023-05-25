@@ -48,7 +48,6 @@ export const StatusCode = {
 
 export const ApiErrorHandler = (error: AxiosError, email = '') => {
   const errorData = error.config?.data
-  console.log('sentry', error.config)
   const { method, url, params, headers } = error?.config || {} // axios의 error객체
   const { data, status } = error.response || { data: null, status: null }
   if (status !== 401) {
