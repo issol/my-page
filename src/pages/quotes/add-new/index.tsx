@@ -322,7 +322,6 @@ export default function AddNewQuotes() {
   }
 
   function onSubmit() {
-    console.log(getTeamValues())
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -394,7 +393,7 @@ export default function AddNewQuotes() {
       }
     })
     if (!result.member || !result?.member?.length) delete result.member
-    console.log('get members', result)
+
     return result
   }
 
@@ -431,6 +430,15 @@ export default function AddNewQuotes() {
               isValid={isTeamValid}
               watch={teamWatch}
             />
+            <Grid item xs={12} display='flex' justifyContent='flex-end'>
+              <Button
+                variant='contained'
+                disabled={!isTeamValid}
+                onClick={onNextStep}
+              >
+                Next <Icon icon='material-symbols:arrow-forward-rounded' />
+              </Button>
+            </Grid>
           </Card>
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>

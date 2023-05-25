@@ -158,13 +158,18 @@ export default function QuotesDetail() {
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<QuotesProjectInfoFormType>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: quotesProjectInfoDefaultValue,
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
   useEffect(() => {
     if (!isProjectLoading && project) {
+      const defaultTimezone = {
+        code: '',
+        phone: '',
+        label: '',
+      }
       projectInfoReset({
         status: project.status,
         workName: project.workName,
@@ -176,19 +181,19 @@ export default function QuotesDetail() {
         quoteDate: project.quoteDate,
         projectDueDate: {
           date: project.projectDueAt,
-          timezone: project.projectDueTimezone,
+          timezone: project.projectDueTimezone ?? defaultTimezone,
         },
         quoteDeadline: {
           date: project.quoteDeadline,
-          timezone: project.quoteDeadlineTimezone,
+          timezone: project.quoteDeadlineTimezone ?? defaultTimezone,
         },
         quoteExpiryDate: {
           date: project.quoteExpiryDate,
-          timezone: project.quoteExpiryDateTimezone,
+          timezone: project.quoteExpiryDateTimezone ?? defaultTimezone,
         },
         estimatedDeliveryDate: {
           date: project.estimatedDeliveryDate,
-          timezone: project.estimatedDeliveryDateTimezone,
+          timezone: project.estimatedDeliveryDateTimezone ?? defaultTimezone,
         },
       })
       setTax(project.tax)
@@ -447,11 +452,32 @@ export default function QuotesDetail() {
   }
 
   // ** Submits(save)
+  function onSave(callBack: () => void) {
+    openModal({
+      type: 'EditSaveModal',
+      children: (
+        <EditSaveModal
+          onClose={() => closeModal('EditSaveModal')}
+          onClick={callBack}
+        />
+      ),
+    })
+  }
+
+  function onProjectInfoSave() {
+    //
+  }
+  function onItemSave() {
+    //
+  }
   function onClientSave() {
     //
   }
+  function onProjectTeamSave() {
+    //
+  }
 
-  function onDiscard(callback: () => void) {
+  function onDiscard({ callback }: { callback: () => void }) {
     openModal({
       type: 'DiscardModal',
       children: (
@@ -461,7 +487,7 @@ export default function QuotesDetail() {
             closeModal('DiscardModal')
           }}
           onClick={() => {
-            setEditClient(false)
+            callback()
             closeModal('DiscardModal')
           }}
         />
@@ -469,11 +495,17 @@ export default function QuotesDetail() {
     })
   }
 
-  function renderSubmitButton(
-    onCancel: () => void,
-    onSave: () => void,
-    isValid: boolean,
-  ) {
+  type RenderSubmitButtonProps = {
+    onCancel: () => void
+    onSave: () => void
+    isValid: boolean
+  }
+
+  function renderSubmitButton({
+    onCancel,
+    onSave,
+    isValid,
+  }: RenderSubmitButtonProps) {
     return (
       <Grid item xs={12}>
         <Box display='flex' gap='16px' justifyContent='center'>
@@ -634,14 +666,12 @@ export default function QuotesDetail() {
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
                       />
-                      {renderSubmitButton(
-                        () =>
-                          onDiscard(() => {
-                            setEditProject(false)
-                          }),
-                        () => null,
-                        isProjectInfoValid,
-                      )}
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({ callback: () => setEditProject(false) }),
+                        onSave: () => onSave(onProjectInfoSave),
+                        isValid: isProjectInfoValid,
+                      })}
                     </Grid>
                   </DatePickerWrapper>
                 </Card>
@@ -698,14 +728,12 @@ export default function QuotesDetail() {
                   isUpdatable={isUpdatable}
                 />
                 {editItems
-                  ? renderSubmitButton(
-                      () =>
-                        onDiscard(() => {
-                          setEditItems(false)
-                        }),
-                      () => null,
-                      isItemValid,
-                    )
+                  ? renderSubmitButton({
+                      onCancel: () =>
+                        onDiscard({ callback: () => setEditItems(false) }),
+                      onSave: () => onSave(onItemSave),
+                      isValid: isItemValid,
+                    })
                   : null}
               </CardContent>
             </Card>
@@ -720,23 +748,12 @@ export default function QuotesDetail() {
                     watch={clientWatch}
                   />
                   <Grid item xs={12}>
-                    {renderSubmitButton(
-                      () =>
-                        onDiscard(() => {
-                          setEditClient(false)
-                        }),
-                      () =>
-                        openModal({
-                          type: 'EditSaveModal',
-                          children: (
-                            <EditSaveModal
-                              onClose={() => closeModal('EditSaveModal')}
-                              onClick={onClientSave}
-                            />
-                          ),
-                        }),
-                      isClientValid,
-                    )}
+                    {renderSubmitButton({
+                      onCancel: () =>
+                        onDiscard({ callback: () => setEditClient(false) }),
+                      onSave: () => onSave(onClientSave),
+                      isValid: isClientValid,
+                    })}
                   </Grid>
                 </Grid>
               ) : (
@@ -764,23 +781,12 @@ export default function QuotesDetail() {
                       isValid={isTeamValid}
                       watch={teamWatch}
                     />
-                    {renderSubmitButton(
-                      () =>
-                        onDiscard(() => {
-                          setEditTeam(false)
-                        }),
-                      () =>
-                        openModal({
-                          type: 'EditSaveModal',
-                          children: (
-                            <EditSaveModal
-                              onClose={() => closeModal('EditSaveModal')}
-                              onClick={onClientSave}
-                            />
-                          ),
-                        }),
-                      isTeamValid,
-                    )}
+                    {renderSubmitButton({
+                      onCancel: () =>
+                        onDiscard({ callback: () => setEditTeam(false) }),
+                      onSave: () => onSave(onProjectTeamSave),
+                      isValid: isTeamValid,
+                    })}
                   </Grid>
                 </Card>
               ) : (
