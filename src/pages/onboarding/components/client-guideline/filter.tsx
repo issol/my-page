@@ -75,6 +75,7 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
+                  disableCloseOnSelect
                   value={filterValue(ClientListIncludeGloz, 'client')}
                   onChange={(e, v) =>
                     setFilter({ ...filter, client: v.map(item => item.value) })
@@ -106,6 +107,7 @@ export default function Filters({
                     autoHighlight
                     fullWidth
                     multiple
+                    disableCloseOnSelect
                     options={CategoryList}
                     value={filterValue(CategoryList, 'category')}
                     onChange={(e, v) =>
@@ -140,6 +142,7 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
+                  disableCloseOnSelect
                   options={serviceType || []}
                   value={filterValue(ServiceTypeList, 'serviceType')}
                   onChange={(e, v) =>

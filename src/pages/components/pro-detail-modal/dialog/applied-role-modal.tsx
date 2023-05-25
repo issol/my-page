@@ -532,7 +532,7 @@ export default function AppliedRoleModal({
                             {idx < 9 ? 0 : null}
                             {idx + 1}.
                           </Typography>
-                          {jobInfoFields.length > 1 && (
+                          {roleJobInfoFields.length > 1 && (
                             <IconButton
                               onClick={() => removeJobInfo(item, 'role')}
                               sx={{ padding: 1 }}
@@ -794,7 +794,7 @@ export default function AppliedRoleModal({
                       onClick={() => addJobInfo('role')}
                       color='primary'
                       disabled={roleJobInfoFields.some(item => {
-                        if (item.jobType === 'DTP') {
+                        if (item.role === 'DTPer' || item.role === 'DTP QCer') {
                           return !item.jobType || !item.role
                         } else {
                           return (
@@ -824,7 +824,7 @@ export default function AppliedRoleModal({
                       variant='contained'
                       type='submit'
                       disabled={roleJobInfoFields.some(item => {
-                        if (item.jobType === 'DTP') {
+                        if (item.role === 'DTPer' || item.role === 'DTP QCer') {
                           return !item.jobType || !item.role
                         } else {
                           return (

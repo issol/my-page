@@ -24,6 +24,21 @@ export const getPresignedUrl = async (
   }
 }
 
+//pro, onboarding 등 일반적인 용도, getPresignedUrl와 통합 필요함
+export const getPresignedUrlforCommon = async (
+  fileType: string,
+  filePath: string,
+) => {
+  try {
+    const { data } = await axios.get(
+      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const postFiles = async (url: string, formData: FormData) => {
   return originalAxios.put(url, formData, {
     headers: {
@@ -32,6 +47,14 @@ export const postFiles = async (url: string, formData: FormData) => {
         'Bearer ' + typeof window === 'object'
           ? getUserTokenFromBrowser()
           : null,
+    },
+  })
+}
+
+export const uploadFileToS3 = async (url: string, file: any) => {
+  return originalAxios.put(url, file, {
+    headers: {
+      'Content-Type': file.type,
     },
   })
 }

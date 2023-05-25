@@ -81,6 +81,7 @@ import CertificationTest from '@src/pages/components/pro-detail-component/certif
 import logger from '@src/@core/utils/logger'
 
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { getPresignedUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -798,16 +799,26 @@ function OnboardingDetail() {
 
   const onClickFile = (file: {
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
-  }) => {
-    setModal(
-      <FilePreviewDownloadModal
-        open={true}
-        onClose={() => setModal(null)}
-        docs={[file]}
-      />,
-    )
+  }, fileType: string
+  ) => {
+    getPresignedUrlforCommon(fileType, encodeURIComponent(file.filePath))
+    .then(res => {
+      const previewFile = {
+        url: res.url,
+        fileName: file.fileName,
+        fileExtension: file.fileExtension
+      }
+      setModal(
+        <FilePreviewDownloadModal
+          open={true}
+          onClose={() => setModal(null)}
+          docs={[previewFile]}
+        />,
+      )
+    })
   }
 
   return (
@@ -948,6 +959,7 @@ function OnboardingDetail() {
                   timezone: userInfo?.timezone!,
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
+                  status: userInfo?.status!,
                 }}
                 type='onboarding'
               />

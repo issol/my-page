@@ -6,19 +6,23 @@ import Icon from '@src/@core/components/icon'
 import { useState } from 'react'
 import Slider from 'react-slick'
 import { v4 as uuidv4 } from 'uuid'
+import { DownloadFileType } from 'src/shared/const/signedURLFileType'
+
 type Props = {
   resume: Array<{
     id: number
     fileName: string
+    filePath: string
     url: string
     fileExtension: string
   }>
   onClickFile: (file: {
     id: number
     url: string
+    filePath: string
     fileName: string
     fileExtension: string
-  }) => void
+  }, fileType: string) => void
 }
 
 const ListResume = ({ resume, onClickFile }: Props) => {
@@ -151,7 +155,7 @@ const ListResume = ({ resume, onClickFile }: Props) => {
                     maxWidth: '24px',
                     cursor: 'pointer',
                   }}
-                  onClick={() => onClickFile(value)}
+                  onClick={() => onClickFile(value, DownloadFileType.RESUME)}
                 >
                   <Box
                     sx={{

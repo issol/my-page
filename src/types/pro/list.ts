@@ -53,6 +53,7 @@ export type ProListType = {
   resume: Array<{
     id: number
     fileName: string
+    filePath: string
     url: string
     fileExtension: string
   }>

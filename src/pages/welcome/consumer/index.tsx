@@ -70,7 +70,7 @@ import { FileType } from 'src/types/common/file.type'
 
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import { FilePathEnum, getPresignedUrl, postFiles } from 'src/apis/common.api'
+import { FilePathEnum, getPresignedUrl, postFiles, uploadFileToS3 } from 'src/apis/common.api'
 import logger from '@src/@core/utils/logger'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -277,9 +277,7 @@ const PersonalInfoPro = () => {
           file.name,
           FilePathEnum.resume,
         ).then(res => {
-          const formData = new FormData()
-          formData.append('files', file)
-          postFiles(res, formData)
+          uploadFileToS3(res, file)
             .then(res => logger.info('upload resume success :', res))
             .catch(err => logger.error('upload resume failed : ', err))
         })

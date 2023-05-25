@@ -145,3 +145,13 @@ export const requestReviewer = async (testId: number, reviewerId: number) => {
     return data
   } catch (e) {}
 }
+
+export const cancelReviewer = async (testId: number) => {
+  try {
+    const data = await axios.patch('/api/enough/cert/request/review/reassign', {
+      testId: testId,
+    })
+
+    return data
+  } catch (e) {}
+}
