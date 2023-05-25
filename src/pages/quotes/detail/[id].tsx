@@ -112,7 +112,7 @@ type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
  * TODO
  * save 함수 추가
  * project info status변경 api추가
- * download quote, create order기능 구현
+ * create order기능 구현
  * version history구현
  */
 
@@ -131,7 +131,6 @@ export default function QuotesDetail() {
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
-  const isCreatable = ability.can('create', User)
 
   // ** store
   const dispatch = useAppDispatch()
@@ -724,7 +723,12 @@ export default function QuotesDetail() {
             </Button>
             <Button
               variant='outlined'
-              // onClick={onClickDownloadOrder}
+              onClick={() =>
+                router.push({
+                  pathname: `/orders/add-new`,
+                  query: { orderId: id },
+                })
+              }
             >
               Create order
             </Button>

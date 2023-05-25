@@ -113,6 +113,14 @@ export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
+  useEffect(() => {
+    if (!router.isReady) return
+    const orderId = Number(router.query.orderId)
+    if (!isNaN(orderId)) {
+      onCopyOrder(orderId)
+    }
+  }, [router.query])
+
   const { openModal, closeModal } = useModal()
 
   // ** stepper
@@ -408,9 +416,9 @@ export default function AddNewOrder() {
       }
     })
     if (!result.member || !result?.member?.length) delete result.member
-    console.log('get members', result)
     return result
   }
+
   async function onCopyOrder(id: number | null) {
     const priceList = await getPriceList({})
     closeModal('copy-order')

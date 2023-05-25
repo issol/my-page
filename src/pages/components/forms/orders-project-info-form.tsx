@@ -106,10 +106,6 @@ export default function ProjectInfoForm({
     setWorkNameError(workName?.some(item => item.value === name) || false)
   }
 
-  useEffect(() => {
-    console.log(watch())
-  }, [watch])
-
   function onAddWorkName() {
     openModal({
       type: 'add-work-name',
