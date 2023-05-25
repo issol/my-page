@@ -992,3 +992,11 @@ export const restoreVersion = async (id: number): Promise<void> => {
     throw new Error(e)
   }
 }
+
+/* TODO : endpoint 수정하기 */
+export const patchQuoteProjectInfo = async (
+  id: number,
+  form: QuotesProjectInfoFormType | { downloadedAt: string },
+) => {
+  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+}

@@ -34,6 +34,7 @@ type Props = {
   isUpdatable: boolean
 }
 
+/* TODO: item&lang 추가하기 */
 const VersionHistoryModal = ({
   history,
   onClose,

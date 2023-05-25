@@ -29,8 +29,9 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { AuthContext } from '@src/context/AuthContext'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
-// ** rdk
-import { useAppDispatch } from '@src/hooks/useRedux'
+// ** store
+import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
+import { setIsReady, setQuote, setQuoteLang } from '@src/store/quote'
 
 // ** Next
 import { useRouter } from 'next/router'
@@ -49,6 +50,8 @@ import ProjectTeamFormContainer from '../components/form-container/project-team-
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import VersionHistory from './components/version-history'
 import VersionHistoryModal from './components/version-history-detail'
+import QuotePreview from './components/pdf-download/quote-preview'
+import DownloadQuotesModal from './components/pdf-download/download-qoutes-modal'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -63,6 +66,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import {
+  QuoteDownloadData,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -100,6 +104,7 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
+import PrintQuotePage from './components/pdf-download/quote-preview'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
@@ -128,7 +133,9 @@ export default function QuotesDetail() {
   const isDeletable = ability.can('delete', User)
   const isCreatable = ability.can('create', User)
 
+  // ** store
   const dispatch = useAppDispatch()
+  const quote = useAppSelector(state => state.quote)
 
   useEffect(() => {
     if (
@@ -437,7 +444,6 @@ export default function QuotesDetail() {
   }
 
   const onClickVersionHistoryRow = (history: VersionHistoryType) => {
-    console.log(history)
     openModal({
       type: 'VersionHistoryModal',
       children: (
@@ -532,12 +538,12 @@ export default function QuotesDetail() {
 
   const onClickDelete = () => {
     openModal({
-      type: 'DeleteOrderModal',
+      type: 'DeleteQuoteModal',
       children: (
         <DeleteConfirmModal
-          onClose={() => closeModal('DeleteOrderModal')}
+          onClose={() => closeModal('DeleteQuoteModal')}
           onDelete={() => deleteQuotesMutation.mutate(Number(id))}
-          message='Are you sure you want to delete this order?'
+          message='Are you sure you want to delete this quote?'
           title={`[${project?.corporationId}] ${project?.projectName}`}
         />
       ),
@@ -548,6 +554,124 @@ export default function QuotesDetail() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
     })
+  }
+
+  // ** Download pdf
+  const onClickPreview = (lang: 'EN' | 'KO') => {
+    makePdfData(lang)
+    closeModal('PreviewModal')
+  }
+
+  function handlePrint() {
+    closeModal('DownloadQuotesModal')
+    router.push('/quotes/print')
+  }
+
+  useEffect(() => {
+    if (quote.isReady && quote.quoteTotalData) {
+      openModal({
+        type: 'PreviewModal',
+        isCloseable: false,
+        children: (
+          <Box
+            sx={{
+              width: '789px',
+              height: '95vh',
+              overflow: 'scroll',
+              background: '#ffffff',
+              boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+              paddingBottom: '24px',
+            }}
+          >
+            <div className='page'>
+              <PrintQuotePage
+                data={quote.quoteTotalData}
+                type='preview'
+                user={user!}
+                lang={quote.lang}
+              />
+            </div>
+
+            <Box display='flex' justifyContent='center' gap='10px'>
+              <Button
+                variant='outlined'
+                sx={{ width: 226 }}
+                onClick={() => closeModal('PreviewModal')}
+              >
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  handlePrint()
+                  closeModal('PreviewModal')
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          </Box>
+        ),
+      })
+    }
+  }, [quote.isReady])
+
+  const onClickDownloadQuotes = () => {
+    openModal({
+      type: 'DownloadQuotesModal',
+      children: (
+        <DownloadQuotesModal
+          onClose={() => {
+            closeModal('DownloadQuotesModal')
+            dispatch(setIsReady(null))
+          }}
+          onClick={onClickPreview}
+        />
+      ),
+    })
+  }
+
+  function makePdfData(lang: 'EN' | 'KO') {
+    const pm = team?.find(value => value.position === 'projectManager')
+
+    const res: QuoteDownloadData = {
+      quoteId: Number(id!),
+      adminCompanyName: 'GloZ Inc.',
+      companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+      corporationId: project?.corporationId ?? '',
+      quoteDate: project?.quoteDate ?? '',
+      projectDueDate: {
+        date: project?.projectDueAt ?? '',
+        timezone: project?.projectDueTimezone,
+      },
+      quoteDeadline: {
+        date: project?.quoteDeadline ?? '',
+        timezone: project?.quoteDeadlineTimezone,
+      },
+      quoteExpiryDate: {
+        date: project?.quoteExpiryDate ?? '',
+        timezone: project?.quoteExpiryDateTimezone,
+      },
+      estimatedDeliveryDate: {
+        date: project?.estimatedDeliveryDate ?? '',
+        timezone: project?.estimatedDeliveryDateTimezone,
+      },
+      pm: {
+        firstName: pm?.firstName!,
+        lastName: pm?.lastName!,
+        email: pm?.email!,
+        middleName: pm?.middleName!,
+      },
+      companyName: client!.client.name,
+      projectName: project?.projectName ?? '',
+      client: client,
+      contactPerson: client?.contactPerson ?? null,
+      clientAddress: client?.clientAddress ?? [],
+      langItem: itemsWithLang,
+    }
+    dispatch(setQuoteLang(lang))
+    dispatch(setQuote(res))
   }
 
   return (
@@ -593,7 +717,7 @@ export default function QuotesDetail() {
             <Button
               variant='outlined'
               sx={{ display: 'flex', gap: '8px' }}
-              // onClick={onClickDownloadOrder}
+              onClick={onClickDownloadQuotes}
             >
               <Icon icon='material-symbols:request-quote' />
               Download quote
@@ -611,7 +735,7 @@ export default function QuotesDetail() {
         <TabContext value={menu}>
           <TabList
             onChange={(e, v) => setMenu(v)}
-            aria-label='Order detail Tab menu'
+            aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
             <CustomTap
