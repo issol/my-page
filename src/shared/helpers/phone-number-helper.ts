@@ -1,3 +1,7 @@
-export const getPhoneNumber = (phone: string | null, timezonePhone: string) => {
-  return phone ? `+${timezonePhone}) ${phone}` : '-'
+export const getPhoneNumber = (
+  phone: string | null | undefined,
+  timezonePhone: string | undefined,
+) => {
+  if (phone && timezonePhone) return phone ? `+${timezonePhone}) ${phone}` : '-'
+  return !phone && timezonePhone ? '-' : phone
 }

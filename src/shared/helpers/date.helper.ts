@@ -34,7 +34,7 @@ export function convertDateByTimezone(date: string, from: string, to: string) {
 // output ex : 03/28/2023, 12:00 AM (EST)
 export function FullDateTimezoneHelper(
   value: any,
-  timezone: CountryType | string,
+  timezone: CountryType | string | undefined,
 ): string {
   if (value === undefined || value === null) return '-'
   try {
