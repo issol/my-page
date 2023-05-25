@@ -25,7 +25,7 @@ import Icon from 'src/@core/components/icon'
 // **values
 import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
-import { ProStatus } from '@src/shared/const/status/statuses'
+import { ProStatus, WorkStatus } from '@src/shared/const/status/statuses'
 import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 
 // ** types
@@ -52,7 +52,7 @@ export default function Filters({
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
-    filterSelectedOptions: true,
+    // filterSelectedOptions: true,
     getOptionLabel: (val: { label: string; value: string }) => val.label,
   }
 
@@ -145,7 +145,7 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    options={ProStatus}
+                    options={WorkStatus}
                     value={filter.status}
                     onChange={(e, v) =>
                       setFilter({

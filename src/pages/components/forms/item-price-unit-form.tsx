@@ -94,8 +94,6 @@ export default function ItemPriceUnitForm({
   priceUnitsList,
   type,
 }: Props) {
-  console.log(details)
-
   const itemName: `items.${number}.detail` = `items.${index}.detail`
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
@@ -388,10 +386,13 @@ export default function ItemPriceUnitForm({
                 )}
           </Typography>
         </TableCell>
+
         <TableCell align='center'>
-          <IconButton onClick={() => onDeletePriceUnit(idx)}>
-            <Icon icon='mdi:trash-outline' />
-          </IconButton>
+          {type === 'detail' ? null : (
+            <IconButton onClick={() => onDeletePriceUnit(idx)}>
+              <Icon icon='mdi:trash-outline' />
+            </IconButton>
+          )}
         </TableCell>
       </TableRow>
     )

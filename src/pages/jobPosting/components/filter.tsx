@@ -109,7 +109,7 @@ export default function Filters({
                           jobType: v?.value ?? '',
                         })
                       }
-                      filterSelectedOptions
+                      // filterSelectedOptions
                       id='jobType'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
@@ -142,7 +142,7 @@ export default function Filters({
                         role: v?.value ?? '',
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='role'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -173,7 +173,7 @@ export default function Filters({
                         yearsOfExperience: v?.value ?? '',
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='yearsOfExperience'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -205,7 +205,7 @@ export default function Filters({
                         source: v?.value ?? '',
                       })
                     }}
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='source'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -237,7 +237,7 @@ export default function Filters({
                         target: v?.value ?? '',
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='target'
                     getOptionLabel={option => option.label}
                     renderInput={params => (

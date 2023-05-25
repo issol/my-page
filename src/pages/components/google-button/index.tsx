@@ -10,6 +10,14 @@ import styled from 'styled-components'
 // ** context
 import { useAuth } from 'src/hooks/useAuth'
 
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+// ** modals
+import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
+import MoveSignupModal from '@src/pages/components/modals/confirm-save-modals/move-signup-modal'
+import ServerErrorModal from '@src/pages/components/modals/confirm-modals/server-error-modal'
+
 // ** fetch
 import { useMutation } from 'react-query'
 import { saveUserTokenToBrowser } from 'src/shared/auth/storage'
@@ -26,6 +34,7 @@ export default function GoogleButton() {
 
   // ** Hooks
   const auth = useAuth()
+  const { openModal, closeModal } = useModal()
 
   useEffect(() => {
     generateGoogleLoginButton()
@@ -36,18 +45,48 @@ export default function GoogleButton() {
     {
       onSuccess: res => {
         logger.info('google auth success res : ', res)
-        auth.updateUserInfo(res)
-        router.replace('/')
+        if (!res.accessToken) {
+          openModal({
+            type: 'signup-not-approval-modal',
+            children: (
+              <SignupNotApprovalModal
+                onClose={() => closeModal('signup-not-approval-modal')}
+              />
+            ),
+          })
+        } else {
+          auth.updateUserInfo(res)
+          router.replace('/')
+        }
       },
       onError: err => {
+        logger.debug("Fail Google login",err)
         if (err === 'NOT_A_MEMBER') {
-          router.replace(
-            {
-              pathname: '/signup/',
-              query: { email: emailRef.current },
-            },
-            '/signup/',
-          )
+          openModal({
+            type: 'move-signup-modal',
+            children: (
+              <MoveSignupModal
+                onClose={() => closeModal('move-signup-modal')}
+                onConfirm={() =>        
+                  router.replace(
+                  {
+                    pathname: '/signup/',
+                    query: { email: emailRef.current },
+                  },
+                  '/signup/',
+                )}
+              />
+            ),
+          })
+        } else if (err === 'SERVER_ERROR') {
+          openModal({
+            type: 'server-error-modal',
+            children: (
+              <ServerErrorModal
+                onClose={() => closeModal('server-error-modal')}
+              />
+            ),
+          })
         } else {
           toast.error('Something went wrong. Please try again.', {
             position: 'bottom-left',

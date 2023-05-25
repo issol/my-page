@@ -1,54 +1,56 @@
-'use client'
-
-import TabContext from '@mui/lab/TabContext'
+import { Icon } from '@iconify/react'
+import { Box, Grid, IconButton } from '@mui/material'
+import Tab from '@mui/material/Tab'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, IconButton, Tab, Typography, styled } from '@mui/material'
-import Icon from '@src/@core/components/icon'
+import TabContext from '@mui/lab/TabContext'
+import Typography from '@mui/material/Typography'
+import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
+import { SyntheticEvent } from 'react-draft-wysiwyg'
+import styled from 'styled-components'
+import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
-import {
-  SyntheticEvent,
-  useState,
-  MouseEvent,
-  Suspense,
-  useEffect,
-  useContext,
-} from 'react'
-
-import Prices from './components/prices/edit-prices'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { ItemType, JobType } from '@src/types/common/item.type'
+import { JobHistoryType } from '@src/types/jobs/jobs.type'
+import ViewJobInfo from '../job-info/view-job-info'
+import JobInfoDetailView from '../..'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { ItemType, JobType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
-import { is } from 'date-fns/locale'
-import AssignPro from './components/assign-pro/assign-pro'
-import { AssignProFilterPostType } from '@src/types/orders/job-detail'
-import { useGetAssignProList } from '@src/queries/order/job.query'
+import { jobItemSchema } from '@src/types/schema/item.schema'
+import ViewPrices from '../prices/view-prices'
+import AssignPro from '../assign-pro/assign-pro'
 import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
-  tab?: string
-  row: JobType
+  id: number
+  title: string
+  onClose: () => void
+  row: JobHistoryType
   orderDetail: ProjectInfoType
+  priceUnitsList: PriceUnitListType[]
 }
-import JobHistory from './components/history'
-import EditJobInfo from './components/job-info/edit-job-info'
-import ViewJobInfo from './components/job-info/view-job-info'
-import ViewPrices from './components/prices/view-prices'
-import EditPrices from './components/prices/edit-prices'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
 
-const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
+/* TODO
+  JobInfo, Prices 컴포넌트 이식하기
+  Assign pro에 데이터 제대로 넘기기
+
+*/
+export default function HistoryDetail({
+  id,
+  title,
+  onClose,
+  row,
+  orderDetail,
+  priceUnitsList,
+}: Props) {
+  const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
-  const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const { user } = useContext(AuthContext)
 
-  const [editJobInfo, setEditJobInfo] = useState(false)
-  const [editPrices, setEditPrices] = useState(false)
-
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const [proListSkip, setProListSkip] = useState(0)
+  const [proPageSize, setProPageSize] = useState(10)
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -105,8 +107,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
     }
   }, [row])
 
-  console.log(!!row.prices)
-
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
       <IconButton
@@ -130,8 +130,41 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
             alignItems: 'center',
           }}
         >
-          <img src='/images/icons/order-icons/job-detail.svg' alt='' />
-          <Typography variant='h5'>{row.corporationId}</Typography>
+          <IconButton
+            sx={{ padding: '0 !important', height: '24px' }}
+            onClick={() => {
+              closeModal('history-detail')
+              openModal({
+                type: 'JobDetailViewModal',
+                children: (
+                  <Box
+                    sx={{
+                      maxWidth: '1180px',
+                      width: '100%',
+                      maxHeight: '90vh',
+                      background: '#ffffff',
+                      boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+                      borderRadius: '10px',
+                      overflow: 'scroll',
+                      '&::-webkit-scrollbar': {
+                        display: 'none',
+                      },
+                    }}
+                  >
+                    <JobInfoDetailView
+                      tab={'history'}
+                      row={row.jobInfo}
+                      orderDetail={orderDetail}
+                    />
+                  </Box>
+                ),
+              })
+            }}
+          >
+            <Icon icon='mdi:chevron-left' width={24} height={24} />
+          </IconButton>
+
+          <Typography variant='h5'>{title}</Typography>
         </Box>
 
         <TabContext value={value}>
@@ -163,87 +196,41 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
               icon={<Icon icon='mdi:account-outline' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTab
-              value='history'
-              label='Request history'
-              iconPosition='start'
-              icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            {row.jobName === null || editJobInfo ? (
-              <EditJobInfo row={row} />
-            ) : (
-              <ViewJobInfo
-                row={row}
-                setEditJobInfo={setEditJobInfo}
-                type='view'
-              />
-            )}
+            <ViewJobInfo row={row.jobInfo} type='history' />
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <Suspense>
-              {row.prices && !editPrices ? (
-                <ViewPrices
-                  row={row}
-                  priceUnitsList={priceUnitsList ?? []}
-                  itemControl={itemControl}
-                  itemErrors={itemErrors}
-                  getItem={getItem}
-                  setItem={setItem}
-                  itemTrigger={itemTrigger}
-                  itemReset={itemReset}
-                  isItemValid={isItemValid}
-                  appendItems={appendItems}
-                  fields={items}
-                  setEditPrices={setEditPrices}
-                  type='view'
-                />
-              ) : (
-                <EditPrices
-                  priceUnitsList={priceUnitsList ?? []}
-                  itemControl={itemControl}
-                  itemErrors={itemErrors}
-                  getItem={getItem}
-                  setItem={setItem}
-                  itemTrigger={itemTrigger}
-                  itemReset={itemReset}
-                  isItemValid={isItemValid}
-                  appendItems={appendItems}
-                  fields={items}
-                />
-              )}
+              <ViewPrices
+                row={row.jobInfo}
+                priceUnitsList={priceUnitsList ?? []}
+                itemControl={itemControl}
+                itemErrors={itemErrors}
+                getItem={getItem}
+                setItem={setItem}
+                itemTrigger={itemTrigger}
+                itemReset={itemReset}
+                isItemValid={isItemValid}
+                appendItems={appendItems}
+                fields={items}
+                type='history'
+              />
             </Suspense>
           </TabPanel>
-          <TabPanel value='assignPro' sx={{ pt: '30px' }}>
+          <TabPanel value='assignPro'>
             <AssignPro
               user={user!}
-              row={row}
+              row={row.jobInfo}
               orderDetail={orderDetail}
-              type='view'
-            />
-          </TabPanel>
-          <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
-          <TabPanel value='history' sx={{ pt: '30px' }}>
-            <JobHistory
-              jobId={row.id}
-              jobCorId={row.corporationId}
-              orderDetail={orderDetail}
-              priceUnitsList={priceUnitsList ?? []}
+              type='history'
+              assignProList={row.assignPro}
             />
           </TabPanel>
         </TabContext>
       </Box>
     </Box>
   )
-}
-
-export default JobInfoDetailView
-
-JobInfoDetailView.acl = {
-  subject: 'job_list',
-  action: 'read',
 }
 
 const CustomTab = styled(Tab)`

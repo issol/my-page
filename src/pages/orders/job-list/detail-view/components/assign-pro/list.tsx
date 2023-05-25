@@ -37,6 +37,8 @@ type Props = {
     selectionModel: GridSelectionModel,
     details: GridCallbackDetails<any>,
   ) => void
+  onClickRequestJob: () => void
+  type: string
 }
 
 const AssignProList = ({
@@ -53,6 +55,8 @@ const AssignProList = ({
   setHideOffBoard,
   selectionModel,
   handleSelectionModelChange,
+  onClickRequestJob,
+  type,
 }: Props) => {
   function NoList() {
     return (
@@ -65,7 +69,7 @@ const AssignProList = ({
           alignItems: 'center',
         }}
       >
-        <Typography variant='subtitle1'>There are no orders</Typography>
+        <Typography variant='subtitle1'>There are no Pros</Typography>
       </Box>
     )
   }
@@ -76,37 +80,41 @@ const AssignProList = ({
           <Box display='flex' justifyContent='space-between'>
             <Box display='flex' gap='20px' alignItems='center'>
               <Typography variant='h6'>Pros ({listCount ?? 0})</Typography>
-              <Box>
-                <Typography
-                  component='label'
-                  htmlFor='hideBlocked'
-                  variant='body2'
-                  fontSize='16px'
-                >
-                  Hide off-boarded Pros
-                </Typography>
-                <Switch
-                  id='hideBlocked'
-                  checked={hideOffBoard}
-                  onChange={e => {
-                    setHideOffBoard(e.target.checked)
-                    setFilters((prevState: AssignProFilterPostType) => ({
-                      ...prevState,
-                      isOffBoard: e.target.checked,
-                    }))
-                  }}
-                />
-              </Box>
+              {type === 'history' ? null : (
+                <Box>
+                  <Typography
+                    component='label'
+                    htmlFor='hideBlocked'
+                    variant='body2'
+                    fontSize='16px'
+                  >
+                    Hide off-boarded Pros
+                  </Typography>
+                  <Switch
+                    id='hideBlocked'
+                    checked={hideOffBoard}
+                    onChange={e => {
+                      setHideOffBoard(e.target.checked)
+                      setFilters((prevState: AssignProFilterPostType) => ({
+                        ...prevState,
+                        isOffBoard: e.target.checked,
+                      }))
+                    }}
+                  />
+                </Box>
+              )}
             </Box>
-
-            <Button
-              variant='contained'
-              sx={{ height: '30px' }}
-              disabled={selectionModel.length === 0}
-            >
-              <Icon icon='ic:outline-send' fontSize='18px' />
-              &nbsp; Request job
-            </Button>
+            {type === 'history' ? null : (
+              <Button
+                variant='contained'
+                sx={{ height: '30px' }}
+                disabled={selectionModel.length === 0}
+                onClick={onClickRequestJob}
+              >
+                <Icon icon='ic:outline-send' fontSize='18px' />
+                &nbsp; Request job
+              </Button>
+            )}
           </Box>
         }
         sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
@@ -124,7 +132,13 @@ const AssignProList = ({
             NoRowsOverlay: () => NoList(),
             NoResultsOverlay: () => NoList(),
           }}
-          sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+          sx={{
+            overflowX: 'scroll',
+            cursor: 'pointer',
+            '&::-webkit-scrollbar': {
+              display: 'none',
+            },
+          }}
           columns={columns}
           rows={list ?? []}
           rowCount={listCount ?? 0}
@@ -137,7 +151,7 @@ const AssignProList = ({
           page={rowsPerPage}
           pageSize={pageSize}
           paginationMode='server'
-          checkboxSelection
+          checkboxSelection={type === 'history' ? false : true}
           onSelectionModelChange={handleSelectionModelChange}
           onPageChange={(newPage: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({

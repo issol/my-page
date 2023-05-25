@@ -62,7 +62,8 @@ type Props = {
     'items',
     'id'
   >[]
-  setEditPrices: Dispatch<SetStateAction<boolean>>
+  setEditPrices?: Dispatch<SetStateAction<boolean>>
+  type: string
 }
 const ViewPrices = ({
   row,
@@ -77,10 +78,13 @@ const ViewPrices = ({
   appendItems,
   fields,
   setEditPrices,
+  type,
 }: Props) => {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: 7,
   })
+  console.log(fields)
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -112,26 +116,29 @@ const ViewPrices = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'flex-end',
-          alignItems: 'center',
-          gap: '10px',
-        }}
-      >
-        <Typography variant='subtitle2'>
-          *Changes will only be applied to new requests
-        </Typography>
-        <Button
-          variant='outlined'
-          // disabled={!!row.assignedPro}
-          onClick={() => setEditPrices(true)}
+      {type === 'history' ? null : (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'flex-end',
+            alignItems: 'center',
+            gap: '10px',
+          }}
         >
-          <Icon icon='mdi:pencil-outline' fontSize={24} />
-          &nbsp; Edit before request
-        </Button>
-      </Box>
+          <Typography variant='subtitle2'>
+            *Changes will only be applied to new requests
+          </Typography>
+          <Button
+            variant='outlined'
+            // disabled={!!row.assignedPro}
+            onClick={() => setEditPrices && setEditPrices(true)}
+          >
+            <Icon icon='mdi:pencil-outline' fontSize={24} />
+            &nbsp; Edit before request
+          </Button>
+        </Box>
+      )}
+
       <Card sx={{ padding: '24px' }}>
         <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
           <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
@@ -159,7 +166,7 @@ const ViewPrices = ({
                 Price
               </Typography>
               <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {row.prices?.priceName}
+                {fields[0].name}
               </Typography>
             </Box>
           </Box>

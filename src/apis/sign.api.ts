@@ -35,6 +35,8 @@ export const googleAuth = async (credential: string): Promise<loginResType> => {
   } catch (e: any) {
     if (e.response.data.statusCode === 403) {
       throw 'NOT_A_MEMBER'
+    } else if (e.response.data.statusCode >= 500) {
+      throw 'SERVER_ERROR'
     } else {
       throw new Error(e)
     }

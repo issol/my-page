@@ -15,25 +15,36 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import { useContext, useState } from 'react'
 import HistoryDetail from './history-detail'
+import { ProListJobInfoType } from '@src/types/pro/list'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
+import { PriceUnitListType } from '@src/types/common/standard-price'
 
 type CellType = {
   row: JobHistoryType
 }
 
 type Props = {
-  id: number
+  jobId: number
+  jobCorId: string
+  orderDetail: ProjectInfoType
+  priceUnitsList: PriceUnitListType[]
 }
 
 /**
  * TODO : createdAt은 타입 바뀔수도 있으므로 확인 후 수정하기
  */
-export default function JobHistory({ id }: Props) {
+export default function JobHistory({
+  jobId,
+  jobCorId,
+  orderDetail,
+  priceUnitsList,
+}: Props) {
   const { openModal, closeModal } = useModal()
   const { user } = useContext(AuthContext)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
-  const { data: list, isLoading } = useGetJobHistory(id, {
+  const { data: list, isLoading } = useGetJobHistory(jobId, {
     skip,
     take: skip * pageSize,
   })
@@ -125,25 +136,37 @@ export default function JobHistory({ id }: Props) {
             rows={list?.data || []}
             rowCount={list?.totalCount ?? 0}
             loading={isLoading}
-            onCellClick={params =>
+            onCellClick={params => {
+              closeModal('JobDetailViewModal')
               openModal({
                 type: 'history-detail',
                 children: (
-                  <Dialog
-                    open={true}
-                    onClose={() => closeModal('history-detail')}
+                  <Box
+                    sx={{
+                      maxWidth: '1180px',
+                      width: '100%',
+                      maxHeight: '90vh',
+                      background: '#ffffff',
+                      boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+                      borderRadius: '10px',
+                      overflow: 'scroll',
+                      '&::-webkit-scrollbar': {
+                        display: 'none',
+                      },
+                    }}
                   >
-                    <DialogContent sx={{ padding: '50px' }}>
-                      <HistoryDetail
-                        id={params.row.id}
-                        title={`[Request .${params.row.version}] ${params.row.id}`}
-                        onClose={() => closeModal('history-detail')}
-                      />
-                    </DialogContent>
-                  </Dialog>
+                    <HistoryDetail
+                      id={params.row.id}
+                      title={`[Request .${params.row.version}] ${jobCorId}`}
+                      row={params.row}
+                      onClose={() => closeModal('history-detail')}
+                      orderDetail={orderDetail}
+                      priceUnitsList={priceUnitsList}
+                    />
+                  </Box>
                 ),
               })
-            }
+            }}
             rowsPerPageOptions={[10, 25, 50]}
             pagination
             page={skip}

@@ -353,7 +353,7 @@ const AssignProFilters = ({
                         return option.value === newValue.value
                       }}
                       options={ClientListIncludeGloz}
-                      filterSelectedOptions
+                      // filterSelectedOptions
                       onChange={(e, v) => {
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)

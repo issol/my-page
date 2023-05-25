@@ -101,7 +101,7 @@ export default function Filters({
                           client: v.map(i => String(i.clientId)),
                         })
                       }
-                      filterSelectedOptions
+                      // filterSelectedOptions
                       getOptionLabel={option => option?.name}
                       renderInput={params => (
                         <TextField
@@ -163,7 +163,7 @@ export default function Filters({
                         serviceType: v.map(item => item.value),
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='serviceType'
                     getOptionLabel={option => option.label}
                     renderInput={params => (

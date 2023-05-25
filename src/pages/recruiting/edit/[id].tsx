@@ -414,7 +414,7 @@ export default function RecruitingEdit() {
                               autoHighlight
                               fullWidth
                               options={RecruitingStatus}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -451,7 +451,7 @@ export default function RecruitingEdit() {
                               fullWidth
                               disabled={!isWriter}
                               options={ClientListIncludeGloz}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -490,7 +490,7 @@ export default function RecruitingEdit() {
                               disabled={!isWriter}
                               options={JobList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -528,7 +528,7 @@ export default function RecruitingEdit() {
                               disabled={!isWriter}
                               options={RoleList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -566,7 +566,7 @@ export default function RecruitingEdit() {
                               disabled={!isWriter}
                               options={languageList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -605,7 +605,7 @@ export default function RecruitingEdit() {
                               disabled={!isWriter}
                               options={languageList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)

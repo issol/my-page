@@ -33,11 +33,17 @@ import { useDropzone } from 'react-dropzone'
 import FileItem from '@src/@core/components/fileItem'
 import { v4 as uuidv4 } from 'uuid'
 import toast, { Toaster, resolveValue } from 'react-hot-toast'
+import { JobType } from '@src/types/common/item.type'
+import languageHelper from '@src/shared/helpers/language.helper'
 
-const EditJobInfo = () => {
+type Props = {
+  row: JobType
+}
+
+const EditJobInfo = ({ row }: Props) => {
   const theme = useTheme()
   const { direction } = theme
-  const toastContainer = useRef(null)
+
   const [success, setSuccess] = useState(false)
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
@@ -60,7 +66,7 @@ const EditJobInfo = () => {
     resolver: yupResolver(addJobInfoFormSchema),
   })
 
-  const description = watch('jobDescription')
+  const description = watch('description')
   const MAXIMUM_FILE_SIZE = 20000000
 
   const [fileSize, setFileSize] = useState<number>(0)
@@ -127,14 +133,36 @@ const EditJobInfo = () => {
     }, 3000)
     return () => {
       clearTimeout(timer)
-      // 3. 그리고 실행됐던 setTimeout 함수를 없애는 clearTimeout 함수를 이용한다.
     }
   }, [success])
 
   useEffect(() => {
-    setValue('serviceType', { value: 'Translation', label: 'Translation' })
-    setValue('showPro', false)
-  }, [])
+    console.log(row)
+
+    setValue('jobName', row.jobName)
+    setValue('description', row.description)
+    setValue('status', { value: row.status, label: row.status })
+    setValue('languagePair', {
+      value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
+        row.targetLanguage,
+      )}`,
+      label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
+        row.targetLanguage,
+      )}`,
+    })
+    setValue('serviceType', { value: row.serviceType, label: row.serviceType })
+    setValue('isShowDescription', row.isShowDescription)
+    setValue('contactPerson', {
+      value: row.contactPerson,
+      label: row.contactPerson,
+    })
+    setValue('startedAt', new Date(row.startedAt))
+    console.log(getGmtTime(row.startTimezone.code))
+
+    setValue('startTimezone', row.startTimezone)
+    setValue('dueAt', new Date(row.dueAt))
+    setValue('dueTimezone', row.dueTimezone)
+  }, [row, setValue])
 
   return (
     <>
@@ -293,7 +321,7 @@ const EditJobInfo = () => {
             <Grid item xs={6}>
               <Controller
                 control={control}
-                name='jobStartDate'
+                name='startedAt'
                 render={({ field: { onChange, value } }) => (
                   <Box sx={{ width: '100%' }}>
                     <DatePicker
@@ -315,7 +343,7 @@ const EditJobInfo = () => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='jobStartDateTimezone'
+                name='startTimezone'
                 control={control}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
@@ -323,6 +351,7 @@ const EditJobInfo = () => {
                     value={value}
                     options={countries as CountryType[]}
                     onChange={(e, v) => onChange(v)}
+                    getOptionLabel={option => getGmtTime(option.code)}
                     renderOption={(props, option) => (
                       <Box component='li' {...props}>
                         {getGmtTime(option.code)}
@@ -332,7 +361,7 @@ const EditJobInfo = () => {
                       <TextField
                         {...params}
                         label='Timezone'
-                        error={Boolean(errors.jobStartDateTimezone)}
+                        error={Boolean(errors.startTimezone)}
                       />
                     )}
                   />
@@ -342,7 +371,7 @@ const EditJobInfo = () => {
             <Grid item xs={6}>
               <Controller
                 control={control}
-                name='jobDueDate'
+                name='dueAt'
                 render={({ field: { onChange, value } }) => (
                   <Box sx={{ width: '100%' }}>
                     <DatePicker
@@ -364,14 +393,20 @@ const EditJobInfo = () => {
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='jobDueDateTimezone'
+                name='dueTimezone'
                 control={control}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
                     value={value}
+                    defaultValue={value}
                     options={countries as CountryType[]}
-                    onChange={(e, v) => onChange(v)}
+                    onChange={(e, v) => {
+                      console.log(value)
+
+                      if (!v) onChange(null)
+                      else onChange(v)
+                    }}
                     renderOption={(props, option) => (
                       <Box component='li' {...props}>
                         {getGmtTime(option.code)}
@@ -381,9 +416,10 @@ const EditJobInfo = () => {
                       <TextField
                         {...params}
                         label='Timezone*'
-                        error={Boolean(errors.jobStartDateTimezone)}
+                        error={Boolean(errors.dueTimezone)}
                       />
                     )}
+                    getOptionLabel={option => getGmtTime(option.code)}
                   />
                 )}
               />
@@ -401,7 +437,7 @@ const EditJobInfo = () => {
               </Typography>
               <Box sx={{ display: 'flex', alignItems: 'center' }}>
                 <Controller
-                  name='showPro'
+                  name='isShowDescription'
                   control={control}
                   render={({ field: { value, onChange, onBlur } }) => (
                     <Checkbox value={value} onChange={onChange} />
@@ -415,7 +451,7 @@ const EditJobInfo = () => {
             </Box>
             <Box>
               <Controller
-                name='jobDescription'
+                name='description'
                 control={control}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField

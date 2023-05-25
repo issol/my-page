@@ -486,7 +486,7 @@ const ClientGuidelineForm = () => {
                         autoHighlight
                         fullWidth
                         options={ClientListIncludeGloz}
-                        filterSelectedOptions
+                        // filterSelectedOptions
                         onChange={(e, v) => {
                           checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
@@ -525,7 +525,7 @@ const ClientGuidelineForm = () => {
                         fullWidth
                         options={CategoryList}
                         value={value}
-                        filterSelectedOptions
+                        // filterSelectedOptions
                         onChange={(e, v) => {
                           checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
@@ -564,7 +564,7 @@ const ClientGuidelineForm = () => {
                       fullWidth
                       options={ServiceTypeList}
                       value={value}
-                      filterSelectedOptions
+                      // filterSelectedOptions
                       onChange={(e, v) => {
                         checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
