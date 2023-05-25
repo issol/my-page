@@ -50,7 +50,6 @@ import ProjectTeamFormContainer from '../components/form-container/project-team-
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 import VersionHistory from './components/version-history'
 import VersionHistoryModal from './components/version-history-detail'
-import QuotePreview from './components/pdf-download/quote-preview'
 import DownloadQuotesModal from './components/pdf-download/download-qoutes-modal'
 
 // ** react hook form
@@ -112,7 +111,6 @@ type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
  * TODO
  * save 함수 추가
  * project info status변경 api추가
- * create order기능 구현
  * version history구현
  */
 
