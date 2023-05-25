@@ -1,3 +1,4 @@
+import { ClientType, ProjectTeamListType } from '../orders/order-detail'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type QuoteStatusType =
@@ -69,4 +70,17 @@ export type ProjectInfoType = {
   estimatedDeliveryDate: string
   estimatedDeliveryDateTimezone: CountryType
   tax: number
+}
+
+export type VersionHistoryType = HistoryType & {
+  id: number
+  version: number
+  email: string
+  downloadedAt: string
+}
+
+export type HistoryType = {
+  projectInfo: ProjectInfoType
+  client: ClientType
+  projectTeam: ProjectTeamListType[]
 }

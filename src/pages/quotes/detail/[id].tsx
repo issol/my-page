@@ -27,6 +27,7 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
 import { AuthContext } from '@src/context/AuthContext'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** rdk
 import { useAppDispatch } from '@src/hooks/useRedux'
@@ -45,6 +46,9 @@ import ProjectInfoForm from '@src/pages/components/forms/quotes-project-info-for
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
+import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
+import VersionHistory from './components/version-history'
+import VersionHistoryModal from './components/version-history-detail'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -58,7 +62,10 @@ import {
 import { yupResolver } from '@hookform/resolvers/yup'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoFormType,
+  VersionHistoryType,
+} from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
@@ -85,14 +92,13 @@ import { getPriceList } from '@src/apis/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 
 // ** react query
 import { useMutation, useQueryClient } from 'react-query'
 import { toast } from 'react-hot-toast'
-import VersionHistory from '@src/pages/orders/order-list/detail/components/version-history'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { VersionHistoryType } from '@src/types/orders/order-detail'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
+
+// ** permission class
 import { quotes } from '@src/shared/const/permission-class'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
@@ -359,7 +365,6 @@ export default function QuotesDetail() {
   const { data: priceUnitsList } = useGetAllPriceList()
 
   // ** Version history
-  const [historyPage, setHistoryPage] = useState(0)
   const [historyPageSize, setHistoryPageSize] = useState(10)
   const { data: versionHistory, isLoading: versionHistoryLoading } =
     useGetVersionHistory(Number(id!))
@@ -411,37 +416,34 @@ export default function QuotesDetail() {
     onError: () => onMutationError(),
   })
 
-  // const onClickRestoreVersion = () => {
-  //   openModal({
-  //     type: 'RestoreConfirmModal',
-  //     children: (
-  //       <CustomModal
-  //         onClose={() => closeModal('RestoreConfirmModal')}
-  //         onClick={() => {
-  //           closeModal('RestoreConfirmModal')
-  //           closeModal('VersionHistoryModal')
-  //           restoreMutation.mutate(Number(id))
-  //         }}
-  //         title='Are you sure you want to restore this version?'
-  //         vary='error'
-  //         rightButtonText='Restore'
-  //       />
-  //     ),
-  //   })
-  // }
+  const onClickRestoreVersion = (id: number) => {
+    openModal({
+      type: 'RestoreConfirmModal',
+      children: (
+        <ModalWithButtonName
+          message='Are you sure you want to restore this version?'
+          onClick={() => restoreMutation.mutate(id)}
+          onClose={() => closeModal('RestoreConfirmModal')}
+          iconType='error'
+          rightButtonName='Restore'
+        />
+      ),
+    })
+  }
 
   const onClickVersionHistoryRow = (history: VersionHistoryType) => {
     console.log(history)
-    // openModal({
-    //   type: 'VersionHistoryModal',
-    //   children: (
-    //     <VersionHistoryModal
-    //       history={history}
-    //       onClose={() => closeModal('VersionHistoryModal')}
-    //       onClick={onClickRestoreVersion}
-    //     />
-    //   ),
-    // })
+    openModal({
+      type: 'VersionHistoryModal',
+      children: (
+        <VersionHistoryModal
+          history={history}
+          onClose={() => closeModal('VersionHistoryModal')}
+          onClick={onClickRestoreVersion}
+          isUpdatable={isUpdatable}
+        />
+      ),
+    })
   }
 
   // ** Submits(save)
@@ -539,17 +541,12 @@ export default function QuotesDetail() {
             {editProject || editItems || editClient || editTeam ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/orders/order-list')}
+                onClick={() => router.push('/quotes')}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
             )}
-            <IconButton
-              sx={{ padding: '0 !important', height: '24px' }}
-              onClick={() => router.push('/quotes')}
-            >
-              <Icon icon='mdi:chevron-left' width={24} height={24} />
-            </IconButton>
+
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <img
                 src='/images/icons/quotes-icons/book.png'
@@ -834,8 +831,6 @@ export default function QuotesDetail() {
               list={versionHistory || []}
               listCount={versionHistory?.length!}
               columns={versionHistoryColumns}
-              page={historyPage}
-              setPage={setHistoryPage}
               pageSize={historyPageSize}
               setPageSize={setHistoryPageSize}
               onClickRow={onClickVersionHistoryRow}

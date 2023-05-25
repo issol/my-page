@@ -13,6 +13,7 @@ import {
   QuoteStatusType,
   QuotesListType,
   QuotesProjectInfoFormType,
+  VersionHistoryType,
 } from '@src/types/common/quotes.type'
 import { PostItemType } from '@src/types/common/item.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
@@ -20,7 +21,6 @@ import {
   ClientType,
   LanguageAndItemType,
   ProjectTeamListType,
-  VersionHistoryType,
 } from '@src/types/orders/order-detail'
 
 export type MemberListType = Pick<
@@ -251,8 +251,735 @@ export const getVersionHistory = async (
   id: number,
 ): Promise<VersionHistoryType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/history`)
-    return data
+    // const { data } = await axios.get(`/api/enough/u/order/${id}/history`)
+    // return data
+    return [
+      {
+        id: 1,
+        version: 1,
+        email: '1leriel@glozinc.com',
+        downloadedAt: '2023-03-21T08:20:46.678Z',
+        projectInfo: {
+          id: 1,
+          corporationId: 'sdff',
+          quoteDate: Date(),
+          status: 'New',
+          workName: 'sdfsldf',
+          category: 'Webnovel',
+          serviceType: ['DTP'],
+          expertise: ['Animals/Pets'],
+          projectName: 'prjoect',
+          projectDescription: 'good',
+          projectDueAt: Date(),
+          projectDueTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          quoteDeadline: Date(),
+          quoteDeadlineTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          quoteExpiryDate: Date(),
+          quoteExpiryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          estimatedDeliveryDate: Date(),
+          estimatedDeliveryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          tax: 10,
+        },
+        client: {
+          addressType: 'billing',
+          client: {
+            clientId: 3,
+            email: 'sdflk@sf.com',
+            fax: null,
+            mobile: '01038088637',
+            phone: null,
+            timezone: {
+              code: 'AE',
+              label: 'United Arab Emirates',
+              phone: '971',
+            },
+            name: '쌔거',
+          },
+          contactPerson: {
+            department: null,
+            email: 'dsfsdf@com.com',
+            fax: null,
+            firstName: 'Gayeon',
+            id: 5,
+            isReferred: false,
+            jobTitle: '매니죠',
+            lastName: 'Kim',
+            memo: 'sdfsdf',
+            middleName: null,
+            mobile: '01063611055',
+            personType: 'Mr.',
+            phone: null,
+            timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
+          },
+          clientAddress: [
+            {
+              addressType: 'shipping',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: false,
+            },
+            {
+              addressType: 'billing',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: true,
+            },
+          ],
+        },
+        projectTeam: [
+          {
+            id: '5',
+            email: 'd_master_1@glozinc.com',
+            firstName: 'Master',
+            jobTitle: 'Translator',
+            lastName: 'K',
+            middleName: null,
+
+            position: 'supervisor',
+
+            userId: 5,
+          },
+          {
+            id: '5',
+            email: 'leriel@glozinc.com',
+            firstName: 'leriel',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'projectManager',
+
+            userId: 6,
+          },
+          {
+            id: '5',
+            email: 'bon@glozinc.com',
+            firstName: 'bon',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'teamMember',
+
+            userId: 7,
+          },
+        ],
+      },
+      {
+        id: 2,
+        version: 1,
+        email: '2leriel@glozinc.com',
+        downloadedAt: '2023-03-21T08:20:46.678Z',
+        projectInfo: {
+          id: 1,
+          corporationId: 'sdff',
+          quoteDate: Date(),
+          status: 'New',
+          workName: 'work name',
+          category: 'Webnovel',
+          serviceType: ['DTP'],
+          expertise: ['Animals/Pets'],
+          projectName: '2 pro',
+          projectDescription: 'good',
+          projectDueAt: Date(),
+          projectDueTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          quoteDeadline: Date(),
+          quoteDeadlineTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          quoteExpiryDate: Date(),
+          quoteExpiryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          estimatedDeliveryDate: Date(),
+          estimatedDeliveryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          tax: 10,
+        },
+        client: {
+          addressType: 'billing',
+          client: {
+            clientId: 3,
+            email: 'sdflk@sf.com',
+            fax: null,
+            mobile: '01038088637',
+            phone: null,
+            timezone: {
+              code: 'AE',
+              label: 'United Arab Emirates',
+              phone: '971',
+            },
+            name: '쌔거',
+          },
+          contactPerson: {
+            department: null,
+            email: 'dsfsdf@com.com',
+            fax: null,
+            firstName: 'Gayeon',
+            id: 5,
+            isReferred: false,
+            jobTitle: '매니죠',
+            lastName: 'Kim',
+            memo: 'sdfsdf',
+            middleName: null,
+            mobile: '01063611055',
+            personType: 'Mr.',
+            phone: null,
+            timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
+          },
+          clientAddress: [
+            {
+              addressType: 'shipping',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: false,
+            },
+            {
+              addressType: 'billing',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: true,
+            },
+          ],
+        },
+        projectTeam: [
+          {
+            id: '5',
+            email: 'd_master_1@glozinc.com',
+            firstName: 'Master',
+            jobTitle: 'Translator',
+            lastName: 'K',
+            middleName: null,
+
+            position: 'supervisor',
+
+            userId: 5,
+          },
+          {
+            id: '5',
+            email: 'leriel@glozinc.com',
+            firstName: 'leriel',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'projectManager',
+
+            userId: 6,
+          },
+          {
+            id: '5',
+            email: 'bon@glozinc.com',
+            firstName: 'bon',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'teamMember',
+
+            userId: 7,
+          },
+        ],
+      },
+      {
+        id: 3,
+        version: 1,
+        email: '3leriel@glozinc.com',
+        downloadedAt: '2023-03-21T08:20:46.678Z',
+        projectInfo: {
+          id: 1,
+          corporationId: '1112',
+          quoteDate: Date(),
+          status: 'New',
+          workName: 'work owrk ',
+          category: 'Webnovel',
+          serviceType: ['DTP'],
+          expertise: ['Animals/Pets'],
+          projectName: '3 p',
+          projectDescription: 'good',
+          projectDueAt: Date(),
+          projectDueTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          quoteDeadline: Date(),
+          quoteDeadlineTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          quoteExpiryDate: Date(),
+          quoteExpiryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          estimatedDeliveryDate: Date(),
+          estimatedDeliveryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          tax: 10,
+        },
+        client: {
+          addressType: 'billing',
+          client: {
+            clientId: 3,
+            email: 'sdflk@sf.com',
+            fax: null,
+            mobile: '01038088637',
+            phone: null,
+            timezone: {
+              code: 'AE',
+              label: 'United Arab Emirates',
+              phone: '971',
+            },
+            name: '쌔거',
+          },
+          contactPerson: {
+            department: null,
+            email: 'dsfsdf@com.com',
+            fax: null,
+            firstName: 'Gayeon',
+            id: 5,
+            isReferred: false,
+            jobTitle: '매니죠',
+            lastName: 'Kim',
+            memo: 'sdfsdf',
+            middleName: null,
+            mobile: '01063611055',
+            personType: 'Mr.',
+            phone: null,
+            timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
+          },
+          clientAddress: [
+            {
+              addressType: 'shipping',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: false,
+            },
+            {
+              addressType: 'billing',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: true,
+            },
+          ],
+        },
+        projectTeam: [
+          {
+            id: '5',
+            email: 'd_master_1@glozinc.com',
+            firstName: 'Master',
+            jobTitle: 'Translator',
+            lastName: 'K',
+            middleName: null,
+
+            position: 'supervisor',
+
+            userId: 5,
+          },
+          {
+            id: '5',
+            email: 'leriel@glozinc.com',
+            firstName: 'leriel',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'projectManager',
+
+            userId: 6,
+          },
+          {
+            id: '5',
+            email: 'bon@glozinc.com',
+            firstName: 'bon',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'teamMember',
+
+            userId: 7,
+          },
+        ],
+      },
+      {
+        id: 4,
+        version: 1,
+        email: '4leriel@glozinc.com',
+        downloadedAt: '2023-03-21T08:20:46.678Z',
+        projectInfo: {
+          id: 1,
+          corporationId: '1323123123',
+          quoteDate: Date(),
+          status: 'New',
+          workName: '33223231232323',
+          category: 'Webnovel',
+          serviceType: ['DTP'],
+          expertise: ['Animals/Pets'],
+          projectName: '24342343434',
+          projectDescription: 'good',
+          projectDueAt: Date(),
+          projectDueTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          quoteDeadline: Date(),
+          quoteDeadlineTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          quoteExpiryDate: Date(),
+          quoteExpiryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          estimatedDeliveryDate: Date(),
+          estimatedDeliveryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          tax: 10,
+        },
+        client: {
+          addressType: 'billing',
+          client: {
+            clientId: 3,
+            email: 'sdflk@sf.com',
+            fax: null,
+            mobile: '01038088637',
+            phone: null,
+            timezone: {
+              code: 'AE',
+              label: 'United Arab Emirates',
+              phone: '971',
+            },
+            name: '쌔거',
+          },
+          contactPerson: {
+            department: null,
+            email: 'dsfsdf@com.com',
+            fax: null,
+            firstName: 'Gayeon',
+            id: 5,
+            isReferred: false,
+            jobTitle: '매니죠',
+            lastName: 'Kim',
+            memo: 'sdfsdf',
+            middleName: null,
+            mobile: '01063611055',
+            personType: 'Mr.',
+            phone: null,
+            timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
+          },
+          clientAddress: [
+            {
+              addressType: 'shipping',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: false,
+            },
+            {
+              addressType: 'billing',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: true,
+            },
+          ],
+        },
+        projectTeam: [
+          {
+            id: '5',
+            email: 'd_master_1@glozinc.com',
+            firstName: 'Master',
+            jobTitle: 'Translator',
+            lastName: 'K',
+            middleName: null,
+
+            position: 'supervisor',
+
+            userId: 5,
+          },
+          {
+            id: '5',
+            email: 'leriel@glozinc.com',
+            firstName: 'leriel',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'projectManager',
+
+            userId: 6,
+          },
+          {
+            id: '5',
+            email: 'bon@glozinc.com',
+            firstName: 'bon',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'teamMember',
+
+            userId: 7,
+          },
+        ],
+      },
+      {
+        id: 5,
+        version: 1,
+        email: '5leriel@glozinc.com',
+        downloadedAt: '2023-03-21T08:20:46.678Z',
+        projectInfo: {
+          id: 1,
+          corporationId: '55454545',
+          quoteDate: Date(),
+          status: 'New',
+          workName: 'sdfsldf',
+          category: 'Webnovel',
+          serviceType: ['DTP'],
+          expertise: ['Animals/Pets'],
+          projectName: '5555555',
+          projectDescription: 'good',
+          projectDueAt: Date(),
+          projectDueTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          quoteDeadline: Date(),
+          quoteDeadlineTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          quoteExpiryDate: Date(),
+          quoteExpiryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+          estimatedDeliveryDate: Date(),
+          estimatedDeliveryDateTimezone: {
+            code: 'string',
+            label: 'string',
+            phone: 'string',
+          },
+
+          tax: 10,
+        },
+        client: {
+          addressType: 'billing',
+          client: {
+            clientId: 3,
+            email: 'sdflk@sf.com',
+            fax: null,
+            mobile: '01038088637',
+            phone: null,
+            timezone: {
+              code: 'AE',
+              label: 'United Arab Emirates',
+              phone: '971',
+            },
+            name: '쌔거',
+          },
+          contactPerson: {
+            department: null,
+            email: 'dsfsdf@com.com',
+            fax: null,
+            firstName: 'Gayeon',
+            id: 5,
+            isReferred: false,
+            jobTitle: '매니죠',
+            lastName: 'Kim',
+            memo: 'sdfsdf',
+            middleName: null,
+            mobile: '01063611055',
+            personType: 'Mr.',
+            phone: null,
+            timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
+          },
+          clientAddress: [
+            {
+              addressType: 'shipping',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: false,
+            },
+            {
+              addressType: 'billing',
+              baseAddress: null,
+              city: null,
+              country: null,
+              createdAt: '2023-04-17T21:05:51.771Z',
+              detailAddress: null,
+
+              name: null,
+              state: null,
+              updatedAt: '2023-04-17T21:05:51.771Z',
+              zipCode: null,
+              isSelected: true,
+            },
+          ],
+        },
+        projectTeam: [
+          {
+            id: '5',
+            email: 'd_master_1@glozinc.com',
+            firstName: 'Master',
+            jobTitle: 'Translator',
+            lastName: 'K',
+            middleName: null,
+
+            position: 'supervisor',
+
+            userId: 5,
+          },
+          {
+            id: '5',
+            email: 'leriel@glozinc.com',
+            firstName: 'leriel',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'projectManager',
+
+            userId: 6,
+          },
+          {
+            id: '5',
+            email: 'bon@glozinc.com',
+            firstName: 'bon',
+            jobTitle: 'Translator',
+            lastName: 'Kim',
+            middleName: null,
+
+            position: 'teamMember',
+
+            userId: 7,
+          },
+        ],
+      },
+    ]
   } catch (e: any) {
     return []
   }

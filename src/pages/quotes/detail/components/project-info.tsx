@@ -90,11 +90,13 @@ export default function QuotesProjectInfoDetail({
                   )}
                 />
               ) : (
-                <QuoteStatusChip
-                  size='small'
-                  label={project.status}
-                  status={project.status}
-                />
+                <Box>
+                  <QuoteStatusChip
+                    size='small'
+                    label={project.status}
+                    status={project.status}
+                  />
+                </Box>
               )}
             </LabelContainer>
           </Grid>
