@@ -16,6 +16,7 @@ interface PickerProps {
   label?: string
   readOnly?: boolean
   icon?: 'calendar'
+  error?: boolean
 }
 
 const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
@@ -27,9 +28,10 @@ const PickersComponent = forwardRef(({ ...props }: PickerProps, ref) => {
       case 'calendar':
         return (
           <FormControl fullWidth>
-            <InputLabel>{label || ''}</InputLabel>
+            <InputLabel error={props.error}>{label || ''}</InputLabel>
             <OutlinedInput
               inputRef={ref}
+              error={props.error}
               {...props}
               label={label || ''}
               {...(readOnly && { inputProps: { readOnly: true } })}

@@ -31,7 +31,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import SourceFileUpload from './source-file'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
@@ -66,9 +66,17 @@ type Props = {
   orderDetail: ProjectInfoType
   type: string
   assignProList?: { data: AssignProListType[]; totalCount: number }
+  item: JobItemType
 }
 
-const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
+const AssignPro = ({
+  user,
+  row,
+  orderDetail,
+  type,
+  assignProList,
+  item,
+}: Props) => {
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -91,7 +99,10 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
     // sortDate: 'DESC',
   })
 
-  const { data: AssignProList, isLoading } = useGetAssignProList(filters)
+  const { data: AssignProList, isLoading } = useGetAssignProList(
+    row.id,
+    filters,
+  )
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -200,6 +211,7 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
             user={user}
             row={row}
             orderDetail={orderDetail}
+            item={item}
           />
         </Box>
       ),
@@ -225,7 +237,12 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
             },
           }}
         >
-          <SourceFileUpload info={info} row={row} orderDetail={orderDetail} />
+          <SourceFileUpload
+            info={info}
+            row={row}
+            orderDetail={orderDetail}
+            item={item}
+          />
         </Box>
       ),
     })

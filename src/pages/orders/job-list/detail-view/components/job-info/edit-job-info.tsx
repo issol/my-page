@@ -5,6 +5,7 @@ import {
   Button,
   Checkbox,
   Divider,
+  FormHelperText,
   Grid,
   List,
   TextField,
@@ -15,6 +16,7 @@ import { JobStatus } from '@src/shared/const/status/statuses'
 import {
   AddJobInfoFormType,
   AddJobInfoType,
+  SaveJobInfoParamsType,
 } from '@src/types/orders/job-detail'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
 import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
@@ -33,21 +35,83 @@ import { useDropzone } from 'react-dropzone'
 import FileItem from '@src/@core/components/fileItem'
 import { v4 as uuidv4 } from 'uuid'
 import toast, { Toaster, resolveValue } from 'react-hot-toast'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
+import { CurrencyType } from '@src/types/common/standard-price'
+import { set } from 'nprogress'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { id } from 'date-fns/locale'
+import { useMutation, useQueryClient } from 'react-query'
+import { deleteJob, saveJobInfo } from '@src/apis/job-detail.api'
 
 type Props = {
   row: JobType
+  projectTeam: {
+    id: string
+    userId: number
+    position: PositionType
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+    jobTitle: string
+  }[]
+  orderDetail: ProjectInfoType
+  item: JobItemType
+  languagePair: Array<{
+    id: number
+    source: string
+    target: string
+    price: {
+      id: number
+      name: string
+      isStandard: boolean
+      category: string
+      serviceType: Array<string>
+      currency: CurrencyType
+      calculationBasis: string
+      rounding: number
+      numberPlace: number
+      authorId: number
+    } | null
+  }>
 }
 
-const EditJobInfo = ({ row }: Props) => {
+const EditJobInfo = ({
+  row,
+  projectTeam,
+  orderDetail,
+  item,
+  languagePair,
+}: Props) => {
   const theme = useTheme()
   const { direction } = theme
 
   const [success, setSuccess] = useState(false)
+  const [languageItemList, setLanguageItemList] = useState<
+    {
+      value: string
+      label: string
+    }[]
+  >([])
+
+  const [contactPersonList, setContactPersonList] = useState<
+    { value: string; label: string; userId: any }[]
+  >([])
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
     direction === 'ltr' ? 'bottom-start' : 'bottom-end'
+
+  const saveJobInfoMutation = useMutation(
+    (data: { jobId: number; data: SaveJobInfoParamsType }) =>
+      saveJobInfo(data.jobId, data.data),
+    {
+      onSuccess: () => {
+        setSuccess(true)
+      },
+    },
+  )
 
   const {
     control,
@@ -122,7 +186,22 @@ const EditJobInfo = ({ row }: Props) => {
 
   const onSubmit = () => {
     const data = getValues()
-    setSuccess(true)
+
+    const res: SaveJobInfoParamsType = {
+      contactPersonId: data.contactPerson.userId,
+      description: data.description ?? null,
+      startDate: data.startedAt ? data.startedAt.toString() : null,
+      startTimezone: data.startTimezone ?? null,
+
+      dueDate: data.dueAt.toString(),
+      dueTimezone: data.dueTimezone,
+      status: data.status.value,
+      sourceLanguage: data.languagePair.source,
+      targetLanguage: data.languagePair.target,
+      name: data.name,
+      isShowDescription: data.isShowDescription,
+    }
+    saveJobInfoMutation.mutate({ jobId: row.id, data: res })
     // toast('Job info added successfully')
     console.log(data)
   }
@@ -137,32 +216,83 @@ const EditJobInfo = ({ row }: Props) => {
   }, [success])
 
   useEffect(() => {
-    console.log(row)
+    const contactPerson = projectTeam.map(value => ({
+      label: getLegalName({
+        firstName: value.firstName,
+        middleName: value.middleName,
+        lastName: value.lastName,
+      }),
+      value: getLegalName({
+        firstName: value.firstName,
+        middleName: value.middleName,
+        lastName: value.lastName,
+      }),
+      userId: Number(value.userId),
+    }))
 
-    setValue('jobName', row.jobName)
-    setValue('description', row.description)
+    setValue('name', row.name ?? '')
+    setValue('description', row.description ?? '')
     setValue('status', { value: row.status, label: row.status })
-    setValue('languagePair', {
-      value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-        row.targetLanguage,
-      )}`,
-      label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
-        row.targetLanguage,
-      )}`,
-    })
+    row.sourceLanguage && row.targetLanguage
+      ? setValue('languagePair', {
+          value: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
+            row.targetLanguage,
+          )}`,
+          label: `${languageHelper(row.sourceLanguage)} -> ${languageHelper(
+            row.targetLanguage,
+          )}`,
+          source: row.sourceLanguage,
+          target: row.targetLanguage,
+        })
+      : setValue('languagePair', {
+          value: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
+            item.targetLanguage,
+          )}`,
+          label: `${languageHelper(item.sourceLanguage)} -> ${languageHelper(
+            item.targetLanguage,
+          )}`,
+          source: item.sourceLanguage,
+          target: item.targetLanguage,
+        })
     setValue('serviceType', { value: row.serviceType, label: row.serviceType })
     setValue('isShowDescription', row.isShowDescription)
     setValue('contactPerson', {
-      value: row.contactPerson,
-      label: row.contactPerson,
+      value: contactPerson.find(
+        value => value.userId === Number(item.contactPersonId),
+      )?.value!,
+      label: contactPerson.find(
+        value => value.userId === Number(item.contactPersonId),
+      )?.label!,
+      userId: Number(item.contactPersonId),
     })
-    setValue('startedAt', new Date(row.startedAt))
-    console.log(getGmtTime(row.startTimezone.code))
+    row.startedAt && setValue('startedAt', new Date(row.startedAt))
 
-    setValue('startTimezone', row.startTimezone)
-    setValue('dueAt', new Date(row.dueAt))
-    setValue('dueTimezone', row.dueTimezone)
-  }, [row, setValue])
+    row.startTimezone &&
+      setValue('startTimezone', row.startTimezone, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+    row.dueAt && setValue('dueAt', new Date(row.dueAt))
+    row.dueTimezone &&
+      setValue('dueTimezone', row.dueTimezone, {
+        shouldDirty: true,
+        shouldValidate: true,
+      })
+
+    const langPairList = languagePair.map((item, index) => ({
+      value: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+      label: `${languageHelper(item.source)} -> ${languageHelper(item.target)}`,
+    }))
+    setLanguageItemList([
+      {
+        value: 'Language-independent',
+        label: 'Language-independent',
+      },
+      ...langPairList,
+    ])
+    trigger()
+    setContactPersonList(contactPerson)
+  }, [row, item, setValue, languagePair, projectTeam, trigger])
 
   return (
     <>
@@ -193,9 +323,8 @@ const EditJobInfo = ({ row }: Props) => {
           <Grid container xs={12} spacing={6} mb='20px'>
             <Grid item xs={12}>
               <Controller
-                name='jobName'
+                name='name'
                 control={control}
-                rules={{ required: true }}
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     fullWidth
@@ -212,10 +341,15 @@ const EditJobInfo = ({ row }: Props) => {
                         onChange(e.target.value)
                       }
                     }}
-                    error={Boolean(errors.jobName)}
+                    error={Boolean(errors.name)}
                   />
                 )}
               />
+              {errors.name && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.name?.message || errors.name?.message}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -225,18 +359,32 @@ const EditJobInfo = ({ row }: Props) => {
                   <Autocomplete
                     fullWidth
                     onChange={(event, item) => {
-                      onChange(item)
+                      if (item) {
+                        onChange(item)
+                      } else {
+                        onChange({ value: '', label: '' })
+                      }
                     }}
                     value={value || { value: '', label: '' }}
                     options={JobStatus}
                     id='Status'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Status*' />
+                      <TextField
+                        {...params}
+                        label='Status*'
+                        error={Boolean(errors.status)}
+                      />
                     )}
                   />
                 )}
               />
+              {errors.status && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.status?.label?.message ||
+                    errors.status?.value?.message}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -246,23 +394,32 @@ const EditJobInfo = ({ row }: Props) => {
                   <Autocomplete
                     fullWidth
                     onChange={(event, item) => {
-                      onChange(item)
+                      if (item) {
+                        onChange(item)
+                      } else {
+                        onChange({ value: '', label: '', userId: 0 })
+                      }
                     }}
-                    value={value || { value: '', label: '' }}
-                    options={[
-                      {
-                        value: 'Aria (Soyoung) Jeong',
-                        label: 'Aria (Soyoung) Jeong',
-                      },
-                    ]}
+                    value={value || { value: '', label: '', userId: 0 }}
+                    options={contactPersonList}
                     id='contactPerson'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Contact person for job*' />
+                      <TextField
+                        {...params}
+                        label='Contact person for job*'
+                        error={Boolean(errors.contactPerson)}
+                      />
                     )}
                   />
                 )}
               />
+              {errors.contactPerson && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.contactPerson?.label?.message ||
+                    errors.contactPerson?.value?.message}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -300,23 +457,39 @@ const EditJobInfo = ({ row }: Props) => {
                       return option.value === newValue.value
                     }}
                     onChange={(event, item) => {
-                      onChange(item)
+                      if (item) {
+                        onChange(item)
+                      } else {
+                        onChange({
+                          value: '',
+                          label: '',
+                          source: '',
+                          target: '',
+                        })
+                      }
                     }}
-                    value={value || { value: '', label: '' }}
-                    options={[
-                      {
-                        value: `English -> Korean`,
-                        label: 'English -> Korean',
-                      },
-                    ]}
+                    value={
+                      value || { value: '', label: '', source: '', target: '' }
+                    }
+                    options={languageItemList}
                     id='languagePair'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
-                      <TextField {...params} label='Language pair*' />
+                      <TextField
+                        {...params}
+                        label='Language pair*'
+                        error={Boolean(errors.languagePair)}
+                      />
                     )}
                   />
                 )}
               />
+              {errors.languagePair && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.languagePair?.label?.message ||
+                    errors.languagePair?.value?.message}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -384,12 +557,21 @@ const EditJobInfo = ({ row }: Props) => {
                       popperPlacement={popperPlacement}
                       placeholderText='MM/DD/YYYY, HH:MM'
                       customInput={
-                        <CustomInput label='Job due date*' icon='calendar' />
+                        <CustomInput
+                          label='Job due date*'
+                          icon='calendar'
+                          error={Boolean(errors.dueAt)}
+                        />
                       }
                     />
                   </Box>
                 )}
               />
+              {errors.dueAt && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.dueAt?.message}
+                </FormHelperText>
+              )}
             </Grid>
             <Grid item xs={6}>
               <Controller
@@ -423,6 +605,12 @@ const EditJobInfo = ({ row }: Props) => {
                   />
                 )}
               />
+              {errors.dueTimezone && (
+                <FormHelperText sx={{ color: 'error.main' }}>
+                  {errors.dueTimezone?.label?.message ||
+                    errors.dueTimezone?.code?.message}
+                </FormHelperText>
+              )}
             </Grid>
           </Grid>
           <Divider />

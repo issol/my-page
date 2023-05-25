@@ -42,15 +42,16 @@ export type JobItemType = {
   itemName: string
   sourceLanguage: string
   targetLanguage: string
+  contactPersonId: number
   jobs: Array<JobType>
 }
 
 export type JobType = {
   id: number
   corporationId: string
-  jobName: string
+  name: string
   status: JobStatusType
-  contactPerson: string
+  contactPersonId: number
   serviceType: string
   sourceLanguage: string
   targetLanguage: string
@@ -72,7 +73,7 @@ export type JobType = {
   prices?: JobPricesDetailType
   feedback?: string
 
-  files: Array<{
+  files?: Array<{
     name: string
     size: number
     file: string // s3 key

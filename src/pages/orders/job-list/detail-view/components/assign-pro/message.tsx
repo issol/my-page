@@ -17,7 +17,7 @@ import { v4 as uuidv4 } from 'uuid'
 import CustomChip from 'src/@core/components/mui/chip'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 
 type Props = {
@@ -25,9 +25,10 @@ type Props = {
   user: UserDataType
   row: JobType
   orderDetail: ProjectInfoType
+  item: JobItemType
 }
 
-const Message = ({ info, user, row, orderDetail }: Props) => {
+const Message = ({ info, user, row, orderDetail, item }: Props) => {
   const { openModal, closeModal } = useModal()
   const [message, setMessage] = useState<string>('')
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -84,6 +85,7 @@ const Message = ({ info, user, row, orderDetail }: Props) => {
                       tab={'assignPro'}
                       row={row}
                       orderDetail={orderDetail}
+                      item={item}
                     />
                   </Box>
                 ),

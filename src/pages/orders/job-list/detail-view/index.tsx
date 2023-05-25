@@ -19,7 +19,7 @@ import Prices from './components/prices/edit-prices'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { ItemType, JobType } from '@src/types/common/item.type'
+import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
 import { is } from 'date-fns/locale'
@@ -32,6 +32,7 @@ type Props = {
   tab?: string
   row: JobType
   orderDetail: ProjectInfoType
+  item: JobItemType
 }
 import JobHistory from './components/history'
 import EditJobInfo from './components/job-info/edit-job-info'
@@ -39,8 +40,12 @@ import ViewJobInfo from './components/job-info/view-job-info'
 import ViewPrices from './components/prices/view-prices'
 import EditPrices from './components/prices/edit-prices'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
+import {
+  useGetLangItem,
+  useGetProjectTeam,
+} from '@src/queries/order/order.query'
 
-const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
+const JobInfoDetailView = ({ tab, row, orderDetail, item }: Props) => {
   const { openModal, closeModal } = useModal()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const { user } = useContext(AuthContext)
@@ -49,6 +54,11 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
   const [editPrices, setEditPrices] = useState(false)
 
   const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: projectTeam, isLoading: projectTeamLoading } =
+    useGetProjectTeam(orderDetail.id)
+  const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
+    orderDetail.id,
+  )
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -172,13 +182,21 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
             />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            {row.jobName === null || editJobInfo ? (
-              <EditJobInfo row={row} />
+            {row.name === null || editJobInfo ? (
+              <EditJobInfo
+                row={row}
+                projectTeam={projectTeam || []}
+                orderDetail={orderDetail}
+                item={item}
+                languagePair={langItem?.languagePairs || []}
+              />
             ) : (
               <ViewJobInfo
                 row={row}
                 setEditJobInfo={setEditJobInfo}
                 type='view'
+                projectTeam={projectTeam || []}
+                item={item}
               />
             )}
           </TabPanel>
@@ -212,6 +230,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
                   isItemValid={isItemValid}
                   appendItems={appendItems}
                   fields={items}
+                  row={row}
                 />
               )}
             </Suspense>
@@ -222,6 +241,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
               row={row}
               orderDetail={orderDetail}
               type='view'
+              item={item}
             />
           </TabPanel>
           <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>
@@ -231,6 +251,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail }: Props) => {
               jobCorId={row.corporationId}
               orderDetail={orderDetail}
               priceUnitsList={priceUnitsList ?? []}
+              item={item}
+              projectTeam={projectTeam || []}
             />
           </TabPanel>
         </TabContext>

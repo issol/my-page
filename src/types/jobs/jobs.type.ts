@@ -63,9 +63,9 @@ export type JobHistoryType = {
 export type JobInfoDetailType = {
   id: number
   corporationId: string
-  jobName: string
+  name: string
   status: JobStatusType
-  contactPerson: string
+  contactPersonId: number
   serviceType: string
   sourceLanguage: string
   targetLanguage: string
@@ -98,4 +98,10 @@ export type JobPricesDetailType = {
     unitPrice: number
     prices: number
   }>
+}
+
+export type CreateJobParamsType = {
+  orderId: number
+  itemId: number
+  serviceType: string[]
 }

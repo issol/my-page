@@ -103,8 +103,8 @@ export type LanguageAndItemType = {
       id: number
       name: string
       isStandard: boolean
-      category: 'Dubbing'
-      serviceType: ['Audio description']
+      category: string
+      serviceType: Array<string>
       currency: CurrencyType
       calculationBasis: string
       rounding: number

@@ -9,7 +9,7 @@ import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, JobType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -30,8 +30,10 @@ import {
   useForm,
 } from 'react-hook-form'
 import Row from './row'
+import languageHelper from '@src/shared/helpers/language.helper'
 
 type Props = {
+  row: JobType
   priceUnitsList: Array<PriceUnitListType>
   itemControl: Control<
     {
@@ -78,6 +80,7 @@ const EditPrices = ({
   isItemValid,
   appendItems,
   fields,
+  row,
 }: Props) => {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: 7,
@@ -116,7 +119,10 @@ const EditPrices = ({
     return [defaultOption].concat(filteredList)
   }
 
-  const options = getPriceOptions('en', 'ko')
+  const options =
+    row.sourceLanguage && row.targetLanguage
+      ? getPriceOptions(row.sourceLanguage, row.targetLanguage)
+      : [defaultOption]
 
   const onSubmit = () => {
     const data = getItem()
@@ -167,17 +173,18 @@ const EditPrices = ({
                 return option.value === newValue.value
               }}
               value={
-                { value: 'English -> Korean', label: 'English -> Korean' } || {
-                  value: '',
-                  label: '',
-                }
+                row.sourceLanguage && row.targetLanguage
+                  ? {
+                      value: `${languageHelper(
+                        row.sourceLanguage,
+                      )} -> ${languageHelper(row.targetLanguage)}`,
+                      label: `${languageHelper(
+                        row.sourceLanguage,
+                      )} -> ${languageHelper(row.targetLanguage)}`,
+                    }
+                  : { value: '', label: '' }
               }
-              options={[
-                {
-                  value: `English -> Korean`,
-                  label: 'English -> Korean',
-                },
-              ]}
+              options={[]}
               id='languagePair'
               getOptionLabel={option => option.label}
               disabled

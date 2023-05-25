@@ -57,7 +57,7 @@ export const useGetProjectTeam = (id: number) => {
   return useQuery([`projectTeam-${id}`, id], () => getProjectTeam(id), {
     staleTime: 60 * 1000, // 1
 
-    suspense: true,
+    suspense: false,
 
     select: data => {
       return data.map(value => ({ ...value, id: uuidv4() }))
@@ -77,7 +77,7 @@ export const useGetLangItem = (id: number) => {
   return useQuery([`LangItem-${id}`, id], () => getLangItems(id), {
     staleTime: 60 * 1000, // 1
 
-    suspense: true,
+    suspense: false,
   })
 }
 

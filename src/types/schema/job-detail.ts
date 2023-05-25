@@ -1,19 +1,21 @@
+import { FormErrors } from '@src/shared/const/formErrors'
 import * as yup from 'yup'
 
 export const addJobInfoFormSchema = yup.object().shape({
-  jobName: yup.string().required(),
+  name: yup.string().required(FormErrors.required),
   status: yup
     .object()
     .shape({
-      label: yup.string().required(),
-      value: yup.string().required(),
+      label: yup.string().required(FormErrors.required),
+      value: yup.string().required(FormErrors.required),
     })
     .required(),
   contactPerson: yup
     .object()
     .shape({
-      label: yup.string().required(),
-      value: yup.string().required(),
+      label: yup.string().required(FormErrors.required),
+      value: yup.string().required(FormErrors.required),
+      userId: yup.number().required(),
     })
     .required(),
   serviceType: yup
@@ -26,28 +28,30 @@ export const addJobInfoFormSchema = yup.object().shape({
   languagePair: yup
     .object()
     .shape({
-      label: yup.string().required(),
-      value: yup.string().required(),
+      label: yup.string().required(FormErrors.required),
+      value: yup.string().required(FormErrors.required),
+      source: yup.string(),
+      target: yup.string(),
     })
     .required(),
   isShowDescription: yup.boolean().required(),
-  jobStartDate: yup.date().nullable(),
-  jobStartDateTimezone: yup.object().shape({
+  startedAt: yup.date().nullable(),
+  startTimezone: yup.object().shape({
     code: yup.string().nullable(),
     label: yup.string().nullable(),
     phone: yup.string().nullable(),
   }),
 
-  jobDueDate: yup.date().required(),
-  jobDueDateTimezone: yup
+  dueAt: yup.date().required(FormErrors.required),
+  dueTimezone: yup
     .object()
     .shape({
-      code: yup.string().required(),
-      label: yup.string().required(),
-      phone: yup.string().required(),
+      code: yup.string().required(FormErrors.required),
+      label: yup.string().required(FormErrors.required),
+      phone: yup.string().required(FormErrors.required),
     })
     .required(),
-  jobDescription: yup.string(),
+  description: yup.string().nullable(),
 })
 
 export const addPricesFormSchema = yup.object().shape({})

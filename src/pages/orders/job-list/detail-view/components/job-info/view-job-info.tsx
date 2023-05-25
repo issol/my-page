@@ -15,27 +15,62 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import FileItem from '@src/@core/components/fileItem'
+import { saveJobInfo } from '@src/apis/job-detail.api'
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { FileType } from '@src/types/common/file.type'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { JobStatusType } from '@src/types/jobs/common.type'
+import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
+import { PositionType } from '@src/types/orders/order-detail'
 import { ro } from 'date-fns/locale'
 import { Dispatch, SetStateAction, useState } from 'react'
+import { useMutation } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   row: JobType
   setEditJobInfo?: Dispatch<SetStateAction<boolean>>
   type: string
+  projectTeam: {
+    id: string
+    userId: number
+    position: PositionType
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+    jobTitle: string
+  }[]
+  item: JobItemType
 }
-const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
+const ViewJobInfo = ({
+  row,
+  setEditJobInfo,
+  type,
+  projectTeam,
+  item,
+}: Props) => {
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
 
+  const saveJobInfoMutation = useMutation(
+    (data: { jobId: number; data: SaveJobInfoParamsType }) =>
+      saveJobInfo(data.jobId, data.data),
+    {
+      onSuccess: () => {
+        // setSuccess(true)
+      },
+    },
+  )
+
   const handleChange = (event: SelectChangeEvent) => {
     setJobStatus(event.target.value as JobStatusType)
+    saveJobInfoMutation.mutate({
+      jobId: row.id,
+      data: { status: event.target.value as JobStatusType },
+    })
     // const data = getProjectInfo()
     // patchProjectInfoMutation.mutate({
     //   id: projectInfo.id,
@@ -104,7 +139,7 @@ const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
               Job name
             </Typography>
             <Typography variant='subtitle2' fontWeight={400}>
-              {row.jobName}
+              {row.name}
             </Typography>
           </Box>
           <Box sx={{ display: 'flex' }}>
@@ -146,7 +181,7 @@ const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
                 Contact person for job
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {row.contactPerson}
+                {row.contactPersonId}
               </Typography>
             </Box>
           </Box>
@@ -250,20 +285,23 @@ const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
             gap: '20px',
           }}
         >
-          {fileList(row.files, 'SAMPLE')}
+          {row.files && fileList(row.files, 'SAMPLE')}
         </Box>
 
         <Box>
           <Typography variant='subtitle2'>
-            {getFileSize(row.files, 'SAMPLE') === 0
-              ? 0
-              : Math.round(getFileSize(row.files, 'SAMPLE') / 100) / 10 > 1000
-              ? `${(
-                  Math.round(getFileSize(row.files, 'SAMPLE') / 100) / 10000
-                ).toFixed(1)} mb`
-              : `${(
-                  Math.round(getFileSize(row.files, 'SAMPLE') / 100) / 10
-                ).toFixed(1)} kb`}
+            {row.files
+              ? getFileSize(row?.files, 'SAMPLE') === 0
+                ? 0
+                : Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10 >
+                  1000
+                ? `${(
+                    Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10000
+                  ).toFixed(1)} mb`
+                : `${(
+                    Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10
+                  ).toFixed(1)} kb`
+              : 0}
             /2gb
           </Typography>
         </Box>
@@ -287,7 +325,8 @@ const ViewJobInfo = ({ row, setEditJobInfo, type }: Props) => {
                 &nbsp; Download all
               </Button>
             </Box>
-            {row.files.filter(value => value.type === 'TARGET').length > 0 ? (
+            {row.files &&
+            row.files.filter(value => value.type === 'TARGET').length > 0 ? (
               <Box
                 sx={{
                   display: 'grid',

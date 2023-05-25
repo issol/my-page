@@ -16,8 +16,9 @@ import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import { useContext, useState } from 'react'
 import HistoryDetail from './history-detail'
 import { ProListJobInfoType } from '@src/types/pro/list'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
+import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
+import { JobItemType } from '@src/types/common/item.type'
 
 type CellType = {
   row: JobHistoryType
@@ -28,6 +29,17 @@ type Props = {
   jobCorId: string
   orderDetail: ProjectInfoType
   priceUnitsList: PriceUnitListType[]
+  item: JobItemType
+  projectTeam: {
+    id: string
+    userId: number
+    position: PositionType
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+    jobTitle: string
+  }[]
 }
 
 /**
@@ -38,6 +50,8 @@ export default function JobHistory({
   jobCorId,
   orderDetail,
   priceUnitsList,
+  item,
+  projectTeam,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { user } = useContext(AuthContext)
@@ -162,6 +176,8 @@ export default function JobHistory({
                       onClose={() => closeModal('history-detail')}
                       orderDetail={orderDetail}
                       priceUnitsList={priceUnitsList}
+                      item={item}
+                      projectTeam={projectTeam}
                     />
                   </Box>
                 ),
