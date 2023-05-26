@@ -65,7 +65,7 @@ const CertificationTestDetail = () => {
   const [historyContent, setHistoryContent] = useState(
     EditorState.createEmpty(),
   )
-  console.log("router.id",id)
+
   const [currentRow, setCurrentRow] = useState({
     id: null,
     userId: null,
