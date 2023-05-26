@@ -688,7 +688,7 @@ const OrderDetail = () => {
 export default OrderDetail
 
 OrderDetail.acl = {
-  subject: 'order_list',
+  subject: 'order',
   action: 'read',
 }
 

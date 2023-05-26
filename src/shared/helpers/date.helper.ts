@@ -34,15 +34,19 @@ export function convertDateByTimezone(date: string, from: string, to: string) {
 // output ex : 03/28/2023, 12:00 AM (EST)
 export function FullDateTimezoneHelper(
   value: any,
-  timezone: CountryType | string,
+  timezone: CountryType | string | undefined,
 ): string {
   if (value === undefined || value === null) return '-'
-  const rtn: any = dayjs(value).format('MM/DD/YYYY, hh:mm A')
-  if (typeof timezone !== 'string' && timezone?.code)
-    return `${rtn} (${getTimezone(value, timezone.code)})`
-  else if (typeof timezone === 'string')
-    return `${rtn} (${getTimezone(value, timezone)})`
-  return rtn
+  try {
+    const rtn: any = dayjs(value).format('MM/DD/YYYY, hh:mm A')
+    if (typeof timezone !== 'string' && timezone?.code)
+      return `${rtn} (${getTimezone(value, timezone.code)})`
+    else if (typeof timezone === 'string')
+      return `${rtn} (${getTimezone(value, timezone)})`
+    return rtn
+  } catch (e) {
+    return '-'
+  }
 }
 
 // output ex : 01/31/2023

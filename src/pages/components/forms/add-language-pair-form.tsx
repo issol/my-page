@@ -201,14 +201,6 @@ export default function AddLanguagePairForm({
               {languagePairs
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, idx) => {
-                  // value={
-                  //   !row.price
-                  //     ? null
-                  //     : options.find(
-                  //         item => item.id === row.price?.id,
-                  //       ) || null
-                  // }
-                  console.log('row.price', row.price)
                   const updateIndex = languagePairs
                     .map(item => item.id)
                     .indexOf(row.id)
