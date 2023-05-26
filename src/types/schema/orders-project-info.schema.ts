@@ -28,4 +28,5 @@ export const orderProjectInfoSchema = yup.object().shape({
       phone: yup.string().required(FormErrors.required),
     }),
   }),
+  taxable: yup.boolean().nullable(),
 })
