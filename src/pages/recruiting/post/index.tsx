@@ -328,7 +328,7 @@ export default function RecruitingPost() {
                           autoHighlight
                           fullWidth
                           options={RecruitingStatus}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -364,7 +364,7 @@ export default function RecruitingPost() {
                           autoHighlight
                           fullWidth
                           options={ClientListIncludeGloz}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -402,7 +402,7 @@ export default function RecruitingPost() {
                           fullWidth
                           options={!jobTypeOption.length ? JobList : jobTypeOption}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -439,7 +439,7 @@ export default function RecruitingPost() {
                           fullWidth
                           options={!roleOption.length ? RoleList : roleOption}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -476,7 +476,7 @@ export default function RecruitingPost() {
                           fullWidth
                           options={languageList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -514,7 +514,7 @@ export default function RecruitingPost() {
                           fullWidth
                           options={languageList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)

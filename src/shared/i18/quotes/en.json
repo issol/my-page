@@ -1,0 +1,14 @@
+{
+  "companyName": "GloZ Inc.",
+  "companyAddress": "3325 Wilshire Blvd Ste 626 Los Angeles CA 90010",
+  "quoteDate": "Quote date",
+  "pm": "PM",
+  "quoteTo": "Quote to",
+  "projectName": "Project name",
+  "estimatedDeliveryDate": "Estimated delivery date",
+  "projectDueDate": "Project due date",
+  "itemDescription": "Item description",
+  "quantity": "Quantity",
+  "price": "Price",
+  "totalPrice": "Total price"
+}

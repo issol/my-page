@@ -67,3 +67,21 @@ export function removeRememberMe() {
     window.localStorage.removeItem(authConfig.rememberId)
   }
 }
+
+export function getRedirectPath() {
+  if (typeof window === 'object') {
+    return window.localStorage.getItem(authConfig.redirectPath)
+  }
+}
+
+export function setRedirectPath(path: string) {
+  if (typeof window === 'object') {
+    window.localStorage.setItem(authConfig.redirectPath, path)
+  }
+}
+
+export function removeRedirectPath() {
+  if (typeof window === 'object') {
+    window.localStorage.removeItem(authConfig.redirectPath)
+  }
+}

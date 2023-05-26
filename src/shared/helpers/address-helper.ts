@@ -1,9 +1,8 @@
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export const getAddress = (address: ClientAddressType[]) => {
+  if (!address || !address.length) return '-'
   const addressType = address.find(item => item.isSelected)
-  console.log(addressType)
-
   if (addressType) {
     const state1 = addressType.baseAddress ? `${addressType.baseAddress}, ` : ''
 

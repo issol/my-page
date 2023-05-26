@@ -1,0 +1,14 @@
+{
+  "companyName": "글로지(주)",
+  "companyAddress": "서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)",
+  "quoteDate": "견적일",
+  "pm": "PM",
+  "quoteTo": "Quote to",
+  "projectName": "업무 내역",
+  "estimatedDeliveryDate": "예상 마감일",
+  "projectDueDate": "마감일",
+  "itemDescription": "상세 내역",
+  "quantity": "수량",
+  "price": "단가",
+  "totalPrice": "금액"
+}

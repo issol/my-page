@@ -35,6 +35,8 @@ import {
   saveRememberMe,
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
+  getRedirectPath,
+  removeRedirectPath,
 } from 'src/shared/auth/storage'
 
 // ** hooks
@@ -44,7 +46,10 @@ import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 
 /* redux */
-import { getPermission, getRole } from 'src/store/permission'
+import { 
+  getPermission,
+  getRole,
+} from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
 import { useAppSelector } from 'src/hooks/useRedux'
 
@@ -85,15 +90,15 @@ const AuthProvider = ({ children }: Props) => {
     if (user) {
       dispatch(getRole(user.id))
       dispatch(getPermission())
-    }
+    } 
   }, [user])
 
   const userAccess = useAppSelector(state => state.userAccess)
 
   useEffect(() => {
-    if (userAccess.role.length) {
+    if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
-      // const redirectPath = localStorage.getItem('redirectPath');
+      const redirectPath = getRedirectPath()
       if (!user?.firstName) {
         if (roles?.includes('PRO')) {
           router.replace('/welcome/consumer')
@@ -101,9 +106,10 @@ const AuthProvider = ({ children }: Props) => {
           router.replace('/welcome/manager')
         }
         return
-      // } else if (redirectPath) {
-      //   router.push(redirectPath);
-      //   localStorage.removeItem('redirectPath');
+      } else if (redirectPath) {
+        router.replace(redirectPath);
+        removeRedirectPath()
+        return
       }
       if (router.pathname === '/') {
         router.push(`/home`)

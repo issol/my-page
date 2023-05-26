@@ -429,6 +429,6 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
 export default PrintOrderPage
 
 PrintOrderPage.acl = {
-  subject: 'order_list',
+  subject: 'order',
   action: 'read',
 }

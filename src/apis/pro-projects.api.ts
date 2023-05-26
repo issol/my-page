@@ -104,24 +104,6 @@ export const getProjectCalendarData = async (
       }),
       totalCount: data?.totalCount ?? 0,
     }
-
-    // const [year, month] = date.split('-')
-    // const result = generateRandomCalendarData(Number(year), Number(month), 10)
-    // return {
-    //   data: result.map((item: ProProjectType, idx: number) => {
-    //     return {
-    //       ...item,
-    //       extendedProps: {
-    //         calendar:
-    //           item.status === 'Overdue'
-    //             ? color_overdue
-    //             : colors[idx % colors.length],
-    //       },
-    //       allDay: true,
-    //     }
-    //   }),
-    //   totalCount: result.length,
-    // }
   } catch (e: any) {
     return {
       data: [],

@@ -52,7 +52,7 @@ export default function Filters({
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
-    filterSelectedOptions: true,
+    // filterSelectedOptions: true,
     getOptionLabel: (val: { label: string; value: string }) => val.label,
   }
 
@@ -84,8 +84,10 @@ export default function Filters({
                     <Autocomplete
                       {...commonOptions}
                       multiple
+                      disableCloseOnSelect
                       options={workName}
                       value={filter.title}
+                      limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
@@ -115,8 +117,10 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
+                    disableCloseOnSelect
                     options={RoleList}
                     value={filter.role}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -145,8 +149,10 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
+                    disableCloseOnSelect
                     options={WorkStatus}
                     value={filter.status}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -175,8 +181,13 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
+                    disableCloseOnSelect
                     options={languageList}
                     value={filter.source}
+                    limitTags={1}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
                     onChange={(e, v) => {
                       setFilter({
                         ...filter,
@@ -205,8 +216,13 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
+                    disableCloseOnSelect
                     options={languageList}
                     value={filter.target}
+                    isOptionEqualToValue={(option, newValue) => {
+                      return option.value === newValue.value
+                    }}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -235,8 +251,10 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
+                    disableCloseOnSelect
                     options={ClientListIncludeGloz}
                     value={filter.client}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,

@@ -100,7 +100,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
           >
             <ProjectInfo
               type='history'
-              projectInfo={history.history.projectInfo}
+              projectInfo={history.projectInfo}
               edit={false}
               orderId={history.id}
             />
@@ -115,7 +115,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
           >
             <OrderDetailClient
               type='history'
-              client={history.history.client}
+              client={history.client}
               edit={false}
               orderId={history.id}
             />
@@ -126,8 +126,8 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
           >
             <ProjectTeam
               type='history'
-              list={history.history.projectTeam}
-              listCount={history.history.projectTeam.length}
+              list={history.projectTeam}
+              listCount={history.projectTeam.length}
               columns={getProjectTeamColumns()}
               page={page}
               pageSize={pageSize}

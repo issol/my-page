@@ -109,9 +109,17 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const orderId = Number(router.query.orderId)
+    if (!isNaN(orderId)) {
+      onCopyOrder(orderId)
+    }
+  }, [router.query])
 
   const { openModal, closeModal } = useModal()
 
@@ -400,14 +408,14 @@ export default function AddNewQuotes() {
       } else if (item.type === 'projectManagerId') {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
-        if (!result.member) {
+        if (!item.id) {
           result.member = []
+        } else {
+          result?.member?.push(item.id!)
         }
-        result.member.push(item.id!)
       }
     })
     if (!result.member || !result?.member?.length) delete result.member
-
     return result
   }
 
@@ -563,32 +571,55 @@ export default function AddNewQuotes() {
       <Grid item xs={12}>
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
-            <ProjectTeamFormContainer
-              control={teamControl}
-              field={members}
-              append={appendMember}
-              remove={removeMember}
-              update={updateMember}
-              getValues={getTeamValues}
-              setValue={setTeamValues}
-              errors={teamErrors}
-              isValid={isTeamValid}
-              watch={teamWatch}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ProjectTeamFormContainer
+                control={teamControl}
+                field={members}
+                append={appendMember}
+                remove={removeMember}
+                update={updateMember}
+                setValue={setTeamValues}
+                errors={teamErrors}
+                isValid={isTeamValid}
+                watch={teamWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='flex-end'>
+                <Button
+                  variant='contained'
+                  disabled={!isTeamValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
-            <ClientQuotesFormContainer
-              control={clientControl}
-              setValue={setClientValue}
-              isValid={isClientValid}
-              watch={clientWatch}
-              handleBack={handleBack}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ClientQuotesFormContainer
+                control={clientControl}
+                setValue={setClientValue}
+                watch={clientWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='space-between'>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleBack}
+                >
+                  <Icon icon='material-symbols:arrow-back-rounded' />
+                  Previous
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isClientValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
@@ -720,8 +751,8 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
-  subject: 'quotes',
+AddNewOrder.acl = {
+  subject: 'order',
   action: 'create',
 }
 

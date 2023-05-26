@@ -69,8 +69,7 @@ export type VersionHistoryType = {
   version: number
   email: string
   downloadedAt: string
-  history: HistoryType
-}
+} & HistoryType
 
 export type OrderDownloadData = {
   orderId: number

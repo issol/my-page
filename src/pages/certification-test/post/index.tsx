@@ -63,6 +63,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
+import { AxiosErrors } from 'src/shared/const/axiosErrors'
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import {
   certificationTestSchema,
@@ -549,9 +550,19 @@ const TestMaterialPost = () => {
       })
     },
     onError: error => {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
+      if (error === 'MalformedURL') {
+        toast.error(AxiosErrors.MalformedURL, {
+          position: 'bottom-left',
+        })
+      } else if (error === 'UrlPermission') {
+        toast.error(AxiosErrors.UrlPermission, {
+          position: 'bottom-left',
+        })
+      } else {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      }
     },
   })
 
@@ -887,7 +898,7 @@ const TestMaterialPost = () => {
                           render={({ field: { onChange, value } }) => (
                             <Autocomplete
                               fullWidth
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               value={value}
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -976,7 +987,7 @@ const TestMaterialPost = () => {
                               render={({ field: { onChange, value } }) => (
                                 <Autocomplete
                                   fullWidth
-                                  filterSelectedOptions
+                                  // filterSelectedOptions
                                   value={value}
                                   onChange={(e, v) => {
                                     if (!v) onChange({ value: '', label: '' })

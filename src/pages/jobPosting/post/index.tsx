@@ -316,7 +316,7 @@ export default function JobPostingPost() {
                           autoHighlight
                           fullWidth
                           options={JobPostingStatus}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -355,7 +355,7 @@ export default function JobPostingPost() {
                           fullWidth
                           options={JobList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -392,7 +392,7 @@ export default function JobPostingPost() {
                           fullWidth
                           options={RoleList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -429,7 +429,7 @@ export default function JobPostingPost() {
                           fullWidth
                           options={languageList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -467,7 +467,7 @@ export default function JobPostingPost() {
                           fullWidth
                           options={languageList}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)
@@ -543,7 +543,7 @@ export default function JobPostingPost() {
                           fullWidth
                           options={ExperiencedYears}
                           value={value}
-                          filterSelectedOptions
+                          // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
                             else onChange(v)

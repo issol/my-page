@@ -40,6 +40,6 @@ OrderPrint.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 export default OrderPrint
 
 OrderPrint.acl = {
-  subject: 'order_list',
+  subject: 'order',
   action: 'read',
 }

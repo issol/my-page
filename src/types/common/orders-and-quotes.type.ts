@@ -24,3 +24,15 @@ export type LanguagePairsPostType = {
   target: string
   priceId?: number
 }
+
+export type ItemResType = {
+  id: number
+  contactPersonId: null | number
+  itemName: string
+  dueAt: string
+  sourceLanguage: string
+  targetLanguage: string
+  priceId: number
+  description: string | null
+  totalPrice: string
+}
