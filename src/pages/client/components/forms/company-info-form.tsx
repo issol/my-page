@@ -25,8 +25,6 @@ import {
   Control,
   Controller,
   FieldErrors,
-  UseFormGetValues,
-  UseFormHandleSubmit,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -40,6 +38,7 @@ import {
 // ** helpers
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { TaxTypeList } from '@src/shared/const/tax-type'
 
 type Props = {
   mode: 'create' | 'update'
@@ -56,7 +55,7 @@ export default function CompanyInfoForm({
   watch,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr.', 'Ms.']
-
+  console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
     value: ClientType,
@@ -274,6 +273,68 @@ export default function CompanyInfoForm({
           )}
         />
         {renderErrorMsg('websiteLink')}
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='taxable'
+          control={control}
+          render={({ field: { value, onChange } }) => {
+            const findValue = TaxTypeList.find(item => item.value === value)
+            return (
+              <Autocomplete
+                autoHighlight
+                fullWidth
+                options={TaxTypeList}
+                onChange={(e, v) => {
+                  if (!v) onChange({ value: '', label: '' })
+                  else {
+                    onChange(v.value)
+                    if (v.value === false) setValue('taxRate', null)
+                  }
+                }}
+                value={
+                  !value && !findValue ? { value: '', label: '' } : findValue
+                }
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    error={Boolean(errors.taxable)}
+                    label='Tax type*'
+                    placeholder='Tax type*'
+                  />
+                )}
+              />
+            )
+          }}
+        />
+        {renderErrorMsg('taxable')}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='taxRate'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FormControl fullWidth error={Boolean(errors.taxRate)}>
+              <InputLabel>Tax rate*</InputLabel>
+              <OutlinedInput
+                value={value ?? ''}
+                error={Boolean(errors.taxRate)}
+                onChange={onChange}
+                label='Tax rate*'
+                disabled={!watch('taxable')}
+                endAdornment={
+                  !watch('taxable') ? null : (
+                    <InputAdornment position='end'>%</InputAdornment>
+                  )
+                }
+              />
+            </FormControl>
+          )}
+        />
+        {renderErrorMsg('taxable')}
       </Grid>
 
       {mode === 'create' ? (
