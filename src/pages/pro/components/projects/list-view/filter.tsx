@@ -87,6 +87,7 @@ export default function Filters({
                       disableCloseOnSelect
                       options={workName}
                       value={filter.title}
+                      limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
@@ -119,6 +120,7 @@ export default function Filters({
                     disableCloseOnSelect
                     options={RoleList}
                     value={filter.role}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -150,6 +152,7 @@ export default function Filters({
                     disableCloseOnSelect
                     options={WorkStatus}
                     value={filter.status}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -181,6 +184,7 @@ export default function Filters({
                     disableCloseOnSelect
                     options={languageList}
                     value={filter.source}
+                    limitTags={1}
                     isOptionEqualToValue={(option, newValue) => {
                       return option.value === newValue.value
                     }}
@@ -218,6 +222,7 @@ export default function Filters({
                     isOptionEqualToValue={(option, newValue) => {
                       return option.value === newValue.value
                     }}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -249,6 +254,7 @@ export default function Filters({
                     disableCloseOnSelect
                     options={ClientListIncludeGloz}
                     value={filter.client}
+                    limitTags={1}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
