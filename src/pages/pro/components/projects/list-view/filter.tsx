@@ -84,7 +84,6 @@ export default function Filters({
                     <Autocomplete
                       {...commonOptions}
                       multiple
-                      disableCloseOnSelect
                       options={workName}
                       value={filter.title}
                       onChange={(e, v) =>
@@ -116,7 +115,6 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    disableCloseOnSelect
                     options={RoleList}
                     value={filter.role}
                     onChange={(e, v) =>
@@ -147,7 +145,6 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    disableCloseOnSelect
                     options={WorkStatus}
                     value={filter.status}
                     onChange={(e, v) =>
@@ -178,12 +175,8 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    disableCloseOnSelect
                     options={languageList}
                     value={filter.source}
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(e, v) => {
                       setFilter({
                         ...filter,
@@ -212,12 +205,8 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    disableCloseOnSelect
                     options={languageList}
                     value={filter.target}
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
@@ -246,7 +235,6 @@ export default function Filters({
                   <Autocomplete
                     {...commonOptions}
                     multiple
-                    disableCloseOnSelect
                     options={ClientListIncludeGloz}
                     value={filter.client}
                     onChange={(e, v) =>
