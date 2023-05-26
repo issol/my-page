@@ -336,7 +336,11 @@ export const permissionSlice: Slice<{
 }> = createSlice({
   name: 'permission',
   initialState,
-  reducers: {},
+  reducers: {
+    resetRole: state => {
+      state.role = []
+    },
+  },
   extraReducers: builder => {
     builder.addCase(getPermission.fulfilled, (state, action) => {
       state.permission = action.payload
@@ -358,5 +362,7 @@ export const permissionSlice: Slice<{
     })
   },
 })
+
+export const { resetRole } = permissionSlice.actions
 
 export default permissionSlice.reducer
