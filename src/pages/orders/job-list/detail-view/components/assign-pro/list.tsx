@@ -141,6 +141,7 @@ const AssignProList = ({
           }}
           columns={columns}
           rows={list ?? []}
+          getRowId={row => row.id}
           rowCount={listCount ?? 0}
           loading={isLoading}
           // onCellClick={params => {

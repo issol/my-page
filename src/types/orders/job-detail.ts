@@ -49,7 +49,7 @@ export type AssignProFilterPostType = {
   search?: string
   source?: string[]
   target?: string[]
-  areaOfExpertise?: string[]
+  expertise?: string[]
   sortId?: string
   sortDate?: string
   isOffBoard: boolean

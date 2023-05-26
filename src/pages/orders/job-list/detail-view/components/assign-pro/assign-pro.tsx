@@ -41,6 +41,7 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
 } from 'react-query'
+import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -58,7 +59,7 @@ const defaultFilters: AssignProFilterPostType = {
   search: '',
   source: [],
   target: [],
-  areaOfExpertise: [],
+  expertise: [],
   category: [],
   serviceType: [],
   client: [],
@@ -106,7 +107,7 @@ const AssignPro = ({
   const [filters, setFilters] = useState<AssignProFilterPostType>({
     source: [],
     target: [],
-    areaOfExpertise: [],
+    expertise: [],
     category: [],
     serviceType: [],
     client: [],
@@ -184,14 +185,20 @@ const AssignPro = ({
         label: value,
       })),
     )
+    //@ts-ignore
+    const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
+      (value: any) => value.value,
+    )
+    console.log(serviceTypeToPro)
 
     setFilters(prevState => ({
       ...prevState,
       source: [row.sourceLanguage],
-      target: [row.targetLanguage],
+      target: [row.targetLanguage, 'en'],
       category: [orderDetail.category],
-      serviceType: [row.serviceType],
-      areaOfExpertise: orderDetail.expertise,
+      //@ts-ignore
+      serviceType: serviceTypeToPro,
+      expertise: orderDetail.expertise,
     }))
   }, [row, orderDetail, setValue])
 
