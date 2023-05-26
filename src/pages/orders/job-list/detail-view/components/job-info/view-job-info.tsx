@@ -94,7 +94,7 @@ const ViewJobInfo = ({
 
   const handleChange = (event: SelectChangeEvent) => {
     const res: SaveJobInfoParamsType = {
-      contactPersonId: row.contactPerson?.id,
+      contactPersonId: row.contactPerson?.userId!,
       description: row.description ?? null,
       startDate: row.startedAt ? row.startedAt.toString() : null,
       startTimezone: row.startTimezone ?? null,

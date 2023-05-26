@@ -1,4 +1,5 @@
 import { JobStatusType } from '../jobs/common.type'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type AddJobInfoType = {
@@ -90,7 +91,7 @@ export type AssignProListType = {
 }
 
 export type SaveJobInfoParamsType = {
-  contactPersonId?: number
+  contactPersonId: number
   description?: string | null
   startDate?: string | null
   startTimezone?: CountryType | null

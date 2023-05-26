@@ -62,7 +62,7 @@ export type JobType = {
   description: string
   isShowDescription: boolean
   contactPerson: {
-    id: number
+    userId: number
     firstName: string
     middleName: string | null
     lastName: string

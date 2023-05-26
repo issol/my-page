@@ -252,12 +252,12 @@ const EditJobInfo = ({
       row.contactPerson
         ? {
             value: contactPersonList.find(
-              value => value.userId === row.contactPerson?.id,
+              value => value.userId === row.contactPerson?.userId,
             )?.value!,
             label: contactPersonList.find(
-              value => value.userId === row.contactPerson?.id,
+              value => value.userId === row.contactPerson?.userId,
             )?.label!,
-            userId: row.contactPerson.id,
+            userId: row.contactPerson.userId,
           }
         : {
             value: contactPersonList.find(
@@ -562,7 +562,6 @@ const EditJobInfo = ({
                   <Autocomplete
                     fullWidth
                     value={value}
-                    defaultValue={value}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
                       console.log(value)
