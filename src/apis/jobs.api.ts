@@ -176,7 +176,7 @@ export const getJobHistory = async (
             priceName: 'Test',
             currency: 'KRW',
             totalPrice: 150,
-            data: [
+            datas: [
               {
                 quantity: 1,
                 priceUnitTitle: 'CAT discount',
