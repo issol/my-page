@@ -6,6 +6,7 @@ import {
 import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
+import { ItemType } from './item.type'
 
 export type QuoteStatusType =
   | 'New'
@@ -89,6 +90,7 @@ export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
   projectTeam: ProjectTeamListType[]
+  items: LanguageAndItemType
 }
 
 // TODO: 스키마수정하기
