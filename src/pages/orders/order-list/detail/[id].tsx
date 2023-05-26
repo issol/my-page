@@ -102,9 +102,9 @@ const OrderDetail = () => {
     }
   }, [menuQuery])
 
-  useEffect(() => {
-    router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
-  }, [value])
+  // useEffect(() => {
+  //   router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
+  // }, [value])
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -479,11 +479,13 @@ const OrderDetail = () => {
         }
       })
       itemReset({ items: result })
+    }
+    if (projectTeam) {
       const teams: Array<{
         type: MemberType
         id: number | null
         name: string
-      }> = projectTeam!.map(item => ({
+      }> = projectTeam.map(item => ({
         type:
           item.position === 'projectManager'
             ? 'projectManagerId'
@@ -499,7 +501,7 @@ const OrderDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem])
+  }, [langItem, projectTeam])
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>

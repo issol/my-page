@@ -31,11 +31,17 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import Message from './message'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import SourceFileUpload from './source-file'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from 'react-query'
+import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -53,7 +59,7 @@ const defaultFilters: AssignProFilterPostType = {
   search: '',
   source: [],
   target: [],
-  areaOfExpertise: [],
+  expertise: [],
   category: [],
   serviceType: [],
   client: [],
@@ -66,9 +72,30 @@ type Props = {
   orderDetail: ProjectInfoType
   type: string
   assignProList?: { data: AssignProListType[]; totalCount: number }
+  item: JobItemType
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
 }
 
-const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
+const AssignPro = ({
+  user,
+  row,
+  orderDetail,
+  type,
+  assignProList,
+  item,
+  refetch,
+}: Props) => {
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
   const [hideOffBoard, setHideOffBoard] = useState<boolean>(true)
@@ -80,7 +107,7 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
   const [filters, setFilters] = useState<AssignProFilterPostType>({
     source: [],
     target: [],
-    areaOfExpertise: [],
+    expertise: [],
     category: [],
     serviceType: [],
     client: [],
@@ -91,7 +118,10 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
     // sortDate: 'DESC',
   })
 
-  const { data: AssignProList, isLoading } = useGetAssignProList(filters)
+  const { data: AssignProList, isLoading } = useGetAssignProList(
+    row.id,
+    filters,
+  )
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -155,14 +185,20 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
         label: value,
       })),
     )
+    //@ts-ignore
+    const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
+      (value: any) => value.value,
+    )
+    console.log(serviceTypeToPro)
 
     setFilters(prevState => ({
       ...prevState,
       source: [row.sourceLanguage],
-      target: [row.targetLanguage],
+      target: [row.targetLanguage, 'en'],
       category: [orderDetail.category],
-      serviceType: [row.serviceType],
-      areaOfExpertise: orderDetail.expertise,
+      //@ts-ignore
+      serviceType: serviceTypeToPro,
+      expertise: orderDetail.expertise,
     }))
   }, [row, orderDetail, setValue])
 
@@ -200,6 +236,8 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
             user={user}
             row={row}
             orderDetail={orderDetail}
+            item={item}
+            refetch={refetch}
           />
         </Box>
       ),
@@ -225,7 +263,13 @@ const AssignPro = ({ user, row, orderDetail, type, assignProList }: Props) => {
             },
           }}
         >
-          <SourceFileUpload info={info} row={row} orderDetail={orderDetail} />
+          <SourceFileUpload
+            info={info}
+            row={row}
+            orderDetail={orderDetail}
+            item={item}
+            refetch={refetch}
+          />
         </Box>
       ),
     })

@@ -37,7 +37,14 @@ import { SyntheticEvent, useEffect, useRef, useState } from 'react'
 
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../detail-view'
-import { useGetProjectInfo } from '@src/queries/order/order.query'
+import {
+  useGetProjectInfo,
+  useGetProjectTeam,
+} from '@src/queries/order/order.query'
+import { useMutation, useQueryClient } from 'react-query'
+import { CreateJobParamsType } from '@src/types/jobs/jobs.type'
+import { createJob } from '@src/apis/jobs.api'
+import { deleteJob } from '@src/apis/job-detail.api'
 
 const JobDetails = () => {
   const router = useRouter()
@@ -46,12 +53,28 @@ const JobDetails = () => {
 
   const { orderId, jobId } = router.query
 
-  const { data: jobDetails } = useGetJobDetails(Number(jobId!))
+  const { data: jobDetails, refetch } = useGetJobDetails(Number(orderId!))
   const { data: orderDetail } = useGetProjectInfo(Number(orderId!))
 
   const [serviceType, setServiceType] = useState<
     { label: string; value: string }[]
   >([])
+
+  const createJobMutation = useMutation(
+    (params: CreateJobParamsType) => createJob(params),
+    {
+      onSuccess: () => {
+        setServiceType([])
+        refetch()
+      },
+    },
+  )
+
+  const deleteJobMutation = useMutation((jobId: number) => deleteJob(jobId), {
+    onSuccess: () => {
+      refetch()
+    },
+  })
 
   const handleChangeServiceType = (
     event: SyntheticEvent<Element, Event>,
@@ -63,6 +86,15 @@ const JobDetails = () => {
     setServiceType(value)
   }
 
+  const onClickAddJob = (itemId: number) => {
+    createJobMutation.mutate({
+      orderId: Number(orderId),
+      itemId: itemId,
+      serviceType: serviceType.map(value => value.value),
+      // serviceType: serviceType[0].value,
+    })
+  }
+
   function NoList() {
     return (
       <Box
@@ -71,7 +103,9 @@ const JobDetails = () => {
           height: '100%',
           display: 'flex',
           justifyContent: 'center',
+          padding: '15px',
           alignItems: 'center',
+          borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
         }}
       >
         <Typography variant='subtitle1'>There are no jobs</Typography>
@@ -80,9 +114,8 @@ const JobDetails = () => {
   }
 
   const handleRemoveJob = (jobId: number) => {
-    // TODO API 연결
-    console.log(jobId)
     closeModal('RemoveJobModal')
+    deleteJobMutation.mutate(jobId)
   }
 
   const onClickRemoveJob = (
@@ -97,7 +130,7 @@ const JobDetails = () => {
           onClose={() => closeModal('RemoveJobModal')}
           onClick={() => handleRemoveJob(jobId)}
           title='Are you sure you want to delete this job?'
-          subtitle={`[${corporationId}] ${jobName}`}
+          subtitle={`[${corporationId}] ${jobName ?? ''}`}
           vary={'error'}
           rightButtonText='Delete'
         />
@@ -105,7 +138,7 @@ const JobDetails = () => {
     })
   }
 
-  const onClickRow = (row: JobType) => {
+  const onClickRow = (row: JobType, info: JobItemType) => {
     openModal({
       type: 'JobDetailViewModal',
       children: (
@@ -123,7 +156,12 @@ const JobDetails = () => {
             },
           }}
         >
-          <JobInfoDetailView row={row} orderDetail={orderDetail!} />
+          <JobInfoDetailView
+            row={row}
+            orderDetail={orderDetail!}
+            item={info}
+            refetch={refetch}
+          />
         </Box>
       ),
     })
@@ -157,11 +195,12 @@ const JobDetails = () => {
             flex: 0.0096,
           }}
         >
-          {' '}
           <img src='/images/icons/pro-icons/seperator.svg' alt='sep' />
         </TableCell>
       )
     }
+    console.log(info)
+
     return (
       <Card>
         <Box
@@ -228,7 +267,7 @@ const JobDetails = () => {
                 <TextField
                   {...params}
                   size='small'
-                  placeholder={serviceType.length ? undefined : 'Service type*'}
+                  placeholder={serviceType.length ? undefined : 'Service type'}
                 />
               )}
               renderOption={(props, option, { selected }) => (
@@ -242,6 +281,7 @@ const JobDetails = () => {
               variant='contained'
               sx={{ height: '38px' }}
               disabled={serviceType.length === 0}
+              onClick={() => onClickAddJob(info.id)}
             >
               Add
             </Button>
@@ -379,7 +419,7 @@ const JobDetails = () => {
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {info.jobs
+                  {info.jobs.length > 0
                     ? info.jobs.map((row, index) => {
                         return (
                           <TableRow
@@ -397,7 +437,7 @@ const JobDetails = () => {
                             }}
                             // hover
                             onClick={() => {
-                              onClickRow(row)
+                              onClickRow(row, info)
                             }}
                             ref={row.id === Number(jobId!) ? ref : null}
                           >
@@ -434,7 +474,7 @@ const JobDetails = () => {
                               size='small'
                             >
                               <Box>
-                                <ServiceTypeChip label={row.jobName} />
+                                <ServiceTypeChip label={row.serviceType} />
                               </Box>
                             </TableCell>
                             {separateLine()}
@@ -530,7 +570,7 @@ const JobDetails = () => {
                                   onClickRemoveJob(
                                     row.id,
                                     row.corporationId,
-                                    row.jobName,
+                                    row.name,
                                   )
                                 }}
                               >
@@ -583,9 +623,9 @@ const JobDetails = () => {
           </Box>
           <Box sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
             <Typography variant='body2'>Linked order :</Typography>
-            <Link href={`/orders/order-list/detail/${jobDetails?.orderId}`}>
+            <Link href={`/orders/order-list/detail/${jobDetails?.id}`}>
               <Typography fontSize={15} fontWeight={500} color={'#6D788D'}>
-                {jobDetails?.corporationId}
+                {jobDetails?.cooperationId}
               </Typography>
             </Link>
           </Box>

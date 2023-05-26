@@ -1,3 +1,4 @@
+import { JobStatusType } from '../jobs/common.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type AddJobInfoType = {
@@ -15,11 +16,11 @@ export type AddJobInfoType = {
 }
 
 export type AddJobInfoFormType = {
-  jobName: string
-  status: { label: string; value: string }
-  contactPerson: { label: string; value: string }
+  name: string
+  status: { label: JobStatusType; value: JobStatusType }
+  contactPerson: { label: string; value: string; userId: number }
   serviceType: { label: string; value: string }
-  languagePair: { label: string; value: string }
+  languagePair: { label: string; value: string; source: string; target: string }
   startedAt?: Date
   startTimezone?: CountryType
   dueAt: Date
@@ -48,7 +49,7 @@ export type AssignProFilterPostType = {
   search?: string
   source?: string[]
   target?: string[]
-  areaOfExpertise?: string[]
+  expertise?: string[]
   sortId?: string
   sortDate?: string
   isOffBoard: boolean
@@ -86,4 +87,19 @@ export type AssignProListType = {
         }[]
       | null
   }
+}
+
+export type SaveJobInfoParamsType = {
+  contactPersonId?: number
+  description?: string | null
+  startDate?: string | null
+  startTimezone?: CountryType | null
+
+  dueDate?: string
+  dueTimezone?: CountryType
+  status?: JobStatusType
+  sourceLanguage?: string | null
+  targetLanguage?: string | null
+  name?: string
+  isShowDescription?: boolean
 }

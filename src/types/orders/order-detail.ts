@@ -102,8 +102,8 @@ export type LanguageAndItemType = {
       id: number
       name: string
       isStandard: boolean
-      category: 'Dubbing'
-      serviceType: ['Audio description']
+      category: string
+      serviceType: Array<string>
       currency: CurrencyType
       calculationBasis: string
       rounding: number
@@ -112,4 +112,20 @@ export type LanguageAndItemType = {
     } | null
   }>
   items: ItemType[]
+}
+
+export type OrderDetailType = {
+  id: number
+  corporationId: string
+  category: string
+  client: {
+    clientId: number
+    email: string
+    fax: string | null
+    mobile: string | null
+    phone: string | null
+    timezone: CountryType
+    name: string
+  }
+  contactPerson: ContactPersonType | null
 }

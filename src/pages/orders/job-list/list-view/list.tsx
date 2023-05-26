@@ -23,6 +23,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 // ** context
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type CellType = {
   row: JobsListType
@@ -54,22 +55,23 @@ export default function JobsList({
   const columns: GridColumns<JobsListType> = [
     {
       field: 'corporationId',
-      flex: 0.2,
-      minWidth: 140,
+
+      minWidth: 182,
       headerName: 'No.',
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip title={row.corporationId}>
-            <TableTitleTypography>{row.corporationId}</TableTitleTypography>
+            <TableTitleTypography fontSize={14}>
+              {row.corporationId}
+            </TableTitleTypography>
           </Tooltip>
         )
       },
     },
     {
-      flex: 0.05,
-      minWidth: 150,
+      minWidth: 214,
       field: 'status',
       headerName: 'Status',
       hideSortIcons: true,
@@ -81,8 +83,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 210,
+      minWidth: 260,
       field: 'name',
       headerName: 'Client / Email',
       hideSortIcons: true,
@@ -92,28 +93,38 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{row?.client?.name}</Typography>
-            <Typography variant='body2'>{row?.client?.email}</Typography>
+            <Typography fontWeight='bold'>
+              {row.order.contactPerson
+                ? getLegalName({
+                    firstName: row.order.contactPerson.firstName!,
+                    middleName: row.order.contactPerson.middleName,
+                    lastName: row.order.contactPerson.lastName!,
+                  })
+                : row.order.client.name}
+            </Typography>
+            <Typography variant='body2'>
+              {row.order.contactPerson
+                ? row.order.contactPerson.email
+                : row.order.client.email}
+            </Typography>
           </Box>
         )
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 290,
       field: 'jobName',
-      headerName: 'Project name',
+      headerName: 'Job name',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Project name</Box>,
+      renderHeader: () => <Box>Job name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.projectName}</Typography>
+        return <Typography variant='body2'>{row.name ?? '-'}</Typography>
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 420,
       field: 'category , serviceType',
       headerName: 'Category / Service type',
       hideSortIcons: true,
@@ -125,8 +136,8 @@ export default function JobsList({
           <Box display='flex' alignItems='center' gap='8px'>
             <JobTypeChip
               size='small'
-              type={row?.category}
-              label={row?.category}
+              type={row?.order.category}
+              label={row?.order.category}
             />
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
@@ -134,8 +145,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 280,
       field: 'startedAt',
       headerName: 'Job start date',
       disableColumnMenu: true,
@@ -156,8 +166,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 280,
       field: 'dueAt',
       headerName: 'Job due date',
       disableColumnMenu: true,
@@ -175,11 +184,12 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 140,
       field: 'totalPrice',
       headerName: 'Total price',
       disableColumnMenu: true,
+      align: 'center',
+      headerAlign: 'center',
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         return (
@@ -229,7 +239,7 @@ export default function JobsList({
         onCellClick={params => {
           router.push({
             pathname: '/orders/job-list/details/',
-            query: { orderId: params.row.id, jobId: 8 },
+            query: { orderId: params.row.order.id, jobId: params.row.id },
           })
         }}
         rowsPerPageOptions={[10, 25, 50]}

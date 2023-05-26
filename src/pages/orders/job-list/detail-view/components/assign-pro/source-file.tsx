@@ -8,17 +8,35 @@ import { useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../..'
-import { JobType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { AssignmentStatusChip } from '@src/@core/components/chips/chips'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
+import {
+  RefetchOptions,
+  RefetchQueryFilters,
+  QueryObserverResult,
+} from 'react-query'
 
 type Props = {
   info: AssignProListType
   row: JobType
   orderDetail: ProjectInfoType
+  item: JobItemType
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
 }
-const SourceFileUpload = ({ info, row, orderDetail }: Props) => {
+const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
   const MAXIMUM_FILE_SIZE = 20000000
 
@@ -127,6 +145,8 @@ const SourceFileUpload = ({ info, row, orderDetail }: Props) => {
                       tab={'assignPro'}
                       row={row}
                       orderDetail={orderDetail}
+                      item={item}
+                      refetch={refetch}
                     />
                   </Box>
                 ),

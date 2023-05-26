@@ -10,11 +10,11 @@ import { SyntheticEvent } from 'react-draft-wysiwyg'
 import styled from 'styled-components'
 import HistoryAssignPro from './history-assign-pro'
 import useModal from '@src/hooks/useModal'
-import { ItemType, JobType } from '@src/types/common/item.type'
+import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
 import { JobHistoryType } from '@src/types/jobs/jobs.type'
 import ViewJobInfo from '../job-info/view-job-info'
 import JobInfoDetailView from '../..'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
+import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -30,6 +30,17 @@ type Props = {
   row: JobHistoryType
   orderDetail: ProjectInfoType
   priceUnitsList: PriceUnitListType[]
+  item: JobItemType
+  projectTeam: {
+    id: string
+    userId: number
+    position: PositionType
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+    jobTitle: string
+  }[]
 }
 
 /* TODO
@@ -44,6 +55,8 @@ export default function HistoryDetail({
   row,
   orderDetail,
   priceUnitsList,
+  item,
+  projectTeam,
 }: Props) {
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
@@ -155,6 +168,7 @@ export default function HistoryDetail({
                       tab={'history'}
                       row={row.jobInfo}
                       orderDetail={orderDetail}
+                      item={item}
                     />
                   </Box>
                 ),
@@ -198,7 +212,12 @@ export default function HistoryDetail({
             />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            <ViewJobInfo row={row.jobInfo} type='history' />
+            <ViewJobInfo
+              row={row.jobInfo}
+              type='history'
+              item={item}
+              projectTeam={projectTeam}
+            />
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <Suspense>
@@ -225,6 +244,7 @@ export default function HistoryDetail({
               orderDetail={orderDetail}
               type='history'
               assignProList={row.assignPro}
+              item={item}
             />
           </TabPanel>
         </TabContext>
