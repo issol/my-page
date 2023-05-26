@@ -6,7 +6,10 @@ import { useRouter } from 'next/router'
 
 // ** Hooks Import
 import { useAuth } from 'src/hooks/useAuth'
-import { getUserDataFromBrowser } from 'src/shared/auth/storage'
+import { 
+  getUserDataFromBrowser,
+  setRedirectPath
+} from 'src/shared/auth/storage'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -37,6 +40,23 @@ const AuthGuard = (props: AuthGuardProps) => {
     [router.route],
   )
 
+  useEffect(
+    () => {
+      if (auth.user === null && !getUserDataFromBrowser()) {
+        if (router.asPath !== '/') {
+          const parsePath = () => {
+            if (router.asPath.includes('[id]')) {
+              const { id } = router.query
+              return `${router.asPath.replace('[id]','')}${id}`
+            }
+            return router.asPath
+          }
+          setRedirectPath(parsePath())
+        }
+      }
+    },
+    [router.query],
+  )
   if (auth.loading || auth.user === null) {
     return fallback
   }
