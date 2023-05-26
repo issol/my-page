@@ -43,6 +43,9 @@ import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
 import { FormErrors } from 'src/shared/const/formErrors'
 import GoogleButton from '../components/google-button'
 
+// ** Next Import
+import { useRouter } from 'next/router'
+
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
   [theme.breakpoints.up('md')]: {
@@ -90,6 +93,7 @@ interface FormData {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
+  const router = useRouter()
 
   // ** Hooks
   const auth = useAuth()

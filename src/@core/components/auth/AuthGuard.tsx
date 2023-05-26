@@ -26,8 +26,24 @@ const AuthGuard = (props: AuthGuardProps) => {
       // }
 
       if (auth.user === null && !getUserDataFromBrowser()) {
+        
         if (router.asPath !== '/') {
+          console.log("router",router.query)
+          const parsePath = () => {
+            if (router.asPath.includes('[id]')) {
+              const { id } = router.query
+              return `${router.asPath.replace('[id]','')}${id}`
+            }
+            return router.asPath
+          }
+          if (!parsePath().includes('/welcome/')) {
+            localStorage.setItem('redirectPath', parsePath())
+          }
           router.push('/login')
+          // router.replace({
+          //   pathname: '/login',
+          //   query: { returnUrl: router.asPath },
+          // })
         } else {
           // router.replace('/login')
         }
