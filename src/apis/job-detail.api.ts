@@ -1,8 +1,10 @@
 import axios from '@src/configs/axios'
-import { JobItemType } from '@src/types/common/item.type'
+import { JobItemType, JobType } from '@src/types/common/item.type'
+import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
   AssignProListType,
+  SaveJobInfoParamsType,
 } from '@src/types/orders/job-detail'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -93,10 +95,61 @@ export const getJobDetails = async (
   }
 }
 
-export const saveJobInfo = async (id: number, data: any) => {
+export const getJobInfo = async (id: number): Promise<JobType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
+    console.log(data)
+
+    return data
+  } catch (e: any) {
+    return {
+      id: 0,
+      corporationId: '',
+      name: '',
+      status: 'In preparation',
+      contactPersonId: 0,
+      serviceType: '',
+      sourceLanguage: '',
+      targetLanguage: '',
+      startedAt: '',
+      dueAt: '',
+      startTimezone: {
+        code: '',
+        label: '',
+        phone: '',
+      },
+      dueTimezone: { code: '', label: '', phone: '' },
+      description: '',
+      isShowDescription: false,
+      contactPerson: null,
+    }
+  }
+}
+
+export const saveJobInfo = async (id: number, data: SaveJobInfoParamsType) => {
   await axios.patch(`/api/enough/u/job/${id}`, { ...data })
 }
 
 export const deleteJob = async (id: number) => {
   await axios.delete(`/api/enough/u/job/${id}`)
+}
+
+export const getJobPrices = async (
+  id: number,
+): Promise<JobPricesDetailType> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
+    return data
+  } catch (e: any) {
+    return {
+      id: 0,
+      sourceLanguage: '',
+      targetLanguage: '',
+      priceId: 0,
+      totalPrice: 0,
+      currency: 'USD',
+      priceName: '',
+      datas: [],
+    }
+  }
 }

@@ -31,20 +31,6 @@ export const getJobsTrackerList = async (
       `/api/enough/u/job/tracker?${makeQuery(filter)}`,
     )
     return data
-    // return {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       client: { name: 'bon', email: 'bon@glozinc.com' },
-    //       name: 'Job name',
-    //       category: 'Dubbing',
-    //       serviceType: ['DTP', 'Audio description'],
-    //       currency: 'KRW',
-    //       totalPrice: 123123123,
-    //     },
-    //   ],
-    //   totalCount: 1,
-    // }
   } catch (error) {
     return {
       data: [],

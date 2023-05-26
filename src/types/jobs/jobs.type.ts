@@ -1,5 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
 import { AssignProListType } from '../orders/job-detail'
+import { OrderDetailType } from '../orders/order-detail'
 import { CountryType } from '../sign/personalInfoTypes'
 import { JobStatusType } from './common.type'
 
@@ -7,17 +8,15 @@ export type JobsListType = {
   id: number
   corporationId: string // O-000010-TRA-001
   status: JobStatusType
-  client: {
-    name: string
-    email: string
-  }
-  jobName: string
+
+  name: string
   category: string // order의 category
   serviceType: string // job의 serviceType
   startedAt: string
   dueAt: string
   totalPrice: number
   currency: CurrencyType
+  order: OrderDetailType
 }
 
 export type JobsTrackerListType = {
@@ -91,7 +90,7 @@ export type JobPricesDetailType = {
   totalPrice: number
   currency: CurrencyType
   priceName: string
-  data: Array<{
+  datas: Array<{
     quantity: number
     priceUnitTitle: string
     priceUnitId: number

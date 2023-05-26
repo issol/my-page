@@ -19,6 +19,11 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
+import {
+  RefetchOptions,
+  RefetchQueryFilters,
+  QueryObserverResult,
+} from 'react-query'
 
 type Props = {
   info: AssignProListType
@@ -26,9 +31,21 @@ type Props = {
   row: JobType
   orderDetail: ProjectInfoType
   item: JobItemType
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
 }
 
-const Message = ({ info, user, row, orderDetail, item }: Props) => {
+const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
   const [message, setMessage] = useState<string>('')
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
@@ -86,6 +103,7 @@ const Message = ({ info, user, row, orderDetail, item }: Props) => {
                       row={row}
                       orderDetail={orderDetail}
                       item={item}
+                      refetch={refetch}
                     />
                   </Box>
                 ),

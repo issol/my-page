@@ -208,6 +208,7 @@ const ProjectTeam = ({
               //   NoResultsOverlay: () => NoList(),
               // }}
               sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              getRowId={row => row.userId}
               columns={columns}
               rows={list ?? []}
               rowCount={listCount ?? 0}

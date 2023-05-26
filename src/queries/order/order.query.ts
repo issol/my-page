@@ -59,9 +59,9 @@ export const useGetProjectTeam = (id: number) => {
 
     suspense: false,
 
-    select: data => {
-      return data.map(value => ({ ...value, id: uuidv4() }))
-    },
+    // select: data => {
+    //   return data.map(value => ({ ...value, id: uuidv4() }))
+    // },
   })
 }
 

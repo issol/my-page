@@ -29,7 +29,7 @@ import { countries } from '@src/@fake-db/autocomplete'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 import CustomCheckbox from '@src/@core/components/custom-checkbox/basic'
-import { useEffect, useRef, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useRef, useState } from 'react'
 import { FileType } from '@src/types/common/file.type'
 import { useDropzone } from 'react-dropzone'
 import FileItem from '@src/@core/components/fileItem'
@@ -42,21 +42,18 @@ import { CurrencyType } from '@src/types/common/standard-price'
 import { set } from 'nprogress'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { id } from 'date-fns/locale'
-import { useMutation, useQueryClient } from 'react-query'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+} from 'react-query'
 import { deleteJob, saveJobInfo } from '@src/apis/job-detail.api'
 
 type Props = {
   row: JobType
-  projectTeam: {
-    id: string
-    userId: number
-    position: PositionType
-    firstName: string
-    middleName: string | null
-    lastName: string
-    email: string
-    jobTitle: string
-  }[]
+  contactPersonList: Array<{ value: string; label: string; userId: number }>
   orderDetail: ProjectInfoType
   item: JobItemType
   languagePair: Array<{
@@ -76,28 +73,43 @@ type Props = {
       authorId: number
     } | null
   }>
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
+  success: boolean
+  setSuccess: Dispatch<SetStateAction<boolean>>
+  setEditJobInfo: Dispatch<SetStateAction<boolean>>
 }
 
 const EditJobInfo = ({
   row,
-  projectTeam,
+  contactPersonList,
   orderDetail,
   item,
   languagePair,
+  refetch,
+  success,
+  setSuccess,
+  setEditJobInfo,
 }: Props) => {
   const theme = useTheme()
   const { direction } = theme
+  const queryClient = useQueryClient()
 
-  const [success, setSuccess] = useState(false)
   const [languageItemList, setLanguageItemList] = useState<
     {
       value: string
       label: string
     }[]
-  >([])
-
-  const [contactPersonList, setContactPersonList] = useState<
-    { value: string; label: string; userId: any }[]
   >([])
 
   const popperPlacement: ReactDatePickerProps['popperPlacement'] =
@@ -109,6 +121,9 @@ const EditJobInfo = ({
     {
       onSuccess: () => {
         setSuccess(true)
+        queryClient.invalidateQueries('jobInfo')
+        refetch()
+        setEditJobInfo(false)
       },
     },
   )
@@ -201,35 +216,11 @@ const EditJobInfo = ({
       name: data.name,
       isShowDescription: data.isShowDescription,
     }
+
     saveJobInfoMutation.mutate({ jobId: row.id, data: res })
-    // toast('Job info added successfully')
-    console.log(data)
   }
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      setSuccess(false)
-    }, 3000)
-    return () => {
-      clearTimeout(timer)
-    }
-  }, [success])
-
-  useEffect(() => {
-    const contactPerson = projectTeam.map(value => ({
-      label: getLegalName({
-        firstName: value.firstName,
-        middleName: value.middleName,
-        lastName: value.lastName,
-      }),
-      value: getLegalName({
-        firstName: value.firstName,
-        middleName: value.middleName,
-        lastName: value.lastName,
-      }),
-      userId: Number(value.userId),
-    }))
-
     setValue('name', row.name ?? '')
     setValue('description', row.description ?? '')
     setValue('status', { value: row.status, label: row.status })
@@ -256,15 +247,28 @@ const EditJobInfo = ({
         })
     setValue('serviceType', { value: row.serviceType, label: row.serviceType })
     setValue('isShowDescription', row.isShowDescription)
-    setValue('contactPerson', {
-      value: contactPerson.find(
-        value => value.userId === Number(item.contactPersonId),
-      )?.value!,
-      label: contactPerson.find(
-        value => value.userId === Number(item.contactPersonId),
-      )?.label!,
-      userId: Number(item.contactPersonId),
-    })
+    setValue(
+      'contactPerson',
+      row.contactPerson
+        ? {
+            value: contactPersonList.find(
+              value => value.userId === row.contactPerson?.id,
+            )?.value!,
+            label: contactPersonList.find(
+              value => value.userId === row.contactPerson?.id,
+            )?.label!,
+            userId: row.contactPerson.id,
+          }
+        : {
+            value: contactPersonList.find(
+              value => value.userId === item.contactPersonId,
+            )?.value!,
+            label: contactPersonList.find(
+              value => value.userId === item.contactPersonId,
+            )?.label!,
+            userId: item.contactPersonId,
+          },
+    )
     row.startedAt && setValue('startedAt', new Date(row.startedAt))
 
     row.startTimezone &&
@@ -291,33 +295,10 @@ const EditJobInfo = ({
       ...langPairList,
     ])
     trigger()
-    setContactPersonList(contactPerson)
-  }, [row, item, setValue, languagePair, projectTeam, trigger])
+  }, [row, item, setValue, languagePair, contactPersonList, trigger])
 
   return (
     <>
-      {success && (
-        <Box
-          sx={{
-            position: 'absolute',
-            bottom: 40,
-            left: 40,
-            display: 'flex',
-            alignItems: 'center',
-            gap: '10px',
-
-            background: ' #FFFFFF',
-
-            boxShadow: '0px 4px 8px -4px rgba(76, 78, 100, 0.42)',
-            borderRadius: '8px',
-            padding: '12px 10px',
-          }}
-        >
-          <img src='/images/icons/order-icons/success.svg' alt='' />
-          Saved successfully
-        </Box>
-      )}
-
       <DatePickerWrapper sx={{ width: '100%' }}>
         <form onSubmit={handleSubmit(onSubmit)}>
           <Grid container xs={12} spacing={6} mb='20px'>

@@ -40,13 +40,13 @@ import { OrderListForJobType } from '@src/types/orders/order-list'
 
 type FilterType = {
   search?: string
-  ordersWithoutJobs?: boolean
+  ordersWithoutJobs?: number
   skip: number
   take: number
 }
 const initialFilter = {
   search: '',
-  ordersWithoutJobs: false,
+  ordersWithoutJobs: 0,
   skip: 0,
   take: 10,
 }
@@ -261,13 +261,13 @@ export default function OrderList({ onClose }: Props) {
           justifyContent='flex-end'
           gap='4px'
         >
-          <Typography>See only my jobs</Typography>
+          <Typography variant='body2'>See orders without jobs</Typography>
           <Switch
-            checked={activeFilter.ordersWithoutJobs}
+            checked={Boolean(activeFilter.ordersWithoutJobs)}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                ordersWithoutJobs: e.target.checked,
+                ordersWithoutJobs: e.target.checked ? 1 : 0,
               })
             }
           />

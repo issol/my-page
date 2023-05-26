@@ -156,7 +156,12 @@ const JobDetails = () => {
             },
           }}
         >
-          <JobInfoDetailView row={row} orderDetail={orderDetail!} item={info} />
+          <JobInfoDetailView
+            row={row}
+            orderDetail={orderDetail!}
+            item={info}
+            refetch={refetch}
+          />
         </Box>
       ),
     })

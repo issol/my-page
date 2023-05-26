@@ -36,6 +36,11 @@ import SourceFileUpload from './source-file'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+} from 'react-query'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -67,6 +72,18 @@ type Props = {
   type: string
   assignProList?: { data: AssignProListType[]; totalCount: number }
   item: JobItemType
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
 }
 
 const AssignPro = ({
@@ -76,6 +93,7 @@ const AssignPro = ({
   type,
   assignProList,
   item,
+  refetch,
 }: Props) => {
   const [proListPage, setProListPage] = useState<number>(0)
   const [proListPageSize, setProListPageSize] = useState<number>(5)
@@ -212,6 +230,7 @@ const AssignPro = ({
             row={row}
             orderDetail={orderDetail}
             item={item}
+            refetch={refetch}
           />
         </Box>
       ),
@@ -242,6 +261,7 @@ const AssignPro = ({
             row={row}
             orderDetail={orderDetail}
             item={item}
+            refetch={refetch}
           />
         </Box>
       ),

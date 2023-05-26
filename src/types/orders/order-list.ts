@@ -20,7 +20,7 @@ export type OrderListFilterType = {
   revenueFrom?: string[]
   mine?: string
   hideCompleted?: string
-  ordersWithoutJobs?: boolean
+  ordersWithoutJobs?: number
 }
 
 export type OrderListType = {

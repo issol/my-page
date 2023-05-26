@@ -19,6 +19,7 @@ import { saveJobInfo } from '@src/apis/job-detail.api'
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { JobStatusType } from '@src/types/jobs/common.type'
@@ -26,7 +27,13 @@ import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import { PositionType } from '@src/types/orders/order-detail'
 import { ro } from 'date-fns/locale'
 import { Dispatch, SetStateAction, useState } from 'react'
-import { useMutation } from 'react-query'
+import {
+  QueryObserverResult,
+  RefetchOptions,
+  RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
+} from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
@@ -44,6 +51,20 @@ type Props = {
     jobTitle: string
   }[]
   item: JobItemType
+  success: boolean
+  setSuccess: Dispatch<SetStateAction<boolean>>
+  refetch: <TPageData>(
+    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
+  ) => Promise<
+    QueryObserverResult<
+      {
+        id: number
+        cooperationId: string
+        items: JobItemType[]
+      },
+      unknown
+    >
+  >
 }
 const ViewJobInfo = ({
   row,
@@ -51,36 +72,56 @@ const ViewJobInfo = ({
   type,
   projectTeam,
   item,
+  success,
+  setSuccess,
+  refetch,
 }: Props) => {
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
+  const queryClient = useQueryClient()
 
   const saveJobInfoMutation = useMutation(
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: () => {
-        // setSuccess(true)
+        setSuccess(true)
+        queryClient.invalidateQueries('jobInfo')
+        refetch()
       },
     },
   )
 
   const handleChange = (event: SelectChangeEvent) => {
-    setJobStatus(event.target.value as JobStatusType)
-    saveJobInfoMutation.mutate({
-      jobId: row.id,
-      data: { status: event.target.value as JobStatusType },
-    })
-    // const data = getProjectInfo()
-    // patchProjectInfoMutation.mutate({
-    //   id: projectInfo.id,
-    //   form: { ...data, status: event.target.value as OrderStatusType },
-    // })
+    const res: SaveJobInfoParamsType = {
+      contactPersonId: row.contactPerson?.id,
+      description: row.description ?? null,
+      startDate: row.startedAt ? row.startedAt.toString() : null,
+      startTimezone: row.startTimezone ?? null,
+
+      dueDate: row.dueAt.toString(),
+      dueTimezone: row.dueTimezone,
+      status: event.target.value as JobStatusType,
+      sourceLanguage: row.sourceLanguage,
+      targetLanguage: row.targetLanguage,
+      name: row.name,
+      isShowDescription: row.isShowDescription,
+    }
+
+    saveJobInfoMutation.mutate(
+      {
+        jobId: row.id,
+        data: res,
+      },
+      {
+        onSuccess: () => {
+          setJobStatus(event.target.value as JobStatusType)
+        },
+      },
+    )
   }
 
   const fileList = (file: FileType[], type: string) => {
-    console.log(file, type)
-
     return file.map((file: FileType) => {
       if (file.type === type) {
         return (
@@ -181,7 +222,11 @@ const ViewJobInfo = ({
                 Contact person for job
               </Typography>
               <Typography variant='subtitle2' fontWeight={400}>
-                {row.contactPersonId}
+                {getLegalName({
+                  firstName: row.contactPerson?.firstName!,
+                  middleName: row.contactPerson?.middleName,
+                  lastName: row.contactPerson?.lastName!,
+                })}
               </Typography>
             </Box>
           </Box>
@@ -270,7 +315,12 @@ const ViewJobInfo = ({
           <Typography variant='body1' fontWeight={600}>
             Sample files to pro
           </Typography>
-          <Button variant='contained'>
+          <Button
+            variant='contained'
+            disabled={
+              !(row.files && row.files.find(value => value.type === 'SAMPLE'))
+            }
+          >
             <Icon icon='mdi:download' fontSize={18} />
             &nbsp; Download all
           </Button>
@@ -320,7 +370,15 @@ const ViewJobInfo = ({
               <Typography variant='body1' fontWeight={600}>
                 Target files from Pro
               </Typography>
-              <Button variant='contained'>
+              <Button
+                variant='contained'
+                disabled={
+                  !(
+                    row.files &&
+                    row.files.find(value => value.type === 'TARGET')
+                  )
+                }
+              >
                 <Icon icon='mdi:download' fontSize={18} />
                 &nbsp; Download all
               </Button>

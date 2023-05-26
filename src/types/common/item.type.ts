@@ -61,6 +61,13 @@ export type JobType = {
   dueTimezone: CountryType
   description: string
   isShowDescription: boolean
+  contactPerson: {
+    id: number
+    firstName: string
+    middleName: string | null
+    lastName: string
+    email: string
+  } | null
   assignedPro?: {
     id: number
     email: string

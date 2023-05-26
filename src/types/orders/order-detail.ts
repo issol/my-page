@@ -114,3 +114,19 @@ export type LanguageAndItemType = {
   }>
   items: ItemType[]
 }
+
+export type OrderDetailType = {
+  id: number
+  corporationId: string
+  category: string
+  client: {
+    clientId: number
+    email: string
+    fax: string | null
+    mobile: string | null
+    phone: string | null
+    timezone: CountryType
+    name: string
+  }
+  contactPerson: ContactPersonType | null
+}
