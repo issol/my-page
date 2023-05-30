@@ -256,9 +256,13 @@ const EditJobInfo = ({
       shouldDirty: true,
       shouldValidate: true,
     })
+
     setValue(
       'contactPerson',
-      row.contactPerson
+      row.contactPerson &&
+        contactPersonList.find(
+          value => value.userId === row.contactPerson?.userId,
+        )
         ? {
             value: contactPersonList.find(
               value => value.userId === row.contactPerson?.userId,
@@ -393,7 +397,7 @@ const EditJobInfo = ({
                     value={value || { value: '', label: '', userId: 0 }}
                     options={contactPersonList}
                     id='contactPerson'
-                    getOptionLabel={option => option.label}
+                    getOptionLabel={option => option.label || ''}
                     renderInput={params => (
                       <TextField
                         {...params}
@@ -590,7 +594,9 @@ const EditJobInfo = ({
                         error={Boolean(errors.dueTimezone)}
                       />
                     )}
-                    getOptionLabel={option => getGmtTime(option.code)}
+                    getOptionLabel={option =>
+                      option.code === '' ? '' : getGmtTime(option.code)
+                    }
                   />
                 )}
               />

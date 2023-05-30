@@ -194,7 +194,7 @@ const AssignPro = ({
     setFilters(prevState => ({
       ...prevState,
       source: [row.sourceLanguage],
-      target: [row.targetLanguage, 'en'],
+      target: [row.targetLanguage],
       category: [orderDetail.category],
       //@ts-ignore
       serviceType: serviceTypeToPro,
@@ -210,6 +210,7 @@ const AssignPro = ({
 
   const onSubmit = () => {
     const data = getValues()
+
     const res: AssignProFilterPostType = {
       source: data.source.map(value => value.value),
       target: data.target.map(value => value.value),
