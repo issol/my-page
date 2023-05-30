@@ -26,10 +26,10 @@ type Props = {
   columns: GridColumns<AssignProListType>
   setFilters: Dispatch<SetStateAction<AssignProFilterPostType>>
   setPageSize: Dispatch<SetStateAction<number>>
-  setRowsPerPage: Dispatch<SetStateAction<number>>
+  setPage: Dispatch<SetStateAction<number>>
   isLoading: boolean
   pageSize: number
-  rowsPerPage: number
+  page: number
   hideOffBoard: boolean
   setHideOffBoard: Dispatch<SetStateAction<boolean>>
   selectionModel: GridSelectionModel
@@ -47,10 +47,10 @@ const AssignProList = ({
   columns,
   setFilters,
   setPageSize,
-  setRowsPerPage,
+  setPage,
   isLoading,
   pageSize,
-  rowsPerPage,
+  page,
   hideOffBoard,
   setHideOffBoard,
   selectionModel,
@@ -141,7 +141,7 @@ const AssignProList = ({
           }}
           columns={columns}
           rows={list ?? []}
-          getRowId={row => row.id}
+          getRowId={row => row.userId}
           rowCount={listCount ?? 0}
           loading={isLoading}
           // onCellClick={params => {
@@ -149,7 +149,7 @@ const AssignProList = ({
           // }}
           rowsPerPageOptions={[5, 10, 25]}
           pagination
-          page={rowsPerPage}
+          page={page}
           pageSize={pageSize}
           paginationMode='server'
           checkboxSelection={type === 'history' ? false : true}
@@ -157,7 +157,7 @@ const AssignProList = ({
           onPageChange={(newPage: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({
               ...prevState,
-              skip: newPage * rowsPerPage!,
+              skip: newPage * pageSize!,
             }))
             setPageSize!(newPage)
           }}
@@ -166,7 +166,7 @@ const AssignProList = ({
               ...prevState,
               take: newPageSize,
             }))
-            setRowsPerPage!(newPageSize)
+            setPageSize!(newPageSize)
           }}
           disableSelectionOnClick
         />

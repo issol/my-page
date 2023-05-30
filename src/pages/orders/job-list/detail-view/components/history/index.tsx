@@ -96,7 +96,7 @@ export default function JobHistory({
       renderCell: ({ row }: CellType) => {
         return (
           <Typography>
-            {FullDateTimezoneHelper(row.createdAt, user?.timezone?.code!)}
+            {FullDateTimezoneHelper(row.requestedAt, user?.timezone?.code!)}
           </Typography>
         )
       },

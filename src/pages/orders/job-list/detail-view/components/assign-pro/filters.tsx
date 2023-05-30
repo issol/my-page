@@ -20,11 +20,17 @@ import {
 } from '@mui/material'
 import { AutoCompleteComponent } from '@src/pages/pro/list/filters'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
-import { CategoryList } from '@src/shared/const/category/categories'
+import {
+  CategoryList,
+  CategoryListPair,
+} from '@src/shared/const/category/categories'
 import { Category } from '@src/shared/const/category/category.enum'
 import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from '@src/shared/const/service-type/service-types'
 import { WorkStatus } from '@src/shared/const/status/statuses'
 import {
   AssignProFilterType,
@@ -42,7 +48,7 @@ import {
 type Props = {
   control: Control<AssignProFilterType, any>
   handleSubmit: UseFormHandleSubmit<AssignProFilterType>
-  onSubmit: (data: AssignProFilterType) => void
+  onSubmit: () => void
   filters: AssignProFilterPostType
   setFilters: Dispatch<SetStateAction<AssignProFilterPostType>>
   onReset: () => void
@@ -95,7 +101,7 @@ const AssignProFilters = ({
   const [inputStyle, setInputStyle] = useState<boolean>(true)
 
   return (
-    <AutoCompleteComponent dropdownClose={inputStyle}>
+    <Card>
       <CardHeader
         title='Search Filters'
         action={
@@ -114,7 +120,7 @@ const AssignProFilters = ({
       />
       <Collapse in={collapsed}>
         <CardContent>
-          <form onSubmit={handleSubmit(onSubmit)}>
+          <form>
             <Grid container spacing={6} rowSpacing={4} sx={{ padding: '0' }}>
               <Grid item xs={3}>
                 <Controller
@@ -126,20 +132,32 @@ const AssignProFilters = ({
                       fullWidth
                       sx={{
                         '& .MuiInputBase-root': {
+                          position: 'relative',
                           height: '40px',
+                        },
+                        '& .MuiAutocomplete-input': {
+                          minHeight: 'auto',
+
+                          height: '40px',
+                          width: '95% !important',
+
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                         },
                         '& .MuiChip-root': {
                           height: '24px',
+                          maxWidth: '90px',
                         },
-                      }}
-                      onChange={(event, item) => {
-                        onChange(item)
                       }}
                       onClose={() => {
                         setInputStyle(false)
                       }}
                       onOpen={() => {
                         setInputStyle(true)
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
                       }}
                       value={value}
                       isOptionEqualToValue={(option, newValue) => {
@@ -173,20 +191,32 @@ const AssignProFilters = ({
                       fullWidth
                       sx={{
                         '& .MuiInputBase-root': {
+                          position: 'relative',
                           height: '40px',
+                        },
+                        '& .MuiAutocomplete-input': {
+                          minHeight: 'auto',
+
+                          height: '40px',
+                          width: '95% !important',
+
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                         },
                         '& .MuiChip-root': {
                           height: '24px',
+                          maxWidth: '90px',
                         },
-                      }}
-                      onChange={(event, item) => {
-                        onChange(item)
                       }}
                       onClose={() => {
                         setInputStyle(false)
                       }}
                       onOpen={() => {
                         setInputStyle(true)
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
                       }}
                       value={value}
                       isOptionEqualToValue={(option, newValue) => {
@@ -218,15 +248,33 @@ const AssignProFilters = ({
                     <Autocomplete
                       fullWidth
                       multiple
+                      limitTags={1}
                       sx={{
                         '& .MuiInputBase-root': {
+                          position: 'relative',
                           height: '40px',
+                        },
+                        '& .MuiAutocomplete-input': {
+                          minHeight: 'auto',
+
+                          height: '40px',
+                          width: '95% !important',
+
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
                         },
                         '& .MuiChip-root': {
                           height: '24px',
+                          maxWidth: '90px',
                         },
                       }}
-                      limitTags={1}
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
+                      }}
                       isOptionEqualToValue={(option, newValue) => {
                         return option.value === newValue.value
                       }}
@@ -239,7 +287,7 @@ const AssignProFilters = ({
                           }[] = []
 
                           item.map(value => {
-                            /* @ts-ignore */
+                            // @ts-ignore
                             const res = ServiceTypePair[value.value]
                             arr.push(...res)
                           })
@@ -276,17 +324,36 @@ const AssignProFilters = ({
                     <Autocomplete
                       fullWidth
                       multiple
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          height: '40px',
-                        },
-                        '& .MuiChip-root': {
-                          height: '24px',
-                        },
-                      }}
                       disableCloseOnSelect
                       isOptionEqualToValue={(option, newValue) => {
                         return option.value === newValue.value
+                      }}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          position: 'relative',
+                          height: '40px',
+                        },
+                        '& .MuiAutocomplete-input': {
+                          minHeight: 'auto',
+
+                          height: '40px',
+                          width: '95% !important',
+
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                        },
+                        '& .MuiChip-root': {
+                          height: '24px',
+                          maxWidth: '90px',
+                          zIndex: 3,
+                        },
+                      }}
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
                       }}
                       onChange={(event, item) => {
                         onChange(item)
@@ -298,7 +365,7 @@ const AssignProFilters = ({
                           }[] = []
 
                           item.map(value => {
-                            /* @ts-ignore */
+                            //@ts-ignore
                             const res = CategoryListPair[value.value]
                             arr.push(...res)
                           })
@@ -340,25 +407,43 @@ const AssignProFilters = ({
                     <Autocomplete
                       fullWidth
                       multiple
-                      sx={{
-                        '& .MuiInputBase-root': {
-                          height: '40px',
-                        },
-                        '& .MuiChip-root': {
-                          height: '24px',
-                        },
-                      }}
                       disableCloseOnSelect
                       isOptionEqualToValue={(option, newValue) => {
                         return option.value === newValue.value
                       }}
                       options={ClientListIncludeGloz}
+                      sx={{
+                        '& .MuiInputBase-root': {
+                          position: 'relative',
+                          height: '40px',
+                        },
+                        '& .MuiAutocomplete-input': {
+                          minHeight: 'auto',
+
+                          height: '40px',
+                          width: '95% !important',
+
+                          position: 'absolute',
+                          top: 0,
+                          left: 0,
+                        },
+                        '& .MuiChip-root': {
+                          height: '24px',
+                          maxWidth: '90px',
+                        },
+                      }}
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
+                      }}
                       // filterSelectedOptions
                       onChange={(e, v) => {
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
                       }}
-                      value={value}
+                      value={value || { value: '', label: '' }}
                       limitTags={1}
                       id='client'
                       getOptionLabel={option => option.label}
@@ -377,34 +462,31 @@ const AssignProFilters = ({
               </Grid>
               <Grid item xs={6}>
                 <Controller
-                  name='areaOfExpertise'
+                  name='expertise'
                   control={control}
                   render={({ field: { onChange, value } }) => (
                     <Autocomplete
                       autoHighlight
                       fullWidth
-                      multiple
                       sx={{
                         '& .MuiInputBase-root': {
+                          position: 'relative',
                           height: '40px',
                         },
+
                         '& .MuiChip-root': {
                           height: '24px',
                         },
                       }}
-                      value={value}
+                      onClose={() => {
+                        setInputStyle(false)
+                      }}
+                      onOpen={() => {
+                        setInputStyle(true)
+                      }}
+                      multiple
+                      value={value || { value: '', label: '' }}
                       options={AreaOfExpertiseList}
-                      // onChange={(e, v: any, l) => {
-                      //   if (
-                      //     v.length <= 1 &&
-                      //     l === 'removeOption' &&
-                      //     (!v[0]?.value || !v[0]?.label)
-                      //   ) {
-                      //     onChange([{ label: '', value: '' }])
-                      //     return
-                      //   }
-                      //   onChange(v)
-                      // }}
                       onChange={(e, v) => {
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
@@ -412,13 +494,14 @@ const AssignProFilters = ({
                       limitTags={1}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
-                          <Checkbox
-                            style={{ marginRight: 8 }}
-                            checked={selected}
-                          />
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
                           {option.label}
                         </li>
                       )}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      disableCloseOnSelect
                       id='multiple-limit-tags'
                       renderInput={params => (
                         <TextField
@@ -433,7 +516,7 @@ const AssignProFilters = ({
               </Grid>
 
               <Grid item xs={3}>
-                <FormControl fullWidth sx={{ height: '40px' }}>
+                <FormControl fullWidth>
                   <Controller
                     control={control}
                     name='search'
@@ -473,8 +556,9 @@ const AssignProFilters = ({
                   <Button
                     variant='contained'
                     size='medium'
-                    type='submit'
+                    type='button'
                     sx={{ height: '30px' }}
+                    onClick={() => onSubmit()}
                   >
                     Search
                   </Button>
@@ -484,7 +568,7 @@ const AssignProFilters = ({
           </form>
         </CardContent>
       </Collapse>
-    </AutoCompleteComponent>
+    </Card>
   )
 }
 

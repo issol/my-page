@@ -87,6 +87,8 @@ export default function JobListView({ clients, onCreateNewJob }: Props) {
   }, [filter.category])
 
   function onSearch() {
+    console.log(filter)
+
     setActiveFilter({
       ...filter,
       skip: skip * activeFilter.take,

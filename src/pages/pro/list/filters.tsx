@@ -35,6 +35,7 @@ import { ClientList } from '@src/shared/const/client/clients'
 
 export type CardProps = {
   dropdownClose: boolean
+  modal?: boolean
 }
 
 type Props = {
@@ -520,9 +521,10 @@ export default function ProListFilters({
 }
 
 export const AutoCompleteComponent = styled(Card)<CardProps>(
-  ({ theme, dropdownClose }) => ({
+  ({ theme, dropdownClose, modal }) => ({
     '& .MuiAutocomplete-inputRoot': {
       height: !dropdownClose && '56px;',
+
       // flexWrap: dropdownClose ? 'wrap;' : 'noWrap;',
     },
   }),

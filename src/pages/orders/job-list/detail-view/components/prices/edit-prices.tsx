@@ -9,7 +9,7 @@ import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemType, JobType } from '@src/types/common/item.type'
+import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
   StandardPriceListType,
@@ -31,6 +31,9 @@ import {
 } from 'react-hook-form'
 import Row from './row'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
+import { useMutation } from 'react-query'
+import { saveJobPrices } from '@src/apis/job-detail.api'
 
 type Props = {
   row: JobType
@@ -87,7 +90,16 @@ const EditPrices = ({
   })
 
   const [success, setSuccess] = useState(false)
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const saveJobPricesMutation = useMutation(
+    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+      saveJobPrices(data.jobId, data.prices),
+    {
+      onSuccess: () => {
+        console.log('success')
+      },
+    },
+  )
 
   const { openModal, closeModal } = useModal()
 
@@ -125,10 +137,20 @@ const EditPrices = ({
       : [defaultOption]
 
   const onSubmit = () => {
-    const data = getItem()
+    const data = getItem(`items.${0}`)
     setSuccess(true)
+
     // toast('Job info added successfully')
-    console.log(data)
+    console.log('items', data)
+
+    const res: SaveJobPricesParamsType = {
+      jobId: row.id,
+      priceId: data.priceId!,
+      totalPrice: data.totalPrice,
+      currency: data.detail![0].currency,
+      detail: data.detail!,
+    }
+    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
   }
 
   useEffect(() => {

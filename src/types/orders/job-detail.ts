@@ -1,4 +1,7 @@
+import { ItemDetailType } from '../common/item.type'
+import { CurrencyType } from '../common/standard-price'
 import { JobStatusType } from '../jobs/common.type'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 
 export type AddJobInfoType = {
@@ -36,7 +39,7 @@ export type AssignProFilterType = {
   search: string
   source: { label: string; value: string }[]
   target: { label: string; value: string }[]
-  areaOfExpertise: { label: string; value: string }[]
+  expertise: { label: string; value: string }[]
 }
 
 export type AssignProFilterPostType = {
@@ -56,7 +59,7 @@ export type AssignProFilterPostType = {
 }
 
 export type AssignProListType = {
-  id: string
+  userId: string
   firstName: string
   middleName: string | null
   lastName: string
@@ -90,7 +93,7 @@ export type AssignProListType = {
 }
 
 export type SaveJobInfoParamsType = {
-  contactPersonId?: number
+  contactPersonId: number
   description?: string | null
   startDate?: string | null
   startTimezone?: CountryType | null
@@ -102,4 +105,12 @@ export type SaveJobInfoParamsType = {
   targetLanguage?: string | null
   name?: string
   isShowDescription?: boolean
+}
+
+export type SaveJobPricesParamsType = {
+  jobId: number
+  priceId: number
+  totalPrice: number
+  currency: CurrencyType
+  detail: ItemDetailType[]
 }
