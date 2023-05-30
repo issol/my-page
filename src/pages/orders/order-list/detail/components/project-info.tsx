@@ -52,7 +52,7 @@ type Props = {
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   orderId: number
-  onSave: (data: { id: number; form: OrderProjectInfoFormType }) => void
+  onSave?: (data: { id: number; form: OrderProjectInfoFormType }) => void
 }
 const ProjectInfo = ({
   type,
@@ -83,10 +83,12 @@ const ProjectInfo = ({
   const handleChange = (event: SelectChangeEvent) => {
     setValue(event.target.value as string)
     const data = getProjectInfo()
-    onSave({
-      id: projectInfo.id,
-      form: { ...data, status: event.target.value as OrderStatusType },
-    })
+    if (onSave) {
+      onSave({
+        id: projectInfo.id,
+        form: { ...data, status: event.target.value as OrderStatusType },
+      })
+    }
   }
 
   const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
@@ -110,8 +112,9 @@ const ProjectInfo = ({
       projectDueTimezone: data.projectDueDate.timezone,
       tax: !data.taxable ? null : data.tax,
     }
-
-    onSave({ id: projectInfo.id, form: res })
+    if (onSave) {
+      onSave({ id: projectInfo.id, form: res })
+    }
   }
 
   const handleDeleteOrder = () => {

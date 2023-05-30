@@ -812,6 +812,8 @@ const OrderDetail = () => {
                 edit={clientEdit}
                 setEdit={setClientEdit}
                 orderId={Number(id!)}
+                setTax={setTax}
+                setTaxable={setTaxable}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>

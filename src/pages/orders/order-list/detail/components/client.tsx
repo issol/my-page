@@ -33,9 +33,19 @@ type Props = {
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   orderId: number
+  setTax: (n: number | null) => void
+  setTaxable: (n: boolean) => void
 }
 
-const OrderDetailClient = ({ type, client, edit, setEdit, orderId }: Props) => {
+const OrderDetailClient = ({
+  type,
+  client,
+  edit,
+  setEdit,
+  orderId,
+  setTax,
+  setTaxable,
+}: Props) => {
   const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
 
@@ -94,7 +104,7 @@ const OrderDetailClient = ({ type, client, edit, setEdit, orderId }: Props) => {
       })
     }
   }, [client, clientReset])
-
+  console.log(getClientValue())
   return (
     <Card sx={{ padding: '24px' }}>
       {edit ? (
@@ -103,6 +113,8 @@ const OrderDetailClient = ({ type, client, edit, setEdit, orderId }: Props) => {
             control={clientControl}
             setValue={setClientValue}
             watch={clientWatch}
+            setTax={setTax}
+            setTaxable={setTaxable}
           />
           <Grid item xs={12}>
             <Box

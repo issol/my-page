@@ -118,6 +118,8 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               client={history.client}
               edit={false}
               orderId={history.id}
+              setTax={() => null}
+              setTaxable={() => null}
             />
           </TabPanel>
           <TabPanel
