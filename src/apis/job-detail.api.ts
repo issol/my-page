@@ -5,6 +5,7 @@ import {
   AssignProFilterPostType,
   AssignProListType,
   SaveJobInfoParamsType,
+  SaveJobPricesParamsType,
 } from '@src/types/orders/job-detail'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -152,4 +153,11 @@ export const getJobPrices = async (
       datas: [],
     }
   }
+}
+
+export const saveJobPrices = async (
+  id: number,
+  data: SaveJobPricesParamsType,
+) => {
+  axios.patch(`/api/enough/u/job/${id}/price`, { ...data })
 }

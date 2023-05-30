@@ -22,6 +22,7 @@ import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from '../prices/view-prices'
 import AssignPro from '../assign-pro/assign-pro'
 import { AuthContext } from '@src/context/AuthContext'
+import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 
 type Props = {
   id: number
@@ -65,6 +66,9 @@ export default function HistoryDetail({
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
 
+  const { data: jobInfo, refetch } = useGetJobInfo(row.id)
+  const { data: jobPrices } = useGetJobPrices(row.id)
+
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -93,17 +97,17 @@ export default function HistoryDetail({
   })
 
   useEffect(() => {
-    if (row.prices) {
+    if (jobPrices) {
       const result = [
         {
-          id: row.prices?.id!,
-          name: row.prices?.priceName!,
-          source: row.prices?.sourceLanguage!,
-          target: row.prices?.targetLanguage!,
-          priceId: row.prices?.priceId!,
-          detail: !row.prices?.data.length ? [] : row.prices?.data!,
+          id: jobPrices?.id!,
+          name: jobPrices?.priceName!,
+          source: jobPrices?.sourceLanguage!,
+          target: jobPrices?.targetLanguage!,
+          priceId: jobPrices?.priceId!,
+          detail: !jobPrices?.datas.length ? [] : jobPrices?.datas!,
           contactPersonId: 0,
-          totalPrice: row.prices?.totalPrice!,
+          totalPrice: jobPrices?.totalPrice!,
         },
       ]
       itemReset({ items: result })
@@ -118,7 +122,7 @@ export default function HistoryDetail({
         totalPrice: 0,
       })
     }
-  }, [row])
+  }, [jobPrices])
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
@@ -166,7 +170,7 @@ export default function HistoryDetail({
                   >
                     <JobInfoDetailView
                       tab={'history'}
-                      row={row.jobInfo}
+                      row={jobInfo!}
                       orderDetail={orderDetail}
                       item={item}
                     />
@@ -213,7 +217,7 @@ export default function HistoryDetail({
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
             <ViewJobInfo
-              row={row.jobInfo}
+              row={jobInfo!}
               type='history'
               item={item}
               projectTeam={projectTeam}
@@ -222,7 +226,7 @@ export default function HistoryDetail({
           <TabPanel value='prices' sx={{ pt: '30px' }}>
             <Suspense>
               <ViewPrices
-                row={row.jobInfo}
+                row={jobInfo!}
                 priceUnitsList={priceUnitsList ?? []}
                 itemControl={itemControl}
                 itemErrors={itemErrors}
@@ -238,14 +242,14 @@ export default function HistoryDetail({
             </Suspense>
           </TabPanel>
           <TabPanel value='assignPro'>
-            <AssignPro
+            {/* <AssignPro
               user={user!}
               row={row.jobInfo}
               orderDetail={orderDetail}
               type='history'
               assignProList={row.assignPro}
               item={item}
-            />
+            /> */}
           </TabPanel>
         </TabContext>
       </Box>

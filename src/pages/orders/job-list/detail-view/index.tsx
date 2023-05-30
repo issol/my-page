@@ -37,7 +37,7 @@ type Props = {
   row: JobType
   orderDetail: ProjectInfoType
   item: JobItemType
-  refetch: <TPageData>(
+  refetch?: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
     QueryObserverResult<
@@ -263,7 +263,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     orderDetail={orderDetail}
                     item={item}
                     languagePair={langItem?.languagePairs || []}
-                    refetch={refetch}
+                    refetch={refetch!}
                     contactPersonList={contactPersonList}
                     success={success}
                     setSuccess={setSuccess}
@@ -276,9 +276,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                     type='view'
                     projectTeam={projectTeam || []}
                     item={item}
-                    success={success}
                     setSuccess={setSuccess}
-                    refetch={refetch}
+                    refetch={refetch!}
                   />
                 )}
               </TabPanel>
@@ -324,7 +323,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                   orderDetail={orderDetail}
                   type='view'
                   item={item}
-                  refetch={refetch}
+                  refetch={refetch!}
                 />
               </TabPanel>
               <TabPanel value='assignPro' sx={{ pt: '30px' }}></TabPanel>

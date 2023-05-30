@@ -11,7 +11,7 @@ export const getPermission = createAsyncThunk(
   'permissions/gerPermissions',
   async (): Promise<PermissionObjectType> => {
     try {
-      if(process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV !== 'development') {
         const { data } = await axios.get(`/api/enough/a/role/map`)
         return data
       } else {
@@ -269,11 +269,11 @@ export const getPermission = createAsyncThunk(
             can: 'delete',
           },
           {
-            subject: 'order_list',
+            subject: 'order',
             can: 'read',
           },
           {
-            subject: 'order_list',
+            subject: 'order',
             can: 'create',
           },
           {

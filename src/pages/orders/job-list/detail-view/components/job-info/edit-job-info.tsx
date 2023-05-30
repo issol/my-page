@@ -211,8 +211,14 @@ const EditJobInfo = ({
       dueDate: data.dueAt.toString(),
       dueTimezone: data.dueTimezone,
       status: data.status.value,
-      sourceLanguage: data.languagePair.source,
-      targetLanguage: data.languagePair.target,
+      sourceLanguage:
+        data.languagePair.value === 'Language-independent'
+          ? null
+          : data.languagePair.source,
+      targetLanguage:
+        data.languagePair.value === 'Language-independent'
+          ? null
+          : data.languagePair.target,
       name: data.name,
       isShowDescription: data.isShowDescription,
     }
@@ -246,7 +252,10 @@ const EditJobInfo = ({
           target: item.targetLanguage,
         })
     setValue('serviceType', { value: row.serviceType, label: row.serviceType })
-    setValue('isShowDescription', row.isShowDescription)
+    setValue('isShowDescription', row.isShowDescription, {
+      shouldDirty: true,
+      shouldValidate: true,
+    })
     setValue(
       'contactPerson',
       row.contactPerson
@@ -561,7 +570,7 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <Autocomplete
                     fullWidth
-                    value={value}
+                    value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
                       console.log(value)
@@ -607,8 +616,15 @@ const EditJobInfo = ({
                 <Controller
                   name='isShowDescription'
                   control={control}
-                  render={({ field: { value, onChange, onBlur } }) => (
-                    <Checkbox value={value} onChange={onChange} />
+                  defaultValue={row.isShowDescription}
+                  render={({ field: { value, onChange } }) => (
+                    <Checkbox
+                      value={value}
+                      onChange={e => {
+                        onChange(e.target.checked)
+                      }}
+                      checked={value}
+                    />
                   )}
                 />
 

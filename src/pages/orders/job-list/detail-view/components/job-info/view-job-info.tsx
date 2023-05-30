@@ -51,9 +51,9 @@ type Props = {
     jobTitle: string
   }[]
   item: JobItemType
-  success: boolean
-  setSuccess: Dispatch<SetStateAction<boolean>>
-  refetch: <TPageData>(
+
+  setSuccess?: Dispatch<SetStateAction<boolean>>
+  refetch?: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
     QueryObserverResult<
@@ -72,7 +72,7 @@ const ViewJobInfo = ({
   type,
   projectTeam,
   item,
-  success,
+
   setSuccess,
   refetch,
 }: Props) => {
@@ -85,9 +85,9 @@ const ViewJobInfo = ({
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: () => {
-        setSuccess(true)
+        setSuccess && setSuccess(true)
         queryClient.invalidateQueries('jobInfo')
-        refetch()
+        refetch && refetch()
       },
     },
   )

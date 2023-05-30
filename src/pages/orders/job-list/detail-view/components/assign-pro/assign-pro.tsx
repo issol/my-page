@@ -46,7 +46,7 @@ import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
 const defaultValues: AssignProFilterType = {
   source: [],
   target: [],
-  areaOfExpertise: [],
+  expertise: [],
   category: [],
   serviceType: [],
   client: [],
@@ -54,7 +54,7 @@ const defaultValues: AssignProFilterType = {
 }
 
 const defaultFilters: AssignProFilterPostType = {
-  take: 10,
+  take: 5,
   skip: 0,
   search: '',
   source: [],
@@ -126,7 +126,7 @@ const AssignPro = ({
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
 
-  const { control, handleSubmit, trigger, reset, setValue } =
+  const { control, handleSubmit, trigger, reset, setValue, getValues } =
     useForm<AssignProFilterType>({
       defaultValues,
       mode: 'onSubmit',
@@ -179,7 +179,7 @@ const AssignPro = ({
       },
     ])
     setValue(
-      'areaOfExpertise',
+      'expertise',
       orderDetail.expertise.map(value => ({
         value: value,
         label: value,
@@ -208,8 +208,22 @@ const AssignPro = ({
     setFilters(defaultFilters)
   }
 
-  const onSubmit = (data: AssignProFilterType) => {
-    console.log('submit')
+  const onSubmit = () => {
+    const data = getValues()
+    const res: AssignProFilterPostType = {
+      source: data.source.map(value => value.value),
+      target: data.target.map(value => value.value),
+      category: data.category.map(value => value.value),
+      serviceType: data.serviceType.map(value => value.value),
+      expertise: data.expertise.map(value => value.value),
+      client: data.client.map(value => value.value),
+      search: data.search,
+      take: proListPageSize,
+      skip: proListPage * proListPageSize,
+      isOffBoard: hideOffBoard,
+    }
+
+    setFilters(res)
   }
 
   const onClickMessage = (info: AssignProListType) => {
@@ -290,7 +304,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.id,
+              id: row.userId,
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -421,7 +435,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.id,
+              id: row.userId,
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -530,10 +544,10 @@ const AssignPro = ({
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
         setPageSize={setProListPageSize}
-        setRowsPerPage={setProListPage}
+        setPage={setProListPage}
         isLoading={isLoading}
+        page={proListPage}
         pageSize={proListPageSize}
-        rowsPerPage={proListPage}
         hideOffBoard={hideOffBoard}
         setHideOffBoard={setHideOffBoard}
         selectionModel={selectionModel}

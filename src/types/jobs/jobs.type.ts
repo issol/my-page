@@ -53,10 +53,7 @@ export type JobHistoryType = {
   id: number
   version: number
   requestor: string
-  createdAt: string
-  jobInfo: JobInfoDetailType
-  prices: JobPricesDetailType
-  assignPro: { data: Array<AssignProListType>; totalCount: number }
+  requestedAt: string
 }
 
 export type JobInfoDetailType = {
