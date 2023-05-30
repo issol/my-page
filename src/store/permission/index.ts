@@ -277,11 +277,11 @@ export const getPermission = createAsyncThunk(
             can: 'create',
           },
           {
-            subject: 'order_list',
+            subject: 'order',
             can: 'update',
           },
           {
-            subject: 'order_list',
+            subject: 'order',
             can: 'delete',
           },
           {
