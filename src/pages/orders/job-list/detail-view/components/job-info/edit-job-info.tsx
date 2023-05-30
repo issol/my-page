@@ -318,13 +318,13 @@ const EditJobInfo = ({
                 render={({ field: { value, onChange, onBlur } }) => (
                   <TextField
                     fullWidth
-                    value={value || null}
+                    value={value || ''}
                     onBlur={onBlur}
                     label='Job name*'
                     onChange={e => {
                       const { value } = e.target
                       if (value === '') {
-                        onChange(null)
+                        onChange('')
                       } else {
                         const filteredValue = value.slice(0, 100)
                         e.target.value = filteredValue
