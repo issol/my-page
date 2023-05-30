@@ -75,7 +75,7 @@ import {
 } from '@src/types/schema/quotes-project-info.schema'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
 
@@ -104,6 +104,7 @@ import { toast } from 'react-hot-toast'
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
 import PrintQuotePage from './components/pdf-download/quote-preview'
+import { LanguagePairsPostType } from '@src/types/common/orders-and-quotes.type'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
@@ -200,7 +201,9 @@ export default function QuotesDetail() {
           timezone: project.estimatedDeliveryDateTimezone ?? defaultTimezone,
         },
       })
-      setTax(project.tax)
+
+      setTax(project.tax ?? null)
+      setTaxable(project.taxable)
     }
   }, [isProjectLoading])
 
@@ -209,7 +212,6 @@ export default function QuotesDetail() {
   const { data: itemsWithLang, isLoading: isItemLoading } = useGetLangItem(
     Number(id),
   )
-  const [tax, setTax] = useState(0)
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const {
     control: itemControl,
@@ -368,10 +370,10 @@ export default function QuotesDetail() {
     }
   }, [isTeamLoading])
 
-  const { data: prices, isSuccess } = useGetPriceList({
-    clientId: getClientValue('clientId'),
-  })
   const { data: priceUnitsList } = useGetAllPriceList()
+
+  const [tax, setTax] = useState<number | null>(project!.tax)
+  const [taxable, setTaxable] = useState(project?.taxable || false)
 
   // ** Version history
   const [historyPageSize, setHistoryPageSize] = useState(10)
@@ -471,8 +473,28 @@ export default function QuotesDetail() {
     //
   }
   function onItemSave() {
-    //
+    // tax, taxable도 같이 보내기 & item, languagePair, projectInfo mutation붙이기
+    const items: PostItemType[] = getItem().items.map(item => ({
+      ...item,
+      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+    }))
+    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
+      if (item?.price?.id) {
+        return {
+          langPairId: Number(item.id),
+          source: item.source,
+          target: item.target,
+          priceId: item.price.id,
+        }
+      }
+      return {
+        langPairId: Number(item.id),
+        source: item.source,
+        target: item.target,
+      }
+    })
   }
+
   function onClientSave() {
     //
   }
@@ -849,6 +871,8 @@ export default function QuotesDetail() {
                   appendItems={appendItems}
                   tax={tax}
                   setTax={setTax}
+                  taxable={taxable}
+                  setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
                   isUpdatable={isUpdatable}
@@ -858,7 +882,7 @@ export default function QuotesDetail() {
                       onCancel: () =>
                         onDiscard({ callback: () => setEditItems(false) }),
                       onSave: () => onSave(onItemSave),
-                      isValid: isItemValid,
+                      isValid: isItemValid || (taxable && tax! > 0),
                     })
                   : null}
               </CardContent>
@@ -872,6 +896,8 @@ export default function QuotesDetail() {
                     control={clientControl}
                     setValue={setClientValue}
                     watch={clientWatch}
+                    setTax={setTax}
+                    setTaxable={setTaxable}
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({

@@ -78,7 +78,8 @@ export type ProjectInfoType = {
   quoteExpiryDateTimezone: CountryType
   estimatedDeliveryDate: string
   estimatedDeliveryDateTimezone: CountryType
-  tax: number
+  tax: number | null
+  taxable: boolean
 }
 
 export type VersionHistoryType = HistoryType & {

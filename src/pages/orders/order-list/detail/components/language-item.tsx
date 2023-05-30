@@ -122,8 +122,6 @@ const LanguageAndItem = ({
     clientId: clientId,
   })
 
-  const [tax, setTax] = useState(projectTax)
-
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
       patchLangPairForOrder(data.id, data.langPair),
