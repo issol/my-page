@@ -22,7 +22,7 @@ export type OrderProjectInfoFormType = {
   projectDueAt: string
   projectDueTimezone: CountryType
 
-  tax: number
+  tax: number | null
   taxable: boolean
 }
 
