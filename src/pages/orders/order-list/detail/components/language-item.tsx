@@ -3,6 +3,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Grid,
   IconButton,
   TextField,
@@ -34,7 +35,7 @@ import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 import { useRouter } from 'next/router'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -270,122 +271,68 @@ const LanguageAndItem = ({
   }
 
   return (
-    <Card sx={{ padding: '24px' }}>
-      <Grid xs={12} container>
-        <Box
-          sx={{
-            display: 'flex',
-            justifyContent: 'space-between',
-            alignItems: 'center',
-            width: '100%',
-          }}
+    <>
+      <Box
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          alignItems: 'center',
+          width: '100%',
+        }}
+      >
+        <Button
+          variant='outlined'
+          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
         >
-          <Button
-            variant='outlined'
-            sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-          >
-            <Icon icon='ic:baseline-splitscreen' />
-            Split Order
-          </Button>
-          <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-            <Icon icon='mdi:pencil-outline' />
-          </IconButton>
-        </Box>
-        <Grid item xs={12}>
-          <AddLanguagePairForm
-            languagePairs={languagePairs}
-            setLanguagePairs={setLanguagePairs}
-            getPriceOptions={getPriceOptions}
-            type={langItemsEdit ? 'edit' : 'detail'}
-            onDeleteLanguagePair={onDeleteLanguagePair}
-          />
-        </Grid>
-        <Grid item xs={12} mt={6} mb={6}>
-          <ItemForm
-            control={itemControl}
-            getValues={getItem}
-            setValue={setItem}
-            errors={itemErrors}
-            fields={items}
-            remove={removeItems}
-            isValid={isItemValid}
-            teamMembers={getTeamValues()?.teams}
-            languagePairs={languagePairs}
-            getPriceOptions={getPriceOptions}
-            priceUnitsList={priceUnitsList || []}
-            type={langItemsEdit ? 'edit' : 'detail'}
-          />
-        </Grid>
-        {langItemsEdit ? (
-          <Grid item xs={12}>
-            <Button
-              startIcon={<Icon icon='material-symbols:add' />}
-              disabled={isAddItemDisabled()}
-              onClick={addNewItem}
-            >
-              <Typography
-                color={isAddItemDisabled() ? 'secondary' : 'primary'}
-                sx={{ textDecoration: 'underline' }}
-              >
-                Add new item
-              </Typography>
-            </Button>
-          </Grid>
-        ) : null}
-
-        <Grid
-          item
-          xs={12}
-          display='flex'
-          padding='24px'
-          alignItems='center'
-          justifyContent='space-between'
-          mt={6}
-          mb={6}
-          sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-        >
-          <Typography>Tax</Typography>
-          <Box display='flex' alignItems='center' gap='4px'>
-            {langItemsEdit ? (
-              <>
-                <TextField
-                  size='small'
-                  type='number'
-                  value={tax}
-                  sx={{ maxWidth: '120px', padding: 0 }}
-                  inputProps={{ inputMode: 'decimal' }}
-                  onChange={e => {
-                    if (e.target.value.length > 10) return
-                    setTax(Number(e.target.value))
-                  }}
-                />
-                %
-              </>
-            ) : (
-              <Box>{tax} %</Box>
-            )}
-          </Box>
-        </Grid>
-        {langItemsEdit ? (
-          <Grid item xs={12}>
-            <Box
-              sx={{ display: 'flex', gap: '16px', justifyContent: 'center' }}
-            >
-              <Button variant='outlined' color='secondary' onClick={handleBack}>
-                Cancel
-              </Button>
-              <Button
-                variant='contained'
-                disabled={!isItemValid}
-                onClick={onClickSave}
-              >
-                Save
-              </Button>
-            </Box>
-          </Grid>
-        ) : null}
+          <Icon icon='ic:baseline-splitscreen' />
+          Split Order
+        </Button>
+        <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
+          <Icon icon='mdi:pencil-outline' />
+        </IconButton>
+      </Box>
+      <Grid item xs={12}>
+        <AddLanguagePairForm
+          languagePairs={languagePairs}
+          setLanguagePairs={setLanguagePairs}
+          getPriceOptions={getPriceOptions}
+          type={langItemsEdit ? 'edit' : 'detail'}
+          onDeleteLanguagePair={onDeleteLanguagePair}
+        />
       </Grid>
-    </Card>
+      <Grid item xs={12} mt={6} mb={6}>
+        <ItemForm
+          control={itemControl}
+          getValues={getItem}
+          setValue={setItem}
+          errors={itemErrors}
+          fields={items}
+          remove={removeItems}
+          isValid={isItemValid}
+          teamMembers={getTeamValues()?.teams}
+          languagePairs={languagePairs}
+          getPriceOptions={getPriceOptions}
+          priceUnitsList={priceUnitsList || []}
+          type={langItemsEdit ? 'edit' : 'detail'}
+        />
+      </Grid>
+      {langItemsEdit ? (
+        <Grid item xs={12}>
+          <Button
+            startIcon={<Icon icon='material-symbols:add' />}
+            disabled={isAddItemDisabled()}
+            onClick={addNewItem}
+          >
+            <Typography
+              color={isAddItemDisabled() ? 'secondary' : 'primary'}
+              sx={{ textDecoration: 'underline' }}
+            >
+              Add new item
+            </Typography>
+          </Button>
+        </Grid>
+      ) : null}
+    </>
   )
 }
 
