@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Grid,
   IconButton,
   TableCell,
@@ -353,7 +354,11 @@ export default function AddNewOrder() {
           ? null
           : getClientValue().contactPersonId,
     }
-    const projectInfo = { ...getProjectInfoValues(), tax }
+    const rawProjectInfo = getProjectInfoValues()
+    const projectInfo = {
+      ...rawProjectInfo,
+      tax: !rawProjectInfo.taxable ? null : tax,
+    }
     const items = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -484,6 +489,7 @@ export default function AddNewOrder() {
                 code: '',
               },
             },
+            taxable: res.taxable,
           })
           setTax(res?.tax ?? 0)
         })
@@ -601,6 +607,8 @@ export default function AddNewOrder() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
+                setTax={setTax}
+                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -710,12 +718,25 @@ export default function AddNewOrder() {
                 mb={6}
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
-                <Typography>Tax</Typography>
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <Checkbox
+                    checked={getProjectInfoValues().taxable}
+                    onChange={e => {
+                      setProjectInfo('taxable', e.target.checked, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }}
+                  />
+                  <Typography>Tax</Typography>
+                </Box>
+
                 <Box display='flex' alignItems='center' gap='4px'>
                   <TextField
                     size='small'
                     type='number'
-                    value={tax}
+                    value={!getProjectInfoValues().taxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().taxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -737,7 +758,9 @@ export default function AddNewOrder() {
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={!isItemValid}
+                  disabled={
+                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                  }
                   onClick={onSubmit}
                 >
                   Save
