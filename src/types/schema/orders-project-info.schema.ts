@@ -18,7 +18,8 @@ export const orderProjectInfoSchema = yup.object().shape({
   expertise: yup.array().of(yup.string()).nullable(),
   revenueFrom: yup
     .string()
-    .oneOf(['United States', 'Korea', 'Singapore', 'Japan']),
+    .oneOf(['United States', 'Korea', 'Singapore', 'Japan'])
+    .required(FormErrors.required),
   orderDate: yup.date().required(FormErrors.required),
   projectDueDate: yup.object().shape({
     date: yup.date().nullable(),
