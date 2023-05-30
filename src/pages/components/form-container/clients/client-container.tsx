@@ -63,7 +63,7 @@ type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
-  setTax: (n: number) => void
+  setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
 }
 export default function ClientQuotesFormContainer({

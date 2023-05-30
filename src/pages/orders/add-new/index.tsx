@@ -167,7 +167,7 @@ export default function AddNewOrder() {
   })
 
   // ** step1
-  const [tax, setTax] = useState(0)
+  const [tax, setTax] = useState<null | number>(null)
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -491,7 +491,7 @@ export default function AddNewOrder() {
             },
             taxable: res.taxable,
           })
-          setTax(res?.tax ?? 0)
+          setTax(res?.tax ?? null)
         })
         .catch(e => {
           return
@@ -722,6 +722,7 @@ export default function AddNewOrder() {
                   <Checkbox
                     checked={getProjectInfoValues().taxable}
                     onChange={e => {
+                      if (!e.target.checked) setTax(null)
                       setProjectInfo('taxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
