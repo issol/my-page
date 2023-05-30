@@ -782,7 +782,7 @@ const OrderDetail = () => {
                         </Button>
                         <Button
                           variant='contained'
-                          disabled={!isItemValid && taxable && !tax}
+                          disabled={!isItemValid || (taxable && !(tax! > 0))}
                           onClick={() => {
                             openModal({
                               type: 'LanguageAndItemEditModal',
