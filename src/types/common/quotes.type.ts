@@ -32,6 +32,8 @@ export type QuotesProjectInfoFormType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
+  tax: number | null
+  taxable: boolean
 }
 
 export type QuotesListType = {
