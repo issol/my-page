@@ -49,6 +49,7 @@ import {
   getGuidelineDownloadPreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 
@@ -60,6 +61,7 @@ import { FileType } from 'src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
 import logger from '@src/@core/utils/logger'
 import { client_guideline } from '@src/shared/const/permission-class'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 type CellType = {
   row: {
@@ -208,9 +210,9 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getGuidelineDownloadPreSignedUrl([path]).then(res => {
+    getDownloadUrlforCommon(S3FileType.GUIDELINE, encodeURIComponent(path)).then(res => {
       axios
-        .get(res[0], {
+        .get(res.url, {
           headers: {
             Authorization:
               'Bearer ' + typeof window === 'object'
@@ -219,7 +221,7 @@ const ClientGuidelineDetail = () => {
           },
         })
         .then(res => {
-          logger.info('upload client guideline file success :', res)
+          logger.info('download client guideline file success :', res)
           const url = window.URL.createObjectURL(new Blob([res.data]))
           const link = document.createElement('a')
           link.href = url

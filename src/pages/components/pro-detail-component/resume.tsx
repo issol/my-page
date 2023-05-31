@@ -16,7 +16,7 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import Slider from 'react-slick'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
-import { DownloadFileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 type Props = {
@@ -44,7 +44,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   ) => {
     if (file) {
       file.map(value => {
-        getDownloadUrlforCommon(DownloadFileType.RESUME, encodeURIComponent(value.filePath))
+        getDownloadUrlforCommon(S3FileType.RESUME, encodeURIComponent(value.filePath))
         .then(res => {
           const previewFile = {
             url: res.url,
@@ -194,7 +194,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickResume(value, DownloadFileType.RESUME)}
+                    onClick={() => onClickResume(value, S3FileType.RESUME)}
                   >
                     <Box
                       sx={{
