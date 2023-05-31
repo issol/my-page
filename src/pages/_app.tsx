@@ -109,17 +109,7 @@ type GuardProps = {
 
 Sentry.init({
   dsn: process.env.NEXT_PUBLIC_SENTRY_DSN,
-  integrations: [
-    new Integrations.BrowserTracing(),
-    // new Sentry.Integrations.Breadcrumbs({
-    //   console: true,
-    //   history: true,
-    //   dom: true,
-    //   fetch: true,
-    //   sentry: true,
-    //   xhr: true,
-    // }),
-  ],
+  integrations: [new Integrations.BrowserTracing()],
   normalizeDepth: 6,
   environment: process.env.NEXT_PUBLIC_BUILD_MODE,
   autoSessionTracking: true,
@@ -223,10 +213,7 @@ const App = (props: ExtendedAppProps) => {
               name='description'
               content={`${themeConfig.templateName} – E'nuff`}
             />
-            <meta
-              name='keywords'
-              content={`E'nuff`}
-            />
+            <meta name='keywords' content={`E'nuff`} />
             <meta
               name='viewport'
               content='initial-scale=1, width=device-width'
@@ -240,25 +227,25 @@ const App = (props: ExtendedAppProps) => {
                 {({ settings }) => {
                   return (
                     <ThemeComponent settings={settings}>
-                      <WindowWrapper>
-                        <ModalContainer />
-                        <ModalProvider selector='modal'>
-                          <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                            <AclGuard
-                              aclAbilities={aclAbilities}
-                              guestGuard={guestGuard}
-                            >
-                              <Suspense fallback={<FallbackSpinner />}>
-                                <ErrorBoundary
-                                  FallbackComponent={<ErrorFallback />}
-                                >
-                                  {getLayout(<Component {...pageProps} />)}
-                                </ErrorBoundary>
-                              </Suspense>
-                            </AclGuard>
-                          </Guard>
-                        </ModalProvider>
-                      </WindowWrapper>
+                      {/* <WindowWrapper> */}
+                      <ModalContainer />
+                      <ModalProvider selector='modal'>
+                        <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                          <AclGuard
+                            aclAbilities={aclAbilities}
+                            guestGuard={guestGuard}
+                          >
+                            <Suspense fallback={<FallbackSpinner />}>
+                              <ErrorBoundary
+                                FallbackComponent={<ErrorFallback />}
+                              >
+                                {getLayout(<Component {...pageProps} />)}
+                              </ErrorBoundary>
+                            </Suspense>
+                          </AclGuard>
+                        </Guard>
+                      </ModalProvider>
+                      {/* </WindowWrapper> */}
                       <ReactHotToast>
                         <Toaster
                           position={settings.toastPosition}
