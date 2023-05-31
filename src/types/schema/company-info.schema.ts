@@ -14,7 +14,7 @@ export type CompanyInfoFormType = {
   websiteLink?: string
   timezone: CountryType
   taxable?: boolean
-  taxRate?: number | null
+  tax?: number | null
   memo?: string
 }
 export const companyInfoSchema = yup.object().shape({
@@ -38,7 +38,7 @@ export const companyInfoSchema = yup.object().shape({
     phone: yup.string().required(FormErrors.required),
   }),
   taxable: yup.boolean().required(FormErrors.required),
-  taxRate: yup
+  tax: yup
     .number()
     .required(FormErrors.required)
     .when('taxable', (taxable, schema) =>

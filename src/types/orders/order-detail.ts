@@ -40,6 +40,7 @@ export type ProjectInfoType = {
   projectDueTimezone: CountryType
   projectDescription: string
   tax: number
+  taxable: boolean
 }
 
 export type ClientType = {
@@ -52,6 +53,8 @@ export type ClientType = {
     phone: string | null
     timezone: CountryType
     name: string
+    taxable: boolean
+    tax: number | null
   }
 
   contactPerson: ContactPersonType | null

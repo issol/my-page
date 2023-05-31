@@ -17,7 +17,7 @@ import Slider from 'react-slick'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import { DownloadFileType } from 'src/shared/const/signedURLFileType'
-import { getPresignedUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -44,7 +44,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   ) => {
     if (file) {
       file.map(value => {
-        getPresignedUrlforCommon(DownloadFileType.RESUME, encodeURIComponent(value.filePath))
+        getDownloadUrlforCommon(DownloadFileType.RESUME, encodeURIComponent(value.filePath))
         .then(res => {
           const previewFile = {
             url: res.url,

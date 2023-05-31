@@ -4,9 +4,12 @@ import TabPanel from '@mui/lab/TabPanel'
 import {
   Box,
   Button,
+  Card,
+  Checkbox,
   Grid,
   IconButton,
   Tab,
+  TextField,
   Typography,
   styled,
 } from '@mui/material'
@@ -50,13 +53,13 @@ import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder } from '@src/apis/order-detail.api'
+import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
@@ -66,6 +69,14 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import {
+  LanguagePairsPostType,
+  LanguagePairsType,
+} from '@src/types/common/orders-and-quotes.type'
+import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import { toast } from 'react-hot-toast'
 interface Detail {
   id: number
   quantity: number
@@ -117,7 +128,8 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
-
+  const [tax, setTax] = useState<number | null>(projectInfo!.tax)
+  const [taxable, setTaxable] = useState(projectInfo?.taxable || false)
   const { data: priceUnitsList } = useGetAllPriceList()
 
   const {
@@ -503,6 +515,78 @@ const OrderDetail = () => {
     }
   }, [langItem, projectTeam])
 
+  const patchLanguagePairs = useMutation(
+    (data: { id: number; langPair: LanguagePairsType[] }) =>
+      patchLangPairForOrder(data.id, data.langPair),
+  )
+
+  const patchItems = useMutation(
+    (data: { id: number; items: PostItemType[] }) =>
+      patchItemsForOrder(data.id, data.items),
+  )
+
+  const onSubmitItems = () => {
+    setLangItemsEdit(false)
+    const items: PostItemType[] = getItem().items.map(item => ({
+      ...item,
+      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+    }))
+    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
+      if (item?.price?.id) {
+        return {
+          langPairId: Number(item.id),
+          source: item.source,
+          target: item.target,
+          priceId: item.price.id,
+        }
+      }
+      return {
+        langPairId: Number(item.id),
+        source: item.source,
+        target: item.target,
+      }
+    })
+
+    patchLanguagePairs.mutate(
+      { id: Number(id!), langPair: langs },
+      {
+        onSuccess: () => {
+          patchItems.mutate(
+            { id: Number(id!), items: items },
+            {
+              onSuccess: () => {
+                setLangItemsEdit(false)
+                queryClient.invalidateQueries(`LangItem-${Number(id!)}`)
+                closeModal('LanguageAndItemEditModal')
+              },
+            },
+          )
+        },
+      },
+    )
+
+    // @ts-ignore
+    patchProjectInfoMutation.mutate({ id: Number(id), form: { taxable, tax } })
+  }
+
+  const patchProjectInfoMutation = useMutation(
+    (data: { id: number; form: OrderProjectInfoFormType }) =>
+      patchProjectInfo(data.id, data.form),
+    {
+      onSuccess: () => {
+        setProjectInfoEdit(false)
+        queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
+        closeModal('EditSaveModal')
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+        closeModal('EditSaveModal')
+      },
+    },
+  )
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -606,31 +690,120 @@ const OrderDetail = () => {
                   edit={projectInfoEdit}
                   setEdit={setProjectInfoEdit}
                   orderId={Number(id!)}
+                  onSave={patchProjectInfoMutation.mutate}
                 />
               </Suspense>
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}>
-              <LanguageAndItem
-                langItem={langItem!}
-                languagePairs={languagePairs!}
-                setLanguagePairs={setLanguagePairs}
-                clientId={client?.client.clientId!}
-                itemControl={itemControl}
-                getItem={getItem}
-                setItem={setItem}
-                itemTrigger={itemTrigger}
-                itemErrors={itemErrors}
-                isItemValid={isItemValid}
-                priceUnitsList={priceUnitsList || []}
-                items={items}
-                removeItems={removeItems}
-                getTeamValues={getTeamValues}
-                projectTax={projectInfo!.tax}
-                appendItems={appendItems}
-                orderId={Number(id!)}
-                langItemsEdit={langItemsEdit}
-                setLangItemsEdit={setLangItemsEdit}
-              />
+              <Card sx={{ padding: '24px' }}>
+                <Grid xs={12} container>
+                  <LanguageAndItem
+                    langItem={langItem!}
+                    languagePairs={languagePairs!}
+                    setLanguagePairs={setLanguagePairs}
+                    clientId={client?.client.clientId!}
+                    itemControl={itemControl}
+                    getItem={getItem}
+                    setItem={setItem}
+                    itemTrigger={itemTrigger}
+                    itemErrors={itemErrors}
+                    isItemValid={isItemValid}
+                    priceUnitsList={priceUnitsList || []}
+                    items={items}
+                    removeItems={removeItems}
+                    getTeamValues={getTeamValues}
+                    projectTax={projectInfo!.tax}
+                    appendItems={appendItems}
+                    orderId={Number(id!)}
+                    langItemsEdit={langItemsEdit}
+                    setLangItemsEdit={setLangItemsEdit}
+                  />
+                  <Grid
+                    item
+                    xs={12}
+                    display='flex'
+                    padding='24px'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    mt={6}
+                    mb={6}
+                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                  >
+                    <Box display='flex' alignItems='center' gap='4px'>
+                      <Checkbox
+                        disabled={!langItemsEdit}
+                        checked={taxable}
+                        onChange={e => {
+                          if (!e.target.checked) {
+                            setTax(null)
+                          }
+                          setTaxable(e.target.checked)
+                        }}
+                      />
+                      <Typography>Tax</Typography>
+                    </Box>
+                    <Box display='flex' alignItems='center' gap='4px'>
+                      {langItemsEdit ? (
+                        <>
+                          <TextField
+                            size='small'
+                            type='number'
+                            value={!tax ? '-' : tax}
+                            disabled={!taxable}
+                            sx={{ maxWidth: '120px', padding: 0 }}
+                            inputProps={{ inputMode: 'decimal' }}
+                            onChange={e => {
+                              if (e.target.value.length > 10) return
+                              setTax(Number(e.target.value))
+                            }}
+                          />
+                          %
+                        </>
+                      ) : (
+                        <Box>{tax ? `${tax} %` : null} </Box>
+                      )}
+                    </Box>
+                  </Grid>
+                  {langItemsEdit ? (
+                    <Grid item xs={12}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '16px',
+                          justifyContent: 'center',
+                        }}
+                      >
+                        <Button
+                          variant='outlined'
+                          color='secondary'
+                          onClick={() => setLangItemsEdit(false)}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant='contained'
+                          disabled={!isItemValid || (taxable && !(tax! > 0))}
+                          onClick={() => {
+                            openModal({
+                              type: 'LanguageAndItemEditModal',
+                              children: (
+                                <EditSaveModal
+                                  onClose={() =>
+                                    closeModal('LanguageAndItemEditModal')
+                                  }
+                                  onClick={onSubmitItems}
+                                />
+                              ),
+                            })
+                          }}
+                        >
+                          Save
+                        </Button>
+                      </Box>
+                    </Grid>
+                  ) : null}
+                </Grid>
+              </Card>
             </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
               <OrderDetailClient
@@ -639,6 +812,8 @@ const OrderDetail = () => {
                 edit={clientEdit}
                 setEdit={setClientEdit}
                 orderId={Number(id!)}
+                setTax={setTax}
+                setTaxable={setTaxable}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
