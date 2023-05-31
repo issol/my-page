@@ -210,7 +210,7 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getDownloadUrlforCommon(S3FileType.GUIDELINE, encodeURIComponent(path)).then(res => {
+    getDownloadUrlforCommon(S3FileType.GUIDELINE, path).then(res => {
       axios
         .get(res.url, {
           headers: {
