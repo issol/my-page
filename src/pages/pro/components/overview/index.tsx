@@ -84,7 +84,7 @@ import {
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro-details.api'
-import { getPresignedUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -793,7 +793,7 @@ function ProDetailOverview() {
     fileName: string
     fileExtension: string
   }, fileType: string) => {
-    getPresignedUrlforCommon(fileType,encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType,encodeURIComponent(file.filePath))
     .then(res => {
       file.url = res.url
       setModal(
