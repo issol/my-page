@@ -44,7 +44,7 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   ) => {
     if (file) {
       file.map(value => {
-        getDownloadUrlforCommon(S3FileType.RESUME, encodeURIComponent(value.filePath))
+        getDownloadUrlforCommon(S3FileType.RESUME, value.filePath)
         .then(res => {
           const previewFile = {
             url: res.url,

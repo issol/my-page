@@ -97,7 +97,7 @@ const Pro = () => {
     fileName: string
     fileExtension: string
   }, fileType: string) => {
-    getDownloadUrlforCommon(fileType,encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType, file.filePath)
     .then(res => {
       file.url = res.url
       setModal(
