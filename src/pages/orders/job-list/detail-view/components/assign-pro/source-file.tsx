@@ -4,7 +4,7 @@ import FileItem from '@src/@core/components/fileItem'
 import useModal from '@src/hooks/useModal'
 import { FileType } from '@src/types/common/file.type'
 import { AssignProListType } from '@src/types/orders/job-detail'
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import { v4 as uuidv4 } from 'uuid'
 import JobInfoDetailView from '../..'
@@ -16,7 +16,17 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
   QueryObserverResult,
+  useMutation,
 } from 'react-query'
+import { uploadFile } from '@src/apis/job-detail.api'
+import toast from 'react-hot-toast'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
+import { useGetSourceFile } from '@src/queries/order/job.query'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
   info: AssignProListType
@@ -42,6 +52,29 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
+
+  console.log(row)
+
+  const {
+    data: sourceFileList,
+    isLoading,
+    refetch: refetchSourceFileList,
+  } = useGetSourceFile(row.id)
+
+  const uploadFileMutation = useMutation(
+    (file: {
+      jobId: number
+      size: number
+      name: string
+      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+    }) => uploadFile(file),
+    {
+      onSuccess: () => {
+        setFiles([])
+        refetchSourceFileList()
+      },
+    },
+  )
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -84,15 +117,119 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
 
     setFiles([...filtered])
   }
-  const fileList = files.map((file: FileType, index: number) => {
-    console.log(file)
 
-    return (
-      <Box key={uuidv4()}>
-        <FileItem key={file.name} file={file} onClear={handleRemoveFile} />
-      </Box>
-    )
-  })
+  const DownloadFile = (file: FileType) => {
+    if (file) {
+      getDownloadUrlforCommon(
+        S3FileType.JOB,
+        encodeURIComponent(file.file!),
+      ).then(res => {
+        fetch(res.url, { method: 'GET' })
+          .then(res => {
+            return res.blob()
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${file.name}`
+            document.body.appendChild(a)
+            a.click()
+            setTimeout((_: any) => {
+              window.URL.revokeObjectURL(url)
+            }, 60000)
+            a.remove()
+            // onClose()
+          })
+          .catch(error =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
+  }
+
+  const uploadedFileList = (file: FileType[], type: string) => {
+    return file.map((value: FileType) => {
+      if (value.type === type) {
+        return (
+          <Box key={uuidv4()} onClick={() => DownloadFile(value)}>
+            <FileItem key={value.name} file={value} />
+          </Box>
+        )
+      }
+    })
+  }
+
+  const onSubmit = () => {
+    if (files.length) {
+      const fileInfo: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }> = []
+      const paths: string[] = files.map(file => {
+        console.log(file.name)
+
+        return `project/${row.id}/${file.name}`
+      })
+      console.log(paths)
+
+      const s3URL = paths.map(value => {
+        return getUploadUrlforCommon('job', value).then(res => {
+          return res.url
+        })
+      })
+      console.log(s3URL)
+
+      Promise.all(s3URL).then(res => {
+        const promiseArr = res.map((url: string, idx: number) => {
+          fileInfo.push({
+            jobId: row.id,
+            size: files[idx].size,
+            name: files[idx].name,
+            type: 'SOURCE',
+          })
+          return uploadFileToS3(url, files[idx])
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            res.map((value, idx) => {
+              uploadFileMutation.mutate(fileInfo[idx])
+            })
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
+  }
+
+  useEffect(() => {
+    console.log(files)
+  }, [files])
+
+  useEffect(() => {
+    if (sourceFileList) {
+      let result = 0
+      // files.forEach((file: FileType) => (result += file.size))
+
+      sourceFileList.forEach(
+        (file: { name: string; size: number }) => (result += Number(file.size)),
+      )
+      setFileSize(result)
+    }
+  }, [sourceFileList, files])
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
@@ -211,24 +348,40 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
               mt: '20px',
             }}
           >
-            {fileList.length > 0 && (
-              <Box
-                sx={{
-                  display: 'grid',
-                  gridTemplateColumns: 'repeat(2, 1fr)',
+            <Box
+              sx={{
+                display: 'grid',
+                gridTemplateColumns: 'repeat(2, 1fr)',
 
-                  width: '100%',
-                  gap: '20px',
-                }}
-              >
-                {fileList}
-              </Box>
-            )}
+                width: '100%',
+                gap: '20px',
+              }}
+            >
+              {sourceFileList &&
+                sourceFileList?.length > 0 &&
+                uploadedFileList(sourceFileList!, 'SOURCE')}
+              {files.length > 0 &&
+                files.map((file: FileType, index: number) => {
+                  return (
+                    <Box key={uuidv4()}>
+                      <FileItem
+                        key={file.name}
+                        file={file}
+                        onClear={handleRemoveFile}
+                      />
+                    </Box>
+                  )
+                })}
+            </Box>
           </Box>
         </Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '9px' }}>
-        <Button variant='contained' disabled={files.length === 0}>
+        <Button
+          variant='contained'
+          disabled={files.length === 0}
+          onClick={onSubmit}
+        >
           Send
         </Button>
       </Box>

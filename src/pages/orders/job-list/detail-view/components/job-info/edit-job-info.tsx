@@ -56,7 +56,6 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import { FilePostType } from '@src/apis/client-guideline.api'
-import { DownloadFileType } from '@src/shared/const/signedURLFileType'
 
 type Props = {
   row: JobType

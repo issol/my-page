@@ -17,7 +17,8 @@ import {
 import FileItem from '@src/@core/components/fileItem'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { saveJobInfo } from '@src/apis/job-detail.api'
-import { DownloadFileType } from '@src/shared/const/signedURLFileType'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -109,7 +110,7 @@ const ViewJobInfo = ({
     if (file) {
       file.map(value => {
         getDownloadUrlforCommon(
-          DownloadFileType.JOB,
+          S3FileType.JOB,
           encodeURIComponent(value.file),
         ).then(res => {
           fetch(res.url, { method: 'GET' })
@@ -145,7 +146,7 @@ const ViewJobInfo = ({
   const DownloadFile = (file: FileType) => {
     if (file) {
       getDownloadUrlforCommon(
-        DownloadFileType.JOB,
+        S3FileType.JOB,
         encodeURIComponent(file.file!),
       ).then(res => {
         fetch(res.url, { method: 'GET' })
