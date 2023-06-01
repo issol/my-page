@@ -216,13 +216,9 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
   }
 
   useEffect(() => {
-    console.log(files)
-  }, [files])
-
-  useEffect(() => {
     if (sourceFileList) {
       let result = 0
-      // files.forEach((file: FileType) => (result += file.size))
+      files.forEach((file: FileType) => (result += file.size))
 
       sourceFileList.forEach(
         (file: { name: string; size: number }) => (result += Number(file.size)),
@@ -306,19 +302,36 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
           />
         </Box>
         <Divider />
-        <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
-          <Typography variant='subtitle1' fontWeight={600}>
-            Source file to Pro
-          </Typography>
-          <Typography variant='subtitle2'>
-            {fileSize === 0
-              ? 0
-              : Math.round(fileSize / 100) / 10 > 1000
-              ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-            /2gb
-          </Typography>
+        <Box>
+          <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <Typography variant='subtitle1' fontWeight={600}>
+              Source file to Pro
+            </Typography>
+            <Typography variant='subtitle2'>
+              {fileSize === 0
+                ? 0
+                : Math.round(fileSize / 100) / 10 > 1000
+                ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
+                : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
+              /2gb
+            </Typography>
+          </Box>
+          <Box
+            sx={{
+              display: 'grid',
+              gridTemplateColumns: 'repeat(2, 1fr)',
+
+              width: '100%',
+              gap: '20px',
+              padding: '20px 20px 0 20px',
+            }}
+          >
+            {sourceFileList &&
+              sourceFileList?.length > 0 &&
+              uploadedFileList(sourceFileList!, 'SOURCE')}
+          </Box>
         </Box>
+
         <Divider />
 
         <Box
@@ -340,40 +353,30 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
               &nbsp; Upload files
             </Button>
           </div>
-          <Box
-            sx={{
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '20px',
-              mt: '20px',
-            }}
-          >
+
+          {files.length > 0 && (
             <Box
               sx={{
                 display: 'grid',
                 gridTemplateColumns: 'repeat(2, 1fr)',
-
+                mt: '20px',
                 width: '100%',
                 gap: '20px',
               }}
             >
-              {sourceFileList &&
-                sourceFileList?.length > 0 &&
-                uploadedFileList(sourceFileList!, 'SOURCE')}
-              {files.length > 0 &&
-                files.map((file: FileType, index: number) => {
-                  return (
-                    <Box key={uuidv4()}>
-                      <FileItem
-                        key={file.name}
-                        file={file}
-                        onClear={handleRemoveFile}
-                      />
-                    </Box>
-                  )
-                })}
+              {files.map((file: FileType, index: number) => {
+                return (
+                  <Box key={uuidv4()}>
+                    <FileItem
+                      key={file.name}
+                      file={file}
+                      onClear={handleRemoveFile}
+                    />
+                  </Box>
+                )
+              })}
             </Box>
-          </Box>
+          )}
         </Box>
       </Box>
       <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '9px' }}>
