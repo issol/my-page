@@ -27,6 +27,7 @@ import {
 } from 'react-query'
 import { useGetMessage } from '@src/queries/order/job.query'
 import { sendMessageToPro } from '@src/apis/job-detail.api'
+import { useEffect } from 'react'
 
 type Props = {
   info: AssignProListType
@@ -77,6 +78,10 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
       message: message,
     })
   }
+
+  useEffect(() => {
+    messageRefetch()
+  }, [messageRefetch])
 
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
@@ -197,7 +202,8 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
             rows={4}
             multiline
             fullWidth
-            label='Write down a message to Pro'
+            // label='Write down a message to Pro'
+            placeholder='Write down a message to Pro'
             value={message ?? ''}
             onChange={handleChangeMessage}
             inputProps={{ maxLength: 500 }}
