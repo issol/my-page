@@ -145,9 +145,13 @@ const AssignProFilters = ({
                           top: 0,
                           left: 0,
                         },
+                        '* input': {
+                          padding: '0px 0px 0px 10px !important',
+                        },
                         '& .MuiChip-root': {
                           height: '24px',
                           maxWidth: '90px',
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {
@@ -204,9 +208,13 @@ const AssignProFilters = ({
                           top: 0,
                           left: 0,
                         },
+                        '* input': {
+                          padding: '0px 0px 0px 10px !important',
+                        },
                         '& .MuiChip-root': {
                           height: '24px',
                           maxWidth: '90px',
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {
@@ -264,9 +272,13 @@ const AssignProFilters = ({
                           top: 0,
                           left: 0,
                         },
+                        '* input': {
+                          padding: '0px 0px 0px 10px !important',
+                        },
                         '& .MuiChip-root': {
                           height: '24px',
                           maxWidth: '90px',
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {
@@ -343,10 +355,13 @@ const AssignProFilters = ({
                           top: 0,
                           left: 0,
                         },
+                        '* input': {
+                          padding: '0px 0px 0px 10px !important',
+                        },
                         '& .MuiChip-root': {
                           height: '24px',
                           maxWidth: '90px',
-                          zIndex: 3,
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {
@@ -427,9 +442,13 @@ const AssignProFilters = ({
                           top: 0,
                           left: 0,
                         },
+                        '* input': {
+                          padding: '0px 0px 0px 10px !important',
+                        },
                         '& .MuiChip-root': {
                           height: '24px',
                           maxWidth: '90px',
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {
@@ -476,6 +495,8 @@ const AssignProFilters = ({
 
                         '& .MuiChip-root': {
                           height: '24px',
+
+                          zIndex: 10,
                         },
                       }}
                       onClose={() => {

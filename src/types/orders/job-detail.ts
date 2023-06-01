@@ -59,7 +59,7 @@ export type AssignProFilterPostType = {
 }
 
 export type AssignProListType = {
-  userId: string
+  userId: number
   firstName: string
   middleName: string | null
   lastName: string

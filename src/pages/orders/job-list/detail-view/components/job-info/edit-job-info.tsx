@@ -49,7 +49,8 @@ import {
   useMutation,
   useQueryClient,
 } from 'react-query'
-import { deleteJob, saveJobInfo } from '@src/apis/job-detail.api'
+import { deleteJob, saveJobInfo, uploadFile } from '@src/apis/job-detail.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 
 type Props = {
   row: JobType
@@ -128,6 +129,20 @@ const EditJobInfo = ({
     },
   )
 
+  const uploadFileMutation = useMutation(
+    (file: {
+      jobId: number
+      size: number
+      name: string
+      type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+    }) => uploadFile(file),
+    {
+      onSuccess: () => {
+        console.log('success')
+      },
+    },
+  )
+
   const {
     control,
     handleSubmit,
@@ -201,6 +216,25 @@ const EditJobInfo = ({
 
   const onSubmit = () => {
     const data = getValues()
+
+    if (files) {
+      files.map(value => {
+        getUploadUrlforCommon('job', `/project/${row.id}/${value.name}`).then(
+          res => {
+            console.log(res)
+
+            uploadFileToS3(res.url, value).then(() => {
+              uploadFileMutation.mutate({
+                jobId: row.id,
+                size: value.size,
+                name: value.name,
+                type: 'SOURCE',
+              })
+            })
+          },
+        )
+      })
+    }
 
     const res: SaveJobInfoParamsType = {
       contactPersonId: data.contactPerson.userId,
