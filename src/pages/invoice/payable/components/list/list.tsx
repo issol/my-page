@@ -61,7 +61,6 @@ export default function PayableList({
   const columns: GridColumns<InvoicePayableListType> = [
     {
       field: 'corporationId',
-
       minWidth: 182,
       headerName: 'No.',
       disableColumnMenu: true,
@@ -100,9 +99,10 @@ export default function PayableList({
       },
     },
     {
-      field: 'Invoice date',
+      field: 'invoicedAt',
       minWidth: 182,
       disableColumnMenu: true,
+      renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(row.invoicedAt, user?.timezone.code)
         return (
@@ -113,9 +113,10 @@ export default function PayableList({
       },
     },
     {
-      field: 'Payment due',
+      field: 'payDueAt',
       minWidth: 182,
       disableColumnMenu: true,
+      renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
           row.payDueAt,
@@ -129,9 +130,10 @@ export default function PayableList({
       },
     },
     {
-      field: 'Payment date',
+      field: 'paidAt',
       minWidth: 182,
       disableColumnMenu: true,
+      renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
           row.paidAt,
@@ -145,9 +147,10 @@ export default function PayableList({
       },
     },
     {
-      field: 'Total price',
+      field: 'totalPrice',
       minWidth: 182,
       disableColumnMenu: true,
+      renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         const price = `${getCurrencyMark(
           row.currency,

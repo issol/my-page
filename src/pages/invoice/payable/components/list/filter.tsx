@@ -40,12 +40,11 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
   const { data: statusList, isLoading } = useGetInvoiceStatus()
-  console.log('filter', isLoading)
 
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
-    // filterSelectedOptions: true,
+    disableCloseOnSelect: true,
   }
 
   return (
@@ -76,13 +75,17 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     <Autocomplete
                       {...commonOptions}
                       multiple
-                      disableCloseOnSelect
+                      // disableCloseOnSelect
                       loading={isLoading}
                       options={statusList || []}
                       getOptionLabel={option => option.statusName}
-                      value={statusList?.filter(item =>
-                        filter.invoiceStatus?.includes(item.statusName),
-                      )}
+                      value={
+                        !statusList
+                          ? []
+                          : statusList?.filter(item =>
+                              filter.invoiceStatus?.includes(item.statusName),
+                            )
+                      }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
