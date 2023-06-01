@@ -77,7 +77,7 @@ export default function PayableList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoicePayableChip(row.status)}</>
+        return <>{InvoicePayableChip(row.invoiceStatus)}</>
       },
     },
     {
@@ -121,7 +121,7 @@ export default function PayableList({
         autoHeight
         checkboxSelection={isAccountManager}
         isRowSelectable={(params: GridRowParams<InvoicePayableListType>) =>
-          params.row.status !== 'Paid'
+          params.row.invoiceStatus !== 'Paid'
         }
         onSelectionModelChange={newSelectionModel => {
           if (!setStatuses) return

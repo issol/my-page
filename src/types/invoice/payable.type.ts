@@ -1,5 +1,6 @@
 import { CurrencyType } from '@src/types/common/standard-price'
 import { InvoicePayableStatusType } from './common.type'
+import { CountryType } from '../sign/personalInfoTypes'
 
 export type InvoicePayableFilterType = {
   invoiceStatus?: string[]
@@ -21,12 +22,15 @@ export type InvoicePayableFilterType = {
 
 export type InvoicePayableListType = {
   id: number
+  adminCompanyName: string //추가
   corporationId: string
-  status: InvoicePayableStatusType
+  invoiceStatus: InvoicePayableStatusType // 수정
   pro: { name: string; email: string }
-  invoiceDate: string
-  paymentDue: string
-  paymentDate: string
+  invoicedAt: string //수정
+  payDueAt: string //수정
+  payDueTimezone: CountryType //추가
+  paidAt: string
+  paidDateTimezone: CountryType | null //추가
   totalPrice: number
   currency: CurrencyType
 }
