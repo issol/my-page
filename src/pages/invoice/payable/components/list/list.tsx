@@ -4,7 +4,11 @@ import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { InvoicePayableListType } from '@src/types/invoice/payable.type'
 import { InvoicePayableChip } from '@src/@core/components/chips/chips'
-
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { useContext } from 'react'
+import { AuthContext } from '@src/context/AuthContext'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 type CellType = {
   row: InvoicePayableListType
 }
@@ -36,6 +40,7 @@ export default function PayableList({
   isLoading,
 }: Props) {
   const router = useRouter()
+  const { user } = useContext(AuthContext)
 
   function NoList() {
     return (
@@ -99,11 +104,58 @@ export default function PayableList({
       minWidth: 182,
       disableColumnMenu: true,
       renderCell: ({ row }: CellType) => {
+        const date = FullDateTimezoneHelper(row.invoicedAt, user?.timezone.code)
         return (
-          <Box>
-            <Typography fontWeight={600}>{row.pro.name}</Typography>
-            <Typography variant='body2'>{row.pro.email}</Typography>
-          </Box>
+          <Tooltip title={date}>
+            <Typography variant='body2'>{date}</Typography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'Payment due',
+      minWidth: 182,
+      disableColumnMenu: true,
+      renderCell: ({ row }: CellType) => {
+        const date = FullDateTimezoneHelper(
+          row.payDueAt,
+          row.payDueTimezone?.code,
+        )
+        return (
+          <Tooltip title={date}>
+            <Typography variant='body2'>{date}</Typography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'Payment date',
+      minWidth: 182,
+      disableColumnMenu: true,
+      renderCell: ({ row }: CellType) => {
+        const date = FullDateTimezoneHelper(
+          row.paidAt,
+          row.paidDateTimezone?.code,
+        )
+        return (
+          <Tooltip title={date}>
+            <Typography variant='body2'>{date}</Typography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'Total price',
+      minWidth: 182,
+      disableColumnMenu: true,
+      renderCell: ({ row }: CellType) => {
+        const price = `${getCurrencyMark(
+          row.currency,
+        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        return (
+          <Tooltip title={price}>
+            <Typography fontWeight={600}>{price}</Typography>
+          </Tooltip>
         )
       },
     },
