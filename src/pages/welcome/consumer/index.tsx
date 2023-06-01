@@ -41,6 +41,9 @@ import { useMutation } from 'react-query'
 import { countries } from 'src/@fake-db/autocomplete'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
+// ** helpers
+import { getResumeFilePath } from 'src/shared/transformer/filePath.transformer'
+
 // ** Third Party Components
 import toast from 'react-hot-toast'
 import { useRouter } from 'next/router'
@@ -67,10 +70,11 @@ import styled from 'styled-components'
 
 // ** types
 import { FileType } from 'src/types/common/file.type'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import { FilePathEnum, getPresignedUrl, postFiles, uploadFileToS3 } from 'src/apis/common.api'
+import { FilePathEnum, getPresignedUrl, getUploadUrlforCommon, postFiles, uploadFileToS3 } from 'src/apis/common.api'
 import logger from '@src/@core/utils/logger'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -270,41 +274,47 @@ const PersonalInfoPro = () => {
   }
 
   const onSubmit = (data: PersonalInfo) => {
-    data.resume?.length &&
-      data.resume.forEach(file => {
-        getPresignedUrl(
-          auth.user?.id as number,
-          file.name,
-          FilePathEnum.resume,
-        ).then(res => {
-          uploadFileToS3(res, file)
-            .then(res => logger.info('upload resume success :', res))
-            .catch(err => logger.error('upload resume failed : ', err))
+    if (data.resume?.length) {
+      const promiseArr = data.resume.map((file, idx) => {
+        return getUploadUrlforCommon(S3FileType.RESUME, getResumeFilePath(auth.user?.id as number, file.name))
+        .then(res => {
+          return uploadFileToS3(res.url, file)
         })
       })
-
-    const finalData: ConsumerUserInfoType & { userId: number } = {
-      userId: auth.user?.id || 0,
-      firstName: data.firstName,
-      lastName: data.lastName,
-      country: data.timezone.label,
-      extraData: {
-        havePreferredName: data.havePreferred,
-        jobInfo: data.jobInfo,
-        middleName: data.middleName,
-        experience: data.experience,
-        legalNamePronunciation: data.legalNamePronunciation,
-        mobilePhone: data.mobile,
-        telephone: data.phone,
-        preferredName: data.preferredName,
-        resume: data.resume?.length ? data.resume.map(file => file.name) : [],
-        preferredNamePronunciation: data.preferredNamePronunciation,
-        pronounce: data.pronounce,
-        specialties: data.specialties?.map(item => item.value),
-        timezone: data.timezone,
-      },
+      Promise.all(promiseArr)
+      .then(res => {
+        const finalData: ConsumerUserInfoType & { userId: number } = {
+          userId: auth.user?.id || 0,
+          firstName: data.firstName,
+          lastName: data.lastName,
+          country: data.timezone.label,
+          extraData: {
+            havePreferredName: data.havePreferred,
+            jobInfo: data.jobInfo,
+            middleName: data.middleName,
+            experience: data.experience,
+            legalNamePronunciation: data.legalNamePronunciation,
+            mobilePhone: data.mobile,
+            telephone: data.phone,
+            preferredName: data.preferredName,
+            resume: data.resume?.length ? data.resume.map(file => file.name) : [],
+            preferredNamePronunciation: data.preferredNamePronunciation,
+            pronounce: data.pronounce,
+            specialties: data.specialties?.map(item => item.value),
+            timezone: data.timezone,
+          },
+        }
+        updateUserInfoMutation.mutate(finalData)
+      })
+      .catch(err => {
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
+          },
+        )
+      })
     }
-    updateUserInfoMutation.mutate(finalData)
   }
 
   function addJobInfo() {
