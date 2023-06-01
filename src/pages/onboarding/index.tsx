@@ -186,7 +186,7 @@ export default function Onboarding() {
             row={{
               isOnboarded: row.isOnboarded,
               isActive: row.isActive,
-              id: row.id,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -221,10 +221,10 @@ export default function Onboarding() {
       renderHeader: () => <Box>Job type / Role</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
         row.jobInfo.sort((a, b) => {
-          const dateA = new Date(a.createdAt).getTime();
-          const dateB = new Date(b.createdAt).getTime();
-          return dateB - dateA;
-        });
+          const dateA = new Date(a.createdAt).getTime()
+          const dateB = new Date(b.createdAt).getTime()
+          return dateB - dateA
+        })
         const jobInfo = row.jobInfo.map(value => ({
           jobType: value.jobType,
           role: value.role,

@@ -3,4 +3,5 @@ export const DownloadFileType = {
   CONTRACTS: 'contracts',
   GUIDELINE: 'guideline',
   DOCUMENT_FORM: 'document-form',
+  JOB: 'job',
 } as const
