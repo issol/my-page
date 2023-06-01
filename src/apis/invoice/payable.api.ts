@@ -30,12 +30,8 @@ export const getPayableList = async (
             label: 'Korea, Republic of',
             phone: '82',
           },
-          paidAt: Date(),
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
+          paidAt: null,
+          paidDateTimezone: null,
           totalPrice: 123,
           currency: 'USD',
         },
@@ -80,7 +76,7 @@ export const getPayableList = async (
             label: 'Korea, Republic of',
             phone: '82',
           },
-          totalPrice: 123,
+          totalPrice: 123000000,
           currency: 'USD',
         },
       ],
@@ -191,6 +187,7 @@ export const getInvoicePayableCalendarData = async (
       data: data.data?.map((item: InvoicePayableListType) => {
         return {
           ...item,
+          status: item.invoiceStatus,
           extendedProps: {
             calendar: getColor(item.invoiceStatus),
           },

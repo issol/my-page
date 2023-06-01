@@ -29,7 +29,7 @@ export type InvoicePayableListType = {
   invoicedAt: string //수정
   payDueAt: string //수정
   payDueTimezone: CountryType //추가
-  paidAt: string
+  paidAt: string | null
   paidDateTimezone: CountryType | null //추가
   totalPrice: number
   currency: CurrencyType

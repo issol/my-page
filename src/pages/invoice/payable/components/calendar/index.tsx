@@ -106,7 +106,7 @@ const CalendarContainer = () => {
         }}
       >
         <CalendarSideBar
-          title='Quote status'
+          title='Invoice status'
           alertIconStatus='Canceled'
           event={event}
           month={month}
