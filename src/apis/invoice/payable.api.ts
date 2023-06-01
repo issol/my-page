@@ -3,7 +3,7 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import {
   InvoicePayableFilterType,
   InvoicePayableListType,
-} from '@src/types/invoice/invoice-payable.type'
+} from '@src/types/invoice/payable.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 
@@ -90,9 +90,9 @@ export const getInvoicePayableCalendarData = async (
           corporationId: '11sdlfk',
           status: 'Invoice created' as InvoicePayableStatusType,
           pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoiceDate: Date(),
-          paymentDue: Date(),
-          paymentDate: Date(),
+          invoiceDate: '2023-06-18T18:58:01.727Z',
+          paymentDue: '2023-06-20T18:58:01.727Z',
+          paymentDate: '2023-06-20T18:58:01.727Z',
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
         },
@@ -101,9 +101,9 @@ export const getInvoicePayableCalendarData = async (
           corporationId: '11sdlfk',
           status: 'Paid' as InvoicePayableStatusType,
           pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoiceDate: Date(),
-          paymentDue: Date(),
-          paymentDate: Date(),
+          invoiceDate: '2023-05-18T18:58:01.727Z',
+          paymentDue: '2023-05-20T18:58:01.727Z',
+          paymentDate: '2023-05-20T18:58:01.727Z',
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
         },
@@ -111,10 +111,10 @@ export const getInvoicePayableCalendarData = async (
           id: 3,
           corporationId: '11sdlfk',
           status: 'Invoice created' as InvoicePayableStatusType,
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoiceDate: Date(),
-          paymentDue: Date(),
-          paymentDate: Date(),
+          pro: { name: 'bongbong', email: 'bon@glozinc.com' },
+          invoiceDate: '2023-06-14T18:58:01.727Z',
+          paymentDue: '2023-06-20T18:58:01.727Z',
+          paymentDate: '2023-06-20T18:58:01.727Z',
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
         },

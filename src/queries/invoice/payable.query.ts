@@ -2,7 +2,7 @@ import {
   getInvoicePayableCalendarData,
   getPayableList,
 } from '@src/apis/invoice/payable.api'
-import { InvoicePayableFilterType } from '@src/types/invoice/invoice-payable.type'
+import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import { useQuery } from 'react-query'
 
 export const useGetPayableList = (filter: InvoicePayableFilterType) => {
