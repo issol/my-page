@@ -804,7 +804,7 @@ function OnboardingDetail() {
     fileExtension: string
   }, fileType: string
   ) => {
-    getDownloadUrlforCommon(fileType, encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType, file.filePath)
     .then(res => {
       const previewFile = {
         url: res.url,

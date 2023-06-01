@@ -31,7 +31,7 @@ export const getUploadUrlforCommon = async (
 ) => {
   try {
     const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${filePath}`,
+      `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(filePath)}`,
     )
     return data
   } catch (e: any) {
@@ -46,7 +46,7 @@ export const getDownloadUrlforCommon = async (
 ) => {
   try {
     const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
+      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${encodeURIComponent(filePath)}`,
     )
     return data
   } catch (e: any) {
