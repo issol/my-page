@@ -36,7 +36,7 @@ import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-
 import { AuthContext } from '@src/context/AuthContext'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
-import { getPresignedUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -97,7 +97,7 @@ const Pro = () => {
     fileName: string
     fileExtension: string
   }, fileType: string) => {
-    getPresignedUrlforCommon(fileType,encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType, file.filePath)
     .then(res => {
       file.url = res.url
       setModal(

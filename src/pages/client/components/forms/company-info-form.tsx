@@ -292,7 +292,7 @@ export default function CompanyInfoForm({
                   if (!v) onChange({ value: '', label: '' })
                   else {
                     onChange(v.value)
-                    if (v.value === false) setValue('taxRate', null)
+                    if (v.value === false) setValue('tax', null)
                   }
                 }}
                 value={
@@ -314,14 +314,14 @@ export default function CompanyInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='taxRate'
+          name='tax'
           control={control}
           render={({ field: { value, onChange } }) => (
-            <FormControl fullWidth error={Boolean(errors.taxRate)}>
+            <FormControl fullWidth error={Boolean(errors.tax)}>
               <InputLabel>Tax rate*</InputLabel>
               <OutlinedInput
                 value={value ?? ''}
-                error={Boolean(errors.taxRate)}
+                error={Boolean(errors.tax)}
                 onChange={onChange}
                 label='Tax rate*'
                 disabled={!watch('taxable')}

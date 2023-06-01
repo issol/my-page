@@ -52,8 +52,16 @@ type Props = {
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   orderId: number
+  onSave?: (data: { id: number; form: OrderProjectInfoFormType }) => void
 }
-const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
+const ProjectInfo = ({
+  type,
+  projectInfo,
+  edit,
+  setEdit,
+  orderId,
+  onSave,
+}: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
@@ -72,31 +80,15 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
     resolver: yupResolver(orderProjectInfoSchema),
   })
 
-  const patchProjectInfoMutation = useMutation(
-    (data: { id: number; form: OrderProjectInfoFormType }) =>
-      patchProjectInfo(data.id, data.form),
-    {
-      onSuccess: () => {
-        setEdit!(false)
-        queryClient.invalidateQueries(`projectInfo-${orderId}`)
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-        closeModal('EditSaveModal')
-      },
-    },
-  )
-
   const handleChange = (event: SelectChangeEvent) => {
     setValue(event.target.value as string)
     const data = getProjectInfo()
-    patchProjectInfoMutation.mutate({
-      id: projectInfo.id,
-      form: { ...data, status: event.target.value as OrderStatusType },
-    })
+    if (onSave) {
+      onSave({
+        id: projectInfo.id,
+        form: { ...data, status: event.target.value as OrderStatusType },
+      })
+    }
   }
 
   const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
@@ -118,9 +110,11 @@ const ProjectInfo = ({ type, projectInfo, edit, setEdit, orderId }: Props) => {
       ...data,
       projectDueAt: data.projectDueDate.date,
       projectDueTimezone: data.projectDueDate.timezone,
+      tax: !data.taxable ? null : data.tax,
     }
-
-    patchProjectInfoMutation.mutate({ id: projectInfo.id, form: res })
+    if (onSave) {
+      onSave({ id: projectInfo.id, form: res })
+    }
   }
 
   const handleDeleteOrder = () => {

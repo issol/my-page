@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Grid,
   IconButton,
   TextField,
@@ -143,7 +144,7 @@ export default function AddNewQuotes() {
   })
 
   // ** step1
-  const [tax, setTax] = useState(0)
+  const [tax, setTax] = useState<null | number>(null)
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -330,7 +331,11 @@ export default function AddNewQuotes() {
           ? null
           : getClientValue().contactPersonId,
     }
-    const projectInfo = { ...getProjectInfoValues(), tax }
+    const rawProjectInfo = getProjectInfoValues()
+    const projectInfo = {
+      ...rawProjectInfo,
+      tax: !rawProjectInfo.taxable ? null : tax,
+    }
     const items = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -419,25 +424,27 @@ export default function AddNewQuotes() {
       <Grid item xs={12}>
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
-            <ProjectTeamFormContainer
-              control={teamControl}
-              field={members}
-              append={appendMember}
-              remove={removeMember}
-              update={updateMember}
-              setValue={setTeamValues}
-              errors={teamErrors}
-              isValid={isTeamValid}
-              watch={teamWatch}
-            />
-            <Grid item xs={12} display='flex' justifyContent='flex-end'>
-              <Button
-                variant='contained'
-                disabled={!isTeamValid}
-                onClick={onNextStep}
-              >
-                Next <Icon icon='material-symbols:arrow-forward-rounded' />
-              </Button>
+            <Grid container spacing={6}>
+              <ProjectTeamFormContainer
+                control={teamControl}
+                field={members}
+                append={appendMember}
+                remove={removeMember}
+                update={updateMember}
+                setValue={setTeamValues}
+                errors={teamErrors}
+                isValid={isTeamValid}
+                watch={teamWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='flex-end'>
+                <Button
+                  variant='contained'
+                  disabled={!isTeamValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
             </Grid>
           </Card>
         ) : activeStep === 1 ? (
@@ -447,6 +454,8 @@ export default function AddNewQuotes() {
                 control={clientControl}
                 setValue={setClientValue}
                 watch={clientWatch}
+                setTax={setTax}
+                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -556,12 +565,25 @@ export default function AddNewQuotes() {
                 mb={6}
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
-                <Typography>Tax</Typography>
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <Checkbox
+                    checked={getProjectInfoValues().taxable}
+                    onChange={e => {
+                      if (!e.target.checked) setTax(null)
+                      setProjectInfo('taxable', e.target.checked, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }}
+                  />
+                  <Typography>Tax</Typography>
+                </Box>
                 <Box display='flex' alignItems='center' gap='4px'>
                   <TextField
                     size='small'
                     type='number'
-                    value={tax}
+                    value={!getProjectInfoValues().taxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().taxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -583,7 +605,9 @@ export default function AddNewQuotes() {
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={!isItemValid}
+                  disabled={
+                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                  }
                   onClick={onSubmit}
                 >
                   Save

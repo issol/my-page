@@ -49,6 +49,7 @@ import {
   getGuidelineDownloadPreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
 import { useMutation } from 'react-query'
 
@@ -60,6 +61,7 @@ import { FileType } from 'src/types/common/file.type'
 import FallbackSpinner from '@src/@core/components/spinner'
 import logger from '@src/@core/utils/logger'
 import { client_guideline } from '@src/shared/const/permission-class'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 type CellType = {
   row: {
@@ -208,33 +210,32 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getGuidelineDownloadPreSignedUrl([path]).then(res => {
-      axios
-        .get(res[0], {
-          headers: {
-            Authorization:
-              'Bearer ' + typeof window === 'object'
-                ? getUserTokenFromBrowser()
-                : null,
+    getDownloadUrlforCommon(S3FileType.GUIDELINE, path)
+    .then(res => {
+      fetch(res.url, { method: 'GET' })
+      .then(res => {
+        return res.blob()
+      })
+      .then(blob => {
+        const url = window.URL.createObjectURL(blob)
+        const a = document.createElement('a')
+        a.href = url
+        a.download = `${fileName}`
+        document.body.appendChild(a)
+        a.click()
+        setTimeout((_: any) => {
+          window.URL.revokeObjectURL(url)
+        }, 60000)
+        a.remove()
+      })
+      .catch(err =>
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
           },
-        })
-        .then(res => {
-          logger.info('upload client guideline file success :', res)
-          const url = window.URL.createObjectURL(new Blob([res.data]))
-          const link = document.createElement('a')
-          link.href = url
-          link.setAttribute('download', `${fileName}`)
-          document.body.appendChild(link)
-          link.click()
-        })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
-          ),
-        )
+        ),
+      )
     })
   }
 

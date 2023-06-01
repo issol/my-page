@@ -4,6 +4,7 @@ import { Dispatch, SetStateAction } from 'react'
 import {
   Box,
   Button,
+  Checkbox,
   Grid,
   IconButton,
   TextField,
@@ -81,8 +82,10 @@ type Props = {
     },
     'items'
   >
-  tax: number
-  setTax: (n: number) => void
+  tax: number | null
+  setTax: (n: number | null) => void
+  taxable: boolean
+  setTaxable: (n: boolean) => void
   isEditMode: boolean
   setIsEditMode: (n: boolean) => void
   isUpdatable: boolean
@@ -105,6 +108,8 @@ export default function QuotesLanguageItemsDetail({
   isEditMode,
   tax,
   setTax,
+  taxable,
+  setTaxable,
   setIsEditMode,
   isUpdatable,
 }: Props) {
@@ -260,14 +265,27 @@ export default function QuotesLanguageItemsDetail({
         mb={6}
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
-        <Typography>Tax</Typography>
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Checkbox
+            disabled={!isEditMode}
+            checked={taxable}
+            onChange={e => {
+              if (!e.target.checked) {
+                setTax(null)
+              }
+              setTaxable(e.target.checked)
+            }}
+          />
+          <Typography>Tax</Typography>
+        </Box>
         <Box display='flex' alignItems='center' gap='4px'>
           {isEditMode ? (
             <>
               <TextField
                 size='small'
                 type='number'
-                value={tax}
+                value={!tax ? '-' : tax}
+                disabled={!taxable}
                 sx={{ maxWidth: '120px', padding: 0 }}
                 inputProps={{ inputMode: 'decimal' }}
                 onChange={e => {
@@ -278,7 +296,7 @@ export default function QuotesLanguageItemsDetail({
               %
             </>
           ) : (
-            <Box>{10} %</Box>
+            <Box>{tax ? `${tax} %` : null} </Box>
           )}
         </Box>
       </Grid>

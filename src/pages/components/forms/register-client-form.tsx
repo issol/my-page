@@ -39,6 +39,8 @@ type Props = {
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
   clientList: Array<{ value: number; label: string }>
+  setTax: (n: number) => void
+  setTaxable: (n: boolean) => void
 }
 
 export default function RegisterClientForm({
@@ -46,6 +48,8 @@ export default function RegisterClientForm({
   setValue,
   watch,
   clientList,
+  setTax,
+  setTaxable,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -99,6 +103,10 @@ export default function RegisterClientForm({
       contracts.mobile = clientDetail?.mobile
       contracts.fax = clientDetail?.fax
       contracts.email = clientDetail?.email
+      if (clientDetail?.taxable && clientDetail?.tax) {
+        setTax(clientDetail.tax)
+        setTaxable(clientDetail.taxable)
+      }
     } else {
       contracts.timezone = contactPerson?.timezone
       contracts.phone = contactPerson?.phone

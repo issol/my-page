@@ -99,7 +99,7 @@ export default function ClientInfo({
       fax: clientInfo.fax ?? '',
       websiteLink: clientInfo.websiteLink ?? '',
       taxable: clientInfo.taxable,
-      taxRate: clientInfo.taxRate,
+      tax: clientInfo.tax,
     })
   }, [clientInfo])
 
@@ -271,7 +271,7 @@ export default function ClientInfo({
               Tax rate:
             </Typography>
             <TitleTypography variant='body2'>
-              {clientInfo?.taxRate ? `${clientInfo?.taxRate} %` : '-'}
+              {clientInfo?.tax ? `${clientInfo?.tax} %` : '-'}
             </TitleTypography>
           </InfoBox>
         </Box>

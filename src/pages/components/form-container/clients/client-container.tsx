@@ -63,11 +63,15 @@ type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
   watch: UseFormWatch<ClientFormType>
+  setTax: (n: number | null) => void
+  setTaxable: (n: boolean) => void
 }
 export default function ClientQuotesFormContainer({
   control,
   setValue,
   watch,
+  setTax,
+  setTaxable,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -143,7 +147,7 @@ export default function ClientQuotesFormContainer({
   })
 
   const [clients, setClients] = useState<
-    Array<{ value: /* string */ number; label: string }>
+    Array<{ value: number; label: string }>
   >([])
   const {
     data: clientList,
@@ -278,6 +282,8 @@ export default function ClientQuotesFormContainer({
           setValue={setValue}
           watch={watch}
           clientList={clients}
+          setTax={setTax}
+          setTaxable={setTaxable}
         />
       </Grid>
 
