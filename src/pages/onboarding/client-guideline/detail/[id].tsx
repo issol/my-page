@@ -210,7 +210,7 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getDownloadUrlforCommon(S3FileType.GUIDELINE, path)
+    getDownloadUrlforCommon(S3FileType.CLIENT_GUIDELINE, path)
     .then(res => {
       fetch(res.url, { method: 'GET' })
       .then(res => {
