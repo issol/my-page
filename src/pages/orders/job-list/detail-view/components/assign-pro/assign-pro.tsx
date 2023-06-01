@@ -348,7 +348,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.userId,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -479,7 +479,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.userId,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,

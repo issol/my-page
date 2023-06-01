@@ -90,15 +90,17 @@ const Pro = () => {
     mode: 'onSubmit',
   })
 
-  const onClickFile = (file: {
-    id: number
-    url: string
-    filePath : string
-    fileName: string
-    fileExtension: string
-  }, fileType: string) => {
-    getDownloadUrlforCommon(fileType, file.filePath)
-    .then(res => {
+  const onClickFile = (
+    file: {
+      id: number
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => {
+    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       file.url = res.url
       setModal(
         <FilePreviewDownloadModal
@@ -224,7 +226,7 @@ const Pro = () => {
             row={{
               isOnboarded: row.isOnboarded,
               isActive: row.isActive,
-              id: row.id,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
