@@ -58,6 +58,8 @@ const AssignProList = ({
   onClickRequestJob,
   type,
 }: Props) => {
+  console.log(page, pageSize, listCount)
+
   function NoList() {
     return (
       <Box
@@ -159,7 +161,7 @@ const AssignProList = ({
               ...prevState,
               skip: newPage * pageSize!,
             }))
-            setPageSize!(newPage)
+            setPage!(newPage)
           }}
           onPageSizeChange={(newPageSize: number) => {
             setFilters!((prevState: AssignProFilterPostType) => ({
