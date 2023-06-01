@@ -130,20 +130,23 @@ export default function Payable() {
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>See only my invoices</Typography>
               <Switch
-                checked={activeFilter.mine}
+                checked={activeFilter.mine === 1}
                 onChange={e =>
-                  setActiveFilter({ ...activeFilter, mine: e.target.checked })
+                  setActiveFilter({
+                    ...activeFilter,
+                    mine: e.target.checked ? 1 : 0,
+                  })
                 }
               />
             </Box>
             <Box display='flex' alignItems='center' gap='4px'>
               <Typography>Hide paid invoices</Typography>
               <Switch
-                checked={activeFilter.hidePaid}
+                checked={activeFilter.hidePaid === 1}
                 onChange={e =>
                   setActiveFilter({
                     ...activeFilter,
-                    hidePaid: e.target.checked,
+                    hidePaid: e.target.checked ? 1 : 0,
                   })
                 }
               />

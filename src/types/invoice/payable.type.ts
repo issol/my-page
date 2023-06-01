@@ -13,8 +13,8 @@ export type InvoicePayableFilterType = {
   paidDateTo?: string // 또는 paymentDate : Date[]
   search?: string
 
-  mine?: boolean
-  hidePaid?: boolean
+  mine?: 0 | 1
+  hidePaid?: 0 | 1
 
   skip: number
   take: number
