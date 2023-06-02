@@ -90,7 +90,11 @@ export default function jobPosting() {
   }, [filter.role])
 
   function onSearch() {
-    setActiveFilter({ ...filter })
+    setActiveFilter({
+      ...filter,
+      skip: skip * activeFilter?.take!,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {

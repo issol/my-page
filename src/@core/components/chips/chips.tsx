@@ -5,6 +5,7 @@ import { StatusType } from '@src/apis/client.api'
 import { OrderStatusType } from '@src/types/orders/order-list'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -319,3 +320,30 @@ export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
       : null};
 `
+
+export function InvoicePayableChip(status: InvoicePayableStatusType) {
+  const color =
+    status === 'Invoice created'
+      ? '#F572D8'
+      : status === 'Invoice accepted'
+      ? '#9B6CD8'
+      : status === 'Paid'
+      ? '#FF4D49'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
