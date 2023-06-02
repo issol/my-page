@@ -6,6 +6,8 @@ import {
   Button,
   Card,
   CardHeader,
+  Dialog,
+  DialogContent,
   Grid,
   Switch,
   Typography,
@@ -40,6 +42,7 @@ import {
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import OrderList from './components/list/job-list'
 
 const initialFilter: InvoiceReceivableFilterType = {
   invoiceStatus: [],
@@ -131,6 +134,23 @@ export default function Receivable() {
       })
   }, [filter.category])
 
+  function onClickCreateInvoice() {
+    openModal({
+      type: 'order-list',
+      children: (
+        <Dialog
+          open={true}
+          onClose={() => closeModal('order-list')}
+          maxWidth='lg'
+        >
+          <DialogContent sx={{ padding: '50px' }}>
+            <OrderList onClose={() => closeModal('order-list')} />
+          </DialogContent>
+        </Dialog>
+      ),
+    })
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid
@@ -196,13 +216,9 @@ export default function Receivable() {
                     <Typography variant='h6'>
                       Invoices ({list?.totalCount ?? 0})
                     </Typography>{' '}
-                    {/*  <Button
-                        variant='contained'
-                        onClick={onChangeStatusToPaid}
-                        startIcon={<Icon icon='gg:check-o' />}
-                      >
-                        Create new invoice
-                      </Button> */}
+                    <Button variant='contained' onClick={onClickCreateInvoice}>
+                      Create new invoice
+                    </Button>
                   </Box>
                 }
                 sx={{
