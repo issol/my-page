@@ -35,6 +35,7 @@ import { ClientList } from '@src/shared/const/client/clients'
 
 export type CardProps = {
   dropdownClose: boolean
+  modal?: boolean
 }
 
 type Props = {
@@ -95,6 +96,9 @@ export default function ProListFilters({
 }: Props) {
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
+
+  const [sourceMultiple, setSourceMultiple] = useState<boolean>(false)
+  const [targetMultiple, setTargetMultiple] = useState<boolean>(false)
 
   const onFocusSearchInput = () => {
     setOnFocused(true)
@@ -228,6 +232,17 @@ export default function ProListFilters({
                             setInputStyle(true)
                           }}
                           onChange={(event, item) => {
+                            if (targetMultiple) {
+                              setSourceMultiple(false)
+                              if (item.length > 1) {
+                                item[0] = item[1]
+                                item.splice(1)
+                              }
+                            }
+                            else {
+                              if (item.length > 1) setSourceMultiple(true)
+                              else setSourceMultiple(false)
+                            }
                             onChange(item)
                           }}
                           value={value}
@@ -267,6 +282,17 @@ export default function ProListFilters({
                             setInputStyle(true)
                           }}
                           onChange={(event, item) => {
+                            if (sourceMultiple) {
+                              setTargetMultiple(false)
+                              if (item.length > 1) {
+                                item[0] = item[1]
+                                item.splice(1)
+                              }
+                            }
+                            else {
+                              if (item.length > 1) setTargetMultiple(true)
+                              else setTargetMultiple(false)
+                            }
                             onChange(item)
                           }}
                           value={value}
@@ -520,7 +546,7 @@ export default function ProListFilters({
 }
 
 export const AutoCompleteComponent = styled(Card)<CardProps>(
-  ({ theme, dropdownClose }) => ({
+  ({ theme, dropdownClose, modal }) => ({
     '& .MuiAutocomplete-inputRoot': {
       height: !dropdownClose && '56px;',
       flexWrap: dropdownClose ? 'wrap;' : 'noWrap;',

@@ -84,7 +84,7 @@ import {
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro-details.api'
-import { getPresignedUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -551,7 +551,7 @@ function ProDetailOverview() {
       const filtered = jobInfoFields.filter(f => f.id! === id)[0]
       const index = jobInfoFields.findIndex(f => f.id! === id)
       let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && value === 'DTP') {
+      if (item === 'jobType' && (value === 'DTPer' || value === 'DTP QCer')) {
         newVal = { ...filtered, [item]: value, source: '', target: '' }
       }
       update(index, newVal)
@@ -560,7 +560,7 @@ function ProDetailOverview() {
       const filtered = roleJobInfoFields.filter(f => f.id! === id)[0]
       const index = roleJobInfoFields.findIndex(f => f.id! === id)
       let newVal = { ...filtered, [item]: value }
-      if (item === 'jobType' && value === 'DTP') {
+      if (item === 'jobType' && (value === 'DTPer' || value === 'DTP QCer')) {
         newVal = { ...filtered, [item]: value, source: '', target: '' }
       }
       roleUpdate(index, newVal)
@@ -793,7 +793,7 @@ function ProDetailOverview() {
     fileName: string
     fileExtension: string
   }, fileType: string) => {
-    getPresignedUrlforCommon(fileType,encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType, file.filePath)
     .then(res => {
       file.url = res.url
       setModal(

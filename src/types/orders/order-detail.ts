@@ -40,6 +40,7 @@ export type ProjectInfoType = {
   projectDueTimezone: CountryType
   projectDescription: string
   tax: number
+  taxable: boolean
 }
 
 export type ClientType = {
@@ -52,6 +53,8 @@ export type ClientType = {
     phone: string | null
     timezone: CountryType
     name: string
+    taxable: boolean
+    tax: number | null
   }
 
   contactPerson: ContactPersonType | null
@@ -69,8 +72,7 @@ export type VersionHistoryType = {
   version: number
   email: string
   downloadedAt: string
-  history: HistoryType
-}
+} & HistoryType
 
 export type OrderDownloadData = {
   orderId: number
@@ -103,8 +105,8 @@ export type LanguageAndItemType = {
       id: number
       name: string
       isStandard: boolean
-      category: 'Dubbing'
-      serviceType: ['Audio description']
+      category: string
+      serviceType: Array<string>
       currency: CurrencyType
       calculationBasis: string
       rounding: number
@@ -113,4 +115,20 @@ export type LanguageAndItemType = {
     } | null
   }>
   items: ItemType[]
+}
+
+export type OrderDetailType = {
+  id: number
+  corporationId: string
+  category: string
+  client: {
+    clientId: number
+    email: string
+    fax: string | null
+    mobile: string | null
+    phone: string | null
+    timezone: CountryType
+    name: string
+  }
+  contactPerson: ContactPersonType | null
 }

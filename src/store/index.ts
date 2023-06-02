@@ -5,12 +5,14 @@ import { configureStore } from '@reduxjs/toolkit'
 import userAccess from './permission'
 import modal from './modal'
 import order from './order'
+import quote from './quote'
 
 export const store = configureStore({
   reducer: {
     userAccess,
     modal,
     order,
+    quote,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

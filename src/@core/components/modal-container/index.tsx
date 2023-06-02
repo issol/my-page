@@ -1,4 +1,4 @@
-import React, { ReactNode } from 'react'
+import React, { ReactNode, useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { useAppSelector } from '@src/hooks/useRedux'
 import styled from 'styled-components'
@@ -7,6 +7,13 @@ import { ModalType } from '@src/store/modal'
 
 function ModalContainer() {
   const modalList = useAppSelector(state => state.modal)
+  const [isCSR, setIsCSR] = useState<boolean>(false)
+
+  useEffect(() => {
+    setIsCSR(true)
+
+    return () => setIsCSR(false)
+  }, [])
 
   const { closeModal } = useModal()
 
@@ -37,7 +44,14 @@ function ModalContainer() {
       )
     },
   )
-  return createPortal(<>{renderModal}</>, document.getElementById('modal')!)
+  const element =
+    typeof window !== 'undefined' ? document.getElementById('modal') : null
+
+  return isCSR
+    ? element && renderModal && createPortal(renderModal, element)
+    : null
+  // if (!isCSR) return <></>
+  // return createPortal(<>{renderModal}</>, document.getElementById('modal')!)
 }
 
 export default ModalContainer

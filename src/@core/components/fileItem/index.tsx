@@ -26,12 +26,16 @@ export default function FileItem({ file, onClick, onClear }: Props) {
               : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
           </Typography>
         </div>
-        {onClear && (
-          <IconButton onClick={() => onClear && onClear(file)}>
-            <Icon icon='mdi:close' fontSize={20} />
-          </IconButton>
-        )}
       </div>
+      {onClear && (
+        <IconButton
+          onClick={event => {
+            onClear && onClear(file)
+          }}
+        >
+          <Icon icon='mdi:close' fontSize={20} />
+        </IconButton>
+      )}
     </FileList>
   )
 }
@@ -40,6 +44,7 @@ const FileList = styled.div`
   display: flex;
   cursor: pointer;
   margin-bottom: 8px;
+  width: 100%;
   justify-content: space-between;
   border-radius: 8px;
   padding: 8px;

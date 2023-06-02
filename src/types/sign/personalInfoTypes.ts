@@ -54,6 +54,7 @@ export type ConsumerUserInfoType = {
 
 export type ManagerUserInfoType = {
   firstName: string
+  middleName?: string
   lastName: string
   country: string
   company?: string

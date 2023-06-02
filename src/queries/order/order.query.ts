@@ -5,14 +5,22 @@ import {
   getProjectTeam,
   getVersionHistory,
 } from '@src/apis/order-detail.api'
-import { getOrderList, getOrderListCalendar } from '@src/apis/order-list.api'
+import {
+  getOrderList,
+  getOrderListCalendar,
+  getOrderListInJob,
+} from '@src/apis/order-list.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 export const useGetOrderList = (filter: OrderListFilterType) => {
-  return useQuery(['orderList', filter], () => getOrderList(filter), {
+  return useQuery(['orderList', filter], () => getOrderList(filter), {})
+}
+
+export const useGetOrderListInJob = (filter: OrderListFilterType) => {
+  return useQuery(['orderListInJob', filter], () => getOrderListInJob(filter), {
     staleTime: 60 * 1000, // 1
 
     suspense: false,
@@ -49,11 +57,11 @@ export const useGetProjectTeam = (id: number) => {
   return useQuery([`projectTeam-${id}`, id], () => getProjectTeam(id), {
     staleTime: 60 * 1000, // 1
 
-    suspense: true,
+    suspense: false,
 
-    select: data => {
-      return data.map(value => ({ ...value, id: uuidv4() }))
-    },
+    // select: data => {
+    //   return data.map(value => ({ ...value, id: uuidv4() }))
+    // },
   })
 }
 
@@ -69,7 +77,7 @@ export const useGetLangItem = (id: number) => {
   return useQuery([`LangItem-${id}`, id], () => getLangItems(id), {
     staleTime: 60 * 1000, // 1
 
-    suspense: true,
+    suspense: false,
   })
 }
 

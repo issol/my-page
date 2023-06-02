@@ -6,7 +6,10 @@ import { useRouter } from 'next/router'
 
 // ** Hooks Import
 import { useAuth } from 'src/hooks/useAuth'
-import { getUserDataFromBrowser } from 'src/shared/auth/storage'
+import { 
+  getUserDataFromBrowser,
+  setRedirectPath
+} from 'src/shared/auth/storage'
 
 interface AuthGuardProps {
   children: ReactNode
@@ -20,17 +23,14 @@ const AuthGuard = (props: AuthGuardProps) => {
 
   useEffect(
     () => {
-      if (!router.isReady) {
-        return
-      }
+      // ! query가 붙은 경로에 로그인 하지 않은 유저가 접근했을 경우 무한 fallback이 보여지는 문제로 주석처리
+      // if (!router.isReady) {
+      //   return
+      // }
 
       if (auth.user === null && !getUserDataFromBrowser()) {
         if (router.asPath !== '/') {
           router.push('/login')
-          // router.replace({
-          //   pathname: '/login',
-          //   query: { returnUrl: router.asPath },
-          // })
         } else {
           // router.replace('/login')
         }
@@ -40,6 +40,23 @@ const AuthGuard = (props: AuthGuardProps) => {
     [router.route],
   )
 
+  useEffect(
+    () => {
+      if (auth.user === null && !getUserDataFromBrowser()) {
+        if (router.asPath !== '/') {
+          const parsePath = () => {
+            if (router.asPath.includes('[id]')) {
+              const { id } = router.query
+              return `${router.asPath.replace('[id]','')}${id}`
+            }
+            return router.asPath
+          }
+          setRedirectPath(parsePath())
+        }
+      }
+    },
+    [router.query],
+  )
   if (auth.loading || auth.user === null) {
     return fallback
   }

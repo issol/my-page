@@ -4,6 +4,7 @@ import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
 import { OrderStatusType } from '@src/types/orders/order-list'
 import { JobStatusType } from '@src/types/jobs/common.type'
+import { QuoteStatusType } from '@src/types/common/quotes.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -239,6 +240,31 @@ export const OrderStatusChip = styled(Chip)<{ status: OrderStatusType }>`
       : null};
 `
 
+export const QuoteStatusChip = styled(Chip)<{ status: QuoteStatusType }>`
+  // //
+  border: none;
+  ${({ status }) =>
+    status === 'New'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+      : status === 'In preparation'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #F572D8; color :#F572D8;`
+      : status === 'Review before submission'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #20B6E5; color :#20B6E5;`
+      : status === 'Pending'
+      ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
+      : status === 'Expired'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
+      : status === 'Rejected'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
+      : status === 'Accepted'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #64C623; color: #64C623;'
+      : status === 'Changed into order'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #1A6BBA; color: #1A6BBA;'
+      : status === 'Canceled'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
+      : null};
+`
+
 export function JobsStatusChip(status: JobStatusType) {
   const color =
     status === 'In preparation'
@@ -277,3 +303,19 @@ export function JobsStatusChip(status: JobStatusType) {
     />
   )
 }
+
+export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
+  border: none;
+  ${({ status }) =>
+    status === 'Request accepted'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128; color: #64C623;`
+      : status === 'Request rejected'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : status === 'Requested'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
+      : status === 'Assigned'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
+      : status === 'Canceled'
+      ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
+      : null};
+`

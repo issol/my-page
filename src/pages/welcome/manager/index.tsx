@@ -112,7 +112,7 @@ const PersonalInfoManager = () => {
     handleSubmit,
     getValues,
     watch,
-    formState: { errors },
+    formState: { errors, isValid },
   } = useForm<ManagerInfo>({
     defaultValues,
     mode: 'onChange',
@@ -177,6 +177,7 @@ const PersonalInfoManager = () => {
     const finalData: ManagerUserInfoType & { userId: number } = {
       userId: auth.user?.id || 0,
       firstName: data.firstName,
+      middleName: data.middleName,
       lastName: data.lastName,
       country: data.timezone.label,
       extraData: {
@@ -511,7 +512,7 @@ const PersonalInfoManager = () => {
                   type='submit'
                   variant='contained'
                   sx={{ mb: 7 }}
-                  disabled={!isEmpty(errors)}
+                  disabled={!isValid}
                 >
                   Get started &rarr;
                 </Button>

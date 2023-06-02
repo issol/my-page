@@ -13,6 +13,8 @@ export type CompanyInfoFormType = {
   fax?: string
   websiteLink?: string
   timezone: CountryType
+  taxable?: boolean
+  tax?: number | null
   memo?: string
 }
 export const companyInfoSchema = yup.object().shape({
@@ -35,6 +37,13 @@ export const companyInfoSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     phone: yup.string().required(FormErrors.required),
   }),
+  taxable: yup.boolean().required(FormErrors.required),
+  tax: yup
+    .number()
+    .required(FormErrors.required)
+    .when('taxable', (taxable, schema) =>
+      !taxable ? yup.number().nullable() : schema,
+    ),
   memo: yup.string().nullable(),
 })
 

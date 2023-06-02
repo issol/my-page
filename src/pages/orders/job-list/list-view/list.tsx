@@ -1,22 +1,29 @@
-import { JobsListType } from '@src/types/jobs/get-jobs.type'
+import { JobsListType } from '@src/types/jobs/jobs.type'
 
-import { Button, Card, Grid, Tooltip, Typography } from '@mui/material'
-
+// ** style components
+import { Tooltip, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
-import { StyledNextLink } from '@src/@core/components/customLink'
+import { TableTitleTypography } from '@src/@core/styles/typography'
+
+// ** NextJs
 import { useRouter } from 'next/router'
+
+// ** values
 import {
   JobsStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { JobTypeChip } from '@src/@core/components/chips/chips'
+
+// ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+
+// ** context
 import { AuthContext } from '@src/context/AuthContext'
 import { useContext } from 'react'
-import { getCurrencyMark } from '@src/shared/helpers/price.helper'
-import { TableTitleTypography } from '@src/@core/styles/typography'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type CellType = {
   row: JobsListType
@@ -48,22 +55,23 @@ export default function JobsList({
   const columns: GridColumns<JobsListType> = [
     {
       field: 'corporationId',
-      flex: 0.2,
-      minWidth: 140,
+
+      minWidth: 182,
       headerName: 'No.',
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip title={row.corporationId}>
-            <TableTitleTypography>{row.corporationId}</TableTitleTypography>
+            <TableTitleTypography fontSize={14}>
+              {row.corporationId}
+            </TableTitleTypography>
           </Tooltip>
         )
       },
     },
     {
-      flex: 0.05,
-      minWidth: 150,
+      minWidth: 214,
       field: 'status',
       headerName: 'Status',
       hideSortIcons: true,
@@ -75,8 +83,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 210,
+      minWidth: 260,
       field: 'name',
       headerName: 'Client / Email',
       hideSortIcons: true,
@@ -86,28 +93,38 @@ export default function JobsList({
       renderCell: ({ row }: CellType) => {
         return (
           <Box display='flex' flexDirection='column'>
-            <Typography fontWeight='bold'>{row?.client?.name}</Typography>
-            <Typography variant='body2'>{row?.client?.email}</Typography>
+            <Typography fontWeight='bold'>
+              {row.order.contactPerson
+                ? getLegalName({
+                    firstName: row.order.contactPerson.firstName!,
+                    middleName: row.order.contactPerson.middleName,
+                    lastName: row.order.contactPerson.lastName!,
+                  })
+                : row.order.client.name}
+            </Typography>
+            <Typography variant='body2'>
+              {row.order.contactPerson
+                ? row.order.contactPerson.email
+                : row.order.client.email}
+            </Typography>
           </Box>
         )
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 290,
       field: 'jobName',
-      headerName: 'Project name',
+      headerName: 'Job name',
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Project name</Box>,
+      renderHeader: () => <Box>Job name</Box>,
       renderCell: ({ row }: CellType) => {
-        return <Typography variant='body2'>{row?.jobName}</Typography>
+        return <Typography variant='body2'>{row.name ?? '-'}</Typography>
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 420,
       field: 'category , serviceType',
       headerName: 'Category / Service type',
       hideSortIcons: true,
@@ -119,8 +136,8 @@ export default function JobsList({
           <Box display='flex' alignItems='center' gap='8px'>
             <JobTypeChip
               size='small'
-              type={row?.category}
-              label={row?.category}
+              type={row?.order.category}
+              label={row?.order.category}
             />
             <ServiceTypeChip size='small' label={row?.serviceType} />
           </Box>
@@ -128,8 +145,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 280,
       field: 'startedAt',
       headerName: 'Job start date',
       disableColumnMenu: true,
@@ -150,8 +166,7 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 280,
       field: 'dueAt',
       headerName: 'Job due date',
       disableColumnMenu: true,
@@ -169,20 +184,19 @@ export default function JobsList({
       },
     },
     {
-      flex: 0.1,
-      minWidth: 180,
+      minWidth: 140,
       field: 'totalPrice',
       headerName: 'Total price',
-      // hideSortIcons: true,
       disableColumnMenu: true,
-      // sortable: false,
+      align: 'center',
+      headerAlign: 'center',
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
         return (
-          <div>
+          <Typography fontWeight={600}>
             {getCurrencyMark(row.currency)}
             {Number(row.totalPrice).toLocaleString()}
-          </div>
+          </Typography>
         )
       },
     },
@@ -204,53 +218,39 @@ export default function JobsList({
     )
   }
   return (
-    <Grid item xs={12}>
-      <Card>
-        <CardHeader
-          title={
-            <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Jobs ({list.totalCount})</Typography>{' '}
-              <Button variant='contained'>
-                <StyledNextLink href='/orders/jobs/add-new' color='white'>
-                  Create new job
-                </StyledNextLink>
-              </Button>
-            </Box>
-          }
-          sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
-        <Box
-          sx={{
-            '& .MuiDataGrid-columnHeaderTitle': {
-              textTransform: 'none',
-            },
-          }}
-        >
-          <DataGrid
-            autoHeight
-            components={{
-              NoRowsOverlay: () => NoList(),
-              NoResultsOverlay: () => NoList(),
-            }}
-            sx={{ overflowX: 'scroll', cursor: 'pointer' }}
-            columns={columns}
-            rows={list.data}
-            rowCount={list.totalCount}
-            loading={isLoading}
-            onCellClick={params => {
-              router.push(`/orders/job-list/${params.row.id}`)
-            }}
-            rowsPerPageOptions={[10, 25, 50]}
-            pagination
-            page={skip}
-            pageSize={pageSize}
-            paginationMode='server'
-            onPageChange={setSkip}
-            disableSelectionOnClick
-            onPageSizeChange={newPageSize => setPageSize(newPageSize)}
-          />
-        </Box>
-      </Card>
-    </Grid>
+    <Box
+      sx={{
+        '& .MuiDataGrid-columnHeaderTitle': {
+          textTransform: 'none',
+        },
+      }}
+    >
+      <DataGrid
+        autoHeight
+        components={{
+          NoRowsOverlay: () => NoList(),
+          NoResultsOverlay: () => NoList(),
+        }}
+        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        columns={columns}
+        rows={list.data}
+        rowCount={list.totalCount}
+        loading={isLoading}
+        onCellClick={params => {
+          router.push({
+            pathname: '/orders/job-list/details/',
+            query: { orderId: params.row.order.id, jobId: params.row.id },
+          })
+        }}
+        rowsPerPageOptions={[10, 25, 50]}
+        pagination
+        page={skip}
+        pageSize={pageSize}
+        paginationMode='server'
+        onPageChange={setSkip}
+        disableSelectionOnClick
+        onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+      />
+    </Box>
   )
 }

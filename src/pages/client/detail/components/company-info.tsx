@@ -98,6 +98,8 @@ export default function ClientInfo({
       mobile: clientInfo.mobile ?? '',
       fax: clientInfo.fax ?? '',
       websiteLink: clientInfo.websiteLink ?? '',
+      taxable: clientInfo.taxable,
+      tax: clientInfo.tax,
     })
   }, [clientInfo])
 
@@ -253,8 +255,27 @@ export default function ClientInfo({
               </IconButton>
             </Box>
           </InfoBox>
+          <Divider />
+          <InfoBox>
+            <Icon icon='mdi:dollar' fontSize='20px' />
+            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
+              Tax type:
+            </Typography>
+            <TitleTypography variant='body2'>
+              {clientInfo.taxable ? 'Taxable' : 'Non-taxable'}
+            </TitleTypography>
+          </InfoBox>
+          <InfoBox>
+            <Icon icon='heroicons-outline:receipt-tax' fontSize='20px' />
+            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
+              Tax rate:
+            </Typography>
+            <TitleTypography variant='body2'>
+              {clientInfo?.tax ? `${clientInfo?.tax} %` : '-'}
+            </TitleTypography>
+          </InfoBox>
         </Box>
-        <Divider style={{ marginBottom: '24px' }} />
+        <Divider style={{ margin: '24px 0' }} />
         <Controller
           name='status'
           control={control}

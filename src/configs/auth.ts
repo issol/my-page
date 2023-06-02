@@ -7,4 +7,5 @@ export default {
   rememberId: 'rememberId',
   userInfo: 'userData',
   permission: 'enough_permission',
+  redirectPath: 'redirectPath'
 }

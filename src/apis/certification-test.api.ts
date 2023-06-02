@@ -56,7 +56,9 @@ export const postTest = async (form: TestFormType): Promise<{ id: number }> => {
     const { data } = await axios.post(`/api/enough/cert/test/paper`, form)
     return data
   } catch (e: any) {
-    throw new Error(e)
+    if(e.response.data.errorCode === 'MalformedURL') throw 'MalformedURL'
+    else if(e.response.data.errorCode === 'UrlPermission') throw 'UrlPermission'
+    else throw new Error(e)
   }
 }
 

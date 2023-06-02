@@ -1,5 +1,5 @@
 // ** react
-import { useEffect, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** mui
 import {
@@ -14,19 +14,13 @@ import {
 // ** types
 import { CreateClientBodyType } from '@src/apis/client.api'
 
-// ** Icon Imports
-import Icon from 'src/@core/components/icon'
-
 // ** react hook form
 import {
   useForm,
   useFieldArray,
   Control,
-  FieldErrors,
-  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
-  UseFormReset,
 } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
@@ -68,20 +62,16 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 type Props = {
   control: Control<ClientFormType, any>
   setValue: UseFormSetValue<ClientFormType>
-  isValid: boolean
   watch: UseFormWatch<ClientFormType>
-  handleBack: () => void
-  onNextStep: () => void
-  type: string
+  setTax: (n: number | null) => void
+  setTaxable: (n: boolean) => void
 }
 export default function ClientQuotesFormContainer({
   control,
   setValue,
-  isValid,
   watch,
-  handleBack,
-  onNextStep,
-  type,
+  setTax,
+  setTaxable,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -157,7 +147,7 @@ export default function ClientQuotesFormContainer({
   })
 
   const [clients, setClients] = useState<
-    Array<{ value: /* string */ number; label: string }>
+    Array<{ value: number; label: string }>
   >([])
   const {
     data: clientList,
@@ -273,7 +263,7 @@ export default function ClientQuotesFormContainer({
   }
 
   return (
-    <Grid container spacing={6}>
+    <Fragment>
       <Grid
         item
         xs={12}
@@ -292,35 +282,10 @@ export default function ClientQuotesFormContainer({
           setValue={setValue}
           watch={watch}
           clientList={clients}
+          setTax={setTax}
+          setTaxable={setTaxable}
         />
       </Grid>
-
-      {type === 'create' ? (
-        <Grid item xs={12} display='flex' justifyContent='space-between'>
-          <Button variant='outlined' color='secondary' onClick={handleBack}>
-            <Icon icon='material-symbols:arrow-back-rounded' />
-            Previous
-          </Button>
-          <Button variant='contained' disabled={!isValid} onClick={onNextStep}>
-            Next <Icon icon='material-symbols:arrow-forward-rounded' />
-          </Button>
-        </Grid>
-      ) : (
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'center', gap: '16px' }}>
-            <Button variant='outlined' color='secondary' onClick={handleBack}>
-              Cancel
-            </Button>
-            <Button
-              variant='contained'
-              disabled={!isValid}
-              onClick={onNextStep}
-            >
-              Save
-            </Button>
-          </Box>
-        </Grid>
-      )}
 
       {/* Add new client modal */}
       <Dialog open={openForm} maxWidth='lg'>
@@ -353,6 +318,6 @@ export default function ClientQuotesFormContainer({
           />
         </DialogContent>
       </Dialog>
-    </Grid>
+    </Fragment>
   )
 }

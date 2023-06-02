@@ -1,6 +1,9 @@
 import axios from '@src/configs/axios'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
-import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import {
+  ItemResType,
+  ProjectTeamFormType,
+} from '@src/types/common/orders-and-quotes.type'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import {
   ClientType,
@@ -34,17 +37,6 @@ export const getClient = async (id: number): Promise<ClientType> => {
   return data
 }
 
-type ItemResType = {
-  id: number
-  contactPersonId: null | number
-  itemName: string
-  dueAt: string
-  sourceLanguage: string
-  targetLanguage: string
-  priceId: number
-  description: string | null
-  totalPrice: string
-}
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {

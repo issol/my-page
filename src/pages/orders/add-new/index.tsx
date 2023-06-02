@@ -9,6 +9,7 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Grid,
   IconButton,
   TableCell,
@@ -109,9 +110,17 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewQuotes() {
+export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
+
+  useEffect(() => {
+    if (!router.isReady) return
+    const orderId = Number(router.query.orderId)
+    if (!isNaN(orderId)) {
+      onCopyOrder(orderId)
+    }
+  }, [router.query])
 
   const { openModal, closeModal } = useModal()
 
@@ -158,7 +167,7 @@ export default function AddNewQuotes() {
   })
 
   // ** step1
-  const [tax, setTax] = useState(0)
+  const [tax, setTax] = useState<null | number>(null)
   const {
     control: teamControl,
     getValues: getTeamValues,
@@ -345,7 +354,11 @@ export default function AddNewQuotes() {
           ? null
           : getClientValue().contactPersonId,
     }
-    const projectInfo = { ...getProjectInfoValues(), tax }
+    const rawProjectInfo = getProjectInfoValues()
+    const projectInfo = {
+      ...rawProjectInfo,
+      tax: !rawProjectInfo.taxable ? null : tax,
+    }
     const items = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
@@ -400,14 +413,14 @@ export default function AddNewQuotes() {
       } else if (item.type === 'projectManagerId') {
         result.projectManagerId = Number(item.id)!
       } else if (item.type === 'member') {
-        if (!result.member) {
+        if (!item.id) {
           result.member = []
+        } else {
+          result?.member?.push(item.id!)
         }
-        result.member.push(item.id!)
       }
     })
     if (!result.member || !result?.member?.length) delete result.member
-
     return result
   }
 
@@ -476,8 +489,9 @@ export default function AddNewQuotes() {
                 code: '',
               },
             },
+            taxable: res.taxable,
           })
-          setTax(res?.tax ?? 0)
+          setTax(res?.tax ?? null)
         })
         .catch(e => {
           return
@@ -563,32 +577,57 @@ export default function AddNewQuotes() {
       <Grid item xs={12}>
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
-            <ProjectTeamFormContainer
-              control={teamControl}
-              field={members}
-              append={appendMember}
-              remove={removeMember}
-              update={updateMember}
-              getValues={getTeamValues}
-              setValue={setTeamValues}
-              errors={teamErrors}
-              isValid={isTeamValid}
-              watch={teamWatch}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ProjectTeamFormContainer
+                control={teamControl}
+                field={members}
+                append={appendMember}
+                remove={removeMember}
+                update={updateMember}
+                setValue={setTeamValues}
+                errors={teamErrors}
+                isValid={isTeamValid}
+                watch={teamWatch}
+              />
+              <Grid item xs={12} display='flex' justifyContent='flex-end'>
+                <Button
+                  variant='contained'
+                  disabled={!isTeamValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 1 ? (
           <Card sx={{ padding: '24px' }}>
-            <ClientQuotesFormContainer
-              control={clientControl}
-              setValue={setClientValue}
-              isValid={isClientValid}
-              watch={clientWatch}
-              handleBack={handleBack}
-              onNextStep={onNextStep}
-              type='create'
-            />
+            <Grid container spacing={6}>
+              <ClientQuotesFormContainer
+                control={clientControl}
+                setValue={setClientValue}
+                watch={clientWatch}
+                setTax={setTax}
+                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+              />
+              <Grid item xs={12} display='flex' justifyContent='space-between'>
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={handleBack}
+                >
+                  <Icon icon='material-symbols:arrow-back-rounded' />
+                  Previous
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isClientValid}
+                  onClick={onNextStep}
+                >
+                  Next <Icon icon='material-symbols:arrow-forward-rounded' />
+                </Button>
+              </Grid>
+            </Grid>
           </Card>
         ) : activeStep === 2 ? (
           <Card sx={{ padding: '24px' }}>
@@ -679,12 +718,26 @@ export default function AddNewQuotes() {
                 mb={6}
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
-                <Typography>Tax</Typography>
+                <Box display='flex' alignItems='center' gap='4px'>
+                  <Checkbox
+                    checked={getProjectInfoValues().taxable}
+                    onChange={e => {
+                      if (!e.target.checked) setTax(null)
+                      setProjectInfo('taxable', e.target.checked, {
+                        shouldDirty: true,
+                        shouldValidate: true,
+                      })
+                    }}
+                  />
+                  <Typography>Tax</Typography>
+                </Box>
+
                 <Box display='flex' alignItems='center' gap='4px'>
                   <TextField
                     size='small'
                     type='number'
-                    value={tax}
+                    value={!getProjectInfoValues().taxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().taxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -706,7 +759,9 @@ export default function AddNewQuotes() {
                 </Button>
                 <Button
                   variant='contained'
-                  disabled={!isItemValid}
+                  disabled={
+                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                  }
                   onClick={onSubmit}
                 >
                   Save
@@ -720,8 +775,8 @@ export default function AddNewQuotes() {
   )
 }
 
-AddNewQuotes.acl = {
-  subject: 'quotes',
+AddNewOrder.acl = {
+  subject: 'order',
   action: 'create',
 }
 

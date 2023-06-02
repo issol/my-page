@@ -10,15 +10,14 @@ const LegalNameEmail = ({
   link,
 }: {
   row: {
-    id: string
     isOnboarded: boolean
     isActive: boolean
     firstName: string
-    middleName?: string
+    middleName?: string | null
     lastName: string
     email: string
   }
-  link: string
+  link?: string
 }) => {
   return (
     <Box
@@ -61,7 +60,25 @@ const LegalNameEmail = ({
           textOverflow: 'ellipsis',
         }}
       >
-        <Link href={link} style={{ textDecoration: 'none' }}>
+        {link ? (
+          <Link href={link} style={{ textDecoration: 'none' }}>
+            <Typography
+              sx={{
+                fontWeight: '600',
+                fontSize: '1rem',
+                whiteSpace: 'nowrap',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+              }}
+            >
+              {getLegalName({
+                firstName: row.firstName,
+                middleName: row.middleName,
+                lastName: row.lastName,
+              })}
+            </Typography>
+          </Link>
+        ) : (
           <Typography
             sx={{
               fontWeight: '600',
@@ -77,7 +94,8 @@ const LegalNameEmail = ({
               lastName: row.lastName,
             })}
           </Typography>
-        </Link>
+        )}
+
         <Typography
           variant='body2'
           sx={{

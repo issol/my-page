@@ -2,6 +2,7 @@ import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   OrderListFilterType,
+  OrderListForJobType,
   OrderListType,
 } from '@src/types/orders/order-list'
 
@@ -24,6 +25,39 @@ export const getOrderList = async (
     return {
       data: [],
       count: 0,
+    }
+  }
+}
+
+export const getOrderListInJob = async (
+  filter: OrderListFilterType,
+): Promise<{
+  data: OrderListForJobType[]
+  count: number
+  totalCount: number
+}> => {
+  try {
+    const { data } = await axios.get<{
+      data: OrderListForJobType[]
+      count: number
+      totalCount: number
+    }>(`/api/enough/u/order/job?${makeQuery(filter)}`)
+
+    const result = {
+      data: data.data.map(item => ({
+        ...item,
+        isItems: item.items.length > 0 ? true : false,
+      })),
+      count: data.count,
+      totalCount: data.totalCount,
+    }
+
+    return result
+  } catch (error) {
+    return {
+      data: [],
+      count: 0,
+      totalCount: 0,
     }
   }
 }

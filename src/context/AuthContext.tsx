@@ -35,10 +35,21 @@ import {
   saveRememberMe,
   saveUserDataToBrowser,
   saveUserTokenToBrowser,
+  getRedirectPath,
+  removeRedirectPath,
 } from 'src/shared/auth/storage'
 
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+// ** modals
+import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
+
 /* redux */
-import { getPermission, getRole } from 'src/store/permission'
+import { 
+  getPermission,
+  getRole,
+} from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
 import { useAppSelector } from 'src/hooks/useRedux'
 
@@ -65,8 +76,6 @@ type Props = {
 }
 
 const AuthProvider = ({ children }: Props) => {
-  const [openModal, setOpenModal] = useState(false)
-
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
@@ -75,25 +84,31 @@ const AuthProvider = ({ children }: Props) => {
 
   // ** Hooks
   const router = useRouter()
+  const { openModal, closeModal } = useModal()
 
   useEffect(() => {
     if (user) {
       dispatch(getRole(user.id))
       dispatch(getPermission())
-    }
+    } 
   }, [user])
 
   const userAccess = useAppSelector(state => state.userAccess)
 
   useEffect(() => {
-    if (userAccess.role.length) {
+    if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
+      const redirectPath = getRedirectPath()
       if (!user?.firstName) {
         if (roles?.includes('PRO')) {
           router.replace('/welcome/consumer')
         } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
           router.replace('/welcome/manager')
         }
+        return
+      } else if (redirectPath) {
+        router.replace(redirectPath);
+        removeRedirectPath()
         return
       }
       if (router.pathname === '/') {
@@ -156,7 +171,14 @@ const AuthProvider = ({ children }: Props) => {
     login(params.email, params.password)
       .then(async response => {
         if (!response.accessToken) {
-          setOpenModal(true)
+          openModal({
+            type: 'signup-not-approval-modal',
+            children: (
+              <SignupNotApprovalModal
+                onClose={() => closeModal('signup-not-approval-modal')}
+              />
+            ),
+          })
         } else {
           updateUserInfo(response).then(() => {
             if (successCallback) {
@@ -176,7 +198,14 @@ const AuthProvider = ({ children }: Props) => {
 
       .catch(err => {
         if (err.message === '406' || err.message === 406) {
-          setOpenModal(true)
+          openModal({
+            type: 'signup-not-approval-modal',
+            children: (
+              <SignupNotApprovalModal
+                onClose={() => closeModal('signup-not-approval-modal')}
+              />
+            ),
+          })
         } else if (errorCallback) errorCallback(err)
         else return err
       })
@@ -218,62 +247,11 @@ const AuthProvider = ({ children }: Props) => {
     register: handleRegister,
     updateUserInfo: updateUserInfo,
   }
-
   return (
     <AuthContext.Provider value={values}>
-      <AlertModal open={openModal} onClose={() => setOpenModal(false)} />
       {children}
     </AuthContext.Provider>
   )
 }
 
 export { AuthContext, AuthProvider }
-
-function AlertModal({ open, onClose }: { open: boolean; onClose: () => void }) {
-  return (
-    <Dialog open={open}>
-      <Box
-        sx={{
-          padding: '24px',
-          textAlign: 'center',
-          background: '#ffffff',
-          borderRadius: '14px',
-        }}
-      >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            gap: '12px',
-          }}
-        >
-          <img
-            src='/images/icons/project-icons/status-progress.png'
-            width={60}
-            height={60}
-            alt='role select error'
-          />
-          <Typography variant='h6'>
-            Sign up approval for <span style={{ color: '#666CFF' }}>GloZ</span>{' '}
-            is
-            <br />
-            in progress.
-          </Typography>
-          <Typography variant='body2'>
-            You can sign in once approved.
-          </Typography>
-        </Box>
-        <Box sx={{ display: 'flex', justifyContent: 'center' }} mt={4}>
-          <Button
-            variant='contained'
-            onClick={onClose}
-            sx={{ background: '#666CFF', textTransform: 'none' }}
-          >
-            Okay
-          </Button>
-        </Box>
-      </Box>
-    </Dialog>
-  )
-}

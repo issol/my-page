@@ -65,11 +65,12 @@ import {
   updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import { postFiles, uploadFileToS3 } from 'src/apis/common.api'
+import { postFiles, getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { FileType } from 'src/types/common/file.type'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -393,35 +394,36 @@ const ClientGuidelineEdit = () => {
             data.client.value,
             data.category.value,
             data.serviceType.value,
-            `V${currentVersion?.version!}`,
+            `V${currentVersion?.version!+1}`,
           ],
           file.name,
         ),
       )
-      getGuidelineUploadPreSignedUrl(paths).then(res => {
-        const promiseArr = res.map((url, idx) => {
+      const promiseArr = paths.map((url, idx) => {
+        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url)
+        .then(res => {
           fileInfo.push({
             name: data.file[idx].name,
             size: data.file[idx]?.size,
-            fileUrl: paths[idx],
+            fileUrl: url,
           })
-          return uploadFileToS3(url, data.file[idx])
+          return uploadFileToS3(res.url, data.file[idx])
         })
-        Promise.all(promiseArr)
-          .then(res => {
-            logger.info('upload client guideline file success :', res)
-            finalValue.files = fileInfo
-            guidelinePatchMutation.mutate(finalValue)
-          })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
       })
+      Promise.all(promiseArr)
+      .then(res => {
+        logger.debug('upload client guideline file success :', res)
+        finalValue.files = fileInfo
+        guidelinePatchMutation.mutate(finalValue)
+      })
+      .catch(err =>
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
+          },
+        ),
+      )
     } else {
       guidelinePatchMutation.mutate(finalValue)
     }
@@ -523,7 +525,7 @@ const ClientGuidelineEdit = () => {
                               fullWidth
                               disabled
                               options={ClientListIncludeGloz}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -560,7 +562,7 @@ const ClientGuidelineEdit = () => {
                               fullWidth
                               options={CategoryList}
                               value={value}
-                              filterSelectedOptions
+                              // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
                                 else onChange(v)
@@ -597,7 +599,7 @@ const ClientGuidelineEdit = () => {
                             fullWidth
                             options={ServiceTypeList}
                             value={value}
-                            filterSelectedOptions
+                            // filterSelectedOptions
                             onChange={(e, v) => {
                               if (!v) onChange({ value: '', label: '' })
                               else onChange(v)

@@ -75,12 +75,13 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
+                  disableCloseOnSelect
                   value={filterValue(ClientListIncludeGloz, 'client')}
                   onChange={(e, v) =>
                     setFilter({ ...filter, client: v.map(item => item.value) })
                   }
                   options={ClientListIncludeGloz}
-                  filterSelectedOptions
+                  // filterSelectedOptions
                   id='client'
                   getOptionLabel={option => option.label}
                   renderInput={params => (
@@ -106,6 +107,7 @@ export default function Filters({
                     autoHighlight
                     fullWidth
                     multiple
+                    disableCloseOnSelect
                     options={CategoryList}
                     value={filterValue(CategoryList, 'category')}
                     onChange={(e, v) =>
@@ -114,7 +116,7 @@ export default function Filters({
                         category: v.map(item => item.value),
                       })
                     }
-                    filterSelectedOptions
+                    // filterSelectedOptions
                     id='category'
                     getOptionLabel={option => option.label}
                     renderInput={params => (
@@ -140,7 +142,8 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
-                  options={serviceType || []}
+                  disableCloseOnSelect
+                  options={ServiceTypeList || []}
                   value={filterValue(ServiceTypeList, 'serviceType')}
                   onChange={(e, v) =>
                     setFilter({
@@ -148,7 +151,7 @@ export default function Filters({
                       serviceType: v.map(item => item.value),
                     })
                   }
-                  filterSelectedOptions
+                  // filterSelectedOptions
                   id='serviceType'
                   getOptionLabel={option => option.label}
                   renderInput={params => (

@@ -1,7 +1,6 @@
 import { useState } from 'react'
 
 // ** style components
-import { Icon } from '@iconify/react'
 import {
   Box,
   Button,
@@ -13,7 +12,6 @@ import {
   Tooltip,
 } from '@mui/material'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import styled from 'styled-components'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -255,6 +253,7 @@ export default function ContactPersons({
           id: Number(contactPersonId)!,
           body: body[0],
         })
+        setOpenAdd(false)
       }
     }
 
@@ -373,7 +372,11 @@ export default function ContactPersons({
                   Add
                 </Button>
               ) : (
-                <Button variant='contained' type='submit' disabled={!isValid}>
+                <Button
+                  variant='contained'
+                  disabled={!isValid}
+                  onClick={() => onSubmit(getValues())}
+                >
                   Save
                 </Button>
               )}

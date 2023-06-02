@@ -15,7 +15,7 @@ import { OnboardingProDetailsType } from 'src/types/onboarding/details'
 import { useState } from 'react'
 import toast from 'react-hot-toast'
 import Slider from 'react-slick'
-import { DownloadFileType } from 'src/shared/const/signedURLFileType'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 type Props = {
   userInfo: OnboardingProDetailsType
@@ -189,7 +189,7 @@ export default function Contracts({ userInfo, onClickContracts }: Props) {
                       gap: '5px',
                       cursor: 'pointer',
                     }}
-                    onClick={() => onClickContracts(value, DownloadFileType.CONTRACTS)}
+                    onClick={() => onClickContracts(value, S3FileType.CONTRACTS)}
                   >
                     <Box
                       sx={{

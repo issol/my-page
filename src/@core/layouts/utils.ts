@@ -27,6 +27,7 @@ export const handleURLQueries = (router: NextRouter, path: string | undefined): 
  * @param currentURL
  */
 export const hasActiveChild = (item: NavGroup, currentURL: string): boolean => {
+  // console.log("Hover check",item,currentURL)
   const { children } = item
 
   if (!children) {
@@ -46,7 +47,9 @@ export const hasActiveChild = (item: NavGroup, currentURL: string): boolean => {
       child &&
       childPath &&
       currentURL &&
-      (childPath === currentURL || (currentURL.includes(childPath) && childPath !== '/'))
+      // (childPath === currentURL || (currentURL.includes(childPath) && childPath !== '/'))
+      // 기존 로직에서 includes로 비교시 child의 경로에 다른 parent의 경로의 일부가 있다면 true가 됨, 그래서 split으로 짤라서 첫번째 depth 주소만 비교하게 변경함
+      (childPath === currentURL || (currentURL.split('/')[1].includes(childPath.split('/')[1]) && childPath !== '/'))
     ) {
       return true
     }
