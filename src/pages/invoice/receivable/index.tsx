@@ -23,22 +23,23 @@ import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 
 // ** components
+import Filter from './components/list/filter'
+import ReceivableList from './components/list/list'
+import CalendarContainer from './components/calendar'
 
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 
 // ** apis
-import { useGetPayableList } from '@src/queries/invoice/payable.query'
-import { Icon } from '@iconify/react'
+import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
 
-// ** hooks
-import useModal from '@src/hooks/useModal'
+// ** values
 import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
-import Filter from './components/list/filter'
-import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
-import ReceivableList from './components/list/list'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
 
 const initialFilter: InvoiceReceivableFilterType = {
   invoiceStatus: [],
@@ -69,8 +70,6 @@ export default function Receivable() {
   const ability = useContext(AbilityContext)
 
   const { openModal, closeModal } = useModal()
-
-  const isAccountManager = ability.can('read', 'account_manage')
 
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
@@ -232,7 +231,7 @@ export default function Receivable() {
         </Fragment>
       ) : (
         <Grid item xs={12}>
-          {/* <CalendarContainer /> */}
+          <CalendarContainer />
         </Grid>
       )}
     </Grid>

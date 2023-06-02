@@ -1,5 +1,5 @@
 import { CurrencyType } from '@src/types/common/standard-price'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import {
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
@@ -15,7 +15,49 @@ export const getReceivableList = async (
       `/api/enough/u/invoice/list?${makeQuery(filter)}`,
     )
     return data
-    // return {
+  } catch (e: any) {
+    return {
+      data: [],
+      totalCount: 0,
+    }
+  }
+}
+
+function getColor(status: InvoiceReceivableStatusType) {
+  return status === 'In preparation'
+    ? '#F572D8'
+    : status === 'Checking in progress'
+    ? '#FDB528'
+    : status === 'Accepted by client'
+    ? '#64C623'
+    : status === 'Tax invoice issued'
+    ? '#46A4C2'
+    : status === 'Paid'
+    ? '#267838'
+    : status === 'Overdue'
+    ? '#FF4D49'
+    : status === 'Canceled'
+    ? '#FF4D49'
+    : status === 'Overdue (Reminder sent)'
+    ? '#FF4D49'
+    : ''
+}
+
+export const getInvoiceReceivableCalendarData = async (
+  year: number,
+  month: number,
+  filter: InvoiceReceivableFilterType,
+): Promise<{
+  data: Array<InvoiceReceivableListType>
+  totalCount: number
+}> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/calendar?year=${year}&month=${
+        month + 1
+      }&${makeQuery(filter)}`,
+    )
+    // const data = {
     //   data: [
     //     {
     //       id: 2,
@@ -201,8 +243,22 @@ export const getReceivableList = async (
     //       },
     //     },
     //   ],
-    //   totalCount: 1,
+
+    //   totalCount: 0,
     // }
+    return {
+      data: data.data?.map((item: InvoiceReceivableListType) => {
+        return {
+          ...item,
+          status: item.invoiceStatus,
+          extendedProps: {
+            calendar: getColor(item.invoiceStatus),
+          },
+          allDay: true,
+        }
+      }),
+      totalCount: data?.totalCount ?? 0,
+    }
   } catch (e: any) {
     return {
       data: [],
@@ -210,117 +266,3 @@ export const getReceivableList = async (
     }
   }
 }
-
-function getColor(status: InvoicePayableStatusType) {
-  return status === 'Invoice created'
-    ? '#F572D8'
-    : status === 'Invoice accepted'
-    ? '#9B6CD8'
-    : status === 'Paid'
-    ? '#FF4D49'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : ''
-}
-
-// export const getInvoicePayableCalendarData = async (
-//   date: string,
-//   filter: InvoicePayableFilterType,
-// ): Promise<{ data: Array<InvoicePayableListType>; totalCount: number }> => {
-//   try {
-//     // const { data } = await axios.get(
-//     //   `/api/enough/u/quote?calendarDate=${date}?${makeQuery(filter)}`,
-//     // )
-//     const data = {
-//       data: [
-//         {
-//           id: 1,
-//           corporationId: '11sdlfk',
-//           adminCompanyName: 'Gloz',
-//           invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-//           pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-//           invoicedAt: '2023-06-18T18:58:01.727Z',
-//           payDueAt: '2023-06-20T18:58:01.727Z',
-//           payDueTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           paidAt: '2023-06-20T18:58:01.727Z',
-//           paidDateTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           totalPrice: 123,
-//           currency: 'USD' as CurrencyType,
-//         },
-//         {
-//           id: 2,
-//           corporationId: '11sdlfk',
-//           adminCompanyName: 'Gloz',
-//           invoiceStatus: 'Paid' as InvoicePayableStatusType,
-//           pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-//           invoicedAt: '2023-05-18T18:58:01.727Z',
-//           payDueAt: '2023-05-20T18:58:01.727Z',
-//           payDueTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           paidAt: '2023-05-20T18:58:01.727Z',
-//           paidDateTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           totalPrice: 123,
-//           currency: 'USD' as CurrencyType,
-//         },
-//         {
-//           id: 3,
-//           corporationId: '11sdlfk',
-//           adminCompanyName: 'Gloz',
-//           invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-//           pro: { name: 'bongbong', email: 'bon@glozinc.com' },
-//           invoicedAt: '2023-06-14T18:58:01.727Z',
-//           payDueAt: '2023-06-20T18:58:01.727Z',
-//           payDueTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           paidAt: '2023-06-20T18:58:01.727Z',
-//           paidDateTimezone: {
-//             code: 'KR',
-//             label: 'Korea, Republic of',
-//             phone: '82',
-//           },
-//           totalPrice: 123,
-//           currency: 'USD' as CurrencyType,
-//         },
-//       ],
-//       totalCount: 0,
-//     }
-//     return {
-//       data: data.data?.map((item: InvoicePayableListType) => {
-//         return {
-//           ...item,
-//           status: item.invoiceStatus,
-//           extendedProps: {
-//             calendar: getColor(item.invoiceStatus),
-//           },
-//           allDay: true,
-//         }
-//       }),
-//       totalCount: data?.totalCount ?? 0,
-//     }
-//   } catch (e: any) {
-//     return {
-//       data: [],
-//       totalCount: 0,
-//     }
-//   }
-// }

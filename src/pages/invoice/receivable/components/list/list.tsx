@@ -38,6 +38,7 @@ type Props = {
   isLoading: boolean
 }
 
+// TODO: totalPrice컬럼 완료하기
 export default function ReceivableList({
   skip,
   pageSize,
@@ -131,9 +132,10 @@ export default function ReceivableList({
       sortable: false,
       renderCell: ({ row }: CellType) => {
         return (
-          <Box sx={{ display: 'flex', gap: '8px' }}>
+          <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
             {row.order?.category ? (
               <JobTypeChip
+                size='small'
                 type={row.order.category}
                 label={row.order.category}
               />
@@ -145,10 +147,14 @@ export default function ReceivableList({
               <>
                 {row.order?.serviceType.length > 1 ? (
                   <ExtraNumberChip
+                    size='small'
                     label={row.order?.serviceType.slice(1).length}
                   />
                 ) : null}
-                <ServiceTypeChip label={row.order.serviceType[0]} />
+                <ServiceTypeChip
+                  size='small'
+                  label={row.order.serviceType[0]}
+                />
               </>
             ) : (
               '-'
