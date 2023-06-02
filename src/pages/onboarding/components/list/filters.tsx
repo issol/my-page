@@ -106,6 +106,9 @@ export default function Filters({
   const [inputStyle, setInputStyle] = useState<boolean>(true)
   const [onFocused, setOnFocused] = useState<boolean>(false)
 
+  const [sourceMultiple, setSourceMultiple] = useState<boolean>(false)
+  const [targetMultiple, setTargetMultiple] = useState<boolean>(false)
+
   const onFocusSearchInput = () => {
     setOnFocused(true)
   }
@@ -289,6 +292,17 @@ export default function Filters({
                             setInputStyle(true)
                           }}
                           onChange={(event, item) => {
+                            if (targetMultiple) {
+                              setSourceMultiple(false)
+                              if (item.length > 1) {
+                                item[0] = item[1]
+                                item.splice(1)
+                              }
+                            }
+                            else {
+                              if (item.length > 1) setSourceMultiple(true)
+                              else setSourceMultiple(false)
+                            }
                             onChange(item)
                           }}
                           value={value}
@@ -328,6 +342,17 @@ export default function Filters({
                             setInputStyle(true)
                           }}
                           onChange={(event, item) => {
+                            if (sourceMultiple) {
+                              setTargetMultiple(false)
+                              if (item.length > 1) {
+                                item[0] = item[1]
+                                item.splice(1)
+                              }
+                            }
+                            else {
+                              if (item.length > 1) setTargetMultiple(true)
+                              else setTargetMultiple(false)
+                            }
                             onChange(item)
                           }}
                           value={value}

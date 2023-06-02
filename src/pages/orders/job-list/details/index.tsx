@@ -517,7 +517,7 @@ const JobDetails = () => {
                                     row={{
                                       isOnboarded: true,
                                       isActive: true,
-                                      id: row.corporationId,
+
                                       firstName: row.assignedPro.firstName,
                                       middleName: row.assignedPro.middleName,
                                       lastName: row.assignedPro.lastName,
@@ -546,7 +546,7 @@ const JobDetails = () => {
                               }}
                               size='small'
                             >
-                              <Box>{row.prices?.totalPrice ?? '-'}</Box>
+                              <Box>{row?.totalPrice ?? '-'}</Box>
                             </TableCell>
 
                             {separateLine()}

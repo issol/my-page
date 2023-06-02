@@ -61,6 +61,7 @@ export type JobType = {
   dueTimezone: CountryType
   description: string
   isShowDescription: boolean
+  totalPrice: number
   contactPerson: {
     userId: number
     firstName: string

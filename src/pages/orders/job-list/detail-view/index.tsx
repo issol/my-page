@@ -102,6 +102,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     resolver: yupResolver(jobItemSchema),
   })
 
+  console.log(itemErrors)
+
   const {
     fields: items,
     append: appendItems,
@@ -123,9 +125,11 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           priceId: jobPrices.priceId!,
           detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
 
-          totalPrice: jobPrices?.totalPrice!,
+          totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
+      console.log(result)
+
       itemReset({ items: result })
     } else {
       appendItems({
@@ -283,7 +287,22 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               </TabPanel>
               <TabPanel value='prices' sx={{ pt: '30px' }}>
                 <Suspense>
-                  {jobInfo.prices && !editPrices ? (
+                  {jobPrices?.priceId === null || editPrices ? (
+                    <EditPrices
+                      priceUnitsList={priceUnitsList ?? []}
+                      itemControl={itemControl}
+                      itemErrors={itemErrors}
+                      getItem={getItem}
+                      setItem={setItem}
+                      itemTrigger={itemTrigger}
+                      itemReset={itemReset}
+                      isItemValid={isItemValid}
+                      appendItems={appendItems}
+                      fields={items}
+                      row={jobInfo}
+                      jobPrices={jobPrices!}
+                    />
+                  ) : (
                     <ViewPrices
                       row={jobInfo}
                       priceUnitsList={priceUnitsList ?? []}
@@ -298,20 +317,6 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
                       fields={items}
                       setEditPrices={setEditPrices}
                       type='view'
-                    />
-                  ) : (
-                    <EditPrices
-                      priceUnitsList={priceUnitsList ?? []}
-                      itemControl={itemControl}
-                      itemErrors={itemErrors}
-                      getItem={getItem}
-                      setItem={setItem}
-                      itemTrigger={itemTrigger}
-                      itemReset={itemReset}
-                      isItemValid={isItemValid}
-                      appendItems={appendItems}
-                      fields={items}
-                      row={jobInfo}
                     />
                   )}
                 </Suspense>

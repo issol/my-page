@@ -23,7 +23,11 @@ import {
   RefetchOptions,
   RefetchQueryFilters,
   QueryObserverResult,
+  useMutation,
 } from 'react-query'
+import { useGetMessage } from '@src/queries/order/job.query'
+import { sendMessageToPro } from '@src/apis/job-detail.api'
+import { useEffect } from 'react'
 
 type Props = {
   info: AssignProListType
@@ -51,6 +55,34 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
   const handleChangeMessage = (event: ChangeEvent<HTMLInputElement>) => {
     setMessage(event.target.value)
   }
+  const {
+    data: messageList,
+    isLoading,
+    refetch: messageRefetch,
+  } = useGetMessage(row.id, info.userId)
+
+  const sendMessageToProMutation = useMutation(
+    (data: { jobId: number; proId: number; message: string }) =>
+      sendMessageToPro(data.jobId, data.proId, data.message),
+    {
+      onSuccess: () => {
+        messageRefetch()
+      },
+    },
+  )
+
+  const handleSendMessage = () => {
+    sendMessageToProMutation.mutate({
+      jobId: row.id,
+      proId: info.userId,
+      message: message,
+    })
+  }
+
+  useEffect(() => {
+    messageRefetch()
+  }, [messageRefetch])
+
   return (
     <Box sx={{ padding: '50px 60px', position: 'relative' }}>
       <IconButton
@@ -126,8 +158,8 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
           />
         </Box>
         <Divider />
-        {info.message?.contents &&
-          info.message?.contents.map((item, index) => (
+        {messageList?.contents &&
+          messageList?.contents.map((item, index) => (
             <>
               <Box
                 key={uuidv4()}
@@ -170,7 +202,8 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
             rows={4}
             multiline
             fullWidth
-            label='Write down a message to Pro'
+            // label='Write down a message to Pro'
+            placeholder='Write down a message to Pro'
             value={message ?? ''}
             onChange={handleChangeMessage}
             inputProps={{ maxLength: 500 }}
@@ -180,7 +213,11 @@ const Message = ({ info, user, row, orderDetail, item, refetch }: Props) => {
           </Typography>
         </Box>
         <Box sx={{ display: 'flex', justifyContent: 'flex-end', mt: '9px' }}>
-          <Button variant='contained' disabled={message === ''}>
+          <Button
+            variant='contained'
+            disabled={message === ''}
+            onClick={handleSendMessage}
+          >
             Send
           </Button>
         </Box>

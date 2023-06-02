@@ -56,7 +56,11 @@ import {
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
-import { postFiles, uploadFileToS3 } from 'src/apis/common.api'
+import {
+  postFiles,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
@@ -68,6 +72,7 @@ import {
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
 import { FileType } from 'src/types/common/file.type'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -386,30 +391,32 @@ const ClientGuidelineForm = () => {
           file.name,
         ),
       )
-      getGuidelineUploadPreSignedUrl(paths).then(res => {
-        const promiseArr = res.map((url, idx) => {
-          fileInfo.push({
-            name: data.file[idx].name,
-            size: data.file[idx]?.size,
-            fileUrl: paths[idx],
-          })
-          return uploadFileToS3(url, data.file[idx])
-        })
-        Promise.all(promiseArr)
-          .then(res => {
-            logger.info('upload client guideline file success :', res)
-            finalValue.files = fileInfo
-            guidelineMutation.mutate(finalValue)
-          })
-          .catch(err =>
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            ),
-          )
+      const promiseArr = paths.map((url, idx) => {
+        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
+          res => {
+            fileInfo.push({
+              name: data.file[idx].name,
+              size: data.file[idx]?.size,
+              fileUrl: url,
+            })
+            return uploadFileToS3(res.url, data.file[idx])
+          },
+        )
       })
+      Promise.all(promiseArr)
+        .then(res => {
+          logger.debug('upload client guideline file success :', res)
+          finalValue.files = fileInfo
+          guidelineMutation.mutate(finalValue)
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
     } else {
       guidelineMutation.mutate(finalValue)
     }

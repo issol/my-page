@@ -40,8 +40,11 @@ import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
+  useMutation,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
+import { request } from 'http'
+import { requestJobToPro } from '@src/apis/job-detail.api'
 
 const defaultValues: AssignProFilterType = {
   source: [],
@@ -118,10 +121,22 @@ const AssignPro = ({
     // sortDate: 'DESC',
   })
 
-  const { data: AssignProList, isLoading } = useGetAssignProList(
-    row.id,
-    filters,
+  const {
+    data: AssignProList,
+    isLoading,
+    refetch: refetchAssignProList,
+  } = useGetAssignProList(row.id, filters)
+
+  const requestJobMutation = useMutation(
+    (data: { ids: number[]; jobId: number }) =>
+      requestJobToPro(data.ids, data.jobId),
+    {
+      onSuccess: () => {
+        refetchAssignProList()
+      },
+    },
   )
+
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
   const languageList = getGloLanguage()
@@ -132,6 +147,25 @@ const AssignPro = ({
       mode: 'onSubmit',
     })
 
+  function isFiltersDifferent(): boolean {
+    console.log(filters.source)
+
+    const res =
+      filters.source!.length > 0 ||
+      filters.target!.length > 0 ||
+      filters.expertise!.length > 0 ||
+      filters.category!.length > 0 ||
+      filters.serviceType!.length > 0 ||
+      // filters.client!.length > 0 &&
+      !filters.isOffBoard
+
+    console.log(res)
+
+    // console.log(res)
+
+    return res
+  }
+
   const handleSelectionModelChange = (
     selectionModel: GridSelectionModel,
     details: GridCallbackDetails<any>,
@@ -141,6 +175,12 @@ const AssignPro = ({
 
   const handleRequestPro = () => {
     // TODO API call
+    const res = selectionModel.map((value: any) => {
+      return Number(value)
+    })
+    console.log(res)
+
+    requestJobMutation.mutate({ ids: res, jobId: row.id })
     closeModal('AssignProRequestJobModal')
   }
 
@@ -194,7 +234,7 @@ const AssignPro = ({
     setFilters(prevState => ({
       ...prevState,
       source: [row.sourceLanguage],
-      target: [row.targetLanguage, 'en'],
+      target: [row.targetLanguage],
       category: [orderDetail.category],
       //@ts-ignore
       serviceType: serviceTypeToPro,
@@ -210,6 +250,7 @@ const AssignPro = ({
 
   const onSubmit = () => {
     const data = getValues()
+
     const res: AssignProFilterPostType = {
       source: data.source.map(value => value.value),
       target: data.target.map(value => value.value),
@@ -288,6 +329,9 @@ const AssignPro = ({
       ),
     })
   }
+  useEffect(() => {
+    console.log(proListPageSize)
+  }, [proListPageSize])
 
   const columns: GridColumns<AssignProListType> = [
     {
@@ -304,7 +348,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.userId,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -435,7 +479,7 @@ const AssignPro = ({
             row={{
               isOnboarded: true,
               isActive: true,
-              id: row.userId,
+
               firstName: row.firstName,
               middleName: row.middleName,
               lastName: row.lastName,
@@ -538,6 +582,8 @@ const AssignPro = ({
         listCount={
           type === 'history'
             ? assignProList?.totalCount!
+            : isFiltersDifferent()
+            ? AssignProList?.count!
             : AssignProList?.totalCount!
         }
         list={type === 'history' ? assignProList?.data! : AssignProList?.data!}

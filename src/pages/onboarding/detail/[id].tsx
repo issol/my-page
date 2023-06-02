@@ -81,7 +81,7 @@ import CertificationTest from '@src/pages/components/pro-detail-component/certif
 import logger from '@src/@core/utils/logger'
 
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { getPresignedUrlforCommon } from 'src/apis/common.api'
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -804,7 +804,7 @@ function OnboardingDetail() {
     fileExtension: string
   }, fileType: string
   ) => {
-    getPresignedUrlforCommon(fileType, encodeURIComponent(file.filePath))
+    getDownloadUrlforCommon(fileType, file.filePath)
     .then(res => {
       const previewFile = {
         url: res.url,

@@ -10,7 +10,6 @@ const LegalNameEmail = ({
   link,
 }: {
   row: {
-    id: string
     isOnboarded: boolean
     isActive: boolean
     firstName: string

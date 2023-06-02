@@ -34,6 +34,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
 import { useMutation } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
+import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 
 type Props = {
   row: JobType
@@ -71,6 +72,7 @@ type Props = {
     'items',
     'id'
   >[]
+  jobPrices: JobPricesDetailType
 }
 
 const EditPrices = ({
@@ -84,10 +86,13 @@ const EditPrices = ({
   appendItems,
   fields,
   row,
+  jobPrices,
 }: Props) => {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: 7,
   })
+
+  console.log(isItemValid)
 
   const [success, setSuccess] = useState(false)
 
@@ -162,6 +167,18 @@ const EditPrices = ({
       // 3. 그리고 실행됐던 setTimeout 함수를 없애는 clearTimeout 함수를 이용한다.
     }
   }, [success])
+
+  useEffect(() => {
+    if (jobPrices) {
+      console.log(jobPrices)
+
+      const res = getPriceOptions(
+        jobPrices.sourceLanguage,
+        jobPrices.targetLanguage,
+      ).find(value => value.id === jobPrices.priceId)
+      setPrice(res!)
+    }
+  }, [jobPrices])
 
   return (
     <>
@@ -270,11 +287,7 @@ const EditPrices = ({
           width: '100%',
         }}
       >
-        <Button
-          variant='contained'
-          onClick={onSubmit}
-          disabled={!isItemValid || price === null}
-        >
+        <Button variant='contained' onClick={onSubmit} disabled={!isItemValid}>
           Save draft
         </Button>
       </Box>

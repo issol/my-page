@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import {
@@ -12,65 +13,14 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 export const getAssignProList = async (
   id: number,
   filters: AssignProFilterPostType,
-): Promise<{ totalCount: number; data: AssignProListType[] }> => {
-  // const { data } = await axios.get(
-  //   `/api/enough/u/pro/job?${makeQuery(filters)}`,
-  // )
-
+): Promise<{
+  totalCount: number
+  data: AssignProListType[]
+  count: number
+}> => {
   const { data } = await axios.get(
     `/api/enough/u/pro/job/${id}?${makeQuery(filters)}`,
   )
-
-  // const res: AssignProListType[] = [
-  //   {
-  //     id: '1',
-  //     firstName: 'Kim',
-  //     middleName: 'Minji',
-  //     lastName: 'Leriel',
-  //     email: 'leriel@glozinc.com',
-  //     status: 'Onboard',
-  //     responseRate: 20,
-  //     assignmentStatus: 'Request accepted',
-  //     assignmentDate: '2022-05-17T14:13:15Z',
-  //     message: {
-  //       id: 0,
-  //       unReadCount: 1,
-  //       contents: [
-  //         {
-  //           id: 0,
-  //           firstName: 'Kim',
-  //           middleName: null,
-  //           lastName: 'Minji',
-  //           email: 'leriel@glozinc.com',
-  //           role: 'Pro',
-  //           content: 'Hello',
-  //           createdAt: '2022-05-17T14:13:15Z',
-  //         },
-  //       ],
-  //     },
-  //   },
-  //   {
-  //     id: '2',
-  //     firstName: 'Kim',
-  //     middleName: 'Minji',
-  //     lastName: 'Leriel',
-  //     email: 'leriel@glozinc.com',
-  //     status: 'Onboard',
-  //     responseRate: 30,
-  //     assignmentStatus: 'Assigned',
-  //     assignmentDate: '2022-05-17T14:13:15Z',
-  //     message: {
-  //       id: 0,
-  //       unReadCount: 2,
-  //       contents: null,
-  //     },
-  //   },
-  // ]
-
-  // const data = {
-  //   totalCount: res.length,
-  //   data: res,
-  // }
 
   return data
 }
@@ -114,6 +64,7 @@ export const getJobInfo = async (id: number): Promise<JobType> => {
       targetLanguage: '',
       startedAt: '',
       dueAt: '',
+      totalPrice: 0,
       startTimezone: {
         code: '',
         label: '',
@@ -159,5 +110,73 @@ export const saveJobPrices = async (
   id: number,
   data: SaveJobPricesParamsType,
 ) => {
-  axios.patch(`/api/enough/u/job/${id}/price`, { ...data })
+  await axios.patch(`/api/enough/u/job/${id}/price`, { ...data })
+}
+
+export const requestJobToPro = async (ids: number[], jobId: number) => {
+  await axios.post(`/api/enough/u/job/${jobId}/request`, { proIds: ids })
+}
+
+export const getMessageList = async (
+  jobId: number,
+  proId: number,
+): Promise<{
+  unReadCount: number
+  contents:
+    | {
+        id: number
+        content: string
+        createdAt: string
+        firstName: string
+        middleName: string | null
+        lastName: string
+        email: string
+        role: string
+      }[]
+    | null
+}> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/${jobId}/message?proId=${proId}`,
+    )
+    return data
+  } catch (e: any) {
+    return {
+      unReadCount: 0,
+      contents: null,
+    }
+  }
+}
+
+export const sendMessageToPro = async (
+  jobId: number,
+  proId: number,
+  message: string,
+) => {
+  await axios.post(`/api/enough/u/job/${jobId}/message`, {
+    proId: proId,
+    message: message,
+  })
+}
+
+export const uploadFile = async (file: {
+  jobId: number
+  size: number
+  name: string
+  type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+}) => {
+  await axios.post(`/api/enough/u/job/upload`, { ...file })
+}
+
+export const getSourceFileToPro = async (
+  jobId: number,
+): Promise<FileType[]> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/source-file?jobId=${jobId}`,
+    )
+    return data
+  } catch (e: any) {
+    return []
+  }
 }

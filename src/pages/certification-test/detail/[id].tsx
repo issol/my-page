@@ -46,6 +46,9 @@ import { useAppSelector } from '@src/hooks/useRedux'
 import logger from '@src/@core/utils/logger'
 import certification_test from '@src/shared/const/permission-class/certification-test'
 
+import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
+
 type CellType = {
   row: CurrentTestType
 }
@@ -256,24 +259,23 @@ const CertificationTestDetail = () => {
       ],
       fileName,
     )
-
-    getTestDownloadPreSignedUrl([path]).then(res => {
-      axios
-        .get(res[0], {
-          headers: {
-            Authorization:
-              'Bearer ' + typeof window === 'object'
-                ? getUserTokenFromBrowser()
-                : null,
-          },
-          responseType: 'blob',
-        })
+      getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path)
+      .then(res => {
+        fetch(res.url, { method: 'GET' })
         .then(res => {
-          console.log('upload client guideline file success :', res)
-          const link = document.createElement('a')
-          link.href = window.URL.createObjectURL(new Blob([res.data]))
-          link.download = `${fileName}`
-          link.click()
+          return res.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${fileName}`
+          document.body.appendChild(a)
+          a.click()
+          setTimeout((_: any) => {
+            window.URL.revokeObjectURL(url)
+          }, 60000)
+          a.remove()
         })
         .catch(err =>
           toast.error(
