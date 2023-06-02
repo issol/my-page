@@ -257,7 +257,7 @@ export default function Filter({
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.invoicedDateTo
                           ? new Date(filter.invoicedDateTo)
@@ -289,7 +289,7 @@ export default function Filter({
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.payDueDateTo
                           ? new Date(filter.payDueDateTo)
@@ -321,7 +321,7 @@ export default function Filter({
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.paidDateTo ? new Date(filter.paidDateTo) : null
                       }
@@ -351,7 +351,7 @@ export default function Filter({
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
-                      monthsShown={1}
+                      monthsShown={2}
                       endDate={
                         filter?.salesCheckedDateTo
                           ? new Date(filter.salesCheckedDateTo)

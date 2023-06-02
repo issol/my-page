@@ -14,7 +14,7 @@ export const getReceivableList = async (
     const { data } = await axios.get(
       `/api/enough/u/invoice/list?${makeQuery(filter)}`,
     )
-    return data.data
+    return data
     // return {
     //   data: [
     //     {

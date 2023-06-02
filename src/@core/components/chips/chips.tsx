@@ -5,7 +5,10 @@ import { StatusType } from '@src/apis/client.api'
 import { OrderStatusType } from '@src/types/orders/order-list'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
-import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
+import {
+  InvoicePayableStatusType,
+  InvoiceReceivableStatusType,
+} from '@src/types/invoice/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -338,6 +341,43 @@ export function InvoicePayableChip(status: InvoicePayableStatusType) {
   return (
     <CustomChip
       label={status === 'Overdue' ? `🔴 ${status}` : status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function InvoiceReceivableChip(status: InvoiceReceivableStatusType) {
+  const color =
+    status === 'In preparation'
+      ? '#F572D8'
+      : status === 'Checking in progress'
+      ? '#FDB528'
+      : status === 'Accepted by client'
+      ? '#64C623'
+      : status === 'Tax invoice issued'
+      ? '#46A4C2'
+      : status === 'Paid'
+      ? '#267838'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Overdue (Reminder sent)'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={
+        status === 'Overdue' || status === 'Overdue (Reminder sent)'
+          ? `🔴 ${status}`
+          : status
+      }
       skin='light'
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,

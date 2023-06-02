@@ -37,6 +37,8 @@ import {
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
 import Filter from './components/list/filter'
+import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
+import ReceivableList from './components/list/list'
 
 const initialFilter: InvoiceReceivableFilterType = {
   invoiceStatus: [],
@@ -79,7 +81,7 @@ export default function Receivable() {
     useState<InvoiceReceivableFilterType>(initialFilter)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
 
-  // const {data:list} = useGetReceivableList()
+  const { data: list, isLoading } = useGetReceivableList(activeFilter)
 
   function onSearch() {
     setActiveFilter({
@@ -161,7 +163,7 @@ export default function Receivable() {
             alignItems='center'
             justifyContent='flex-end'
           >
-            {/* <Box display='flex' alignItems='center' gap='4px'>
+            <Box display='flex' alignItems='center' gap='4px'>
               <Typography>See only my invoices</Typography>
               <Switch
                 checked={activeFilter.mine === 1}
@@ -172,9 +174,9 @@ export default function Receivable() {
                   })
                 }
               />
-            </Box> */}
+            </Box>
             <Box display='flex' alignItems='center' gap='4px'>
-              {/*  <Typography>Hide paid invoices</Typography>
+              <Typography>Hide paid invoices</Typography>
               <Switch
                 checked={activeFilter.hidePaid === 1}
                 onChange={e =>
@@ -183,7 +185,7 @@ export default function Receivable() {
                     hidePaid: e.target.checked ? 1 : 0,
                   })
                 }
-              /> */}
+              />
             </Box>
           </Grid>
 
@@ -193,18 +195,15 @@ export default function Receivable() {
                 title={
                   <Box display='flex' justifyContent='space-between'>
                     <Typography variant='h6'>
-                      {/* Invoices ({list?.totalCount ?? 0}) */}
+                      Invoices ({list?.totalCount ?? 0})
                     </Typography>{' '}
-                    {/*  {isAccountManager ? (
-                      <Button
+                    {/*  <Button
                         variant='contained'
-                        disabled={!statuses.length}
                         onClick={onChangeStatusToPaid}
                         startIcon={<Icon icon='gg:check-o' />}
                       >
-                        Paid
-                      </Button>
-                    ) : null} */}
+                        Create new invoice
+                      </Button> */}
                   </Box>
                 }
                 sx={{
@@ -212,12 +211,9 @@ export default function Receivable() {
                   '& .MuiCardHeader-title': { letterSpacing: '.15px' },
                 }}
               />
-              {/*    <PayableList
-                list={list || { data: [], totalCount: 0 }}
-                statuses={statuses}
-                setStatuses={setStatuses}
+              <ReceivableList
                 isLoading={isLoading}
-                isAccountManager={isAccountManager}
+                list={list || { data: [], totalCount: 0 }}
                 pageSize={activeFilter.take}
                 skip={skip}
                 setSkip={(n: number) => {
@@ -230,7 +226,7 @@ export default function Receivable() {
                 setPageSize={(n: number) =>
                   setActiveFilter({ ...activeFilter, take: n })
                 }
-              /> */}
+              />
             </Card>
           </Grid>
         </Fragment>

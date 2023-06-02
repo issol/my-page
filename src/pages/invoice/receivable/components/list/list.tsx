@@ -2,12 +2,17 @@ import { useRouter } from 'next/router'
 
 // ** style components
 import { Box, Tooltip, Typography } from '@mui/material'
-import { DataGrid, GridColumns, GridRowParams } from '@mui/x-data-grid'
+import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
-import { InvoicePayableChip } from '@src/@core/components/chips/chips'
+import {
+  ExtraNumberChip,
+  InvoiceReceivableChip,
+  JobTypeChip,
+  ServiceTypeChip,
+} from '@src/@core/components/chips/chips'
 
 // ** types
-import { InvoicePayableListType } from '@src/types/invoice/payable.type'
+import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -18,28 +23,22 @@ import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 
 type CellType = {
-  row: InvoicePayableListType
+  row: InvoiceReceivableListType
 }
 
 type Props = {
-  isAccountManager: boolean
-  statuses?: number[]
-  setStatuses?: (n: number[]) => void
   skip: number
   pageSize: number
   setSkip: (num: number) => void
   setPageSize: (num: number) => void
   list: {
-    data: Array<InvoicePayableListType> | []
+    data: Array<InvoiceReceivableListType> | []
     totalCount: number
   }
   isLoading: boolean
 }
 
-export default function PayableList({
-  isAccountManager,
-  statuses,
-  setStatuses,
+export default function ReceivableList({
   skip,
   pageSize,
   setSkip,
@@ -66,7 +65,7 @@ export default function PayableList({
     )
   }
 
-  const columns: GridColumns<InvoicePayableListType> = [
+  const columns: GridColumns<InvoiceReceivableListType> = [
     {
       field: 'corporationId',
       minWidth: 182,
@@ -89,19 +88,71 @@ export default function PayableList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoicePayableChip(row.invoiceStatus)}</>
+        return <>{InvoiceReceivableChip(row.invoiceStatus)}</>
       },
     },
     {
-      field: 'Pro / Email',
+      field: 'Client / Email',
       minWidth: 182,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
-            <Typography fontWeight={600}>{row.pro.name}</Typography>
-            <Typography variant='body2'>{row.pro.email}</Typography>
+            <Typography fontWeight={600}>
+              {row.order?.client?.name ?? '-'}
+            </Typography>
+            <Typography variant='body2'>
+              {row.order?.client?.email ?? '-'}
+            </Typography>
+          </Box>
+        )
+      },
+    },
+    {
+      field: 'Project name',
+      minWidth: 182,
+      disableColumnMenu: true,
+      sortable: false,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Tooltip title={row.order?.projectName}>
+            <TableTitleTypography fontSize={14}>
+              {row.order?.projectName ?? '-'}
+            </TableTitleTypography>
+          </Tooltip>
+        )
+      },
+    },
+    {
+      field: 'Category / Service type',
+      minWidth: 182,
+      disableColumnMenu: true,
+      sortable: false,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Box sx={{ display: 'flex', gap: '8px' }}>
+            {row.order?.category ? (
+              <JobTypeChip
+                type={row.order.category}
+                label={row.order.category}
+              />
+            ) : (
+              '-'
+            )}
+
+            {row.order?.serviceType?.length ? (
+              <>
+                {row.order?.serviceType.length > 1 ? (
+                  <ExtraNumberChip
+                    label={row.order?.serviceType.slice(1).length}
+                  />
+                ) : null}
+                <ServiceTypeChip label={row.order.serviceType[0]} />
+              </>
+            ) : (
+              '-'
+            )}
           </Box>
         )
       },
@@ -160,12 +211,30 @@ export default function PayableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        const price = `${getCurrencyMark(
-          row.currency,
-        )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        // const price = `${getCurrencyMark(
+        //   row.currency,
+        // )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        const date = FullDateTimezoneHelper(
+          row.salesCheckedAt,
+          row?.salesCheckedDateTimezone?.code,
+        )
         return (
-          <Tooltip title={price}>
-            <Typography fontWeight={600}>{price}</Typography>
+          <Tooltip
+            title={
+              <Box>
+                <Typography color='#ffffff'>
+                  Revenue from : {row.order?.revenueFrom ?? '-'}
+                </Typography>
+                <Typography color='#ffffff'>
+                  Sales category : {row.salesCategory ?? '-'}
+                </Typography>
+                <Typography color='#ffffff'>
+                  Sales recognition date : {date}
+                </Typography>
+              </Box>
+            }
+          >
+            <Typography fontWeight={600}>보류</Typography>
           </Tooltip>
         )
       },
@@ -182,15 +251,6 @@ export default function PayableList({
     >
       <DataGrid
         autoHeight
-        checkboxSelection={isAccountManager}
-        isRowSelectable={(params: GridRowParams<InvoicePayableListType>) =>
-          params.row.invoiceStatus !== 'Paid'
-        }
-        onSelectionModelChange={newSelectionModel => {
-          if (!setStatuses) return
-          setStatuses(newSelectionModel as number[])
-        }}
-        selectionModel={statuses}
         components={{
           NoRowsOverlay: () => NoList(),
           NoResultsOverlay: () => NoList(),
@@ -200,7 +260,7 @@ export default function PayableList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
-        onCellClick={params => router.push(`/invoice/payable/${params.id}`)}
+        onCellClick={params => router.push(`/invoice/receivable/${params.id}`)}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}
