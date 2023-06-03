@@ -64,7 +64,7 @@ export const useGetQuotesCalendarData = (
   filter: QuotesFilterType,
 ) => {
   return useQuery(
-    ['get-quotes/calendar'],
+    ['get-quotes/calendar', date, filter],
     () => {
       return getQuotesCalendarData(date, filter)
     },

@@ -11,6 +11,7 @@ export function getPrice(
   return Number(price) * Number(priceFactor)
 }
 
+// ** ex: $, ₩ ..
 export function getCurrencyMark(currency: CurrencyType | null | undefined) {
   if (!currency) return ''
   const currentLocale = locale[currency!]

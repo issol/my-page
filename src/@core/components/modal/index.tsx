@@ -62,7 +62,7 @@ export const SmallModalContainer = styled(Box)`
   justify-content: center;
   align-items: center;
   max-width: 380px;
-  padding: 20px;
+  padding: 20px 50px;
   background: #ffffff;
   border-radius: 10px;
 `

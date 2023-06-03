@@ -80,36 +80,34 @@ export default function Filters({
             <Grid container spacing={6} rowSpacing={4}>
               <Grid item xs={12} sm={6} md={4}>
                 <FormControl fullWidth>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      disableCloseOnSelect
-                      options={workName}
-                      value={filter.title}
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          title: v,
-                        })
-                      }
-                      id='workName'
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Work name'
-                          placeholder='Work name'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
+                  <Autocomplete
+                    {...commonOptions}
+                    multiple
+                    disableCloseOnSelect
+                    options={workName}
+                    value={filter.title}
+                    limitTags={1}
+                    onChange={(e, v) =>
+                      setFilter({
+                        ...filter,
+                        title: v,
+                      })
+                    }
+                    id='workName'
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Work name'
+                        placeholder='Work name'
+                      />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={4}>

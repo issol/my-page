@@ -31,7 +31,11 @@ export default function Clients() {
   const { data: list, isLoading } = useGetClientList(activeFilter)
 
   function onSearch() {
-    setActiveFilter({ ...filter })
+    setActiveFilter({
+      ...filter,
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {

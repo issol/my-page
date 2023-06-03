@@ -151,6 +151,29 @@ const navigation = (): HorizontalNavItemsType => {
         },
       ],
     },
+    {
+      title: 'Invoices',
+      icon: 'material-symbols:receipt-long',
+      action: 'read',
+      subject: 'invoice',
+      children: [
+        {
+          title: 'Receivables',
+          path: `/invoice/receivable`,
+          action: 'read',
+
+          icon: 'material-symbols:person',
+          subject: 'invoice',
+        },
+        {
+          title: 'Payables',
+          path: `/invoice/payable`,
+          action: 'read',
+          icon: 'raphael:dollar',
+          subject: 'invoice',
+        },
+      ],
+    },
   ]
 }
 export default navigation
