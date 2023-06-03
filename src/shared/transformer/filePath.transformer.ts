@@ -9,3 +9,8 @@ export function getFilePath(name: string[], fileName: string) {
     .join('/')
   return result + '/' + fileName
 }
+
+export function getResumeFilePath(userId: number, fileName: string) {
+
+  return userId + '/resume/' + fileName
+}

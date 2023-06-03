@@ -56,10 +56,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 
 // ** fetches
-import { postFiles, uploadFileToS3  } from 'src/apis/common.api'
+import { postFiles, getUploadUrlforCommon, uploadFileToS3  } from 'src/apis/common.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
+import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { FormType } from 'src/apis/client-guideline.api'
 import { toast } from 'react-hot-toast'
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -696,36 +697,36 @@ const TestMaterialPost = () => {
           file.name,
         ),
       )
-
-      getTestUploadPreSignedUrl(paths).then(res => {
-        const promiseArr = res.map((url, idx) => {
+      const promiseArr = paths.map((url, idx) => {
+        return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url)
+        .then(res => {
           fileInfo.push({
             name: data.file[idx].name,
             size: data.file[idx]?.size,
-            fileKey: paths[idx],
+            fileKey: url,
           })
-          return uploadFileToS3(url, data.file[idx])
+          return uploadFileToS3(res.url, data.file[idx])
         })
-        Promise.all(promiseArr)
-          .then(res => {
-            finalValue.files = fileInfo
-            patchValue.files = fileInfo
+      })
+      Promise.all(promiseArr)
+      .then(res => {
+        finalValue.files = fileInfo
+        patchValue.files = fileInfo
 
-            isFetched
-              ? patchTestMutation.mutate(patchValue)
-              : postTestMutation.mutate(finalValue)
-          })
-          .catch(err => {
-            isFetched
-              ? patchTestMutation.mutate(patchValue)
-              : postTestMutation.mutate(finalValue)
-            toast.error(
-              'Something went wrong while uploading files. Please try again.',
-              {
-                position: 'bottom-left',
-              },
-            )
-          })
+        isFetched
+          ? patchTestMutation.mutate(patchValue)
+          : postTestMutation.mutate(finalValue)
+      })
+      .catch(err => {
+        isFetched
+          ? patchTestMutation.mutate(patchValue)
+          : postTestMutation.mutate(finalValue)
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
+          },
+        )
       })
     } else {
       patchValue.files = fileInfo

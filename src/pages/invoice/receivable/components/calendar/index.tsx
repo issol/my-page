@@ -9,8 +9,8 @@ import Switch from '@mui/material/Switch'
 import { Typography } from '@mui/material'
 
 // ** components
-import Calendar from './calendar'
-import QuotesList from '../list/list'
+import ReceivableCalendar from './calendar'
+import ReceivableList from '../list/list'
 import CalendarSideBar from '@src/pages/components/sidebar'
 
 // ** Hooks
@@ -22,13 +22,12 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 // ** types
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import {
-  InvoicePayableFilterType,
-  InvoicePayableListType,
-} from '@src/types/invoice/payable.type'
+  InvoiceReceivableFilterType,
+  InvoiceReceivableListType,
+} from '@src/types/invoice/receivable.type'
 
 // ** apis
-import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
-import PayableList from '../list/list'
+import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
 
 const CalendarContainer = () => {
   // ** States
@@ -44,7 +43,7 @@ const CalendarContainer = () => {
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
-  const [filter, setFilter] = useState<InvoicePayableFilterType>({
+  const [filter, setFilter] = useState<InvoiceReceivableFilterType>({
     mine: 0,
     hidePaid: 0,
     skip: 0,
@@ -53,17 +52,18 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetPayableCalendar(
-    `${year}-${month}`,
+  const { data, refetch, isLoading } = useGetReceivableCalendar(
+    year,
+    month,
     filter,
   )
   const [event, setEvent] = useState<
-    Array<CalendarEventType<InvoicePayableListType>>
+    Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
-    Array<CalendarEventType<InvoicePayableListType>>
+    Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
 
   useEffect(() => {
@@ -155,7 +155,7 @@ const CalendarContainer = () => {
               />
             </Box>
           </Box>
-          <Calendar
+          <ReceivableCalendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
@@ -166,8 +166,7 @@ const CalendarContainer = () => {
       </CalendarWrapper>
       {currentListId === null ? null : (
         <Box mt={10} sx={{ background: 'white' }}>
-          <PayableList
-            isAccountManager={false}
+          <ReceivableList
             isLoading={isLoading}
             skip={skip}
             setSkip={setSkip}

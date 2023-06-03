@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import {
@@ -63,6 +64,7 @@ export const getJobInfo = async (id: number): Promise<JobType> => {
       targetLanguage: '',
       startedAt: '',
       dueAt: '',
+      totalPrice: 0,
       startTimezone: {
         code: '',
         label: '',
@@ -164,4 +166,17 @@ export const uploadFile = async (file: {
   type: 'SAMPLE' | 'SOURCE' | 'TARGET'
 }) => {
   await axios.post(`/api/enough/u/job/upload`, { ...file })
+}
+
+export const getSourceFileToPro = async (
+  jobId: number,
+): Promise<FileType[]> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/source-file?jobId=${jobId}`,
+    )
+    return data
+  } catch (e: any) {
+    return []
+  }
 }

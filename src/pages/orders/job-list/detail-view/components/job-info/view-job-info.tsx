@@ -15,7 +15,10 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import FileItem from '@src/@core/components/fileItem'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { saveJobInfo } from '@src/apis/job-detail.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -26,7 +29,9 @@ import { JobStatusType } from '@src/types/jobs/common.type'
 import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
 import { PositionType } from '@src/types/orders/order-detail'
 import { ro } from 'date-fns/locale'
+import { f } from 'msw/lib/glossary-de6278a9'
 import { Dispatch, SetStateAction, useState } from 'react'
+import toast from 'react-hot-toast'
 import {
   QueryObserverResult,
   RefetchOptions,
@@ -92,6 +97,87 @@ const ViewJobInfo = ({
     },
   )
 
+  const DownloadAllFiles = (
+    file:
+      | {
+          name: string
+          size: number
+          file: string // s3 key
+          type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+        }[]
+      | null,
+  ) => {
+    if (file) {
+      file.map(value => {
+        getDownloadUrlforCommon(
+          S3FileType.JOB,
+          encodeURIComponent(value.file),
+        ).then(res => {
+          fetch(res.url, { method: 'GET' })
+            .then(res => {
+              return res.blob()
+            })
+            .then(blob => {
+              const url = window.URL.createObjectURL(blob)
+              const a = document.createElement('a')
+              a.href = url
+              a.download = `${value.name}`
+              document.body.appendChild(a)
+              a.click()
+              setTimeout((_: any) => {
+                window.URL.revokeObjectURL(url)
+              }, 60000)
+              a.remove()
+              // onClose()
+            })
+            .catch(error =>
+              toast.error(
+                'Something went wrong while uploading files. Please try again.',
+                {
+                  position: 'bottom-left',
+                },
+              ),
+            )
+        })
+      })
+    }
+  }
+
+  const DownloadFile = (file: FileType) => {
+    if (file) {
+      getDownloadUrlforCommon(
+        S3FileType.JOB,
+        encodeURIComponent(file.file!),
+      ).then(res => {
+        fetch(res.url, { method: 'GET' })
+          .then(res => {
+            return res.blob()
+          })
+          .then(blob => {
+            const url = window.URL.createObjectURL(blob)
+            const a = document.createElement('a')
+            a.href = url
+            a.download = `${file.name}`
+            document.body.appendChild(a)
+            a.click()
+            setTimeout((_: any) => {
+              window.URL.revokeObjectURL(url)
+            }, 60000)
+            a.remove()
+            // onClose()
+          })
+          .catch(error =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    }
+  }
+
   const handleChange = (event: SelectChangeEvent) => {
     const res: SaveJobInfoParamsType = {
       contactPersonId: row.contactPerson?.userId!,
@@ -122,11 +208,11 @@ const ViewJobInfo = ({
   }
 
   const fileList = (file: FileType[], type: string) => {
-    return file.map((file: FileType) => {
-      if (file.type === type) {
+    return file.map((value: FileType) => {
+      if (value.type === type) {
         return (
-          <Box key={uuidv4()}>
-            <FileItem key={file.name} file={file} />
+          <Box key={uuidv4()} onClick={() => DownloadFile(value)}>
+            <FileItem key={value.name} file={value} />
           </Box>
         )
       }
@@ -319,6 +405,11 @@ const ViewJobInfo = ({
             variant='contained'
             disabled={
               !(row.files && row.files.find(value => value.type === 'SAMPLE'))
+            }
+            onClick={() =>
+              DownloadAllFiles(
+                row.files!.filter(value => value.type === 'SAMPLE'),
+              )
             }
           >
             <Icon icon='mdi:download' fontSize={18} />

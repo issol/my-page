@@ -50,7 +50,12 @@ import {
   useQueryClient,
 } from 'react-query'
 import { deleteJob, saveJobInfo, uploadFile } from '@src/apis/job-detail.api'
-import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
+import { FilePostType } from '@src/apis/client-guideline.api'
 
 type Props = {
   row: JobType
@@ -165,6 +170,8 @@ const EditJobInfo = ({
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
+  const [uploadedFiles, setUploadedFiles] = useState<FileType[]>([])
+  const [deletedFiles, setDeletedFiles] = useState<FileType[]>([])
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -206,6 +213,30 @@ const EditJobInfo = ({
     const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
     setFiles([...filtered])
   }
+
+  const handleRemoveUploadedFile = (file: FileType) => {
+    const removeFile = uploadedFiles
+    const filtered = removeFile.filter((i: FileType) => i.name !== file.name)
+    setUploadedFiles([...filtered])
+    setDeletedFiles([...deletedFiles, file])
+  }
+
+  const uploadedFileList = (file: FileType[], type: string) => {
+    return file.map((file: FileType) => {
+      if (file.type === type) {
+        return (
+          <Box key={uuidv4()}>
+            <FileItem
+              key={file.name}
+              file={file}
+              onClear={handleRemoveUploadedFile}
+            />
+          </Box>
+        )
+      }
+    })
+  }
+
   const fileList = files.map((file: FileType, index: number) => {
     return (
       <Box key={uuidv4()}>
@@ -217,47 +248,94 @@ const EditJobInfo = ({
   const onSubmit = () => {
     const data = getValues()
 
-    if (files) {
-      files.map(value => {
-        getUploadUrlforCommon('job', `/project/${row.id}/${value.name}`).then(
-          res => {
-            console.log(res)
-
-            uploadFileToS3(res.url, value).then(() => {
-              uploadFileMutation.mutate({
-                jobId: row.id,
-                size: value.size,
-                name: value.name,
-                type: 'SOURCE',
-              })
-            })
-          },
-        )
+    if (files.length) {
+      const fileInfo: Array<{
+        jobId: number
+        size: number
+        name: string
+        type: 'SAMPLE' | 'SOURCE' | 'TARGET'
+      }> = []
+      const paths: string[] = files.map(file => {
+        return `project/${row.id}/${file.name}`
       })
+      const s3URL = paths.map(value => {
+        return getUploadUrlforCommon('job', value).then(res => {
+          return res.url
+        })
+      })
+      Promise.all(s3URL).then(res => {
+        const promiseArr = res.map((url: string, idx: number) => {
+          fileInfo.push({
+            jobId: row.id,
+            size: files[idx].size,
+            name: files[idx].name,
+            type: 'SAMPLE',
+          })
+          return uploadFileToS3(url, files[idx])
+        })
+        Promise.all(promiseArr)
+          .then(res => {
+            res.map((value, idx) => {
+              uploadFileMutation.mutate(fileInfo[idx])
+              const jobInfo: SaveJobInfoParamsType = {
+                contactPersonId: data.contactPerson.userId,
+                description: data.description ?? null,
+                startDate: data.startedAt ? data.startedAt.toString() : null,
+                startTimezone: data.startTimezone ?? null,
+
+                dueDate: data.dueAt.toString(),
+                dueTimezone: data.dueTimezone,
+                status: data.status.value,
+                sourceLanguage:
+                  data.languagePair.value === 'Language-independent'
+                    ? null
+                    : data.languagePair.source,
+                targetLanguage:
+                  data.languagePair.value === 'Language-independent'
+                    ? null
+                    : data.languagePair.target,
+                name: data.name,
+                isShowDescription: data.isShowDescription,
+              }
+
+              saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
+            })
+          })
+          .catch(err =>
+            toast.error(
+              'Something went wrong while uploading files. Please try again.',
+              {
+                position: 'bottom-left',
+              },
+            ),
+          )
+      })
+    } else {
+      const jobInfo: SaveJobInfoParamsType = {
+        contactPersonId: data.contactPerson.userId,
+        description: data.description ?? null,
+        startDate: data.startedAt ? data.startedAt.toString() : null,
+        startTimezone: data.startTimezone ?? null,
+
+        dueDate: data.dueAt.toString(),
+        dueTimezone: data.dueTimezone,
+        status: data.status.value,
+        sourceLanguage:
+          data.languagePair.value === 'Language-independent'
+            ? null
+            : data.languagePair.source,
+        targetLanguage:
+          data.languagePair.value === 'Language-independent'
+            ? null
+            : data.languagePair.target,
+        name: data.name,
+        isShowDescription: data.isShowDescription,
+      }
+
+      saveJobInfoMutation.mutate({ jobId: row.id, data: jobInfo })
     }
 
-    const res: SaveJobInfoParamsType = {
-      contactPersonId: data.contactPerson.userId,
-      description: data.description ?? null,
-      startDate: data.startedAt ? data.startedAt.toString() : null,
-      startTimezone: data.startTimezone ?? null,
-
-      dueDate: data.dueAt.toString(),
-      dueTimezone: data.dueTimezone,
-      status: data.status.value,
-      sourceLanguage:
-        data.languagePair.value === 'Language-independent'
-          ? null
-          : data.languagePair.source,
-      targetLanguage:
-        data.languagePair.value === 'Language-independent'
-          ? null
-          : data.languagePair.target,
-      name: data.name,
-      isShowDescription: data.isShowDescription,
-    }
-
-    saveJobInfoMutation.mutate({ jobId: row.id, data: res })
+    // TODO : delete file form s3
   }
 
   useEffect(() => {
@@ -341,6 +419,7 @@ const EditJobInfo = ({
       },
       ...langPairList,
     ])
+    setUploadedFiles(row.files ?? [])
     trigger()
   }, [row, item, setValue, languagePair, contactPersonList, trigger])
 
@@ -725,6 +804,19 @@ const EditJobInfo = ({
                 </Button>
               </div>
             </Box>
+            {uploadedFiles && (
+              <Box
+                sx={{
+                  display: 'grid',
+                  gridTemplateColumns: 'repeat(2, 1fr)',
+
+                  width: '100%',
+                  gap: '20px',
+                }}
+              >
+                {uploadedFileList(uploadedFiles, 'SAMPLE')}
+              </Box>
+            )}
             {fileList.length > 0 && (
               <Box
                 sx={{

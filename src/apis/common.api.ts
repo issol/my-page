@@ -24,6 +24,11 @@ export const getPresignedUrl = async (
   }
 }
 
+/**
+ * getUploadUrlforCommon, getDownloadUrlforCommon FilePath 관련 특이사항
+ * FilePath는 S3에 저장되어야 할 정확한 위치의 경로를 미리 조합한 후 위 함수를 통해 업로드/다운로드 경로를 받아야 함
+ * 예) Pro의 Resume 파일 업로드 시 : /1234(userId)/resume/resume-file.pdf 와 같이 전체 경로를 조합한 후 getUploadUrlforCommon를 통해 업로드 경로를 받아야 함
+ */
 //pro, onboarding 등 S3 업로드 주소 조회용(Presigned-URL)
 export const getUploadUrlforCommon = async (
   fileType: string,
@@ -31,7 +36,9 @@ export const getUploadUrlforCommon = async (
 ) => {
   try {
     const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(filePath)}`,
+      `${BASEURL}/api/enough/u/s3/presigned-url?type=${fileType}&filePath=${encodeURIComponent(
+        filePath,
+      )}`,
     )
     return data
   } catch (e: any) {
@@ -46,7 +53,7 @@ export const getDownloadUrlforCommon = async (
 ) => {
   try {
     const { data } = await axios.get(
-      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${encodeURIComponent(filePath)}`,
+      `${BASEURL}/api/enough/u/s3/signed-url?type=${fileType}&filePath=${filePath}`,
     )
     return data
   } catch (e: any) {

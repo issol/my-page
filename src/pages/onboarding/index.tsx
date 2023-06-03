@@ -220,11 +220,43 @@ export default function Onboarding() {
       sortable: false,
       renderHeader: () => <Box>Job type / Role</Box>,
       renderCell: ({ row }: OnboardingListCellType) => {
+        // 리턴받은 jobInfo를 createdAt 기준으로 내림차순 정렬, 나중에 백엔드에 정렬된 데이터를 달라고 요구해도 될듯
         row.jobInfo.sort((a, b) => {
           const dateA = new Date(a.createdAt).getTime()
           const dateB = new Date(b.createdAt).getTime()
           return dateB - dateA
         })
+
+        // 필터에 Source, Target, jobType, role, testStatus가 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시킴
+        // 리스트에서 Job type/Role, Language Pair, Test status를 볼수있게 처리
+        const sourceFilters = filters.source || [];
+        const targetFilters = filters.target || [];
+        const jobTypeFilters = filters.jobType || [];
+        const roleFilters = filters.role || [];
+        const testStatusFilters = filters.testStatus || [];
+
+        row.jobInfo.some((value, idx) => {
+          const source = value.source || ''
+          const target = value.target || ''
+          const jobType = value.jobType || ''
+          const role = value.role || ''
+          const testStatus = value.testStatus || ''
+          if (
+            (sourceFilters.length === 0 || sourceFilters.includes(source)) &&
+            (targetFilters.length === 0 || targetFilters.includes(target)) &&
+            (jobTypeFilters.length === 0 || jobTypeFilters.includes(jobType)) &&
+            (roleFilters.length === 0 || roleFilters.includes(role)) &&
+            (testStatusFilters.length === 0 || testStatusFilters.includes(testStatus))
+          ) {
+            const dummy = row.jobInfo[idx];
+            for (let i = idx; i > 0; i--) {
+              row.jobInfo[i] = row.jobInfo[i - 1];
+            }
+            row.jobInfo[0] = dummy;
+            return true;
+          }
+          return false;
+        });
         const jobInfo = row.jobInfo.map(value => ({
           jobType: value.jobType,
           role: value.role,
