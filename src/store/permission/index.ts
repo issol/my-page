@@ -300,6 +300,22 @@ export const getPermission = createAsyncThunk(
             subject: 'job_list',
             can: 'delete',
           },
+          {
+            subject: 'invoice',
+            can: 'read',
+          },
+          {
+            subject: 'invoice',
+            can: 'create',
+          },
+          {
+            subject: 'invoice',
+            can: 'update',
+          },
+          {
+            subject: 'invoice',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {

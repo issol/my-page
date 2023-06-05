@@ -4,29 +4,33 @@ import { useRef } from 'react'
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
+
+// ** style components
 import styled from 'styled-components'
-import { QuotesListType } from '@src/types/common/quotes.type'
-import { CalendarEventType } from '@src/types/common/calendar.type'
 import { Box } from '@mui/material'
 
+// ** types
+import { CalendarEventType } from '@src/types/common/calendar.type'
+import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
+
 type Props = {
-  event: Array<CalendarEventType<QuotesListType>>
+  event: Array<CalendarEventType<InvoiceReceivableListType>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string
-  setCurrentListId: (id: string) => void
+  setCurrentListId: (id: number | null) => void
 }
 
-const Calendar = (props: Props) => {
+const ReceivableCalendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
 
   const finalEvent = event.map(item => {
     return {
       ...item,
-      title: item.projectName ?? '',
-      start: item.quoteDate ?? '',
-      end: item?.quoteDeadline ? item?.quoteDeadline : item.quoteExpiry,
+      title: item.order.projectName,
+      start: item.invoicedAt,
+      end: item?.paidAt ? item?.paidAt : item.payDueAt,
     }
   })
 
@@ -55,7 +59,7 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      setCurrentListId(event?.id)
+      setCurrentListId(Number(event?.id))
     },
   }
 
@@ -73,7 +77,7 @@ const Calendar = (props: Props) => {
   )
 }
 
-export default Calendar
+export default ReceivableCalendar
 
 const CustomEvent = styled(Box)<{ color: string }>`
   border-color: transparent !important;
