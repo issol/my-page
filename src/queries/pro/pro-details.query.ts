@@ -5,8 +5,9 @@ import _ from 'lodash'
 
 export const useGetProOverview = (userId: number) => {
   const id = typeof userId === 'number' ? userId : 0
-  return useQuery<DetailUserType, Error, DetailUserType>(
-    `${userId}`,
+  return useQuery<DetailUserType, Error>(
+    // Onboarding에서 유저 조회 후 바로 동일 유저를 Pro에서 조회할 경우 queryKey가 겹쳐서 appliedRoles 값이 없는 경우가 있음. 쿼리키를 지정함
+    `proId:${userId}`,
     () => getProOverview(id!),
     {
       staleTime: 60 * 1000, // 1
