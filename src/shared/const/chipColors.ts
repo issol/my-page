@@ -55,6 +55,7 @@ export const TestStatusColor = {
   'Skill failed': '#FF4D49',
   Paused: '#6D788D',
   Rejected: '#FF4D49',
+  'Skill passed': '#72E128',
 }
 
 export const TestTypeColor = {
