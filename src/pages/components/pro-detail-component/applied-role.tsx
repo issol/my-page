@@ -193,8 +193,10 @@ export default function AppliedRole({
         )
       }
     } else if (
-      jobInfo.testStatus === 'Skill failed' ||
-      jobInfo.testStatus === 'Cancelled'
+      // requestStatus가 Certified인데 testStatus가 Cancelled로 남아있는 디비 정보가 있어 예외처리함
+      (jobInfo.testStatus === 'Skill failed' ||
+        jobInfo.testStatus === 'Cancelled') &&
+      jobInfo.requestStatus !== 'Certified'
     ) {
       return (
         <Button
@@ -214,10 +216,11 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
-        jobInfo!.requestStatus === 'Test assigned' &&
-        jobInfo.testStatus === 'Awaiting assignment' &&
-        (skillTest && skillTest.status !== 'NO_TEST')
-      ) {
+      jobInfo!.requestStatus === 'Test assigned' &&
+      jobInfo.testStatus === 'Awaiting assignment' &&
+      skillTest &&
+      skillTest.status !== 'NO_TEST'
+    ) {
       return (
         <Button
           fullWidth
@@ -287,12 +290,15 @@ export default function AppliedRole({
         </Button>
       )
     } else if (
-      (jobInfo!.requestStatus === 'Test in progress' && 
-      jobInfo!.testStatus === 'Skipped') ||
-      (jobInfo!.requestStatus === 'Test in progress' && 
-      basicTest && basicTest.status === 'NO_TEST' &&
-      skillTest && skillTest.status === 'Awaiting assignment')
-    ) { // basic skip
+      (jobInfo!.requestStatus === 'Test in progress' &&
+        jobInfo!.testStatus === 'Skipped') ||
+      (jobInfo!.requestStatus === 'Test in progress' &&
+        basicTest &&
+        basicTest.status === 'NO_TEST' &&
+        skillTest &&
+        skillTest.status === 'Awaiting assignment')
+    ) {
+      // basic skip
       return (
         <Button
           fullWidth
