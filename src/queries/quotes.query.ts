@@ -46,9 +46,10 @@ export const useGetMemberList = () => {
     },
   )
 }
+
 export const useGetQuotesList = (filter: QuotesFilterType) => {
   return useQuery(
-    ['get-quotes/list'],
+    ['quotesList', { type: 'list' }],
     () => {
       return getQuotesList(filter)
     },
@@ -59,12 +60,13 @@ export const useGetQuotesList = (filter: QuotesFilterType) => {
     },
   )
 }
+
 export const useGetQuotesCalendarData = (
   date: string,
   filter: QuotesFilterType,
 ) => {
   return useQuery(
-    ['get-quotes/calendar', date, filter],
+    ['quotesList', { type: 'calendar' }, date, filter],
     () => {
       return getQuotesCalendarData(date, filter)
     },
@@ -77,43 +79,59 @@ export const useGetQuotesCalendarData = (
 }
 
 export const useGetProjectInfo = (id: number) => {
-  return useQuery([`quotes-projectInfo-${id}`, id], () => getProjectInfo(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`quotesDetail`, { type: 'project' }, id],
+    () => getProjectInfo(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-  })
+      suspense: true,
+    },
+  )
 }
 
 export const useGetProjectTeam = (id: number) => {
-  return useQuery([`quotes-projectTeam-${id}`, id], () => getProjectTeam(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`quotesDetail`, { type: 'team' }, id],
+    () => getProjectTeam(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
+      suspense: true,
 
-    select: data => {
-      return data.map(value => ({ ...value, id: value.id }))
+      select: data => {
+        return data.map(value => ({ ...value, id: value.id }))
+      },
     },
-  })
+  )
 }
 
 export const useGetClient = (id: number) => {
-  return useQuery([`quotes-client-${id}`, id], () => getClient(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`quotesDetail`, { type: 'client' }, id],
+    () => getClient(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-  })
+      suspense: true,
+    },
+  )
 }
 
 export const useGetLangItem = (id: number) => {
-  return useQuery([`quotes-langItem-${id}`, id], () => getLangItems(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`quotesDetailItems`, { type: 'item' }, id],
+    () => getLangItems(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-  })
+      suspense: true,
+    },
+  )
 }
 
 export const useGetVersionHistory = (id: number) => {
-  return useQuery([`quotes-history-${id}`, id], () => getVersionHistory(id), {
+  return useQuery([`quotesHistory`, id], () => getVersionHistory(id), {
     staleTime: 60 * 1000, // 1
     suspense: true,
   })
