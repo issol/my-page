@@ -65,6 +65,11 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import {
+  ClientFormType as ClientPostType,
+  LanguagePairsPostType,
+  ProjectTeamFormType,
+} from '@src/types/common/orders-and-quotes.type'
+import {
   QuoteDownloadData,
   QuotesProjectInfoFormType,
   VersionHistoryType,
@@ -90,7 +95,11 @@ import {
   useGetProjectTeam,
   useGetVersionHistory,
 } from '@src/queries/quotes.query'
-import { deleteQuotes, restoreVersion } from '@src/apis/quotes.api'
+import {
+  deleteQuotes,
+  patchQuoteProjectInfo,
+  restoreVersion,
+} from '@src/apis/quotes.api'
 import { getPriceList } from '@src/apis/company-price.api'
 
 // ** helpers
@@ -104,7 +113,7 @@ import { toast } from 'react-hot-toast'
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
 import PrintQuotePage from './components/pdf-download/quote-preview'
-import { LanguagePairsPostType } from '@src/types/common/orders-and-quotes.type'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
@@ -155,6 +164,7 @@ export default function QuotesDetail() {
   const { data: project, isLoading: isProjectLoading } = useGetProjectInfo(
     Number(id),
   )
+
   const {
     control: projectInfoControl,
     getValues: getProjectInfoValues,
@@ -296,7 +306,7 @@ export default function QuotesDetail() {
         address => address.isSelected,
       )?.addressType
       clientReset({
-        clientId: client.client.clientId,
+        clientId: client?.client?.clientId,
         contactPersonId: client?.contactPerson?.id ?? null,
         addressType: addressType === 'additional' ? 'shipping' : addressType,
       })
@@ -366,7 +376,7 @@ export default function QuotesDetail() {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (teams.length) resetTeam({ teams })
     }
   }, [isTeamLoading])
 
@@ -422,7 +432,7 @@ export default function QuotesDetail() {
 
   const restoreMutation = useMutation((id: number) => restoreVersion(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(`quotes-history-${id}`)
+      queryClient.invalidateQueries(`quotesHistory`)
     },
     onError: () => onMutationError(),
   })
@@ -463,15 +473,41 @@ export default function QuotesDetail() {
       children: (
         <EditSaveModal
           onClose={() => closeModal('EditSaveModal')}
-          onClick={callBack}
+          onClick={() => {
+            closeModal('EditSaveModal')
+            callBack()
+          }}
         />
       ),
     })
   }
 
+  type updateProjectInfoType =
+    | QuotesProjectInfoFormType
+    | ProjectTeamFormType
+    | ClientPostType
+
+  const updateProject = useMutation(
+    (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
+    {
+      onSuccess: () => {
+        setEditProject(false)
+        setEditClient(false)
+        setEditTeam(false)
+
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetail'],
+        })
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
   function onProjectInfoSave() {
-    //
+    const projectInfo = getProjectInfoValues()
+    onSave(() => updateProject.mutate(projectInfo))
   }
+
   function onItemSave() {
     // tax, taxable도 같이 보내기 & item, languagePair, projectInfo mutation붙이기
     const items: PostItemType[] = getItem().items.map(item => ({
@@ -496,10 +532,19 @@ export default function QuotesDetail() {
   }
 
   function onClientSave() {
-    //
+    const form = getClientValue()
+    const clientInfo: ClientPostType = {
+      //@ts-ignore
+      addressType: form.addressType,
+      clientId: form.clientId!,
+      contactPersonId: form.contactPersonId,
+    }
+    onSave(() => updateProject.mutate(clientInfo))
   }
+
   function onProjectTeamSave() {
-    //
+    const teams = transformTeamData(getTeamValues())
+    onSave(() => updateProject.mutate(teams))
   }
 
   function onDiscard({ callback }: { callback: () => void }) {
@@ -548,7 +593,7 @@ export default function QuotesDetail() {
   const deleteQuotesMutation = useMutation((id: number) => deleteQuotes(id), {
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['get-quotes/list', 'get-quotes/calendar'],
+        queryKey: ['quotesList'],
       })
       router.push('/quotes')
     },
@@ -817,7 +862,7 @@ export default function QuotesDetail() {
                       {renderSubmitButton({
                         onCancel: () =>
                           onDiscard({ callback: () => setEditProject(false) }),
-                        onSave: () => onSave(onProjectInfoSave),
+                        onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
                     </Grid>
@@ -852,6 +897,8 @@ export default function QuotesDetail() {
               )}
             </Suspense>
           </TabPanel>
+
+          {/* Languages & Items */}
           <TabPanel value='item' sx={{ pt: '24px' }}>
             <Card>
               <CardContent sx={{ padding: '24px' }}>
@@ -881,7 +928,7 @@ export default function QuotesDetail() {
                   ? renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditItems(false) }),
-                      onSave: () => onSave(onItemSave),
+                      onSave: () => onItemSave(),
                       isValid: isItemValid || (taxable && tax! > 0),
                     })
                   : null}
@@ -903,7 +950,7 @@ export default function QuotesDetail() {
                     {renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditClient(false) }),
-                      onSave: () => onSave(onClientSave),
+                      onSave: () => onClientSave(),
                       isValid: isClientValid,
                     })}
                   </Grid>
@@ -936,7 +983,7 @@ export default function QuotesDetail() {
                     {renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditTeam(false) }),
-                      onSave: () => onSave(onProjectTeamSave),
+                      onSave: () => onProjectTeamSave(),
                       isValid: isTeamValid,
                     })}
                   </Grid>
