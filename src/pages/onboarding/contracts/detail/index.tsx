@@ -133,7 +133,8 @@ const ContractDetail = () => {
     },
   })
   const restoreMutation = useMutation(
-    () => restoreContract(contract?.documentId!, user?.username!, user?.email!),
+    (restoreDocId: number) =>
+      restoreContract(restoreDocId, user?.username!, user?.email!),
     {
       onSuccess: () => {
         refetch()
@@ -354,7 +355,15 @@ const ContractDetail = () => {
     }
   }
 
-  function onRestore() {
+  useEffect(() => {
+    if (contract?.content) {
+      const content = convertFromRaw(contract?.content as any)
+      const editorState = EditorState.createWithContent(content)
+      setMainContent(editorState)
+    }
+  }, [contract])
+
+  function onRestore(restoreDoc: any) {
     setOpenDetail(false)
     setModal(
       <ModalContainer>
@@ -390,7 +399,7 @@ const ContractDetail = () => {
             variant='contained'
             onClick={() => {
               setModal(null)
-              restoreMutation.mutate()
+              restoreMutation.mutate(restoreDoc.documentId)
             }}
           >
             Restore
@@ -484,41 +493,44 @@ const ContractDetail = () => {
           </Grid>
           <>
             <Grid item xs={3} className='match-height' sx={{ height: '152px' }}>
-              <Card>
-                <Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isAuthor('delete', contract?.userId) ? (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  ) : (
-                    ''
-                  )}
+              {isAuthor('delete', contract?.userId) ||
+              isAuthor('update', contract?.userId) ? (
+                <Card>
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isAuthor('delete', contract?.userId) ? (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    ) : (
+                      ''
+                    )}
 
-                  {isAuthor('update', contract?.userId) ? (
-                    <Button
-                      variant='contained'
-                      onClick={onEdit}
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                    >
-                      Edit
-                    </Button>
-                  ) : (
-                    ''
-                  )}
-                </Box>
-              </Card>
+                    {isAuthor('update', contract?.userId) ? (
+                      <Button
+                        variant='contained'
+                        onClick={onEdit}
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                      >
+                        Edit
+                      </Button>
+                    ) : (
+                      ''
+                    )}
+                  </Box>
+                </Card>
+              ) : null}
             </Grid>
           </>
         </Grid>
@@ -583,7 +595,10 @@ const ContractDetail = () => {
                 </Button>
 
                 {isAuthor('update', Number(currentRow?.userId)) ? (
-                  <Button variant='contained' onClick={onRestore}>
+                  <Button
+                    variant='contained'
+                    onClick={() => onRestore(currentRow)}
+                  >
                     Restore this version
                   </Button>
                 ) : (
