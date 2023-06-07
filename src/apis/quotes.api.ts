@@ -22,6 +22,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -174,35 +175,48 @@ export const createItemsForQuotes = async (
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getProjectTeam = async (
   id: number,
 ): Promise<ProjectTeamListType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/team`)
     return data.members
   } catch (e: any) {
-    throw new Error(e)
+    // throw new Error(e)
+    return []
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getClient = async (id: number): Promise<ClientType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/client`)
 
     return data
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      addressType: '',
+      client: {
+        clientId: NOT_APPLICABLE,
+        email: '',
+        fax: null,
+        mobile: null,
+        phone: null,
+        timezone: { phone: '', code: '', label: '' },
+        name: '',
+        taxable: false,
+        tax: null,
+      },
+      contactPerson: null,
+      clientAddress: [],
+    }
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/items`)
     return {
       ...data,
       items: data.items.map((item: ItemResType) => ({
@@ -218,10 +232,9 @@ export const getLangItems = async (
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/project`)
 
     return data
   } catch (e: any) {
@@ -237,12 +250,11 @@ export const deleteQuotes = async (id: number): Promise<void> => {
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getVersionHistory = async (
   id: number,
 ): Promise<VersionHistoryType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/history`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/history`)
     return data
     // return [
     //   {
@@ -984,10 +996,43 @@ export const restoreVersion = async (id: number): Promise<void> => {
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const patchQuoteProjectInfo = async (
   id: number,
-  form: QuotesProjectInfoFormType | { downloadedAt: string },
+  form:
+    | QuotesProjectInfoFormType
+    | ProjectTeamFormType
+    | ClientFormType
+    | { downloadedAt: string },
 ) => {
-  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+  await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+}
+
+/* TODO : endpoint 수정하기 */
+export const patchQuoteClientInfo = async (
+  id: number,
+  form: ClientFormType,
+) => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/order/${id}`, {
+      ...form,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO : endpoint 수정하기 */
+export const patchQuoteTeamInfo = async (
+  id: number,
+  form: ProjectTeamFormType,
+) => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/order/${id}`, {
+      ...form,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
