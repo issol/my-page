@@ -269,7 +269,9 @@ export default function AddNewOrder() {
     const isDeletable = !getItem()?.items?.length
       ? true
       : !getItem().items.some(
-          item => item.source === row.source && item.target === row.target,
+          item =>
+            item.sourceLanguage === row.source &&
+            item.targetLanguage === row.target,
         )
     if (isDeletable) {
       openModal({
@@ -336,8 +338,8 @@ export default function AddNewOrder() {
     )
     appendItems({
       name: '',
-      source: '',
-      target: '',
+      sourceLanguage: '',
+      targetLanguage: '',
       contactPersonId: projectManager?.id!,
       priceId: null,
       detail: [],
@@ -515,8 +517,8 @@ export default function AddNewOrder() {
             return {
               id: item.id,
               name: item.name,
-              source: item.source,
-              target: item.target,
+              source: item.sourceLanguage,
+              target: item.targetLanguage,
               priceId: item.priceId,
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],

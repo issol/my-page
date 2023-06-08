@@ -96,6 +96,10 @@ import {
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
 import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 export type languageType = {
   id: number | string
@@ -280,7 +284,9 @@ export default function AddNewOrder() {
     const isDeletable = !getItem()?.items?.length
       ? true
       : !getItem().items.some(
-          item => item.source === row.source && item.target === row.target,
+          item =>
+            item.sourceLanguage === row.source &&
+            item.sourceLanguage === row.target,
         )
     if (isDeletable) {
       openModal({
@@ -347,8 +353,8 @@ export default function AddNewOrder() {
     )
     appendItems({
       name: '',
-      source: '',
-      target: '',
+      sourceLanguage: '',
+      targetLanguage: '',
       contactPersonId: projectManager?.id!,
       priceId: null,
       detail: [],
@@ -528,12 +534,14 @@ export default function AddNewOrder() {
             return {
               id: item.id,
               name: item.name,
-              source: item.source,
-              target: item.target,
+              sourceLanguage: item.sourceLanguage,
+              targetLanguage: item.targetLanguage,
               priceId: item.priceId,
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
+              dueAt: item.dueAt,
+              contactPersonId: item.contactPersonId,
             }
           })
           itemReset({ items: result })
@@ -667,7 +675,7 @@ export default function AddNewOrder() {
             <Grid container>
               <Grid item xs={12}>
                 <AddLanguagePairForm
-                  type='create'
+                  type='detail'
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
@@ -687,23 +695,46 @@ export default function AddNewOrder() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
-                  type='create'
+                  type='invoiceDetail'
                 />
               </Grid>
+
               <Grid item xs={12}>
-                <Button
-                  startIcon={<Icon icon='material-symbols:add' />}
-                  disabled={isAddItemDisabled()}
-                  onClick={addNewItem}
-                >
-                  <Typography
-                    color={isAddItemDisabled() ? 'secondary' : 'primary'}
-                    sx={{ textDecoration: 'underline' }}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
                   >
-                    Add new item
-                  </Typography>
-                </Button>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
               </Grid>
+
               <Grid
                 item
                 xs={12}
@@ -716,36 +747,98 @@ export default function AddNewOrder() {
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Checkbox
-                    checked={getProjectInfoValues().taxable}
-                    onChange={e => {
-                      if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }}
-                  />
-                  <Typography>Tax</Typography>
+                  <Typography
+                    variant='subtitle1'
+                    fontSize={20}
+                    fontWeight={500}
+                  >
+                    Tax
+                  </Typography>
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <TextField
-                    size='small'
-                    type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
-                    sx={{ maxWidth: '120px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      if (e.target.value.length > 10) return
-                      setTax(Number(e.target.value))
-                    }}
-                  />
-                  %
+                  <Box>{!getProjectInfoValues().taxable ? '-' : tax}</Box>%
                 </Box>
               </Grid>
-              <Grid item xs={12} display='flex' justifyContent='space-between'>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '1.5px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Tax
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '1.5px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '250px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      color={'#666CFF'}
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Total
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      color={'#666CFF'}
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                justifyContent='space-between'
+                sx={{ marginTop: '24px' }}
+              >
                 <Button
                   variant='outlined'
                   color='secondary'

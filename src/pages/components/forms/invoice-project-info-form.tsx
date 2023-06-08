@@ -85,7 +85,6 @@ export default function InvoiceProjectInfoForm({
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList()
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -98,19 +97,17 @@ export default function InvoiceProjectInfoForm({
   }, [clientTimezone])
 
   useEffect(() => {
-    if (isSuccess) {
-      setWorkName(data)
-    }
-  }, [isSuccess])
+    setValue('sendReminder', true, setValueOptions)
+  }, [])
 
-  function renderErrorMsg(key: keyof OrderProjectInfoFormType) {
+  function renderErrorMsg(key: keyof InvoiceProjectInfoFormType) {
     return (
       <>
-        {/* {errors[key] && (
+        {errors[key] && (
           <FormHelperText sx={{ color: 'error.main' }}>
             {errors[key]?.message}
           </FormHelperText>
-        )} */}
+        )}
       </>
     )
   }
@@ -122,6 +119,7 @@ export default function InvoiceProjectInfoForm({
           <Controller
             name='sendReminder'
             control={control}
+            defaultValue={true}
             render={({ field: { value, onChange } }) => (
               <Checkbox
                 value={value}
@@ -174,7 +172,7 @@ export default function InvoiceProjectInfoForm({
             />
           )}
         />
-        {renderErrorMsg('orderDate')}
+        {renderErrorMsg('invoiceDate')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -631,7 +629,8 @@ export default function InvoiceProjectInfoForm({
                 multiline
                 fullWidth
                 error={Boolean(errors.invoiceDescription)}
-                label='Write down an invoice description.'
+                // label='Write down an invoice description.'
+                placeholder='Write down an invoice description.'
                 value={value ?? ''}
                 onChange={onChange}
                 inputProps={{ maxLength: 500 }}

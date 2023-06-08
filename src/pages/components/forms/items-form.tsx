@@ -110,6 +110,7 @@ export default function ItemForm({
   type,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  console.log(getValues())
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -135,8 +136,8 @@ export default function ItemForm({
   }, [teamMembers])
 
   function onChangeLanguagePair(v: languageType | null, idx: number) {
-    setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
-    setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
+    setValue(`items.${idx}.sourceLanguage`, v?.source ?? '', setValueOptions)
+    setValue(`items.${idx}.targetLanguage`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
     }
@@ -175,11 +176,11 @@ export default function ItemForm({
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
     const priceData =
-      getPriceOptions(itemData.source, itemData.target).find(
+      getPriceOptions(itemData.sourceLanguage, itemData.targetLanguage).find(
         price => price.id === itemData.priceId,
       ) || null
-    const sourceLanguage = getValues(`items.${idx}.source`)
-    const targetLanguage = getValues(`items.${idx}.target`)
+    const sourceLanguage = getValues(`items.${idx}.sourceLanguage`)
+    const targetLanguage = getValues(`items.${idx}.targetLanguage`)
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
@@ -321,10 +322,12 @@ export default function ItemForm({
                 </IconButton>
                 <Typography fontWeight={500}>
                   {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
-                  {type === 'detail' ? getValues(`items.${idx}.name`) : null}
+                  {type === 'detail' || type === 'invoiceDetail'
+                    ? getValues(`items.${idx}.name`)
+                    : null}
                 </Typography>
               </Box>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <IconButton onClick={() => onItemRemove(idx)}>
                   <Icon icon='mdi:trash-outline' />
                 </IconButton>
@@ -333,7 +336,7 @@ export default function ItemForm({
           </Grid>
           {cardOpen ? (
             <>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <Grid item xs={12}>
                   <Controller
                     name={`items.${idx}.name`}
@@ -354,7 +357,7 @@ export default function ItemForm({
               )}
 
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -392,7 +395,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -451,7 +454,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -470,23 +473,27 @@ export default function ItemForm({
                       {languageHelper(
                         languagePairs.find(
                           item =>
-                            item.source === getValues(`items.${idx}.source`) &&
-                            item.target === getValues(`items.${idx}.target`),
+                            item.source ===
+                              getValues(`items.${idx}.sourceLanguage`) &&
+                            item.target ===
+                              getValues(`items.${idx}.targetLanguage`),
                         )?.source,
                       )}
                       &nbsp;&rarr;&nbsp;
                       {languageHelper(
                         languagePairs.find(
                           item =>
-                            item.source === getValues(`items.${idx}.source`) &&
-                            item.target === getValues(`items.${idx}.target`),
+                            item.source ===
+                              getValues(`items.${idx}.sourceLanguage`) &&
+                            item.target ===
+                              getValues(`items.${idx}.targetLanguage`),
                         )?.target,
                       )}
                     </Typography>
                   </Box>
                 ) : (
                   <Controller
-                    name={`items.${idx}.source`}
+                    name={`items.${idx}.sourceLanguage`}
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       return (
@@ -511,13 +518,15 @@ export default function ItemForm({
                                   item =>
                                     item.source === value &&
                                     item.target ===
-                                      getValues(`items.${idx}.target`),
+                                      getValues(`items.${idx}.targetLanguage`),
                                 )
                           }
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(errors?.items?.[idx]?.source)}
+                              error={Boolean(
+                                errors?.items?.[idx]?.sourceLanguage,
+                              )}
                               label='Language pair*'
                               placeholder='Language pair*'
                             />
@@ -529,7 +538,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -547,8 +556,8 @@ export default function ItemForm({
                     <Typography variant='body1' fontSize={14}>
                       {
                         getPriceOptions(
-                          getValues(`items.${idx}.source`),
-                          getValues(`items.${idx}.target`),
+                          getValues(`items.${idx}.sourceLanguage`),
+                          getValues(`items.${idx}.targetLanguage`),
                         ).find(
                           item => item.id === getValues(`items.${idx}.priceId`),
                         )?.priceName
@@ -561,8 +570,8 @@ export default function ItemForm({
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       const options = getPriceOptions(
-                        getValues(`items.${idx}.source`),
-                        getValues(`items.${idx}.target`),
+                        getValues(`items.${idx}.sourceLanguage`),
+                        getValues(`items.${idx}.targetLanguage`),
                       )
                       const matchingPrice = options.find(
                         item => item.groupName === 'Matching price',
@@ -582,8 +591,8 @@ export default function ItemForm({
                             const value = getValues().items[idx]
                             if (v) {
                               const index = findLangPairIndex(
-                                value?.source!,
-                                value?.target!,
+                                value?.sourceLanguage!,
+                                value?.targetLanguage!,
                               )
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]
@@ -625,8 +634,8 @@ export default function ItemForm({
                 onDeletePriceUnit={onDeletePriceUnit}
                 onItemBoxLeave={onItemBoxLeave}
                 isValid={
-                  !!itemData.source &&
-                  !!itemData.target &&
+                  !!itemData.sourceLanguage &&
+                  !!itemData.targetLanguage &&
                   (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
                 }
                 isNotApplicable={itemData.priceId === NOT_APPLICABLE}
@@ -640,7 +649,7 @@ export default function ItemForm({
                 <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                   Item description
                 </Typography>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
                     {getValues(`items.${idx}.description`)}
                   </Typography>
@@ -677,17 +686,20 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              <Grid item xs={12}>
-                <TmAnalysisForm
-                  control={control}
-                  index={idx}
-                  details={details}
-                  priceData={priceData}
-                  priceFactor={priceFactor}
-                  onCopyAnalysis={onCopyAnalysis}
-                  type={type}
-                />
-              </Grid>
+              {type === 'invoiceDetail' ? null : (
+                <Grid item xs={12}>
+                  <TmAnalysisForm
+                    control={control}
+                    index={idx}
+                    details={details}
+                    priceData={priceData}
+                    priceFactor={priceFactor}
+                    onCopyAnalysis={onCopyAnalysis}
+                    type={type}
+                  />
+                </Grid>
+              )}
+
               {/* TM analysis */}
             </>
           ) : null}
