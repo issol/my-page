@@ -13,14 +13,15 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 export const getAssignProList = async (
   id: number,
   filters: AssignProFilterPostType,
+  isHistory: boolean,
 ): Promise<{
   totalCount: number
   data: AssignProListType[]
   count: number
 }> => {
-  const { data } = await axios.get(
-    `/api/enough/u/pro/job/${id}?${makeQuery(filters)}`,
-  )
+  const { data } = isHistory
+    ? await axios.get(`/api/enough/u/job/${id}/request/history`)
+    : await axios.get(`/api/enough/u/pro/job/${id}?${makeQuery(filters)}`)
 
   return data
 }
@@ -46,9 +47,14 @@ export const getJobDetails = async (
   }
 }
 
-export const getJobInfo = async (id: number): Promise<JobType> => {
+export const getJobInfo = async (
+  id: number,
+  isHistory: boolean,
+): Promise<JobType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
+    const { data } = isHistory
+      ? await axios.get(`/api/enough/u/job/history/${id}`)
+      : await axios.get(`/api/enough/u/job/${id}/info`)
     console.log(data)
 
     return data
@@ -88,9 +94,14 @@ export const deleteJob = async (id: number) => {
 
 export const getJobPrices = async (
   id: number,
+  isHistory: boolean,
 ): Promise<JobPricesDetailType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
+    const { data } = isHistory
+      ? await axios.get(`/api/enough/u/job/history/${id}/price`)
+      : await axios.get(`/api/enough/u/job/${id}/price`)
+    console.log(data)
+
     return data
   } catch (e: any) {
     return {
