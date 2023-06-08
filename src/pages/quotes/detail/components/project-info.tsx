@@ -28,7 +28,7 @@ type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
   isUpdatable: boolean
-  updateStatus: (status: QuoteStatusType) => void
+  updateStatus?: (status: QuoteStatusType) => void
 }
 
 export default function QuotesProjectInfoDetail({
@@ -75,7 +75,7 @@ export default function QuotesProjectInfoDetail({
                   fullWidth
                   options={QuotesStatus}
                   onChange={(e, v) => {
-                    if (v?.value) {
+                    if (updateStatus && v?.value) {
                       updateStatus(v.value as QuoteStatusType)
                     }
                   }}

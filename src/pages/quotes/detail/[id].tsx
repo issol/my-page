@@ -438,13 +438,13 @@ export default function QuotesDetail() {
     onError: () => onMutationError(),
   })
 
-  const onClickRestoreVersion = (id: number) => {
+  const onClickRestoreVersion = () => {
     openModal({
       type: 'RestoreConfirmModal',
       children: (
         <ModalWithButtonName
           message='Are you sure you want to restore this version?'
-          onClick={() => restoreMutation.mutate(id)}
+          onClick={() => restoreMutation.mutate(Number(id))}
           onClose={() => closeModal('RestoreConfirmModal')}
           iconType='error'
           rightButtonName='Restore'
@@ -954,6 +954,8 @@ export default function QuotesDetail() {
               </CardContent>
             </Card>
           </TabPanel>
+
+          {/* Client */}
           <TabPanel value='client' sx={{ pt: '24px' }}>
             <Card sx={{ padding: '24px' }}>
               {editClient ? (
@@ -983,6 +985,8 @@ export default function QuotesDetail() {
               )}
             </Card>
           </TabPanel>
+
+          {/* Team */}
           <TabPanel value='team' sx={{ pt: '24px' }}>
             <Suspense>
               {editTeam ? (
@@ -1050,6 +1054,8 @@ export default function QuotesDetail() {
               )}
             </Suspense>
           </TabPanel>
+
+          {/* Version history */}
           <TabPanel value='history' sx={{ pt: '24px' }}>
             <VersionHistory
               list={versionHistory || []}

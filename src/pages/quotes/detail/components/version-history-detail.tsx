@@ -29,8 +29,8 @@ import QuotesClientDetail from './client'
 
 type Props = {
   history: VersionHistoryType
-  onClose: any
-  onClick: any
+  onClose: () => void
+  onClick: () => void
   isUpdatable: boolean
 }
 
