@@ -454,7 +454,9 @@ export default function CertificationTest({
                         mt: 2,
 
                         background:
-                          skillTest!.status === 'Skill failed'
+                          skillTest!.status === 'Skill passed'
+                            ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128'
+                            : skillTest!.status === 'Skill failed'
                             ? 'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49'
                             : 'rgba(76, 78, 100, 0.05)',
                         boxShadow: 'none',
@@ -518,7 +520,8 @@ export default function CertificationTest({
                               skillTest!.status === 'Skill failed' ||
                               skillTest!.status === 'Reviewing' ||
                               skillTest!.status === 'Review completed' ||
-                              skillTest!.status === 'Review canceled'
+                              skillTest!.status === 'Review canceled' ||
+                              skillTest!.status === 'Skill passed'
                             ) ? null : (
                               <Chip
                                 size='medium'
@@ -529,7 +532,8 @@ export default function CertificationTest({
                                   skillTest!.status === 'Skill failed' ||
                                   skillTest!.status === 'Reviewing' ||
                                   skillTest!.status === 'Review completed' ||
-                                  skillTest!.status === 'Review canceled'
+                                  skillTest!.status === 'Review canceled' ||
+                                  skillTest!.status === 'Skill passed'
                                     ? skillTest!.status
                                     : '-'
                                 }
@@ -542,7 +546,8 @@ export default function CertificationTest({
                                     skillTest!.status === 'Skill failed' ||
                                     skillTest!.status === 'Reviewing' ||
                                     skillTest!.status === 'Review completed' ||
-                                    skillTest!.status === 'Review canceled'
+                                    skillTest!.status === 'Review canceled' ||
+                                    skillTest!.status === 'Skill passed'
                                       ? skillTest!.status
                                       : 'default'
                                   ] //@ts-ignore
@@ -640,7 +645,8 @@ export default function CertificationTest({
                                 skillTest!.status === 'Skill submitted' ||
                                 skillTest!.status === 'Reviewing' ||
                                 skillTest!.status === 'Skill failed' ||
-                                skillTest!.status === 'Review completed'
+                                skillTest!.status === 'Review completed' ||
+                                skillTest!.status === 'Skill passed'
                               ) ? (
                               <Button
                                 variant='contained'
