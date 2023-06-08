@@ -51,6 +51,7 @@ import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-
 import VersionHistory from './components/version-history'
 import VersionHistoryModal from './components/version-history-detail'
 import DownloadQuotesModal from './components/pdf-download/download-qoutes-modal'
+import PrintQuotePage from './components/pdf-download/quote-preview'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -108,6 +109,7 @@ import { getPriceList } from '@src/apis/company-price.api'
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 // ** react query
 import { useMutation, useQueryClient } from 'react-query'
@@ -115,15 +117,8 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
-import PrintQuotePage from './components/pdf-download/quote-preview'
-import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
-
-/**
- * TODO
- * version history구현
- */
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -639,6 +634,9 @@ export default function QuotesDetail() {
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
     makePdfData(lang)
+    patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
+      onMutationError(),
+    )
     closeModal('PreviewModal')
   }
 
