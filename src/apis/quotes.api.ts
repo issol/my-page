@@ -1002,35 +1002,37 @@ export const patchQuoteProjectInfo = async (
     | QuotesProjectInfoFormType
     | ProjectTeamFormType
     | ClientFormType
+    | { status: QuoteStatusType }
+    | { tax: null | number; taxable: boolean }
     | { downloadedAt: string },
 ) => {
   await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
 }
 
-/* TODO : endpoint 수정하기 */
-export const patchQuoteClientInfo = async (
+export const patchQuoteLanguagePairs = async (
   id: number,
-  form: ClientFormType,
+  form: Array<LanguagePairsType>,
 ) => {
   try {
-    const { data } = await axios.patch(`/api/enough/u/order/${id}`, {
-      ...form,
-    })
+    const { data } = await axios.patch(
+      `/api/enough/u/quote/language/pair/${id}`,
+      form,
+    )
     return data
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-/* TODO : endpoint 수정하기 */
-export const patchQuoteTeamInfo = async (
+export const patchQuoteItems = async (
   id: number,
-  form: ProjectTeamFormType,
+  form: Array<PostItemType>,
 ) => {
   try {
-    const { data } = await axios.patch(`/api/enough/u/order/${id}`, {
-      ...form,
-    })
+    const { data } = await axios.patch(
+      `/api/enough/u/quote/item?quoteId=${id}`,
+      { items: form },
+    )
     return data
   } catch (e: any) {
     throw new Error(e)

@@ -67,10 +67,12 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import {
   ClientFormType as ClientPostType,
   LanguagePairsPostType,
+  LanguagePairsType,
   ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import {
   QuoteDownloadData,
+  QuoteStatusType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -78,7 +80,6 @@ import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetAllPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
@@ -97,6 +98,8 @@ import {
 } from '@src/queries/quotes.query'
 import {
   deleteQuotes,
+  patchQuoteItems,
+  patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   restoreVersion,
 } from '@src/apis/quotes.api'
@@ -119,8 +122,6 @@ type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 
 /**
  * TODO
- * save 함수 추가
- * project info status변경 api추가
  * version history구현
  */
 
@@ -486,6 +487,8 @@ export default function QuotesDetail() {
     | QuotesProjectInfoFormType
     | ProjectTeamFormType
     | ClientPostType
+    | { tax: null | number; taxable: boolean }
+    | { status: QuoteStatusType }
 
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
@@ -494,7 +497,6 @@ export default function QuotesDetail() {
         setEditProject(false)
         setEditClient(false)
         setEditTeam(false)
-
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
@@ -508,25 +510,39 @@ export default function QuotesDetail() {
     onSave(() => updateProject.mutate(projectInfo))
   }
 
-  function onItemSave() {
-    // tax, taxable도 같이 보내기 & item, languagePair, projectInfo mutation붙이기
+  async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
+    const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
-          langPairId: Number(item.id),
+          // langPairId: Number(item.id),
           source: item.source,
           target: item.target,
           priceId: item.price.id,
         }
       }
+
       return {
-        langPairId: Number(item.id),
+        // langPairId: Number(item.id),
         source: item.source,
         target: item.target,
+      }
+    })
+
+    onSave(async () => {
+      try {
+        await patchQuoteLanguagePairs(Number(id), langs)
+        await patchQuoteItems(Number(id), items)
+        updateProject.mutate({ tax, taxable })
+        setEditItems(false)
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetailItems'],
+        })
+      } catch (e: any) {
+        onMutationError()
       }
     })
   }
@@ -875,6 +891,9 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={isUpdatable}
+                      updateStatus={(status: QuoteStatusType) =>
+                        updateProject.mutate({ status: status })
+                      }
                     />
                   </Card>
                   <Grid container sx={{ mt: '24px' }}>
