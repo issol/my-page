@@ -192,7 +192,7 @@ const ContractForm = () => {
     const data = convertToRaw(value.getCurrentContent())
     updateContractMutation.mutate({
       id: contract?.documentId!,
-      form: { writer: user?.username!, email: user?.email!, content: data },
+      form: { writer: user?.username!, email: user?.email!, content: data,text: value.getCurrentContent().getPlainText('\u0001'), },
     })
   }
 

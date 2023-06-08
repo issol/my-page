@@ -120,6 +120,7 @@ const ContractForm = () => {
             onClick={() => {
               setModal(null)
               setValue(EditorState.createEmpty())
+              router.push('/onboarding/contracts/')
             }}
           >
             Discard
@@ -178,6 +179,7 @@ const ContractForm = () => {
       writer: user?.username!,
       email: user?.email!,
       content: data,
+      text: value.getCurrentContent().getPlainText('\u0001'),
     })
   }
 
@@ -207,7 +209,7 @@ const ContractForm = () => {
                     {user?.username}
                   </Typography>
                   <Divider orientation='vertical' variant='middle' flexItem />
-                  <Typography variant='body2'>ellie@glozinc.com</Typography>
+                  <Typography variant='body2'>{user?.email}</Typography>
                 </Box>
               </Box>
               <Divider />
