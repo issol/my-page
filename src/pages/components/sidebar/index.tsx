@@ -49,7 +49,6 @@ export default function CalendarSideBar<T>({
   function onMoreClick() {
     setCurrEvent([...event])
   }
-
   return (
     <Drawer
       open={leftSidebarOpen}

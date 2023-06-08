@@ -234,7 +234,7 @@ export default function Quotes({ id, user }: Props) {
                   title={
                     <Box display='flex' justifyContent='space-between'>
                       <Typography variant='h6'>
-                        Clients ({list?.totalCount ?? 0})
+                        Quotes ({list?.totalCount ?? 0})
                       </Typography>{' '}
                       <Button variant='contained'>
                         <StyledNextLink href='/quotes/add-new' color='white'>

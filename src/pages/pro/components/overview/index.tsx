@@ -210,7 +210,7 @@ function ProDetailOverview() {
       changeProStatus(value.userId, value.status),
     {
       onSuccess: (data, variables) => {
-        queryClient.invalidateQueries(`${userId}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -276,7 +276,7 @@ function ProDetailOverview() {
             </IconButton>
           ),
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -289,7 +289,7 @@ function ProDetailOverview() {
         toast.success('Successfully edited!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -302,7 +302,7 @@ function ProDetailOverview() {
         toast.success('Successfully saved!', {
           position: 'bottom-right',
         })
-        queryClient.invalidateQueries(`${id}`)
+        queryClient.invalidateQueries(`proId:${userId}`)
       },
     },
   )
@@ -787,14 +787,16 @@ function ProDetailOverview() {
     setStatus(userInfo?.status)
   }, [userInfo])
 
-  const onClickFile = (file: {
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }, fileType: string) => {
-    getDownloadUrlforCommon(fileType, file.filePath)
-    .then(res => {
+  const onClickFile = (
+    file: {
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => {
+    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       file.url = res.url
       setModal(
         <FilePreviewDownloadModal

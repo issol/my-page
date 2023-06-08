@@ -21,7 +21,6 @@ import { CalendarEventType, SortingType } from '@src/apis/pro-projects.api'
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
 import ClientProjectCalendar from './order-list-calendar-view'
-import ClientProjectCalendarSideBar from './order-list-calendar-sidebar'
 import { useGetClientProjectsCalendar } from '@src/queries/client/client-detail'
 import ClientProjectList from '../list/list'
 import { UserDataType } from '@src/context/types'
@@ -32,7 +31,7 @@ import { useGetOrderListCalendar } from '@src/queries/order/order.query'
 import OrderListCalendarView from './order-list-calendar-view'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
-import OrderListCalendarSidebar from './order-list-calendar-sidebar'
+import CalendarSideBar from '@src/pages/components/sidebar'
 
 type Props = {
   user: UserDataType
@@ -91,29 +90,7 @@ const OrderListCalendar = ({ user }: Props) => {
     if (data?.data?.length) {
       setEvent([...data.data])
     } else {
-      setEvent([
-        //@ts-ignore
-        {
-          id: 0,
-          corporationId: '',
-
-          status: 'Canceled',
-          client: {
-            name: '',
-            email: '',
-          },
-          projectName: '',
-          category: '',
-          serviceType: [],
-          orderedAt: '',
-          projectDueAt: '',
-          currency: 'USD',
-          totalPrice: 0,
-          extendedProps: {
-            calendar: 'primary',
-          },
-        },
-      ])
+      setEvent([])
     }
   }, [data])
 
@@ -138,7 +115,9 @@ const OrderListCalendar = ({ user }: Props) => {
           }),
         }}
       >
-        <OrderListCalendarSidebar
+        <CalendarSideBar
+          title='Projects in'
+          alertIconStatus='Canceled'
           event={event}
           month={month}
           mdAbove={mdAbove}

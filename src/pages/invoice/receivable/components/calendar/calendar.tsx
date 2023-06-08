@@ -4,30 +4,33 @@ import { useRef } from 'react'
 // ** Full Calendar & it's Plugins
 import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
-import { OrderListCalendarEventType } from '@src/apis/order-list.api'
 
 // ** style components
 import styled from 'styled-components'
 import { Box } from '@mui/material'
 
+// ** types
+import { CalendarEventType } from '@src/types/common/calendar.type'
+import { InvoiceReceivableListType } from '@src/types/invoice/receivable.type'
+
 type Props = {
-  event: Array<OrderListCalendarEventType>
+  event: Array<CalendarEventType<InvoiceReceivableListType>>
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string
-  setCurrentListId: (id: number) => void
+  setCurrentListId: (id: number | null) => void
 }
 
-const OrderListCalendarView = (props: Props) => {
+const ReceivableCalendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
 
   const finalEvent = event.map(item => {
     return {
       ...item,
-      start: item.orderedAt,
-      end: item.projectDueAt,
-      title: item.projectName,
+      title: item.order.projectName,
+      start: item.invoicedAt,
+      end: item?.paidAt ? item?.paidAt : item.payDueAt,
     }
   })
 
@@ -47,7 +50,6 @@ const OrderListCalendarView = (props: Props) => {
     eventResizableFromStart: true,
     ref: calendarRef,
     direction,
-
     eventContent: (arg: any) => {
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
@@ -55,6 +57,7 @@ const OrderListCalendarView = (props: Props) => {
         </CustomEvent>
       )
     },
+
     eventClick({ event }: any) {
       setCurrentListId(Number(event?.id))
     },
@@ -68,11 +71,13 @@ const OrderListCalendarView = (props: Props) => {
     setMonth(currMonth)
   }
 
-  // @ts-ignore
-  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+  return (
+    //@ts-ignore
+    <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
+  )
 }
 
-export default OrderListCalendarView
+export default ReceivableCalendar
 
 const CustomEvent = styled(Box)<{ color: string }>`
   border-color: transparent !important;
