@@ -19,7 +19,7 @@ export function transformTeamData(data: ProjectTeamType) {
       if (!item.id) {
         result.member = []
       } else {
-        result?.member?.push(item.id!)
+        result?.member?.push(Number(item.id))
       }
     }
   })
