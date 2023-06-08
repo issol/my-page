@@ -93,6 +93,7 @@ export type JobPricesDetailType = {
     priceUnitId: number
     unitPrice: number
     prices: number
+    unit: string
   }>
 }
 

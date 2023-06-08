@@ -13,10 +13,11 @@ import { useQuery } from 'react-query'
 export const useGetAssignProList = (
   jobId: number,
   filter: AssignProFilterPostType,
+  isHistory: boolean,
 ) => {
   return useQuery(
     ['assignProList', filter],
-    () => getAssignProList(jobId, filter),
+    () => getAssignProList(jobId, filter, isHistory),
     {
       staleTime: 60 * 1000, // 1
 
@@ -35,20 +36,28 @@ export const useGetJobDetails = (orderId: number) => {
   })
 }
 
-export const useGetJobInfo = (jobId: number) => {
-  return useQuery(['jobInfo', jobId], () => getJobInfo(jobId), {
-    staleTime: 60 * 1000, // 1
+export const useGetJobInfo = (jobId: number, isHistory: boolean) => {
+  return useQuery(
+    ['jobInfo', jobId, isHistory],
+    () => getJobInfo(jobId, isHistory),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
 }
 
-export const useGetJobPrices = (jobId: number) => {
-  return useQuery(['jobPrices', jobId], () => getJobPrices(jobId), {
-    staleTime: 60 * 1000, // 1
+export const useGetJobPrices = (jobId: number, isHistory: boolean) => {
+  return useQuery(
+    ['jobPrices', jobId, isHistory],
+    () => getJobPrices(jobId, isHistory),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
 }
 
 export const useGetMessage = (jobId: number, proId: number) => {
