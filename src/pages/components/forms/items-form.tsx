@@ -492,7 +492,7 @@ export default function ItemForm({
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={languagePairs.sort((a, b) =>
+                          options={[...languagePairs].sort((a, b) =>
                             a.source.localeCompare(b.source),
                           )}
                           getOptionLabel={option =>
