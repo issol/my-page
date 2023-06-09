@@ -22,6 +22,7 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { QuotesListType } from '@src/types/common/quotes.type'
+import { QuotesFilterType } from '@src/types/quotes/quote'
 
 const CalendarContainer = () => {
   // ** States
@@ -37,18 +38,17 @@ const CalendarContainer = () => {
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
-  const [seeMyQuotes, setSeeMyQuotes] = useState(false)
-  const [hideCompletedQuotes, setHideCompletedQuotes] = useState(false)
+  const [seeMyQuotes, setSeeMyQuotes] = useState<0 | 1>(0)
+  const [hideCompletedQuotes, setHideCompletedQuotes] = useState<0 | 1>(0)
+  const [filters, setFilters] = useState<QuotesFilterType>({})
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetQuotesCalendarData(
-    `${year}-${month}`,
-    {
-      seeMyQuotes,
-      hideCompletedQuotes,
-    },
-  )
+  const { data, refetch, isLoading } = useGetQuotesCalendarData(year, month, {
+    seeMyQuotes,
+    hideCompletedQuotes,
+    ...filters,
+  })
   const [event, setEvent] = useState<Array<CalendarEventType<QuotesListType>>>(
     [],
   )
@@ -131,15 +131,15 @@ const CalendarContainer = () => {
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>See only my quotes</Typography>
               <Switch
-                checked={seeMyQuotes}
-                onChange={e => setSeeMyQuotes(e.target.checked)}
+                checked={seeMyQuotes === 1}
+                onChange={e => setSeeMyQuotes(e.target.checked ? 1 : 0)}
               />
             </Box>
             <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
               <Typography>Hide completed quotes</Typography>
               <Switch
-                checked={hideCompletedQuotes}
-                onChange={e => setHideCompletedQuotes(e.target.checked)}
+                checked={hideCompletedQuotes === 1}
+                onChange={e => setHideCompletedQuotes(e.target.checked ? 1 : 0)}
               />
             </Box>
           </Box>
@@ -165,6 +165,8 @@ const CalendarContainer = () => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            filter={filters}
+            setFilter={setFilters}
           />
         </Box>
       )}

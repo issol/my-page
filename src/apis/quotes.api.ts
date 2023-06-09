@@ -73,12 +73,13 @@ function getColor(status: QuoteStatusType) {
 }
 
 export const getQuotesCalendarData = async (
-  date: string,
+  year: number,
+  month: number,
   filter: QuotesFilterType,
 ): Promise<{ data: Array<QuotesListType>; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/quote?calendarDate=${date}?${makeQuery(filter)}`,
+      `/api/enough/u/quote?year=${year}&month=${month}&${makeQuery(filter)}`,
     )
 
     return {
@@ -262,8 +263,8 @@ export const patchQuoteLanguagePairs = async (
 ) => {
   try {
     const { data } = await axios.patch(
-      `/api/enough/u/quote/language/pair/${id}`,
-      form,
+      `/api/enough/u/quote/language/pair?quoteId=${id}`,
+      { data: form },
     )
     return data
   } catch (e: any) {

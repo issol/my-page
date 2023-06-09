@@ -49,7 +49,7 @@ export const useGetMemberList = () => {
 
 export const useGetQuotesList = (filter: QuotesFilterType) => {
   return useQuery(
-    ['quotesList', { type: 'list' }],
+    ['quotesList', { type: 'list' }, filter],
     () => {
       return getQuotesList(filter)
     },
@@ -62,13 +62,14 @@ export const useGetQuotesList = (filter: QuotesFilterType) => {
 }
 
 export const useGetQuotesCalendarData = (
-  date: string,
+  year: number,
+  month: number,
   filter: QuotesFilterType,
 ) => {
   return useQuery(
-    ['quotesList', { type: 'calendar' }, date, filter],
+    ['quotesList', { type: 'calendar' }, year, month, filter],
     () => {
-      return getQuotesCalendarData(date, filter)
+      return getQuotesCalendarData(year, month, filter)
     },
     {
       suspense: true,
