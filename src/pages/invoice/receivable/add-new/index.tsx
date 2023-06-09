@@ -100,6 +100,8 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { useMutation } from 'react-query'
 
 export type languageType = {
   id: number | string
@@ -128,6 +130,7 @@ export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
   const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -143,6 +146,10 @@ export default function AddNewOrder() {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const createInvoiceMutation = useMutation((data: any) =>
+    createOrderInfo(data),
+  )
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -394,20 +401,22 @@ export default function AddNewOrder() {
       }
     })
     const stepOneData = { ...teams, ...clients, ...projectInfo }
-    createOrderInfo(stepOneData)
-      .then(res => {
-        if (res.id) {
-          Promise.all([
-            createLangPairForOrder(res.id, langs),
-            createItemsForOrder(res.id, items),
-          ])
-            .then(() => {
-              router.push(`/orders/order-list/detail/${res.id}`)
-            })
-            .catch(e => onRequestError())
-        }
-      })
-      .catch(e => onRequestError())
+    const res = {
+      orderId: Number(router.query.orderId),
+      invoiceStatus: projectInfo.status,
+      invoicedAt: projectInfo.invoiceDate,
+      payDueAt: projectInfo.paymentDueDate.date,
+      description: projectInfo.invoiceDescription,
+      payDueTimezone: projectInfo.paymentDueDate.timezone,
+      invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date ?? {},
+      invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
+      taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date ?? {},
+      taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
+      invoiceDescription: projectInfo.invoiceDescription,
+    }
+    console.log(res)
+
+    createInvoiceMutation.mutate(res)
   }
 
   function onRequestError() {
@@ -548,6 +557,7 @@ export default function AddNewOrder() {
           itemTrigger()
         }
       })
+      setIsReady(true)
     }
   }
 
@@ -582,17 +592,20 @@ export default function AddNewOrder() {
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
             <Grid container spacing={6}>
-              <ProjectTeamFormContainer
-                control={teamControl}
-                field={members}
-                append={appendMember}
-                remove={removeMember}
-                update={updateMember}
-                setValue={setTeamValues}
-                errors={teamErrors}
-                isValid={isTeamValid}
-                watch={teamWatch}
-              />
+              {isReady && (
+                <ProjectTeamFormContainer
+                  control={teamControl}
+                  field={members}
+                  append={appendMember}
+                  remove={removeMember}
+                  update={updateMember}
+                  setValue={setTeamValues}
+                  errors={teamErrors}
+                  isValid={isTeamValid}
+                  watch={teamWatch}
+                />
+              )}
+
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
                   variant='contained'
@@ -613,6 +626,7 @@ export default function AddNewOrder() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                type='invoice'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

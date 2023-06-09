@@ -65,6 +65,7 @@ type Props = {
   watch: UseFormWatch<ClientFormType>
   setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
+  type: string
 }
 export default function ClientQuotesFormContainer({
   control,
@@ -72,6 +73,7 @@ export default function ClientQuotesFormContainer({
   watch,
   setTax,
   setTaxable,
+  type,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -272,9 +274,11 @@ export default function ClientQuotesFormContainer({
         alignItems='center'
       >
         <Typography variant='h6'>Select client</Typography>
-        <Button variant='contained' onClick={() => setOpenForm(true)}>
-          Add new client
-        </Button>
+        {type === 'invoice' ? null : (
+          <Button variant='contained' onClick={() => setOpenForm(true)}>
+            Add new client
+          </Button>
+        )}
       </Grid>
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
         <RegisterClientForm
@@ -284,6 +288,7 @@ export default function ClientQuotesFormContainer({
           clientList={clients}
           setTax={setTax}
           setTaxable={setTaxable}
+          type={type}
         />
       </Grid>
 

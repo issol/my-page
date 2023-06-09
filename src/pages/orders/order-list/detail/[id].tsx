@@ -249,8 +249,8 @@ const OrderDetail = () => {
       return {
         id: item.id,
         name: item.name,
-        source: item.source,
-        target: item.target,
+        source: item.sourceLanguage,
+        target: item.targetLanguage,
         priceId: item.priceId,
         detail: !item?.detail?.length ? [] : item.detail,
         contactPersonId: item.contactPersonId,
@@ -479,8 +479,8 @@ const OrderDetail = () => {
         return {
           id: item.id,
           name: item.name,
-          source: item.source,
-          target: item.target,
+          source: item.sourceLanguage,
+          target: item.targetLanguage,
           priceId: item.priceId,
           detail: !item?.detail?.length ? [] : item.detail,
           contactPersonId: item.contactPersonId,

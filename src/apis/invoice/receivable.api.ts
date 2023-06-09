@@ -266,3 +266,7 @@ export const getInvoiceReceivableCalendarData = async (
     }
   }
 }
+
+export const createInvoice = async (data: any) => {
+  await axios.post('/api/enough/u/invoice', data)
+}

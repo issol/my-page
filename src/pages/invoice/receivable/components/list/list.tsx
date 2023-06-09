@@ -266,7 +266,9 @@ export default function ReceivableList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
-        onCellClick={params => router.push(`/invoice/receivable/${params.id}`)}
+        onCellClick={params =>
+          router.push(`/invoice/receivable/detail/${params.id}`)
+        }
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}
