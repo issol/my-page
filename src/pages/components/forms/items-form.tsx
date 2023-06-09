@@ -61,6 +61,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 
 // ** values
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** helpers
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
@@ -379,11 +380,8 @@ export default function ItemForm({
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <FullWidthDatePicker
-                        showTimeSelect
-                        timeFormat='HH:mm'
-                        timeIntervals={15}
+                        {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
-                        dateFormat='MM/dd/yyyy h:mm aa'
                         onChange={onChange}
                         customInput={<CustomInput label='Item due date*' />}
                       />
