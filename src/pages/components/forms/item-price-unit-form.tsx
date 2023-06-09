@@ -259,6 +259,7 @@ export default function ItemPriceUnitForm({
                                 onChange(sub.title)
                                 update(idx, {
                                   ...savedValue,
+                                  priceUnitId: sub.id,
                                   quantity: sub.quantity ?? 0,
                                   unit: sub.unit,
                                   unitPrice: priceFactor
