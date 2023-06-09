@@ -69,7 +69,11 @@ type Props = {
   type: string
   selectedPriceData?: StandardPriceListType
 
-  onSubmit: (data: AddPriceType, modalType: string) => void
+  onSubmit: (
+    selectedData: StandardPriceListType,
+    data: AddPriceType,
+    modalType: string,
+  ) => void
 
   onClickAction: (type: string) => void
 }
@@ -200,7 +204,9 @@ const AddSavePriceModal = ({
         <form
           noValidate
           autoComplete='off'
-          onSubmit={handleSubmit(data => onSubmit(data, type))}
+          onSubmit={handleSubmit(data =>
+            onSubmit(selectedPriceData!, data, type),
+          )}
         >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>

@@ -15,7 +15,7 @@ import Paper from '@mui/material/Paper'
 
 import { AddRoleType } from 'src/types/onboarding/list'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
 import useModal from '@src/hooks/useModal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -39,6 +39,10 @@ export default function PriceActionModal({
   onClickAction,
   priceName,
 }: Props) {
+  useEffect(() => {
+    console.log(selectedPriceData)
+  }, [selectedPriceData])
+
   return (
     <Dialog
       open={true}

@@ -214,11 +214,17 @@ const StandardPrices = ({
       if (clientId) {
         obj['clientId'] = clientId
       }
-      patchPriceMutation.mutate({ data: obj, id: selectedPriceData?.id! })
+      patchPriceMutation.mutate({ data: obj, id: selectedData?.id! })
       closeModal(`${selectedModalType}PriceModal`)
     }
   }
-  const onSubmit = (data: AddPriceType, modalType: string) => {
+  const onSubmit = (
+    selectedData: StandardPriceListType,
+    data: AddPriceType,
+    modalType: string,
+  ) => {
+    console.log(selectedData)
+
     openModal({
       type: `${modalType}Price${modalType === 'Edit' ? 'Save' : 'Add'}Modal`,
       children: (
@@ -229,6 +235,7 @@ const StandardPrices = ({
             )
           }
           priceData={data!}
+          selectedPriceData={selectedData!}
           type={modalType === 'Add' ? 'Add' : 'Save'}
           onClickAction={onClickAction}
         />
