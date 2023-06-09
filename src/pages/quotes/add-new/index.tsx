@@ -456,6 +456,7 @@ export default function AddNewQuotes() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                type='quotes'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

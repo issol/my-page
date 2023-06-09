@@ -76,7 +76,7 @@ import {
   createLangPairForOrder,
   createOrderInfo,
 } from '@src/apis/order.api'
-import CopyOrdersList from '../order-list/components/copy-order-list'
+
 import {
   getClient,
   getLangItems,
@@ -86,6 +86,22 @@ import {
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getPriceList } from '@src/apis/company-price.api'
+import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-project-info-form'
+import {
+  InvoiceProjectInfoFormType,
+  InvoiceReceivableStatusType,
+} from '@src/types/invoice/common.type'
+import {
+  invoiceProjectInfoDefaultValue,
+  invoiceProjectInfoSchema,
+} from '@src/types/schema/invoice-project-info.schema'
+import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
+import FallbackSpinner from '@src/@core/components/spinner'
+import { useMutation } from 'react-query'
 
 export type languageType = {
   id: number | string
@@ -113,6 +129,8 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
 export default function AddNewOrder() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
+  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const [isReady, setIsReady] = useState(false)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -128,6 +146,10 @@ export default function AddNewOrder() {
   const [activeStep, setActiveStep] = useState<number>(0)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  const createInvoiceMutation = useMutation((data: any) =>
+    createOrderInfo(data),
+  )
 
   const handleBack = () => {
     setActiveStep(prevActiveStep => prevActiveStep - 1)
@@ -145,7 +167,7 @@ export default function AddNewOrder() {
       title: 'Client',
     },
     {
-      title: 'Project info',
+      title: 'Invoice info',
     },
     {
       title: ' Languages & Items',
@@ -231,10 +253,10 @@ export default function AddNewOrder() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<OrderProjectInfoFormType>({
+  } = useForm<InvoiceProjectInfoFormType>({
     mode: 'onChange',
-    defaultValues: orderProjectInfoDefaultValue,
-    resolver: yupResolver(orderProjectInfoSchema),
+    defaultValues: invoiceProjectInfoDefaultValue,
+    resolver: yupResolver(invoiceProjectInfoSchema),
   })
 
   // ** step4
@@ -269,7 +291,7 @@ export default function AddNewOrder() {
     const isDeletable = !getItem()?.items?.length
       ? true
       : !getItem().items.some(
-          item => item.source === row.source && item.target === row.target,
+          item => item.source === row.source && item.source === row.target,
         )
     if (isDeletable) {
       openModal({
@@ -377,20 +399,22 @@ export default function AddNewOrder() {
       }
     })
     const stepOneData = { ...teams, ...clients, ...projectInfo }
-    createOrderInfo(stepOneData)
-      .then(res => {
-        if (res.id) {
-          Promise.all([
-            createLangPairForOrder(res.id, langs),
-            createItemsForOrder(res.id, items),
-          ])
-            .then(() => {
-              router.push(`/orders/order-list/detail/${res.id}`)
-            })
-            .catch(e => onRequestError())
-        }
-      })
-      .catch(e => onRequestError())
+    const res = {
+      orderId: Number(router.query.orderId),
+      invoiceStatus: projectInfo.status,
+      invoicedAt: projectInfo.invoiceDate,
+      payDueAt: projectInfo.paymentDueDate.date,
+      description: projectInfo.invoiceDescription,
+      payDueTimezone: projectInfo.paymentDueDate.timezone,
+      invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date ?? {},
+      invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
+      taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date ?? {},
+      taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
+      invoiceDescription: projectInfo.invoiceDescription,
+    }
+    console.log(res)
+
+    createInvoiceMutation.mutate(res)
   }
 
   function onRequestError() {
@@ -471,25 +495,27 @@ export default function AddNewOrder() {
         })
       getProjectInfo(id)
         .then(res => {
+          console.log(res)
+
           projectInfoReset({
-            status: 'In preparation' as OrderStatusType,
-            orderDate: Date(),
+            status: 'In preparation' as InvoiceReceivableStatusType,
+            invoiceDate: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
-            projectDescription: '',
+            invoiceDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: res?.revenueFrom ?? null,
-            projectDueDate: {
-              date: res?.projectDueAt ?? '',
-              timezone: res?.projectDueTimezone ?? {
+            paymentDueDate: {
+              date: '',
+              timezone: {
                 label: '',
                 phone: '',
                 code: '',
               },
             },
-            taxable: res.taxable,
+            taxable: res.taxable ?? true,
           })
           setTax(res?.tax ?? null)
         })
@@ -521,12 +547,15 @@ export default function AddNewOrder() {
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],
               totalPrice: item?.totalPrice ?? 0,
+              dueAt: item.dueAt,
+              contactPersonId: item.contactPersonId,
             }
           })
           itemReset({ items: result })
           itemTrigger()
         }
       })
+      setIsReady(true)
     }
   }
 
@@ -543,25 +572,8 @@ export default function AddNewOrder() {
               <IconButton onClick={() => router.back()}>
                 <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
               </IconButton>
-              <Typography variant='h5'>Create new order</Typography>
+              <Typography variant='h5'>Create new invoice</Typography>
             </Box>
-            <Button
-              variant='outlined'
-              startIcon={<Icon icon='ic:baseline-file-download' />}
-              onClick={() =>
-                openModal({
-                  type: 'copy-order',
-                  children: (
-                    <CopyOrdersList
-                      onCopy={onCopyOrder}
-                      onClose={() => closeModal('copy-order')}
-                    />
-                  ),
-                })
-              }
-            >
-              Copy order
-            </Button>
           </Box>
         }
       />
@@ -578,17 +590,20 @@ export default function AddNewOrder() {
         {activeStep === 0 ? (
           <Card sx={{ padding: '24px' }}>
             <Grid container spacing={6}>
-              <ProjectTeamFormContainer
-                control={teamControl}
-                field={members}
-                append={appendMember}
-                remove={removeMember}
-                update={updateMember}
-                setValue={setTeamValues}
-                errors={teamErrors}
-                isValid={isTeamValid}
-                watch={teamWatch}
-              />
+              {isReady && (
+                <ProjectTeamFormContainer
+                  control={teamControl}
+                  field={members}
+                  append={appendMember}
+                  remove={removeMember}
+                  update={updateMember}
+                  setValue={setTeamValues}
+                  errors={teamErrors}
+                  isValid={isTeamValid}
+                  watch={teamWatch}
+                />
+              )}
+
               <Grid item xs={12} display='flex' justifyContent='flex-end'>
                 <Button
                   variant='contained'
@@ -609,7 +624,7 @@ export default function AddNewOrder() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
-                type='order'
+                type='invoice'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -634,12 +649,13 @@ export default function AddNewOrder() {
           <Card sx={{ padding: '24px' }}>
             <DatePickerWrapper>
               <Grid container spacing={6}>
-                <ProjectInfoForm
+                <InvoiceProjectInfoForm
                   control={projectInfoControl}
                   setValue={setProjectInfo}
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  statusList={statusList!}
                 />
                 <Grid
                   item
@@ -671,7 +687,7 @@ export default function AddNewOrder() {
             <Grid container>
               <Grid item xs={12}>
                 <AddLanguagePairForm
-                  type='create'
+                  type='detail'
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
                   getPriceOptions={getPriceOptions}
@@ -691,23 +707,46 @@ export default function AddNewOrder() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
-                  type='create'
+                  type='invoiceDetail'
                 />
               </Grid>
+
               <Grid item xs={12}>
-                <Button
-                  startIcon={<Icon icon='material-symbols:add' />}
-                  disabled={isAddItemDisabled()}
-                  onClick={addNewItem}
-                >
-                  <Typography
-                    color={isAddItemDisabled() ? 'secondary' : 'primary'}
-                    sx={{ textDecoration: 'underline' }}
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
                   >
-                    Add new item
-                  </Typography>
-                </Button>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
               </Grid>
+
               <Grid
                 item
                 xs={12}
@@ -720,36 +759,98 @@ export default function AddNewOrder() {
                 sx={{ background: '#F5F5F7', marginBottom: '24px' }}
               >
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Checkbox
-                    checked={getProjectInfoValues().taxable}
-                    onChange={e => {
-                      if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
-                        shouldDirty: true,
-                        shouldValidate: true,
-                      })
-                    }}
-                  />
-                  <Typography>Tax</Typography>
+                  <Typography
+                    variant='subtitle1'
+                    fontSize={20}
+                    fontWeight={500}
+                  >
+                    Tax
+                  </Typography>
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <TextField
-                    size='small'
-                    type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
-                    sx={{ maxWidth: '120px', padding: 0 }}
-                    inputProps={{ inputMode: 'decimal' }}
-                    onChange={e => {
-                      if (e.target.value.length > 10) return
-                      setTax(Number(e.target.value))
-                    }}
-                  />
-                  %
+                  <Box>{!getProjectInfoValues().taxable ? '-' : tax}</Box>%
                 </Box>
               </Grid>
-              <Grid item xs={12} display='flex' justifyContent='space-between'>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '1.5px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Tax
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '1.5px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '250px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      color={'#666CFF'}
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      Total
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      color={'#666CFF'}
+                      sx={{ padding: '16px 16px 16px 20px' }}
+                    >
+                      $ 5780.00
+                      {/* {formatCurrency(
+                          formatByRoundingProcedure(
+                             getItem().items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      getPriceOptions()
+                    } */}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                justifyContent='space-between'
+                sx={{ marginTop: '24px' }}
+              >
                 <Button
                   variant='outlined'
                   color='secondary'

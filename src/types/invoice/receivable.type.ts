@@ -108,3 +108,42 @@ export type InvoiceReceivableClientType = {
   timezone: CountryType
   deletedAt: string | null
 }
+
+export type InvoiceReceivableDetailType = {
+  id: number
+  corporationId: string
+  createdAt: string
+  updatedAt: string
+  deletedAt: string | null
+  adminCompanyName: string
+  invoiceStatus: InvoiceReceivableStatusType
+  authorId: number
+  lastUpdatedAuthorId: number
+  salesCategory: string | null
+  description: string
+  notes: string | null
+  setReminder: boolean
+  reminderSentAt: string | null
+  invoicedAt: string
+  payDueAt: string
+  payDueTimezone: CountryType
+  invoiceConfirmedAt: string | null
+  invoiceConfirmTimezone: CountryType | null
+  taxInvoiceDueAt: string | null
+  taxInvoiceDueTimezone: CountryType | null
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+
+  salesCheckedDateTimezone: CountryType | null
+  taxInvoiceIssuedAt: string | null
+  taxInvoiceIssuedDateTimezone: CountryType | null
+  salesCheckedAt: string | null
+  downloadedAt: string | null
+  workName: string
+  category: string
+  serviceType: string[]
+  expertise: string[]
+  revenueFrom: string
+  taxable: boolean
+  orderId: number
+}

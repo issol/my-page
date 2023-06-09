@@ -111,6 +111,7 @@ export default function ItemForm({
   type,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  console.log(getValues())
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -322,10 +323,12 @@ export default function ItemForm({
                 </IconButton>
                 <Typography fontWeight={500}>
                   {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
-                  {type === 'detail' ? getValues(`items.${idx}.name`) : null}
+                  {type === 'detail' || type === 'invoiceDetail'
+                    ? getValues(`items.${idx}.name`)
+                    : null}
                 </Typography>
               </Box>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <IconButton onClick={() => onItemRemove(idx)}>
                   <Icon icon='mdi:trash-outline' />
                 </IconButton>
@@ -334,7 +337,7 @@ export default function ItemForm({
           </Grid>
           {cardOpen ? (
             <>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <Grid item xs={12}>
                   <Controller
                     name={`items.${idx}.name`}
@@ -355,7 +358,7 @@ export default function ItemForm({
               )}
 
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -390,7 +393,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -449,7 +452,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -527,7 +530,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -638,7 +641,7 @@ export default function ItemForm({
                 <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                   Item description
                 </Typography>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
                     {getValues(`items.${idx}.description`)}
                   </Typography>
@@ -675,17 +678,20 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              <Grid item xs={12}>
-                <TmAnalysisForm
-                  control={control}
-                  index={idx}
-                  details={details}
-                  priceData={priceData}
-                  priceFactor={priceFactor}
-                  onCopyAnalysis={onCopyAnalysis}
-                  type={type}
-                />
-              </Grid>
+              {type === 'invoiceDetail' ? null : (
+                <Grid item xs={12}>
+                  <TmAnalysisForm
+                    control={control}
+                    index={idx}
+                    details={details}
+                    priceData={priceData}
+                    priceFactor={priceFactor}
+                    onCopyAnalysis={onCopyAnalysis}
+                    type={type}
+                  />
+                </Grid>
+              )}
+
               {/* TM analysis */}
             </>
           ) : null}
