@@ -115,6 +115,7 @@ const OrderDetailClient = ({
             watch={clientWatch}
             setTax={setTax}
             setTaxable={setTaxable}
+            type='order'
           />
           <Grid item xs={12}>
             <Box

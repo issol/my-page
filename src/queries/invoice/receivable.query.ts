@@ -1,4 +1,5 @@
 import {
+  getInvoiceDetail,
   getInvoiceReceivableCalendarData,
   getReceivableList,
 } from '@src/apis/invoice/receivable.api'
@@ -34,4 +35,12 @@ export const useGetReceivableCalendar = (
       keepPreviousData: true,
     },
   )
+}
+
+export const useGetReceivableInvoiceDetail = (id: number) => {
+  return useQuery(['invoiceReceivableDetail', id], () => getInvoiceDetail(id), {
+    staleTime: 60 * 1000, // 1
+
+    suspense: false,
+  })
 }

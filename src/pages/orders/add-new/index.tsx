@@ -269,9 +269,7 @@ export default function AddNewOrder() {
     const isDeletable = !getItem()?.items?.length
       ? true
       : !getItem().items.some(
-          item =>
-            item.sourceLanguage === row.source &&
-            item.targetLanguage === row.target,
+          item => item.source === row.source && item.target === row.target,
         )
     if (isDeletable) {
       openModal({
@@ -338,8 +336,8 @@ export default function AddNewOrder() {
     )
     appendItems({
       name: '',
-      sourceLanguage: '',
-      targetLanguage: '',
+      source: '',
+      target: '',
       contactPersonId: projectManager?.id!,
       priceId: null,
       detail: [],
@@ -517,8 +515,8 @@ export default function AddNewOrder() {
             return {
               id: item.id,
               name: item.name,
-              source: item.sourceLanguage,
-              target: item.targetLanguage,
+              source: item.source,
+              target: item.target,
               priceId: item.priceId,
               detail: !item?.detail?.length ? [] : item.detail,
               analysis: item.analysis ?? [],
@@ -611,6 +609,7 @@ export default function AddNewOrder() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                type='order'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

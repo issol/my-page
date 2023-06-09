@@ -1,6 +1,7 @@
 import { CurrencyType } from '@src/types/common/standard-price'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 import {
+  InvoiceReceivableDetailType,
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
 } from '@src/types/invoice/receivable.type'
@@ -269,4 +270,15 @@ export const getInvoiceReceivableCalendarData = async (
 
 export const createInvoice = async (data: any) => {
   await axios.post('/api/enough/u/invoice', data)
+}
+
+export const getInvoiceDetail = async (
+  id: number,
+): Promise<InvoiceReceivableDetailType | null> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/invoice/${id}`)
+    return data
+  } catch (e) {
+    return null
+  }
 }

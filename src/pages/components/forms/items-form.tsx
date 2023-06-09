@@ -136,8 +136,8 @@ export default function ItemForm({
   }, [teamMembers])
 
   function onChangeLanguagePair(v: languageType | null, idx: number) {
-    setValue(`items.${idx}.sourceLanguage`, v?.source ?? '', setValueOptions)
-    setValue(`items.${idx}.targetLanguage`, v?.target ?? '', setValueOptions)
+    setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
+    setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
     }
@@ -176,11 +176,11 @@ export default function ItemForm({
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
     const priceData =
-      getPriceOptions(itemData.sourceLanguage, itemData.targetLanguage).find(
+      getPriceOptions(itemData.source, itemData.target).find(
         price => price.id === itemData.priceId,
       ) || null
-    const sourceLanguage = getValues(`items.${idx}.sourceLanguage`)
-    const targetLanguage = getValues(`items.${idx}.targetLanguage`)
+    const sourceLanguage = getValues(`items.${idx}.source`)
+    const targetLanguage = getValues(`items.${idx}.target`)
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
@@ -473,27 +473,23 @@ export default function ItemForm({
                       {languageHelper(
                         languagePairs.find(
                           item =>
-                            item.source ===
-                              getValues(`items.${idx}.sourceLanguage`) &&
-                            item.target ===
-                              getValues(`items.${idx}.targetLanguage`),
+                            item.source === getValues(`items.${idx}.source`) &&
+                            item.target === getValues(`items.${idx}.target`),
                         )?.source,
                       )}
                       &nbsp;&rarr;&nbsp;
                       {languageHelper(
                         languagePairs.find(
                           item =>
-                            item.source ===
-                              getValues(`items.${idx}.sourceLanguage`) &&
-                            item.target ===
-                              getValues(`items.${idx}.targetLanguage`),
+                            item.source === getValues(`items.${idx}.source`) &&
+                            item.target === getValues(`items.${idx}.target`),
                         )?.target,
                       )}
                     </Typography>
                   </Box>
                 ) : (
                   <Controller
-                    name={`items.${idx}.sourceLanguage`}
+                    name={`items.${idx}.source`}
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       return (
@@ -518,15 +514,13 @@ export default function ItemForm({
                                   item =>
                                     item.source === value &&
                                     item.target ===
-                                      getValues(`items.${idx}.targetLanguage`),
+                                      getValues(`items.${idx}.target`),
                                 )
                           }
                           renderInput={params => (
                             <TextField
                               {...params}
-                              error={Boolean(
-                                errors?.items?.[idx]?.sourceLanguage,
-                              )}
+                              error={Boolean(errors?.items?.[idx]?.source)}
                               label='Language pair*'
                               placeholder='Language pair*'
                             />
@@ -556,8 +550,8 @@ export default function ItemForm({
                     <Typography variant='body1' fontSize={14}>
                       {
                         getPriceOptions(
-                          getValues(`items.${idx}.sourceLanguage`),
-                          getValues(`items.${idx}.targetLanguage`),
+                          getValues(`items.${idx}.source`),
+                          getValues(`items.${idx}.target`),
                         ).find(
                           item => item.id === getValues(`items.${idx}.priceId`),
                         )?.priceName
@@ -570,8 +564,8 @@ export default function ItemForm({
                     control={control}
                     render={({ field: { value, onChange } }) => {
                       const options = getPriceOptions(
-                        getValues(`items.${idx}.sourceLanguage`),
-                        getValues(`items.${idx}.targetLanguage`),
+                        getValues(`items.${idx}.source`),
+                        getValues(`items.${idx}.target`),
                       )
                       const matchingPrice = options.find(
                         item => item.groupName === 'Matching price',
@@ -591,8 +585,8 @@ export default function ItemForm({
                             const value = getValues().items[idx]
                             if (v) {
                               const index = findLangPairIndex(
-                                value?.sourceLanguage!,
-                                value?.targetLanguage!,
+                                value?.source!,
+                                value?.target!,
                               )
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]
@@ -634,8 +628,8 @@ export default function ItemForm({
                 onDeletePriceUnit={onDeletePriceUnit}
                 onItemBoxLeave={onItemBoxLeave}
                 isValid={
-                  !!itemData.sourceLanguage &&
-                  !!itemData.targetLanguage &&
+                  !!itemData.source &&
+                  !!itemData.target &&
                   (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
                 }
                 isNotApplicable={itemData.priceId === NOT_APPLICABLE}

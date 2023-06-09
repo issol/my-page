@@ -17,8 +17,8 @@ export type PostItemType = {
   name: string
   dueAt?: string
   contactPersonId?: number
-  sourceLanguage: string
-  targetLanguage: string
+  source: string
+  target: string
   priceId: number | null
   detail?: Array<ItemDetailType>
   description?: string | null

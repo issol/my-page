@@ -898,6 +898,7 @@ export default function QuotesDetail() {
                     watch={clientWatch}
                     setTax={setTax}
                     setTaxable={setTaxable}
+                    type='quotes'
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({
