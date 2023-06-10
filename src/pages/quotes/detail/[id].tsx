@@ -17,6 +17,8 @@ import {
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogContent,
   Grid,
   IconButton,
   Tab,
@@ -452,12 +454,44 @@ export default function QuotesDetail() {
     openModal({
       type: 'VersionHistoryModal',
       children: (
-        <VersionHistoryModal
-          history={history}
+        <Dialog
+          open={true}
           onClose={() => closeModal('VersionHistoryModal')}
-          onClick={onClickRestoreVersion}
-          isUpdatable={isUpdatable}
-        />
+          maxWidth='lg'
+          fullWidth
+        >
+          <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
+            <Grid container spacing={6}>
+              <VersionHistoryModal id={Number(id)} history={history} />
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                gap='12px'
+                alignItems='center'
+                justifyContent='center'
+              >
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  sx={{ width: '226px' }}
+                  onClick={() => closeModal('VersionHistoryModal')}
+                >
+                  Close
+                </Button>
+                {isUpdatable ? (
+                  <Button
+                    variant='contained'
+                    sx={{ width: '226px' }}
+                    onClick={onClickRestoreVersion}
+                  >
+                    Restore this version
+                  </Button>
+                ) : null}
+              </Grid>
+            </Grid>
+          </DialogContent>
+        </Dialog>
       ),
     })
   }
