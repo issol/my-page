@@ -172,7 +172,6 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
-    console.log('itemData : ', itemData)
 
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -494,7 +493,7 @@ export default function ItemForm({
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={languagePairs.sort((a, b) =>
+                          options={[...languagePairs].sort((a, b) =>
                             a.source.localeCompare(b.source),
                           )}
                           getOptionLabel={option =>

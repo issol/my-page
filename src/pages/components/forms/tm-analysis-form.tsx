@@ -71,6 +71,7 @@ export default function TmAnalysisForm({
       postCatToolFile(formData)
         .then(res => {
           append({
+            id: res.id,
             name: acceptedFiles[0].name,
             size: Number(res.size) ?? acceptedFiles[0].size,
             data: res,

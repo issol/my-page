@@ -201,9 +201,6 @@ export default function RegisterClientForm({
                 options={clientList}
                 onChange={(e, v) => {
                   onChange(v ? v.value : '')
-                  if (v) {
-                    getDetail(Number(v.value))
-                  }
                 }}
                 disableClearable
                 disabled={type === 'invoice'}

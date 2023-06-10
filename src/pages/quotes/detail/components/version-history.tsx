@@ -43,6 +43,8 @@ const VersionHistory = ({
       >
         <DataGrid
           autoHeight
+          /* TODO: 백엔드에서 id추가해주면 getRowId삭제하기 */
+          getRowId={() => Math.random()}
           sx={{ overflowX: 'scroll', cursor: 'pointer' }}
           columns={columns}
           rows={list ?? []}

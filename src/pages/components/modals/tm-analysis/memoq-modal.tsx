@@ -55,7 +55,7 @@ type Props = {
   data: MemoQType
   priceData: StandardPriceListType | null
   priceFactor: number | undefined
-  onCopyAnalysis: (data: onCopyAnalysisParamType) => void
+  onCopyAnalysis?: (data: onCopyAnalysisParamType) => void
 }
 
 export default function MemoQModal({
@@ -143,6 +143,7 @@ export default function MemoQModal({
   }
 
   function onSubmit() {
+    if (!onCopyAnalysis) return
     let result: onCopyAnalysisParamType = []
     if (checked) {
       delete checked.id
@@ -160,7 +161,6 @@ export default function MemoQModal({
         )
       })
     }
-
     onCopyAnalysis(result)
     onClose()
   }
@@ -381,11 +381,17 @@ export default function MemoQModal({
               onRowsPerPageChange={handleChangeRowsPerPage}
             />
           </Grid>
-          <Grid item xs={12} display='flex' justifyContent='center'>
-            <Button variant='contained' disabled={!checked} onClick={onSubmit}>
-              Copy selected result to item
-            </Button>
-          </Grid>
+          {!onCopyAnalysis ? null : (
+            <Grid item xs={12} display='flex' justifyContent='center'>
+              <Button
+                variant='contained'
+                disabled={!checked}
+                onClick={onSubmit}
+              >
+                Copy selected result to item
+              </Button>
+            </Grid>
+          )}
         </Grid>
       </DialogContent>
     </Dialog>

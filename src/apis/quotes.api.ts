@@ -22,6 +22,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -72,40 +73,15 @@ function getColor(status: QuoteStatusType) {
 }
 
 export const getQuotesCalendarData = async (
-  date: string,
+  year: number,
+  month: number,
   filter: QuotesFilterType,
 ): Promise<{ data: Array<QuotesListType>; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/quote?calendarDate=${date}?${makeQuery(filter)}`,
+      `/api/enough/u/quote?year=${year}&month=${month}&${makeQuery(filter)}`,
     )
-    // const data = {
-    //   data: [
-    //     {
-    //       id: 'strin1212g',
-    //       corporationId: 'strin12323g',
-    //       status: 'New' as QuoteStatusType,
-    //       projectName: 'project',
-    //       client: {
-    //         name: 'client name',
-    //         email: 'dflskdf.cvomfs.d',
-    //       },
-    //       contactPerson: {
-    //         firstName: 'string',
-    //         middleName: 'string',
-    //         lastName: 'string',
-    //         email: 'strinbong@dsfl.com',
-    //       },
-    //       category: 'Copywriting',
-    //       serviceType: ['DTP'],
-    //       quoteDate: '2023-05-18T18:58:01.727Z',
-    //       quoteDeadline: '2023-05-22T18:58:01.727Z',
-    //       quoteExpiry: '2023-05-22T18:58:01.727Z',
-    //       totalPrice: 123,
-    //     },
-    //   ],
-    //   totalCount: 0,
-    // }
+
     return {
       data: data.data?.map((item: QuotesListType, idx: number) => {
         return {
@@ -174,35 +150,48 @@ export const createItemsForQuotes = async (
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getProjectTeam = async (
   id: number,
 ): Promise<ProjectTeamListType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/team`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/team`)
     return data.members
   } catch (e: any) {
-    throw new Error(e)
+    // throw new Error(e)
+    return []
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getClient = async (id: number): Promise<ClientType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/client`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/client`)
 
     return data
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      addressType: '',
+      client: {
+        clientId: NOT_APPLICABLE,
+        email: '',
+        fax: null,
+        mobile: null,
+        phone: null,
+        timezone: { phone: '', code: '', label: '' },
+        name: '',
+        taxable: false,
+        tax: null,
+      },
+      contactPerson: null,
+      clientAddress: [],
+    }
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getLangItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/items`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/items`)
     return {
       ...data,
       items: data.items.map((item: ItemResType) => ({
@@ -218,10 +207,9 @@ export const getLangItems = async (
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/project`)
 
     return data
   } catch (e: any) {
@@ -237,740 +225,12 @@ export const deleteQuotes = async (id: number): Promise<void> => {
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const getVersionHistory = async (
   id: number,
 ): Promise<VersionHistoryType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/order/${id}/history`)
+    const { data } = await axios.get(`/api/enough/u/quote/${id}/history`)
     return data
-    // return [
-    //   {
-    //     id: 1,
-    //     version: 1,
-    //     email: '1leriel@glozinc.com',
-    //     downloadedAt: '2023-03-21T08:20:46.678Z',
-    //     projectInfo: {
-    //       id: 1,
-    //       corporationId: 'sdff',
-    //       quoteDate: Date(),
-    //       status: 'New',
-    //       workName: 'sdfsldf',
-    //       category: 'Webnovel',
-    //       serviceType: ['DTP'],
-    //       expertise: ['Animals/Pets'],
-    //       projectName: 'prjoect',
-    //       projectDescription: 'good',
-    //       projectDueAt: Date(),
-    //       projectDueTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       quoteDeadline: Date(),
-    //       quoteDeadlineTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       quoteExpiryDate: Date(),
-    //       quoteExpiryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       estimatedDeliveryDate: Date(),
-    //       estimatedDeliveryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       tax: 10,
-    //     },
-    //     client: {
-    //       addressType: 'billing',
-    //       client: {
-    //         clientId: 3,
-    //         email: 'sdflk@sf.com',
-    //         fax: null,
-    //         mobile: '01038088637',
-    //         phone: null,
-    //         timezone: {
-    //           code: 'AE',
-    //           label: 'United Arab Emirates',
-    //           phone: '971',
-    //         },
-    //         name: '쌔거',
-    //       },
-    //       contactPerson: {
-    //         department: null,
-    //         email: 'dsfsdf@com.com',
-    //         fax: null,
-    //         firstName: 'Gayeon',
-    //         id: 5,
-    //         isReferred: false,
-    //         jobTitle: '매니죠',
-    //         lastName: 'Kim',
-    //         memo: 'sdfsdf',
-    //         middleName: null,
-    //         mobile: '01063611055',
-    //         personType: 'Mr.',
-    //         phone: null,
-    //         timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
-    //       },
-    //       clientAddress: [
-    //         {
-    //           addressType: 'shipping',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: false,
-    //         },
-    //         {
-    //           addressType: 'billing',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: true,
-    //         },
-    //       ],
-    //     },
-    //     projectTeam: [
-    //       {
-    //         id: '5',
-    //         email: 'd_master_1@glozinc.com',
-    //         firstName: 'Master',
-    //         jobTitle: 'Translator',
-    //         lastName: 'K',
-    //         middleName: null,
-
-    //         position: 'supervisor',
-
-    //         userId: 5,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'leriel@glozinc.com',
-    //         firstName: 'leriel',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'projectManager',
-
-    //         userId: 6,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'bon@glozinc.com',
-    //         firstName: 'bon',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'teamMember',
-
-    //         userId: 7,
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 2,
-    //     version: 1,
-    //     email: '2leriel@glozinc.com',
-    //     downloadedAt: '2023-03-21T08:20:46.678Z',
-    //     projectInfo: {
-    //       id: 1,
-    //       corporationId: 'sdff',
-    //       quoteDate: Date(),
-    //       status: 'New',
-    //       workName: 'work name',
-    //       category: 'Webnovel',
-    //       serviceType: ['DTP'],
-    //       expertise: ['Animals/Pets'],
-    //       projectName: '2 pro',
-    //       projectDescription: 'good',
-    //       projectDueAt: Date(),
-    //       projectDueTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       quoteDeadline: Date(),
-    //       quoteDeadlineTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       quoteExpiryDate: Date(),
-    //       quoteExpiryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       estimatedDeliveryDate: Date(),
-    //       estimatedDeliveryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       tax: 10,
-    //     },
-    //     client: {
-    //       addressType: 'billing',
-    //       client: {
-    //         clientId: 3,
-    //         email: 'sdflk@sf.com',
-    //         fax: null,
-    //         mobile: '01038088637',
-    //         phone: null,
-    //         timezone: {
-    //           code: 'AE',
-    //           label: 'United Arab Emirates',
-    //           phone: '971',
-    //         },
-    //         name: '쌔거',
-    //       },
-    //       contactPerson: {
-    //         department: null,
-    //         email: 'dsfsdf@com.com',
-    //         fax: null,
-    //         firstName: 'Gayeon',
-    //         id: 5,
-    //         isReferred: false,
-    //         jobTitle: '매니죠',
-    //         lastName: 'Kim',
-    //         memo: 'sdfsdf',
-    //         middleName: null,
-    //         mobile: '01063611055',
-    //         personType: 'Mr.',
-    //         phone: null,
-    //         timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
-    //       },
-    //       clientAddress: [
-    //         {
-    //           addressType: 'shipping',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: false,
-    //         },
-    //         {
-    //           addressType: 'billing',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: true,
-    //         },
-    //       ],
-    //     },
-    //     projectTeam: [
-    //       {
-    //         id: '5',
-    //         email: 'd_master_1@glozinc.com',
-    //         firstName: 'Master',
-    //         jobTitle: 'Translator',
-    //         lastName: 'K',
-    //         middleName: null,
-
-    //         position: 'supervisor',
-
-    //         userId: 5,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'leriel@glozinc.com',
-    //         firstName: 'leriel',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'projectManager',
-
-    //         userId: 6,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'bon@glozinc.com',
-    //         firstName: 'bon',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'teamMember',
-
-    //         userId: 7,
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 3,
-    //     version: 1,
-    //     email: '3leriel@glozinc.com',
-    //     downloadedAt: '2023-03-21T08:20:46.678Z',
-    //     projectInfo: {
-    //       id: 1,
-    //       corporationId: '1112',
-    //       quoteDate: Date(),
-    //       status: 'New',
-    //       workName: 'work owrk ',
-    //       category: 'Webnovel',
-    //       serviceType: ['DTP'],
-    //       expertise: ['Animals/Pets'],
-    //       projectName: '3 p',
-    //       projectDescription: 'good',
-    //       projectDueAt: Date(),
-    //       projectDueTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       quoteDeadline: Date(),
-    //       quoteDeadlineTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       quoteExpiryDate: Date(),
-    //       quoteExpiryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       estimatedDeliveryDate: Date(),
-    //       estimatedDeliveryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       tax: 10,
-    //     },
-    //     client: {
-    //       addressType: 'billing',
-    //       client: {
-    //         clientId: 3,
-    //         email: 'sdflk@sf.com',
-    //         fax: null,
-    //         mobile: '01038088637',
-    //         phone: null,
-    //         timezone: {
-    //           code: 'AE',
-    //           label: 'United Arab Emirates',
-    //           phone: '971',
-    //         },
-    //         name: '쌔거',
-    //       },
-    //       contactPerson: {
-    //         department: null,
-    //         email: 'dsfsdf@com.com',
-    //         fax: null,
-    //         firstName: 'Gayeon',
-    //         id: 5,
-    //         isReferred: false,
-    //         jobTitle: '매니죠',
-    //         lastName: 'Kim',
-    //         memo: 'sdfsdf',
-    //         middleName: null,
-    //         mobile: '01063611055',
-    //         personType: 'Mr.',
-    //         phone: null,
-    //         timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
-    //       },
-    //       clientAddress: [
-    //         {
-    //           addressType: 'shipping',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: false,
-    //         },
-    //         {
-    //           addressType: 'billing',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: true,
-    //         },
-    //       ],
-    //     },
-    //     projectTeam: [
-    //       {
-    //         id: '5',
-    //         email: 'd_master_1@glozinc.com',
-    //         firstName: 'Master',
-    //         jobTitle: 'Translator',
-    //         lastName: 'K',
-    //         middleName: null,
-
-    //         position: 'supervisor',
-
-    //         userId: 5,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'leriel@glozinc.com',
-    //         firstName: 'leriel',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'projectManager',
-
-    //         userId: 6,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'bon@glozinc.com',
-    //         firstName: 'bon',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'teamMember',
-
-    //         userId: 7,
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 4,
-    //     version: 1,
-    //     email: '4leriel@glozinc.com',
-    //     downloadedAt: '2023-03-21T08:20:46.678Z',
-    //     projectInfo: {
-    //       id: 1,
-    //       corporationId: '1323123123',
-    //       quoteDate: Date(),
-    //       status: 'New',
-    //       workName: '33223231232323',
-    //       category: 'Webnovel',
-    //       serviceType: ['DTP'],
-    //       expertise: ['Animals/Pets'],
-    //       projectName: '24342343434',
-    //       projectDescription: 'good',
-    //       projectDueAt: Date(),
-    //       projectDueTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       quoteDeadline: Date(),
-    //       quoteDeadlineTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       quoteExpiryDate: Date(),
-    //       quoteExpiryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       estimatedDeliveryDate: Date(),
-    //       estimatedDeliveryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       tax: 10,
-    //     },
-    //     client: {
-    //       addressType: 'billing',
-    //       client: {
-    //         clientId: 3,
-    //         email: 'sdflk@sf.com',
-    //         fax: null,
-    //         mobile: '01038088637',
-    //         phone: null,
-    //         timezone: {
-    //           code: 'AE',
-    //           label: 'United Arab Emirates',
-    //           phone: '971',
-    //         },
-    //         name: '쌔거',
-    //       },
-    //       contactPerson: {
-    //         department: null,
-    //         email: 'dsfsdf@com.com',
-    //         fax: null,
-    //         firstName: 'Gayeon',
-    //         id: 5,
-    //         isReferred: false,
-    //         jobTitle: '매니죠',
-    //         lastName: 'Kim',
-    //         memo: 'sdfsdf',
-    //         middleName: null,
-    //         mobile: '01063611055',
-    //         personType: 'Mr.',
-    //         phone: null,
-    //         timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
-    //       },
-    //       clientAddress: [
-    //         {
-    //           addressType: 'shipping',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: false,
-    //         },
-    //         {
-    //           addressType: 'billing',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: true,
-    //         },
-    //       ],
-    //     },
-    //     projectTeam: [
-    //       {
-    //         id: '5',
-    //         email: 'd_master_1@glozinc.com',
-    //         firstName: 'Master',
-    //         jobTitle: 'Translator',
-    //         lastName: 'K',
-    //         middleName: null,
-
-    //         position: 'supervisor',
-
-    //         userId: 5,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'leriel@glozinc.com',
-    //         firstName: 'leriel',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'projectManager',
-
-    //         userId: 6,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'bon@glozinc.com',
-    //         firstName: 'bon',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'teamMember',
-
-    //         userId: 7,
-    //       },
-    //     ],
-    //   },
-    //   {
-    //     id: 5,
-    //     version: 1,
-    //     email: '5leriel@glozinc.com',
-    //     downloadedAt: '2023-03-21T08:20:46.678Z',
-    //     projectInfo: {
-    //       id: 1,
-    //       corporationId: '55454545',
-    //       quoteDate: Date(),
-    //       status: 'New',
-    //       workName: 'sdfsldf',
-    //       category: 'Webnovel',
-    //       serviceType: ['DTP'],
-    //       expertise: ['Animals/Pets'],
-    //       projectName: '5555555',
-    //       projectDescription: 'good',
-    //       projectDueAt: Date(),
-    //       projectDueTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       quoteDeadline: Date(),
-    //       quoteDeadlineTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       quoteExpiryDate: Date(),
-    //       quoteExpiryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-    //       estimatedDeliveryDate: Date(),
-    //       estimatedDeliveryDateTimezone: {
-    //         code: 'string',
-    //         label: 'string',
-    //         phone: 'string',
-    //       },
-
-    //       tax: 10,
-    //     },
-    //     client: {
-    //       addressType: 'billing',
-    //       client: {
-    //         clientId: 3,
-    //         email: 'sdflk@sf.com',
-    //         fax: null,
-    //         mobile: '01038088637',
-    //         phone: null,
-    //         timezone: {
-    //           code: 'AE',
-    //           label: 'United Arab Emirates',
-    //           phone: '971',
-    //         },
-    //         name: '쌔거',
-    //       },
-    //       contactPerson: {
-    //         department: null,
-    //         email: 'dsfsdf@com.com',
-    //         fax: null,
-    //         firstName: 'Gayeon',
-    //         id: 5,
-    //         isReferred: false,
-    //         jobTitle: '매니죠',
-    //         lastName: 'Kim',
-    //         memo: 'sdfsdf',
-    //         middleName: null,
-    //         mobile: '01063611055',
-    //         personType: 'Mr.',
-    //         phone: null,
-    //         timezone: { code: 'AF', label: 'Afghanistan', phone: '93' },
-    //       },
-    //       clientAddress: [
-    //         {
-    //           addressType: 'shipping',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: false,
-    //         },
-    //         {
-    //           addressType: 'billing',
-    //           baseAddress: null,
-    //           city: null,
-    //           country: null,
-    //           createdAt: '2023-04-17T21:05:51.771Z',
-    //           detailAddress: null,
-
-    //           name: null,
-    //           state: null,
-    //           updatedAt: '2023-04-17T21:05:51.771Z',
-    //           zipCode: null,
-    //           isSelected: true,
-    //         },
-    //       ],
-    //     },
-    //     projectTeam: [
-    //       {
-    //         id: '5',
-    //         email: 'd_master_1@glozinc.com',
-    //         firstName: 'Master',
-    //         jobTitle: 'Translator',
-    //         lastName: 'K',
-    //         middleName: null,
-
-    //         position: 'supervisor',
-
-    //         userId: 5,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'leriel@glozinc.com',
-    //         firstName: 'leriel',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'projectManager',
-
-    //         userId: 6,
-    //       },
-    //       {
-    //         id: '5',
-    //         email: 'bon@glozinc.com',
-    //         firstName: 'bon',
-    //         jobTitle: 'Translator',
-    //         lastName: 'Kim',
-    //         middleName: null,
-
-    //         position: 'teamMember',
-
-    //         userId: 7,
-    //       },
-    //     ],
-    //   },
-    // ]
   } catch (e: any) {
     return []
   }
@@ -984,10 +244,45 @@ export const restoreVersion = async (id: number): Promise<void> => {
   }
 }
 
-/* TODO : endpoint 수정하기 */
 export const patchQuoteProjectInfo = async (
   id: number,
-  form: QuotesProjectInfoFormType | { downloadedAt: string },
+  form:
+    | QuotesProjectInfoFormType
+    | ProjectTeamFormType
+    | ClientFormType
+    | { status: QuoteStatusType }
+    | { tax: null | number; taxable: boolean }
+    | { downloadedAt: string },
 ) => {
-  await axios.patch(`/api/enough/u/order/${id}`, { ...form })
+  await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
+}
+
+export const patchQuoteLanguagePairs = async (
+  id: number,
+  form: Array<LanguagePairsType>,
+) => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/quote/language/pair?quoteId=${id}`,
+      { data: form },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const patchQuoteItems = async (
+  id: number,
+  form: Array<PostItemType>,
+) => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/quote/item?quoteId=${id}`,
+      { items: form },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }

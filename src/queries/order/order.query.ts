@@ -30,7 +30,7 @@ export const useGetOrderListInJob = (filter: OrderListFilterType) => {
 
 export const useGetOrderListCalendar = (year: number, month: number) => {
   return useQuery(
-    'get-client-invoices-calendar',
+    ['get-client-invoices-calendar', year, month],
     () => {
       return getOrderListCalendar(year, month)
     },

@@ -16,7 +16,7 @@ export const useGetPriceList = (filter: PriceListFilterType) => {
     staleTime: 60 * 1000, // 1
     keepPreviousData: true,
     suspense: false,
-    enabled: !!filter?.clientId,
+    // enabled: !!filter?.clientId,
   })
 }
 

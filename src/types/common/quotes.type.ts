@@ -7,6 +7,7 @@ import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ItemType } from './item.type'
+import { CurrencyType } from './standard-price'
 
 export type QuoteStatusType =
   | 'New'
@@ -41,6 +42,7 @@ export type QuotesListType = {
   corporationId: string
   status: QuoteStatusType
   projectName: string
+  currency: CurrencyType
   client: {
     name: string
     email: string

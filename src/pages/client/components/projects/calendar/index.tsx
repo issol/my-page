@@ -72,10 +72,6 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
   }
 
   useEffect(() => {
-    refetch()
-  }, [year, month])
-
-  useEffect(() => {
     if (currentListId && data?.data) {
       console.log(currentListId)
 

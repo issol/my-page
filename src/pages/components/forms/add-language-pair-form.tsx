@@ -201,17 +201,16 @@ export default function AddLanguagePairForm({
               {languagePairs
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                 .map((row, idx) => {
-                  const updateIndex = languagePairs
-                    .map(item => item.id)
-                    .indexOf(row.id)
                   const options = getPriceOptions(row.source, row.target)
                   const matchingPrice = options.filter(
                     item => item.groupName === 'Matching price',
                   )
-                  if (matchingPrice.length === 1 && updateIndex !== -1) {
-                    // setPrice(matchingPrice[0], idx)
+                  if (
+                    matchingPrice.length === 1 &&
+                    languagePairs[idx].price === null
+                  ) {
                     const copyPairs = [...languagePairs]
-                    copyPairs[updateIndex].price = matchingPrice[0]
+                    copyPairs[idx].price = matchingPrice[0]
                     setLanguagePairs(copyPairs)
                   }
                   return (
@@ -252,7 +251,7 @@ export default function AddLanguagePairForm({
                             groupBy={option => option?.groupName}
                             onChange={(e, v) => {
                               const copyPairs = [...languagePairs]
-                              copyPairs[updateIndex].price = v
+                              copyPairs[idx].price = v
                               setLanguagePairs(copyPairs)
                             }}
                             id='autocomplete-controlled'

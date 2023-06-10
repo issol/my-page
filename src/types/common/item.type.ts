@@ -1,17 +1,22 @@
 import { JobStatusType } from '../jobs/common.type'
 import { JobPricesDetailType } from '../jobs/jobs.type'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
 
 export type ItemType = Omit<PostItemType, 'analysis'> & {
-  analysis?: {
-    name: string
-    size: number
-    data: MemoQType | MemSourceType | null
-  }[]
+  analysis?: Array<AnalysisFileType>
+} & {
+  contactPerson?: ContactPersonType | null
 }
 
+export type AnalysisFileType = {
+  id: number
+  name: string
+  size: number
+  data: MemoQType | MemSourceType | null
+}
 export type PostItemType = {
   id?: number
   name: string

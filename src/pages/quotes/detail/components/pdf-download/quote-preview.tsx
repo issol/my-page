@@ -108,8 +108,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 fontWeight={lang === 'EN' ? 600 : 800}
                 fontSize={14}
               >
-                {/* TODO:{data.adminCompanyName} */}
-                {columnName.companyName}
+                {data.adminCompanyName}
               </Typography>
               <Typography variant='subtitle2'>
                 {columnName.companyAddress}
