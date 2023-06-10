@@ -145,7 +145,7 @@ export default function ItemPriceUnitForm({
         }}
       >
         <TableCell>
-          {type === 'detail' ? (
+          {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {getValues(`${itemName}.${idx}.quantity`)}
@@ -174,7 +174,7 @@ export default function ItemPriceUnitForm({
           )}
         </TableCell>
         <TableCell>
-          {type === 'detail' ? (
+          {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {
@@ -307,8 +307,12 @@ export default function ItemPriceUnitForm({
             />
           )}
         </TableCell>
-        <TableCell align={type === 'detail' ? 'left' : 'center'}>
-          {type === 'detail' ? (
+        <TableCell
+          align={
+            type === 'detail' || type === 'invoiceDetail' ? 'left' : 'center'
+          }
+        >
+          {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {getValues(`${itemName}.${idx}.unitPrice`) ?? '-'}
@@ -335,7 +339,7 @@ export default function ItemPriceUnitForm({
           )}
         </TableCell>
         <TableCell align='center'>
-          {type === 'detail' ? (
+          {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
                 {isNotApplicable
@@ -389,7 +393,7 @@ export default function ItemPriceUnitForm({
         </TableCell>
 
         <TableCell align='center'>
-          {type === 'detail' ? null : (
+          {type === 'detail' || type === 'invoiceDetail' ? null : (
             <IconButton onClick={() => onDeletePriceUnit(idx)}>
               <Icon icon='mdi:trash-outline' />
             </IconButton>
@@ -453,7 +457,7 @@ export default function ItemPriceUnitForm({
                   </Typography>
                 </TableCell>
                 <TableCell align='center'>
-                  {type === 'detail' ? null : (
+                  {type === 'detail' || type === 'invoiceDetail' ? null : (
                     <IconButton
                       onClick={() =>
                         setShowMinimum({ show: false, checked: true })
@@ -465,7 +469,7 @@ export default function ItemPriceUnitForm({
                 </TableCell>
               </TableRow>
             ) : null}
-            {type === 'detail' ? null : (
+            {type === 'detail' || type === 'invoiceDetail' ? null : (
               <TableRow hover tabIndex={-1}>
                 <TableCell colSpan={6}>
                   <Button
@@ -512,7 +516,7 @@ export default function ItemPriceUnitForm({
                           priceData?.currency ?? 'USD',
                         )}
                   </Typography>
-                  {type === 'detail' ? null : (
+                  {type === 'detail' || type === 'invoiceDetail' ? null : (
                     <IconButton onClick={() => getTotalPrice()}>
                       <Icon icon='material-symbols:refresh' />
                     </IconButton>

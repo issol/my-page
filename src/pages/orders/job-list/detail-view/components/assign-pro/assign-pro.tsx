@@ -76,7 +76,7 @@ type Props = {
   type: string
   assignProList?: { data: AssignProListType[]; totalCount: number }
   item: JobItemType
-  refetch: <TPageData>(
+  refetch?: <TPageData>(
     options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
   ) => Promise<
     QueryObserverResult<
@@ -125,7 +125,7 @@ const AssignPro = ({
     data: AssignProList,
     isLoading,
     refetch: refetchAssignProList,
-  } = useGetAssignProList(row.id, filters)
+  } = useGetAssignProList(row.id, filters, type === 'history' ? true : false)
 
   const requestJobMutation = useMutation(
     (data: { ids: number[]; jobId: number }) =>
@@ -248,6 +248,8 @@ const AssignPro = ({
     setFilters(defaultFilters)
   }
 
+  console.log(AssignProList)
+
   const onSubmit = () => {
     const data = getValues()
 
@@ -292,7 +294,7 @@ const AssignPro = ({
             row={row}
             orderDetail={orderDetail}
             item={item}
-            refetch={refetch}
+            refetch={refetch!}
           />
         </Box>
       ),
@@ -323,7 +325,7 @@ const AssignPro = ({
             row={row}
             orderDetail={orderDetail}
             item={item}
-            refetch={refetch}
+            refetch={refetch!}
           />
         </Box>
       ),
@@ -580,13 +582,12 @@ const AssignPro = ({
 
       <AssignProListPage
         listCount={
-          type === 'history'
-            ? assignProList?.totalCount!
-            : isFiltersDifferent()
+          isFiltersDifferent()
             ? AssignProList?.count!
             : AssignProList?.totalCount!
         }
-        list={type === 'history' ? assignProList?.data! : AssignProList?.data!}
+        // list={type === 'history' ? assignProList?.data! : AssignProList?.data!}
+        list={AssignProList?.data!}
         columns={type === 'history' ? historyColumns : columns}
         setFilters={setFilters}
         setPageSize={setProListPageSize}

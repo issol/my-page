@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Divider,
   FormHelperText,
   Grid,
@@ -40,7 +41,6 @@ import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
 import useModal from '@src/hooks/useModal'
 
 // ** components
-import AddConfirmModal from '@src/pages/client/components/modals/add-confirm-with-title-modal'
 
 // ** values
 import { CategoryList } from '@src/shared/const/category/categories'
@@ -52,84 +52,55 @@ import {
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import { countries } from 'src/@fake-db/autocomplete'
-import { OrderStatus } from '@src/shared/const/status/statuses'
-import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import InformationModal from '@src/@core/components/common-modal/information-modal'
 
 type Props = {
-  control: Control<OrderProjectInfoFormType, any>
-  setValue: UseFormSetValue<OrderProjectInfoFormType>
-  watch: UseFormWatch<OrderProjectInfoFormType>
-  errors: FieldErrors<OrderProjectInfoFormType>
+  control: Control<InvoiceProjectInfoFormType, any>
+  setValue: UseFormSetValue<InvoiceProjectInfoFormType>
+  watch: UseFormWatch<InvoiceProjectInfoFormType>
+  errors: FieldErrors<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined
+  statusList: {
+    id: number
+    statusName: string
+  }[]
 }
-export default function ProjectInfoForm({
+export default function InvoiceProjectInfoForm({
   control,
   setValue,
   watch,
   errors,
   clientTimezone,
+  statusList,
 }: Props) {
-  const [openPopper, setOpenPopper] = useState(false)
-  const [isAddMode, setIsAddMode] = useState(false)
-  const [workNameError, setWorkNameError] = useState(false)
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
-  const [newWorkName, setNewWorkName] = useState('')
 
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList()
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   useEffect(() => {
     if (clientTimezone) {
-      setValue('projectDueDate.timezone', clientTimezone, setValueOptions)
+      setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
+      setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
+      setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
     }
   }, [clientTimezone])
 
   useEffect(() => {
-    if (isSuccess) {
-      setWorkName(data)
-    }
-  }, [isSuccess])
+    setValue('sendReminder', true, setValueOptions)
+  }, [])
 
-  useEffect(() => {
-    onWorkNameInputChange(newWorkName)
-  }, [newWorkName])
-
-  function onWorkNameInputChange(name: string) {
-    setWorkNameError(workName?.some(item => item.value === name) || false)
-  }
-
-  function onAddWorkName() {
-    openModal({
-      type: 'add-work-name',
-      children: (
-        <AddConfirmModal
-          message='Are you sure you want to add this work name?'
-          title={newWorkName}
-          onClose={() => closeModal('add-work-name')}
-          onClick={() => {
-            setWorkName(
-              workName?.concat({ value: newWorkName, label: newWorkName }),
-            )
-            setNewWorkName('')
-            setIsAddMode(false)
-            setOpenPopper(false)
-            setValue('workName', newWorkName, setValueOptions)
-          }}
-        />
-      ),
-    })
-  }
-
-  function renderErrorMsg(key: keyof OrderProjectInfoFormType) {
+  function renderErrorMsg(key: keyof InvoiceProjectInfoFormType) {
     return (
       <>
         {errors[key] && (
@@ -143,20 +114,65 @@ export default function ProjectInfoForm({
 
   return (
     <Fragment>
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Controller
+            name='sendReminder'
+            control={control}
+            defaultValue={true}
+            render={({ field: { value, onChange } }) => (
+              <Checkbox
+                value={value}
+                onChange={e => {
+                  onChange(e.target.checked)
+                }}
+                checked={value}
+              />
+            )}
+          />
+
+          <Typography variant='body2'>
+            Send reminder for this invoice
+          </Typography>
+          <IconButton
+            onClick={() => {
+              openModal({
+                type: 'invoiceReminderModal',
+                children: (
+                  <InformationModal
+                    onClose={() => closeModal('invoiceReminderModal')}
+                    title='Reminder information'
+                    subtitle='A reminder email will be automatically sent to the client when the invoice is overdue.'
+                    vary='info'
+                  />
+                ),
+              })
+            }}
+          >
+            <Icon icon='ic:outline-info' />
+          </IconButton>
+        </Box>
+      </Grid>
+      <Divider />
       <Grid item xs={6}>
         <Controller
-          name='orderDate'
+          name='invoiceDate'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              {...DateTimePickerDefaultOptions}
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
               selected={new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
-              customInput={<CustomInput label='Order date*' />}
+              customInput={
+                <CustomInput label='Invoice date*' icon='calendar' />
+              }
             />
           )}
         />
-        {renderErrorMsg('orderDate')}
+        {renderErrorMsg('invoiceDate')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -166,15 +182,17 @@ export default function ProjectInfoForm({
             <Autocomplete
               autoHighlight
               fullWidth
-              options={OrderStatus}
+              options={statusList}
               onChange={(e, v) => {
-                onChange(v?.value ?? '')
+                onChange(v?.statusName ?? '')
               }}
               value={
-                !value
-                  ? defaultValue
-                  : OrderStatus.find(item => item.value === value)
+                statusList.find(item => item.statusName === value) ?? {
+                  id: 0,
+                  statusName: '',
+                }
               }
+              getOptionLabel={option => option.statusName}
               renderInput={params => (
                 <TextField
                   {...params}
@@ -199,50 +217,19 @@ export default function ProjectInfoForm({
                 disableClearable
                 autoHighlight
                 fullWidth
+                disabled={true}
                 options={workName || []}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
-                  setIsAddMode(false)
-                  setOpenPopper(false)
                 }}
                 value={
                   !value || !workName
                     ? defaultValue
                     : finedValue ?? defaultValue
                 }
-                PopperComponent={props => {
-                  const children = props.children as ReactNode
-                  return (
-                    <>
-                      {openPopper ? (
-                        <Box>
-                          {isAddMode ? null : (
-                            <Box>
-                              <Box
-                                display='flex'
-                                alignItems='center'
-                                margin='4px 0'
-                                onClick={() => setIsAddMode(true)}
-                              >
-                                <IconButton color='primary'>
-                                  <Icon icon='material-symbols:add-circle-outline' />
-                                </IconButton>
-                                <Typography variant='body2' color='primary'>
-                                  Add a new work name
-                                </Typography>
-                              </Box>
-                              <Box>{children}</Box>
-                            </Box>
-                          )}
-                        </Box>
-                      ) : null}
-                    </>
-                  )
-                }}
                 renderInput={params => (
                   <TextField
                     {...params}
-                    onClick={() => setOpenPopper(!openPopper)}
                     error={Boolean(errors.workName)}
                     label='Work name'
                     placeholder='Work name'
@@ -252,47 +239,6 @@ export default function ProjectInfoForm({
             )
           }}
         />
-        {isAddMode ? (
-          <Card>
-            <CardContent>
-              <TextField
-                fullWidth
-                error={workNameError}
-                onChange={e => setNewWorkName(e.target.value)}
-                value={newWorkName}
-                label='Work name*'
-                variant='outlined'
-                sx={{ margin: '4px 0' }}
-              />
-              {workNameError ? (
-                <FormHelperText sx={{ color: 'error.main' }}>
-                  The same work name already exists
-                </FormHelperText>
-              ) : null}
-
-              <Box display='flex' justifyContent='flex-end' gap='8px' mt='8px'>
-                <Button
-                  variant='outlined'
-                  size='small'
-                  onClick={() => {
-                    setIsAddMode(false)
-                    setOpenPopper(false)
-                  }}
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant='contained'
-                  size='small'
-                  disabled={workNameError || !newWorkName}
-                  onClick={onAddWorkName}
-                >
-                  Add
-                </Button>
-              </Box>
-            </CardContent>
-          </Card>
-        ) : null}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -301,7 +247,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              autoFocus
+              disabled={true}
               label='Project name*'
               variant='outlined'
               value={value ?? ''}
@@ -320,6 +266,7 @@ export default function ProjectInfoForm({
           render={({ field: { value, onChange } }) => (
             <Autocomplete
               autoHighlight
+              disabled
               fullWidth
               options={CategoryList}
               onChange={(e, v) => {
@@ -356,8 +303,21 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                disabled={!category}
+                disabled
                 multiple
+                sx={{
+                  borderRadius: '8px',
+                  background: 'rgba(76, 78, 100, 0.12) !important',
+                  '& .MuiChip-root': {
+                    '&. MuiChip-label': {
+                      color: 'rgba(76, 78, 100, 0.38)',
+                      opacity: '1 !important',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      display: 'none',
+                    },
+                  },
+                }}
                 options={
                   !category || !ServiceTypePair[category]
                     ? ServiceTypeList
@@ -370,18 +330,14 @@ export default function ProjectInfoForm({
                   value?.includes(item.value),
                 )}
                 renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Service type'
-                    placeholder='Service type'
-                  />
+                  <TextField {...params} label='Service type' />
                 )}
               />
             )
           }}
         />
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
         <Controller
           name='expertise'
           control={control}
@@ -393,7 +349,20 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
-                disabled={!category}
+                disabled
+                sx={{
+                  borderRadius: '8px',
+                  background: 'rgba(76, 78, 100, 0.12) !important',
+                  '& .MuiChip-root': {
+                    '&. MuiChip-label': {
+                      color: 'rgba(76, 78, 100, 0.38)',
+                      opacity: '1 !important',
+                    },
+                    '& .MuiSvgIcon-root': {
+                      display: 'none',
+                    },
+                  },
+                }}
                 multiple
                 options={
                   !category || !AreaOfExpertisePair[category]
@@ -407,11 +376,7 @@ export default function ProjectInfoForm({
                   value?.includes(item.value),
                 )}
                 renderInput={params => (
-                  <TextField
-                    {...params}
-                    label='Area of expertise'
-                    placeholder='Area of expertise'
-                  />
+                  <TextField {...params} label='Area of expertise' />
                 )}
               />
             )
@@ -427,6 +392,7 @@ export default function ProjectInfoForm({
               <Autocomplete
                 autoHighlight
                 fullWidth
+                disabled
                 options={RevenueFrom}
                 onChange={(e, v) => {
                   onChange(v?.value ?? '')
@@ -453,21 +419,59 @@ export default function ProjectInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='projectDueDate.date'
+          name='taxable'
+          control={control}
+          render={({ field: { value, onChange } }) => {
+            return (
+              <Autocomplete
+                autoHighlight
+                fullWidth
+                disabled
+                options={[
+                  { value: true, label: 'Taxable' },
+                  { value: false, label: 'Non-Taxable' },
+                ]}
+                onChange={(e, v) => {
+                  onChange(v?.label ?? { value: true, label: 'Taxable' })
+                }}
+                value={[
+                  { value: true, label: 'Taxable' },
+                  { value: false, label: 'Non-Taxable' },
+                ].find(item => item.value === value)}
+                getOptionLabel={option => option.label}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    error={Boolean(errors.taxable)}
+                    label='Tax type*'
+                  />
+                )}
+              />
+            )
+          }}
+        />
+        {renderErrorMsg('revenueFrom')}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='paymentDueDate.date'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              {...DateTimePickerDefaultOptions}
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
               selected={!value ? null : new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
-              customInput={<CustomInput label='Project due date' />}
+              customInput={<CustomInput label='Payment due*' icon='calendar' />}
             />
           )}
         />
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='projectDueDate.timezone'
+          name='paymentDueDate.timezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -479,17 +483,126 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
                 <TextField
                   {...params}
                   label='Time zone*'
-                  error={Boolean(errors?.projectDueDate?.timezone)}
+                  error={Boolean(errors?.paymentDueDate?.timezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='invoiceConfirmDate.date'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FullWidthDatePicker
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
+              selected={!value ? null : new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
+              onChange={onChange}
+              customInput={
+                <CustomInput label='Invoice confirm date' icon='calendar' />
+              }
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='invoiceConfirmDate.timezone'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Time zone'
+                  error={Boolean(errors?.invoiceConfirmDate?.timezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='taxInvoiceDueDate.date'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FullWidthDatePicker
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
+              selected={!value ? null : new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
+              onChange={onChange}
+              customInput={
+                <CustomInput
+                  label='Due date for the tax invoice'
+                  icon='calendar'
+                />
+              }
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='taxInvoiceDueDate.timezone'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Time zone'
+                  error={Boolean(errors?.taxInvoiceDueDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -504,10 +617,10 @@ export default function ProjectInfoForm({
       </Grid>
       <Grid item xs={12}>
         <Typography variant='h6' mb='24px'>
-          Project description
+          Invoice description
         </Typography>
         <Controller
-          name='projectDescription'
+          name='invoiceDescription'
           control={control}
           render={({ field: { value, onChange } }) => (
             <>
@@ -515,8 +628,9 @@ export default function ProjectInfoForm({
                 rows={4}
                 multiline
                 fullWidth
-                error={Boolean(errors.projectDescription)}
-                label='Write down a project description.'
+                error={Boolean(errors.invoiceDescription)}
+                // label='Write down an invoice description.'
+                placeholder='Write down an invoice description.'
                 value={value ?? ''}
                 onChange={onChange}
                 inputProps={{ maxLength: 500 }}

@@ -32,7 +32,7 @@ import {
 import Row from './row'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 
@@ -91,8 +91,9 @@ const EditPrices = ({
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: 7,
   })
+  const queryClient = useQueryClient()
 
-  console.log(isItemValid)
+  console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
 
@@ -101,7 +102,8 @@ const EditPrices = ({
       saveJobPrices(data.jobId, data.prices),
     {
       onSuccess: () => {
-        console.log('success')
+        setSuccess(true)
+        queryClient.invalidateQueries('jobPrices')
       },
     },
   )
@@ -143,7 +145,6 @@ const EditPrices = ({
 
   const onSubmit = () => {
     const data = getItem(`items.${0}`)
-    setSuccess(true)
 
     // toast('Job info added successfully')
     console.log('items', data)

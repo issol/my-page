@@ -79,8 +79,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const [editJobInfo, setEditJobInfo] = useState(false)
   const [editPrices, setEditPrices] = useState(false)
 
-  const { data: jobInfo, isLoading } = useGetJobInfo(row.id)
-  const { data: jobPrices } = useGetJobPrices(row.id)
+  const { data: jobInfo, isLoading } = useGetJobInfo(row.id, false)
+  const { data: jobPrices } = useGetJobPrices(row.id, false)
   const { data: priceUnitsList } = useGetAllPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
@@ -102,7 +102,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     resolver: yupResolver(jobItemSchema),
   })
 
-  console.log(itemErrors)
+  console.log(isItemValid)
+  console.log(getItem())
 
   const {
     fields: items,
@@ -116,6 +117,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   useEffect(() => {
     if (jobPrices) {
+      console.log(jobPrices)
+
       const result = [
         {
           id: jobPrices.id!,

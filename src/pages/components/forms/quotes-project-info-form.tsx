@@ -51,6 +51,7 @@ import {
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { countries } from 'src/@fake-db/autocomplete'
 import { QuotesStatus } from '@src/shared/const/status/statuses'
+import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
@@ -154,11 +155,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote date*' />}
             />
@@ -436,11 +434,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote deadline' />}
             />
@@ -488,11 +483,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+             {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote expiry date' />}
             />
@@ -540,11 +532,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Estimated delivery date' />}
             />
@@ -592,11 +581,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Project due date' />}
             />
