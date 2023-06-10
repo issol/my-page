@@ -53,8 +53,8 @@ const OrderListCalendar = ({ user }: Props) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetOrderListCalendar(year, month)
+  const [month, setMonth] = useState(new Date().getMonth())
+  const { data, isLoading } = useGetOrderListCalendar(year, month)
   const [event, setEvent] = useState<Array<OrderListCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
@@ -71,10 +71,6 @@ const OrderListCalendar = ({ user }: Props) => {
   const isSelected = (index: number) => {
     return index === selected
   }
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     console.log(currentListId)

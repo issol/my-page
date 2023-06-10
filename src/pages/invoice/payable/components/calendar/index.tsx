@@ -53,10 +53,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetPayableCalendar(
-    `${year}-${month}`,
-    filter,
-  )
+  const { data, isLoading } = useGetPayableCalendar(`${year}-${month}`, filter)
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
@@ -65,10 +62,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {

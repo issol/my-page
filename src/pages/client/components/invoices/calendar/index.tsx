@@ -47,8 +47,8 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch } = useGetClientInvoicesCalendar(id, `${year}-${month}`)
+  const [month, setMonth] = useState(new Date().getMonth())
+  const { data } = useGetClientInvoicesCalendar(id, `${year}-${month}`)
   const [event, setEvent] = useState<Array<ClientInvoiceCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
@@ -71,10 +71,6 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   const isSelected = (index: number) => {
     return index === selected
   }
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {

@@ -43,8 +43,8 @@ const CalendarContainer = () => {
   const [filters, setFilters] = useState<QuotesFilterType>({})
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetQuotesCalendarData(year, month, {
+  const [month, setMonth] = useState(new Date().getMonth())
+  const { data, isLoading } = useGetQuotesCalendarData(year, month, {
     seeMyQuotes,
     hideCompletedQuotes,
     ...filters,
@@ -57,10 +57,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<QuotesListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {
