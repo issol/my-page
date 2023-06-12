@@ -1106,7 +1106,7 @@ export default function QuotesDetail() {
 }
 
 QuotesDetail.acl = {
-  subject: 'quotes',
+  subject: 'quote',
   action: 'read',
 }
 

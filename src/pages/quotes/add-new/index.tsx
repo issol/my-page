@@ -136,7 +136,7 @@ export default function AddNewQuotes() {
       children: (
         <PageLeaveModal
           onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
+          onClick={() => router.push('/quotes')}
         />
       ),
     })
@@ -623,6 +623,6 @@ export default function AddNewQuotes() {
 }
 
 AddNewQuotes.acl = {
-  subject: 'quotes',
+  subject: 'quote',
   action: 'create',
 }

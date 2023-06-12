@@ -86,7 +86,7 @@ import {
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getPriceList } from '@src/apis/company-price.api'
-import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-project-info-form'
+import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import {
   InvoiceProjectInfoFormType,
   InvoiceReceivableStatusType,

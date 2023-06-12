@@ -253,19 +253,19 @@ export const getPermission = createAsyncThunk(
             can: 'delete',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'read',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'create',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'update',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'delete',
           },
           {

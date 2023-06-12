@@ -48,6 +48,7 @@ import {
 
 // ** values
 import { CurrencyList } from '@src/shared/const/currency/currency'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -95,6 +96,8 @@ export default function ItemPriceUnitForm({
   type,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
+  const currentItem = getValues(`${itemName}`)
+
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
     groupName: string
@@ -131,8 +134,22 @@ export default function ItemPriceUnitForm({
     return nestedData
   }
 
+  function PercentPrice(quantity: number) {
+    let prices = 0
+    if (currentItem) {
+      const percentQuantity = quantity
+      const generalPrices = currentItem.filter(item => item.unit !== 'Percent')
+      generalPrices.forEach(item => {
+        prices += item.unitPrice
+      })
+      prices *= percentQuantity / 100
+    }
+    return prices
+  }
+
   const Row = ({ idx }: { idx: number }) => {
     const savedValue = getValues(`${itemName}.${idx}`)
+
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
     const options = nestSubPriceUnits()
@@ -140,7 +157,7 @@ export default function ItemPriceUnitForm({
       <TableRow
         hover
         tabIndex={-1}
-        onBlur={() => {
+        onMouseLeave={() => {
           getEachPrice(idx)
         }}
       >
@@ -217,6 +234,9 @@ export default function ItemPriceUnitForm({
                             onClick={() => {
                               setOpen(false)
                               onChange(option.title)
+                              const unitPrice = priceFactor
+                                ? priceFactor * option.price
+                                : option.price
                               update(idx, {
                                 ...savedValue,
                                 priceUnitId: option.id,
@@ -226,21 +246,31 @@ export default function ItemPriceUnitForm({
                                   ? priceFactor * option.price
                                   : option.price,
                                 priceFactor: priceFactor?.toString(),
+                                prices:
+                                  option.unit !== 'Percent'
+                                    ? option.quantity! * unitPrice
+                                    : PercentPrice(option.quantity!),
                               })
                               if (option?.subPriceUnits?.length) {
                                 option.subPriceUnits.forEach(item => {
+                                  const unitPrice = priceFactor
+                                    ? priceFactor * item.price
+                                    : item.price
+
                                   append({
                                     ...savedValue,
-                                    priceUnitId: option.id,
+                                    priceFactor: priceFactor?.toString(),
+                                    priceUnitId: item.id,
                                     quantity: item.quantity!,
                                     unit: item.unit,
-                                    unitPrice: priceFactor
-                                      ? priceFactor * item.price
-                                      : item.price,
+                                    unitPrice: unitPrice,
+                                    prices:
+                                      item.unit !== 'Percent'
+                                        ? item.quantity! * unitPrice
+                                        : PercentPrice(item.quantity!),
                                   })
                                 })
                               }
-                              getEachPrice(idx)
                             }}
                           >
                             {option?.quantity && option?.quantity >= 2
@@ -267,7 +297,6 @@ export default function ItemPriceUnitForm({
                                     : sub.price,
                                   priceFactor: priceFactor?.toString(),
                                 })
-                                getEachPrice(idx)
                               }}
                             >
                               <Icon
@@ -378,8 +407,8 @@ export default function ItemPriceUnitForm({
         </TableCell>
         <TableCell align='center'>
           <Typography>
-            {!priceData
-              ? 0
+            {!priceData || priceData.id === NOT_APPLICABLE
+              ? savedValue.prices
               : formatCurrency(
                   formatByRoundingProcedure(
                     Number(savedValue.prices),
@@ -404,7 +433,7 @@ export default function ItemPriceUnitForm({
   }
 
   return (
-    <Grid item xs={12} onBlur={onItemBoxLeave}>
+    <Grid item xs={12} onMouseLeave={onItemBoxLeave}>
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>
@@ -428,7 +457,10 @@ export default function ItemPriceUnitForm({
               <Row key={row.id} idx={idx} />
             ))}
             {showMinimum.show ? (
-              <TableRow hover tabIndex={-1} onBlur={() => onItemBoxLeave()}>
+              <TableRow
+                hover
+                tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */
+              >
                 <TableCell>
                   <Typography color='primary'>1</Typography>
                 </TableCell>
@@ -443,8 +475,8 @@ export default function ItemPriceUnitForm({
                 <TableCell align='center'></TableCell>
                 <TableCell align='center'>
                   <Typography color='primary'>
-                    {!priceData
-                      ? 0
+                    {!priceData || priceData.id === NOT_APPLICABLE
+                      ? minimumPrice ?? 0
                       : formatCurrency(
                           formatByRoundingProcedure(
                             minimumPrice ?? 0,
@@ -504,8 +536,8 @@ export default function ItemPriceUnitForm({
                   justifyContent='flex-end'
                 >
                   <Typography fontWeight='bold'>
-                    {!priceData
-                      ? 0
+                    {!priceData || priceData.id === NOT_APPLICABLE
+                      ? getValues(`items.${index}.totalPrice`)
                       : formatCurrency(
                           formatByRoundingProcedure(
                             getValues(`items.${index}.totalPrice`),

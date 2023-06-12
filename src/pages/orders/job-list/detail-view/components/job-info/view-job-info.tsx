@@ -46,7 +46,6 @@ type Props = {
   setEditJobInfo?: Dispatch<SetStateAction<boolean>>
   type: string
   projectTeam: {
-    id: string
     userId: number
     position: PositionType
     firstName: string

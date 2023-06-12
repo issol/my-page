@@ -22,6 +22,10 @@ import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import languageHelper from '@src/shared/helpers/language.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
@@ -31,6 +35,8 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -66,9 +72,7 @@ type Props = {
   setItem: UseFormSetValue<{
     items: ItemType[]
   }>
-  itemTrigger: UseFormTrigger<{
-    items: ItemType[]
-  }>
+
   itemErrors: FieldErrors<{
     items: ItemType[]
   }>
@@ -83,16 +87,8 @@ type Props = {
   >[]
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
-  projectTax: number
-  appendItems: UseFieldArrayAppend<
-    {
-      items: ItemType[]
-    },
-    'items'
-  >
-  orderId: number
-  setLangItemsEdit: Dispatch<SetStateAction<boolean>>
-  langItemsEdit: boolean
+
+  invoiceInfo: InvoiceReceivableDetailType
 }
 
 const InvoiceLanguageAndItem = ({
@@ -103,90 +99,26 @@ const InvoiceLanguageAndItem = ({
   itemControl,
   getItem,
   setItem,
-  itemTrigger,
+
   itemErrors,
   isItemValid,
   priceUnitsList,
   items,
   removeItems,
   getTeamValues,
-  projectTax,
-  appendItems,
-  orderId,
-  setLangItemsEdit,
-  langItemsEdit,
+
+  invoiceInfo,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const queryClient = useQueryClient()
+
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: clientId,
   })
 
-  const patchLanguagePairs = useMutation(
-    (data: { id: number; langPair: LanguagePairsType[] }) =>
-      patchLangPairForOrder(data.id, data.langPair),
+  const priceInfo = prices?.find(
+    value => value.id === langItem.items[0].priceId,
   )
-
-  const patchItems = useMutation(
-    (data: { id: number; items: PostItemType[] }) =>
-      patchItemsForOrder(data.id, data.items),
-  )
-
-  const handleBack = () => {
-    setLangItemsEdit(false)
-  }
-
-  const onSubmit = () => {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-    }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
-        return {
-          langPairId: Number(item.id),
-          source: item.source,
-          target: item.target,
-          priceId: item.price.id,
-        }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
-
-    patchLanguagePairs.mutate(
-      { id: orderId, langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: orderId, items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${orderId}`)
-                closeModal('LanguageAndItemEditModal')
-              },
-            },
-          )
-        },
-      },
-    )
-  }
-
-  const onClickSave = () => {
-    openModal({
-      type: 'LanguageAndItemEditModal',
-      children: (
-        <EditSaveModal
-          onClose={() => closeModal('LanguageAndItemEditModal')}
-          onClick={onSubmit}
-        />
-      ),
-    })
-  }
+  console.log(priceInfo)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -202,27 +134,6 @@ const InvoiceLanguageAndItem = ({
         ...item,
       }))
     return [defaultOption].concat(filteredList)
-  }
-
-  function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
-  }
-
-  function addNewItem() {
-    const teamMembers = getTeamValues()?.teams
-    const projectManager = teamMembers.find(
-      item => item.type === 'projectManagerId',
-    )
-    appendItems({
-      name: '',
-      source: '',
-      target: '',
-      contactPersonId: projectManager?.id!,
-      priceId: null,
-      detail: [],
-      totalPrice: 0,
-    })
   }
 
   function onDeleteLanguagePair(row: languageType) {
@@ -277,24 +188,13 @@ const InvoiceLanguageAndItem = ({
           alignItems: 'center',
           width: '100%',
         }}
-      >
-        <Button
-          variant='outlined'
-          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-        >
-          <Icon icon='ic:baseline-splitscreen' />
-          Split Order
-        </Button>
-        <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
-      </Box>
+      ></Box>
       <Grid item xs={12}>
         <AddLanguagePairForm
           languagePairs={languagePairs}
           setLanguagePairs={setLanguagePairs}
           getPriceOptions={getPriceOptions}
-          type={langItemsEdit ? 'edit' : 'detail'}
+          type={'detail'}
           onDeleteLanguagePair={onDeleteLanguagePair}
         />
       </Grid>
@@ -311,25 +211,166 @@ const InvoiceLanguageAndItem = ({
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
-          type={langItemsEdit ? 'edit' : 'detail'}
+          type={'invoiceDetail'}
         />
       </Grid>
-      {langItemsEdit ? (
-        <Grid item xs={12}>
-          <Button
-            startIcon={<Icon icon='material-symbols:add' />}
-            disabled={isAddItemDisabled()}
-            onClick={addNewItem}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '2px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
           >
             <Typography
-              color={isAddItemDisabled() ? 'secondary' : 'primary'}
-              sx={{ textDecoration: 'underline' }}
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
             >
-              Add new item
+              Subtotal
             </Typography>
-          </Button>
-        </Grid>
-      ) : null}
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {formatCurrency(
+                formatByRoundingProcedure(
+                  items.reduce((acc, cur) => {
+                    return acc + cur.totalPrice
+                  }, 0),
+                  priceInfo?.decimalPlace!,
+                  priceInfo?.roundingProcedure!,
+                  priceInfo?.currency!,
+                ),
+                priceInfo?.currency!,
+              )}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
+
+      <Grid
+        item
+        xs={12}
+        display='flex'
+        padding='24px'
+        alignItems='center'
+        justifyContent='space-between'
+        mt={6}
+        mb={6}
+        sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+      >
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Typography variant='subtitle1' fontSize={20} fontWeight={500}>
+            Tax
+          </Typography>
+        </Box>
+
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Box>{!invoiceInfo.isTaxable ? '-' : invoiceInfo.tax}</Box>%
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '1.5px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              Tax
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {invoiceInfo.isTaxable
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0) *
+                        (invoiceInfo.tax! / 100),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )
+                : '-'}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '1.5px solid #666CFF',
+              justifyContent: 'center',
+              width: '250px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              color={'#666CFF'}
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              Total
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              color={'#666CFF'}
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {invoiceInfo.isTaxable
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0) *
+                        (invoiceInfo.tax! / 100) +
+                        items.reduce((acc, cur) => {
+                          return acc + cur.totalPrice
+                        }, 0),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )
+                : formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
     </>
   )
 }

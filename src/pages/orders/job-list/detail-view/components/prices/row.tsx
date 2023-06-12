@@ -101,7 +101,7 @@ const Row = ({
     let total = 0
     const data = getItem(itemName)
     if (data?.length) {
-      const price = data.reduce((res, item) => (res = +item.prices), 0)
+      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
       if (minimumPrice && showMinimum.show && price < minimumPrice) {
         data.forEach(item => {
           total += item.unit === 'Percent' ? Number(item.prices) : 0

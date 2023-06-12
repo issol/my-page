@@ -200,7 +200,7 @@ export default function PriceUnits({
           setSkip={setSkip}
           pageSize={pageSize}
           setPageSize={setPageSize}
-          list={list ?? { data: [], count: 0 }}
+          list={list ?? { data: [], count: 0, totalCount: 0 }}
           onEditClick={onEditClick}
           onDeleteClick={onDeleteClick}
           onBasePriceClick={onBasePriceClick}
