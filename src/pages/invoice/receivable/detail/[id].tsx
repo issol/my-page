@@ -74,6 +74,8 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
@@ -175,17 +177,38 @@ const ReceivableInvoiceDetail = () => {
 
     setValue(newValue)
   }
+  const handleRestoreVersion = () => {
+    openModal({
+      type: 'RestoreVersionModal',
+      children: (
+        <CustomModal
+          title='Are you sure you want to restore this version?'
+          onClose={() => closeModal('RestoreVersionModal')}
+          onClick={() => {
+            closeModal('RestoreVersionModal')
+            closeModal('InvoiceVersionHistoryModal')
+            // TODO API 연결
+          }}
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
+    // TODO API 연결
+  }
 
   const onClickVersionHistoryRow = (history: InvoiceVersionHistoryType) => {
     openModal({
-      type: 'VersionHistoryModal',
+      type: 'InvoiceVersionHistoryModal',
       children: (
-        <></>
-        // <VersionHistoryModal
-        //   history={history}
-        //   onClose={() => closeModal('VersionHistoryModal')}
-        //   onClick={onClickRestoreVersion}
-        // />
+        <InvoiceVersionHistoryModal
+          history={history}
+          onClose={() => closeModal('InvoiceVersionHistoryModal')}
+          onClick={handleRestoreVersion}
+          user={user!}
+          prices={prices!}
+          pricesSuccess={isSuccess}
+        />
       ),
     })
   }
@@ -658,19 +681,13 @@ const ReceivableInvoiceDetail = () => {
                     itemControl={itemControl}
                     getItem={getItem}
                     setItem={setItem}
-                    itemTrigger={itemTrigger}
                     itemErrors={itemErrors}
                     isItemValid={isItemValid}
                     priceUnitsList={priceUnitsList || []}
                     items={items}
                     removeItems={removeItems}
                     getTeamValues={getTeamValues}
-                    projectTax={tax!}
-                    appendItems={appendItems}
-                    orderId={Number(id!)}
-                    langItemsEdit={langItemsEdit}
-                    setLangItemsEdit={setLangItemsEdit}
-                    getInvoiceInfo={getInvoiceInfo}
+                    invoiceInfo={invoiceInfo!}
                   />
                 </Grid>
               </Card>
@@ -681,7 +698,6 @@ const ReceivableInvoiceDetail = () => {
                 client={client!}
                 edit={clientEdit}
                 setEdit={setClientEdit}
-                orderId={Number(id!)}
                 setTax={setTax}
                 setTaxable={setTaxable}
                 clientControl={clientControl}

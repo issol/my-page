@@ -36,6 +36,7 @@ import {
   StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -71,9 +72,7 @@ type Props = {
   setItem: UseFormSetValue<{
     items: ItemType[]
   }>
-  itemTrigger: UseFormTrigger<{
-    items: ItemType[]
-  }>
+
   itemErrors: FieldErrors<{
     items: ItemType[]
   }>
@@ -88,17 +87,8 @@ type Props = {
   >[]
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
-  projectTax: number
-  appendItems: UseFieldArrayAppend<
-    {
-      items: ItemType[]
-    },
-    'items'
-  >
-  orderId: number
-  setLangItemsEdit: Dispatch<SetStateAction<boolean>>
-  langItemsEdit: boolean
-  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
+
+  invoiceInfo: InvoiceReceivableDetailType
 }
 
 const InvoiceLanguageAndItem = ({
@@ -109,22 +99,18 @@ const InvoiceLanguageAndItem = ({
   itemControl,
   getItem,
   setItem,
-  itemTrigger,
+
   itemErrors,
   isItemValid,
   priceUnitsList,
   items,
   removeItems,
   getTeamValues,
-  projectTax,
-  appendItems,
-  orderId,
-  setLangItemsEdit,
-  langItemsEdit,
-  getInvoiceInfo,
+
+  invoiceInfo,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const queryClient = useQueryClient()
+
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: clientId,
   })
@@ -133,72 +119,6 @@ const InvoiceLanguageAndItem = ({
     value => value.id === langItem.items[0].priceId,
   )
   console.log(priceInfo)
-
-  const patchLanguagePairs = useMutation(
-    (data: { id: number; langPair: LanguagePairsType[] }) =>
-      patchLangPairForOrder(data.id, data.langPair),
-  )
-
-  const patchItems = useMutation(
-    (data: { id: number; items: PostItemType[] }) =>
-      patchItemsForOrder(data.id, data.items),
-  )
-
-  const handleBack = () => {
-    setLangItemsEdit(false)
-  }
-
-  const onSubmit = () => {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-    }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
-        return {
-          langPairId: Number(item.id),
-          source: item.source,
-          target: item.target,
-          priceId: item.price.id,
-        }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
-
-    patchLanguagePairs.mutate(
-      { id: orderId, langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: orderId, items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${orderId}`)
-                closeModal('LanguageAndItemEditModal')
-              },
-            },
-          )
-        },
-      },
-    )
-  }
-
-  const onClickSave = () => {
-    openModal({
-      type: 'LanguageAndItemEditModal',
-      children: (
-        <EditSaveModal
-          onClose={() => closeModal('LanguageAndItemEditModal')}
-          onClick={onSubmit}
-        />
-      ),
-    })
-  }
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -214,27 +134,6 @@ const InvoiceLanguageAndItem = ({
         ...item,
       }))
     return [defaultOption].concat(filteredList)
-  }
-
-  function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
-  }
-
-  function addNewItem() {
-    const teamMembers = getTeamValues()?.teams
-    const projectManager = teamMembers.find(
-      item => item.type === 'projectManagerId',
-    )
-    appendItems({
-      name: '',
-      source: '',
-      target: '',
-      contactPersonId: projectManager?.id!,
-      priceId: null,
-      detail: [],
-      totalPrice: 0,
-    })
   }
 
   function onDeleteLanguagePair(row: languageType) {
@@ -372,7 +271,7 @@ const InvoiceLanguageAndItem = ({
         </Box>
 
         <Box display='flex' alignItems='center' gap='4px'>
-          <Box>{!getInvoiceInfo().taxable ? '-' : getInvoiceInfo().tax}</Box>%
+          <Box>{!invoiceInfo.isTaxable ? '-' : invoiceInfo.tax}</Box>%
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -398,13 +297,13 @@ const InvoiceLanguageAndItem = ({
               variant='subtitle1'
               sx={{ padding: '16px 16px 16px 20px' }}
             >
-              {getInvoiceInfo().taxable
+              {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       items.reduce((acc, cur) => {
                         return acc + cur.totalPrice
                       }, 0) *
-                        (getInvoiceInfo().tax! / 100),
+                        (invoiceInfo.tax! / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
                       priceInfo?.currency!,
@@ -441,13 +340,13 @@ const InvoiceLanguageAndItem = ({
               color={'#666CFF'}
               sx={{ padding: '16px 16px 16px 20px' }}
             >
-              {getInvoiceInfo().taxable
+              {invoiceInfo.isTaxable
                 ? formatCurrency(
                     formatByRoundingProcedure(
                       items.reduce((acc, cur) => {
                         return acc + cur.totalPrice
                       }, 0) *
-                        (getInvoiceInfo().tax! / 100) +
+                        (invoiceInfo.tax! / 100) +
                         items.reduce((acc, cur) => {
                           return acc + cur.totalPrice
                         }, 0),

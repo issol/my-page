@@ -124,7 +124,7 @@ export type InvoiceReceivableDetailType = {
   adminCompanyName: string
   invoiceStatus: InvoiceReceivableStatusType
   authorId: number
-  lastUpdatedAuthorId: number
+
   salesCategory: string | null
   description: string
   notes: string | null
@@ -159,9 +159,10 @@ export type InvoiceReceivableDetailType = {
 }
 
 export type InvoiceHistoryType = {
-  projectInfo: InvoiceReceivableDetailType
+  invoiceInfo: InvoiceReceivableDetailType
   client: ClientType
   projectTeam: ProjectTeamListType[]
+  items: LanguageAndItemType
 }
 
 export type InvoiceVersionHistoryType = {
@@ -177,11 +178,11 @@ export type InvoiceReceivablePatchParamsType = {
   members?: number[]
   contactPersonId?: number
   orderId?: number
-  invoiceStatus: string
-  invoicedAt: string
-  payDueAt: string
+  invoiceStatus?: string
+  invoicedAt?: string
+  payDueAt?: string
   description?: string
-  payDueTimezone: CountryType
+  payDueTimezone?: CountryType
   invoiceConfirmedAt?: string
   invoiceConfirmTimezone?: CountryType
   taxInvoiceDueAt?: string
