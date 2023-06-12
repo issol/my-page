@@ -11,7 +11,6 @@ import { CurrencyType } from '../common/standard-price'
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
 export type ProjectTeamListType = {
-  id: string
   userId: number
   position: PositionType
   firstName: string

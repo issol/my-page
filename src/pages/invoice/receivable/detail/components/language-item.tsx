@@ -22,6 +22,10 @@ import { useGetPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import languageHelper from '@src/shared/helpers/language.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
@@ -31,6 +35,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -93,6 +98,7 @@ type Props = {
   orderId: number
   setLangItemsEdit: Dispatch<SetStateAction<boolean>>
   langItemsEdit: boolean
+  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
 }
 
 const InvoiceLanguageAndItem = ({
@@ -115,12 +121,18 @@ const InvoiceLanguageAndItem = ({
   orderId,
   setLangItemsEdit,
   langItemsEdit,
+  getInvoiceInfo,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: clientId,
   })
+
+  const priceInfo = prices?.find(
+    value => value.id === langItem.items[0].priceId,
+  )
+  console.log(priceInfo)
 
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
@@ -277,24 +289,13 @@ const InvoiceLanguageAndItem = ({
           alignItems: 'center',
           width: '100%',
         }}
-      >
-        <Button
-          variant='outlined'
-          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-        >
-          <Icon icon='ic:baseline-splitscreen' />
-          Split Order
-        </Button>
-        <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
-      </Box>
+      ></Box>
       <Grid item xs={12}>
         <AddLanguagePairForm
           languagePairs={languagePairs}
           setLanguagePairs={setLanguagePairs}
           getPriceOptions={getPriceOptions}
-          type={langItemsEdit ? 'edit' : 'detail'}
+          type={'detail'}
           onDeleteLanguagePair={onDeleteLanguagePair}
         />
       </Grid>
@@ -311,25 +312,166 @@ const InvoiceLanguageAndItem = ({
           languagePairs={languagePairs}
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
-          type={langItemsEdit ? 'edit' : 'detail'}
+          type={'invoiceDetail'}
         />
       </Grid>
-      {langItemsEdit ? (
-        <Grid item xs={12}>
-          <Button
-            startIcon={<Icon icon='material-symbols:add' />}
-            disabled={isAddItemDisabled()}
-            onClick={addNewItem}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '2px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
           >
             <Typography
-              color={isAddItemDisabled() ? 'secondary' : 'primary'}
-              sx={{ textDecoration: 'underline' }}
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
             >
-              Add new item
+              Subtotal
             </Typography>
-          </Button>
-        </Grid>
-      ) : null}
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {formatCurrency(
+                formatByRoundingProcedure(
+                  items.reduce((acc, cur) => {
+                    return acc + cur.totalPrice
+                  }, 0),
+                  priceInfo?.decimalPlace!,
+                  priceInfo?.roundingProcedure!,
+                  priceInfo?.currency!,
+                ),
+                priceInfo?.currency!,
+              )}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
+
+      <Grid
+        item
+        xs={12}
+        display='flex'
+        padding='24px'
+        alignItems='center'
+        justifyContent='space-between'
+        mt={6}
+        mb={6}
+        sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+      >
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Typography variant='subtitle1' fontSize={20} fontWeight={500}>
+            Tax
+          </Typography>
+        </Box>
+
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Box>{!getInvoiceInfo().taxable ? '-' : getInvoiceInfo().tax}</Box>%
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '1.5px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              Tax
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {getInvoiceInfo().taxable
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0) *
+                        (getInvoiceInfo().tax! / 100),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )
+                : '-'}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '1.5px solid #666CFF',
+              justifyContent: 'center',
+              width: '250px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              color={'#666CFF'}
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              Total
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              color={'#666CFF'}
+              sx={{ padding: '16px 16px 16px 20px' }}
+            >
+              {getInvoiceInfo().taxable
+                ? formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0) *
+                        (getInvoiceInfo().tax! / 100) +
+                        items.reduce((acc, cur) => {
+                          return acc + cur.totalPrice
+                        }, 0),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )
+                : formatCurrency(
+                    formatByRoundingProcedure(
+                      items.reduce((acc, cur) => {
+                        return acc + cur.totalPrice
+                      }, 0),
+                      priceInfo?.decimalPlace!,
+                      priceInfo?.roundingProcedure!,
+                      priceInfo?.currency!,
+                    ),
+                    priceInfo?.currency!,
+                  )}
+            </Typography>
+          </Box>
+        </Box>
+      </Grid>
     </>
   )
 }

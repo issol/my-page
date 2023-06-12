@@ -1,6 +1,10 @@
 import {
+  getInvoiceClient,
   getInvoiceDetail,
+  getInvoiceLanguageItems,
+  getInvoiceProjectTeam,
   getInvoiceReceivableCalendarData,
+  getInvoiceVersionHistory,
   getReceivableList,
 } from '@src/apis/invoice/receivable.api'
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
@@ -43,4 +47,48 @@ export const useGetReceivableInvoiceDetail = (id: number) => {
 
     suspense: false,
   })
+}
+
+export const useGetReceivableInvoicePrices = (id: number) => {
+  return useQuery(
+    ['invoiceReceivablePrices', id],
+    () => getInvoiceLanguageItems(id),
+    {
+      staleTime: 60 * 1000, // 1
+
+      suspense: false,
+    },
+  )
+}
+
+export const useGetReceivableClient = (id: number) => {
+  return useQuery(['invoiceReceivableClient', id], () => getInvoiceClient(id), {
+    staleTime: 60 * 1000, //
+
+    suspense: false,
+  })
+}
+
+export const useGetReceivableTeam = (id: number) => {
+  return useQuery(
+    ['invoiceReceivableTeam', id],
+    () => getInvoiceProjectTeam(id),
+    {
+      staleTime: 60 * 1000, //
+
+      suspense: false,
+    },
+  )
+}
+
+export const useGetReceivableHistory = (id: number) => {
+  return useQuery(
+    ['invoiceReceivableHistory', id],
+    () => getInvoiceVersionHistory(id),
+    {
+      staleTime: 60 * 1000, //
+
+      suspense: false,
+    },
+  )
 }

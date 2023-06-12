@@ -32,7 +32,15 @@ import {
   orderProjectInfoDefaultValue,
   orderProjectInfoSchema,
 } from '@src/types/schema/orders-project-info.schema'
-import { useForm } from 'react-hook-form'
+import {
+  Control,
+  UseFormGetValues,
+  UseFormReset,
+  UseFormSetValue,
+  UseFormWatch,
+  useForm,
+  FieldErrors,
+} from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Dispatch, SetStateAction, useEffect, useState } from 'react'
@@ -52,14 +60,19 @@ import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
-import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-project-info-form'
+import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
-import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import {
+  InvoiceReceivableDetailType,
+  InvoiceReceivablePatchParamsType,
+} from '@src/types/invoice/receivable.type'
 import { InvoiceStatus } from '@glocalize-inc/glodex'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
 import { set } from 'nprogress'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { deleteInvoice } from '@src/apis/invoice/receivable.api'
 
 type Props = {
   type: string
@@ -69,7 +82,18 @@ type Props = {
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
   orderId: number
-  onSave?: (data: { id: number; form: OrderProjectInfoFormType }) => void
+  onSave?: (data: {
+    id: number
+    form: InvoiceReceivablePatchParamsType
+  }) => void
+  clientTimezone: CountryType
+  invoiceInfoControl: Control<InvoiceProjectInfoFormType, any>
+  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
+  setInvoiceInfo: UseFormSetValue<InvoiceProjectInfoFormType>
+  invoiceInfoWatch: UseFormWatch<InvoiceProjectInfoFormType>
+  invoiceInfoReset: UseFormReset<InvoiceProjectInfoFormType>
+  invoiceInfoErrors: FieldErrors<InvoiceProjectInfoFormType>
+  isInvoiceInfoValid: boolean
 }
 const InvoiceInfo = ({
   type,
@@ -80,6 +104,14 @@ const InvoiceInfo = ({
   setAccountingEdit,
   orderId,
   onSave,
+  clientTimezone,
+  invoiceInfoControl,
+  getInvoiceInfo,
+  setInvoiceInfo,
+  invoiceInfoWatch,
+  invoiceInfoReset,
+  invoiceInfoErrors,
+  isInvoiceInfoValid,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -87,36 +119,6 @@ const InvoiceInfo = ({
   const [value, setValue] = useState<string>(invoiceInfo.invoiceStatus)
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const { data: statusList, isLoading } = useGetInvoiceStatus()
-
-  const {
-    control: invoiceInfoControl,
-    getValues: getInvoiceInfo,
-    setValue: setInvoiceInfo,
-    watch: invoiceInfoWatch,
-    reset: invoiceInfoReset,
-    formState: { errors: invoiceInfoErrors, isValid: isInvoiceInfoValid },
-  } = useForm<InvoiceProjectInfoFormType>({
-    mode: 'onChange',
-    defaultValues: invoiceProjectInfoDefaultValue,
-    resolver: yupResolver(invoiceProjectInfoSchema),
-  })
-
-  const {
-    control: clientControl,
-    getValues: getClientValue,
-    setValue: setClientValue,
-    watch: clientWatch,
-    reset: clientReset,
-    formState: { errors: clientErrors, isValid: isClientValid },
-  } = useForm<ClientFormType>({
-    mode: 'onChange',
-    defaultValues: {
-      clientId: null,
-      contactPersonId: null,
-      addressType: 'shipping',
-    },
-    resolver: yupResolver(clientSchema),
-  })
 
   const handleChange = (event: SelectChangeEvent) => {
     setValue(event.target.value as string)
@@ -129,11 +131,11 @@ const InvoiceInfo = ({
     // }
   }
 
-  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
+  const deleteInvoiceMutation = useMutation((id: number) => deleteInvoice(id), {
     onSuccess: () => {
       closeModal('DeleteOrderModal')
-      router.push('/orders/order-list')
-      queryClient.invalidateQueries('orderList')
+      router.push('/invoice/receivable')
+      queryClient.invalidateQueries('invoice/receivable/list')
     },
   })
 
@@ -149,29 +151,75 @@ const InvoiceInfo = ({
 
   const onClickSave = () => {
     const data = getInvoiceInfo()
-    const res = {
-      ...data,
-      // projectDueAt: data.projectDueDate.date,
-      // projectDueTimezone: data.projectDueDate.timezone,
-      tax: !data.taxable ? null : data.tax,
+    const res: InvoiceReceivablePatchParamsType = {
+      invoiceStatus: data.status,
+      invoicedAt: data.invoiceDate,
+      payDueAt: data.paymentDueDate.date,
+      payDueTimezone: data.paymentDueDate.timezone,
+      invoiceDescription: data.invoiceDescription,
+
+      invoiceConfirmedAt: data.invoiceConfirmDate?.date,
+      invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+      taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
+      taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
     }
-    // if (onSave) {
-    //   onSave({ id: projectInfo.id, form: res })
-    // }
+    if (onSave) {
+      onSave({ id: invoiceInfo.id, form: res })
+    }
   }
 
-  const handleDeleteOrder = () => {
-    deleteOrderMutation.mutate(orderId)
+  const handleDeleteInvoice = () => {
+    deleteInvoiceMutation.mutate(invoiceInfo.id)
     console.log('delete')
   }
 
   useEffect(() => {
     if (invoiceInfo) {
       setValue(invoiceInfo.invoiceStatus)
-      const res = {
-        ...InvoiceStatus,
+      const res: InvoiceProjectInfoFormType = {
+        ...invoiceInfo,
+        status: invoiceInfo.invoiceStatus,
+
+        invoiceDescription: invoiceInfo.description,
+
+        invoiceDate: invoiceInfo.invoicedAt,
+        paymentDueDate: {
+          date: invoiceInfo.payDueAt,
+          // timezone: invoiceInfo.payDueTimezone,
+          timezone: clientTimezone!,
+        },
+        invoiceConfirmDate: {
+          date: invoiceInfo.invoiceConfirmedAt ?? '',
+          // timezone: invoiceInfo.invoiceConfirmTimezone ?? clientTimezone,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceDueDate: {
+          date: invoiceInfo.taxInvoiceDueAt ?? '',
+          // timezone: invoiceInfo.taxInvoiceDueTimezone ?? clientTimezone!,
+          timezone: clientTimezone!,
+        },
+        paymentDate: {
+          date: invoiceInfo.paidAt ?? '',
+          // timezone: invoiceInfo.paidDateTimezone ?? clientTimezone!,
+          timezone: clientTimezone!,
+        },
+        taxInvoiceIssuanceDate: {
+          date: invoiceInfo.taxInvoiceIssuedAt ?? '',
+          // timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? clientTimezone!,
+          timezone: clientTimezone!,
+        },
+        salesRecognitionDate: {
+          date: invoiceInfo.salesCheckedAt ?? '',
+          // timezone: invoiceInfo.salesCheckedDateTimezone ?? clientTimezone!,
+          timezone: clientTimezone!,
+        },
+
+        sendReminder: invoiceInfo.setReminder,
+        tax: invoiceInfo.tax,
+        taxable: invoiceInfo.isTaxable ?? true,
       }
       // projectInfoReset(res)
+      invoiceInfoReset(res)
     }
   }, [invoiceInfo])
 
@@ -181,11 +229,11 @@ const InvoiceInfo = ({
       children: (
         <CustomModal
           onClose={() => closeModal('DeleteOrderModal')}
-          onClick={handleDeleteOrder}
-          title='Are you sure you want to delete this order?'
+          onClick={handleDeleteInvoice}
+          title='Are you sure you want to delete this invoice?'
           vary='error'
           rightButtonText='Delete'
-          subtitle={`[${invoiceInfo.corporationId}] }`}
+          subtitle={`[${invoiceInfo.corporationId}] ${invoiceInfo.projectName}`}
         />
       ),
     })
@@ -202,7 +250,7 @@ const InvoiceInfo = ({
                 setValue={setInvoiceInfo}
                 watch={invoiceInfoWatch}
                 errors={invoiceInfoErrors}
-                clientTimezone={getClientValue('contacts.timezone')}
+                clientTimezone={clientTimezone}
                 statusList={statusList!}
               />
               <Grid item xs={12}>
@@ -260,7 +308,7 @@ const InvoiceInfo = ({
               setValue={setInvoiceInfo}
               watch={invoiceInfoWatch}
               errors={invoiceInfoErrors}
-              clientTimezone={getClientValue('contacts.timezone')}
+              clientTimezone={clientTimezone}
               statusList={statusList!}
             />
             <Grid item xs={12}>
@@ -779,7 +827,7 @@ const InvoiceInfo = ({
                           width: '100%',
                         }}
                       >
-                        {invoiceInfo.taxable ? 'Taxable' : 'Non-taxable'}
+                        {invoiceInfo.isTaxable ? 'Taxable' : 'Non-taxable'}
                       </Typography>
                     </Box>
                   </Box>
