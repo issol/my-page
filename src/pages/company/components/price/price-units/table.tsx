@@ -43,7 +43,7 @@ type Props = {
   pageSize: number
   setSkip: (n: number) => void
   setPageSize: (n: number) => void
-  list: Omit<PriceUnitDataType, 'totalCount'>
+  list: PriceUnitDataType
   onEditClick: (row: PriceUnitType) => void
   onDeleteClick: (row: PriceUnitType) => void
   onBasePriceClick: (isChecked: boolean, row: PriceUnitType) => void
@@ -233,7 +233,7 @@ export default function PriceUnitTable({
       <TablePagination
         page={skip}
         component='div'
-        count={list.count}
+        count={list.totalCount}
         rowsPerPage={pageSize}
         onPageChange={(e, page) => setSkip(page)}
         rowsPerPageOptions={[10, 25, 50]}

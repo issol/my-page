@@ -227,7 +227,6 @@ export default function PriceUnitForm(props: Props) {
                 sx={{ minWidth: 200 }}
                 fullWidth
                 options={PriceUnits}
-                placeholder='Fixed rate'
                 onChange={(e, v) => onChange(v?.value)}
                 value={
                   PriceUnits.filter(item => item.label === value)[0] || {
@@ -236,7 +235,7 @@ export default function PriceUnitForm(props: Props) {
                   }
                 }
                 getOptionLabel={option => option.label}
-                renderInput={params => <TextField {...params} />}
+                renderInput={params => <TextField {...params} label='Fixed rate' />}
               />
             )}
           />
