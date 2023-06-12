@@ -111,7 +111,6 @@ export default function ItemForm({
   type,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  console.log(getValues())
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -205,7 +204,10 @@ export default function ItemForm({
       let total = 0
       const data = getValues(itemName)
       if (data?.length) {
-        const price = data.reduce((res, item) => (res = +item.prices), 0)
+        const price = data.reduce(
+          (res, item) => (res += Number(item.prices)),
+          0,
+        )
         if (minimumPrice && showMinimum.show && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
