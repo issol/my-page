@@ -27,20 +27,22 @@ import ReactDOMServer, {
   renderToString,
 } from 'react-dom/server'
 import { useContext, useEffect, useRef } from 'react'
-import MakeTable, { Row } from './rows'
+
 import { useRouter } from 'next/router'
-import PrintOrderPage from '../../../order-print/print-page'
+
 import useModal from '@src/hooks/useModal'
 import { OrderDownloadData } from '@src/types/orders/order-detail'
 import { AuthContext } from '@src/context/AuthContext'
 import { useAppSelector } from '@src/hooks/useRedux'
+import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
+import PrintInvoicePage from '../invoice-print/print-page'
 
 type Props = {
   onClose: any
-  data: OrderDownloadData
+  data: InvoiceDownloadData
   lang: 'EN' | 'KO'
 }
-const OrderPreview = ({ onClose, data, lang }: Props) => {
+const InvoicePreview = ({ onClose, data, lang }: Props) => {
   const router = useRouter()
   const { closeModal } = useModal()
   const { user } = useContext(AuthContext)
@@ -51,7 +53,7 @@ const OrderPreview = ({ onClose, data, lang }: Props) => {
     onClose()
     closeModal('DownloadOrderModal')
 
-    router.push('/orders/order-print')
+    router.push('/invoice/receivable/detail/invoice-print')
   }
   return (
     <Box
@@ -65,7 +67,7 @@ const OrderPreview = ({ onClose, data, lang }: Props) => {
       }}
     >
       <div className='page'>
-        <PrintOrderPage data={data} type='preview' user={user!} lang={lang} />
+        <PrintInvoicePage data={data} type='preview' user={user!} lang={lang} />
       </div>
 
       <Box>
@@ -82,4 +84,4 @@ const OrderPreview = ({ onClose, data, lang }: Props) => {
   )
 }
 
-export default OrderPreview
+export default InvoicePreview

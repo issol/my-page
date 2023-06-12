@@ -2,10 +2,16 @@ import { RevenueFormType } from './../common/orders.type'
 import { CurrencyType } from '@src/types/common/standard-price'
 import { InvoiceReceivableStatusType } from './common.type'
 import { CountryType } from '../sign/personalInfoTypes'
-import { ClientType } from '../schema/company-info.schema'
+
 import { StatusType } from '@src/apis/client.api'
-import { AddressType } from '../schema/client-address.schema'
+import { AddressType, ClientAddressType } from '../schema/client-address.schema'
 import { OrderStatusType } from '../orders/order-list'
+import {
+  ClientType,
+  LanguageAndItemType,
+  ProjectTeamListType,
+} from '../orders/order-detail'
+import { ContactPersonType } from '../schema/client-contact-person.schema'
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: string[]
@@ -97,7 +103,7 @@ export type InvoiceReceivableClientType = {
   corporationId: string
   authorId: number
   adminCompanyName: string
-  clientType: ClientType
+  clientType: 'Company' | 'Mr.' | 'Ms.'
   name: string
   email: string
   phone: string | null
@@ -140,10 +146,78 @@ export type InvoiceReceivableDetailType = {
   salesCheckedAt: string | null
   downloadedAt: string | null
   workName: string
+  projectName: string
   category: string
   serviceType: string[]
   expertise: string[]
-  revenueFrom: string
-  taxable: boolean
+  revenueFrom: RevenueFormType
+  isTaxable: boolean
   orderId: number
+  tax: number
+  taxInvoiceIssued: boolean
+  orderCorporationId: string
+}
+
+export type InvoiceHistoryType = {
+  projectInfo: InvoiceReceivableDetailType
+  client: ClientType
+  projectTeam: ProjectTeamListType[]
+}
+
+export type InvoiceVersionHistoryType = {
+  id: number
+  version: number
+  email: string
+  downloadedAt: string
+} & InvoiceHistoryType
+
+export type InvoiceReceivablePatchParamsType = {
+  supervisorId?: number
+  projectManagerId?: number
+  members?: number[]
+  contactPersonId?: number
+  orderId?: number
+  invoiceStatus: string
+  invoicedAt: string
+  payDueAt: string
+  description?: string
+  payDueTimezone: CountryType
+  invoiceConfirmedAt?: string
+  invoiceConfirmTimezone?: CountryType
+  taxInvoiceDueAt?: string
+  taxInvoiceDueTimezone?: CountryType
+  invoiceDescription?: string
+  notes?: string
+  taxInvoiceIssuedAt?: string
+  taxInvoiceIssuedDateTimezone?: CountryType
+  paidAt?: string
+  paidDateTimezone?: CountryType
+  salesCheckedAt?: string
+  salesCheckedDateTimezone?: CountryType
+}
+
+export type InvoiceDownloadData = {
+  invoiceId: number
+  adminCompanyName: string
+  companyAddress: string
+  corporationId: string
+  orderCorporationId: string
+  invoicedAt: string
+  paymentDueAt: { date: string; timezone: CountryType }
+  pm: {
+    email: string
+    firstName: string
+    middleName: string | null
+    lastName: string
+  }
+  companyName: string
+  projectName: string
+  client: ClientType
+  contactPerson: ContactPersonType | null
+  clientAddress: ClientAddressType[]
+  langItem: LanguageAndItemType
+  subtotal: string
+  total: string
+  taxPercent: number
+  tax: string | null
 }

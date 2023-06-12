@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
+import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -102,12 +103,21 @@ export const getJobPrices = async (
       : await axios.get(`/api/enough/u/job/${id}/price`)
     console.log(data)
 
-    return data
+    return {
+      ...data,
+      items: data.items.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })),
+    }
   } catch (e: any) {
     return {
       id: 0,
-      sourceLanguage: '',
-      targetLanguage: '',
+      source: '',
+      target: '',
       priceId: 0,
       totalPrice: 0,
       currency: 'USD',
