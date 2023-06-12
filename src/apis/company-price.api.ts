@@ -27,7 +27,7 @@ export const getPriceList = async (
 export const getStandardClientPrice = async () => {
   // const { data } = await axios.get('/api/company/signup-requests')
   try {
-    const { data } = await axios.get('/api/enough/u/price/al')
+    const { data } = await axios.get('/api/enough/u/client-price/al')
     // /api/enough/u/price/al
     return data
   } catch (e: any) {
@@ -48,23 +48,23 @@ export const getCatInterfaceHeaders = async (toolName: string) => {
 export const createPrice = async (
   data: AddNewPriceType,
 ): Promise<CreatePriceResType> => {
-  const res = await axios.post('/api/enough/u/price', data)
+  const res = await axios.post('/api/enough/u/client-price', data)
   return res.data
 }
 
 export const patchPrice = async (data: AddNewPriceType, id: number) => {
-  await axios.patch(`/api/enough/u/price/${id}`, data)
+  await axios.patch(`/api/enough/u/client-price/${id}`, data)
 }
 
 export const deletePrice = async (priceId: number) => {
-  await axios.delete(`/api/enough/u/price/${priceId}`)
+  await axios.delete(`/api/enough/u/client-price/${priceId}`)
 }
 
 export const setPriceUnitPair = async (
   data: SetPriceUnitPair[],
   id: number,
 ) => {
-  await axios.post(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+  await axios.post(`/api/enough/u/client-price/unit/pair?priceId=${id}`, {
     data: data,
   })
 }
@@ -73,7 +73,7 @@ export const patchPriceUnitPair = async (
   data: SetPriceUnitPair[],
   id: number,
 ) => {
-  await axios.patch(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+  await axios.patch(`/api/enough/u/client-price/unit/pair?priceId=${id}`, {
     data: data,
   })
 }
@@ -82,24 +82,24 @@ export const putPriceUnitPair = async (
   data: SetPriceUnitPair[],
   id: number,
 ) => {
-  await axios.put(`/api/enough/u/price/unit/pair?priceId=${id}`, {
+  await axios.put(`/api/enough/u/client-price/unit/pair?priceId=${id}`, {
     data: data,
   })
 }
 
 export const createLanguagePair = async (data: LanguagePairParams[]) => {
-  await axios.post('/api/enough/u/language/pair', { data: data })
+  await axios.post('/api/enough/u/client-price/language/pair', { data: data })
 }
 
 export const patchLanguagePair = async (
   data: LanguagePairParams,
   id: number,
 ) => {
-  await axios.patch(`/api/enough/u/language/pair/${id}`, data)
+  await axios.patch(`/api/enough/u/client-price/language/pair/${id}`, data)
 }
 
 export const deleteLanguagePair = async (id: number) => {
-  await axios.delete(`/api/enough/u/language/pair/${id}`)
+  await axios.delete(`/api/enough/u/client-price/language/pair/${id}`)
 }
 
 export const createCatInterface = async (
@@ -109,7 +109,7 @@ export const createCatInterface = async (
     memoQ: Array<CatInterfaceParams>
   },
 ) => {
-  await axios.post('/api/enough/u/price-cat-pair', {
+  await axios.post('/api/enough/u/client-price-cat-pair', {
     priceId: id,
     data: [
       {
@@ -127,7 +127,7 @@ export const patchCatInterface = async (
     memoQ: Array<CatInterfaceParams>
   },
 ) => {
-  await axios.patch('/api/enough/u/price-cat-pair', {
+  await axios.patch('/api/enough/u/client-price-cat-pair', {
     priceId: id,
     data: [
       {
