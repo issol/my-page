@@ -75,6 +75,7 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
@@ -177,6 +178,22 @@ const ReceivableInvoiceDetail = () => {
     setValue(newValue)
   }
   const handleRestoreVersion = () => {
+    openModal({
+      type: 'RestoreVersionModal',
+      children: (
+        <CustomModal
+          title='Are you sure you want to restore this version?'
+          onClose={() => closeModal('RestoreVersionModal')}
+          onClick={() => {
+            closeModal('RestoreVersionModal')
+            closeModal('InvoiceVersionHistoryModal')
+            // TODO API 연결
+          }}
+          vary='error'
+          rightButtonText='Discard'
+        />
+      ),
+    })
     // TODO API 연결
   }
 
