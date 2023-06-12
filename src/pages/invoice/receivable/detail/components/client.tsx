@@ -11,7 +11,7 @@ import {
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
-import { patchClientForOrder } from '@src/apis/order-detail.api'
+import { getClient, patchClientForOrder } from '@src/apis/order-detail.api'
 
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -38,14 +38,14 @@ type Props = {
   client: ClientType
   edit: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
-  orderId: number
-  setTax: (n: number | null) => void
-  setTaxable: (n: boolean) => void
-  clientControl: Control<ClientFormType, any>
-  getClientValue: UseFormGetValues<ClientFormType>
-  setClientValue: UseFormSetValue<ClientFormType>
-  clientWatch: UseFormWatch<ClientFormType>
-  isClientValid: boolean
+
+  setTax?: (n: number | null) => void
+  setTaxable?: (n: boolean) => void
+  clientControl?: Control<ClientFormType, any>
+  getClientValue?: UseFormGetValues<ClientFormType>
+  setClientValue?: UseFormSetValue<ClientFormType>
+  clientWatch?: UseFormWatch<ClientFormType>
+  isClientValid?: boolean
 }
 
 const InvoiceClient = ({
@@ -53,7 +53,7 @@ const InvoiceClient = ({
   client,
   edit,
   setEdit,
-  orderId,
+
   setTax,
   setTaxable,
   clientControl,
@@ -70,7 +70,7 @@ const InvoiceClient = ({
       patchClientForOrder(data.id, data.form),
     {
       onSuccess: () => {
-        queryClient.invalidateQueries(`Client-${orderId}`)
+        // queryClient.invalidateQueries(`Client-${invoiceInfo.id}`)
         setEdit!(false)
         closeModal('EditSaveModal')
       },
@@ -83,16 +83,18 @@ const InvoiceClient = ({
   }
 
   const onClickSave = () => {
-    const clients: any = {
-      ...getClientValue(),
-      contactPersonId:
-        getClientValue().contactPersonId === NOT_APPLICABLE
-          ? null
-          : getClientValue().contactPersonId,
+    if (getClientValue) {
+      const clients: any = {
+        ...getClientValue(),
+        contactPersonId:
+          getClientValue().contactPersonId === NOT_APPLICABLE
+            ? null
+            : getClientValue().contactPersonId,
+      }
+      setEdit!(false)
+      closeModal('EditSaveModal')
+      // patchClientMutation.mutate({ id: orderId, form: clients })
     }
-    setEdit!(false)
-    closeModal('EditSaveModal')
-    // patchClientMutation.mutate({ id: orderId, form: clients })
   }
 
   return (
@@ -100,11 +102,11 @@ const InvoiceClient = ({
       {edit ? (
         <Grid container spacing={6}>
           <ClientQuotesFormContainer
-            control={clientControl}
-            setValue={setClientValue}
-            watch={clientWatch}
-            setTax={setTax}
-            setTaxable={setTaxable}
+            control={clientControl!}
+            setValue={setClientValue!}
+            watch={clientWatch!}
+            setTax={setTax!}
+            setTaxable={setTaxable!}
             type='order'
           />
           <Grid item xs={12}>

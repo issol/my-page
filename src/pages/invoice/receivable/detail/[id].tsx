@@ -74,6 +74,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
@@ -175,17 +176,22 @@ const ReceivableInvoiceDetail = () => {
 
     setValue(newValue)
   }
+  const handleRestoreVersion = () => {
+    // TODO API 연결
+  }
 
   const onClickVersionHistoryRow = (history: InvoiceVersionHistoryType) => {
     openModal({
-      type: 'VersionHistoryModal',
+      type: 'InvoiceVersionHistoryModal',
       children: (
-        <></>
-        // <VersionHistoryModal
-        //   history={history}
-        //   onClose={() => closeModal('VersionHistoryModal')}
-        //   onClick={onClickRestoreVersion}
-        // />
+        <InvoiceVersionHistoryModal
+          history={history}
+          onClose={() => closeModal('InvoiceVersionHistoryModal')}
+          onClick={handleRestoreVersion}
+          user={user!}
+          prices={prices!}
+          pricesSuccess={isSuccess}
+        />
       ),
     })
   }
@@ -658,19 +664,13 @@ const ReceivableInvoiceDetail = () => {
                     itemControl={itemControl}
                     getItem={getItem}
                     setItem={setItem}
-                    itemTrigger={itemTrigger}
                     itemErrors={itemErrors}
                     isItemValid={isItemValid}
                     priceUnitsList={priceUnitsList || []}
                     items={items}
                     removeItems={removeItems}
                     getTeamValues={getTeamValues}
-                    projectTax={tax!}
-                    appendItems={appendItems}
-                    orderId={Number(id!)}
-                    langItemsEdit={langItemsEdit}
-                    setLangItemsEdit={setLangItemsEdit}
-                    getInvoiceInfo={getInvoiceInfo}
+                    invoiceInfo={invoiceInfo!}
                   />
                 </Grid>
               </Card>
@@ -681,7 +681,6 @@ const ReceivableInvoiceDetail = () => {
                 client={client!}
                 edit={clientEdit}
                 setEdit={setClientEdit}
-                orderId={Number(id!)}
                 setTax={setTax}
                 setTaxable={setTaxable}
                 clientControl={clientControl}

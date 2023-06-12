@@ -55,7 +55,10 @@ import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
 import toast from 'react-hot-toast'
 import { Router, useRouter } from 'next/router'
 import dayjs from 'dayjs'
-import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import {
+  InvoiceProjectInfoFormType,
+  InvoiceReceivableStatusType,
+} from '@src/types/invoice/common.type'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
@@ -78,7 +81,7 @@ type Props = {
   type: string
   invoiceInfo: InvoiceReceivableDetailType
   edit: boolean
-  accountingEdit: boolean
+  accountingEdit?: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
   setAccountingEdit?: Dispatch<SetStateAction<boolean>>
   orderId: number
@@ -86,14 +89,14 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
-  clientTimezone: CountryType
-  invoiceInfoControl: Control<InvoiceProjectInfoFormType, any>
-  getInvoiceInfo: UseFormGetValues<InvoiceProjectInfoFormType>
-  setInvoiceInfo: UseFormSetValue<InvoiceProjectInfoFormType>
-  invoiceInfoWatch: UseFormWatch<InvoiceProjectInfoFormType>
-  invoiceInfoReset: UseFormReset<InvoiceProjectInfoFormType>
-  invoiceInfoErrors: FieldErrors<InvoiceProjectInfoFormType>
-  isInvoiceInfoValid: boolean
+  clientTimezone?: CountryType
+  invoiceInfoControl?: Control<InvoiceProjectInfoFormType, any>
+  getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
+  setInvoiceInfo?: UseFormSetValue<InvoiceProjectInfoFormType>
+  invoiceInfoWatch?: UseFormWatch<InvoiceProjectInfoFormType>
+  invoiceInfoReset?: UseFormReset<InvoiceProjectInfoFormType>
+  invoiceInfoErrors?: FieldErrors<InvoiceProjectInfoFormType>
+  isInvoiceInfoValid?: boolean
 }
 const InvoiceInfo = ({
   type,
@@ -122,13 +125,16 @@ const InvoiceInfo = ({
 
   const handleChange = (event: SelectChangeEvent) => {
     setValue(event.target.value as string)
-    const data = getInvoiceInfo()
-    // if (onSave) {
-    //   onSave({
-    //     id: projectInfo.id,
-    //     // form: { ...data, status: event.target.value as OrderStatusType },
-    //   })
-    // }
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (onSave && data) {
+      onSave({
+        id: invoiceInfo.id,
+        form: {
+          ...data,
+          invoiceStatus: event.target.value as InvoiceReceivableStatusType,
+        },
+      })
+    }
   }
 
   const deleteInvoiceMutation = useMutation((id: number) => deleteInvoice(id), {
@@ -150,21 +156,23 @@ const InvoiceInfo = ({
   }
 
   const onClickSave = () => {
-    const data = getInvoiceInfo()
-    const res: InvoiceReceivablePatchParamsType = {
-      invoiceStatus: data.status,
-      invoicedAt: data.invoiceDate,
-      payDueAt: data.paymentDueDate.date,
-      payDueTimezone: data.paymentDueDate.timezone,
-      invoiceDescription: data.invoiceDescription,
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (data) {
+      const res: InvoiceReceivablePatchParamsType = {
+        invoiceStatus: data.status,
+        invoicedAt: data.invoiceDate,
+        payDueAt: data.paymentDueDate.date,
+        payDueTimezone: data.paymentDueDate.timezone,
+        invoiceDescription: data.invoiceDescription,
 
-      invoiceConfirmedAt: data.invoiceConfirmDate?.date,
-      invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
-      taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
-      taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
-    }
-    if (onSave) {
-      onSave({ id: invoiceInfo.id, form: res })
+        invoiceConfirmedAt: data.invoiceConfirmDate?.date,
+        invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+        taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
+        taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
+      }
+      if (onSave) {
+        onSave({ id: invoiceInfo.id, form: res })
+      }
     }
   }
 
@@ -174,7 +182,7 @@ const InvoiceInfo = ({
   }
 
   useEffect(() => {
-    if (invoiceInfo) {
+    if (invoiceInfo && invoiceInfoReset) {
       setValue(invoiceInfo.invoiceStatus)
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
@@ -221,7 +229,7 @@ const InvoiceInfo = ({
       // projectInfoReset(res)
       invoiceInfoReset(res)
     }
-  }, [invoiceInfo])
+  }, [invoiceInfo, invoiceInfoReset, clientTimezone])
 
   const onClickDelete = () => {
     openModal({
@@ -246,10 +254,10 @@ const InvoiceInfo = ({
           <DatePickerWrapper>
             <Grid container xs={12} spacing={6}>
               <InvoiceProjectInfoForm
-                control={invoiceInfoControl}
-                setValue={setInvoiceInfo}
-                watch={invoiceInfoWatch}
-                errors={invoiceInfoErrors}
+                control={invoiceInfoControl!}
+                setValue={setInvoiceInfo!}
+                watch={invoiceInfoWatch!}
+                errors={invoiceInfoErrors!}
                 clientTimezone={clientTimezone}
                 statusList={statusList!}
               />
@@ -304,10 +312,10 @@ const InvoiceInfo = ({
         <Card sx={{ padding: '24px' }}>
           <Grid container xs={12} spacing={6}>
             <InvoiceAccountingInfoForm
-              control={invoiceInfoControl}
-              setValue={setInvoiceInfo}
-              watch={invoiceInfoWatch}
-              errors={invoiceInfoErrors}
+              control={invoiceInfoControl!}
+              setValue={setInvoiceInfo!}
+              watch={invoiceInfoWatch!}
+              errors={invoiceInfoErrors!}
               clientTimezone={clientTimezone}
               statusList={statusList!}
             />
@@ -880,147 +888,69 @@ const InvoiceInfo = ({
                     </Box>
                   </Box>
                 </Box>
-                <Divider />
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox
-                    value={isReminder}
-                    onChange={e => {
-                      setIsReminder(e.target.checked)
-                    }}
-                    checked={isReminder}
-                    disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                  />
 
-                  <Typography variant='body2'>
-                    Send reminder for this invoice
-                  </Typography>
-                  <IconButton
-                    onClick={() => {
-                      openModal({
-                        type: 'invoiceReminderModal',
-                        children: (
-                          <InformationModal
-                            onClose={() => closeModal('invoiceReminderModal')}
-                            title='Reminder information'
-                            subtitle='A reminder email will be automatically sent to the client when the invoice is overdue.'
-                            vary='info'
-                          />
-                        ),
-                      })
-                    }}
-                  >
-                    <Icon icon='ic:outline-info' />
-                  </IconButton>
-                </Box>
+                {type === 'history' ? null : (
+                  <>
+                    <Divider />
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Checkbox
+                        value={isReminder}
+                        onChange={e => {
+                          setIsReminder(e.target.checked)
+                        }}
+                        checked={isReminder}
+                        disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                      />
+
+                      <Typography variant='body2'>
+                        Send reminder for this invoice
+                      </Typography>
+                      <IconButton
+                        onClick={() => {
+                          openModal({
+                            type: 'invoiceReminderModal',
+                            children: (
+                              <InformationModal
+                                onClose={() =>
+                                  closeModal('invoiceReminderModal')
+                                }
+                                title='Reminder information'
+                                subtitle='A reminder email will be automatically sent to the client when the invoice is overdue.'
+                                vary='info'
+                              />
+                            ),
+                          })
+                        }}
+                      >
+                        <Icon icon='ic:outline-info' />
+                      </IconButton>
+                    </Box>
+                  </>
+                )}
               </Box>
             </Box>
           </Card>
-          <Card sx={{ padding: '24px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          {type === 'history' ? null : (
+            <Card sx={{ padding: '24px' }}>
               <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
+                sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
               >
-                <Typography variant='h6'>Accounting info</Typography>
-                {type === 'detail' ? (
-                  <IconButton onClick={() => setAccountingEdit!(true)}>
-                    <Icon icon='mdi:pencil-outline' />
-                  </IconButton>
-                ) : null}
-              </Box>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-              >
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Payment date
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateTimezoneHelper(
-                          invoiceInfo.paidAt,
-                          invoiceInfo.paidDateTimezone!,
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Issuance date of tax invoice
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateTimezoneHelper(
-                          invoiceInfo.taxInvoiceIssuedAt,
-                          invoiceInfo.taxInvoiceIssuedDateTimezone!,
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-
                 <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='h6'>Accounting info</Typography>
+                  {type === 'detail' ? (
+                    <IconButton onClick={() => setAccountingEdit!(true)}>
+                      <Icon icon='mdi:pencil-outline' />
+                    </IconButton>
+                  ) : null}
+                </Box>
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
                 >
                   <Box sx={{ display: 'flex' }}>
                     <Box sx={{ display: 'flex', flex: 1 }}>
@@ -1040,7 +970,7 @@ const InvoiceInfo = ({
                             width: '100%',
                           }}
                         >
-                          Sales recognition date
+                          Payment date
                         </Typography>
                       </Box>
                       <Box
@@ -1058,8 +988,8 @@ const InvoiceInfo = ({
                           }}
                         >
                           {FullDateTimezoneHelper(
-                            invoiceInfo.salesCheckedAt,
-                            invoiceInfo.salesCheckedDateTimezone!,
+                            invoiceInfo.paidAt,
+                            invoiceInfo.paidDateTimezone!,
                           )}
                         </Typography>
                       </Box>
@@ -1081,7 +1011,7 @@ const InvoiceInfo = ({
                             width: '100%',
                           }}
                         >
-                          Sales category
+                          Issuance date of tax invoice
                         </Typography>
                       </Box>
                       <Box
@@ -1092,75 +1022,168 @@ const InvoiceInfo = ({
                           width: '73.45%',
                         }}
                       >
-                        {invoiceInfo.salesCategory}
+                        <Typography
+                          variant='subtitle2'
+                          sx={{
+                            width: '100%',
+                          }}
+                        >
+                          {FullDateTimezoneHelper(
+                            invoiceInfo.taxInvoiceIssuedAt,
+                            invoiceInfo.taxInvoiceIssuedDateTimezone!,
+                          )}
+                        </Typography>
                       </Box>
                     </Box>
                   </Box>
-                </Box>
-                <Divider />
-                <Box sx={{ width: '100%' }}>
+
                   <Box
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
-                      gap: '10px',
+                      gap: '15px',
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Notes
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {invoiceInfo.notes ?? '-'}
-                      </Typography>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '25.21%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Sales recognition date
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '73.45%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
+                            }}
+                          >
+                            {FullDateTimezoneHelper(
+                              invoiceInfo.salesCheckedAt,
+                              invoiceInfo.salesCheckedDateTimezone!,
+                            )}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '25.21%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Sales category
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '73.45%',
+                          }}
+                        >
+                          {invoiceInfo.salesCategory}
+                        </Box>
+                      </Box>
                     </Box>
                   </Box>
-                </Box>
-                <Divider />
-                <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                  <Checkbox
-                    value={isReminder}
-                    onChange={e => {
-                      setIsReminder(e.target.checked)
-                    }}
-                    checked={isReminder}
-                    disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                  />
+                  <Divider />
+                  <Box sx={{ width: '100%' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                      }}
+                    >
+                      <Box
+                        sx={{
+                          display: 'flex',
 
-                  <Typography variant='body2'>Tax invoice issued</Typography>
+                          gap: '8px',
+                          alignItems: 'center',
+                          width: '25.21%',
+                        }}
+                      >
+                        <Typography
+                          variant='subtitle1'
+                          sx={{
+                            fontSize: '14px',
+                            fontWeight: 600,
+                            width: '100%',
+                          }}
+                        >
+                          Notes
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '8px',
+                          alignItems: 'center',
+                          width: '73.45%',
+                        }}
+                      >
+                        <Typography
+                          variant='subtitle2'
+                          sx={{
+                            width: '100%',
+                          }}
+                        >
+                          {invoiceInfo.notes ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Box>
+                  <Divider />
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Checkbox
+                      value={isReminder}
+                      onChange={e => {
+                        setIsReminder(e.target.checked)
+                      }}
+                      checked={isReminder}
+                      disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                    />
+
+                    <Typography variant='body2'>Tax invoice issued</Typography>
+                  </Box>
                 </Box>
               </Box>
-            </Box>
-          </Card>
+            </Card>
+          )}
         </Box>
       )}
 
