@@ -173,10 +173,9 @@ const EditPrices = ({
     if (jobPrices) {
       console.log(jobPrices)
 
-      const res = getPriceOptions(
-        jobPrices.sourceLanguage,
-        jobPrices.targetLanguage,
-      ).find(value => value.id === jobPrices.priceId)
+      const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
+        value => value.id === jobPrices.priceId,
+      )
       setPrice(res!)
     }
   }, [jobPrices])

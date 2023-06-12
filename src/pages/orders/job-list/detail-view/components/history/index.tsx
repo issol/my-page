@@ -32,7 +32,6 @@ type Props = {
   priceUnitsList: PriceUnitListType[]
   item: JobItemType
   projectTeam: {
-    id: string
     userId: number
     position: PositionType
     firstName: string

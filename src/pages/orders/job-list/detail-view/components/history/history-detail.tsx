@@ -35,7 +35,6 @@ type Props = {
   item: JobItemType
   originJobInfo: JobType
   projectTeam: {
-    id: string
     userId: number
     position: PositionType
     firstName: string
@@ -113,8 +112,8 @@ export default function HistoryDetail({
         {
           id: jobPrices?.id!,
           name: jobPrices?.priceName!,
-          source: jobPrices?.sourceLanguage!,
-          target: jobPrices?.targetLanguage!,
+          source: jobPrices?.source!,
+          target: jobPrices?.target!,
           priceId: jobPrices?.priceId!,
           detail: !jobPrices?.datas.length ? [] : jobPrices?.datas!,
           contactPersonId: 0,

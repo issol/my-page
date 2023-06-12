@@ -123,8 +123,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
         {
           id: jobPrices.id!,
           name: jobPrices.priceName!,
-          source: jobPrices.sourceLanguage!,
-          target: jobPrices.targetLanguage!,
+          source: jobPrices.source!,
+          target: jobPrices.target!,
           priceId: jobPrices.priceId!,
           detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
 

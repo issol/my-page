@@ -100,9 +100,9 @@ export const useGetProjectTeam = (id: number) => {
 
       suspense: true,
 
-      select: data => {
-        return data.map(value => ({ ...value, id: value.id }))
-      },
+      // select: data => {
+      //   return data.map(value => ({ ...value, id: value.id }))
+      // },
     },
   )
 }
