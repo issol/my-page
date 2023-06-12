@@ -229,18 +229,21 @@ export default function ItemPriceUnitForm({
                               })
                               if (option?.subPriceUnits?.length) {
                                 option.subPriceUnits.forEach(item => {
+                                  const unitPrice = priceFactor
+                                    ? priceFactor * item.price
+                                    : item.price
                                   append({
                                     ...savedValue,
-                                    priceUnitId: option.id,
+                                    priceFactor: priceFactor?.toString(),
+                                    priceUnitId: item.id,
                                     quantity: item.quantity!,
                                     unit: item.unit,
-                                    unitPrice: priceFactor
-                                      ? priceFactor * item.price
-                                      : item.price,
+                                    unitPrice: unitPrice,
+                                    prices: item.quantity! * unitPrice,
                                   })
+                                  // getEachPrice(idx)
                                 })
                               }
-                              getEachPrice(idx)
                             }}
                           >
                             {option?.quantity && option?.quantity >= 2
