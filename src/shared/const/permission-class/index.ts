@@ -69,7 +69,7 @@ export class job_list {
   authorId: number
   constructor(authorId: number) {
     this.authorId = authorId
-    Object.defineProperty(client_comment.prototype.constructor, 'name', {
+    Object.defineProperty(job_list.prototype.constructor, 'name', {
       value: 'job_list',
     })
   }
@@ -78,8 +78,17 @@ export class quotes {
   authorId: number
   constructor(authorId: number) {
     this.authorId = authorId
-    Object.defineProperty(client_comment.prototype.constructor, 'name', {
+    Object.defineProperty(quotes.prototype.constructor, 'name', {
       value: 'quotes',
+    })
+  }
+}
+export class invoice {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(invoice.prototype.constructor, 'name', {
+      value: 'invoice',
     })
   }
 }

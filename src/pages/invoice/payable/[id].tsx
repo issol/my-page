@@ -71,12 +71,15 @@ export default function PayableDetail() {
             />
             <Typography variant='h5'>{data.corporationId}</Typography>
           </Box>
-          <Button
-            variant='outlined'
-            startIcon={<Icon icon='ic:baseline-download' />}
-          >
-            Download invoice
-          </Button>
+          <Box display='flex' alignItems='center' gap='18px'>
+            <Button
+              variant='outlined'
+              startIcon={<Icon icon='ic:baseline-download' />}
+            >
+              Download invoice
+            </Button>
+            <Button variant='contained'>Confirm invoice</Button>
+          </Box>
         </Box>
       </Grid>
       <Grid item xs={12}>

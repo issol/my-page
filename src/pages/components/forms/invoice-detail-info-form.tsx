@@ -1,0 +1,364 @@
+import { Fragment } from 'react'
+
+// ** style components
+import { Icon } from '@iconify/react'
+import {
+  Autocomplete,
+  Box,
+  Divider,
+  FormControl,
+  FormHelperText,
+  Grid,
+  IconButton,
+  InputAdornment,
+  InputLabel,
+  OutlinedInput,
+  TextField,
+  Typography,
+} from '@mui/material'
+import styled from 'styled-components'
+
+// ** values
+import { countries } from 'src/@fake-db/autocomplete'
+
+// ** apis
+import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+
+// ** helpers
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+
+// ** types & schema
+import { PayableFormType } from '@src/types/invoice/payable.type'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
+
+// ** Third Party Imports
+import DatePicker from 'react-datepicker'
+
+// ** Custom Component Imports
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+
+// ** react hook form
+import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
+
+// ** components
+import InformationModal from '@src/@core/components/common-modal/information-modal'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+type Props = {
+  control: Control<PayableFormType, any>
+  errors: FieldErrors<PayableFormType>
+  isAccountManager: boolean
+}
+export default function InvoiceDetailInfoForm({
+  control,
+  errors,
+  isAccountManager,
+}: Props) {
+  const { openModal, closeModal } = useModal()
+
+  /* TODO: payable status받아오는 api로 교체하기, Tax info에 넣을 값도 api요청하기 */
+  const { data: statusList, isLoading } = useGetInvoiceStatus()
+
+  function renderErrorMsg(errors: FieldError | undefined) {
+    return (
+      <>
+        {errors && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {errors?.message}
+          </FormHelperText>
+        )}
+      </>
+    )
+  }
+
+  return (
+    <Fragment>
+      <Grid item xs={12}>
+        <Box display='flex' alignItems='center'>
+          <Typography fontSize={16} fontWeight={400}>
+            Payment due
+          </Typography>
+          <IconButton
+            onClick={() => {
+              openModal({
+                type: 'paymentInfo',
+                children: (
+                  <InformationModal
+                    onClose={() => closeModal('paymentInfo')}
+                    title='Payment due information'
+                    subtitle='The minimum price has been applied to the item(s).'
+                    vary='info'
+                  />
+                ),
+              })
+            }}
+          >
+            <Icon icon='material-symbols:info-outline' />
+          </IconButton>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField
+          fullWidth
+          disabled
+          label='Invoice date*'
+          placeholder='Invoice date*'
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <TextField
+          fullWidth
+          disabled
+          label='Time zone*'
+          placeholder='Time zone*'
+        />
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='status'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              disabled={isAccountManager}
+              options={statusList || []}
+              onChange={(e, v) => {
+                onChange(v?.statusName ?? '')
+              }}
+              value={
+                statusList?.find(item => item.statusName === value) ?? {
+                  id: 0,
+                  statusName: '',
+                }
+              }
+              getOptionLabel={option => option.statusName}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  error={Boolean(errors.status)}
+                  label='Status*'
+                  placeholder='Status*'
+                />
+              )}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.status)}
+      </Grid>
+      <Grid item xs={6}>
+        <TextField fullWidth disabled label='Pro*' placeholder='Pro*' />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='taxInfo'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              /* TODO: statusName이라고 되어 있는 부분 추후 api res에 따라 수정하기 */
+              options={statusList || []}
+              onChange={(e, v) => {
+                onChange(v?.statusName ?? '')
+              }}
+              value={
+                statusList?.find(item => item.statusName === value) ?? {
+                  id: 0,
+                  statusName: '',
+                }
+              }
+              getOptionLabel={option => option.statusName}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  error={Boolean(errors.taxInfo)}
+                  label='Tax info*'
+                  placeholder='Tax info*'
+                />
+              )}
+            />
+          )}
+        />
+        {renderErrorMsg(errors?.taxInfo)}
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name='tax'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FormControl fullWidth error={Boolean(errors.tax)}>
+              <InputLabel>Tax rate*</InputLabel>
+              <OutlinedInput
+                value={value ?? null}
+                error={Boolean(errors.tax)}
+                onChange={e => {
+                  console.log('value', value)
+                  onChange(e)
+                  // if (e.target.value.length > 10) return
+                  // onChange(e)
+                }}
+                type='number'
+                label='Tax rate*'
+                endAdornment={<InputAdornment position='end'>%</InputAdornment>}
+              />
+            </FormControl>
+          )}
+        />
+        {renderErrorMsg(errors.tax)}
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
+
+      <Grid item xs={6}>
+        <Controller
+          name='paymentDueAt.date'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FullWidthDatePicker
+              disabled={isAccountManager}
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
+              selected={!value ? null : new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
+              onChange={onChange}
+              customInput={<CustomInput label='Payment due' icon='calendar' />}
+            />
+          )}
+        />
+        {renderErrorMsg(errors?.paymentDueAt?.date)}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='paymentDueAt.timezone'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              disabled={isAccountManager}
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Time zone'
+                  error={Boolean(errors?.paymentDueAt?.timezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+        {renderErrorMsg(errors?.paymentDueAt?.timezone?.code)}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='paymentDate.date'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <FullWidthDatePicker
+              showTimeSelect
+              timeFormat='HH:mm'
+              timeIntervals={15}
+              selected={!value ? null : new Date(value)}
+              dateFormat='MM/dd/yyyy h:mm aa'
+              onChange={onChange}
+              customInput={<CustomInput label='Payment date' icon='calendar' />}
+            />
+          )}
+        />
+        {renderErrorMsg(errors?.paymentDate?.date)}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='paymentDate.timezone'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Time zone'
+                  error={Boolean(errors?.paymentDate?.timezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+        {renderErrorMsg(errors?.paymentDate?.timezone?.code)}
+      </Grid>
+      <Grid item xs={12}>
+        <Typography variant='h6' mb='24px'>
+          Invoice description
+        </Typography>
+        <Controller
+          name='invoiceDescription'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <>
+              <TextField
+                rows={4}
+                multiline
+                fullWidth
+                disabled={isAccountManager}
+                error={Boolean(errors.invoiceDescription)}
+                placeholder='Write down an invoice description.'
+                value={value ?? ''}
+                onChange={onChange}
+                inputProps={{ maxLength: 500 }}
+              />
+              <Typography variant='body2' mt='12px' textAlign='right'>
+                {value?.length ?? 0}/500
+              </Typography>
+            </>
+          )}
+        />
+      </Grid>
+    </Fragment>
+  )
+}
+
+const FullWidthDatePicker = styled(DatePicker)`
+  width: 100%;
+`

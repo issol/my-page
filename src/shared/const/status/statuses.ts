@@ -312,3 +312,26 @@ export const AssignmentStatus = [
     label: 'Canceled',
   },
 ]
+
+export const InvoicePayableStatus = [
+  {
+    value: 'Invoice created',
+    label: 'Invoice created',
+  },
+  {
+    value: 'Invoice accepted',
+    label: 'Invoice accepted',
+  },
+  {
+    value: 'Paid',
+    label: 'Paid',
+  },
+  {
+    value: 'Overdue',
+    label: 'Overdue',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]

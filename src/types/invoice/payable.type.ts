@@ -34,3 +34,18 @@ export type InvoicePayableListType = {
   totalPrice: number
   currency: CurrencyType
 }
+
+export type PayableFormType = {
+  status?: InvoicePayableStatusType
+  taxInfo: string
+  tax: number | null //tax rate
+  paymentDueAt?: {
+    date: string
+    timezone: CountryType
+  }
+  paymentDate?: {
+    date: string
+    timezone: CountryType
+  }
+  invoiceDescription?: string | null
+}
