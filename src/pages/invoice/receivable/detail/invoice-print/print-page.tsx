@@ -556,6 +556,6 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
 export default PrintInvoicePage
 
 PrintInvoicePage.acl = {
-  subject: 'invoice-receivable',
+  subject: 'invoice_receivable',
   action: 'read',
 }

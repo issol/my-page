@@ -301,35 +301,35 @@ export const getPermission = createAsyncThunk(
             can: 'delete',
           },
           {
-            subject: 'invoice-receivable',
+            subject: 'invoice_receivable',
             can: 'read',
           },
           {
-            subject: 'invoice-receivable',
+            subject: 'invoice_receivable',
             can: 'create',
           },
           {
-            subject: 'invoice-receivable',
+            subject: 'invoice_receivable',
             can: 'update',
           },
           {
-            subject: 'invoice-receivable',
+            subject: 'invoice_receivable',
             can: 'delete',
           },
           {
-            subject: 'invoice-payable',
+            subject: 'invoice_payable',
             can: 'read',
           },
           {
-            subject: 'invoice-payable',
+            subject: 'invoice_payable',
             can: 'create',
           },
           {
-            subject: 'invoice-payable',
+            subject: 'invoice_payable',
             can: 'update',
           },
           {
-            subject: 'invoice-payable',
+            subject: 'invoice_payable',
             can: 'delete',
           },
         ]
