@@ -736,14 +736,18 @@ export default function AddNewOrder() {
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        textAlign: 'right',
+                      }}
                     >
                       Subtotal
                     </Typography>
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
