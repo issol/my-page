@@ -255,6 +255,6 @@ export default function Receivable() {
 }
 
 Receivable.acl = {
-  subject: 'invoice',
+  subject: 'invoice-receivable',
   action: 'read',
 }

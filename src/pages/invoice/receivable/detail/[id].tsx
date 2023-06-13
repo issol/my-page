@@ -753,7 +753,7 @@ const ReceivableInvoiceDetail = () => {
 export default ReceivableInvoiceDetail
 
 ReceivableInvoiceDetail.acl = {
-  subject: 'invoice',
+  subject: 'invoice-recievable',
   action: 'read',
 }
 const CustomTap = styled(Tab)`

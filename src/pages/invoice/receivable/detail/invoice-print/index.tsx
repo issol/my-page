@@ -40,6 +40,6 @@ InvoicePrint.getLayout = (page: ReactNode) => <BlankLayout>{page}</BlankLayout>
 export default InvoicePrint
 
 InvoicePrint.acl = {
-  subject: 'invoice',
+  subject: 'invoice-receivable',
   action: 'read',
 }
