@@ -198,7 +198,7 @@ export default function AddNewOrder() {
       children: (
         <PageLeaveModal
           onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
+          onClick={() => router.push('/invoice/receivable')}
         />
       ),
     })
