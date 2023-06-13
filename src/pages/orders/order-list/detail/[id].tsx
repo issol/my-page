@@ -129,7 +129,7 @@ const OrderDetail = () => {
     Number(id!),
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.taxable || false)
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
   const { data: priceUnitsList } = useGetAllPriceList()
 
   const {
