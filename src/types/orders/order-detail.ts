@@ -39,7 +39,7 @@ export type ProjectInfoType = {
   projectDueTimezone: CountryType
   projectDescription: string
   tax: number
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type ClientType = {

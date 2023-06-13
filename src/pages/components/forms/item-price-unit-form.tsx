@@ -433,7 +433,11 @@ export default function ItemPriceUnitForm({
   }
 
   return (
-    <Grid item xs={12} onMouseLeave={onItemBoxLeave}>
+    <Grid
+      item
+      xs={12}
+      onMouseLeave={() => type !== 'invoiceDetail' && onItemBoxLeave()}
+    >
       <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
         <Table stickyHeader aria-label='sticky table'>
           <TableHead>

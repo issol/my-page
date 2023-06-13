@@ -419,7 +419,7 @@ export default function InvoiceProjectInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='taxable'
+          name='isTaxable'
           control={control}
           render={({ field: { value, onChange } }) => {
             return (
@@ -442,7 +442,7 @@ export default function InvoiceProjectInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    error={Boolean(errors.taxable)}
+                    error={Boolean(errors.isTaxable)}
                     label='Tax type*'
                   />
                 )}
