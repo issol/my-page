@@ -577,24 +577,24 @@ const ReceivableInvoiceDetail = () => {
             {invoiceInfoEdit ? null : (
               <IconButton
                 sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/orders/order-list')}
+                onClick={() => router.push('/invoice/receivable')}
               >
                 <Icon icon='mdi:chevron-left' width={24} height={24} />
               </IconButton>
             )}
 
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <img src='/images/icons/order-icons/book.svg' alt='' />
+              <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
               <Typography variant='h5'>{invoiceInfo?.corporationId}</Typography>
             </Box>
           </Box>
           <Box>
             <Button
               variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
+              sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
               onClick={onClickDownloadInvoice}
             >
-              <Icon icon='material-symbols:request-quote' />
+              <Icon icon='mdi:download' fontSize={20} />
               Download invoice
             </Button>
           </Box>
@@ -610,7 +610,12 @@ const ReceivableInvoiceDetail = () => {
                 value='invoiceInfo'
                 label='Invoice info'
                 iconPosition='start'
-                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+                icon={
+                  <Icon
+                    icon='material-symbols:receipt-long'
+                    fontSize={'18px'}
+                  />
+                }
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
               <CustomTap
