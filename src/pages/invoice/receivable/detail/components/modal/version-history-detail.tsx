@@ -207,7 +207,7 @@ const InvoiceVersionHistoryModal = ({
             padding: '20px',
           }}
         >
-          <img src='/images/icons/order-icons/book.svg' alt='' />
+          <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
           <Typography variant='h5'>{`[Ver. ${history.version}] ${history.invoiceInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
@@ -220,7 +220,9 @@ const InvoiceVersionHistoryModal = ({
               value='1'
               label='Invoice info'
               iconPosition='start'
-              icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+              icon={
+                <Icon icon='material-symbols:receipt-long' fontSize={'18px'} />
+              }
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
             <CustomTap
