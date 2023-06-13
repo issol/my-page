@@ -222,3 +222,35 @@ export type InvoiceDownloadData = {
   taxPercent: number
   tax: string | null
 }
+
+export type CreateInvoiceReceivableRes = {
+  data: {
+    id: number
+    corporationId: string
+    createdAt: string
+    updatedAt: string
+    deletedAt: string | null
+    adminCompanyName: string
+    invoiceStatus: number
+    authorId: number
+    lastUpdatedAuthorId: number | null
+    salesCategory: string | null
+    description: string
+    notes: string | null
+    setReminder: boolean
+    reminderSentAt: string | null
+    invoicedAt: string
+    payDueAt: string
+    payDueTimezone: CountryType
+    invoiceConfirmedAt: string
+    invoiceConfirmTimezone: CountryType
+    taxInvoiceDueAt: string
+    taxInvoiceDueTimezone: CountryType
+    paidAt: string | null
+    salesCheckedAt: string | null
+    downloadedAt: string | null
+    order: {
+      id: number
+    }
+  }
+}

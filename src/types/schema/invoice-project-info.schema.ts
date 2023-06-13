@@ -23,7 +23,7 @@ export const invoiceProjectInfoSchema = yup.object().shape({
     .string()
     .oneOf(['United States', 'Korea', 'Singapore', 'Japan'])
     .required(FormErrors.required),
-  taxable: yup.string().required(),
+  isTaxable: yup.string().required(),
 
   paymentDueDate: yup.object().shape({
     date: yup.date().nullable(),

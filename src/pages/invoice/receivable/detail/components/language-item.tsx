@@ -118,7 +118,6 @@ const InvoiceLanguageAndItem = ({
   const priceInfo = prices?.find(
     value => value.id === langItem.items[0].priceId,
   )
-  console.log(priceInfo)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -178,6 +177,19 @@ const InvoiceLanguageAndItem = ({
       setLanguagePairs([...copyOriginal])
     }
   }
+  console.log(
+    formatCurrency(
+      formatByRoundingProcedure(
+        items.reduce((acc, cur) => {
+          return acc + cur.totalPrice
+        }, 0),
+        priceInfo?.decimalPlace!,
+        priceInfo?.roundingProcedure!,
+        priceInfo?.currency!,
+      ),
+      priceInfo?.currency!,
+    ),
+  )
 
   return (
     <>

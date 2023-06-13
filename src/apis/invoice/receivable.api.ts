@@ -5,6 +5,7 @@ import {
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import {
+  CreateInvoiceReceivableRes,
   InvoiceReceivableDetailType,
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
@@ -281,8 +282,10 @@ export const getInvoiceReceivableCalendarData = async (
   }
 }
 
-export const createInvoice = async (data: any) => {
-  await axios.post('/api/enough/u/invoice', data)
+export const createInvoice = async (
+  data: InvoiceReceivablePatchParamsType,
+): Promise<CreateInvoiceReceivableRes> => {
+  return await axios.post('/api/enough/u/invoice', data)
 }
 
 export const getInvoiceDetail = async (

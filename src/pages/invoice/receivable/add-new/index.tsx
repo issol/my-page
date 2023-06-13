@@ -101,7 +101,13 @@ import {
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
 import FallbackSpinner from '@src/@core/components/spinner'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  CreateInvoiceReceivableRes,
+  InvoiceReceivablePatchParamsType,
+} from '@src/types/invoice/receivable.type'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { createInvoice } from '@src/apis/invoice/receivable.api'
 
 export type languageType = {
   id: number | string
@@ -131,6 +137,7 @@ export default function AddNewOrder() {
   const { user } = useContext(AuthContext)
   const { data: statusList, isLoading } = useGetInvoiceStatus()
   const [isReady, setIsReady] = useState(false)
+  const queryClient = useQueryClient()
 
   useEffect(() => {
     if (!router.isReady) return
@@ -147,8 +154,18 @@ export default function AddNewOrder() {
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
-  const createInvoiceMutation = useMutation((data: any) =>
-    createOrderInfo(data),
+  const createInvoiceMutation = useMutation(
+    (data: InvoiceReceivablePatchParamsType) => createInvoice(data),
+    {
+      onSuccess: (data: CreateInvoiceReceivableRes) => {
+        console.log(data)
+
+        closeModal('CreateInvoiceModal')
+        router.push(`/invoice/receivable/detail/${data.data.id}`)
+
+        queryClient.invalidateQueries('invoice/receivable/list')
+      },
+    },
   )
 
   const handleBack = () => {
@@ -181,7 +198,7 @@ export default function AddNewOrder() {
       children: (
         <PageLeaveModal
           onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
+          onClick={() => router.push('/invoice/receivable')}
         />
       ),
     })
@@ -263,6 +280,7 @@ export default function AddNewOrder() {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: getClientValue('clientId'),
   })
+
   const { data: priceUnitsList } = useGetAllPriceList()
   const {
     control: itemControl,
@@ -330,6 +348,10 @@ export default function AddNewOrder() {
     }
   }
 
+  const priceInfo = prices?.find(
+    value => value.id === getItem().items[0]?.priceId,
+  )
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -346,27 +368,6 @@ export default function AddNewOrder() {
     return [defaultOption].concat(filteredList)
   }
 
-  function isAddItemDisabled(): boolean {
-    if (!languagePairs.length) return true
-    return languagePairs.some(item => !item?.price)
-  }
-
-  function addNewItem() {
-    const teamMembers = getTeamValues()?.teams
-    const projectManager = teamMembers.find(
-      item => item.type === 'projectManagerId',
-    )
-    appendItems({
-      name: '',
-      source: '',
-      target: '',
-      contactPersonId: projectManager?.id!,
-      priceId: null,
-      detail: [],
-      totalPrice: 0,
-    })
-  }
-
   function onSubmit() {
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
@@ -379,42 +380,52 @@ export default function AddNewOrder() {
     const rawProjectInfo = getProjectInfoValues()
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.taxable ? null : tax,
+      tax: !rawProjectInfo.isTaxable ? null : tax,
     }
-    const items = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-    }))
-    const langs = languagePairs.map(item => {
-      if (item?.price?.id) {
-        return {
-          source: item.source,
-          target: item.target,
-          priceId: item.price.id,
-        }
-      }
-      return {
-        source: item.source,
-        target: item.target,
-      }
-    })
-    const stepOneData = { ...teams, ...clients, ...projectInfo }
-    const res = {
+
+    const res: InvoiceReceivablePatchParamsType = {
+      projectManagerId: teams.projectManagerId,
+      supervisorId: teams.supervisorId!,
+      members: teams.member,
+      contactPersonId: clients.contactPersonId,
       orderId: Number(router.query.orderId),
       invoiceStatus: projectInfo.status,
       invoicedAt: projectInfo.invoiceDate,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
       payDueTimezone: projectInfo.paymentDueDate.timezone,
-      invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date ?? {},
+      invoiceConfirmedAt: projectInfo.invoiceConfirmDate?.date,
       invoiceConfirmTimezone: projectInfo.invoiceConfirmDate?.timezone,
-      taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date ?? {},
+      taxInvoiceDueAt: projectInfo.taxInvoiceDueDate?.date,
       taxInvoiceDueTimezone: projectInfo.taxInvoiceDueDate?.timezone,
       invoiceDescription: projectInfo.invoiceDescription,
     }
-    console.log(res)
 
-    createInvoiceMutation.mutate(res)
+    openModal({
+      type: 'CreateInvoiceModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('CreateInvoiceModal')}
+          title='Are you sure you want to create this invoice?'
+          subtitle={projectInfo.projectName}
+          vary='successful'
+          onClick={() =>
+            createInvoiceMutation.mutate(removeUndefinedValues(res))
+          }
+          rightButtonText='Save'
+        />
+      ),
+    })
+  }
+
+  function removeUndefinedValues(obj: any): any {
+    return Object.entries(obj).reduce((acc, [key, value]) => {
+      if (value !== undefined) {
+        // @ts-ignore
+        acc[key] = value
+      }
+      return acc
+    }, {})
   }
 
   function onRequestError() {
@@ -515,7 +526,7 @@ export default function AddNewOrder() {
                 code: '',
               },
             },
-            taxable: res.taxable ?? true,
+            isTaxable: res.isTaxable ?? true,
           })
           setTax(res?.tax ?? null)
         })
@@ -623,7 +634,7 @@ export default function AddNewOrder() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTax={setTax}
-                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type='invoice'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
@@ -734,14 +745,17 @@ export default function AddNewOrder() {
                       variant='subtitle1'
                       sx={{ padding: '16px 16px 16px 20px' }}
                     >
-                      $ 5780.00
-                      {/* {formatCurrency(
-                          formatByRoundingProcedure(
-                             getItem().items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0),
-                      getPriceOptions()
-                    } */}
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          items.reduce((acc, cur) => {
+                            return acc + cur.totalPrice
+                          }, 0),
+                          priceInfo?.decimalPlace!,
+                          priceInfo?.roundingProcedure!,
+                          priceInfo?.currency!,
+                        ),
+                        priceInfo?.currency!,
+                      )}
                     </Typography>
                   </Box>
                 </Box>
@@ -769,7 +783,7 @@ export default function AddNewOrder() {
                 </Box>
 
                 <Box display='flex' alignItems='center' gap='4px'>
-                  <Box>{!getProjectInfoValues().taxable ? '-' : tax}</Box>%
+                  <Box>{!getProjectInfoValues().isTaxable ? '-' : tax}</Box>%
                 </Box>
               </Grid>
               <Grid item xs={12}>
@@ -779,30 +793,41 @@ export default function AddNewOrder() {
                       display: 'flex',
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
-                      justifyContent: 'center',
+                      justifyContent: 'space-between',
                       width: '257px',
                     }}
                   >
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+
+                        textAlign: 'right',
+                      }}
                     >
                       Tax
                     </Typography>
                     <Typography
                       fontWeight={600}
                       variant='subtitle1'
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      $ 5780.00
-                      {/* {formatCurrency(
-                          formatByRoundingProcedure(
-                             getItem().items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0),
-                      getPriceOptions()
-                    } */}
+                      {getProjectInfoValues().isTaxable
+                        ? formatCurrency(
+                            formatByRoundingProcedure(
+                              items.reduce((acc, cur) => {
+                                return acc + cur.totalPrice
+                              }, 0) *
+                                (getProjectInfoValues().tax! / 100),
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency!,
+                            ),
+                            priceInfo?.currency!,
+                          )
+                        : '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -814,7 +839,7 @@ export default function AddNewOrder() {
                       display: 'flex',
                       gap: '20px',
                       borderBottom: '1.5px solid #666CFF',
-                      justifyContent: 'center',
+                      justifyContent: 'space-between',
                       width: '250px',
                     }}
                   >
@@ -822,7 +847,12 @@ export default function AddNewOrder() {
                       fontWeight={600}
                       variant='subtitle1'
                       color={'#666CFF'}
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+
+                        textAlign: 'right',
+                      }}
                     >
                       Total
                     </Typography>
@@ -830,16 +860,35 @@ export default function AddNewOrder() {
                       fontWeight={600}
                       variant='subtitle1'
                       color={'#666CFF'}
-                      sx={{ padding: '16px 16px 16px 20px' }}
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                     >
-                      $ 5780.00
-                      {/* {formatCurrency(
-                          formatByRoundingProcedure(
-                             getItem().items.reduce((acc, cur) => {
-                        return acc + cur.totalPrice
-                      }, 0),
-                      getPriceOptions()
-                    } */}
+                      {getProjectInfoValues().isTaxable
+                        ? formatCurrency(
+                            formatByRoundingProcedure(
+                              items.reduce((acc, cur) => {
+                                return acc + cur.totalPrice
+                              }, 0) *
+                                (getProjectInfoValues().tax! / 100) +
+                                items.reduce((acc, cur) => {
+                                  return acc + cur.totalPrice
+                                }, 0),
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency!,
+                            ),
+                            priceInfo?.currency!,
+                          )
+                        : formatCurrency(
+                            formatByRoundingProcedure(
+                              items.reduce((acc, cur) => {
+                                return acc + cur.totalPrice
+                              }, 0),
+                              priceInfo?.decimalPlace!,
+                              priceInfo?.roundingProcedure!,
+                              priceInfo?.currency!,
+                            ),
+                            priceInfo?.currency!,
+                          )}
                     </Typography>
                   </Box>
                 </Box>
@@ -862,7 +911,7 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
                   onClick={onSubmit}
                 >

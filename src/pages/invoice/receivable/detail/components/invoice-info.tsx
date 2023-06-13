@@ -224,7 +224,7 @@ const InvoiceInfo = ({
 
         sendReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
-        taxable: invoiceInfo.isTaxable ?? true,
+        isTaxable: invoiceInfo.isTaxable ?? true,
       }
       // projectInfoReset(res)
       invoiceInfoReset(res)

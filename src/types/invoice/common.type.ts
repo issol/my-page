@@ -37,5 +37,5 @@ export type InvoiceProjectInfoFormType = {
   taxInvoiceIssued?: boolean
   sendReminder: boolean
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
 }
