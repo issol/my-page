@@ -20,6 +20,11 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import {
+  InvoiceReceivableDetailType,
+  InvoiceReceivablePatchParamsType,
+} from '@src/types/invoice/receivable.type'
 import { ClientType } from '@src/types/orders/order-detail'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
@@ -45,7 +50,13 @@ type Props = {
   getClientValue?: UseFormGetValues<ClientFormType>
   setClientValue?: UseFormSetValue<ClientFormType>
   clientWatch?: UseFormWatch<ClientFormType>
+  getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
+  invoiceInfo?: InvoiceReceivableDetailType
   isClientValid?: boolean
+  onSave?: (data: {
+    id: number
+    form: InvoiceReceivablePatchParamsType
+  }) => void
 }
 
 const InvoiceClient = ({
@@ -59,23 +70,13 @@ const InvoiceClient = ({
   clientControl,
   getClientValue,
   setClientValue,
+  getInvoiceInfo,
   clientWatch,
   isClientValid,
+  invoiceInfo,
+  onSave,
 }: Props) => {
-  const queryClient = useQueryClient()
   const { openModal, closeModal } = useModal()
-
-  const patchClientMutation = useMutation(
-    (data: { id: number; form: ClientFormType }) =>
-      patchClientForOrder(data.id, data.form),
-    {
-      onSuccess: () => {
-        // queryClient.invalidateQueries(`Client-${invoiceInfo.id}`)
-        setEdit!(false)
-        closeModal('EditSaveModal')
-      },
-    },
-  )
 
   const onClickDiscard = () => {
     setEdit!(false)
@@ -91,9 +92,17 @@ const InvoiceClient = ({
             ? null
             : getClientValue().contactPersonId,
       }
-      setEdit!(false)
-      closeModal('EditSaveModal')
-      // patchClientMutation.mutate({ id: orderId, form: clients })
+
+      const data = getInvoiceInfo && getInvoiceInfo()
+      if (onSave && data && invoiceInfo) {
+        onSave({
+          id: invoiceInfo.id,
+          form: {
+            ...data,
+            contactPersonId: clients.contactPersonId,
+          },
+        })
+      }
     }
   }
 

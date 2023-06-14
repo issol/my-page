@@ -76,6 +76,8 @@ import {
 } from '@src/shared/helpers/price.helper'
 import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import Link from 'next/link'
+import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
@@ -112,15 +114,23 @@ const ReceivableInvoiceDetail = () => {
   } = useGetReceivableInvoiceDetail(Number(id!))
   const { data: langItem, isLoading: langItemLoading } =
     useGetReceivableInvoicePrices(Number(id!))
-  const { data: client, isLoading: clientLoading } = useGetReceivableClient(
-    Number(id!),
-  )
-  const { data: projectTeam, isLoading: projectTeamLoading } =
-    useGetReceivableTeam(Number(id!))
-  const { data: versionHistory } = useGetReceivableHistory(Number(id!))
+  const {
+    data: client,
+    isLoading: clientLoading,
+    refetch: clientRefetch,
+  } = useGetReceivableClient(Number(id!))
+  const {
+    data: projectTeam,
+    isLoading: projectTeamLoading,
+    refetch: projectTeamRefetch,
+  } = useGetReceivableTeam(Number(id!))
+  const { data: versionHistory, refetch: historyRefetch } =
+    useGetReceivableHistory(Number(id!))
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: client?.client.clientId,
   })
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetInvoiceStatus()
 
   const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
   const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
@@ -129,9 +139,22 @@ const ReceivableInvoiceDetail = () => {
     (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
       patchInvoiceInfo(data.id, data.form),
     {
-      onSuccess: () => {
+      onSuccess: (data: { id: number }, variables) => {
+        console.log('success')
+
         setInvoiceInfoEdit(false)
-        invoiceInfoRefetch()
+        setAccountingInfoEdit(false)
+        setProjectTeamEdit(false)
+        setClientEdit(false)
+
+        if (data.id !== variables.id) {
+          router.push(`/invoice/receivable/detail/${data.id}`)
+        } else {
+          invoiceInfoRefetch()
+          historyRefetch()
+          projectTeamRefetch()
+          clientRefetch()
+        }
         closeModal('EditSaveModal')
       },
       onError: () => {
@@ -208,6 +231,7 @@ const ReceivableInvoiceDetail = () => {
           user={user!}
           prices={prices!}
           pricesSuccess={isSuccess}
+          statusList={statusList!}
         />
       ),
     })
@@ -588,7 +612,21 @@ const ReceivableInvoiceDetail = () => {
               <Typography variant='h5'>{invoiceInfo?.corporationId}</Typography>
             </Box>
           </Box>
-          <Box>
+          <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
+            <Box sx={{ display: 'flex', alignItems: 'center' }}>
+              <Typography fontSize={14}>Linked order : </Typography>
+              <Link
+                href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                passHref
+                style={{
+                  padding: '7px 12px',
+                  color: '#6D788D',
+                  fontSize: '14px',
+                }}
+              >
+                {invoiceInfo?.orderCorporationId}
+              </Link>
+            </Box>
             <Button
               variant='outlined'
               sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -652,7 +690,7 @@ const ReceivableInvoiceDetail = () => {
               />
             </TabList>
             <TabPanel value='invoiceInfo' sx={{ pt: '24px' }}>
-              {invoiceInfo && !invoiceInfoIsLoading ? (
+              {invoiceInfo && !invoiceInfoIsLoading && !statusListLoading ? (
                 <InvoiceInfo
                   type='detail'
                   invoiceInfo={invoiceInfo!}
@@ -672,6 +710,7 @@ const ReceivableInvoiceDetail = () => {
                   clientTimezone={
                     getClientValue('contacts.timezone') ?? user?.timezone!
                   }
+                  statusList={statusList!}
                 />
               ) : null}
             </TabPanel>
@@ -710,6 +749,9 @@ const ReceivableInvoiceDetail = () => {
                 setClientValue={setClientValue}
                 clientWatch={clientWatch}
                 isClientValid={isClientValid}
+                onSave={patchInvoiceInfoMutation.mutate}
+                invoiceInfo={invoiceInfo!}
+                getInvoiceInfo={getInvoiceInfo}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
@@ -735,6 +777,9 @@ const ReceivableInvoiceDetail = () => {
                 isTeamValid={isTeamValid}
                 teamWatch={teamWatch}
                 orderId={Number(id!)}
+                onSave={patchInvoiceInfoMutation.mutate}
+                getInvoiceInfo={getInvoiceInfo}
+                invoiceInfo={invoiceInfo}
               />
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>

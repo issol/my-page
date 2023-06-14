@@ -1,15 +1,10 @@
-import { Icon } from '@iconify/react'
 import {
   Autocomplete,
   Box,
-  Button,
-  Card,
-  CardContent,
   Checkbox,
   Divider,
   FormHelperText,
   Grid,
-  IconButton,
   TextField,
   Typography,
 } from '@mui/material'
@@ -22,14 +17,15 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { Fragment, ReactNode, useEffect, useState } from 'react'
+
+import { Fragment, useEffect } from 'react'
 
 // ** react hook form
 import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -43,49 +39,30 @@ import useModal from '@src/hooks/useModal'
 // ** components
 
 // ** values
-import { CategoryList } from '@src/shared/const/category/categories'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
-import { ServiceTypePair } from '@src/shared/const/service-type/service-types'
-import {
-  AreaOfExpertisePair,
-  AreaOfExpertiseList,
-} from '@src/shared/const/area-of-expertise/area-of-expertise'
-import { RevenueFrom } from '@src/shared/const/revenue-from'
+
 import { countries } from 'src/@fake-db/autocomplete'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
-import InformationModal from '@src/@core/components/common-modal/information-modal'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
   setValue: UseFormSetValue<InvoiceProjectInfoFormType>
+  getValue: UseFormGetValues<InvoiceProjectInfoFormType>
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined
-  statusList: {
-    id: number
-    statusName: string
-  }[]
 }
 export default function InvoiceAccountingInfoForm({
   control,
   setValue,
+  getValue,
   watch,
   errors,
   clientTimezone,
-  statusList,
 }: Props) {
-  const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
-    [],
-  )
-
-  const defaultValue = { value: '', label: '' }
-
-  const { openModal, closeModal } = useModal()
-
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   useEffect(() => {
@@ -297,14 +274,42 @@ export default function InvoiceAccountingInfoForm({
         />
       </Grid>
       <Grid item xs={12}>
+        <Controller
+          name='salesCategory'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              value={field.value ?? getValue('category')}
+              options={[]}
+              disabled
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => option}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Sales category'
+                  disabled={true}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={12}>
         <Divider />
       </Grid>
       <Grid item xs={12}>
         <Typography variant='h6' mb='24px'>
-          Invoice description
+          Notes
         </Typography>
         <Controller
-          name='invoiceDescription'
+          name='notes'
           control={control}
           render={({ field: { value, onChange } }) => (
             <>
@@ -312,9 +317,9 @@ export default function InvoiceAccountingInfoForm({
                 rows={4}
                 multiline
                 fullWidth
-                error={Boolean(errors.invoiceDescription)}
+                error={Boolean(errors.notes)}
                 // label='Write down an invoice description.'
-                placeholder='Write down an invoice description.'
+                placeholder='Write down a note.'
                 value={value ?? ''}
                 onChange={onChange}
                 inputProps={{ maxLength: 500 }}

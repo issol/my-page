@@ -9,9 +9,11 @@ import { OrderStatusType } from '../orders/order-list'
 import {
   ClientType,
   LanguageAndItemType,
+  LanguagePairTypeInItem,
   ProjectTeamListType,
 } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
+import { ItemResType } from '../common/orders-and-quotes.type'
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: string[]
@@ -125,9 +127,9 @@ export type InvoiceReceivableDetailType = {
   invoiceStatus: InvoiceReceivableStatusType
   authorId: number
 
-  salesCategory: string | null
+  salesCategory: string
   description: string
-  notes: string | null
+  notes: string
   setReminder: boolean
   reminderSentAt: string | null
   invoicedAt: string
@@ -172,9 +174,26 @@ export type InvoiceVersionHistoryType = {
   downloadedAt: string
 } & InvoiceHistoryType
 
+export type InvoiceVersionHistoryResType = {
+  id: number
+  version: number
+  email: string
+  downloadedAt: string
+} & {
+  invoiceInfo: InvoiceReceivableDetailType
+  client: ClientType
+  projectTeam: ProjectTeamListType[]
+  items: {
+    id: number
+    languagePairs: Array<LanguagePairTypeInItem>
+    items: ItemResType[]
+  }
+}
+
 export type InvoiceReceivablePatchParamsType = {
   supervisorId?: number
   projectManagerId?: number
+  downloadedAt?: string
   members?: number[]
   contactPersonId?: number
   orderId?: number
@@ -195,6 +214,9 @@ export type InvoiceReceivablePatchParamsType = {
   paidDateTimezone?: CountryType
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType
+  setReminder?: boolean
+  taxInvoiceIssued?: boolean
+  salesCategory?: string
 }
 
 export type InvoiceDownloadData = {

@@ -36,6 +36,11 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { patchTeamForOrder } from '@src/apis/order-detail.api'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+import {
+  InvoiceReceivableDetailType,
+  InvoiceReceivablePatchParamsType,
+} from '@src/types/invoice/receivable.type'
 
 type Props = {
   list: Array<ProjectTeamListType>
@@ -59,6 +64,12 @@ type Props = {
   isTeamValid?: boolean
   teamWatch?: UseFormWatch<ProjectTeamType>
   orderId: number
+  getInvoiceInfo?: UseFormGetValues<InvoiceProjectInfoFormType>
+  invoiceInfo?: InvoiceReceivableDetailType
+  onSave?: (data: {
+    id: number
+    form: InvoiceReceivablePatchParamsType
+  }) => void
 }
 
 const InvoiceProjectTeam = ({
@@ -83,6 +94,9 @@ const InvoiceProjectTeam = ({
   isTeamValid,
   teamWatch,
   orderId,
+  getInvoiceInfo,
+  invoiceInfo,
+  onSave,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -110,22 +124,8 @@ const InvoiceProjectTeam = ({
     })
     // if (!result.member || !result?.member?.length) delete result.member
 
-    console.log(result)
-
     return result
   }
-
-  const patchProjectTeamMutation = useMutation(
-    (data: { id: number; form: ProjectTeamFormType }) =>
-      patchTeamForOrder(data.id, data.form),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries(`projectTeam-${orderId}`)
-        setEdit(false)
-        closeModal('EditSaveModal')
-      },
-    },
-  )
 
   const onClickDiscard = () => {
     setEdit(false)
@@ -134,9 +134,19 @@ const InvoiceProjectTeam = ({
 
   const onClickSave = () => {
     const teams = getTeamValues && transformTeamData(getTeamValues())
-    setEdit(false)
-    closeModal('EditSaveModal')
-    // patchProjectTeamMutation.mutate({ id: orderId, form: teams! })
+
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (onSave && data && invoiceInfo && teams) {
+      onSave({
+        id: invoiceInfo.id,
+        form: {
+          ...data,
+          projectManagerId: teams.projectManagerId,
+          supervisorId: teams.supervisorId!,
+          members: teams.member,
+        },
+      })
+    }
   }
 
   return (
