@@ -45,9 +45,6 @@ code[class*='language-'] {
   .MuiOutlinedInput-notchedOutline {
   background: rgba(76, 78, 100, 0.12) !important;
 }
-.css-t9ey3d-MuiInputBase-root-MuiOutlinedInput-root {
-  background: rgba(76, 78, 100, 0.12) !important;
-}
 
 /* CustomInput disabled design */
 .css-d5up4r-MuiInputBase-root-MuiOutlinedInput-root.Mui-disabled {
