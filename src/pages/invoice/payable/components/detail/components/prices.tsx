@@ -6,65 +6,76 @@ import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { defaultOption } from '@src/pages/orders/add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemType, JobType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType, JobType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
+import ItemPriceUnitTable from '@src/pages/components/item-detail/price-unit-table'
 
 type Props = {
-  row: JobType
-  priceUnitsList: Array<PriceUnitListType>
+  jobInfo: JobType
+  prices: JobPricesDetailType
 }
-const ViewPrices = ({ row }: Props) => {
+const ViewPrices = ({ jobInfo, prices }: Props) => {
+  const itemDetail: ItemDetailType[] = useMemo(
+    () =>
+      prices?.datas?.map(
+        item =>
+          ({
+            priceUnitId: item.priceUnitId,
+            priceUnit: item.unit,
+            quantity: item.quantity,
+            unitPrice: item.unitPrice,
+            prices: item.prices,
+            unit: item.unit,
+            currency: prices.currency,
+          } || []),
+      ),
+    [prices],
+  )
+
   return (
     <Card sx={{ padding: '24px' }}>
-      {/* <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography
-                variant='subtitle1'
-                fontWeight={600}
-                fontSize={14}
-                width={150}
-              >
-                Language pair
-              </Typography>
-              <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {languageHelper(row.sourceLanguage)}&nbsp;&rarr;&nbsp;
-                {languageHelper(row.targetLanguage)}
-              </Typography>
-            </Box>
-            <Box sx={{ display: 'flex', alignItems: 'center' }}>
-              <Typography
-                variant='subtitle1'
-                fontWeight={600}
-                fontSize={14}
-                width={150}
-              >
-                Price
-              </Typography>
-              <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
-                {fields[0].name}
-              </Typography>
-            </Box>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <Box sx={{ display: 'flex', justifyContent: 'space-between' }}>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant='subtitle1'
+              fontWeight={600}
+              fontSize={14}
+              width={150}
+            >
+              Language pair
+            </Typography>
+            <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+              {languageHelper(jobInfo.sourceLanguage)}&nbsp;&rarr;&nbsp;
+              {languageHelper(jobInfo.targetLanguage)}
+            </Typography>
           </Box>
-          <Divider />
-          <Row
-            getItem={getItem}
-            getPriceOptions={getPriceOptions}
-            itemControl={itemControl}
-            showMinimum={showMinimum}
-            setItem={setItem}
-            setShowMinimum={setShowMinimum}
-            openModal={openModal}
-            closeModal={closeModal}
-            priceUnitsList={priceUnitsList}
-            type='detail'
-          />
-        </Box> */}
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Typography
+              variant='subtitle1'
+              fontWeight={600}
+              fontSize={14}
+              width={150}
+            >
+              Price
+            </Typography>
+            <Typography variant='subtitle2' fontWeight={400} fontSize={14}>
+              {prices?.datas[0]?.priceUnitTitle}
+            </Typography>
+          </Box>
+        </Box>
+        <Divider />
+        <ItemPriceUnitTable
+          itemDetail={itemDetail}
+          totalPrice={prices.totalPrice}
+        />
+      </Box>
     </Card>
   )
 }

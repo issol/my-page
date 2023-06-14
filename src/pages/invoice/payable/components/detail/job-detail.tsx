@@ -34,30 +34,39 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 // ** apis
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetProjectTeam } from '@src/queries/order/order.query'
-import { saveJobInfo } from '@src/apis/job-detail.api'
+import { saveJobInfo, saveJobPrices } from '@src/apis/job-detail.api'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 // ** types & schema
-import { SaveJobInfoParamsType } from '@src/types/orders/job-detail'
+import {
+  SaveJobInfoParamsType,
+  SaveJobPricesParamsType,
+} from '@src/types/orders/job-detail'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { editJobInfoSchema } from '@src/types/schema/job-detail'
 
 import { toast } from 'react-hot-toast'
+import { ItemType } from '@src/types/common/item.type'
+import { jobItemSchema } from '@src/types/schema/item.schema'
+import ViewPrices from './components/prices'
+import EditPrices from '@src/pages/orders/job-list/detail-view/components/prices/edit-prices'
+import { PriceUnitListType } from '@src/types/common/standard-price'
 
 type Props = {
   id: number
+  priceUnitsList: Array<PriceUnitListType>
   onClose: () => void
 }
 type MenuType = 'jobInfo' | 'prices'
 
-export default function JobDetail({ id, onClose }: Props) {
+export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
   const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
@@ -99,6 +108,60 @@ export default function JobDetail({ id, onClose }: Props) {
   }, [projectTeam])
 
   const {
+    control: itemControl,
+    getValues: getItem,
+    setValue: setItem,
+    trigger: itemTrigger,
+    reset: itemReset,
+    formState: { errors: itemErrors, isValid: isItemValid },
+  } = useForm<{ items: ItemType[] }>({
+    mode: 'onBlur',
+    defaultValues: { items: [] },
+    resolver: yupResolver(jobItemSchema),
+  })
+
+  const {
+    fields: items,
+    append: appendItems,
+    remove: removeItems,
+    update: updateItems,
+  } = useFieldArray({
+    control: itemControl,
+    name: 'items',
+  })
+
+  useEffect(() => {
+    if (jobPrices) {
+      console.log(jobPrices)
+
+      const result = [
+        {
+          id: jobPrices.id!,
+          name: jobPrices.priceName!,
+          source: jobPrices.source!,
+          target: jobPrices.target!,
+          priceId: jobPrices.priceId!,
+          detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
+
+          totalPrice: Number(jobPrices?.totalPrice!),
+        },
+      ]
+      console.log(result)
+
+      itemReset({ items: result })
+    } else {
+      appendItems({
+        name: '',
+        source: 'en',
+        target: 'ko',
+        priceId: null,
+        detail: [],
+        totalPrice: 0,
+      })
+    }
+  }, [jobPrices])
+
+  const {
     control,
     handleSubmit,
     reset,
@@ -120,6 +183,30 @@ export default function JobDetail({ id, onClose }: Props) {
       })
     }
   }, [jobInfo])
+
+  const onPricesSave = () => {
+    const data = getItem(`items.${0}`)
+
+    const res: SaveJobPricesParamsType = {
+      jobId: id,
+      priceId: data.priceId!,
+      totalPrice: data.totalPrice,
+      currency: data.detail![0].currency,
+      detail: data.detail!,
+    }
+
+    openModal({
+      type: 'saveJobInfo',
+      children: (
+        <ConfirmSaveAllChanges
+          onClose={() => closeModal('saveJobInfo')}
+          onSave={() => {
+            saveJobPricesMutation.mutate({ jobId: id, prices: res })
+          }}
+        />
+      ),
+    })
+  }
 
   const onJobInfoSave = () => {
     const data = getValues()
@@ -146,6 +233,24 @@ export default function JobDetail({ id, onClose }: Props) {
       onSuccess: () => {
         setEdit(null)
         queryClient.invalidateQueries('jobInfo')
+      },
+      onError: () => {
+        toast.error(
+          'Something went wrong while uploading files. Please try again.',
+          {
+            position: 'bottom-left',
+          },
+        )
+      },
+    },
+  )
+
+  const saveJobPricesMutation = useMutation(
+    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+      saveJobPrices(data.jobId, data.prices),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('jobPrices')
       },
       onError: () => {
         toast.error(
@@ -275,12 +380,20 @@ export default function JobDetail({ id, onClose }: Props) {
                 {edit === 'prices' ? (
                   <Fragment>
                     <Grid item xs={12}>
-                      {jobInfo && (
-                        <EditJobInfo
-                          control={control}
-                          errors={errors}
+                      {jobPrices && jobInfo && (
+                        <EditPrices
+                          priceUnitsList={priceUnitsList ?? []}
+                          itemControl={itemControl}
+                          itemErrors={itemErrors}
+                          getItem={getItem}
+                          setItem={setItem}
+                          itemTrigger={itemTrigger}
+                          itemReset={itemReset}
+                          isItemValid={isItemValid}
+                          appendItems={appendItems}
+                          fields={items}
                           row={jobInfo}
-                          contactPersonList={contactPersonList}
+                          jobPrices={jobPrices!}
                         />
                       )}
                     </Grid>
@@ -290,6 +403,7 @@ export default function JobDetail({ id, onClose }: Props) {
                       display='flex'
                       justifyContent='center'
                       gap='16px'
+                      marginTop='24px'
                     >
                       <Button
                         variant='outlined'
@@ -300,8 +414,8 @@ export default function JobDetail({ id, onClose }: Props) {
                       </Button>
                       <Button
                         variant='contained'
-                        disabled={!isValid}
-                        onClick={onJobInfoSave}
+                        disabled={!isItemValid}
+                        onClick={onPricesSave}
                       >
                         Save
                       </Button>
@@ -311,43 +425,13 @@ export default function JobDetail({ id, onClose }: Props) {
                   <Fragment>
                     {renderEditButton()}
                     <Grid item xs={12}>
-                      {jobInfo && <ViewJobInfo row={jobInfo} />}
+                      {jobPrices && jobInfo && (
+                        <ViewPrices prices={jobPrices} jobInfo={jobInfo} />
+                      )}
                     </Grid>
                   </Fragment>
                 )}
               </Fragment>
-              {/* {jobPrices?.priceId === null || editPrices ? (
-                    <EditPrices
-                      priceUnitsList={priceUnitsList ?? []}
-                      itemControl={itemControl}
-                      itemErrors={itemErrors}
-                      getItem={getItem}
-                      setItem={setItem}
-                      itemTrigger={itemTrigger}
-                      itemReset={itemReset}
-                      isItemValid={isItemValid}
-                      appendItems={appendItems}
-                      fields={items}
-                      row={jobInfo}
-                      jobPrices={jobPrices!}
-                    />
-                  ) : (
-                    <ViewPrices
-                      row={jobInfo}
-                      priceUnitsList={priceUnitsList ?? []}
-                      itemControl={itemControl}
-                      itemErrors={itemErrors}
-                      getItem={getItem}
-                      setItem={setItem}
-                      itemTrigger={itemTrigger}
-                      itemReset={itemReset}
-                      isItemValid={isItemValid}
-                      appendItems={appendItems}
-                      fields={items}
-                      setEditPrices={setEditPrices}
-                      type='view'
-                    />
-                  )} */}
             </TabPanel>
           </Grid>
         </TabContext>

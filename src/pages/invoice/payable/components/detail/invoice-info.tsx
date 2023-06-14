@@ -23,20 +23,22 @@ import { deleteJob } from '@src/apis/job-detail.api'
 import { useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import JobDetail from './job-detail'
 
 /* TODO:
  Jobs타이틀에 list총 갯수 표기하기
  Remove버튼, list의 checkbox는 퍼미션이 가능한 사람에게만 노출되도록 수정
  list에 fetched된 데이터 전달하기, 실데이터 표기하기
- onRowClick완성
+ delete invoice추가
 */
 export default function InvoiceInfo() {
   const { openModal, closeModal } = useModal()
 
   const [editInfo, setEditInfo] = useState(false)
   const [selectedJobs, setSelectedJobs] = useState<Array<number>>([])
+
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   function deleteJobs() {
     const promises = selectedJobs.map(jobId => deleteJob(jobId))
@@ -73,7 +75,11 @@ export default function InvoiceInfo() {
       children: (
         <Dialog open={true} onClose={onClose} maxWidth='lg'>
           <DialogContent>
-            <JobDetail id={id} onClose={onClose} />
+            <JobDetail
+              id={id}
+              onClose={onClose}
+              priceUnitsList={priceUnitsList || []}
+            />
           </DialogContent>
         </Dialog>
       ),

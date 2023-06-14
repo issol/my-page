@@ -3,7 +3,7 @@
 import TabContext from '@mui/lab/TabContext'
 import TabList from '@mui/lab/TabList'
 import TabPanel from '@mui/lab/TabPanel'
-import { Box, IconButton, Tab, Typography, styled } from '@mui/material'
+import { Box, Button, IconButton, Tab, Typography, styled } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import {
@@ -13,6 +13,7 @@ import {
   Suspense,
   useEffect,
   useContext,
+  Fragment,
 } from 'react'
 
 import Prices from './components/prices/edit-prices'
@@ -24,7 +25,10 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema, jobItemSchema } from '@src/types/schema/item.schema'
 import { is } from 'date-fns/locale'
 import AssignPro from './components/assign-pro/assign-pro'
-import { AssignProFilterPostType } from '@src/types/orders/job-detail'
+import {
+  AssignProFilterPostType,
+  SaveJobPricesParamsType,
+} from '@src/types/orders/job-detail'
 import {
   useGetAssignProList,
   useGetJobInfo,
@@ -64,11 +68,15 @@ import {
   QueryObserverResult,
   RefetchOptions,
   RefetchQueryFilters,
+  useMutation,
+  useQueryClient,
 } from 'react-query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { saveJobPrices } from '@src/apis/job-detail.api'
 
 const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const [success, setSuccess] = useState(false)
   const { user } = useContext(AuthContext)
@@ -173,6 +181,33 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
       clearTimeout(timer)
     }
   }, [success])
+
+  const onSubmit = () => {
+    const data = getItem(`items.${0}`)
+
+    // toast('Job info added successfully')
+    console.log('items', data)
+
+    const saveJobPricesMutation = useMutation(
+      (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
+        saveJobPrices(data.jobId, data.prices),
+      {
+        onSuccess: () => {
+          setSuccess(true)
+          queryClient.invalidateQueries('jobPrices')
+        },
+      },
+    )
+
+    const res: SaveJobPricesParamsType = {
+      jobId: row.id,
+      priceId: data.priceId!,
+      totalPrice: data.totalPrice,
+      currency: data.detail![0].currency,
+      detail: data.detail!,
+    }
+    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
+  }
 
   return (
     <>
@@ -291,20 +326,38 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               <TabPanel value='prices' sx={{ pt: '30px' }}>
                 <Suspense>
                   {jobPrices?.priceId === null || editPrices ? (
-                    <EditPrices
-                      priceUnitsList={priceUnitsList ?? []}
-                      itemControl={itemControl}
-                      itemErrors={itemErrors}
-                      getItem={getItem}
-                      setItem={setItem}
-                      itemTrigger={itemTrigger}
-                      itemReset={itemReset}
-                      isItemValid={isItemValid}
-                      appendItems={appendItems}
-                      fields={items}
-                      row={jobInfo}
-                      jobPrices={jobPrices!}
-                    />
+                    <Fragment>
+                      <EditPrices
+                        priceUnitsList={priceUnitsList ?? []}
+                        itemControl={itemControl}
+                        itemErrors={itemErrors}
+                        getItem={getItem}
+                        setItem={setItem}
+                        itemTrigger={itemTrigger}
+                        itemReset={itemReset}
+                        isItemValid={isItemValid}
+                        appendItems={appendItems}
+                        fields={items}
+                        row={jobInfo}
+                        jobPrices={jobPrices!}
+                      />
+                      <Box
+                        mt='20px'
+                        sx={{
+                          display: 'flex',
+                          justifyContent: 'flex-end',
+                          width: '100%',
+                        }}
+                      >
+                        <Button
+                          variant='contained'
+                          onClick={onSubmit}
+                          disabled={!isItemValid}
+                        >
+                          Save draft
+                        </Button>
+                      </Box>
+                    </Fragment>
                   ) : (
                     <ViewPrices
                       row={jobInfo}

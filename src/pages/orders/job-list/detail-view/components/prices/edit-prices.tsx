@@ -91,22 +91,8 @@ const EditPrices = ({
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: 7,
   })
-  const queryClient = useQueryClient()
-
-  console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
-
-  const saveJobPricesMutation = useMutation(
-    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
-      saveJobPrices(data.jobId, data.prices),
-    {
-      onSuccess: () => {
-        setSuccess(true)
-        queryClient.invalidateQueries('jobPrices')
-      },
-    },
-  )
 
   const { openModal, closeModal } = useModal()
 
@@ -142,22 +128,6 @@ const EditPrices = ({
     row.sourceLanguage && row.targetLanguage
       ? getPriceOptions(row.sourceLanguage, row.targetLanguage)
       : [defaultOption]
-
-  const onSubmit = () => {
-    const data = getItem(`items.${0}`)
-
-    // toast('Job info added successfully')
-    console.log('items', data)
-
-    const res: SaveJobPricesParamsType = {
-      jobId: row.id,
-      priceId: data.priceId!,
-      totalPrice: data.totalPrice,
-      currency: data.detail![0].currency,
-      detail: data.detail!,
-    }
-    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
-  }
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -235,7 +205,7 @@ const EditPrices = ({
           <Box sx={{ flex: 1 }}>
             <Autocomplete
               fullWidth
-              value={price}
+              value={price ?? null}
               options={options}
               groupBy={option => option?.groupName}
               onChange={(e, v) => {
@@ -279,7 +249,7 @@ const EditPrices = ({
           </Box>
         </Box>
       </Box>
-      <Box
+      {/* <Box
         mt='20px'
         sx={{
           display: 'flex',
@@ -290,7 +260,7 @@ const EditPrices = ({
         <Button variant='contained' onClick={onSubmit} disabled={!isItemValid}>
           Save draft
         </Button>
-      </Box>
+      </Box> */}
     </>
   )
 }
