@@ -1,5 +1,5 @@
-import { Card, IconButton, TablePagination } from '@mui/material'
-import { Fragment } from 'react'
+import { Card, Checkbox, IconButton, TablePagination } from '@mui/material'
+import { Fragment, useState } from 'react'
 import Box from '@mui/material/Box'
 import Button from '@mui/material/Button'
 import TableContainer from '@mui/material/TableContainer'
@@ -12,23 +12,77 @@ import TableHead from '@mui/material/TableHead'
 import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import { Icon } from '@iconify/react'
-import styled from 'styled-components'
+import styled, { css } from 'styled-components'
 
-export default function InvoiceJobList() {
+/* TODO:
+실데이터 표기로 교체
+disabled디자인 추가하기 (text decoration)
+
+*/
+
+type Props = {
+  onRowClick: (id: number) => void
+  selectedJobs: number[]
+  setSelectedJobs: (id: number[]) => void
+}
+export default function InvoiceJobList({
+  onRowClick,
+  selectedJobs,
+  setSelectedJobs,
+}: Props) {
   function Row() {
+    const [open, setOpen] = useState(false)
     return (
-      <TableRow>
-        <TableCell>
-          <IconButton>
-            <Icon icon='mdi:chevron-down' fontSize={18} />
-          </IconButton>
-        </TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-        <TableCell></TableCell>
-      </TableRow>
+      <Fragment>
+        <CustomTableRow isDisabled={false}>
+          <TableCell>
+            <Checkbox />
+          </TableCell>
+          <TableCell>
+            <IconButton onClick={() => setOpen(!open)}>
+              <Icon
+                icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'}
+                fontSize={18}
+              />
+            </IconButton>
+          </TableCell>
+
+          <TableCell sx={{ textDecoration: 'line-through' }}>
+            <Button
+              variant='text'
+              color='secondary'
+              onClick={() => onRowClick(9)}
+            >
+              dd
+            </Button>
+          </TableCell>
+          <TableCell></TableCell>
+          <TableCell></TableCell>
+          <TableCell></TableCell>
+        </CustomTableRow>
+        {open ? (
+          <TableRow>
+            <TableCell></TableCell>
+            <TableCell></TableCell>
+            <TableCell colSpan={5}>
+              <Box>
+                <Typography fontSize={14} fontWeight={600}>
+                  Price details
+                </Typography>
+                <ul>
+                  <li>
+                    <Box display='flex' gap='24px'>
+                      <Typography fontWeight={600}>Munute subtitle</Typography>
+                      <Typography variant='body2'>(2,000 X 15)</Typography>
+                      <Typography variant='body2'>30,000</Typography>
+                    </Box>
+                  </li>
+                </ul>
+              </Box>
+            </TableCell>
+          </TableRow>
+        ) : null}
+      </Fragment>
     )
   }
   return (
@@ -37,6 +91,9 @@ export default function InvoiceJobList() {
         <Table aria-label='collapsible table'>
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
             <TableRow>
+              <HeaderCell width='18px'>
+                <Checkbox />
+              </HeaderCell>
               <HeaderCell width='18px'>
                 <Icon icon='mdi:chevron-down' fontSize={18} />
               </HeaderCell>
@@ -58,18 +115,9 @@ export default function InvoiceJobList() {
             </TableRow>
           </TableHead>
           <TableBody>
-            {/* {list?.map(row => (
-              <Row
-                key={uuidv4()}
-                row={row}
-                onClickEditPrice={onClickEditPrice}
-                onClickDeletePrice={onClickDeletePrice}
-                setSelectedRow={setSelectedRow}
-                selected={selected}
-                handleRowClick={handleRowClick}
-                isSelected={isSelected}
-              />
-            ))} */}
+            {[1]?.map((row, idx) => (
+              <Row key={idx} />
+            ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -98,4 +146,24 @@ const HeaderCell = styled(TableCell)`
     height: 30%;
     background: rgba(76, 78, 100, 0.12);
   }
+`
+
+const CustomTableRow = styled(TableRow)<{ isDisabled?: boolean }>`
+  border-bottom: 1px solid rgba(76, 78, 100, 0.12);
+  ${({ isDisabled }) =>
+    isDisabled
+      ? css`
+      pointer-events:none;
+          position: relative;
+            &::after {
+              position: absolute;
+              width: 100%;
+              height:100%;
+              top: 0;
+              left: 0;
+              content: "";
+              mix-blend-mode:multiply;
+              background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;
+  `
+      : ``}
 `
