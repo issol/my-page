@@ -316,35 +316,35 @@ export const AssignmentStatus = [
 
 export const InvoiceCalenderStatus = [
   {
-    status: "In preparation",
-    extendedProps: {calendar: "#F572D8" }
+    value: "In preparation",
+    label: "#F572D8"
   },
   {
-    status: "Checking in progress",
-    extendedProps: {calendar: "#FDB528" }
+    value: "Checking in progress",
+    label: "#FDB528"
   },
   {
-    status: "Accepted by client",
-    extendedProps: {calendar: "#64C623" }
+    value: "Accepted by client",
+    label: "#64C623"
   },
   {
-    status: "Tax invoice issued",
-    extendedProps: {calendar: "#46A4C2" }
+    value: "Tax invoice issued",
+    label: "#46A4C2"
   },
   {
-    status: "Paid",
-    extendedProps: {calendar: "#267838" }
+    value: "Paid",
+    label: "#267838"
   },
   {
-    status: "Overdue",
-    extendedProps: {calendar: "#FF4D49" }
+    value: "Overdue",
+    label: "#FF4D49"
   },
   {
-    status: "Overdue (Reminder sent)",
-    extendedProps: {calendar: "#FF4D49" }
+    value: "Overdue (Reminder sent)",
+    label: "#FF4D49"
   },
   {
-    status: "Canceled",
-    extendedProps: {calendar: "#FF4D49" }
+    value: "Canceled",
+    label: "#FF4D49"
   },
 ]

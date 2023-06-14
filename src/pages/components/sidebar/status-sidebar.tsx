@@ -1,5 +1,3 @@
-import { useEffect, useState } from 'react'
-
 // ** MUI Imports
 import Drawer from '@mui/material/Drawer'
 import Box from '@mui/material/Box'
@@ -7,29 +5,18 @@ import Box from '@mui/material/Box'
 // ** styles
 import styled from 'styled-components'
 
-// ** types
-import { Button } from '@mui/material'
-
-import { CalendarEventType } from '@src/types/common/calendar.type'
-
-type Props<T> = {
+type Props = {
   alertIconStatus?: string
-  event: Array<CalendarEventType<T>>
+  status: Array<{value:string, label:string}>
   mdAbove: boolean
   leftSidebarWidth: number
 }
-export default function CalendarStatusSideBar<T>({
+export default function CalendarStatusSideBar({
   alertIconStatus,
-  event,
+  status,
   mdAbove,
   leftSidebarWidth
-}: Props<T>) {
-
-  const [currEvent, setCurrEvent] = useState<typeof event>([])
-
-  useEffect(() => {
-    setCurrEvent(event.slice(0, 10))
-  }, [event])
+}: Props) {
 
   return (
     <Drawer
@@ -56,22 +43,22 @@ export default function CalendarStatusSideBar<T>({
       }}
     >
 
-      {event.length
-        ? event?.map((item: any) => {
+      {status.length
+        ? status?.map((item: any) => {
             return (
               <BoxFeature
-                key={item.id}
-                bg={item.extendedProps.calendar}
-                $bgSize={item.status === alertIconStatus ? '5px 5px' : ''}
+                key={item.value}
+                bg={item.label}
+                $bgSize={item.value === alertIconStatus ? '5px 5px' : ''}
                 color={
-                  item.status === alertIconStatus
-                    ? item.extendedProps.calendar
+                  item.value === alertIconStatus
+                    ? item.label
                     : ''
                 }
               >
-                {item.status === alertIconStatus
-                  ? `🔴 ${item.status}`
-                  : item.status}
+                {item.value === alertIconStatus
+                  ? `🔴 ${item.value}`
+                  : item.value}
               </BoxFeature>
             )
           })
@@ -95,9 +82,4 @@ const BoxFeature = styled(Box)<{
     ''};
 
   ${({ $bgSize }) => ($bgSize ? `background-size : ${$bgSize}` : '')}
-`
-const MoreBtn = styled(Button)`
-  text-transform: none;
-  padding: 0;
-  color: rgba(76, 78, 100, 0.87);
 `

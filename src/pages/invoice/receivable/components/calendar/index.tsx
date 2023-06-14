@@ -110,7 +110,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          event={InvoiceCalenderStatus}
+          status={InvoiceCalenderStatus}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />
