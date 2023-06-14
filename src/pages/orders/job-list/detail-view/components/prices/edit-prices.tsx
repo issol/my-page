@@ -7,7 +7,7 @@ import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
 import {

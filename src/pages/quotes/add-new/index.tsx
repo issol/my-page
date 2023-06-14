@@ -65,7 +65,7 @@ import { AuthContext } from '@src/context/AuthContext'
 
 // ** apis
 import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForQuotes,
   createLangPairForQuotes,
@@ -218,7 +218,7 @@ export default function AddNewQuotes() {
   const { data: prices, isSuccess } = useGetPriceList({
     clientId: getClientValue('clientId'),
   })
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,

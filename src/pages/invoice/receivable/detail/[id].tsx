@@ -36,7 +36,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { defaultOption, languageType } from '../add-new'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
   ProjectTeamType,
@@ -103,7 +103,7 @@ const ReceivableInvoiceDetail = () => {
   const [value, setValue] = useState<MenuType>('invoiceInfo')
   const { openModal, closeModal } = useModal()
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const {
     data: invoiceInfo,

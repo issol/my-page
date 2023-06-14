@@ -62,7 +62,7 @@ import { useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
   ProjectTeamType,
@@ -130,7 +130,7 @@ const OrderDetail = () => {
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const {
     control: itemControl,

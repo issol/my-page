@@ -14,7 +14,7 @@ import { InvoiceVersionHistoryType } from '@src/types/invoice/receivable.type'
 import InvoiceInfo from '../invoice-info'
 import InvoiceLanguageAndItem from '../language-item'
 import { defaultOption, languageType } from '../../../add-new'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { itemSchema } from '@src/types/schema/item.schema'
@@ -51,7 +51,7 @@ const InvoiceVersionHistoryModal = ({
     setValue(newValue)
   }
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   console.log(history)
 

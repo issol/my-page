@@ -83,7 +83,7 @@ import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
@@ -378,7 +378,7 @@ export default function QuotesDetail() {
     }
   }, [isTeamLoading])
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [tax, setTax] = useState<number | null>(project!.tax)
   const [taxable, setTaxable] = useState(project?.taxable || false)

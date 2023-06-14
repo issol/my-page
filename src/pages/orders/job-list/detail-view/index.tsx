@@ -16,7 +16,7 @@ import {
 } from 'react'
 
 import Prices from './components/prices/edit-prices'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, JobItemType, JobType } from '@src/types/common/item.type'
@@ -81,7 +81,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   const { data: jobInfo, isLoading } = useGetJobInfo(row.id, false)
   const { data: jobPrices } = useGetJobPrices(row.id, false)
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const { data: projectTeam } = useGetProjectTeam(orderDetail.id)
   const { data: langItem } = useGetLangItem(orderDetail.id)
 
