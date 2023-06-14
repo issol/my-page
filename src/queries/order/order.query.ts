@@ -58,7 +58,7 @@ export const useGetProjectTeam = (id: number) => {
     staleTime: 60 * 1000, // 1
 
     suspense: false,
-
+    enabled: !!id,
     // select: data => {
     //   return data.map(value => ({ ...value, id: uuidv4() }))
     // },
