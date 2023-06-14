@@ -114,16 +114,7 @@ export const getJobPrices = async (
       })),
     }
   } catch (e: any) {
-    return {
-      id: 0,
-      source: '',
-      target: '',
-      priceId: 0,
-      totalPrice: 0,
-      currency: 'USD',
-      priceName: '',
-      datas: [],
-    }
+    throw new Error(e)
   }
 }
 

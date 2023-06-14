@@ -12,7 +12,7 @@ import {
   CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -31,9 +31,9 @@ import { useGetCatInterfaceHeaders } from '@src/queries/company/standard-price'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
-  priceData: StandardPriceListType
+  priceData: StandardClientPriceListType
   existPriceUnit: boolean
-  setSelectedPrice: Dispatch<SetStateAction<StandardPriceListType | null>>
+  setSelectedPrice: Dispatch<SetStateAction<StandardClientPriceListType | null>>
 }
 const CatInterface = ({
   priceUnitList,

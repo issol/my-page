@@ -30,7 +30,7 @@ import CancelIcon from '@mui/icons-material/Close'
 import {
   LanguagePairListType,
   LanguagePairParams,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 
 import {
@@ -69,7 +69,7 @@ type Props = {
   onClickAddNewLanguagePair: () => void
   existPriceUnit: boolean
   selectedLanguagePair: LanguagePairListType | null
-  priceData: StandardPriceListType
+  priceData: StandardClientPriceListType
 }
 
 interface SelectedCellParams {

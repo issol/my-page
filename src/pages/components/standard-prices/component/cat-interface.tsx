@@ -14,7 +14,7 @@ import {
   CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -41,7 +41,7 @@ import toast from 'react-hot-toast'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
-  priceData: StandardPriceListType
+  priceData: StandardClientPriceListType
   existPriceUnit: boolean
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   isEditingCatInterface: boolean

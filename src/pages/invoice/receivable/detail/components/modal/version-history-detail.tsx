@@ -25,12 +25,12 @@ import {
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import InvoiceClient from '../client'
 
 type Props = {
   history: InvoiceVersionHistoryType
-  prices: StandardPriceListType[]
+  prices: StandardClientPriceListType[]
   pricesSuccess: boolean
   user: UserDataType
   onClose: any

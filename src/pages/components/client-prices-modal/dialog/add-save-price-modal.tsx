@@ -27,7 +27,7 @@ import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
 import {
   CurrencyType,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
@@ -57,8 +57,8 @@ type Props = {
   open: boolean
   onClose: any
   type: 'Edit' | 'Add'
-  selectedPriceData?: StandardPriceListType
-  setPriceList: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
+  selectedPriceData?: StandardClientPriceListType
+  setPriceList: Dispatch<SetStateAction<[] | StandardClientPriceListType[]>>
   onSubmit: (data: AddPriceType, modalType: string) => void
   onClickAction: (type: string) => void
 }
@@ -99,7 +99,9 @@ const AddSavePriceModal = ({
     resolver: yupResolver(standardPricesSchema),
   })
   const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
-  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
+  const [selected, setSelected] = useState<StandardClientPriceListType | null>(
+    null,
+  )
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const resetData = () => {
@@ -201,7 +203,7 @@ const AddSavePriceModal = ({
       ),
     })
   }
-  function onAddCopiedPrice(data: StandardPriceListType) {
+  function onAddCopiedPrice(data: StandardClientPriceListType) {
     setSelected(data)
   }
 
@@ -246,7 +248,7 @@ const AddSavePriceModal = ({
             console.log('handleSubmit', data)
             console.log(type)
             if (selected) {
-              const finalData: StandardPriceListType = {
+              const finalData: StandardClientPriceListType = {
                 ...selected,
                 id: type === 'Edit' ? selected.id : Math.random(),
                 isStandard: false,

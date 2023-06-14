@@ -1,5 +1,8 @@
 import axios from '@src/configs/axios'
-import { PriceListFilterType } from '@src/queries/company/standard-price'
+import {
+  ClientPriceListFilterType,
+  ProPriceListFilterType,
+} from '@src/queries/company/standard-price'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   LanguagePairParams,
@@ -8,15 +11,29 @@ import {
   SetPriceUnitPair,
   CatInterfaceType,
   CatInterfaceParams,
-  StandardPriceListType,
+  StandardClientPriceListType,
+  StandardProPriceListType,
 } from '@src/types/common/standard-price'
 
-export const getPriceList = async (
-  filter: PriceListFilterType,
-): Promise<StandardPriceListType[]> => {
+export const getClientPriceList = async (
+  filter: ClientPriceListFilterType,
+): Promise<StandardClientPriceListType[]> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
+    )
+    return data
+  } catch (e: any) {
+    return []
+  }
+}
+
+export const getProPriceList = async (
+  filter: ProPriceListFilterType,
+): Promise<StandardProPriceListType[]> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro-price/preset?${makeQuery(filter)}`,
     )
     return data
   } catch (e: any) {

@@ -39,7 +39,7 @@ import {
 import { ItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 // ** components
@@ -64,7 +64,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForQuotes,
@@ -76,10 +76,12 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardPriceListType | null
+  price: StandardClientPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardClientPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -215,7 +217,7 @@ export default function AddNewQuotes() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
   const { data: priceUnitsList } = useGetAllClientPriceList()

@@ -4,7 +4,7 @@ import {
   AddNewPriceType,
   LanguagePairListType,
   PriceUnitListType,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -52,7 +52,7 @@ import {
 import toast from 'react-hot-toast'
 
 type Props = {
-  standardPrices: { data: StandardPriceListType[]; count: number }
+  standardPrices: { data: StandardClientPriceListType[]; count: number }
   clientId?: number
   isLoading: boolean
   title: string
@@ -61,7 +61,7 @@ type Props = {
   ) => Promise<
     QueryObserverResult<
       {
-        data: StandardPriceListType[]
+        data: StandardClientPriceListType[]
         count: number
       },
       unknown
@@ -92,7 +92,7 @@ const StandardPrices = ({
     useState<number>(5)
 
   const [selectedPriceData, setSelectedPriceData] =
-    useState<StandardPriceListType | null>(null)
+    useState<StandardClientPriceListType | null>(null)
 
   const [selectedLanguagePair, setSelectedLanguagePair] =
     useState<LanguagePairListType | null>(null)
@@ -105,7 +105,7 @@ const StandardPrices = ({
 
   const [isEditingCatInterface, setIsEditingCatInterface] = useState(false)
 
-  const handleRowClick = (row: StandardPriceListType) => {
+  const handleRowClick = (row: StandardClientPriceListType) => {
     if (row.id === selected) {
       setSelected(null)
       setSelectedPriceData(null)
@@ -175,7 +175,7 @@ const StandardPrices = ({
   const onClickAction = (
     type: string,
     data?: AddPriceType,
-    selectedData?: StandardPriceListType,
+    selectedData?: StandardClientPriceListType,
   ) => {
     if (type === 'Add' || type === 'Cancel') {
       if (type === 'Add') {
@@ -219,7 +219,7 @@ const StandardPrices = ({
     }
   }
   const onSubmit = (
-    selectedData: StandardPriceListType,
+    selectedData: StandardClientPriceListType,
     data: AddPriceType,
     modalType: string,
   ) => {
@@ -271,7 +271,7 @@ const StandardPrices = ({
     }
   }
 
-  const onClickEditPrice = (priceData: StandardPriceListType) => {
+  const onClickEditPrice = (priceData: StandardClientPriceListType) => {
     setSelectedPriceData(priceData)
     setSelectedModalType('Edit')
     console.log(priceData)
@@ -291,7 +291,7 @@ const StandardPrices = ({
     })
   }
 
-  const onClickDeletePrice = (priceData: StandardPriceListType) => {
+  const onClickDeletePrice = (priceData: StandardClientPriceListType) => {
     setSelectedPriceData(priceData)
     openModal({
       type: 'DeletePriceModal',

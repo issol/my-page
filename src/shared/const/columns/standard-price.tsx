@@ -2,7 +2,7 @@ import Box from '@mui/material/Box'
 
 import { GridCellParams, GridColumns } from '@mui/x-data-grid'
 import { JobTypeChip, ServiceTypeChip } from '@src/@core/components/chips/chips'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import { useState } from 'react'
@@ -28,7 +28,7 @@ function CustomCell(value: any) {
 }
 
 export const getStandardPriceColumns = () => {
-  const materialColumns: GridColumns<StandardPriceListType> = [
+  const materialColumns: GridColumns<StandardClientPriceListType> = [
     {
       flex: 0.04,
       minWidth: 50,
@@ -51,7 +51,7 @@ export const getStandardPriceColumns = () => {
           <KeyboardArrowDownIcon color='action' />
         </Box>
       ),
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return (
           <Box>
             <CustomCell value={row} />
@@ -68,7 +68,7 @@ export const getStandardPriceColumns = () => {
       hideSortIcons: true,
       sortable: false,
       renderHeader: () => <Box>Price name</Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <Box>{row.priceName}</Box>
       },
     },
@@ -82,7 +82,7 @@ export const getStandardPriceColumns = () => {
       sortable: false,
       hideSortIcons: true,
       renderHeader: () => <Box>Category</Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <JobTypeChip type={row.category} label={row.category} />
       },
     },
@@ -95,7 +95,7 @@ export const getStandardPriceColumns = () => {
       sortable: false,
       hideSortIcons: true,
       renderHeader: () => <Box>Service type</Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <ServiceTypeChip label={row.serviceType} />
       },
     },
@@ -108,7 +108,7 @@ export const getStandardPriceColumns = () => {
       hideSortIcons: true,
       sortable: false,
       renderHeader: () => <Box>Currency</Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <Box>{row.currency}</Box>
       },
     },
@@ -121,7 +121,7 @@ export const getStandardPriceColumns = () => {
       hideSortIcons: true,
       sortable: false,
       renderHeader: () => <Box>CAT basis</Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <Box>{row.catBasis}</Box>
       },
     },
@@ -134,7 +134,7 @@ export const getStandardPriceColumns = () => {
       hideSortIcons: true,
       sortable: false,
       renderHeader: () => <Box></Box>,
-      renderCell: ({ row }: { row: StandardPriceListType }) => {
+      renderCell: ({ row }: { row: StandardClientPriceListType }) => {
         return <Box></Box>
       },
     },

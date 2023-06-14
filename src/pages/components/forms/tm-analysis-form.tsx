@@ -18,7 +18,7 @@ import { toast } from 'react-hot-toast'
 import { deleteCatToolFile, postCatToolFile } from '@src/apis/order.api'
 import MemoQModal from '../modals/tm-analysis/memoq-modal'
 import useModal from '@src/hooks/useModal'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { onCopyAnalysisParamType } from './items-form'
 import { MemSourceType, MemoQType } from '@src/types/common/tm-analysis.type'
@@ -27,7 +27,7 @@ import MemsourceModal from '../modals/tm-analysis/memsource-modal'
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
-  priceData: StandardPriceListType | null
+  priceData: StandardClientPriceListType | null
   priceFactor: number | undefined
   onCopyAnalysis: (data: onCopyAnalysisParamType) => void
   details: FieldArrayWithId<

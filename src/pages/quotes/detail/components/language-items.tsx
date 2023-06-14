@@ -26,7 +26,7 @@ import { PriceUnitListType } from '@src/types/common/standard-price'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 
 // ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -114,7 +114,7 @@ export default function QuotesLanguageItemsDetail({
   isUpdatable,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
 

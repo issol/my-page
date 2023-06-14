@@ -27,7 +27,7 @@ import {
   PriceUnitListType,
   SetPriceUnit,
   SetPriceUnitPair,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
@@ -68,7 +68,7 @@ type Props = {
   onClose: any
   currency: string
   priceUnit: PriceUnitType[]
-  price: StandardPriceListType
+  price: StandardClientPriceListType
   priceUnitPair: PriceUnitListType[]
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   refetch: <TPageData>(
@@ -76,7 +76,7 @@ type Props = {
   ) => Promise<
     QueryObserverResult<
       {
-        data: StandardPriceListType[]
+        data: StandardClientPriceListType[]
         count: number
       },
       unknown
@@ -138,7 +138,7 @@ const SetPriceUnitModal = ({
   })
 
   useEffect(() => {
-    console.log("pairFields",pairFields)
+    console.log('pairFields', pairFields)
   }, pairFields)
 
   const calculateRoundedRatio = (total: number, value: number) => {
@@ -858,10 +858,11 @@ const SetPriceUnitModal = ({
               <Button
                 variant='contained'
                 type='submit'
-                disabled={pairFields.some(item => {
-                  return !item.weighting || !item.quantity || !item.price
-                }) || pairFields.length === 0
-              }
+                disabled={
+                  pairFields.some(item => {
+                    return !item.weighting || !item.quantity || !item.price
+                  }) || pairFields.length === 0
+                }
               >
                 Save
               </Button>

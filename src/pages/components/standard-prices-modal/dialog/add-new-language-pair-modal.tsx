@@ -24,7 +24,7 @@ import { getGloLanguage } from '@src/shared/transformer/language.transformer'
 import {
   AddNewLanguagePair,
   LanguagePairParams,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
@@ -41,7 +41,7 @@ const defaultValues: AddNewLanguagePair = {
 type Props = {
   onClose: any
 
-  priceData: StandardPriceListType
+  priceData: StandardClientPriceListType
 }
 
 const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {

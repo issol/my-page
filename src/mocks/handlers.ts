@@ -5,7 +5,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { TestDetailType } from 'src/types/certification-test/detail'
 
 import { Book, Review } from './types'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 
 const languageList = getGloLanguage()
 

@@ -26,7 +26,8 @@ import Icon from 'src/@core/components/icon'
 // ** types
 import {
   PriceUnitListType,
-  StandardPriceListType,
+  StandardClientPriceListType,
+  StandardProPriceListType,
 } from '@src/types/common/standard-price'
 import { ItemType } from '@src/types/common/item.type'
 
@@ -60,7 +61,7 @@ type Props = {
     `items.${number}.detail`,
     'id'
   >[]
-  priceData: StandardPriceListType | null
+  priceData: StandardClientPriceListType | null | StandardProPriceListType
   getValues: UseFormGetValues<{ items: ItemType[] }>
   append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>

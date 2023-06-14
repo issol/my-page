@@ -18,17 +18,17 @@ import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
 import useModal from '@src/hooks/useModal'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 type Props = {
   priceData?: AddPriceType
   priceName?: string
-  selectedPriceData?: StandardPriceListType
+  selectedPriceData?: StandardClientPriceListType
   type: string
   onClose: any
   onClickAction: (
     type: string,
     data?: AddPriceType,
-    selectedData?: StandardPriceListType,
+    selectedData?: StandardClientPriceListType,
   ) => void
 }
 export default function PriceActionModal({

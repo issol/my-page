@@ -13,13 +13,13 @@ import Paper from '@mui/material/Paper'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 import TablePagination from '@mui/material/TablePagination'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Row from '../standard-prices/component/price-list-row'
 
 type Props = {
-  list: StandardPriceListType[] | []
+  list: StandardClientPriceListType[] | []
   listCount: number
   isLoading: boolean
   listPage: number
@@ -27,9 +27,9 @@ type Props = {
   listPageSize: number
   setListPageSize: Dispatch<SetStateAction<number>>
   onAddPrice: () => void
-  onEditPrice: (priceData: StandardPriceListType) => void
-  onDeletePrice: (priceData: StandardPriceListType) => void
-  setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
+  onEditPrice: (priceData: StandardClientPriceListType) => void
+  onDeletePrice: (priceData: StandardClientPriceListType) => void
+  setSelectedRow: Dispatch<SetStateAction<StandardClientPriceListType | null>>
 }
 const ClientPriceList = ({
   list,
@@ -46,7 +46,7 @@ const ClientPriceList = ({
 }: Props) => {
   const [selected, setSelected] = useState<number | null>(null)
 
-  const handleRowClick = (row: StandardPriceListType) => {
+  const handleRowClick = (row: StandardClientPriceListType) => {
     if (row.id === selected) {
       setSelected(null)
       setSelectedRow(null)

@@ -54,7 +54,7 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
-  StandardPriceListType,
+  StandardClientPriceListType,
   CatInterfaceParams,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
@@ -78,7 +78,7 @@ import {
 import { toast } from 'react-hot-toast'
 
 type PriceListCopyRowType = Omit<
-  StandardPriceListType,
+  StandardClientPriceListType,
   'languagePairs' | 'priceUnit' | 'id'
 > & {
   id?: number
@@ -207,9 +207,11 @@ export default function AddNewClient() {
   // ** step 4
   const [selectedModalType, setSelectedModalType] = useState('')
 
-  const [priceList, setPriceList] = useState<StandardPriceListType[] | []>([])
+  const [priceList, setPriceList] = useState<
+    StandardClientPriceListType[] | []
+  >([])
   const [selectedPrice, setSelectedPrice] =
-    useState<StandardPriceListType | null>(null)
+    useState<StandardClientPriceListType | null>(null)
   const [selectedLanguagePair, setSelectedLanguagePair] =
     useState<LanguagePairListType | null>(null)
 
@@ -263,7 +265,7 @@ export default function AddNewClient() {
     }
   }
 
-  const onEditPrice = (priceData: StandardPriceListType) => {
+  const onEditPrice = (priceData: StandardClientPriceListType) => {
     setSelectedModalType('Edit')
     openModal({
       type: 'EditPriceModal',
@@ -281,11 +283,11 @@ export default function AddNewClient() {
     })
   }
 
-  function deletePrice(data: StandardPriceListType) {
+  function deletePrice(data: StandardClientPriceListType) {
     setPriceList(priceList.filter(item => item.id !== data.id))
   }
 
-  const onDeletePrice = (priceData: StandardPriceListType) => {
+  const onDeletePrice = (priceData: StandardClientPriceListType) => {
     openModal({
       type: 'DeletePriceModal',
       children: (
@@ -302,7 +304,7 @@ export default function AddNewClient() {
   const onSubmitPrice = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
       if (type === 'Add' && data) {
-        const formData: StandardPriceListType = {
+        const formData: StandardClientPriceListType = {
           ...data,
           id: Math.random(),
           isStandard: false,
@@ -497,7 +499,10 @@ export default function AddNewClient() {
     })
   }
 
-  function onCreatePriceSuccess(priceId: number, data: StandardPriceListType) {
+  function onCreatePriceSuccess(
+    priceId: number,
+    data: StandardClientPriceListType,
+  ) {
     if (!data.languagePairs.length && !data.priceUnit.length) {
       return
     } else {

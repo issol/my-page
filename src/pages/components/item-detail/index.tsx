@@ -14,7 +14,7 @@ import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** types & validation
 import { languageType } from '@src/pages/orders/add-new'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 
 // ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -36,7 +36,7 @@ import TmAnalysisTable from './tm-analysis-table'
 
 type Props = {
   item: ItemType
-  priceList: StandardPriceListType[]
+  priceList: StandardClientPriceListType[]
   idx?: number
 }
 

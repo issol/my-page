@@ -174,6 +174,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     }
   }, [success])
 
+  console.log(jobPrices)
+
   return (
     <>
       {!isLoading && jobInfo ? (
@@ -290,7 +292,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
               </TabPanel>
               <TabPanel value='prices' sx={{ pt: '30px' }}>
                 <Suspense>
-                  {jobPrices?.priceId === null || editPrices ? (
+                  {!jobPrices || editPrices ? (
                     <EditPrices
                       priceUnitsList={priceUnitsList ?? []}
                       itemControl={itemControl}

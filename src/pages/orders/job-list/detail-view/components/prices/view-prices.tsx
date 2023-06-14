@@ -4,12 +4,12 @@ import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { defaultOption } from '@src/pages/orders/add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState } from 'react'
 import {
@@ -80,7 +80,7 @@ const ViewPrices = ({
   setEditPrices,
   type,
 }: Props) => {
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
   })
   console.log(fields)
@@ -108,7 +108,7 @@ const ViewPrices = ({
   })
 
   const [price, setPrice] = useState<
-    | (StandardPriceListType & {
+    | (StandardClientPriceListType & {
         groupName: string
       })
     | null

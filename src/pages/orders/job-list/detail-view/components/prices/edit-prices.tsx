@@ -5,14 +5,22 @@ import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import ItemForm from '@src/pages/components/forms/items-form'
-import { defaultOption, languageType } from '@src/pages/orders/add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import {
+  defaultOption,
+  languageType,
+  proDefaultOption,
+} from '@src/pages/orders/add-new'
+import {
+  useGetClientPriceList,
+  useGetProPriceList,
+} from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
-  StandardPriceListType,
+  StandardClientPriceListType,
+  StandardProPriceListType,
 } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
@@ -88,9 +96,7 @@ const EditPrices = ({
   row,
   jobPrices,
 }: Props) => {
-  const { data: prices, isSuccess } = useGetPriceList({
-    clientId: 7,
-  })
+  const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
   console.log(getItem('items'), 'item')
@@ -116,14 +122,14 @@ const EditPrices = ({
   })
 
   const [price, setPrice] = useState<
-    | (StandardPriceListType & {
+    | (StandardProPriceListType & {
         groupName: string
       })
     | null
   >(null)
 
   const getPriceOptions = (source: string, target: string) => {
-    if (!isSuccess) return [defaultOption]
+    if (!isSuccess) return [proDefaultOption]
     const filteredList = prices
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
@@ -135,13 +141,13 @@ const EditPrices = ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
-    return [defaultOption].concat(filteredList)
+    return [proDefaultOption].concat(filteredList)
   }
 
   const options =
     row.sourceLanguage && row.targetLanguage
       ? getPriceOptions(row.sourceLanguage, row.targetLanguage)
-      : [defaultOption]
+      : [proDefaultOption]
 
   const onSubmit = () => {
     const data = getItem(`items.${0}`)

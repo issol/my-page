@@ -39,7 +39,7 @@ import { HeaderCell, languageType } from '@src/pages/orders/add-new'
 import { v4 as uuidv4 } from 'uuid'
 
 // ** type
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 
 // ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -50,7 +50,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardClientPriceListType & { groupName: string }>
   type: string
   onDeleteLanguagePair: (row: languageType) => void
 }

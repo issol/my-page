@@ -106,7 +106,7 @@ import {
   patchQuoteProjectInfo,
   restoreVersion,
 } from '@src/apis/quotes.api'
-import { getPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -247,7 +247,7 @@ export default function QuotesDetail() {
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
-        const priceList = await getPriceList({})
+        const priceList = await getClientPriceList({})
         setLanguagePairs(
           itemsWithLang?.languagePairs?.map(item => {
             return {

@@ -1,7 +1,7 @@
 import { CreateClientResType } from '../client/client'
 
 export type CurrencyType = 'USD' | 'KRW' | 'SGD' | 'JPY'
-export type StandardPriceListType = {
+export type StandardClientPriceListType = {
   id: number
   isStandard: boolean
   priceName: string
@@ -20,6 +20,23 @@ export type StandardPriceListType = {
     memSource: Array<CatInterfaceType>
     memoQ: Array<CatInterfaceType>
   }
+}
+
+export type StandardProPriceListType = {
+  id: number
+  priceName: string
+  pro?: any | null
+  isStandard: boolean
+  category: string
+  serviceType: string[]
+  currency: CurrencyType
+  catBasis: string
+
+  decimalPlace: number
+  roundingProcedure: string
+  memoForPrice?: string
+  languagePairs: Array<LanguagePairListType>
+  priceUnit: Array<PriceUnitListType>
 }
 
 export type LanguagePairListType = {

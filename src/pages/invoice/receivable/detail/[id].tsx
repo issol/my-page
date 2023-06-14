@@ -61,7 +61,7 @@ import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { useMutation } from 'react-query'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
@@ -126,7 +126,7 @@ const ReceivableInvoiceDetail = () => {
   } = useGetReceivableTeam(Number(id!))
   const { data: versionHistory, refetch: historyRefetch } =
     useGetReceivableHistory(Number(id!))
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: client?.client.clientId,
   })
   const { data: statusList, isLoading: statusListLoading } =

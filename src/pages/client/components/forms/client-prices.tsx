@@ -18,19 +18,19 @@ import CatInterface from '@src/pages/components/client-prices/cat-interface'
 // ** types
 import {
   LanguagePairListType,
-  StandardPriceListType,
+  StandardClientPriceListType,
 } from '@src/types/common/standard-price'
 
 // ** fetches
 import { GridCellParams, MuiEvent } from '@mui/x-data-grid'
 
 type Props = {
-  priceList: StandardPriceListType[] | []
+  priceList: StandardClientPriceListType[] | []
   onAddPrice: () => void
-  onEditPrice: (priceData: StandardPriceListType) => void
-  onDeletePrice: (priceData: StandardPriceListType) => void
-  selectedPrice: StandardPriceListType | null
-  setSelectedPrice: Dispatch<SetStateAction<StandardPriceListType | null>>
+  onEditPrice: (priceData: StandardClientPriceListType) => void
+  onDeletePrice: (priceData: StandardClientPriceListType) => void
+  selectedPrice: StandardClientPriceListType | null
+  setSelectedPrice: Dispatch<SetStateAction<StandardClientPriceListType | null>>
   onSetPriceUnitClick: () => void
   selectedLanguagePair: LanguagePairListType | null
   onLanguageListClick: (

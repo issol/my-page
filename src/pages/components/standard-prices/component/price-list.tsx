@@ -14,12 +14,12 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 import Row from './price-list-row'
 import TablePagination from '@mui/material/TablePagination'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+import { StandardClientPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
-  list: StandardPriceListType[]
+  list: StandardClientPriceListType[]
   listCount: number
   isLoading: boolean
   listPage: number
@@ -27,10 +27,10 @@ type Props = {
   listPageSize: number
   setListPageSize: Dispatch<SetStateAction<number>>
   onClickAddNewPrice: () => void
-  onClickEditPrice: (priceData: StandardPriceListType) => void
-  onClickDeletePrice: (priceData: StandardPriceListType) => void
-  setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
-  handleRowClick: (row: StandardPriceListType) => void
+  onClickEditPrice: (priceData: StandardClientPriceListType) => void
+  onClickDeletePrice: (priceData: StandardClientPriceListType) => void
+  setSelectedRow: Dispatch<SetStateAction<StandardClientPriceListType | null>>
+  handleRowClick: (row: StandardClientPriceListType) => void
   isSelected: (index: number) => boolean
   selected: number | null
   title: string
