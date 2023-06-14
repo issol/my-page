@@ -1,6 +1,6 @@
 import { useState } from 'react'
 
-import { Card, CardContent, Grid } from '@mui/material'
+import { Card, CardContent, CardHeader, Grid } from '@mui/material'
 import InvoiceDetailCard from './invoice-detail-card'
 import InvoiceAmount from './invoice-amount'
 import InvoiceJobList from './job-list'
@@ -21,7 +21,10 @@ export default function InvoiceInfo() {
         <InvoiceAmount />
       </Grid>
       <Grid item xs={12}>
-        <InvoiceJobList />
+        <Card>
+          <CardHeader title='Jobs' />
+          <InvoiceJobList />
+        </Card>
       </Grid>
     </Grid>
   )
