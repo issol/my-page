@@ -63,8 +63,7 @@ export default function JobDetail({ id, onClose }: Props) {
   const { openModal, closeModal } = useModal()
 
   const [value, setValue] = useState<MenuType>('jobInfo')
-  const [editJobInfo, setEditJobInfo] = useState(false)
-  const [editPrices, setEditPrices] = useState(false)
+  const [edit, setEdit] = useState<MenuType | null>(null)
 
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
@@ -145,6 +144,7 @@ export default function JobDetail({ id, onClose }: Props) {
       saveJobInfo(data.jobId, data.data),
     {
       onSuccess: () => {
+        setEdit(null)
         queryClient.invalidateQueries('jobInfo')
       },
       onError: () => {
@@ -157,6 +157,25 @@ export default function JobDetail({ id, onClose }: Props) {
       },
     },
   )
+
+  function renderEditButton() {
+    return (
+      <Grid item xs={12} display='flex' justifyContent='flex-end'>
+        <Box display='flex' alignItems='center' gap='8px' marginBottom='20px'>
+          <Typography variant='body2'>
+            *Changes will also be applied to the invoice
+          </Typography>
+          <Button
+            variant='outlined'
+            startIcon={<Icon icon='mdi:pencil-outline' />}
+            onClick={() => setEdit(value)}
+          >
+            Edit
+          </Button>
+        </Box>
+      </Grid>
+    )
+  }
 
   return (
     <Suspense fallback={<FallbackSpinner />}>
@@ -207,7 +226,7 @@ export default function JobDetail({ id, onClose }: Props) {
 
           <Grid item xs={12}>
             <TabPanel value='jobInfo'>
-              {editJobInfo ? (
+              {edit === 'jobInfo' ? (
                 <Fragment>
                   <Grid item xs={12}>
                     {jobInfo && (
@@ -229,7 +248,7 @@ export default function JobDetail({ id, onClose }: Props) {
                     <Button
                       variant='outlined'
                       color='secondary'
-                      onClick={() => setEditJobInfo(false)}
+                      onClick={() => setEdit(null)}
                     >
                       Cancel
                     </Button>
@@ -244,32 +263,59 @@ export default function JobDetail({ id, onClose }: Props) {
                 </Fragment>
               ) : (
                 <Fragment>
-                  <Grid item xs={12} display='flex' justifyContent='flex-end'>
-                    <Box
-                      display='flex'
-                      alignItems='center'
-                      gap='8px'
-                      marginBottom='20px'
-                    >
-                      <Typography variant='body2'>
-                        *Changes will also be applied to the invoice
-                      </Typography>
-                      <Button
-                        variant='outlined'
-                        startIcon={<Icon icon='mdi:pencil-outline' />}
-                        onClick={() => setEditJobInfo(true)}
-                      >
-                        Edit
-                      </Button>
-                    </Box>
-                  </Grid>
+                  {renderEditButton()}
                   <Grid item xs={12}>
                     {jobInfo && <ViewJobInfo row={jobInfo} />}
                   </Grid>
                 </Fragment>
               )}
             </TabPanel>
-            <TabPanel value='prices' sx={{ pt: '30px' }}>
+            <TabPanel value='prices'>
+              <Fragment>
+                {edit === 'prices' ? (
+                  <Fragment>
+                    <Grid item xs={12}>
+                      {jobInfo && (
+                        <EditJobInfo
+                          control={control}
+                          errors={errors}
+                          row={jobInfo}
+                          contactPersonList={contactPersonList}
+                        />
+                      )}
+                    </Grid>
+                    <Grid
+                      item
+                      xs={12}
+                      display='flex'
+                      justifyContent='center'
+                      gap='16px'
+                    >
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        onClick={() => setEdit(null)}
+                      >
+                        Cancel
+                      </Button>
+                      <Button
+                        variant='contained'
+                        disabled={!isValid}
+                        onClick={onJobInfoSave}
+                      >
+                        Save
+                      </Button>
+                    </Grid>
+                  </Fragment>
+                ) : (
+                  <Fragment>
+                    {renderEditButton()}
+                    <Grid item xs={12}>
+                      {jobInfo && <ViewJobInfo row={jobInfo} />}
+                    </Grid>
+                  </Fragment>
+                )}
+              </Fragment>
               {/* {jobPrices?.priceId === null || editPrices ? (
                     <EditPrices
                       priceUnitsList={priceUnitsList ?? []}
