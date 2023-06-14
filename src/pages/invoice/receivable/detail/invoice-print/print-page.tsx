@@ -401,7 +401,6 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
 
             <MakeTable rows={data.langItem.items} />
             <Box className='total'>
-              {' '}
               <Box
                 sx={{
                   display: 'flex',
@@ -416,8 +415,9 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '80px',
+
                     justifyContent: 'space-between',
+                    width: '221px',
                   }}
                 >
                   <Typography
@@ -426,8 +426,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       fontWeight: 600,
                       color: 'rgba(76, 78, 100, 0.6)',
                       fontSize: '14px',
-
-                      textAlign: 'left',
+                      flex: 1,
+                      textAlign: 'right',
                     }}
                   >
                     Subtotal:
@@ -438,6 +438,9 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       fontWeight: 600,
                       color: 'rgba(76, 78, 100, 0.87)',
                       fontSize: '14px',
+                      flex: 1,
+
+                      textAlign: 'right',
                     }}
                   >
                     {data.subtotal}
@@ -459,17 +462,20 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   <Box
                     sx={{
                       display: 'flex',
-                      gap: '50px',
+
                       justifyContent: 'space-between',
+                      width: '221px',
                     }}
                   >
                     <Typography
                       variant='subtitle1'
                       sx={{
                         fontWeight: 600,
-                        textAlign: 'left',
+
                         color: 'rgba(76, 78, 100, 0.6)',
                         fontSize: '14px',
+                        flex: 1,
+                        textAlign: 'right',
                       }}
                     >
                       Tax(-{data.taxPercent}%):
@@ -480,6 +486,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         fontWeight: 600,
                         color: 'rgba(76, 78, 100, 0.87)',
                         fontSize: '14px',
+                        flex: 1,
+                        textAlign: 'right',
                       }}
                     >
                       - {data.subtotal}
@@ -502,9 +510,9 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '80px',
-                    justifyContent: 'space-between',
 
+                    justifyContent: 'space-between',
+                    width: '221px',
                     // minWidth: '221px',
                   }}
                 >
@@ -515,7 +523,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       color: '#666CFF',
                       fontSize: '14px',
 
-                      textAlign: 'left',
+                      textAlign: 'right',
+                      flex: 1,
                     }}
                   >
                     Total:
@@ -526,6 +535,8 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       fontWeight: 600,
                       color: '#666CFF',
                       fontSize: '14px',
+                      textAlign: 'right',
+                      flex: 1,
                     }}
                   >
                     {data.subtotal}
@@ -556,6 +567,6 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
 export default PrintInvoicePage
 
 PrintInvoicePage.acl = {
-  subject: 'invoice',
+  subject: 'invoice_receivable',
   action: 'read',
 }

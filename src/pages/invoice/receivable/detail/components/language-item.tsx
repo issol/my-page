@@ -118,7 +118,6 @@ const InvoiceLanguageAndItem = ({
   const priceInfo = prices?.find(
     value => value.id === langItem.items[0].priceId,
   )
-  console.log(priceInfo)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -178,6 +177,19 @@ const InvoiceLanguageAndItem = ({
       setLanguagePairs([...copyOriginal])
     }
   }
+  console.log(
+    formatCurrency(
+      formatByRoundingProcedure(
+        items.reduce((acc, cur) => {
+          return acc + cur.totalPrice
+        }, 0),
+        priceInfo?.decimalPlace!,
+        priceInfo?.roundingProcedure!,
+        priceInfo?.currency!,
+      ),
+      priceInfo?.currency!,
+    ),
+  )
 
   return (
     <>
@@ -228,14 +240,18 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
+              }}
             >
               Subtotal
             </Typography>
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
               {formatCurrency(
                 formatByRoundingProcedure(
@@ -288,14 +304,18 @@ const InvoiceLanguageAndItem = ({
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
+              }}
             >
               Tax
             </Typography>
             <Typography
               fontWeight={600}
               variant='subtitle1'
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
               {invoiceInfo.isTaxable
                 ? formatCurrency(
@@ -330,7 +350,11 @@ const InvoiceLanguageAndItem = ({
               fontWeight={600}
               variant='subtitle1'
               color={'#666CFF'}
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
+              }}
             >
               Total
             </Typography>
@@ -338,7 +362,7 @@ const InvoiceLanguageAndItem = ({
               fontWeight={600}
               variant='subtitle1'
               color={'#666CFF'}
-              sx={{ padding: '16px 16px 16px 20px' }}
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
             >
               {invoiceInfo.isTaxable
                 ? formatCurrency(

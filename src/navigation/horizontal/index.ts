@@ -155,7 +155,7 @@ const navigation = (): HorizontalNavItemsType => {
       title: 'Invoices',
       icon: 'material-symbols:receipt-long',
       action: 'read',
-      subject: 'invoice',
+      subject: 'invoice_receivable',
       children: [
         {
           title: 'Receivables',
@@ -163,14 +163,14 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
 
           icon: 'material-symbols:person',
-          subject: 'invoice',
+          subject: 'invoice_receivable',
         },
         {
           title: 'Payables',
           path: `/invoice/payable`,
           action: 'read',
           icon: 'raphael:dollar',
-          subject: 'invoice',
+          subject: 'invoice_payable',
         },
       ],
     },

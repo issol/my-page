@@ -210,6 +210,6 @@ export default function Payable() {
 }
 
 Payable.acl = {
-  subject: 'invoice',
+  subject: 'invoice_payable',
   action: 'read',
 }
