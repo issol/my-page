@@ -132,7 +132,7 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewOrder() {
+export default function AddNewInvoice() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
   const { data: statusList, isLoading } = useGetInvoiceStatus()
@@ -930,8 +930,8 @@ export default function AddNewOrder() {
   )
 }
 
-AddNewOrder.acl = {
-  subject: 'order',
+AddNewInvoice.acl = {
+  subject: 'invoice_receivable',
   action: 'create',
 }
 

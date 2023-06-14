@@ -177,19 +177,6 @@ const InvoiceLanguageAndItem = ({
       setLanguagePairs([...copyOriginal])
     }
   }
-  console.log(
-    formatCurrency(
-      formatByRoundingProcedure(
-        items.reduce((acc, cur) => {
-          return acc + cur.totalPrice
-        }, 0),
-        priceInfo?.decimalPlace!,
-        priceInfo?.roundingProcedure!,
-        priceInfo?.currency!,
-      ),
-      priceInfo?.currency!,
-    ),
-  )
 
   return (
     <>
@@ -224,6 +211,7 @@ const InvoiceLanguageAndItem = ({
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={'invoiceDetail'}
+          orderId={invoiceInfo.orderId}
         />
       </Grid>
       <Grid item xs={12}>
@@ -260,9 +248,9 @@ const InvoiceLanguageAndItem = ({
                   }, 0),
                   priceInfo?.decimalPlace!,
                   priceInfo?.roundingProcedure!,
-                  priceInfo?.currency!,
+                  priceInfo?.currency ?? 'USD',
                 ),
-                priceInfo?.currency!,
+                priceInfo?.currency ?? 'USD',
               )}
             </Typography>
           </Box>
@@ -326,9 +314,9 @@ const InvoiceLanguageAndItem = ({
                         (invoiceInfo.tax! / 100),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
-                      priceInfo?.currency!,
+                      priceInfo?.currency ?? 'USD',
                     ),
-                    priceInfo?.currency!,
+                    priceInfo?.currency ?? 'USD',
                   )
                 : '-'}
             </Typography>
@@ -376,9 +364,9 @@ const InvoiceLanguageAndItem = ({
                         }, 0),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
-                      priceInfo?.currency!,
+                      priceInfo?.currency ?? 'USD',
                     ),
-                    priceInfo?.currency!,
+                    priceInfo?.currency ?? 'USD',
                   )
                 : formatCurrency(
                     formatByRoundingProcedure(
@@ -387,9 +375,9 @@ const InvoiceLanguageAndItem = ({
                       }, 0),
                       priceInfo?.decimalPlace!,
                       priceInfo?.roundingProcedure!,
-                      priceInfo?.currency!,
+                      priceInfo?.currency ?? 'USD',
                     ),
-                    priceInfo?.currency!,
+                    priceInfo?.currency ?? 'USD',
                   )}
             </Typography>
           </Box>

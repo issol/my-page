@@ -1,10 +1,7 @@
-import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
+import { Box, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { InvoiceVersionHistoryType } from '@src/types/invoice/receivable.type'
-import {
-  ProjectTeamListType,
-  VersionHistoryType,
-} from '@src/types/orders/order-detail'
+
 import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
@@ -56,30 +53,30 @@ const InvoiceVersionHistory = ({
           sx={{ overflowX: 'scroll', cursor: 'pointer' }}
           columns={columns}
           rows={list ?? []}
-          rowCount={listCount ?? 0}
+          // rowCount={listCount ?? 0}
           // loading={isLoading}
           onCellClick={params => {
             onClickRow(params.row)
           }}
-          rowsPerPageOptions={[10, 25, 50]}
-          pagination
-          page={page}
-          pageSize={pageSize}
-          paginationMode='server'
-          onPageChange={(newPage: number) => {
-            // setFilters!((prevState: OrderListFilterType) => ({
-            //   ...prevState,
-            //   skip: newPage * rowsPerPage!,
-            // }))
-            setPage(newPage)
-          }}
-          onPageSizeChange={(newPageSize: number) => {
-            // setFilters!((prevState: OrderListFilterType) => ({
-            //   ...prevState,
-            //   take: newPageSize,
-            // }))
-            setPageSize(newPageSize)
-          }}
+          rowsPerPageOptions={[5, 15, 30]}
+          // pagination
+          // page={page}
+          // pageSize={pageSize}
+          // paginationMode='server'
+          // onPageChange={(newPage: number) => {
+          //   // setFilters!((prevState: OrderListFilterType) => ({
+          //   //   ...prevState,
+          //   //   skip: newPage * rowsPerPage!,
+          //   // }))
+          //   setPage(newPage)
+          // }}
+          // onPageSizeChange={(newPageSize: number) => {
+          //   // setFilters!((prevState: OrderListFilterType) => ({
+          //   //   ...prevState,
+          //   //   take: newPageSize,
+          //   // }))
+          //   setPageSize(newPageSize)
+          // }}
           disableSelectionOnClick
         />
       </Box>

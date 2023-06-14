@@ -10,6 +10,7 @@ import {
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
   InvoiceReceivablePatchParamsType,
+  InvoiceVersionHistoryResType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
 import axios from 'src/configs/axios'
@@ -305,149 +306,149 @@ export const getInvoiceLanguageItems = async (
   try {
     const { data } = await axios.get(`/api/enough/u/invoice/${id}/items`)
 
-    return {
-      id: 8,
-      languagePairs: [
-        {
-          id: 5,
-
-          source: 'en',
-          target: 'ko',
-          price: {
-            id: 30,
-
-            name: 'new price for test',
-            isStandard: true,
-            category: 'Dubbing',
-            serviceType: ['Dubbing', 'Dubbing audio QC'],
-            currency: 'USD',
-            calculationBasis: 'Words',
-            rounding: 0,
-            numberPlace: 2,
-            authorId: 5,
-          },
-        },
-        {
-          id: 245,
-
-          source: 'ar',
-          target: 'ab',
-          price: null,
-        },
-      ],
-      items: [
-        {
-          id: 31,
-
-          contactPersonId: 5,
-          name: '1',
-          dueAt: '2023-05-29T15:00:00.000Z',
-          source: 'ko',
-          target: 'en',
-          priceId: 25,
-          description: null,
-          totalPrice: Number('0.00000'),
-          detail: [
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('3.00000'),
-              prices: '3.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('2.40000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('1.50000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('1.50000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-          ],
-        },
-        {
-          id: 33,
-
-          contactPersonId: 5,
-          name: '1',
-          dueAt: '2023-05-29T15:00:00.000Z',
-          source: 'ko',
-          target: 'en',
-          priceId: 25,
-          description: null,
-          totalPrice: Number('0.00000'),
-          detail: [
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('3.00000'),
-              prices: '3.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('2.40000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('1.50000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-            {
-              quantity: 1,
-              priceUnitId: 200,
-              unitPrice: Number('1.50000'),
-              prices: '0.00000',
-              unit: 'Graphics',
-              currency: 'USD',
-              priceUnit: null,
-            },
-          ],
-        },
-      ],
-    }
     // return {
-    //   ...data,
-    //   items: data.items.map((item: ItemResType) => ({
-    //     ...item,
-    //     name: item?.itemName,
-    //     source: item?.sourceLanguage,
-    //     target: item?.targetLanguage,
-    //     totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-    //   })),
+    //   id: 8,
+    //   languagePairs: [
+    //     {
+    //       id: 5,
+
+    //       source: 'en',
+    //       target: 'ko',
+    //       price: {
+    //         id: 30,
+
+    //         name: 'new price for test',
+    //         isStandard: true,
+    //         category: 'Dubbing',
+    //         serviceType: ['Dubbing', 'Dubbing audio QC'],
+    //         currency: 'USD',
+    //         calculationBasis: 'Words',
+    //         rounding: 0,
+    //         numberPlace: 2,
+    //         authorId: 5,
+    //       },
+    //     },
+    //     {
+    //       id: 245,
+
+    //       source: 'ar',
+    //       target: 'ab',
+    //       price: null,
+    //     },
+    //   ],
+    //   items: [
+    //     {
+    //       id: 31,
+
+    //       contactPersonId: 5,
+    //       name: '1',
+    //       dueAt: '2023-05-29T15:00:00.000Z',
+    //       source: 'ko',
+    //       target: 'en',
+    //       priceId: 25,
+    //       description: null,
+    //       totalPrice: Number('0.00000'),
+    //       detail: [
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('3.00000'),
+    //           prices: '3.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('2.40000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('1.50000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('1.50000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //       ],
+    //     },
+    //     {
+    //       id: 33,
+
+    //       contactPersonId: 5,
+    //       name: '1',
+    //       dueAt: '2023-05-29T15:00:00.000Z',
+    //       source: 'ko',
+    //       target: 'en',
+    //       priceId: 25,
+    //       description: null,
+    //       totalPrice: Number('0.00000'),
+    //       detail: [
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('3.00000'),
+    //           prices: '3.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('2.40000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('1.50000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //         {
+    //           quantity: 1,
+    //           priceUnitId: 200,
+    //           unitPrice: Number('1.50000'),
+    //           prices: '0.00000',
+    //           unit: 'Graphics',
+    //           currency: 'USD',
+    //           priceUnit: null,
+    //         },
+    //       ],
+    //     },
+    //   ],
     // }
+    return {
+      ...data,
+      items: data.items.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })),
+    }
   } catch (e: any) {
     throw new Error(e)
   }
@@ -456,76 +457,76 @@ export const getInvoiceLanguageItems = async (
 export const getInvoiceClient = async (id: number): Promise<ClientType> => {
   try {
     const { data } = await axios.get(`/api/enough/u/invoice/${id}/client`)
-    // return data
-    return {
-      addressType: 'billing',
-      client: {
-        taxable: true,
-        tax: 10,
-        clientId: 3,
+    return data
+    // return {
+    //   addressType: 'billing',
+    //   client: {
+    //     taxable: true,
+    //     tax: 10,
+    //     clientId: 3,
 
-        name: '쌔거',
-        email: 'sdflk@sf.com',
-        phone: '',
-        mobile: '',
-        fax: '',
+    //     name: '쌔거',
+    //     email: 'sdflk@sf.com',
+    //     phone: '',
+    //     mobile: '',
+    //     fax: '',
 
-        timezone: {
-          code: 'AE',
-          label: 'United Arab Emirates',
-          phone: '971',
-        },
-      },
-      clientAddress: [
-        {
-          createdAt: '2023-04-17T21:05:51.771Z',
-          updatedAt: '2023-05-10T01:48:39.977Z',
-          addressType: 'billing',
-          name: null,
-          baseAddress: '영동대로 106길',
-          detailAddress: '패스트파이브 3층',
-          city: '강남구',
-          state: '서울특별시',
-          country: 'Korea, Republic of',
-          zipCode: '06170',
-          isSelected: false,
-        },
-        {
-          createdAt: '2023-04-17T21:05:51.771Z',
-          updatedAt: '2023-05-10T01:48:39.974Z',
-          addressType: 'shipping',
-          name: null,
-          baseAddress: '영동대로 106길',
-          detailAddress: '패스트파이브 3층',
-          city: '강남구',
-          state: '서울특별시',
-          country: 'Korea, Republic of',
-          zipCode: '06170',
-          isSelected: true,
-        },
-      ],
-      contactPerson: {
-        id: 5,
+    //     timezone: {
+    //       code: 'AE',
+    //       label: 'United Arab Emirates',
+    //       phone: '971',
+    //     },
+    //   },
+    //   clientAddress: [
+    //     {
+    //       createdAt: '2023-04-17T21:05:51.771Z',
+    //       updatedAt: '2023-05-10T01:48:39.977Z',
+    //       addressType: 'billing',
+    //       name: null,
+    //       baseAddress: '영동대로 106길',
+    //       detailAddress: '패스트파이브 3층',
+    //       city: '강남구',
+    //       state: '서울특별시',
+    //       country: 'Korea, Republic of',
+    //       zipCode: '06170',
+    //       isSelected: false,
+    //     },
+    //     {
+    //       createdAt: '2023-04-17T21:05:51.771Z',
+    //       updatedAt: '2023-05-10T01:48:39.974Z',
+    //       addressType: 'shipping',
+    //       name: null,
+    //       baseAddress: '영동대로 106길',
+    //       detailAddress: '패스트파이브 3층',
+    //       city: '강남구',
+    //       state: '서울특별시',
+    //       country: 'Korea, Republic of',
+    //       zipCode: '06170',
+    //       isSelected: true,
+    //     },
+    //   ],
+    //   contactPerson: {
+    //     id: 5,
 
-        personType: 'Mr.',
-        firstName: 'Gayeon',
-        middleName: null,
-        lastName: 'Kim',
-        department: null,
-        jobTitle: '매니죠',
-        timezone: {
-          code: 'AF',
-          label: 'Afghanistan',
-          phone: '93',
-        },
-        phone: null,
-        mobile: '01063611055',
-        fax: null,
-        email: 'dsfsdf@com.com',
-        memo: 'sdfsdf',
-        isReferred: true,
-      },
-    }
+    //     personType: 'Mr.',
+    //     firstName: 'Gayeon',
+    //     middleName: null,
+    //     lastName: 'Kim',
+    //     department: null,
+    //     jobTitle: '매니죠',
+    //     timezone: {
+    //       code: 'AF',
+    //       label: 'Afghanistan',
+    //       phone: '93',
+    //     },
+    //     phone: null,
+    //     mobile: '01063611055',
+    //     fax: null,
+    //     email: 'dsfsdf@com.com',
+    //     memo: 'sdfsdf',
+    //     isReferred: true,
+    //   },
+    // }
   } catch (e: any) {
     throw new Error(e)
   }
@@ -536,33 +537,33 @@ export const getInvoiceProjectTeam = async (
 ): Promise<ProjectTeamListType[]> => {
   try {
     const { data } = await axios.get(`/api/enough/u/invoice/${id}/team`)
-    // return data.members
-    return [
-      {
-        userId: 58,
-        // permissionGroups: ['TAD-General'],
-        firstName: 'tester',
-        middleName: null,
-        lastName: 'lee',
-        email: 'platform-qa@glozinc.com',
-        jobTitle: 'tester',
-        // type: 'General',
+    return data.members
+    // return [
+    //   {
+    //     userId: 58,
+    //     // permissionGroups: ['TAD-General'],
+    //     firstName: 'tester',
+    //     middleName: null,
+    //     lastName: 'lee',
+    //     email: 'platform-qa@glozinc.com',
+    //     jobTitle: 'tester',
+    //     // type: 'General',
 
-        position: 'supervisor',
-      },
-      {
-        userId: 60,
-        // permissionGroups: ['TAD-General'],
-        firstName: 'risha',
-        middleName: null,
-        lastName: 'park',
-        email: 'risha@glozinc.com',
-        jobTitle: '',
-        // type: 'General',
+    //     position: 'supervisor',
+    //   },
+    //   {
+    //     userId: 60,
+    //     // permissionGroups: ['TAD-General'],
+    //     firstName: 'risha',
+    //     middleName: null,
+    //     lastName: 'park',
+    //     email: 'risha@glozinc.com',
+    //     jobTitle: '',
+    //     // type: 'General',
 
-        position: 'projectManager',
-      },
-    ]
+    //     position: 'projectManager',
+    //   },
+    // ]
   } catch (e: any) {
     throw new Error(e)
   }
@@ -573,299 +574,308 @@ export const getInvoiceVersionHistory = async (
 ): Promise<InvoiceVersionHistoryType[]> => {
   try {
     const { data } = await axios.get(`/api/enough/u/invoice/${id}/history`)
-    const res: InvoiceVersionHistoryType[] = [
-      {
-        id: 1,
-        version: 1,
-        email: 'leriel@glozinc.com',
-        downloadedAt: '2023-03-21T08:20:46.678Z',
+    // const res: InvoiceVersionHistoryType[] = [
+    //   {
+    //     id: 1,
+    //     version: 1,
+    //     email: 'leriel@glozinc.com',
+    //     downloadedAt: '2023-03-21T08:20:46.678Z',
 
-        invoiceInfo: {
-          id: 2,
-          corporationId: 'IR-000005',
-          createdAt: '2023-06-01T05:15:15.710Z',
-          updatedAt: '2023-06-01T05:15:15.710Z',
-          deletedAt: null,
-          orderId: 13,
-          adminCompanyName: 'GloZ',
-          invoiceStatus: 'In preparation',
-          authorId: 5,
+    //     invoiceInfo: {
+    //       id: 2,
+    //       corporationId: 'IR-000005',
+    //       createdAt: '2023-06-01T05:15:15.710Z',
+    //       updatedAt: '2023-06-01T05:15:15.710Z',
+    //       deletedAt: null,
+    //       orderId: 13,
+    //       adminCompanyName: 'GloZ',
+    //       invoiceStatus: 'In preparation',
+    //       authorId: 5,
 
-          salesCategory: null,
-          description: 'this is a description',
-          notes: null,
-          setReminder: false,
-          taxInvoiceIssued: false,
-          reminderSentAt: null,
-          invoicedAt: '2023-06-01T05:06:31.182Z',
-          payDueAt: '2023-06-01T05:06:31.183Z',
-          payDueTimezone: {
-            code: 'test code',
-            label: 'test label',
-            phone: 'test phone',
-          },
-          invoiceConfirmedAt: '2023-06-01T05:06:31.183Z',
-          invoiceConfirmTimezone: {
-            code: 'test code',
-            label: 'test label',
-            phone: 'test phone',
-          },
-          taxInvoiceDueAt: '2023-06-01T05:06:31.183Z',
-          taxInvoiceDueTimezone: {
-            code: 'test code',
-            label: 'test label',
-            phone: 'test phone',
-          },
-          taxInvoiceIssuedAt: null,
-          taxInvoiceIssuedDateTimezone: null,
-          paidAt: null,
-          paidDateTimezone: null,
-          salesCheckedAt: null,
-          salesCheckedDateTimezone: null,
-          downloadedAt: null,
-          orderCorporationId: 'O-000013',
-          projectName: '1321',
-          workName: 'The Glory',
-          category: 'Webcomics',
-          serviceType: ['QC review'],
-          expertise: ['Horror/Thriller'],
-          revenueFrom: 'Singapore',
-          isTaxable: false,
-          tax: 120,
-        },
-        client: {
-          addressType: 'billing',
-          client: {
-            taxable: true,
-            tax: 10,
-            clientId: 3,
+    //       salesCategory: '',
+    //       description: 'this is a description',
+    //       notes: '',
+    //       setReminder: false,
+    //       taxInvoiceIssued: false,
+    //       reminderSentAt: null,
+    //       invoicedAt: '2023-06-01T05:06:31.182Z',
+    //       payDueAt: '2023-06-01T05:06:31.183Z',
+    //       payDueTimezone: {
+    //         code: 'test code',
+    //         label: 'test label',
+    //         phone: 'test phone',
+    //       },
+    //       invoiceConfirmedAt: '2023-06-01T05:06:31.183Z',
+    //       invoiceConfirmTimezone: {
+    //         code: 'test code',
+    //         label: 'test label',
+    //         phone: 'test phone',
+    //       },
+    //       taxInvoiceDueAt: '2023-06-01T05:06:31.183Z',
+    //       taxInvoiceDueTimezone: {
+    //         code: 'test code',
+    //         label: 'test label',
+    //         phone: 'test phone',
+    //       },
+    //       taxInvoiceIssuedAt: null,
+    //       taxInvoiceIssuedDateTimezone: null,
+    //       paidAt: null,
+    //       paidDateTimezone: null,
+    //       salesCheckedAt: null,
+    //       salesCheckedDateTimezone: null,
+    //       downloadedAt: null,
+    //       orderCorporationId: 'O-000013',
+    //       projectName: '1321',
+    //       workName: 'The Glory',
+    //       category: 'Webcomics',
+    //       serviceType: ['QC review'],
+    //       expertise: ['Horror/Thriller'],
+    //       revenueFrom: 'Singapore',
+    //       isTaxable: false,
+    //       tax: 120,
+    //     },
+    //     client: {
+    //       addressType: 'billing',
+    //       client: {
+    //         taxable: true,
+    //         tax: 10,
+    //         clientId: 3,
 
-            name: '쌔거',
-            email: 'sdflk@sf.com',
-            phone: '',
-            mobile: '',
-            fax: '',
+    //         name: '쌔거',
+    //         email: 'sdflk@sf.com',
+    //         phone: '',
+    //         mobile: '',
+    //         fax: '',
 
-            timezone: {
-              code: 'AE',
-              label: 'United Arab Emirates',
-              phone: '971',
-            },
-          },
-          clientAddress: [
-            {
-              createdAt: '2023-04-17T21:05:51.771Z',
-              updatedAt: '2023-05-10T01:48:39.977Z',
-              addressType: 'billing',
-              name: null,
-              baseAddress: '영동대로 106길',
-              detailAddress: '패스트파이브 3층',
-              city: '강남구',
-              state: '서울특별시',
-              country: 'Korea, Republic of',
-              zipCode: '06170',
-              isSelected: false,
-            },
-            {
-              createdAt: '2023-04-17T21:05:51.771Z',
-              updatedAt: '2023-05-10T01:48:39.974Z',
-              addressType: 'shipping',
-              name: null,
-              baseAddress: '영동대로 106길',
-              detailAddress: '패스트파이브 3층',
-              city: '강남구',
-              state: '서울특별시',
-              country: 'Korea, Republic of',
-              zipCode: '06170',
-              isSelected: true,
-            },
-          ],
-          contactPerson: {
-            id: 5,
+    //         timezone: {
+    //           code: 'AE',
+    //           label: 'United Arab Emirates',
+    //           phone: '971',
+    //         },
+    //       },
+    //       clientAddress: [
+    //         {
+    //           createdAt: '2023-04-17T21:05:51.771Z',
+    //           updatedAt: '2023-05-10T01:48:39.977Z',
+    //           addressType: 'billing',
+    //           name: null,
+    //           baseAddress: '영동대로 106길',
+    //           detailAddress: '패스트파이브 3층',
+    //           city: '강남구',
+    //           state: '서울특별시',
+    //           country: 'Korea, Republic of',
+    //           zipCode: '06170',
+    //           isSelected: false,
+    //         },
+    //         {
+    //           createdAt: '2023-04-17T21:05:51.771Z',
+    //           updatedAt: '2023-05-10T01:48:39.974Z',
+    //           addressType: 'shipping',
+    //           name: null,
+    //           baseAddress: '영동대로 106길',
+    //           detailAddress: '패스트파이브 3층',
+    //           city: '강남구',
+    //           state: '서울특별시',
+    //           country: 'Korea, Republic of',
+    //           zipCode: '06170',
+    //           isSelected: true,
+    //         },
+    //       ],
+    //       contactPerson: {
+    //         id: 5,
 
-            personType: 'Mr.',
-            firstName: 'Gayeon',
-            middleName: null,
-            lastName: 'Kim',
-            department: null,
-            jobTitle: '매니죠',
-            timezone: {
-              code: 'AF',
-              label: 'Afghanistan',
-              phone: '93',
-            },
-            phone: null,
-            mobile: '01063611055',
-            fax: null,
-            email: 'dsfsdf@com.com',
-            memo: 'sdfsdf',
-            isReferred: true,
-          },
-        },
-        projectTeam: [
-          {
-            userId: 58,
-            // permissionGroups: ['TAD-General'],
-            firstName: 'tester',
-            middleName: null,
-            lastName: 'lee',
-            email: 'platform-qa@glozinc.com',
-            jobTitle: 'tester',
-            // type: 'General',
+    //         personType: 'Mr.',
+    //         firstName: 'Gayeon',
+    //         middleName: null,
+    //         lastName: 'Kim',
+    //         department: null,
+    //         jobTitle: '매니죠',
+    //         timezone: {
+    //           code: 'AF',
+    //           label: 'Afghanistan',
+    //           phone: '93',
+    //         },
+    //         phone: null,
+    //         mobile: '01063611055',
+    //         fax: null,
+    //         email: 'dsfsdf@com.com',
+    //         memo: 'sdfsdf',
+    //         isReferred: true,
+    //       },
+    //     },
+    //     projectTeam: [
+    //       {
+    //         userId: 58,
+    //         // permissionGroups: ['TAD-General'],
+    //         firstName: 'tester',
+    //         middleName: null,
+    //         lastName: 'lee',
+    //         email: 'platform-qa@glozinc.com',
+    //         jobTitle: 'tester',
+    //         // type: 'General',
 
-            position: 'supervisor',
-          },
-          {
-            userId: 60,
-            // permissionGroups: ['TAD-General'],
-            firstName: 'risha',
-            middleName: null,
-            lastName: 'park',
-            email: 'risha@glozinc.com',
-            jobTitle: '',
-            // type: 'General',
+    //         position: 'supervisor',
+    //       },
+    //       {
+    //         userId: 60,
+    //         // permissionGroups: ['TAD-General'],
+    //         firstName: 'risha',
+    //         middleName: null,
+    //         lastName: 'park',
+    //         email: 'risha@glozinc.com',
+    //         jobTitle: '',
+    //         // type: 'General',
 
-            position: 'projectManager',
-          },
-        ],
-        items: {
-          id: 8,
-          languagePairs: [
-            {
-              id: 5,
+    //         position: 'projectManager',
+    //       },
+    //     ],
+    //     items: {
+    //       id: 8,
+    //       languagePairs: [
+    //         {
+    //           id: 5,
 
-              source: 'en',
-              target: 'ko',
-              price: {
-                id: 30,
+    //           source: 'en',
+    //           target: 'ko',
+    //           price: {
+    //             id: 30,
 
-                name: 'new price for test',
-                isStandard: true,
-                category: 'Dubbing',
-                serviceType: ['Dubbing', 'Dubbing audio QC'],
-                currency: 'USD',
-                calculationBasis: 'Words',
-                rounding: 0,
-                numberPlace: 2,
-                authorId: 5,
-              },
-            },
-            {
-              id: 245,
+    //             name: 'new price for test',
+    //             isStandard: true,
+    //             category: 'Dubbing',
+    //             serviceType: ['Dubbing', 'Dubbing audio QC'],
+    //             currency: 'USD',
+    //             calculationBasis: 'Words',
+    //             rounding: 0,
+    //             numberPlace: 2,
+    //             authorId: 5,
+    //           },
+    //         },
+    //         {
+    //           id: 245,
 
-              source: 'ar',
-              target: 'ab',
-              price: null,
-            },
-          ],
-          items: [
-            {
-              id: 31,
+    //           source: 'ar',
+    //           target: 'ab',
+    //           price: null,
+    //         },
+    //       ],
+    //       items: [
+    //         {
+    //           id: 31,
 
-              contactPersonId: 5,
-              name: '1',
-              dueAt: '2023-05-29T15:00:00.000Z',
-              source: 'ko',
-              target: 'en',
-              priceId: 25,
-              description: null,
-              totalPrice: Number('0.00000'),
-              detail: [
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('3.00000'),
-                  prices: '3.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('2.40000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('1.50000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('1.50000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-              ],
-            },
-            {
-              id: 33,
+    //           contactPersonId: 5,
+    //           name: '1',
+    //           dueAt: '2023-05-29T15:00:00.000Z',
+    //           source: 'ko',
+    //           target: 'en',
+    //           priceId: 25,
+    //           description: null,
+    //           totalPrice: Number('0.00000'),
+    //           detail: [
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('3.00000'),
+    //               prices: '3.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('2.40000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('1.50000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('1.50000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //           ],
+    //         },
+    //         {
+    //           id: 33,
 
-              contactPersonId: 5,
-              name: '1',
-              dueAt: '2023-05-29T15:00:00.000Z',
-              source: 'ko',
-              target: 'en',
-              priceId: 25,
-              description: null,
-              totalPrice: Number('0.00000'),
-              detail: [
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('3.00000'),
-                  prices: '3.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('2.40000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('1.50000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-                {
-                  quantity: 1,
-                  priceUnitId: 200,
-                  unitPrice: Number('1.50000'),
-                  prices: '0.00000',
-                  unit: 'Graphics',
-                  currency: 'USD',
-                  priceUnit: null,
-                },
-              ],
-            },
-          ],
-        },
-      },
-    ]
-    return res
+    //           contactPersonId: 5,
+    //           name: '1',
+    //           dueAt: '2023-05-29T15:00:00.000Z',
+    //           source: 'ko',
+    //           target: 'en',
+    //           priceId: 25,
+    //           description: null,
+    //           totalPrice: Number('0.00000'),
+    //           detail: [
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('3.00000'),
+    //               prices: '3.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('2.40000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('1.50000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //             {
+    //               quantity: 1,
+    //               priceUnitId: 200,
+    //               unitPrice: Number('1.50000'),
+    //               prices: '0.00000',
+    //               unit: 'Graphics',
+    //               currency: 'USD',
+    //               priceUnit: null,
+    //             },
+    //           ],
+    //         },
+    //       ],
+    //     },
+    //   },
+    // ]
+    // return res
 
-    // return data
+    return data.map((value: InvoiceVersionHistoryResType) => ({
+      ...value,
+      items: value.items.items.map((item: ItemResType) => ({
+        ...item,
+        name: item?.itemName,
+        source: item?.sourceLanguage,
+        target: item?.targetLanguage,
+        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+      })),
+    }))
   } catch (e: any) {
     throw new Error(e)
   }
@@ -874,8 +884,17 @@ export const getInvoiceVersionHistory = async (
 export const patchInvoiceInfo = async (
   id: number,
   form: InvoiceReceivablePatchParamsType,
-) => {
-  await axios.patch(`/api/enough/u/invoice/${id}`, { ...form })
+): Promise<{ id: number }> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/invoice/${id}`, {
+      ...form,
+    })
+    console.log(data)
+
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
 
 export const deleteInvoice = async (id: number) => {

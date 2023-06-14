@@ -65,6 +65,8 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** helpers
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
+import Link from 'next/link'
+import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -82,6 +84,7 @@ type Props = {
   ) => Array<StandardPriceListType & { groupName: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: string
+  orderId?: number
 }
 
 export type DetailNewDataType = {
@@ -109,6 +112,7 @@ export default function ItemForm({
   getPriceOptions,
   priceUnitsList,
   type,
+  orderId,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -300,8 +304,8 @@ export default function ItemForm({
     return (
       <Box
         style={{
-          border: '1px solid #F5F5F7',
-          borderRadius: '8px',
+          border: '1px solid rgba(76, 78, 100, 0.22)',
+          borderRadius: '10px',
           marginBottom: '14px',
         }}
       >
@@ -713,6 +717,15 @@ export default function ItemForm({
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
+        {type === 'invoiceDetail' && orderId && (
+          <Link
+            href={`/orders/job-list/details/?orderId=${orderId}`}
+            style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+          >
+            Jobs
+            <Icon icon='ic:outline-arrow-forward' color='#666CFF' />
+          </Link>
+        )}
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />
