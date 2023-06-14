@@ -21,7 +21,7 @@ import { useGetClientList } from '@src/queries/client.query'
 import { useRouter } from 'next/router'
 import OrderList from './components/order-list'
 import JobInfoDetailView from './detail-view'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 
 type MenuType = 'list' | 'tracker'
 

@@ -70,7 +70,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
 import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForOrder,
   createLangPairForOrder,
@@ -281,7 +281,7 @@ export default function AddNewOrder() {
     clientId: getClientValue('clientId'),
   })
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
