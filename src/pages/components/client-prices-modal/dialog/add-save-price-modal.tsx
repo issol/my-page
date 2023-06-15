@@ -27,7 +27,7 @@ import { standardPricesSchema } from '@src/types/schema/standard-prices.schema'
 import { FormErrors } from '@src/shared/const/formErrors'
 import {
   CurrencyType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import PriceActionModal from '../../standard-prices-modal/modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
@@ -57,8 +57,8 @@ type Props = {
   open: boolean
   onClose: any
   type: 'Edit' | 'Add'
-  selectedPriceData?: StandardClientPriceListType
-  setPriceList: Dispatch<SetStateAction<[] | StandardClientPriceListType[]>>
+  selectedPriceData?: StandardPriceListType
+  setPriceList: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
   onSubmit: (data: AddPriceType, modalType: string) => void
   onClickAction: (type: string) => void
 }
@@ -98,10 +98,12 @@ const AddSavePriceModal = ({
     defaultValues: defaultValue,
     resolver: yupResolver(standardPricesSchema),
   })
-  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
-  const [selected, setSelected] = useState<StandardClientPriceListType | null>(
-    null,
-  )
+  const {
+    data: standardPrices,
+    isLoading,
+    refetch,
+  } = useGetStandardPrices('client', { take: 1000, skip: 0 })
+  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const resetData = () => {
@@ -203,7 +205,7 @@ const AddSavePriceModal = ({
       ),
     })
   }
-  function onAddCopiedPrice(data: StandardClientPriceListType) {
+  function onAddCopiedPrice(data: StandardPriceListType) {
     setSelected(data)
   }
 
@@ -248,7 +250,7 @@ const AddSavePriceModal = ({
             console.log('handleSubmit', data)
             console.log(type)
             if (selected) {
-              const finalData: StandardClientPriceListType = {
+              const finalData: StandardPriceListType = {
                 ...selected,
                 id: type === 'Edit' ? selected.id : Math.random(),
                 isStandard: false,

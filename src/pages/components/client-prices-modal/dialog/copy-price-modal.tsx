@@ -3,26 +3,23 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
-
 import { DataGrid } from '@mui/x-data-grid'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { useState } from 'react'
 
 type Props = {
-  list: { data: StandardClientPriceListType[] | []; count: number }
+  list: { data: StandardPriceListType[] | []; count: number }
   open: boolean
   onClose: any
-  onSubmit: (data: StandardClientPriceListType) => void
+  onSubmit: (data: StandardPriceListType) => void
 }
 
 type CellType = {
-  row: StandardClientPriceListType
+  row: StandardPriceListType
 }
 const CopyPriceModal = ({ list, open, onClose, onSubmit }: Props) => {
   const [pageSize, setPageSize] = useState(10)
-  const [selected, setSelected] = useState<StandardClientPriceListType | null>(
-    null,
-  )
+  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
 
   function onCopy() {
     if (selected) {

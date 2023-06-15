@@ -39,7 +39,7 @@ import {
 import { ItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 // ** components
@@ -76,10 +76,10 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardClientPriceListType | null
+  price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardClientPriceListType & {
+export const defaultOption: StandardPriceListType & {
   groupName: string
 } = {
   id: NOT_APPLICABLE,

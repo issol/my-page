@@ -25,7 +25,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 import styled from 'styled-components'
 import {
   CatInterfaceType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 
@@ -52,7 +52,7 @@ type Props = {
   fileName: string
   onClose: () => void
   data: MemSourceType
-  priceData: StandardClientPriceListType | null
+  priceData: StandardPriceListType | null
   priceFactor: number | undefined
   onCopyAnalysis?: (data: onCopyAnalysisParamType) => void
 }

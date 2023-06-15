@@ -29,7 +29,7 @@ import {
   PriceUnitListType,
   SetPriceUnit,
   SetPriceUnitPair,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
@@ -55,7 +55,7 @@ type Props = {
   onSubmit: (data: SetPriceUnitPair[]) => void
   currency: string
   priceUnit: PriceUnitType[]
-  price: StandardClientPriceListType
+  price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
 }
 

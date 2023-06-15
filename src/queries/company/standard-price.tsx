@@ -2,9 +2,10 @@ import {
   getCatInterfaceHeaders,
   getClientPriceList,
   getProPriceList,
-  getStandardClientPrice,
+  getStandardPrice,
 } from '@src/apis/company-price.api'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+
 import { useQuery } from 'react-query'
 
 export type ClientPriceListFilterType = {
@@ -40,10 +41,19 @@ export const useGetProPriceList = (filter: ProPriceListFilterType) => {
   })
 }
 
-export const useGetStandardPrices = () => {
-  return useQuery<{ data: StandardClientPriceListType[]; count: number }>(
-    'standard-client-prices',
-    () => getStandardClientPrice(),
+export const useGetStandardPrices = (
+  page: 'pro' | 'client',
+  filter: {
+    take: number
+    skip: number
+  },
+) => {
+  return useQuery<{
+    data: Array<StandardPriceListType>
+    count: number
+  }>(
+    [`standard-${page}-prices`, filter],
+    () => getStandardPrice(page, filter),
     {
       staleTime: 60 * 1000, // 1
 

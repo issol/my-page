@@ -19,8 +19,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
-  StandardProPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { addJobInfoFormSchema } from '@src/types/schema/job-detail'
@@ -122,7 +121,7 @@ const EditPrices = ({
   })
 
   const [price, setPrice] = useState<
-    | (StandardProPriceListType & {
+    | (StandardPriceListType & {
         groupName: string
       })
     | null

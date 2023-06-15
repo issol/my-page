@@ -14,7 +14,7 @@ import {
   CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { v4 as uuidv4 } from 'uuid'
 
@@ -41,7 +41,7 @@ import toast from 'react-hot-toast'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
-  priceData: StandardClientPriceListType
+  priceData: StandardPriceListType
   existPriceUnit: boolean
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   isEditingCatInterface: boolean
@@ -190,8 +190,8 @@ const CatInterface = ({
     }
     createCatInterfacePairMutation.mutate({
       type:
-        priceData.catInterface.memoQ.length > 0 ||
-        priceData.catInterface.memSource.length > 0
+        priceData.catInterface?.memoQ.length! > 0 ||
+        priceData.catInterface?.memSource.length! > 0
           ? 'patch'
           : 'post',
       id: priceData.id,
@@ -283,14 +283,11 @@ const CatInterface = ({
         unit: value.unit,
         chips: formattedHeader,
       }))
-      console.log(priceUnitList)
-      console.log(priceData.catInterface)
-      console.log(withHeaders)
 
-      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
+      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface!
         .memSource.length
         ? [
-            ...priceData.catInterface.memSource.map(value => ({
+            ...priceData.catInterface!.memSource.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -307,8 +304,8 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
             // ...withHeaders.filter(
@@ -322,10 +319,10 @@ const CatInterface = ({
 
       console.log(withHeaders)
 
-      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
+      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface!.memoQ
         .length
         ? [
-            ...priceData.catInterface.memoQ.map(value => ({
+            ...priceData.catInterface!.memoQ.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -342,8 +339,8 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
             // ...withHeaders.filter(

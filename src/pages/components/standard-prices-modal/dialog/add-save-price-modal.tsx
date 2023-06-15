@@ -42,7 +42,7 @@ import { FormErrors } from '@src/shared/const/formErrors'
 import {
   AddNewPriceType,
   CurrencyType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
@@ -67,10 +67,10 @@ type Props = {
   open: boolean
   onClose: any
   type: string
-  selectedPriceData?: StandardClientPriceListType
+  selectedPriceData?: StandardPriceListType
 
   onSubmit: (
-    selectedData: StandardClientPriceListType,
+    selectedData: StandardPriceListType,
     data: AddPriceType,
     modalType: string,
   ) => void

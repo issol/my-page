@@ -9,7 +9,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState } from 'react'
 import {
@@ -108,7 +108,7 @@ const ViewPrices = ({
   })
 
   const [price, setPrice] = useState<
-    | (StandardClientPriceListType & {
+    | (StandardPriceListType & {
         groupName: string
       })
     | null

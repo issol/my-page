@@ -1,6 +1,6 @@
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { useState, MouseEvent, SetStateAction, Dispatch } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -22,14 +22,14 @@ import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
 
 export default function Row(props: {
-  row: StandardClientPriceListType
-  onClickDeletePrice: (priceData: StandardClientPriceListType) => void
-  onClickEditPrice: (priceData: StandardClientPriceListType) => void
-  setSelectedRow: Dispatch<SetStateAction<StandardClientPriceListType | null>>
+  row: StandardPriceListType
+  onClickDeletePrice: (priceData: StandardPriceListType) => void
+  onClickEditPrice: (priceData: StandardPriceListType) => void
+  setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
 
   selected: number | null
 
-  handleRowClick: (row: StandardClientPriceListType) => void
+  handleRowClick: (row: StandardPriceListType) => void
 
   isSelected: (index: number) => boolean
 }) {

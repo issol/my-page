@@ -27,7 +27,7 @@ import {
   PriceUnitListType,
   SetPriceUnit,
   SetPriceUnitPair,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
@@ -57,18 +57,14 @@ import {
   useQueryClient,
 } from 'react-query'
 import toast from 'react-hot-toast'
-import {
-  patchPriceUnitPair,
-  putPriceUnitPair,
-  setPriceUnitPair,
-} from '@src/apis/company-price.api'
+import { putPriceUnitPair, setPriceUnitPair } from '@src/apis/company-price.api'
 import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
 
 type Props = {
   onClose: any
   currency: string
   priceUnit: PriceUnitType[]
-  price: StandardClientPriceListType
+  price: StandardPriceListType
   priceUnitPair: PriceUnitListType[]
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   refetch: <TPageData>(
@@ -76,12 +72,13 @@ type Props = {
   ) => Promise<
     QueryObserverResult<
       {
-        data: StandardClientPriceListType[]
+        data: StandardPriceListType[]
         count: number
       },
       unknown
     >
   >
+  page: 'pro' | 'client'
 }
 
 const SetPriceUnitModal = ({
@@ -92,6 +89,7 @@ const SetPriceUnitModal = ({
   priceUnitPair,
   refetch,
   setIsEditingCatInterface,
+  page,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const queryClient = useQueryClient()
@@ -137,10 +135,6 @@ const SetPriceUnitModal = ({
     name: 'pair',
   })
 
-  useEffect(() => {
-    console.log('pairFields', pairFields)
-  }, pairFields)
-
   const calculateRoundedRatio = (total: number, value: number) => {
     const ratio = (value / total) * 100
     const roundedRatio = ratio.toFixed(5)
@@ -149,10 +143,7 @@ const SetPriceUnitModal = ({
 
   const setPriceUnitMutation = useMutation(
     (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
-      // value.type === 'Save'
-      //   ? setPriceUnitPair(value.data, value.id)
-      //   : patchPriceUnitPair(value.data, value.id),
-      putPriceUnitPair(value.data, value.id),
+      putPriceUnitPair(value.data, value.id, page),
     {
       onSuccess: (data, variables) => {
         refetch()
@@ -174,7 +165,6 @@ const SetPriceUnitModal = ({
   )
 
   const onClickAction = (type: string, data?: SetPriceUnitPair[]) => {
-    console.log(type)
     if (type === 'Discard') {
       closeModal('setPriceUnitModal')
     } else if (type === 'Save' || type === 'EditSave') {

@@ -6,8 +6,7 @@ import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
-  StandardProPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState } from 'react'
 import {
@@ -24,9 +23,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => (StandardProPriceListType & {
-    groupName: string
-  })[]
+  ) => Array<StandardPriceListType & { groupName: string }>
   itemControl: Control<
     {
       items: ItemType[]

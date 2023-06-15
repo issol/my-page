@@ -33,7 +33,7 @@ import {
 } from '@src/types/common/orders-and-quotes.type'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
