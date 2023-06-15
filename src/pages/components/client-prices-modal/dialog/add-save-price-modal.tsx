@@ -168,8 +168,8 @@ const AddSavePriceModal = ({
       setValue(
         'catBasis',
         {
-          label: selected.catBasis,
-          value: selected.catBasis,
+          label: selected.catBasis!,
+          value: selected.catBasis!,
         },
         setValueOptions,
       )
@@ -258,7 +258,7 @@ const AddSavePriceModal = ({
                 category: data?.category.value,
                 serviceType: data?.serviceType.map(value => value.value),
                 currency: data?.currency.value,
-                catBasis: data?.catBasis.value,
+                catBasis: data?.catBasis!.value,
                 decimalPlace: data?.decimalPlace,
                 roundingProcedure: data?.roundingProcedure.value.toString(),
                 memoForPrice: data?.memoForPrice,

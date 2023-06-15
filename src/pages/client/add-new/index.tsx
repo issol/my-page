@@ -307,7 +307,7 @@ export default function AddNewClient() {
           id: Math.random(),
           isStandard: false,
           serviceType: data?.serviceType.map(value => value.value),
-          catBasis: data?.catBasis.value,
+          catBasis: data?.catBasis!.value,
           category: data?.category.value,
           currency: data?.currency.value,
           roundingProcedure: data?.roundingProcedure.value.toString()!,
@@ -522,7 +522,7 @@ export default function AddNewClient() {
             currency: item.currency,
           }))
 
-      priceLangData.length && createLanguagePair(priceLangData)
+      priceLangData.length && createLanguagePair(priceLangData, 'client')
 
       const catInterfaceData = data.catInterface
       createCatInterface(priceId, catInterfaceData!)

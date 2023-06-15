@@ -76,6 +76,7 @@ type Props = {
   ) => void
 
   onClickAction: (type: string) => void
+  page: 'client' | 'pro'
 }
 
 const AddSavePriceModal = ({
@@ -87,6 +88,7 @@ const AddSavePriceModal = ({
   onSubmit,
 
   onClickAction,
+  page,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
@@ -157,10 +159,11 @@ const AddSavePriceModal = ({
             : '',
         value: selectedPriceData.currency,
       })
-      setValue('catBasis', {
-        label: selectedPriceData.catBasis,
-        value: selectedPriceData.catBasis,
-      })
+      page === 'client' &&
+        setValue('catBasis', {
+          label: selectedPriceData.catBasis!,
+          value: selectedPriceData.catBasis!,
+        })
       setValue('decimalPlace', selectedPriceData.decimalPlace)
       setValue('roundingProcedure', {
         label: selectedPriceData.roundingProcedure,
@@ -374,31 +377,34 @@ const AddSavePriceModal = ({
                 </FormHelperText>
               )}
             </Grid>
-            <Grid item xs={6}>
-              <Controller
-                control={control}
-                name='catBasis'
-                render={({ field: { onChange, value } }) => (
-                  <Autocomplete
-                    fullWidth
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
-                    onChange={(event, item) => {
-                      onChange(item)
-                    }}
-                    value={value || { value: '', label: '' }}
-                    defaultValue={{ label: 'Words', value: 'Words' }}
-                    options={CatBasisList}
-                    id='CAT Basis'
-                    getOptionLabel={option => option.label}
-                    renderInput={params => (
-                      <TextField {...params} label='CAT calculation basis' />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
+            {page === 'client' ? (
+              <Grid item xs={6}>
+                <Controller
+                  control={control}
+                  name='catBasis'
+                  render={({ field: { onChange, value } }) => (
+                    <Autocomplete
+                      fullWidth
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
+                      }}
+                      value={value || { value: '', label: '' }}
+                      defaultValue={{ label: 'Words', value: 'Words' }}
+                      options={CatBasisList}
+                      id='CAT Basis'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField {...params} label='CAT calculation basis' />
+                      )}
+                    />
+                  )}
+                />
+              </Grid>
+            ) : null}
+
             <Grid item xs={6}>
               <FormControl fullWidth>
                 <Controller
@@ -459,7 +465,7 @@ const AddSavePriceModal = ({
                 )}
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={page === 'client' ? 6 : 12}>
               <Controller
                 control={control}
                 rules={{ required: true }}
