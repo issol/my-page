@@ -34,6 +34,7 @@ export const getPayableList = async (
           paidDateTimezone: null,
           totalPrice: 123,
           currency: 'USD',
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
         {
           id: 2,
@@ -56,6 +57,7 @@ export const getPayableList = async (
           },
           totalPrice: 123,
           currency: 'USD',
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
         {
           id: 3,
@@ -78,6 +80,7 @@ export const getPayableList = async (
           },
           totalPrice: 123000000,
           currency: 'USD',
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
       ],
       totalCount: 1,
@@ -135,6 +138,7 @@ export const getInvoicePayableCalendarData = async (
           },
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
         {
           id: 2,
@@ -157,6 +161,7 @@ export const getInvoicePayableCalendarData = async (
           },
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
         {
           id: 3,
@@ -179,6 +184,7 @@ export const getInvoicePayableCalendarData = async (
           },
           totalPrice: 123,
           currency: 'USD' as CurrencyType,
+          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
         },
       ],
       totalCount: 0,
