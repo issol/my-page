@@ -171,7 +171,10 @@ export default function JobsTrackerList({
         rowCount={list.totalCount}
         loading={isLoading}
         onCellClick={params => {
-          router.push(`/orders/job-list/tracker-view/${params.row.id}`)
+          router.push({
+            pathname: `/orders/job-list/tracker-view/${params.row.id}`,
+            query: { workName: params.row.name },
+          })
         }}
         rowsPerPageOptions={[10, 25, 50]}
         pagination

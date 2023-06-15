@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
 
 import { FilterType } from '@src/pages/orders/job-list/list-view/list-view'
+import { DetailFilterType } from '@src/pages/orders/job-list/tracker-view/[id]'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
   CreateJobParamsType,
@@ -39,43 +40,46 @@ export const getJobsTrackerList = async (
   }
 }
 export const getJobsTrackerDetail = async (
-  id: number,
-  filter: FilterType,
+  filter: DetailFilterType,
 ): Promise<{
   workName: string
   data: JobsTrackerDetailType[]
   totalCount: number
 }> => {
   try {
+    const { data } = await axios.get(
+      `/api/enough/u/job/tracker/detail?${makeQuery(filter)}`,
+    )
+    return data
     // const { data } = await axios.get(
     //   `/api/enough/u/order/list?${makeQuery(filter)}`,
     // )
     // return data
-    return {
-      workName: 'job Name',
-      data: [
-        {
-          id: 1,
-          isDelivered: true,
-          name: 'Jobs',
-          itemDueDate: Date(),
-          contactPerson: { id: 12, name: 'bon' },
-          jobDueDate: Date(),
-          assignedPro: {
-            id: 1,
-            name: 'Kitty',
-            jobTitle: 'Manager',
-            email: 'bon@glozinc.com',
-            isActive: true,
-            isOnboarded: true,
-          },
-          serviceType: 'DTP',
-          source: 'en',
-          target: 'ko',
-        },
-      ],
-      totalCount: 1,
-    }
+    // return {
+    //   workName: 'job Name',
+    //   data: [
+    //     {
+    //       id: 1,
+    //       isDelivered: true,
+    //       name: 'Jobs',
+    //       itemDueDate: Date(),
+    //       contactPerson: { id: 12, name: 'bon' },
+    //       jobDueDate: Date(),
+    //       assignedPro: {
+    //         id: 1,
+    //         name: 'Kitty',
+    //         jobTitle: 'Manager',
+    //         email: 'bon@glozinc.com',
+    //         isActive: true,
+    //         isOnboarded: true,
+    //       },
+    //       serviceType: 'DTP',
+    //       source: 'en',
+    //       target: 'ko',
+    //     },
+    //   ],
+    //   totalCount: 1,
+    // }
   } catch (error) {
     return {
       workName: '',
