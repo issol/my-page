@@ -336,6 +336,29 @@ export const InvoicePayableStatus = [
   },
 ]
 
+export const InvoicePayableCalendarStatus = [
+  {
+    value: 'Invoice created',
+    label: '#F572D8',
+  },
+  {
+    value: 'Invoice accepted',
+    label: '#9B6CD8',
+  },
+  {
+    value: 'Paid',
+    label: '#FF4D49',
+  },
+  {
+    value: 'Overdue',
+    label: '#FF4D49',
+  },
+  {
+    value: 'Canceled',
+    label: '#FF4D49',
+  },
+]
+
 export const InvoiceCalenderStatus = [
   {
     value: 'In preparation',
