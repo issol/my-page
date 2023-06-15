@@ -62,6 +62,8 @@ export type TestPaperType = {
   isActive: boolean
   createdAt: string
   updatedAt: string
+  testPaperFormUrl: string
+  responderUri: string
 }
 
 export type CertifiedRoleType = {
