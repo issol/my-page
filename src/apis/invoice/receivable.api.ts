@@ -875,6 +875,7 @@ export const getInvoiceVersionHistory = async (
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
       })),
+      members: value.projectTeam.members,
     }))
   } catch (e: any) {
     throw new Error(e)

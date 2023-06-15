@@ -78,11 +78,14 @@ import InvoiceVersionHistoryModal from './components/modal/version-history-detai
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
 import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { invoice_receivable } from '@src/shared/const/permission-class'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
   const { user } = useContext(AuthContext)
+  const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
 
   const [invoiceInfoEdit, setInvoiceInfoEdit] = useState(false)
@@ -106,6 +109,11 @@ const ReceivableInvoiceDetail = () => {
   const { openModal, closeModal } = useModal()
 
   const { data: priceUnitsList } = useGetAllPriceList()
+
+  const User = new invoice_receivable(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
 
   const {
     data: invoiceInfo,
@@ -232,6 +240,8 @@ const ReceivableInvoiceDetail = () => {
           prices={prices!}
           pricesSuccess={isSuccess}
           statusList={statusList!}
+          isUpdatable={isUpdatable}
+          isDeletable={isDeletable}
         />
       ),
     })
@@ -711,6 +721,8 @@ const ReceivableInvoiceDetail = () => {
                     getClientValue('contacts.timezone') ?? user?.timezone!
                   }
                   statusList={statusList!}
+                  isUpdatable={isUpdatable}
+                  isDeletable={isDeletable}
                 />
               ) : null}
             </TabPanel>
@@ -752,6 +764,7 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 invoiceInfo={invoiceInfo!}
                 getInvoiceInfo={getInvoiceInfo}
+                isUpdatable={isUpdatable}
               />
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
@@ -780,6 +793,7 @@ const ReceivableInvoiceDetail = () => {
                 onSave={patchInvoiceInfoMutation.mutate}
                 getInvoiceInfo={getInvoiceInfo}
                 invoiceInfo={invoiceInfo}
+                isUpdatable={isUpdatable}
               />
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>
