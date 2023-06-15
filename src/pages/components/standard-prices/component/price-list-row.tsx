@@ -32,6 +32,7 @@ export default function Row(props: {
   handleRowClick: (row: StandardPriceListType) => void
 
   isSelected: (index: number) => boolean
+  page: 'pro' | 'client'
 }) {
   const {
     row,
@@ -44,6 +45,7 @@ export default function Row(props: {
     handleRowClick,
 
     isSelected,
+    page,
   } = props
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -112,7 +114,7 @@ export default function Row(props: {
             display: 'flex',
             alignItems: 'center',
 
-            flex: 0.34,
+            flex: page === 'client' ? 0.34 : 0.36272,
           }}
           size='small'
         >
@@ -129,7 +131,7 @@ export default function Row(props: {
         ></TableCell>
         <TableCell
           sx={{
-            flex: 0.136,
+            flex: page === 'client' ? 0.136 : 0.15872,
             height: '54px',
             display: 'flex',
             alignItems: 'center',
@@ -156,7 +158,7 @@ export default function Row(props: {
             // paddingRight: '0 !important',
             display: 'flex',
             alignItems: 'center',
-            flex: 0.264,
+            flex: page === 'client' ? 0.264 : 0.2736,
             gap: '5px',
           }}
           size='small'
@@ -177,7 +179,7 @@ export default function Row(props: {
         ></TableCell>
         <TableCell
           sx={{
-            flex: 0.096,
+            flex: page === 'client' ? 0.096 : 0.11872,
             height: '54px',
             display: 'flex',
             alignItems: 'center',
@@ -205,17 +207,20 @@ export default function Row(props: {
             flex: 0.0096,
           }}
         ></TableCell>
-        <TableCell
-          sx={{
-            flex: 0.104,
-            height: '54px',
-            display: 'flex',
-            alignItems: 'center',
-          }}
-          size='small'
-        >
-          <Typography variant='body1'> {row.catBasis}</Typography>
-        </TableCell>
+        {page === 'client' && (
+          <TableCell
+            sx={{
+              flex: 0.104,
+              height: '54px',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+            size='small'
+          >
+            <Typography variant='body1'> {row.catBasis}</Typography>
+          </TableCell>
+        )}
+
         <TableCell
           sx={{
             height: '54px',

@@ -6,17 +6,18 @@ export type StandardPriceListType = {
   isStandard: boolean
   priceName: string
   client?: CreateClientResType | null
+  pro?: any | null
   category: string
   serviceType: string[]
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
 
   decimalPlace: number
   roundingProcedure: string
   memoForPrice?: string | undefined
   languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
-  catInterface: {
+  catInterface?: {
     memSource: Array<CatInterfaceType>
     memoQ: Array<CatInterfaceType>
   }
@@ -69,12 +70,13 @@ export interface PriceUnitListWithHeaders {
 
 export type AddNewPriceType = {
   clientId?: number
+  proId?: number
   isStandard: boolean
   priceName: string
   category: string
   serviceType: Array<string>
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
   decimalPlace: number
   roundingProcedure: number
   memoForPrice?: string | undefined

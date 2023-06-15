@@ -36,7 +36,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { defaultOption, languageType } from '../add-new'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
   ProjectTeamType,
@@ -61,7 +61,7 @@ import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import { useMutation } from 'react-query'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
@@ -108,7 +108,7 @@ const ReceivableInvoiceDetail = () => {
   const [value, setValue] = useState<MenuType>('invoiceInfo')
   const { openModal, closeModal } = useModal()
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(user?.id!)
 
@@ -134,7 +134,7 @@ const ReceivableInvoiceDetail = () => {
   } = useGetReceivableTeam(Number(id!))
   const { data: versionHistory, refetch: historyRefetch } =
     useGetReceivableHistory(Number(id!))
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: client?.client.clientId,
   })
   const { data: statusList, isLoading: statusListLoading } =

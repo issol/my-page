@@ -28,13 +28,10 @@ export const useGetJobsTrackerList = (filter: ListFilterType) => {
   )
 }
 
-export const useGetJobsTrackeDetail = (
-  id: number,
-  filter: DetailFilterType,
-) => {
+export const useGetJobsTrackerDetail = (filter: DetailFilterType) => {
   return useQuery(
     ['jobTrackerDetail', filter],
-    () => getJobsTrackerDetail(id, filter),
+    () => getJobsTrackerDetail(filter),
     {
       staleTime: 60 * 1000, // 1
       suspense: false,

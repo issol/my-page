@@ -15,9 +15,13 @@ import {
 import { ClientFormType } from '@src/types/schema/client.schema'
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
-  const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
+  try {
+    const { data } = await axios.get(`/api/enough/u/order/${id}/project`)
 
-  return data
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
 
 export const getProjectTeam = async (

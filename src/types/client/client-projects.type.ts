@@ -15,7 +15,7 @@ export type ClientProjectFilterType = {
 
 export type ClientProjectListType = {
   id: number
-  qId: string
+  corporationId: string
   workName: string
   projectName: string
   category: string
@@ -24,6 +24,7 @@ export type ClientProjectListType = {
   status: string
   orderDate: string
   projectDescription: string
+  type: 'order' | 'quote'
 }
 
 export type ClientInvoiceFilterType = {

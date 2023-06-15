@@ -26,7 +26,7 @@ import { VersionHistoryType } from '@src/types/common/quotes.type'
 import QuotesProjectInfoDetail from './project-info'
 import QuotesClientDetail from './client'
 import LanguagePairTable from '@src/pages/components/language-pair-detail'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import ItemDetail from '@src/pages/components/item-detail'
 
 type Props = {
@@ -41,7 +41,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   }
 
   const [pageSize, setPageSize] = useState<number>(10)
-  const { data: priceList } = useGetPriceList({ clientId: id })
+  const { data: priceList } = useGetClientPriceList({ clientId: id })
 
   return (
     <Fragment>

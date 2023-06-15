@@ -19,6 +19,7 @@ import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
 import useModal from '@src/hooks/useModal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+
 type Props = {
   priceData?: AddPriceType
   priceName?: string

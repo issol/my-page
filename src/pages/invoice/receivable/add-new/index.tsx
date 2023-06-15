@@ -69,8 +69,8 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForOrder,
   createLangPairForOrder,
@@ -85,7 +85,7 @@ import {
 } from '@src/apis/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import {
   InvoiceProjectInfoFormType,
@@ -116,7 +116,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -277,11 +279,11 @@ export default function AddNewInvoice() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
@@ -460,7 +462,7 @@ export default function AddNewInvoice() {
   }
 
   async function onCopyOrder(id: number | null) {
-    const priceList = await getPriceList({})
+    const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getProjectTeam(id)

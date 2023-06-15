@@ -18,7 +18,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import languageHelper from '@src/shared/helpers/language.helper'
@@ -111,7 +111,7 @@ const InvoiceLanguageAndItem = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
 

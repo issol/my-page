@@ -40,11 +40,11 @@ const defaultValues: AddNewLanguagePair = {
 
 type Props = {
   onClose: any
-
+  page: 'pro' | 'client'
   priceData: StandardPriceListType
 }
 
-const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {
+const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
   const { closeModal, openModal } = useModal()
 
   const languageList = getGloLanguage()
@@ -75,11 +75,11 @@ const AddNewLanguagePairModal = ({ onClose, priceData }: Props) => {
   })
 
   const addLanguagePairMutation = useMutation(
-    (data: LanguagePairParams[]) => createLanguagePair(data),
+    (data: LanguagePairParams[]) => createLanguagePair(data, page),
     {
       onSuccess: data => {
         // refetch()
-        queryClient.invalidateQueries('standard-client-prices')
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
         toast.success(`Success`, {
           position: 'bottom-left',

@@ -49,7 +49,7 @@ export const getPriceUnitList = async (
   }
 }
 
-export const getAllPriceUnitList = async (): Promise<
+export const getAllClientPriceUnitList = async (): Promise<
   Array<PriceUnitListType>
 > => {
   try {

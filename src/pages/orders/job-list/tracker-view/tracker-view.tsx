@@ -53,6 +53,8 @@ export default function JobTrackerView({ clients, onCreateNewJob }: Props) {
 
   const { data: list, isLoading } = useGetJobsTrackerList(activeFilter)
 
+  console.log(list)
+
   useEffect(() => {
     const newFilter = findServiceTypeFilter()
     setServiceTypeOptions(newFilter)

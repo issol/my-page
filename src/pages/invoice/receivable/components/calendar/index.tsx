@@ -12,6 +12,7 @@ import { Typography } from '@mui/material'
 import ReceivableCalendar from './calendar'
 import ReceivableList from '../list/list'
 import CalendarSideBar from '@src/pages/components/sidebar'
+import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -25,6 +26,8 @@ import {
   InvoiceReceivableFilterType,
   InvoiceReceivableListType,
 } from '@src/types/invoice/receivable.type'
+
+import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
 
 // ** apis
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
@@ -105,16 +108,11 @@ const CalendarContainer = () => {
           },
         }}
       >
-        <CalendarSideBar
-          title='Invoice status'
+        <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          event={event}
-          month={month}
+          status={InvoiceCalenderStatus}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={setCurrentListId}
         />
         <Box
           sx={{

@@ -239,7 +239,7 @@ export const getClientProjectList = async (
     const list: ClientProjectListType[] = [
       {
         id: 0,
-        qId: 'Q-000001',
+        corporationId: 'Q-000001',
         workName: 'The Glory',
         projectName: 'The Glory 1~2',
         category: 'Webcomics',
@@ -248,10 +248,11 @@ export const getClientProjectList = async (
         status: 'Active',
         orderDate: '2022-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'quote',
       },
       {
         id: 1,
-        qId: 'O-000001',
+        corporationId: 'O-000001',
         workName: 'Dark Night',
         projectName: 'Dark Night 1~2',
         category: 'Webcomics',
@@ -260,6 +261,7 @@ export const getClientProjectList = async (
         status: 'Active',
         orderDate: '2022-04-20T14:13:15Z',
         projectDescription: 'Test2',
+        type: 'order',
       },
     ]
     // return data
@@ -297,7 +299,7 @@ export const getClientProjectsCalendarData = async (
     const list: ClientProjectListType[] = [
       {
         id: 4,
-        qId: 'Q-000001',
+        corporationId: 'O-000004',
         workName: 'The Glory',
         projectName: 'The Glory 1~2',
         category: 'Webcomics',
@@ -306,10 +308,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
       {
         id: 1,
-        qId: 'O-000001',
+        corporationId: 'O-000001',
         workName: 'Hoffman Website',
         projectName: 'Website 4',
         category: 'Webnovels',
@@ -318,10 +321,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
       {
         id: 2,
-        qId: 'Q-000002',
+        corporationId: 'Q-000002',
         workName: 'Black Mirror',
         projectName: 'Black Mirror 3~4',
         category: 'Documents/Text',
@@ -330,10 +334,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'quote',
       },
       {
         id: 3,
-        qId: 'O-000002',
+        corporationId: 'O-000003',
         workName: 'DP',
         projectName: 'DP 1.5',
         category: 'OTT/Subtitle',
@@ -342,6 +347,7 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
     ]
     return {

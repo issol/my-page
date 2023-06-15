@@ -312,3 +312,39 @@ export const AssignmentStatus = [
     label: 'Canceled',
   },
 ]
+
+
+export const InvoiceCalenderStatus = [
+  {
+    value: "In preparation",
+    label: "#F572D8"
+  },
+  {
+    value: "Checking in progress",
+    label: "#FDB528"
+  },
+  {
+    value: "Accepted by client",
+    label: "#64C623"
+  },
+  {
+    value: "Tax invoice issued",
+    label: "#46A4C2"
+  },
+  {
+    value: "Paid",
+    label: "#267838"
+  },
+  {
+    value: "Overdue",
+    label: "#FF4D49"
+  },
+  {
+    value: "Overdue (Reminder sent)",
+    label: "#FF4D49"
+  },
+  {
+    value: "Canceled",
+    label: "#FF4D49"
+  },
+]

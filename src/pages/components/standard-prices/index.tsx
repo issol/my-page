@@ -50,42 +50,34 @@ import {
   patchPrice,
 } from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
 type Props = {
-  standardPrices: { data: StandardPriceListType[]; count: number }
   clientId?: number
-  isLoading: boolean
+  proId?: number
   title: string
-  refetch: <TPageData>(
-    options?: (RefetchOptions & RefetchQueryFilters<TPageData>) | undefined,
-  ) => Promise<
-    QueryObserverResult<
-      {
-        data: StandardPriceListType[]
-        count: number
-      },
-      unknown
-    >
-  >
+  page: 'pro' | 'client'
 }
 
-const StandardPrices = ({
-  standardPrices,
-  clientId,
-  isLoading,
-  refetch,
-  title,
-}: Props) => {
+const StandardPrices = ({ clientId, page, title, proId }: Props) => {
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
     take: 1000,
   })
 
-  const [standardClientPriceListPage, setStandardClientPriceListPage] =
-    useState<number>(0)
-  const [standardClientPriceListPageSize, setStandardClientPriceListPageSize] =
+  const [standardPriceListPage, setStandardPriceListPage] = useState<number>(0)
+  const [standardPriceListPageSize, setStandardPriceListPageSize] =
     useState<number>(10)
+
+  const {
+    data: standardPrices,
+    isLoading,
+    refetch,
+  } = useGetStandardPrices(page, {
+    take: standardPriceListPageSize,
+    skip: standardPriceListPage * standardPriceListPageSize,
+  })
 
   const [languagePairListPage, setLanguagePairListPage] = useState<number>(0)
   const [languagePairListPageSize, setLanguagePairListPageSize] =
@@ -122,10 +114,10 @@ const StandardPrices = ({
   const { openModal, closeModal } = useModal()
 
   const addNewPriceMutation = useMutation(
-    (data: AddNewPriceType) => createPrice(data),
+    (data: AddNewPriceType) => createPrice(data, page),
     {
       onSuccess: data => {
-        queryClient.invalidateQueries('standard-client-prices')
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
         toast.success(`Success`, {
           position: 'bottom-left',
@@ -141,10 +133,10 @@ const StandardPrices = ({
 
   const patchPriceMutation = useMutation(
     (value: { data: AddNewPriceType; id: number }) =>
-      patchPrice(value.data, value.id),
+      patchPrice(value.data, value.id, page),
     {
       onSuccess: data => {
-        queryClient.invalidateQueries('standard-client-prices')
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
         toast.success(`Success`, {
           position: 'bottom-left',
@@ -158,20 +150,23 @@ const StandardPrices = ({
     },
   )
 
-  const deletePriceMutation = useMutation((id: number) => deletePrice(id), {
-    onSuccess: data => {
-      queryClient.invalidateQueries('standard-client-prices')
+  const deletePriceMutation = useMutation(
+    (id: number) => deletePrice(id, page),
+    {
+      onSuccess: data => {
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
-      toast.success(`Success`, {
-        position: 'bottom-left',
-      })
+        toast.success(`Success`, {
+          position: 'bottom-left',
+        })
+      },
+      onError: error => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
     },
-    onError: error => {
-      toast.error('Something went wrong. Please try again.', {
-        position: 'bottom-left',
-      })
-    },
-  })
+  )
   const onClickAction = (
     type: string,
     data?: AddPriceType,
@@ -180,18 +175,22 @@ const StandardPrices = ({
     if (type === 'Add' || type === 'Cancel') {
       if (type === 'Add') {
         const obj: AddNewPriceType = {
-          isStandard: clientId ? false : true,
+          isStandard: clientId || proId ? false : true,
           priceName: data?.priceName!,
           category: data?.category.value!,
           serviceType: data?.serviceType.map(value => value.value)!,
           currency: data?.currency.value!,
-          catBasis: data?.catBasis.value!,
           decimalPlace: data?.decimalPlace!,
           roundingProcedure: data?.roundingProcedure.value!,
           memoForPrice: data?.memoForPrice!,
         }
+        if (page === 'client') {
+          obj['catBasis'] = data?.catBasis!.value!
+        }
         if (clientId) {
           obj['clientId'] = clientId
+        } else if (proId) {
+          obj['proId'] = proId
         }
 
         addNewPriceMutation.mutate(obj)
@@ -201,18 +200,23 @@ const StandardPrices = ({
       deletePriceMutation.mutate(selectedData?.id!)
     } else if (type === 'Save') {
       const obj: AddNewPriceType = {
-        isStandard: clientId ? false : true,
+        isStandard: clientId || proId ? false : true,
         priceName: data?.priceName!,
         category: data?.category.value!,
         serviceType: data?.serviceType.map(value => value.value)!,
         currency: data?.currency.value!,
-        catBasis: data?.catBasis.value!,
+
         decimalPlace: data?.decimalPlace!,
         roundingProcedure: data?.roundingProcedure.value!,
         memoForPrice: data?.memoForPrice!,
       }
+      if (page === 'client') {
+        obj['catBasis'] = data?.catBasis!.value!
+      }
       if (clientId) {
         obj['clientId'] = clientId
+      } else if (proId) {
+        obj['proId'] = proId
       }
       patchPriceMutation.mutate({ data: obj, id: selectedData?.id! })
       closeModal(`${selectedModalType}PriceModal`)
@@ -255,6 +259,7 @@ const StandardPrices = ({
             type={'Add'}
             onSubmit={onSubmit}
             onClickAction={onClickAction}
+            page={page}
           />
         ),
       })
@@ -286,6 +291,7 @@ const StandardPrices = ({
           onSubmit={onSubmit}
           selectedPriceData={priceData!}
           onClickAction={onClickAction}
+          page={page}
         />
       ),
     })
@@ -335,6 +341,7 @@ const StandardPrices = ({
         <AddNewLanguagePairModal
           onClose={() => closeModal('addNewLanguagePairModal')}
           priceData={selectedPriceData!}
+          page={page}
         />
       ),
     })
@@ -352,6 +359,7 @@ const StandardPrices = ({
           priceUnitPair={selectedPriceData?.priceUnit!}
           setIsEditingCatInterface={setIsEditingCatInterface}
           refetch={refetch}
+          page={page}
         />
       ),
     })
@@ -366,10 +374,12 @@ const StandardPrices = ({
   }, [selectedPriceData])
 
   useEffect(() => {
-    if (selectedPriceData) {
-      const updatedData = standardPrices.data?.find(
-        value => value.id === selectedPriceData.id,
-      )
+    if (standardPrices && selectedPriceData) {
+      const updatedData: StandardPriceListType | null =
+        standardPrices.data?.find(
+          (value: StandardPriceListType) => value.id === selectedPriceData.id,
+        ) ?? null
+
       setSelectedPriceData(updatedData!)
       setPriceUnitList(updatedData?.priceUnit!)
     }
@@ -382,10 +392,10 @@ const StandardPrices = ({
           list={standardPrices?.data!}
           listCount={standardPrices?.count!}
           isLoading={isLoading}
-          listPage={standardClientPriceListPage}
-          setListPage={setStandardClientPriceListPage}
-          listPageSize={standardClientPriceListPageSize}
-          setListPageSize={setStandardClientPriceListPageSize}
+          listPage={standardPriceListPage}
+          setListPage={setStandardPriceListPage}
+          listPageSize={standardPriceListPageSize}
+          setListPageSize={setStandardPriceListPageSize}
           setSelectedRow={setSelectedPriceData}
           onClickAddNewPrice={onClickAddNewPrice}
           onClickEditPrice={onClickEditPrice}
@@ -394,6 +404,7 @@ const StandardPrices = ({
           isSelected={isSelected}
           selected={selected}
           title={title}
+          page={page}
         />
       </Grid>
       {selectedPriceData ? (
@@ -422,6 +433,7 @@ const StandardPrices = ({
                   existPriceUnit={priceUnitList.length > 0}
                   selectedLanguagePair={selectedLanguagePair!}
                   priceData={selectedPriceData!}
+                  page={page}
                 />
                 <Box
                   sx={{
@@ -444,15 +456,17 @@ const StandardPrices = ({
               </Box>
             </Card>
           </Grid>
-          <Grid item xs={12}>
-            <CatInterface
-              priceUnitList={priceUnitList}
-              priceData={selectedPriceData}
-              existPriceUnit={priceUnitList.length > 0}
-              setIsEditingCatInterface={setIsEditingCatInterface}
-              isEditingCatInterface={isEditingCatInterface}
-            />
-          </Grid>
+          {page === 'client' && (
+            <Grid item xs={12}>
+              <CatInterface
+                priceUnitList={priceUnitList}
+                priceData={selectedPriceData}
+                existPriceUnit={priceUnitList.length > 0}
+                setIsEditingCatInterface={setIsEditingCatInterface}
+                isEditingCatInterface={isEditingCatInterface}
+              />
+            </Grid>
+          )}
         </>
       ) : null}
     </Grid>

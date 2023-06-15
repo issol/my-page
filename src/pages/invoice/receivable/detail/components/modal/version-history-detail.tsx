@@ -19,7 +19,7 @@ import { InvoiceVersionHistoryType } from '@src/types/invoice/receivable.type'
 import InvoiceInfo from '../invoice-info'
 import InvoiceLanguageAndItem from '../language-item'
 import { defaultOption, languageType } from '../../../add-new'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType } from '@src/types/common/item.type'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { itemSchema } from '@src/types/schema/item.schema'
@@ -70,7 +70,7 @@ const InvoiceVersionHistoryModal = ({
     setValue(newValue)
   }
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
@@ -231,7 +231,7 @@ const InvoiceVersionHistoryModal = ({
           }}
         >
           <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.invoiceInfo.corporationId}`}</Typography>
+          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.projectInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
           <TabList
@@ -275,7 +275,7 @@ const InvoiceVersionHistoryModal = ({
           <TabPanel value='1' sx={{ height: '100%', minHeight: '552px' }}>
             <InvoiceInfo
               type='history'
-              invoiceInfo={history.invoiceInfo}
+              invoiceInfo={history.projectInfo}
               edit={false}
               orderId={history.id}
               statusList={statusList}
@@ -299,7 +299,7 @@ const InvoiceVersionHistoryModal = ({
                 items={items}
                 removeItems={removeItems}
                 getTeamValues={getTeamValues}
-                invoiceInfo={history.invoiceInfo}
+                invoiceInfo={history.projectInfo}
               />
             </Grid>
           </TabPanel>

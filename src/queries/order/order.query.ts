@@ -50,6 +50,7 @@ export const useGetProjectInfo = (id: number) => {
     staleTime: 60 * 1000, // 1
 
     suspense: true,
+    enabled: !!id && !isNaN(id),
   })
 }
 
