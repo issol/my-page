@@ -49,7 +49,7 @@ export const useGetProjectInfo = (id: number) => {
   return useQuery([`projectInfo-${id}`, id], () => getProjectInfo(id), {
     staleTime: 60 * 1000, // 1
 
-    suspense: false,
+    suspense: true,
     enabled: !!id && !isNaN(id),
   })
 }
