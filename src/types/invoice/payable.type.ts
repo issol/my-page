@@ -7,11 +7,11 @@ export type InvoicePayableFilterType = {
   invoiceStatus?: string[]
   pro?: string[]
   invoicedDateFrom?: string
-  invoicedDateTo?: string // 또는 invoiceDate : Date[]
+  invoicedDateTo?: string
   payDueDateFrom?: string
-  payDueDateTo?: string // 또는 paymentDue : Date[]
+  payDueDateTo?: string
   paidDateFrom?: string
-  paidDateTo?: string // 또는 paymentDate : Date[]
+  paidDateTo?: string
   search?: string
 
   mine?: 0 | 1
@@ -23,15 +23,15 @@ export type InvoicePayableFilterType = {
 
 export type InvoicePayableListType = {
   id: number
-  adminCompanyName: string //추가
+  adminCompanyName: string
   corporationId: string
-  invoiceStatus: InvoicePayableStatusType // 수정
+  invoiceStatus: InvoicePayableStatusType
   pro: { name: string; email: string }
-  invoicedAt: string //수정
-  payDueAt: string //수정
-  payDueTimezone: CountryType | null //추가
+  invoicedAt: string
+  payDueAt: string
+  payDueTimezone: CountryType | null
   paidAt: string | null
-  paidDateTimezone: CountryType | null //추가
+  paidDateTimezone: CountryType | null
   totalPrice: number
   currency: CurrencyType
   statusUpdatedAt: string
