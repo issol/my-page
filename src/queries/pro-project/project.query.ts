@@ -8,11 +8,11 @@ import { getProjectCalendarData } from '@src/apis/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetWorkNameList = () => {
+export const useGetWorkNameList = (id: number) => {
   return useQuery(
     'get-project/workname',
     () => {
-      return getWorkNameFilterList()
+      return getWorkNameFilterList(id)
     },
     {
       suspense: true,
