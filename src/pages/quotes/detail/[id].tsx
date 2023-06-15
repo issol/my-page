@@ -736,7 +736,7 @@ export default function QuotesDetail() {
         <DownloadQuotesModal
           onClose={() => {
             closeModal('DownloadQuotesModal')
-            dispatch(setIsReady(null))
+            dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
         />

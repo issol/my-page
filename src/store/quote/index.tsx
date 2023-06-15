@@ -25,8 +25,8 @@ export const quoteSlice: Slice<ReducerType> = createSlice({
       state.lang = action.payload
     },
 
-    setIsReady(state) {
-      state.isReady = false
+    setIsReady(state, action) {
+      state.isReady = action.payload
     },
   },
 })

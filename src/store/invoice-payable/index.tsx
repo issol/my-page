@@ -25,8 +25,9 @@ export const invoicePayableSlice: Slice<ReducerType> = createSlice({
       state.lang = action.payload
     },
 
-    setInvoicePayableIsReady(state) {
-      state.isReady = false
+    setInvoicePayableIsReady(state, action) {
+      console.log('action', action.payload)
+      state.isReady = action.payload
     },
   },
 })
