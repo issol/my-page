@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useContext, useState } from 'react'
 
+// ** style components
 import {
   Box,
   Button,
@@ -8,23 +9,35 @@ import {
   CardHeader,
   Dialog,
   DialogContent,
-  DialogTitle,
   Grid,
-  IconButton,
   Typography,
 } from '@mui/material'
+import { Icon } from '@iconify/react'
+
+// ** components
 import InvoiceDetailCard from './invoice-detail-card'
 import InvoiceAmount from './invoice-amount'
 import InvoiceJobList from './job-list'
-import { Icon } from '@iconify/react'
+import JobDetail from './job-detail'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
+
+// ** apis
 import { deleteJob } from '@src/apis/job-detail.api'
-import { useMutation } from 'react-query'
-import { toast } from 'react-hot-toast'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import JobDetail from './job-detail'
+import { useMutation } from 'react-query'
+
+import { toast } from 'react-hot-toast'
+
+// ** contexts
+import { AuthContext } from '@src/context/AuthContext'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+
+// ** permission
+import { invoice_payable } from '@src/shared/const/permission-class'
 
 /* TODO:
  Jobs타이틀에 list총 갯수 표기하기
@@ -32,14 +45,22 @@ import JobDetail from './job-detail'
  list에 fetched된 데이터 전달하기, 실데이터 표기하기
  delete invoice추가
 */
+
 export default function InvoiceInfo() {
   const { openModal, closeModal } = useModal()
+
+  const { user } = useContext(AuthContext)
+  const ability = useContext(AbilityContext)
+  const User = new invoice_payable(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
 
   const [editInfo, setEditInfo] = useState(false)
   const [selectedJobs, setSelectedJobs] = useState<Array<number>>([])
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
+  //TODO: deleteJob이 아닌 다른 api사용해야 하므로 함수 교체하기
   function deleteJobs() {
     const promises = selectedJobs.map(jobId => deleteJob(jobId))
     Promise.all(promises)
@@ -115,7 +136,7 @@ export default function InvoiceInfo() {
                 <Button
                   size='small'
                   variant='contained'
-                  disabled={!selectedJobs.length}
+                  disabled={!selectedJobs.length || !isUpdatable}
                   startIcon={<Icon icon='mdi:trash-outline' />}
                   onClick={onRemoveJobs}
                 >
@@ -125,6 +146,7 @@ export default function InvoiceInfo() {
             }
           />
           <InvoiceJobList
+            isUpdatable={isUpdatable}
             selectedJobs={selectedJobs}
             setSelectedJobs={setSelectedJobs}
             onRowClick={onRowClick}

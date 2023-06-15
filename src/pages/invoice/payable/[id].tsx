@@ -1,4 +1,4 @@
-import { MouseEvent, useContext, useEffect, useState } from 'react'
+import { MouseEvent, Suspense, useContext, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -18,20 +18,29 @@ import {
 import styled from 'styled-components'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
+// ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { AuthContext } from '@src/context/AuthContext'
 
+// ** hooks
 import { useRouter } from 'next/router'
-import InvoiceInfo from './components/detail/invoice-info'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import useModal from '@src/hooks/useModal'
-import { AuthContext } from '@src/context/AuthContext'
+
+// ** components
+import InvoiceInfo from './components/detail/invoice-info'
+import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+
+// ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
 import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
 import { setInvoicePayable } from '@src/store/invoice-payable'
 import { setInvoicePayableLang } from '@src/store/invoice-payable'
-import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
+
+// ** permission class
 import { invoice_payable } from '@src/shared/const/permission-class'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
 
 type MenuType = 'info' | 'history'
 
@@ -78,7 +87,7 @@ export default function PayableDetail() {
 
   function handlePrint() {
     closeModal('DownloadQuotesModal')
-    router.push('/quotes/print')
+    router.push('/invoice/payable/print')
   }
 
   function onClickDelete() {
@@ -96,7 +105,8 @@ export default function PayableDetail() {
   }
 
   useEffect(() => {
-    if (invoicePayable.isReady && invoicePayable.invoicePayableData) {
+    console.log('invoicePayable.isReady', invoicePayable.isReady)
+    if (invoicePayable.isReady /* && invoicePayable.invoicePayableData */) {
       openModal({
         type: 'PreviewModal',
         isCloseable: false,
@@ -112,19 +122,22 @@ export default function PayableDetail() {
             }}
           >
             <div className='page'>
-              {/* <PrintQuotePage
+              <PrintInvoicePayablePreview
                 data={invoicePayable.invoicePayableData}
                 type='preview'
                 user={user!}
                 lang={invoicePayable.lang}
-              /> */}
+              />
             </div>
 
             <Box display='flex' justifyContent='center' gap='10px'>
               <Button
                 variant='outlined'
                 sx={{ width: 226 }}
-                onClick={() => closeModal('PreviewModal')}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setInvoicePayableIsReady(false))
+                }}
               >
                 Close
               </Button>
@@ -152,7 +165,6 @@ export default function PayableDetail() {
         <DownloadQuotesModal
           onClose={() => {
             closeModal('DownloadQuotesModal')
-            dispatch(setInvoicePayableIsReady(null))
           }}
           onClick={onClickPreview}
         />
@@ -164,7 +176,10 @@ export default function PayableDetail() {
     // const pm = team?.find(value => value.position === 'projectManager')
     // const res: InvoicePayableDownloadData = {
     // }
-    // dispatch(setInvoicePayableLang(lang))
+    dispatch(setInvoicePayableLang(lang))
+    //TODO:아래코드는 임시코드
+    dispatch(setInvoicePayableIsReady(true))
+
     // dispatch(setInvoicePayable(res))
   }
 

@@ -24,11 +24,13 @@ type Props = {
   onRowClick: (id: number) => void
   selectedJobs: number[]
   setSelectedJobs: (id: number[]) => void
+  isUpdatable: boolean
 }
 export default function InvoiceJobList({
   onRowClick,
   selectedJobs,
   setSelectedJobs,
+  isUpdatable,
 }: Props) {
   function Row() {
     const [open, setOpen] = useState(false)
@@ -36,7 +38,7 @@ export default function InvoiceJobList({
       <Fragment>
         <CustomTableRow isDisabled={false}>
           <TableCell>
-            <Checkbox />
+            <Checkbox disabled={!isUpdatable} />
           </TableCell>
           <TableCell>
             <IconButton onClick={() => setOpen(!open)}>
@@ -92,7 +94,7 @@ export default function InvoiceJobList({
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
             <TableRow>
               <HeaderCell width='18px'>
-                <Checkbox />
+                <Checkbox /* onClick={()=> setSelectedJobs()} */ />
               </HeaderCell>
               <HeaderCell width='18px'>
                 <Icon icon='mdi:chevron-down' fontSize={18} />

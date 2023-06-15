@@ -1,0 +1,11 @@
+{
+  "companyName": "GloZ Inc.",
+  "companyAddress": "3325 Wilshire Blvd Ste 626 Los Angeles CA 90010",
+  "invoiceNumber": "Invoice No.",
+  "invoiceDate": "Invoice date",
+  "invoiceFrom": "Invoice from",
+  "jobDescription": "Job description",
+  "quantity": "Quantity",
+  "price": "Price",
+  "totalPrice": "Total price"
+}
