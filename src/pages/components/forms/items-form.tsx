@@ -44,7 +44,7 @@ import { MemberType } from '@src/types/schema/project-team.schema'
 import { languageType } from '@src/pages/orders/add-new'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 
 // ** helpers
@@ -81,7 +81,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardClientPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: string
   orderId?: number

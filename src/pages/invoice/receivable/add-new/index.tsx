@@ -35,7 +35,7 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
 import {
@@ -113,10 +113,10 @@ export type languageType = {
   id: number | string
   source: string
   target: string
-  price: StandardClientPriceListType | null
+  price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardClientPriceListType & {
+export const defaultOption: StandardPriceListType & {
   groupName: string
 } = {
   id: NOT_APPLICABLE,

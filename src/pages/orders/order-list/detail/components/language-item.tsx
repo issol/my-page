@@ -29,7 +29,7 @@ import {
 } from '@src/types/common/orders-and-quotes.type'
 import {
   PriceUnitListType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { itemSchema } from '@src/types/schema/item.schema'

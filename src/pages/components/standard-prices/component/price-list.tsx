@@ -14,12 +14,13 @@ import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 import Row from './price-list-row'
 import TablePagination from '@mui/material/TablePagination'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type Props = {
-  list: StandardClientPriceListType[]
+  list: Array<StandardPriceListType>
   listCount: number
   isLoading: boolean
   listPage: number
@@ -27,10 +28,10 @@ type Props = {
   listPageSize: number
   setListPageSize: Dispatch<SetStateAction<number>>
   onClickAddNewPrice: () => void
-  onClickEditPrice: (priceData: StandardClientPriceListType) => void
-  onClickDeletePrice: (priceData: StandardClientPriceListType) => void
-  setSelectedRow: Dispatch<SetStateAction<StandardClientPriceListType | null>>
-  handleRowClick: (row: StandardClientPriceListType) => void
+  onClickEditPrice: (priceData: StandardPriceListType) => void
+  onClickDeletePrice: (priceData: StandardPriceListType) => void
+  setSelectedRow: Dispatch<SetStateAction<StandardPriceListType | null>>
+  handleRowClick: (row: StandardPriceListType) => void
   isSelected: (index: number) => boolean
   selected: number | null
   title: string
@@ -69,7 +70,9 @@ const PriceList = ({
           Add new price
         </Button>
       </Box>
-      {isLoading ? null : (
+      {isLoading ? (
+        <FallbackSpinner noImage={true} />
+      ) : (
         <>
           <TableContainer component={Paper}>
             <Table aria-label='collapsible table'>

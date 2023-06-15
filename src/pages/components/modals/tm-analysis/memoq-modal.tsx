@@ -25,7 +25,7 @@ import CustomChip from 'src/@core/components/mui/chip'
 import styled from 'styled-components'
 import {
   CatInterfaceType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import { FieldArrayWithId } from 'react-hook-form'
@@ -53,7 +53,7 @@ type Props = {
   fileName: string
   onClose: () => void
   data: MemoQType
-  priceData: StandardClientPriceListType | null
+  priceData: StandardPriceListType | null
   priceFactor: number | undefined
   onCopyAnalysis?: (data: onCopyAnalysisParamType) => void
 }

@@ -11,13 +11,12 @@ import {
   SetPriceUnitPair,
   CatInterfaceType,
   CatInterfaceParams,
-  StandardClientPriceListType,
-  StandardProPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 
 export const getClientPriceList = async (
   filter: ClientPriceListFilterType,
-): Promise<StandardClientPriceListType[]> => {
+): Promise<StandardPriceListType[]> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/client-price/preset?${makeQuery(filter)}`,
@@ -30,7 +29,7 @@ export const getClientPriceList = async (
 
 export const getProPriceList = async (
   filter: ProPriceListFilterType,
-): Promise<StandardProPriceListType[]> => {
+): Promise<StandardPriceListType[]> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/pro-price/preset?${makeQuery(filter)}`,
@@ -41,14 +40,24 @@ export const getProPriceList = async (
   }
 }
 
-export const getStandardClientPrice = async () => {
-  // const { data } = await axios.get('/api/company/signup-requests')
+export const getStandardPrice = async (
+  page: 'pro' | 'client',
+  filter: {
+    take: number
+    skip: number
+  },
+): Promise<{
+  data: Array<StandardPriceListType>
+  count: number
+}> => {
   try {
-    const { data } = await axios.get('/api/enough/u/client-price/al')
+    const { data } = await axios.get(
+      `/api/enough/u/${page}-price/al?${makeQuery(filter)}`,
+    )
     // /api/enough/u/price/al
     return data
   } catch (e: any) {
-    return []
+    throw new Error(e)
   }
 }
 
@@ -64,17 +73,22 @@ export const getCatInterfaceHeaders = async (toolName: string) => {
 
 export const createPrice = async (
   data: AddNewPriceType,
+  page: 'pro' | 'client',
 ): Promise<CreatePriceResType> => {
-  const res = await axios.post('/api/enough/u/client-price', data)
+  const res = await axios.post(`/api/enough/u/${page}-price`, data)
   return res.data
 }
 
-export const patchPrice = async (data: AddNewPriceType, id: number) => {
-  await axios.patch(`/api/enough/u/client-price/${id}`, data)
+export const patchPrice = async (
+  data: AddNewPriceType,
+  id: number,
+  page: 'pro' | 'client',
+) => {
+  await axios.patch(`/api/enough/u/${page}-price/${id}`, data)
 }
 
-export const deletePrice = async (priceId: number) => {
-  await axios.delete(`/api/enough/u/client-price/${priceId}`)
+export const deletePrice = async (priceId: number, page: 'pro' | 'client') => {
+  await axios.delete(`/api/enough/u/${page}-price/${priceId}`)
 }
 
 export const setPriceUnitPair = async (
@@ -86,37 +100,36 @@ export const setPriceUnitPair = async (
   })
 }
 
-export const patchPriceUnitPair = async (
-  data: SetPriceUnitPair[],
-  id: number,
-) => {
-  await axios.patch(`/api/enough/u/client-price/unit/pair?priceId=${id}`, {
-    data: data,
-  })
-}
-
 export const putPriceUnitPair = async (
   data: SetPriceUnitPair[],
   id: number,
+  page: 'pro' | 'client',
 ) => {
-  await axios.put(`/api/enough/u/client-price/unit/pair?priceId=${id}`, {
+  await axios.put(`/api/enough/u/${page}-price/unit/pair?priceId=${id}`, {
     data: data,
   })
 }
 
-export const createLanguagePair = async (data: LanguagePairParams[]) => {
-  await axios.post('/api/enough/u/client-price/language/pair', { data: data })
+export const createLanguagePair = async (
+  data: LanguagePairParams[],
+  page: 'pro' | 'client',
+) => {
+  await axios.post(`/api/enough/u/${page}-price/language/pair`, { data: data })
 }
 
 export const patchLanguagePair = async (
   data: LanguagePairParams,
   id: number,
+  page: 'pro' | 'client',
 ) => {
-  await axios.patch(`/api/enough/u/client-price/language/pair/${id}`, data)
+  await axios.patch(`/api/enough/u/${page}-price/language/pair/${id}`, data)
 }
 
-export const deleteLanguagePair = async (id: number) => {
-  await axios.delete(`/api/enough/u/client-price/language/pair/${id}`)
+export const deleteLanguagePair = async (
+  id: number,
+  page: 'pro' | 'client',
+) => {
+  await axios.delete(`/api/enough/u/${page}-price/language/pair/${id}`)
 }
 
 export const createCatInterface = async (

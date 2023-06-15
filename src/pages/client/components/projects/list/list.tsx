@@ -13,7 +13,7 @@ import Paper from '@mui/material/Paper'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 
 import TablePagination from '@mui/material/TablePagination'
-import { StandardClientPriceListType } from '@src/types/common/standard-price'
+
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import ClientProjectsRows from './list-row'

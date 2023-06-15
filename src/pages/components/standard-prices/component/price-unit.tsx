@@ -10,14 +10,14 @@ import {
 import {
   LanguagePairListType,
   PriceUnitListType,
-  StandardClientPriceListType,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 
 type Props = {
   list: PriceUnitListType[]
   listCount: number
   isLoading: boolean
-  priceData: StandardClientPriceListType
+  priceData: StandardPriceListType
   selectedLanguagePair: LanguagePairListType | null
   onClickSetPriceUnit: () => void
 }

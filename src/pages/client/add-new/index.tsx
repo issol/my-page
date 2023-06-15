@@ -54,8 +54,8 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
-  StandardClientPriceListType,
   CatInterfaceParams,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
@@ -78,7 +78,7 @@ import {
 import { toast } from 'react-hot-toast'
 
 type PriceListCopyRowType = Omit<
-  StandardClientPriceListType,
+  StandardPriceListType,
   'languagePairs' | 'priceUnit' | 'id'
 > & {
   id?: number
@@ -207,11 +207,9 @@ export default function AddNewClient() {
   // ** step 4
   const [selectedModalType, setSelectedModalType] = useState('')
 
-  const [priceList, setPriceList] = useState<
-    StandardClientPriceListType[] | []
-  >([])
+  const [priceList, setPriceList] = useState<StandardPriceListType[] | []>([])
   const [selectedPrice, setSelectedPrice] =
-    useState<StandardClientPriceListType | null>(null)
+    useState<StandardPriceListType | null>(null)
   const [selectedLanguagePair, setSelectedLanguagePair] =
     useState<LanguagePairListType | null>(null)
 
@@ -265,7 +263,7 @@ export default function AddNewClient() {
     }
   }
 
-  const onEditPrice = (priceData: StandardClientPriceListType) => {
+  const onEditPrice = (priceData: StandardPriceListType) => {
     setSelectedModalType('Edit')
     openModal({
       type: 'EditPriceModal',
@@ -283,11 +281,11 @@ export default function AddNewClient() {
     })
   }
 
-  function deletePrice(data: StandardClientPriceListType) {
+  function deletePrice(data: StandardPriceListType) {
     setPriceList(priceList.filter(item => item.id !== data.id))
   }
 
-  const onDeletePrice = (priceData: StandardClientPriceListType) => {
+  const onDeletePrice = (priceData: StandardPriceListType) => {
     openModal({
       type: 'DeletePriceModal',
       children: (
@@ -304,7 +302,7 @@ export default function AddNewClient() {
   const onSubmitPrice = (type: string, data?: AddPriceType) => {
     if (type === 'Add' || type === 'Discard') {
       if (type === 'Add' && data) {
-        const formData: StandardClientPriceListType = {
+        const formData: StandardPriceListType = {
           ...data,
           id: Math.random(),
           isStandard: false,
@@ -461,7 +459,7 @@ export default function AddNewClient() {
           roundingProcedure: Number(copy.roundingProcedure),
         }
         promiseArr.push(
-          createPrice(form)
+          createPrice(form, 'client')
             .then(res => onCreatePriceSuccess(res.id, row))
             .catch(e => onMutationError()),
         )
@@ -499,10 +497,7 @@ export default function AddNewClient() {
     })
   }
 
-  function onCreatePriceSuccess(
-    priceId: number,
-    data: StandardClientPriceListType,
-  ) {
+  function onCreatePriceSuccess(priceId: number, data: StandardPriceListType) {
     if (!data.languagePairs.length && !data.priceUnit.length) {
       return
     } else {
@@ -530,7 +525,7 @@ export default function AddNewClient() {
       priceLangData.length && createLanguagePair(priceLangData)
 
       const catInterfaceData = data.catInterface
-      createCatInterface(priceId, catInterfaceData)
+      createCatInterface(priceId, catInterfaceData!)
     }
   }
 

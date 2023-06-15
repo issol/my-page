@@ -14,7 +14,7 @@ import Icon from 'src/@core/components/icon'
 import StandardPrices from '@src/pages/components/standard-prices'
 
 // ** fetches
-import { useGetStandardPrices } from '@src/queries/company/standard-price'
+
 import { useGetPriceUnitList } from '@src/queries/price-units.query'
 
 // ** Components
@@ -23,10 +23,10 @@ import PriceUnits from '../components/price/price-units'
 export default function Price() {
   // ** State
   const [value, setValue] = useState<string>('1')
-  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+
   const { data: list, refetch: refetchPriceUnit } = useGetPriceUnitList({
     skip: skip * pageSize,
     take: pageSize,
@@ -80,18 +80,10 @@ export default function Price() {
         />
       </TabList>
       <TabPanel value='1'>
-        <StandardPrices
-          title='Standard client prices'
-          standardPrices={standardPrices!}
-          isLoading={isLoading}
-          refetch={refetch}
-        />
+        <StandardPrices title='Standard client prices' page='client' />
       </TabPanel>
       <TabPanel value='2'>
-        <Typography>
-          Chocolate bar carrot cake candy canes sesame snaps. Cupcake pie gummi
-          bears jujubes candy canes. Chupa chups sesame snaps halvah.
-        </Typography>
+        <StandardPrices title='Standard pro prices' page='pro' />
       </TabPanel>
       <TabPanel value='3'>
         <PriceUnits
