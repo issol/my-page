@@ -22,14 +22,35 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 import { useRouter } from 'next/router'
 import InvoiceInfo from './components/detail/invoice-info'
+import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
+import useModal from '@src/hooks/useModal'
+import { AuthContext } from '@src/context/AuthContext'
+import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
+import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
+import { setInvoicePayable } from '@src/store/invoice-payable'
+import { setInvoicePayableLang } from '@src/store/invoice-payable'
+import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
+import { invoice_payable } from '@src/shared/const/permission-class'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 type MenuType = 'info' | 'history'
 
 export default function PayableDetail() {
+  const { openModal, closeModal } = useModal()
   const router = useRouter()
   const { id } = router.query
 
+  const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
+  const User = new invoice_payable(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+  const isAccountManager = ability.can('read', 'account_manage')
+
+  // ** store
+  const dispatch = useAppDispatch()
+  const invoicePayable = useAppSelector(state => state.invoicePayable)
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('info')
@@ -44,9 +65,109 @@ export default function PayableDetail() {
     router.replace(`/invoice/payable/${id}?menu=${menu}`)
   }, [menu, id])
 
+  //TODO: 실데이터로 교체하기
   const data = {
     corporationId: '123123',
   }
+
+  // ** Download pdf
+  const onClickPreview = (lang: 'EN' | 'KO') => {
+    makePdfData(lang)
+    closeModal('PreviewModal')
+  }
+
+  function handlePrint() {
+    closeModal('DownloadQuotesModal')
+    router.push('/quotes/print')
+  }
+
+  function onClickDelete() {
+    //TODO: mutation 붙이기
+    openModal({
+      type: 'deleteInvoice',
+      children: (
+        <DeleteConfirmModal
+          message='Are you sure you want to delete this invoice?'
+          onClose={() => closeModal('deleteInvoice')}
+          onDelete={() => console.log()}
+        />
+      ),
+    })
+  }
+
+  useEffect(() => {
+    if (invoicePayable.isReady && invoicePayable.invoicePayableData) {
+      openModal({
+        type: 'PreviewModal',
+        isCloseable: false,
+        children: (
+          <Box
+            sx={{
+              width: '789px',
+              height: '95vh',
+              overflow: 'scroll',
+              background: '#ffffff',
+              boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+              paddingBottom: '24px',
+            }}
+          >
+            <div className='page'>
+              {/* <PrintQuotePage
+                data={invoicePayable.invoicePayableData}
+                type='preview'
+                user={user!}
+                lang={invoicePayable.lang}
+              /> */}
+            </div>
+
+            <Box display='flex' justifyContent='center' gap='10px'>
+              <Button
+                variant='outlined'
+                sx={{ width: 226 }}
+                onClick={() => closeModal('PreviewModal')}
+              >
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  handlePrint()
+                  closeModal('PreviewModal')
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          </Box>
+        ),
+      })
+    }
+  }, [invoicePayable.isReady])
+
+  const onDownloadInvoiceClick = () => {
+    openModal({
+      type: 'DownloadQuotesModal',
+      children: (
+        <DownloadQuotesModal
+          onClose={() => {
+            closeModal('DownloadQuotesModal')
+            dispatch(setInvoicePayableIsReady(null))
+          }}
+          onClick={onClickPreview}
+        />
+      ),
+    })
+  }
+
+  function makePdfData(lang: 'EN' | 'KO') {
+    // const pm = team?.find(value => value.position === 'projectManager')
+    // const res: InvoicePayableDownloadData = {
+    // }
+    // dispatch(setInvoicePayableLang(lang))
+    // dispatch(setInvoicePayable(res))
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -73,12 +194,15 @@ export default function PayableDetail() {
           </Box>
           <Box display='flex' alignItems='center' gap='18px'>
             <Button
+              onClick={onDownloadInvoiceClick}
               variant='outlined'
               startIcon={<Icon icon='ic:baseline-download' />}
             >
               Download invoice
             </Button>
-            <Button variant='contained'>Confirm invoice</Button>
+            {isUpdatable ? (
+              <Button variant='contained'>Confirm invoice</Button>
+            ) : null}
           </Box>
         </Box>
       </Grid>
@@ -106,7 +230,9 @@ export default function PayableDetail() {
           </TabList>
           {/* Invoice info */}
           <TabPanel value='info' sx={{ pt: '24px' }}>
-            <InvoiceInfo />
+            <Suspense>
+              <InvoiceInfo />
+            </Suspense>
           </TabPanel>
           {/* Version history */}
           <TabPanel value='history' sx={{ pt: '24px' }}>
@@ -116,6 +242,23 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
+      {!isDeletable ? null : (
+        <Grid item xs={4}>
+          <Card sx={{ marginLeft: '12px' }}>
+            <CardContent>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                onClick={onClickDelete}
+              >
+                Delete this invoice
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      )}
     </Grid>
   )
 }

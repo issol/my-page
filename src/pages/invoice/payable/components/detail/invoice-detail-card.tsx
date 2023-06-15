@@ -33,7 +33,7 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** permission
-import { invoice } from '@src/shared/const/permission-class'
+import { invoice_payable } from '@src/shared/const/permission-class'
 
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
@@ -56,7 +56,7 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice(user?.id!)
+  const User = new invoice_payable(user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isAccountManager = ability.can('read', 'account_manage')

@@ -82,8 +82,6 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
   const { data: jobPrices } = useGetJobPrices(id, false)
   const { data: projectTeam } = useGetProjectTeam(jobInfo?.order.id!)
 
-  console.log('jobPrices', jobPrices)
-
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     setValue(newValue)
   }
