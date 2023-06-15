@@ -213,7 +213,7 @@ const InvoiceVersionHistoryModal = ({
           }}
         >
           <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.invoiceInfo.corporationId}`}</Typography>
+          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.projectInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
           <TabList
@@ -257,7 +257,7 @@ const InvoiceVersionHistoryModal = ({
           <TabPanel value='1' sx={{ height: '100%', minHeight: '552px' }}>
             <InvoiceInfo
               type='history'
-              invoiceInfo={history.invoiceInfo}
+              invoiceInfo={history.projectInfo}
               edit={false}
               orderId={history.id}
               statusList={statusList}
@@ -279,7 +279,7 @@ const InvoiceVersionHistoryModal = ({
                 items={items}
                 removeItems={removeItems}
                 getTeamValues={getTeamValues}
-                invoiceInfo={history.invoiceInfo}
+                invoiceInfo={history.projectInfo}
               />
             </Grid>
           </TabPanel>
