@@ -522,7 +522,7 @@ export default function AddNewClient() {
             currency: item.currency,
           }))
 
-      priceLangData.length && createLanguagePair(priceLangData)
+      priceLangData.length && createLanguagePair(priceLangData, 'client')
 
       const catInterfaceData = data.catInterface
       createCatInterface(priceId, catInterfaceData!)
