@@ -10,7 +10,7 @@ export type StandardPriceListType = {
   category: string
   serviceType: string[]
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
 
   decimalPlace: number
   roundingProcedure: string
@@ -76,7 +76,7 @@ export type AddNewPriceType = {
   category: string
   serviceType: Array<string>
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
   decimalPlace: number
   roundingProcedure: number
   memoForPrice?: string | undefined

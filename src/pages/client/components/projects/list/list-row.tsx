@@ -111,12 +111,12 @@ export default function ClientProjectsRows(props: {
               fontSize: '14px',
               fontWeight: 400,
               color:
-                row.qId.charAt(0) === 'Q'
+                row.corporationId.charAt(0) === 'Q'
                   ? 'rgba(76, 78, 100, 0.87)'
                   : '#666CFF',
             }}
           >
-            {row.qId}
+            {row.corporationId}
           </Typography>
         </TableCell>
         {separateLine()}

@@ -87,7 +87,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
         //@ts-ignore
         {
           id: 0,
-          qId: '',
+          corporationId: '',
           serviceType: [],
           projectName: '',
           workName: '',
@@ -98,6 +98,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
           extendedProps: {
             calendar: 'primary',
           },
+          type: 'order',
         },
       ])
     }

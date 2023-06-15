@@ -307,7 +307,7 @@ export default function AddNewClient() {
           id: Math.random(),
           isStandard: false,
           serviceType: data?.serviceType.map(value => value.value),
-          catBasis: data?.catBasis.value,
+          catBasis: data?.catBasis!.value,
           category: data?.category.value,
           currency: data?.currency.value,
           roundingProcedure: data?.roundingProcedure.value.toString()!,

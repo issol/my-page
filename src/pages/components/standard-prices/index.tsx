@@ -180,10 +180,12 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           category: data?.category.value!,
           serviceType: data?.serviceType.map(value => value.value)!,
           currency: data?.currency.value!,
-          catBasis: data?.catBasis.value!,
           decimalPlace: data?.decimalPlace!,
           roundingProcedure: data?.roundingProcedure.value!,
           memoForPrice: data?.memoForPrice!,
+        }
+        if (page === 'client') {
+          obj['catBasis'] = data?.catBasis!.value!
         }
         if (clientId) {
           obj['clientId'] = clientId
@@ -203,10 +205,13 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
         category: data?.category.value!,
         serviceType: data?.serviceType.map(value => value.value)!,
         currency: data?.currency.value!,
-        catBasis: data?.catBasis.value!,
+
         decimalPlace: data?.decimalPlace!,
         roundingProcedure: data?.roundingProcedure.value!,
         memoForPrice: data?.memoForPrice!,
+      }
+      if (page === 'client') {
+        obj['catBasis'] = data?.catBasis!.value!
       }
       if (clientId) {
         obj['clientId'] = clientId
@@ -254,6 +259,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
             type={'Add'}
             onSubmit={onSubmit}
             onClickAction={onClickAction}
+            page={page}
           />
         ),
       })
@@ -285,6 +291,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           onSubmit={onSubmit}
           selectedPriceData={priceData!}
           onClickAction={onClickAction}
+          page={page}
         />
       ),
     })
@@ -397,6 +404,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           isSelected={isSelected}
           selected={selected}
           title={title}
+          page={page}
         />
       </Grid>
       {selectedPriceData ? (
