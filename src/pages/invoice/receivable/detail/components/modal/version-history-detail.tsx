@@ -35,6 +35,7 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import InvoiceClient from '../client'
 import { invoice_receivable } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { checkEditable } from '@src/apis/invoice/receivable.api'
 
 type Props = {
   history: InvoiceVersionHistoryType
@@ -144,9 +145,12 @@ const InvoiceVersionHistoryModal = ({
   }
 
   useEffect(() => {
+    if (history) {
+      checkEditable(history.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+    }
     if (history.items) {
-      console.log(history.items)
-
       setLanguagePairs(
         history.items?.languagePairs?.map(item => ({
           id: String(item.id),
@@ -202,8 +206,6 @@ const InvoiceVersionHistoryModal = ({
       resetTeam({ teams })
     }
   }, [history])
-
-  console.log(history.items)
 
   return (
     <Box
@@ -350,9 +352,15 @@ const InvoiceVersionHistoryModal = ({
           >
             Close
           </Button>
-          <Button variant='contained' sx={{ width: '226px' }} onClick={onClick}>
-            Restore this version
-          </Button>
+          {isUpdatable && isUserInTeamMember && (
+            <Button
+              variant='contained'
+              sx={{ width: '226px' }}
+              onClick={onClick}
+            >
+              Restore this version
+            </Button>
+          )}
         </Box>
       </Box>
     </Box>

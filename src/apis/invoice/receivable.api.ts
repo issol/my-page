@@ -903,3 +903,12 @@ export const patchInvoiceInfo = async (
 export const deleteInvoice = async (id: number) => {
   await axios.delete(`/api/enough/u/invoice/${id}`)
 }
+
+export const checkEditable = async (id: number): Promise<boolean> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/invoice/${id}/editable`)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
