@@ -107,6 +107,8 @@ type Props = {
     id: number
     statusName: string
   }[]
+  isUpdatable: boolean
+  isDeletable: boolean
 }
 const InvoiceInfo = ({
   type,
@@ -126,6 +128,8 @@ const InvoiceInfo = ({
   invoiceInfoErrors,
   isInvoiceInfoValid,
   statusList,
+  isUpdatable,
+  isDeletable,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -436,8 +440,11 @@ const InvoiceInfo = ({
                 <Typography variant='h6'>
                   An Unexpected Proposal 1-10
                 </Typography>
-                {type === 'detail' ? (
-                  <IconButton onClick={() => setEdit!(true)}>
+                {type === 'detail' && isUpdatable ? (
+                  <IconButton
+                    onClick={() => setEdit!(true)}
+                    disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                  >
                     <Icon icon='mdi:pencil-outline' />
                   </IconButton>
                 ) : null}
@@ -1002,7 +1009,7 @@ const InvoiceInfo = ({
                   }}
                 >
                   <Typography variant='h6'>Accounting info</Typography>
-                  {type === 'detail' ? (
+                  {type === 'detail' && isUpdatable ? (
                     <IconButton onClick={() => setAccountingEdit!(true)}>
                       <Icon icon='mdi:pencil-outline' />
                     </IconButton>
@@ -1253,6 +1260,7 @@ const InvoiceInfo = ({
                 fullWidth
                 color='error'
                 size='large'
+                disabled={!isDeletable}
                 onClick={onClickDelete}
               >
                 Delete this invoice

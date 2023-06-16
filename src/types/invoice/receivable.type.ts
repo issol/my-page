@@ -163,7 +163,7 @@ export type InvoiceReceivableDetailType = {
 export type InvoiceHistoryType = {
   projectInfo: InvoiceReceivableDetailType
   client: ClientType
-  projectTeam: ProjectTeamListType[]
+  members: ProjectTeamListType[]
   items: LanguageAndItemType
 }
 
@@ -182,7 +182,9 @@ export type InvoiceVersionHistoryResType = {
 } & {
   invoiceInfo: InvoiceReceivableDetailType
   client: ClientType
-  projectTeam: ProjectTeamListType[]
+  projectTeam: {
+    members: ProjectTeamListType[]
+  }
   items: {
     id: number
     languagePairs: Array<LanguagePairTypeInItem>
