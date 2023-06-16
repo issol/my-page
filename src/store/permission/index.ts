@@ -11,7 +11,7 @@ export const getPermission = createAsyncThunk(
   'permissions/gerPermissions',
   async (): Promise<PermissionObjectType> => {
     try {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
         const { data } = await axios.get(`/api/enough/a/role/map`)
         return data
       } else {
@@ -358,22 +358,30 @@ const initialState: {
   isLoading: boolean
   permission: PermissionObjectType
   role: Array<UserRoleType>
+  currentRole: UserRoleType | null
 } = {
   permission: [{ subject: 'none', can: 'read' }],
   role: [],
   isLoading: false,
+  currentRole: null,
 }
 
 export const permissionSlice: Slice<{
   isLoading: boolean
   permission: PermissionObjectType
   role: Array<UserRoleType>
+  currentRole: UserRoleType | null
 }> = createSlice({
   name: 'permission',
   initialState,
   reducers: {
     resetRole: state => {
       state.role = []
+    },
+    setCurrentRole: (state, action) => {
+      console.log(action)
+
+      state.currentRole = action.payload
     },
   },
   extraReducers: builder => {
@@ -398,6 +406,6 @@ export const permissionSlice: Slice<{
   },
 })
 
-export const { resetRole } = permissionSlice.actions
+export const { resetRole, setCurrentRole } = permissionSlice.actions
 
 export default permissionSlice.reducer
