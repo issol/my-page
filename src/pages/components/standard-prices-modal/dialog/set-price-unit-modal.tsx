@@ -439,6 +439,7 @@ const SetPriceUnitModal = ({
             size='medium'
             sx={{ height: '42px' }}
             onClick={onClickAddPriceUnit}
+            disabled={priceUnits.length===0}
           >
             Add
           </Button>
