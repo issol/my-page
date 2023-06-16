@@ -43,6 +43,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import PaymentInfo from '../components/payment-info'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -121,34 +122,39 @@ export default function ClientDetail() {
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='1'>
-          <Suspense>
-            <ClientProjects id={Number(id)} user={user!} />
-          </Suspense>
-        </TabPanel>
-        <TabPanel value='2'>
-          <Suspense>
-            <ClientInvoices id={Number(id)} user={user!} />
-          </Suspense>
-        </TabPanel>
-        <TabPanel value='3'>
-          <StandardPrices
-            title='Client prices'
-            clientId={userInfo?.clientId!}
-            page='client'
-          />
-        </TabPanel>
-        <TabPanel value='4'>
-          <ClientProfile
-            clientId={id}
-            clientInfo={userInfo ?? null}
-            memo={memo || { data: [], count: 0 }}
-            isUpdatable={isUpdatable}
-            isDeletable={isDeletable}
-            isCreatable={isCreatable}
-          />
-        </TabPanel>
-        <TabPanel value='5'></TabPanel>
+        <Suspense>
+          <TabPanel value='1'>
+            <Suspense>
+              <ClientProjects id={Number(id)} user={user!} />
+            </Suspense>
+          </TabPanel>
+          <TabPanel value='2'>
+            <Suspense>
+              <ClientInvoices id={Number(id)} user={user!} />
+            </Suspense>
+          </TabPanel>
+          <TabPanel value='3'>
+            <StandardPrices
+              title='Client prices'
+              clientId={userInfo?.clientId!}
+              page='client'
+            />
+          </TabPanel>
+          <TabPanel value='4'>
+            <ClientProfile
+              clientId={id}
+              clientInfo={userInfo ?? null}
+              memo={memo || { data: [], count: 0 }}
+              isUpdatable={isUpdatable}
+              isDeletable={isDeletable}
+              isCreatable={isCreatable}
+            />
+          </TabPanel>
+          <TabPanel value='5'>
+            {/* payment info */}
+            <PaymentInfo clientId={Number(id)} />
+          </TabPanel>
+        </Suspense>
       </TabContext>
     </Box>
   )
