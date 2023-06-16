@@ -280,7 +280,7 @@ const SetPriceUnitModal = ({
         unitId: value.id,
         quantity: value.unit === 'Percent' ? '-' : 1,
         price: 1.0,
-        weighting: value.weighting ?? '-',
+        weighting: (!value.weighting || value.weighting === 0 || value.unit === 'Percent') ? '-' : value.weighting,
         title: value.title,
         isBase: value.parentPriceUnitId === null,
         parentPriceUnitId: value.parentPriceUnitId,
