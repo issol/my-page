@@ -69,7 +69,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForOrder,
@@ -85,7 +85,7 @@ import {
 } from '@src/apis/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company-price.api'
 
 export type languageType = {
   id: number | string
@@ -94,7 +94,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -108,6 +110,23 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
+}
+
+export const proDefaultOption: StandardPriceListType & {
+  groupName: string
+} = {
+  id: NOT_APPLICABLE,
+  isStandard: false,
+  priceName: 'Not applicable',
+  groupName: 'Not applicable',
+  category: '',
+  serviceType: [],
+  currency: 'USD',
+  catBasis: '',
+  decimalPlace: 0,
+  roundingProcedure: '',
+  languagePairs: [],
+  priceUnit: [],
 }
 
 export default function AddNewOrder() {
@@ -238,7 +257,7 @@ export default function AddNewOrder() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -425,7 +444,7 @@ export default function AddNewOrder() {
   }
 
   async function onCopyOrder(id: number | null) {
-    const priceList = await getPriceList({})
+    const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getProjectTeam(id)

@@ -33,7 +33,7 @@ import { useGetClientDetail } from '@src/queries/client/client-detail'
 
 // ** components
 import ClientInfoCard from '@src/@core/components/clientInfo'
-import { useGetStandardPrices } from '@src/queries/company/standard-price'
+
 import StandardPrices from '@src/pages/components/standard-prices'
 import ClientProjects from '../components/projects'
 import { client } from '@src/shared/const/permission-class'
@@ -67,7 +67,6 @@ export default function ClientDetail() {
   }
   const { data: userInfo, isError, isFetched } = useGetClientDetail(Number(id!))
 
-  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
   const { data: memo } = useGetClientMemo(Number(id!), {
     skip: memoSkip * MEMO_PAGESIZE,
     take: MEMO_PAGESIZE,
@@ -134,11 +133,9 @@ export default function ClientDetail() {
         </TabPanel>
         <TabPanel value='3'>
           <StandardPrices
-            standardPrices={standardPrices!}
-            isLoading={isLoading}
-            refetch={refetch}
             title='Client prices'
             clientId={userInfo?.clientId!}
+            page='client'
           />
         </TabPanel>
         <TabPanel value='4'>

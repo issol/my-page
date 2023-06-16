@@ -54,8 +54,8 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   SetPriceUnitPair,
-  StandardPriceListType,
   CatInterfaceParams,
+  StandardPriceListType,
 } from '@src/types/common/standard-price'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
 import { AddNewLanguagePair } from '@src/types/common/standard-price'
@@ -307,7 +307,7 @@ export default function AddNewClient() {
           id: Math.random(),
           isStandard: false,
           serviceType: data?.serviceType.map(value => value.value),
-          catBasis: data?.catBasis.value,
+          catBasis: data?.catBasis!.value,
           category: data?.category.value,
           currency: data?.currency.value,
           roundingProcedure: data?.roundingProcedure.value.toString()!,
@@ -459,7 +459,7 @@ export default function AddNewClient() {
           roundingProcedure: Number(copy.roundingProcedure),
         }
         promiseArr.push(
-          createPrice(form)
+          createPrice(form, 'client')
             .then(res => onCreatePriceSuccess(res.id, row))
             .catch(e => onMutationError()),
         )
@@ -522,10 +522,10 @@ export default function AddNewClient() {
             currency: item.currency,
           }))
 
-      priceLangData.length && createLanguagePair(priceLangData)
+      priceLangData.length && createLanguagePair(priceLangData, 'client')
 
       const catInterfaceData = data.catInterface
-      createCatInterface(priceId, catInterfaceData)
+      createCatInterface(priceId, catInterfaceData!)
     }
   }
 

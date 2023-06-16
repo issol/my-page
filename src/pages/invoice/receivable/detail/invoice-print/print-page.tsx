@@ -30,6 +30,7 @@ import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { patchProjectInfo } from '@src/apis/order-detail.api'
 import MakeTable from '@src/pages/orders/order-list/detail/components/rows'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
+import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
 
 type Props = {
   data: InvoiceDownloadData
@@ -42,9 +43,9 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
   const router = useRouter()
   const dispatch = useAppDispatch()
 
-  const patchProjectInfoMutation = useMutation(
+  const patchInvoiceInfoMutation = useMutation(
     (data: { id: number; form: { downloadedAt: string } }) =>
-      patchProjectInfo(data.id, data.form),
+      patchInvoiceInfo(data.id, data.form),
     {},
   )
   useEffect(() => {
@@ -53,10 +54,10 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
         window.onafterprint = () => {
           router.back()
           dispatch(resetOrderLang('EN'))
-          // patchProjectInfoMutation.mutate({
-          //   id: data.orderId,
-          //   form: { downloadedAt: Date() },
-          // })
+          patchInvoiceInfoMutation.mutate({
+            id: data.invoiceId,
+            form: { downloadedAt: Date() },
+          })
         }
         window.print()
       }, 300)

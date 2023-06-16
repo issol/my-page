@@ -29,7 +29,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/client`,
           action: 'read',
 
-          icon: 'solar:dollar-minimalistic-bold',
+          icon: 'mdi:account-star-outline',
           subject: 'client',
         },
         {
@@ -139,7 +139,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/orders/order-list`,
           action: 'read',
 
-          icon: 'solar:dollar-minimalistic-bold',
+          icon: 'material-symbols:list-alt-outline-sharp',
           subject: 'order',
         },
         {
@@ -162,7 +162,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/invoice/receivable`,
           action: 'read',
 
-          icon: 'material-symbols:person',
+          icon: 'mdi:box-down',
           subject: 'invoice_receivable',
         },
         {

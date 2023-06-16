@@ -6,17 +6,18 @@ export type StandardPriceListType = {
   isStandard: boolean
   priceName: string
   client?: CreateClientResType | null
+  pro?: any | null
   category: string
   serviceType: string[]
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
 
   decimalPlace: number
   roundingProcedure: string
   memoForPrice?: string | undefined
   languagePairs: Array<LanguagePairListType>
   priceUnit: Array<PriceUnitListType>
-  catInterface: {
+  catInterface?: {
     memSource: Array<CatInterfaceType>
     memoQ: Array<CatInterfaceType>
   }
@@ -69,12 +70,13 @@ export interface PriceUnitListWithHeaders {
 
 export type AddNewPriceType = {
   clientId?: number
+  proId?: number
   isStandard: boolean
   priceName: string
   category: string
   serviceType: Array<string>
   currency: CurrencyType
-  catBasis: string
+  catBasis?: string
   decimalPlace: number
   roundingProcedure: number
   memoForPrice?: string | undefined
@@ -126,6 +128,46 @@ export type LanguagePairParams = {
   priceFactor: string | null
   minimumPrice: string | null
   currency: CurrencyType
+}
+
+export type PriceUnitDataType = {
+  data: Array<PriceUnitType>
+  count: number
+  totalCount: number
+}
+
+export type PriceUnitType = {
+  id: number
+  isBase: boolean
+  authorId?: number
+  title: string
+  unit: string
+  weighting: number | null
+  isActive: boolean
+  parentPriceUnitId: number | null
+  subPriceUnits: Array<{
+    id: number
+    isBase: boolean
+    title: string
+    unit: string
+    weighting: number
+    isActive: boolean
+    parentPriceUnitId: number | null
+  }>
+}
+
+export type PriceUnitFormType = {
+  title?: string
+  unit?: string
+  weighting?: number | null
+  isBase?: boolean
+  isActive?: boolean
+  subPriceUnits?: Array<{
+    title?: string
+    unit?: string
+    weighting?: number | null
+    isActive?: boolean
+  }>
 }
 
 export type CatInterfaceType = {

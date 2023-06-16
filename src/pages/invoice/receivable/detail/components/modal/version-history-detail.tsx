@@ -6,7 +6,6 @@ import Icon from '@src/@core/components/icon'
 import TabContext from '@mui/lab/TabContext'
 import { MouseEvent, SyntheticEvent, useEffect, useState } from 'react'
 
-import OrderDetailClient from '../client'
 import ProjectTeam from '../project-team'
 import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -27,6 +26,7 @@ import {
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+import InvoiceClient from '../client'
 
 type Props = {
   history: InvoiceVersionHistoryType
@@ -35,6 +35,10 @@ type Props = {
   user: UserDataType
   onClose: any
   onClick: any
+  statusList: {
+    id: number
+    statusName: string
+  }[]
 }
 
 const InvoiceVersionHistoryModal = ({
@@ -44,6 +48,7 @@ const InvoiceVersionHistoryModal = ({
   user,
   prices,
   pricesSuccess,
+  statusList,
 }: Props) => {
   const [value, setValue] = useState<string>('1')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
@@ -208,7 +213,7 @@ const InvoiceVersionHistoryModal = ({
           }}
         >
           <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.invoiceInfo.corporationId}`}</Typography>
+          <Typography variant='h5'>{`[Ver. ${history.version}] ${history.projectInfo.corporationId}`}</Typography>
         </Box>
         <TabContext value={value}>
           <TabList
@@ -252,9 +257,10 @@ const InvoiceVersionHistoryModal = ({
           <TabPanel value='1' sx={{ height: '100%', minHeight: '552px' }}>
             <InvoiceInfo
               type='history'
-              invoiceInfo={history.invoiceInfo}
+              invoiceInfo={history.projectInfo}
               edit={false}
               orderId={history.id}
+              statusList={statusList}
             />
           </TabPanel>
           <TabPanel value='2' sx={{ height: '100%', minHeight: '552px' }}>
@@ -273,12 +279,12 @@ const InvoiceVersionHistoryModal = ({
                 items={items}
                 removeItems={removeItems}
                 getTeamValues={getTeamValues}
-                invoiceInfo={history.invoiceInfo}
+                invoiceInfo={history.projectInfo}
               />
             </Grid>
           </TabPanel>
           <TabPanel value='3' sx={{ height: '100%', minHeight: '552px' }}>
-            <OrderDetailClient
+            <InvoiceClient
               type='history'
               client={history.client}
               edit={false}

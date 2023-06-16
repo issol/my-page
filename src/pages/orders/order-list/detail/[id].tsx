@@ -57,7 +57,7 @@ import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -210,7 +210,7 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: client?.client.clientId,
   })
 

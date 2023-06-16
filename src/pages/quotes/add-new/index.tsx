@@ -64,7 +64,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForQuotes,
@@ -79,7 +79,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -215,7 +217,7 @@ export default function AddNewQuotes() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
   const { data: priceUnitsList } = useGetAllClientPriceList()

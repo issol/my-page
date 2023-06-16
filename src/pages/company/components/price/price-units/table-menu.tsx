@@ -9,7 +9,7 @@ import { Typography } from '@mui/material'
 
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitType } from '@src/types/common/standard-price'
 
 type Props = {
   row: PriceUnitType

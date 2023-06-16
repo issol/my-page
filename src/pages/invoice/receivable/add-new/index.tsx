@@ -69,7 +69,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForOrder,
@@ -85,7 +85,7 @@ import {
 } from '@src/apis/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
 import {
   InvoiceProjectInfoFormType,
@@ -116,7 +116,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -132,7 +134,7 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   catInterface: { memSource: [], memoQ: [] },
 }
 
-export default function AddNewOrder() {
+export default function AddNewInvoice() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
   const { data: statusList, isLoading } = useGetInvoiceStatus()
@@ -277,7 +279,7 @@ export default function AddNewOrder() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
 
@@ -460,7 +462,7 @@ export default function AddNewOrder() {
   }
 
   async function onCopyOrder(id: number | null) {
-    const priceList = await getPriceList({})
+    const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getProjectTeam(id)
@@ -930,8 +932,8 @@ export default function AddNewOrder() {
   )
 }
 
-AddNewOrder.acl = {
-  subject: 'order',
+AddNewInvoice.acl = {
+  subject: 'invoice_receivable',
   action: 'create',
 }
 

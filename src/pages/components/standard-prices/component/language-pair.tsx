@@ -70,6 +70,7 @@ type Props = {
   existPriceUnit: boolean
   selectedLanguagePair: LanguagePairListType | null
   priceData: StandardPriceListType
+  page: 'client' | 'pro'
 }
 
 interface SelectedCellParams {
@@ -90,6 +91,7 @@ const LanguagePair = ({
   existPriceUnit,
   selectedLanguagePair,
   priceData,
+  page,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -118,11 +120,11 @@ const LanguagePair = ({
 
   const patchLanguagePairMutation = useMutation(
     (value: { data: LanguagePairParams; id: number }) =>
-      patchLanguagePair(value.data, value.id),
+      patchLanguagePair(value.data, value.id, page),
     {
       onSuccess: data => {
         // refetch()
-        queryClient.invalidateQueries('standard-client-prices')
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
         toast.success(`Success`, {
           position: 'bottom-left',
@@ -137,11 +139,11 @@ const LanguagePair = ({
   )
 
   const deleteLanguagePairMutation = useMutation(
-    (id: number) => deleteLanguagePair(id),
+    (id: number) => deleteLanguagePair(id, page),
     {
       onSuccess: data => {
         // refetch()
-        queryClient.invalidateQueries('standard-client-prices')
+        queryClient.invalidateQueries(`standard-${page}-prices`)
 
         toast.success(`Success`, {
           position: 'bottom-left',
@@ -176,9 +178,6 @@ const LanguagePair = ({
   )
 
   const handleSave = useCallback(() => {
-    // Save the changes to your data store here
-    console.log(editRowsModel)
-
     if (isEditingLanguagePair !== null && selectedLanguagePair != null) {
       console.log(editRowsModel[isEditingLanguagePair].priceFactor)
       const res = {

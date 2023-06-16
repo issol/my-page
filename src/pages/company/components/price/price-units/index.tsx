@@ -18,10 +18,8 @@ import logger from '@src/@core/utils/logger'
 import {
   PriceUnitFormType,
   PriceUnitType,
-  deletePriceUnit,
-  postPriceUnit,
-  updatePriceUnit,
-} from '@src/apis/price-units.api'
+  PriceUnitDataType
+} from '@src/types/common/standard-price'
 
 // ** components
 import PriceUnitTable from './table'
@@ -32,8 +30,11 @@ import CancelModal from './modal/cancel-baseprice-modal'
 import { QueryObserverResult, useMutation } from 'react-query'
 import { toast } from 'react-hot-toast'
 import { company_price } from '@src/shared/const/permission-class'
-import { PriceUnitDataType } from '@src/apis/price-units.api'
-
+import {
+  deletePriceUnit,
+  postPriceUnit,
+  updatePriceUnit,
+} from '@src/apis/price-units.api'
 type Props = {
   list: PriceUnitDataType
   refetch: (

@@ -43,7 +43,13 @@ import {
 } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import {
+  ChangeEvent,
+  Dispatch,
+  SetStateAction,
+  useEffect,
+  useState,
+} from 'react'
 import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
@@ -97,6 +103,10 @@ type Props = {
   invoiceInfoReset?: UseFormReset<InvoiceProjectInfoFormType>
   invoiceInfoErrors?: FieldErrors<InvoiceProjectInfoFormType>
   isInvoiceInfoValid?: boolean
+  statusList: {
+    id: number
+    statusName: string
+  }[]
 }
 const InvoiceInfo = ({
   type,
@@ -115,16 +125,17 @@ const InvoiceInfo = ({
   invoiceInfoReset,
   invoiceInfoErrors,
   isInvoiceInfoValid,
+  statusList,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [value, setValue] = useState<string>(invoiceInfo.invoiceStatus)
+  const [status, setStatus] = useState<string>(invoiceInfo.invoiceStatus)
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as string)
+  const handleChangeStatus = (event: SelectChangeEvent) => {
+    setStatus(event.target.value as string)
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
       onSave({
@@ -132,6 +143,34 @@ const InvoiceInfo = ({
         form: {
           ...data,
           invoiceStatus: event.target.value as InvoiceReceivableStatusType,
+        },
+      })
+    }
+  }
+
+  const handleChangeIsReminder = (event: ChangeEvent<HTMLInputElement>) => {
+    setIsReminder(event.target.checked)
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (onSave && data) {
+      onSave({
+        id: invoiceInfo.id,
+        form: {
+          ...data,
+          setReminder: event.target.checked,
+        },
+      })
+    }
+  }
+
+  const handleChangeIssued = (event: ChangeEvent<HTMLInputElement>) => {
+    setIssued(event.target.checked)
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (onSave && data) {
+      onSave({
+        id: invoiceInfo.id,
+        form: {
+          ...data,
+          taxInvoiceIssued: event.target.checked,
         },
       })
     }
@@ -155,21 +194,35 @@ const InvoiceInfo = ({
     closeModal('DiscardModal')
   }
 
-  const onClickSave = () => {
+  const onClickSave = (infoType: 'basic' | 'accounting') => {
     const data = getInvoiceInfo && getInvoiceInfo()
     if (data) {
-      const res: InvoiceReceivablePatchParamsType = {
-        invoiceStatus: data.status,
-        invoicedAt: data.invoiceDate,
-        payDueAt: data.paymentDueDate.date,
-        payDueTimezone: data.paymentDueDate.timezone,
-        invoiceDescription: data.invoiceDescription,
+      const res: InvoiceReceivablePatchParamsType =
+        infoType === 'basic'
+          ? {
+              invoiceStatus: data.status,
+              invoicedAt: data.invoiceDate,
+              payDueAt: data.paymentDueDate.date,
+              payDueTimezone: data.paymentDueDate.timezone,
+              invoiceDescription: data.invoiceDescription,
 
-        invoiceConfirmedAt: data.invoiceConfirmDate?.date,
-        invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
-        taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
-        taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
-      }
+              invoiceConfirmedAt: data.invoiceConfirmDate?.date,
+              invoiceConfirmTimezone: data.invoiceConfirmDate?.timezone,
+              taxInvoiceDueAt: data.taxInvoiceDueDate?.date,
+              taxInvoiceDueTimezone: data.taxInvoiceDueDate?.timezone,
+            }
+          : {
+              paidAt: data.paymentDate?.date,
+              paidDateTimezone: data.paymentDate?.timezone,
+              taxInvoiceIssuedAt: data.taxInvoiceIssuanceDate?.date,
+              taxInvoiceIssuedDateTimezone:
+                data.taxInvoiceIssuanceDate?.timezone,
+              salesCheckedAt: data.salesRecognitionDate?.date,
+              salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
+              notes: data.notes,
+              salesCategory: data?.salesCategory,
+              taxInvoiceIssued: data?.taxInvoiceIssued,
+            }
       if (onSave) {
         onSave({ id: invoiceInfo.id, form: res })
       }
@@ -183,7 +236,9 @@ const InvoiceInfo = ({
 
   useEffect(() => {
     if (invoiceInfo && invoiceInfoReset) {
-      setValue(invoiceInfo.invoiceStatus)
+      setStatus(invoiceInfo.invoiceStatus)
+      setIsReminder(invoiceInfo.setReminder)
+      setIssued(invoiceInfo.taxInvoiceIssued)
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
         status: invoiceInfo.invoiceStatus,
@@ -221,6 +276,9 @@ const InvoiceInfo = ({
           // timezone: invoiceInfo.salesCheckedDateTimezone ?? clientTimezone!,
           timezone: clientTimezone!,
         },
+
+        salesCategory: invoiceInfo.salesCategory,
+        notes: invoiceInfo.notes,
 
         sendReminder: invoiceInfo.setReminder,
         tax: invoiceInfo.tax,
@@ -295,7 +353,7 @@ const InvoiceInfo = ({
                         children: (
                           <EditSaveModal
                             onClose={() => closeModal('EditSaveModal')}
-                            onClick={onClickSave}
+                            onClick={() => onClickSave('basic')}
                           />
                         ),
                       })
@@ -313,11 +371,11 @@ const InvoiceInfo = ({
           <Grid container xs={12} spacing={6}>
             <InvoiceAccountingInfoForm
               control={invoiceInfoControl!}
+              getValue={getInvoiceInfo!}
               setValue={setInvoiceInfo!}
               watch={invoiceInfoWatch!}
               errors={invoiceInfoErrors!}
               clientTimezone={clientTimezone}
-              statusList={statusList!}
             />
             <Grid item xs={12}>
               <Box
@@ -352,7 +410,7 @@ const InvoiceInfo = ({
                       children: (
                         <EditSaveModal
                           onClose={() => closeModal('EditSaveModal')}
-                          onClick={onClickSave}
+                          onClick={() => onClickSave('accounting')}
                         />
                       ),
                     })
@@ -458,15 +516,18 @@ const InvoiceInfo = ({
                         InvoiceReceivableChip(invoiceInfo.invoiceStatus)
                       ) : (
                         <Select
-                          value={value}
-                          onChange={handleChange}
+                          value={status}
+                          onChange={handleChangeStatus}
                           size='small'
                           sx={{ width: '253px' }}
                         >
-                          {OrderStatus.map(status => {
+                          {statusList.map(status => {
                             return (
-                              <MenuItem key={uuidv4()} value={status.value}>
-                                {status.label}
+                              <MenuItem
+                                key={uuidv4()}
+                                value={status.statusName}
+                              >
+                                {status.statusName}
                               </MenuItem>
                             )
                           })}
@@ -895,9 +956,7 @@ const InvoiceInfo = ({
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Checkbox
                         value={isReminder}
-                        onChange={e => {
-                          setIsReminder(e.target.checked)
-                        }}
+                        onChange={handleChangeIsReminder}
                         checked={isReminder}
                         disabled={invoiceInfo.invoiceStatus === 'Paid'}
                       />
@@ -1170,12 +1229,10 @@ const InvoiceInfo = ({
                   <Divider />
                   <Box sx={{ display: 'flex', alignItems: 'center' }}>
                     <Checkbox
-                      value={isReminder}
-                      onChange={e => {
-                        setIsReminder(e.target.checked)
-                      }}
-                      checked={isReminder}
-                      disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                      value={issued}
+                      onChange={handleChangeIssued}
+                      checked={issued}
+                      // disabled={invoiceInfo.invoiceStatus === 'Paid'}
                     />
 
                     <Typography variant='body2'>Tax invoice issued</Typography>

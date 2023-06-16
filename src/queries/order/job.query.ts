@@ -33,6 +33,7 @@ export const useGetJobDetails = (orderId: number) => {
 
     suspense: false,
     keepPreviousData: true,
+    enabled: !!orderId,
   })
 }
 

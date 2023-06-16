@@ -208,6 +208,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     }
     saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
   }
+  console.log(jobPrices)
 
   return (
     <>

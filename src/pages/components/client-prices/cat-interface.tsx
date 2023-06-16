@@ -238,9 +238,9 @@ const CatInterface = ({
         chips: formattedHeader,
       }))
 
-      memSource = priceData.catInterface.memSource.length
+      memSource = priceData.catInterface!.memSource.length
         ? [
-            ...priceData.catInterface.memSource.map(value => ({
+            ...priceData.catInterface!.memSource.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -257,16 +257,16 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
           ]
         : withHeaders
 
-      memoQ = priceData.catInterface.memoQ.length
+      memoQ = priceData.catInterface!.memoQ.length
         ? [
-            ...priceData.catInterface.memoQ.map(value => ({
+            ...priceData.catInterface!.memoQ.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -283,8 +283,8 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
           ]

@@ -98,7 +98,11 @@ const AddSavePriceModal = ({
     defaultValues: defaultValue,
     resolver: yupResolver(standardPricesSchema),
   })
-  const { data: standardPrices, isLoading, refetch } = useGetStandardPrices()
+  const {
+    data: standardPrices,
+    isLoading,
+    refetch,
+  } = useGetStandardPrices('client', { take: 1000, skip: 0 })
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -164,8 +168,8 @@ const AddSavePriceModal = ({
       setValue(
         'catBasis',
         {
-          label: selected.catBasis,
-          value: selected.catBasis,
+          label: selected.catBasis!,
+          value: selected.catBasis!,
         },
         setValueOptions,
       )
@@ -254,7 +258,7 @@ const AddSavePriceModal = ({
                 category: data?.category.value,
                 serviceType: data?.serviceType.map(value => value.value),
                 currency: data?.currency.value,
-                catBasis: data?.catBasis.value,
+                catBasis: data?.catBasis!.value,
                 decimalPlace: data?.decimalPlace,
                 roundingProcedure: data?.roundingProcedure.value.toString(),
                 memoForPrice: data?.memoForPrice,

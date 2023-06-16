@@ -21,7 +21,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
 
 // ** react hook form
 import {
@@ -56,6 +56,7 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
   control: Control<QuotesProjectInfoFormType, any>
@@ -77,12 +78,13 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
+  const { user } = useContext(AuthContext)
   const [newWorkName, setNewWorkName] = useState('')
 
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList()
+  const { data, isSuccess } = useGetWorkNameList(user!.userId)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -483,7 +485,7 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-             {...DateTimePickerDefaultOptions}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
               customInput={<CustomInput label='Quote expiry date' />}

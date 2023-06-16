@@ -161,9 +161,9 @@ export default function CertificationTest({
                             }}
                             onClick={() => {
                               if (!paused) {
-                                if (basicTest.testResponseUrl) {
+                                if (basicTest.testPaper!.responderUri) {
                                   window.open(
-                                    basicTest.testResponseUrl,
+                                    basicTest.testPaper!.responderUri,
                                     '_blank',
                                   )
                                 } else {
@@ -399,9 +399,9 @@ export default function CertificationTest({
                               }}
                               onClick={() => {
                                 if (!paused) {
-                                  if (skillTest.testResponseUrl) {
+                                  if (skillTest.testPaper!.responderUri) {
                                     window.open(
-                                      skillTest.testResponseUrl,
+                                      skillTest.testPaper!.responderUri,
                                       '_blank',
                                     )
                                   } else {

@@ -1,6 +1,6 @@
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+
 import { useState, MouseEvent, SetStateAction, Dispatch } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
@@ -111,12 +111,12 @@ export default function ClientProjectsRows(props: {
               fontSize: '14px',
               fontWeight: 400,
               color:
-                row.qId.charAt(0) === 'Q'
+                row.corporationId.charAt(0) === 'Q'
                   ? 'rgba(76, 78, 100, 0.87)'
                   : '#666CFF',
             }}
           >
-            {row.qId}
+            {row.corporationId}
           </Typography>
         </TableCell>
         {separateLine()}
