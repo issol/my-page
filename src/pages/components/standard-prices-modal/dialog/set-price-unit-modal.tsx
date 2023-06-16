@@ -851,7 +851,7 @@ const SetPriceUnitModal = ({
                 type='submit'
                 disabled={
                   pairFields.some(item => {
-                    return !item.weighting || !item.quantity || !item.price
+                    return (!item.weighting && item.weighting !== 0) || !item.quantity || !item.price
                   }) || pairFields.length === 0
                 }
               >
