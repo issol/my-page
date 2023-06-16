@@ -20,7 +20,7 @@ import {
   PriceUnitDataType,
   PriceUnitFormType,
   PriceUnitType,
-} from '@src/apis/price-units.api'
+} from '@src/types/common/standard-price'
 import Switch from '@mui/material/Switch'
 
 import styled, { css } from 'styled-components'

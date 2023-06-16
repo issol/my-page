@@ -30,7 +30,7 @@ import logger from '@src/@core/utils/logger'
 import CancelModal from './modal/cancel-baseprice-modal'
 
 // ** type
-import { PriceUnitFormType, PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitFormType, PriceUnitType } from '@src/types/common/standard-price'
 import { CustomTableRow } from './table'
 
 type Props = {

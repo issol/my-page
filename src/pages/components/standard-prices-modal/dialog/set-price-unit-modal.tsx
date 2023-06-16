@@ -37,7 +37,7 @@ import {
   useForm,
 } from 'react-hook-form'
 
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitType } from '@src/types/common/standard-price'
 import {
   Dispatch,
   SetStateAction,

@@ -2,7 +2,7 @@ import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/@core/components/modal'
 import { TitleTypography } from '@src/@core/styles/typography'
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitType } from '@src/types/common/standard-price'
 
 type Props = {
   row: PriceUnitType
