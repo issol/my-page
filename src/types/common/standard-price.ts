@@ -130,6 +130,46 @@ export type LanguagePairParams = {
   currency: CurrencyType
 }
 
+export type PriceUnitDataType = {
+  data: Array<PriceUnitType>
+  count: number
+  totalCount: number
+}
+
+export type PriceUnitType = {
+  id: number
+  isBase: boolean
+  authorId?: number
+  title: string
+  unit: string
+  weighting: number | null
+  isActive: boolean
+  parentPriceUnitId: number | null
+  subPriceUnits: Array<{
+    id: number
+    isBase: boolean
+    title: string
+    unit: string
+    weighting: number
+    isActive: boolean
+    parentPriceUnitId: number | null
+  }>
+}
+
+export type PriceUnitFormType = {
+  title?: string
+  unit?: string
+  weighting?: number | null
+  isBase?: boolean
+  isActive?: boolean
+  subPriceUnits?: Array<{
+    title?: string
+    unit?: string
+    weighting?: number | null
+    isActive?: boolean
+  }>
+}
+
 export type CatInterfaceType = {
   id: number
   createdAt: string

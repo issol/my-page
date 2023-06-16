@@ -5,6 +5,7 @@ import {
   LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
+  PriceUnitDataType,
 } from '@src/types/common/standard-price'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -347,6 +348,11 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
     })
   }
 
+  const filterPriceUnitItem = (priceUnitData:PriceUnitDataType) => {
+    // Set price unit에서는 price unit data의 isActive가 true인것만 보여줘야 함.
+    // 추후에 백엔드에서 isActive가 true인것만 받아오는 api가 있어도 되겠음
+    return priceUnitData.data.filter(item => item.isActive === true)
+  }
   const onClickSetPriceUnit = () => {
     openModal({
       type: 'setPriceUnitModal',
@@ -354,7 +360,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
         <SetPriceUnitModal
           onClose={() => closeModal('setPriceUnitModal')}
           currency={selectedPriceData?.currency!}
-          priceUnit={priceUnit?.data!}
+          priceUnit={filterPriceUnitItem(priceUnit!)}
           price={selectedPriceData!}
           priceUnitPair={selectedPriceData?.priceUnit!}
           setIsEditingCatInterface={setIsEditingCatInterface}
