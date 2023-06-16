@@ -351,8 +351,21 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
   const filterPriceUnitItem = (priceUnitData:PriceUnitDataType) => {
     // Set price unit에서는 price unit data의 isActive가 true인것만 보여줘야 함.
     // 추후에 백엔드에서 isActive가 true인것만 받아오는 api가 있어도 되겠음
-    return priceUnitData.data.filter(item => item.isActive === true)
+    const filteredData = priceUnitData.data.filter(item => item.isActive)
+
+    const filteredWithSubPriceUnits = filteredData.filter(item => {
+      return item.isActive || item.subPriceUnits.some(subItem => subItem.isActive)
+    })
+
+    return filteredWithSubPriceUnits.map(item => {
+      const filteredSubPriceUnits = item.subPriceUnits.filter(subItem => subItem.isActive)
+      return {
+        ...item,
+        subPriceUnits: filteredSubPriceUnits,
+      }
+    })
   }
+
   const onClickSetPriceUnit = () => {
     openModal({
       type: 'setPriceUnitModal',
