@@ -145,6 +145,8 @@ const InvoiceVersionHistoryModal = ({
 
   useEffect(() => {
     if (history.items) {
+      console.log(history.items)
+
       setLanguagePairs(
         history.items?.languagePairs?.map(item => ({
           id: String(item.id),
@@ -200,6 +202,8 @@ const InvoiceVersionHistoryModal = ({
       resetTeam({ teams })
     }
   }, [history])
+
+  console.log(history.items)
 
   return (
     <Box
