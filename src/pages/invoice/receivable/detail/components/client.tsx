@@ -57,6 +57,7 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
+  isUpdatable: boolean
 }
 
 const InvoiceClient = ({
@@ -75,6 +76,7 @@ const InvoiceClient = ({
   isClientValid,
   invoiceInfo,
   onSave,
+  isUpdatable,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -168,7 +170,7 @@ const InvoiceClient = ({
             gap: '30px',
           }}
         >
-          {type === 'detail' ? (
+          {type === 'detail' && isUpdatable ? (
             <IconButton
               sx={{ position: 'absolute', top: 0, right: 0 }}
               onClick={() => setEdit!(true)}

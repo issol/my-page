@@ -348,7 +348,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
     })
   }
 
-  const filterPriceUnitItem = (priceUnitData:PriceUnitDataType) => {
+  const filterPriceUnitList = (priceUnitData:PriceUnitDataType) => {
     // Set price unit에서는 price unit data의 isActive가 true인것만 보여줘야 함.
     // 추후에 백엔드에서 isActive가 true인것만 받아오는 api가 있어도 되겠음
     const filteredData = priceUnitData.data.filter(item => item.isActive)
@@ -366,6 +366,20 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
     })
   }
 
+  const sortPriceUnitList = (priceUnitData:PriceUnitListType[]) => {
+    const sortedData = [...priceUnitData].sort((a, b) => a.priceUnitId - b.priceUnitId)
+    const sortedWithNestedPriceUnits: PriceUnitListType[] = []
+
+    sortedData.forEach(item => {
+      if (!item.parentPriceUnitId) {
+        sortedWithNestedPriceUnits.push(item)
+        const nestedItems = sortedData.filter(parentItem => parentItem.parentPriceUnitId === item.priceUnitId)
+        sortedWithNestedPriceUnits.push(...nestedItems)
+      }
+    })
+
+    return sortedWithNestedPriceUnits;
+  }
   const onClickSetPriceUnit = () => {
     openModal({
       type: 'setPriceUnitModal',
@@ -373,9 +387,9 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
         <SetPriceUnitModal
           onClose={() => closeModal('setPriceUnitModal')}
           currency={selectedPriceData?.currency!}
-          priceUnit={filterPriceUnitItem(priceUnit!)}
+          priceUnit={filterPriceUnitList(priceUnit!)}
           price={selectedPriceData!}
-          priceUnitPair={selectedPriceData?.priceUnit!}
+          priceUnitPair={sortPriceUnitList(selectedPriceData?.priceUnit!)}
           setIsEditingCatInterface={setIsEditingCatInterface}
           refetch={refetch}
           page={page}
@@ -465,7 +479,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
                   <img src='/images/icons/price-icons/menu-arrow.svg' alt='' />
                 </Box>
                 <PriceUnit
-                  list={priceUnitList}
+                  list={sortPriceUnitList(priceUnitList)}
                   listCount={priceUnitList.length}
                   isLoading={isLoading}
                   priceData={selectedPriceData!}
