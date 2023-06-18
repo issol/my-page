@@ -3,9 +3,12 @@ import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import {
   Box,
+  Button,
   Card,
   CardContent,
   CardHeader,
+  Dialog,
+  DialogContent,
   FormControl,
   IconButton,
   InputLabel,
@@ -16,6 +19,7 @@ import {
 import styled from 'styled-components'
 import PaymentMethod from './payment-method'
 import { OfficeType } from '@src/types/payment-info/client/index.type'
+import PaymentMethodForm from './payment-method-form'
 
 type Props = {
   clientId: number
@@ -24,6 +28,8 @@ type Props = {
 export default function OfficeDetails({ clientId }: Props) {
   const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
   const [office, setOffice] = useState<OfficeType>('Korea')
+
+  const [editForm, setEditForm] = useState(false)
   return (
     <Card>
       <CardHeader
@@ -52,7 +58,7 @@ export default function OfficeDetails({ clientId }: Props) {
                 </Select>
               </FormControl>
             </Box>
-            <IconButton>
+            <IconButton onClick={() => setEditForm(true)}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
           </Box>
@@ -61,6 +67,15 @@ export default function OfficeDetails({ clientId }: Props) {
       <CardContent>
         <PaymentMethod office={office} />
       </CardContent>
+      <Dialog open={editForm} maxWidth='md'>
+        <DialogContent sx={{ padding: '50px' }}>
+          <PaymentMethodForm
+            office={office}
+            open={editForm}
+            onClose={() => setEditForm(false)}
+          />
+        </DialogContent>
+      </Dialog>
     </Card>
   )
 }
