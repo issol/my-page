@@ -182,8 +182,8 @@ export default function ItemForm({
       getPriceOptions(itemData.source, itemData.target).find(
         price => price.id === itemData.priceId,
       ) || null
-    const sourceLanguage = getValues(`items.${idx}.source`)
-    const targetLanguage = getValues(`items.${idx}.target`)
+    const sourceLanguage = itemData.source
+    const targetLanguage = itemData.target
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
@@ -222,6 +222,7 @@ export default function ItemForm({
         }
       }
 
+      if (total === itemData.totalPrice) return
       setValue(`items.${idx}.totalPrice`, total, {
         shouldDirty: true,
         shouldValidate: true,
@@ -247,6 +248,8 @@ export default function ItemForm({
       } else {
         prices = detail.unitPrice * detail.quantity
       }
+
+      if (prices === data[index].prices) return
       setValue(`items.${idx}.detail.${index}.prices`, prices, {
         shouldDirty: true,
         shouldValidate: true,
@@ -361,7 +364,6 @@ export default function ItemForm({
                   />
                 </Grid>
               )}
-
               <Grid item xs={6}>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
@@ -696,7 +698,6 @@ export default function ItemForm({
                   />
                 </Grid>
               )}
-
               {/* TM analysis */}
             </>
           ) : null}

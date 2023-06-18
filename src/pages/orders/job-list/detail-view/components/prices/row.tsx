@@ -73,8 +73,8 @@ const Row = ({
     ) || null
   console.log(priceData)
 
-  const sourceLanguage = getItem(`items.${0}.source`)
-  const targetLanguage = getItem(`items.${0}.target`)
+  const sourceLanguage = itemData.source
+  const targetLanguage = itemData.target
   const languagePairData = priceData?.languagePairs?.find(
     i => i.source === sourceLanguage && i.target === targetLanguage,
   )
@@ -109,7 +109,7 @@ const Row = ({
         total = price
       }
     }
-
+    if (total === itemData.totalPrice) return
     setItem(`items.${0}.totalPrice`, total, {
       shouldDirty: true,
       shouldValidate: true,
@@ -135,6 +135,8 @@ const Row = ({
     } else {
       prices = detail.unitPrice * detail.quantity
     }
+
+    if (prices === data[index].prices) return
     setItem(`items.${0}.detail.${index}.prices`, prices, {
       shouldDirty: true,
       shouldValidate: true,
