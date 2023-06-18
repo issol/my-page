@@ -20,11 +20,18 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
+import ClientPaymentFiles from './forms/file-upload'
 
 type Props = {
   clientId: number
 }
 
+/*
+TODO:
+1. BillingAddress에 실데이터 표기하기
+2. BillingAddressForm에 form reset할 데이터 프롭으로 보내주기
+3. billing address 저장 mutation붙이기
+*/
 export default function PaymentInfo({ clientId }: Props) {
   const { openModal, closeModal } = useModal()
   const [editAddress, setEditAddress] = useState(false)
@@ -44,9 +51,12 @@ export default function PaymentInfo({ clientId }: Props) {
 
   return (
     <Grid container spacing={6}>
+      {/* office details */}
       <Grid item xs={9}>
         <OfficeDetails clientId={clientId} />
       </Grid>
+
+      {/* billing address */}
       <Grid item xs={9}>
         <Card>
           <CardHeader
@@ -68,6 +78,13 @@ export default function PaymentInfo({ clientId }: Props) {
           </CardContent>
         </Card>
       </Grid>
+
+      <Grid item xs={3}>
+        <Card>
+          <ClientPaymentFiles />
+        </Card>
+      </Grid>
+      {/* billing address form */}
       <Dialog open={editAddress} maxWidth='md'>
         <DialogContent sx={{ padding: '50px' }}>
           <Grid container spacing={6}>
