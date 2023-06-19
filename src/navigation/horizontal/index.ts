@@ -107,7 +107,7 @@ const navigation = (): HorizontalNavItemsType => {
       children: [
         {
           title: 'Members',
-          path: `/company`,
+          path: `/company/members`,
           action: 'update',
           icon: 'material-symbols:person',
           subject: 'permission_request',
@@ -118,6 +118,20 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
           icon: 'solar:dollar-minimalistic-bold',
           subject: 'company_price',
+        },
+        {
+          title: 'My Account',
+          path: `/company/my-account`,
+          action: 'read',
+          icon: 'mdi:account-check-outline',
+          subject: 'my_account',
+        },
+        {
+          title: 'Company Info',
+          path: `/company/company-info`,
+          action: 'read',
+          icon: 'material-symbols:lock-open-outline',
+          subject: 'company_info',
         },
       ],
     },
