@@ -8,7 +8,8 @@ export type ClientProjectFilterType = {
   category?: string[]
   serviceType?: string[]
   status?: string[]
-  dueDate?: Date[]
+  dueDateFrom?: Date | null
+  dueDateTo?: Date | null
   sort?: string
   hideCompletedProject?: boolean
 }

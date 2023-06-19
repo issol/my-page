@@ -31,11 +31,14 @@ export const useGetClientDetail = (id: number) => {
   )
 }
 
-export const useGetClientProjectList = (filter: ClientProjectFilterType) => {
-  return useQuery<{ data: ClientProjectListType[]; totalCount: number }>(
+export const useGetClientProjectList = (
+  id: number,
+  filter: ClientProjectFilterType,
+) => {
+  return useQuery<{ data: ClientProjectListType[]; count: number }>(
     ['client-projects', filter],
     () => {
-      return getClientProjectList(filter)
+      return getClientProjectList(id, filter)
     },
     {
       staleTime: 60 * 1000, // 1
