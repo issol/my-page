@@ -44,6 +44,7 @@ TODO:
 4. fileList는 서버에서 불러온 값으로 교체하기
 5. uploadFiles함수 완성하기
 6. file delete함수 완성하기
+7. FileInfo의 isUpdatable, isDeletable은 ability check로 수정하기
 */
 
 export default function PaymentInfo({ clientId }: Props) {
@@ -242,6 +243,8 @@ export default function PaymentInfo({ clientId }: Props) {
               onDownloadAll={downloadAllFile}
               onFileDrop={uploadFiles}
               onDeleteFile={onDeleteFile}
+              isUpdatable={false}
+              isDeletable={false}
             />
           </CardContent>
         </Card>
