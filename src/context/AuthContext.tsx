@@ -17,6 +17,7 @@ import {
   LoginParams,
   ErrCallbackType,
   UserDataType,
+  UserRoleType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
 import { getUserInfo } from 'src/apis/user.api'
@@ -46,10 +47,7 @@ import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 
 /* redux */
-import { 
-  getPermission,
-  getRole,
-} from 'src/store/permission'
+import { getPermission, getRole, setCurrentRole } from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
 import { useAppSelector } from 'src/hooks/useRedux'
 
@@ -86,11 +84,18 @@ const AuthProvider = ({ children }: Props) => {
   const router = useRouter()
   const { openModal, closeModal } = useModal()
 
+  function hasTadAndLpm(role: UserRoleType[]): boolean {
+    return (
+      role.some(value => value.name === 'TAD') &&
+      role.some(value => value.name === 'LPM')
+    )
+  }
+
   useEffect(() => {
     if (user) {
       dispatch(getRole(user.id))
       dispatch(getPermission())
-    } 
+    }
   }, [user])
 
   const userAccess = useAppSelector(state => state.userAccess)
@@ -99,6 +104,12 @@ const AuthProvider = ({ children }: Props) => {
     if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
       const redirectPath = getRedirectPath()
+      const TADRole =
+        hasTadAndLpm(userAccess.role) &&
+        userAccess.role.find(item => item.name === 'TAD')
+      TADRole
+        ? dispatch(setCurrentRole(TADRole))
+        : dispatch(setCurrentRole(userAccess.role[0]))
       if (!user?.firstName) {
         if (roles?.includes('PRO')) {
           router.replace('/welcome/consumer')
@@ -107,7 +118,7 @@ const AuthProvider = ({ children }: Props) => {
         }
         return
       } else if (redirectPath) {
-        router.replace(redirectPath);
+        router.replace(redirectPath)
         removeRedirectPath()
         return
       }
@@ -247,11 +258,7 @@ const AuthProvider = ({ children }: Props) => {
     register: handleRegister,
     updateUserInfo: updateUserInfo,
   }
-  return (
-    <AuthContext.Provider value={values}>
-      {children}
-    </AuthContext.Provider>
-  )
+  return <AuthContext.Provider value={values}>{children}</AuthContext.Provider>
 }
 
 export { AuthContext, AuthProvider }

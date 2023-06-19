@@ -1,10 +1,11 @@
 import logger from '@src/@core/utils/logger'
+
 import {
   FilterType,
   getProProjectList,
+  getProjectCalendarData,
   getWorkNameFilterList,
-} from './../../apis/pro-projects.api'
-import { getProjectCalendarData } from '@src/apis/pro-projects.api'
+} from '@src/apis/pro/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 

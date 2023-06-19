@@ -6,7 +6,7 @@ import FullCalendar, { DatesSetArg } from '@fullcalendar/react'
 import dayGridPlugin from '@fullcalendar/daygrid'
 
 // ** types
-import { CalendarEventType } from '@src/apis/pro-projects.api'
+import { CalendarEventType } from '@src/apis/pro/pro-projects.api'
 
 type Props = {
   event: Array<CalendarEventType>

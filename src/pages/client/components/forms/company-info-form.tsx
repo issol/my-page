@@ -38,7 +38,7 @@ import {
 // ** helpers
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { TaxTypeList } from '@src/shared/const/tax-type'
+import { TaxTypeList } from '@src/shared/const/tax/tax-type'
 
 type Props = {
   mode: 'create' | 'update'

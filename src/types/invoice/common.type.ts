@@ -41,3 +41,33 @@ export type InvoiceProjectInfoFormType = {
   isTaxable: boolean
   notes?: string
 }
+
+export type ProInvoiceListType = {
+  id: number
+  corporationId: string
+  createdAt: string
+
+  status: InvoiceReceivableStatusType
+
+  invoicedAt: string | null
+  payDueAt: string | null
+  payDueTimezone: CountryType
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+}
+
+export type ProInvoiceListFilterType = {
+  status?: string[]
+  invoicedDateFrom?: string
+  invoicedDateTo?: string
+  payDueDateFrom?: string
+  payDueDateTo?: string
+  paidDateFrom?: string
+  paidDateTo?: string
+
+  mine?: 0 | 1
+  hidePaid?: 0 | 1
+
+  skip: number
+  take: number
+}

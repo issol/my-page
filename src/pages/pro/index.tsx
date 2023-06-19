@@ -37,6 +37,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import { useAppSelector } from '@src/hooks/useRedux'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -69,6 +70,10 @@ const Pro = () => {
   const { data: proList, isLoading } = useGetProList(filters)
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
+
+  const { currentRole } = useAppSelector(state => state.userAccess)
+
+  console.log(currentRole)
 
   // const { data: totalStatistics } = useGetStatistic()
   // const { data: onboardingStatistic } = useGetOnboardingStatistic()
@@ -343,12 +348,12 @@ const Pro = () => {
           return dateB - dateA
         })
 
-        // 필터에 Source, Target, jobType, role이 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시켜 
+        // 필터에 Source, Target, jobType, role이 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시켜
         // 리스트에서 Job type/Role, Language Pair를 볼수있게 처리
-        const sourceFilters = filters.source || [];
-        const targetFilters = filters.target || [];
-        const jobTypeFilters = filters.jobType || [];
-        const roleFilters = filters.role || [];
+        const sourceFilters = filters.source || []
+        const targetFilters = filters.target || []
+        const jobTypeFilters = filters.jobType || []
+        const roleFilters = filters.role || []
 
         row.jobInfo.some((value, idx) => {
           const source = value.source || ''
@@ -361,15 +366,15 @@ const Pro = () => {
             (jobTypeFilters.length === 0 || jobTypeFilters.includes(jobType)) &&
             (roleFilters.length === 0 || roleFilters.includes(role))
           ) {
-            const dummy = row.jobInfo[idx];
+            const dummy = row.jobInfo[idx]
             for (let i = idx; i > 0; i--) {
-              row.jobInfo[i] = row.jobInfo[i - 1];
+              row.jobInfo[i] = row.jobInfo[i - 1]
             }
-            row.jobInfo[0] = dummy;
-            return true;
+            row.jobInfo[0] = dummy
+            return true
           }
-          return false;
-        });
+          return false
+        })
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
             <JobTypeChip
