@@ -1,5 +1,5 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useState } from 'react'
+import { MouseEvent, Suspense, SyntheticEvent, useState } from 'react'
 
 // ** styled components
 import styled from 'styled-components'
@@ -26,6 +26,7 @@ import PaymentInfo from '../components/payment-info'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 export default function ProDetail() {
   const router = useRouter()
@@ -75,7 +76,11 @@ export default function ProDetail() {
         <TabPanel value='2'>
           <ProDetailOverviews />
         </TabPanel>
-        <TabPanel value='3'>{id && <PaymentInfo id={Number(id)} />}</TabPanel>
+        <TabPanel value='3'>
+          <Suspense fallback={<FallbackSpinner />}>
+            {id && <PaymentInfo id={Number(id)} />}
+          </Suspense>
+        </TabPanel>
       </TabContext>
     </div>
   )
