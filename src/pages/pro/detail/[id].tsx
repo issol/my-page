@@ -28,6 +28,7 @@ import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
 import { AuthContext } from '@src/context/AuthContext'
 import { useAppSelector } from '@src/hooks/useRedux'
+import ProInvoices from '../components/invoices'
 
 export default function ProDetail() {
   const router = useRouter()
@@ -87,7 +88,7 @@ export default function ProDetail() {
         </TabPanel>
         {currentRole && currentRole.name === 'LPM' && (
           <TabPanel value='invoices'>
-            {id && <ProjectsDetail id={Number(id)} />}
+            {id && <ProInvoices id={Number(id)} />}
           </TabPanel>
         )}
         <TabPanel value='overview'>
