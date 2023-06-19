@@ -39,6 +39,11 @@ export type UserPaymentInfoType = {
     country: string
     zip: number
   }
+
+  tax: {
+    taxInfo: string
+    taxRate: number
+  }
 }
 
 export const getPaymentInfoRequest = async (
@@ -87,6 +92,10 @@ export const getUserPaymentInfo = async (
         country: '',
         zip: 0,
       },
+      tax: {
+        taxInfo: 'Korea Resident',
+        taxRate: 0.03,
+      },
     }
   }
 }
@@ -125,6 +134,10 @@ export const getUserPaymentInfoForManager = async (
         state: '',
         country: '',
         zip: 0,
+      },
+      tax: {
+        taxInfo: 'Korea Resident',
+        taxRate: 0.03,
       },
     }
   }

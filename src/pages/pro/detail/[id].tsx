@@ -1,5 +1,5 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useState } from 'react'
+import { MouseEvent, SyntheticEvent, useContext, useState } from 'react'
 
 // ** styled components
 import styled from 'styled-components'
@@ -26,17 +26,21 @@ import PaymentInfo from '../components/payment-info'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
+import { AuthContext } from '@src/context/AuthContext'
+import { useAppSelector } from '@src/hooks/useRedux'
+import ProInvoices from '../components/invoices'
 
 export default function ProDetail() {
   const router = useRouter()
 
   const { id } = router.query
-  const [value, setValue] = useState<string>('1')
+  const [value, setValue] = useState<string>('projects')
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
+  const currentRole = useAppSelector(state => state.userAccess.currentRole)
 
   return (
     <div>
@@ -48,34 +52,51 @@ export default function ProDetail() {
           style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
         >
           <CustomTap
-            value='1'
+            value='projects'
             label='Projects'
             iconPosition='start'
             icon={<Icon icon='iconoir:large-suitcase' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
+          {currentRole && currentRole.name === 'LPM' && (
+            <CustomTap
+              value='invoices'
+              label='Invoices'
+              iconPosition='start'
+              icon={<Icon icon='carbon:currency-dollar' />}
+              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+            />
+          )}
+
           <CustomTap
-            value='2'
+            value='overview'
             label='Overview'
             iconPosition='start'
             icon={<Icon icon='material-symbols:person-outline' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
           <CustomTap
-            value='3'
+            value='paymentInfo'
             label='Payment info'
             iconPosition='start'
             icon={<Icon icon='carbon:currency-dollar' />}
             onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
           />
         </TabList>
-        <TabPanel value='1'>
+        <TabPanel value='projects'>
           {id && <ProjectsDetail id={Number(id)} />}
         </TabPanel>
-        <TabPanel value='2'>
+        {currentRole && currentRole.name === 'LPM' && (
+          <TabPanel value='invoices'>
+            {id && <ProInvoices id={Number(id)} />}
+          </TabPanel>
+        )}
+        <TabPanel value='overview'>
           <ProDetailOverviews />
         </TabPanel>
-        <TabPanel value='3'>{id && <PaymentInfo id={Number(id)} />}</TabPanel>
+        <TabPanel value='paymentInfo'>
+          {id && <PaymentInfo id={Number(id)} userRole={currentRole?.name!} />}
+        </TabPanel>
       </TabContext>
     </div>
   )

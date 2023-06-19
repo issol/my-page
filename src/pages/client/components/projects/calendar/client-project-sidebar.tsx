@@ -11,7 +11,7 @@ import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 
 // ** types
 import { Button } from '@mui/material'
-import { CalendarEventType } from '@src/apis/pro-projects.api'
+import { CalendarEventType } from '@src/apis/pro/pro-projects.api'
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
 

@@ -22,10 +22,12 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { RoleType } from 'src/context/types'
+import { RoleType, UserRoleType } from 'src/context/types'
 
 // ** hooks
-import { useAppSelector } from 'src/hooks/useRedux'
+import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
+import { Switch } from '@mui/material'
+import { setCurrentRole } from '@src/store/permission'
 
 interface Props {
   settings: Settings
@@ -43,6 +45,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
+  const [checked, setChecked] = useState<boolean>(false)
+  const dispatch = useAppDispatch()
 
   // ** redux
   const { role } = useAppSelector(state => state.userAccess)
@@ -68,6 +72,25 @@ const UserDropdown = (props: Props) => {
       router.push(url)
     }
     setAnchorEl(null)
+  }
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked)
+    dispatch(
+      setCurrentRole(
+        event.target.checked
+          ? role.find(item => item.name === 'LPM') ?? null
+          : role.find(item => item.name === 'TAD') ?? null,
+      ),
+    )
+    router.push('/home')
+  }
+
+  function hasTadAndLpm(role: UserRoleType[]): boolean {
+    return (
+      role.some(value => value.name === 'TAD') &&
+      role.some(value => value.name === 'LPM')
+    )
   }
 
   const styles = {
@@ -152,19 +175,58 @@ const UserDropdown = (props: Props) => {
                   ? 'anonymous'
                   : auth?.user?.username}
               </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  fontSize: '0.8rem',
-                  color: 'text.disabled',
-                  display: 'flex',
-                  gap: '4px',
-                }}
-              >
-                {role?.map((value, index) => {
-                  return <Fragment key={index}>{value?.name} </Fragment>
-                })}
-              </Typography>
+
+              {role && hasTadAndLpm(role) ? (
+                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={checked ? 400 : 600}
+                    color={checked ? '#BDBDBD' : '#666CFF'}
+                  >
+                    TAD
+                  </Typography>
+                  <Switch
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    sx={{
+                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                        color: '#666CFF',
+                        '.MuiSwitch-thumb': {
+                          color: '#666CFF',
+                        },
+                      },
+                      '.MuiSwitch-track': {
+                        backgroundColor: '#666CFF',
+                      },
+                    }}
+                  />
+                  <Typography
+                    fontSize={14}
+                    fontWeight={checked ? 600 : 400}
+                    color={checked ? '#666CFF' : '#BDBDBD'}
+                  >
+                    LPM
+                  </Typography>
+                </Box>
+              ) : (
+                role?.map((value, index) => {
+                  return (
+                    <Typography
+                      key={index}
+                      variant='body2'
+                      sx={{
+                        fontSize: '0.8rem',
+                        color: 'text.disabled',
+                        display: 'flex',
+                        gap: '4px',
+                      }}
+                    >
+                      {value?.name}
+                    </Typography>
+                  )
+                })
+              )}
             </Box>
           </Box>
         </Box>

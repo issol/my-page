@@ -24,7 +24,7 @@ import {
 import {
   FilterType as ActiveFilterType,
   SortingType,
-} from '@src/apis/pro-projects.api'
+} from '@src/apis/pro/pro-projects.api'
 import logger from '@src/@core/utils/logger'
 
 export type FilterType = {
