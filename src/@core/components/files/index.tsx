@@ -27,6 +27,8 @@ type Props = {
   onDeleteFile: (file: FileItemType) => void
   onDownloadAll: (files: FileItemType[] | null) => void
   fileType: string //one of S3FileType
+  isUpdatable: boolean
+  isDeletable: boolean
 }
 
 export default function FileInfo({
@@ -38,6 +40,8 @@ export default function FileInfo({
   onDeleteFile,
   onDownloadAll,
   fileType,
+  isUpdatable,
+  isDeletable,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -108,21 +112,23 @@ export default function FileInfo({
               /50mb
             </Typography>
           </Box>
-          <Box display='flex' alignItems='center' gap='10px'>
-            <div {...getRootProps({ className: 'dropzone' })}>
-              <Button variant='contained'>
-                <input {...getInputProps()} />
-                Upload
+          {isUpdatable ? (
+            <Box display='flex' alignItems='center' gap='10px'>
+              <div {...getRootProps({ className: 'dropzone' })}>
+                <Button variant='contained'>
+                  <input {...getInputProps()} />
+                  Upload
+                </Button>
+              </div>
+              <Button
+                variant='outlined'
+                sx={{ p: 2, minWidth: 38 }}
+                onClick={() => onDownloadAll(fileList)}
+              >
+                <Icon icon='ic:baseline-download' fontSize={20} />
               </Button>
-            </div>
-            <Button
-              variant='outlined'
-              sx={{ p: 2, minWidth: 38 }}
-              onClick={() => onDownloadAll(fileList)}
-            >
-              <Icon icon='ic:baseline-download' fontSize={20} />
-            </Button>
-          </Box>
+            </Box>
+          ) : null}
         </Box>
       </Grid>
 
@@ -134,6 +140,7 @@ export default function FileInfo({
               files={fileList}
               onFileClick={onFileClick}
               onDelete={onDeleteFile}
+              isDeletable={isDeletable}
             />
           </KeenSliderWrapper>
         ) : (
