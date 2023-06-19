@@ -1,5 +1,6 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import Box from '@mui/material/Box'
+import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
@@ -46,13 +47,17 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import useModal from '@src/hooks/useModal'
 import LanguagePairActionModal from '../../standard-prices-modal/modal/language-pair-action-modal'
-import { formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatCurrency,
+  countDecimalPlaces,
+} from '@src/shared/helpers/price.helper'
 import { useMutation, useQueryClient } from 'react-query'
 import {
   deleteLanguagePair,
   patchLanguagePair,
 } from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
+import { decimalPlace } from '@src/shared/const/price/decimalPlace'
 
 type Props = {
   list: LanguagePairListType[]
@@ -285,11 +290,23 @@ const LanguagePair = ({
 
       renderHeader: () => <Box>Language pair</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>
+        <Box
+          sx={{
+            overflow: 'hidden',
+            textOverflow: 'ellipsis',
+            whiteSpace: 'nowrap',
+          }}
+        >
           <Box key={row.id}>
             <Typography
               variant='body1'
-              sx={{ fontWeight: 600, fontSize: '14px' }}
+              sx={{
+                fontWeight: 600,
+                fontSize: '14px',
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
             >
               {row.source && row.target ? (
                 <>
@@ -315,7 +332,32 @@ const LanguagePair = ({
       editable: selectedLanguagePair?.id === isEditingLanguagePair,
       renderHeader: () => <Box>Price factor</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>{formatCurrency(row.priceFactor, row.currency)}</Box>
+        <Tooltip
+          title={
+            formatCurrency(
+              row.priceFactor,
+              row.currency,
+              countDecimalPlaces(row.priceFactor)
+            )}
+          sx={{
+            backgroundColor: 'black',
+            color: 'white',
+          }}
+        >
+          <Box
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >{
+            formatCurrency(
+              row.priceFactor,
+              row.currency,
+              countDecimalPlaces(row.priceFactor)
+            )}
+          </Box>
+        </Tooltip>
       ),
     },
     {
@@ -329,7 +371,32 @@ const LanguagePair = ({
       editable: selectedLanguagePair?.id === isEditingLanguagePair,
       renderHeader: () => <Box>Min. price</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
-        <Box>{formatCurrency(row.minimumPrice, row.currency)}</Box>
+        <Tooltip
+          title={
+            formatCurrency(
+              row.minimumPrice,
+              row.currency,
+              priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+            )}
+          sx={{
+            backgroundColor: 'black',
+            color: 'white',
+          }}
+        >
+          <Box
+            sx={{
+              overflow: 'hidden',
+              textOverflow: 'ellipsis',
+              whiteSpace: 'nowrap',
+            }}
+          >{
+            formatCurrency(
+              row.minimumPrice,
+              row.currency,
+              priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+            )}
+          </Box>
+        </Tooltip>
       ),
     },
     {
