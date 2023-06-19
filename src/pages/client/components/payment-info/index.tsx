@@ -20,7 +20,7 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { useForm } from 'react-hook-form'
-import ClientPaymentFiles from './forms/file-upload'
+
 import {
   getDownloadUrlforCommon,
   getUploadUrlforCommon,
@@ -30,6 +30,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { toast } from 'react-hot-toast'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import { FilePostType } from '@src/apis/client-guideline.api'
+import FileInfo from '@src/@core/components/files'
 
 type Props = {
   clientId: number
@@ -225,7 +226,7 @@ export default function PaymentInfo({ clientId }: Props) {
       <Grid item xs={12} md={4}>
         <Card>
           <CardContent>
-            <ClientPaymentFiles
+            <FileInfo
               fileList={fileList}
               accept={{
                 'image/*': ['.png', '.jpg', '.jpeg'],
