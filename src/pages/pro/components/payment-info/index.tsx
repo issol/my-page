@@ -25,14 +25,17 @@ import {
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useEffect } from 'react'
+import Tax from './tax'
 
 type Props = {
   id: number
+  userRole: string
 }
 
-export default function PaymentInfo({ id }: Props) {
+export default function PaymentInfo({ id, userRole }: Props) {
   const ability = useContext(AbilityContext)
   const isAccountManager = ability.can('read', 'account_manage')
+  const [taxEdit, setTaxEdit] = useState(false)
 
   const clipboard = useClipboard()
 
@@ -103,6 +106,7 @@ export default function PaymentInfo({ id }: Props) {
             info={data?.billingAddress!}
             replaceDots={replaceDots}
           />
+          <Tax info={data?.tax!} edit={taxEdit} setEdit={setTaxEdit} />
         </Grid>
       </Grid>
     </Suspense>
