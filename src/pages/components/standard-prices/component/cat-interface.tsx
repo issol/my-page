@@ -36,7 +36,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   createCatInterface,
   patchCatInterface,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import useModal from '@src/hooks/useModal'
 import CATInterfaceChipDuplicationModal from '@src/pages/components/standard-prices-modal/modal/CAT-interface-chip-duplication-modal'
@@ -55,7 +55,6 @@ const CatInterface = ({
   setIsEditingCatInterface,
   isEditingCatInterface,
 }: Props) => {
-
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
   const { openModal, closeModal } = useModal()
@@ -204,12 +203,17 @@ const CatInterface = ({
   }
 
   const checkRangeChipDuplication = (
-    selectedChipData: { id: number; title: string; selected: boolean; tmpSelected: boolean },
-    selectedData: PriceUnitListWithHeaders
+    selectedChipData: {
+      id: number
+      title: string
+      selected: boolean
+      tmpSelected: boolean
+    },
+    selectedData: PriceUnitListWithHeaders,
   ) => {
     let flag = true
     // selectedChipData.tmpSelected 가 false인 경우 지금 chip을 선택했다는 의미임
-    if(!selectedChipData.tmpSelected) {
+    if (!selectedChipData.tmpSelected) {
       priceUnitListWithHeaders[alignment].map(obj => {
         if (obj.id !== selectedData.id) {
           obj.chips.map(chip => {
@@ -223,11 +227,15 @@ const CatInterface = ({
     }
 
     // 기존 chip을 해제 처리하고, 다른 박스의 chip을 선택한 다음 다시 기존 chip을 선택하는 케이스
-    if ((!selectedChipData.selected && selectedChipData.tmpSelected)) {
+    if (!selectedChipData.selected && selectedChipData.tmpSelected) {
       priceUnitListWithHeaders[alignment].map(obj => {
         if (obj.id !== selectedData.id) {
           obj.chips.map(chip => {
-            if (chip.id === selectedChipData.id && chip.selected && chip.tmpSelected) {
+            if (
+              chip.id === selectedChipData.id &&
+              chip.selected &&
+              chip.tmpSelected
+            ) {
               // 겹치는 Chip 있음
               flag = false
             }
@@ -240,10 +248,15 @@ const CatInterface = ({
   }
 
   const onClickRangeChip = (
-    data: { id: number; title: string; selected: boolean, tmpSelected: boolean },
+    data: {
+      id: number
+      title: string
+      selected: boolean
+      tmpSelected: boolean
+    },
     value: PriceUnitListWithHeaders,
   ) => {
-    if (checkRangeChipDuplication(data,value)) {
+    if (checkRangeChipDuplication(data, value)) {
       if (alignment === 'Memsource') {
         setPriceUnitListWithHeaders(prevState => {
           const res = prevState.Memsource.map(obj => {
@@ -306,11 +319,7 @@ const CatInterface = ({
         type: `CAT-Interface-Chip-Duplication-Modal`,
         children: (
           <CATInterfaceChipDuplicationModal
-            onClose={() =>
-              closeModal(
-                `CAT-Interface-Chip-Duplication-Modal`,
-              )
-            }
+            onClose={() => closeModal(`CAT-Interface-Chip-Duplication-Modal`)}
           />
         ),
       })

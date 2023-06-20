@@ -1,6 +1,9 @@
 import { AnyAbility } from '@casl/ability'
 import { useQuery } from 'react-query'
-import { getMembers, getSignUpRequests } from 'src/apis/company.api'
+import {
+  getMembers,
+  getSignUpRequests,
+} from 'src/apis/company/company-members.api'
 import {
   ResponseMembersType,
   ResponseRequestsType,

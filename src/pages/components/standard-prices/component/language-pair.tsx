@@ -55,7 +55,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   deleteLanguagePair,
   patchLanguagePair,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { decimalPlace } from '@src/shared/const/price/decimalPlace'
 
@@ -333,12 +333,11 @@ const LanguagePair = ({
       renderHeader: () => <Box>Price factor</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
         <Tooltip
-          title={
-            formatCurrency(
-              row.priceFactor,
-              row.currency,
-              countDecimalPlaces(row.priceFactor)
-            )}
+          title={formatCurrency(
+            row.priceFactor,
+            row.currency,
+            countDecimalPlaces(row.priceFactor),
+          )}
           sx={{
             backgroundColor: 'black',
             color: 'white',
@@ -350,11 +349,11 @@ const LanguagePair = ({
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
             }}
-          >{
-            formatCurrency(
+          >
+            {formatCurrency(
               row.priceFactor,
               row.currency,
-              countDecimalPlaces(row.priceFactor)
+              countDecimalPlaces(row.priceFactor),
             )}
           </Box>
         </Tooltip>
@@ -372,15 +371,16 @@ const LanguagePair = ({
       renderHeader: () => <Box>Min. price</Box>,
       renderCell: ({ row }: { row: LanguagePairListType }) => (
         <Tooltip
-          title={
-            formatCurrency(
-              row.minimumPrice,
-              row.currency,
-              // price의 currency를 바꾸면 language pair의 currency가 같이 업데이트 되지 않는 이슈가 있음
-              // 따라서 currency를 보고 decimalPlace 값을 컨트롤 하는것에 예외 케이스가 많아서, 우선은 decimalPlace 값이 10보다 클경우는 KRW, JPY로 보고
-              // 그에 맞는 로직을 타도록 임시 수정 함
-              priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
-            )}
+          title={formatCurrency(
+            row.minimumPrice,
+            row.currency,
+            // price의 currency를 바꾸면 language pair의 currency가 같이 업데이트 되지 않는 이슈가 있음
+            // 따라서 currency를 보고 decimalPlace 값을 컨트롤 하는것에 예외 케이스가 많아서, 우선은 decimalPlace 값이 10보다 클경우는 KRW, JPY로 보고
+            // 그에 맞는 로직을 타도록 임시 수정 함
+            priceData.decimalPlace >= 10
+              ? countDecimalPlaces(priceData.decimalPlace)
+              : priceData.decimalPlace,
+          )}
           sx={{
             backgroundColor: 'black',
             color: 'white',
@@ -392,11 +392,13 @@ const LanguagePair = ({
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',
             }}
-          >{
-            formatCurrency(
+          >
+            {formatCurrency(
               row.minimumPrice,
               row.currency,
-              priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+              priceData.decimalPlace >= 10
+                ? countDecimalPlaces(priceData.decimalPlace)
+                : priceData.decimalPlace,
             )}
           </Box>
         </Tooltip>

@@ -48,7 +48,7 @@ import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
-import { createPrice } from '@src/apis/company-price.api'
+import { createPrice } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 
@@ -443,18 +443,19 @@ const AddSavePriceModal = ({
                             )
                           if (
                             watch('currency').value === 'KRW' ||
-                            watch('currency').value === 'JPY') {
-                              let convertValue = ''
-                              if (filteredValue !== '') {
-                                convertValue += '1'
-                                for (let i = 1; i < filteredValue.length; i++) {
-                                  convertValue += '0'
-                                }
+                            watch('currency').value === 'JPY'
+                          ) {
+                            let convertValue = ''
+                            if (filteredValue !== '') {
+                              convertValue += '1'
+                              for (let i = 1; i < filteredValue.length; i++) {
+                                convertValue += '0'
                               }
-                              e.target.value = convertValue
-                            } else {
-                              e.target.value = filteredValue
                             }
+                            e.target.value = convertValue
+                          } else {
+                            e.target.value = filteredValue
+                          }
                           onChange(e.target.value)
                         }
                       }}

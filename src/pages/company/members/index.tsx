@@ -4,13 +4,13 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   useGetMembers,
   useGetSignUpRequests,
-} from 'src/queries/company/company-query'
+} from '@src/queries/company/company-members'
 import {
   approveMembers,
   requestAction,
   undoMembers,
   undoRequest,
-} from 'src/apis/company.api'
+} from 'src/apis/company/company-members.api'
 
 import { ModalContext } from 'src/context/ModalContext'
 import DeclineSignUpRequestModal from '../components/modal/decline-signup-request-modal'
