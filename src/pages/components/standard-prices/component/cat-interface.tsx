@@ -38,6 +38,8 @@ import {
   patchCatInterface,
 } from '@src/apis/company-price.api'
 import toast from 'react-hot-toast'
+import useModal from '@src/hooks/useModal'
+import CATInterfaceChipDuplicationModal from '@src/pages/components/standard-prices-modal/modal/CAT-interface-chip-duplication-modal'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
@@ -53,10 +55,10 @@ const CatInterface = ({
   setIsEditingCatInterface,
   isEditingCatInterface,
 }: Props) => {
-  console.log(priceUnitList)
 
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
+  const { openModal, closeModal } = useModal()
 
   const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
     alignment!,
@@ -94,6 +96,7 @@ const CatInterface = ({
   const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<{
     Memsource: PriceUnitListWithHeaders[]
     memoQ: PriceUnitListWithHeaders[]
+    [key: string]: PriceUnitListWithHeaders[]
   }>({ Memsource: [], memoQ: [] })
 
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
@@ -200,65 +203,116 @@ const CatInterface = ({
     setIsEditingCatInterface(false)
   }
 
-  const onClickRangeChip = (
-    data: { id: number; title: string; selected: boolean },
-    value: PriceUnitListWithHeaders,
+  const checkRangeChipDuplication = (
+    selectedChipData: { id: number; title: string; selected: boolean; tmpSelected: boolean },
+    selectedData: PriceUnitListWithHeaders
   ) => {
-    if (alignment === 'Memsource') {
-      setPriceUnitListWithHeaders(prevState => {
-        const res = prevState.Memsource.map(obj => {
-          if (obj.id === value.id) {
-            const tmp = obj.chips.map(obj2 => {
-              if (obj2.id === data.id) {
-                return {
-                  ...obj2,
-                  selected: !obj2.selected,
-                  tmpSelected: !obj2.tmpSelected,
-                }
-              } else {
-                return obj2
-              }
-            })
-
-            return { ...obj, chips: tmp }
-          } else {
-            return obj
-          }
-        })
-
-        if (res) {
-          return { ...prevState, Memsource: res }
-        } else {
-          return prevState
+    let flag = true
+    // selectedChipData.tmpSelected 가 false인 경우 지금 chip을 선택했다는 의미임
+    if(!selectedChipData.tmpSelected) {
+      priceUnitListWithHeaders[alignment].map(obj => {
+        if (obj.id !== selectedData.id) {
+          obj.chips.map(chip => {
+            if (chip.id === selectedChipData.id && chip.selected) {
+              // 겹치는 Chip 있음
+              flag = false
+            }
+          })
         }
       })
-    } else if (alignment === 'memoQ') {
-      setPriceUnitListWithHeaders(prevState => {
-        const res = prevState.memoQ.map(obj => {
-          if (obj.id === value.id) {
-            const tmp = obj.chips.map(obj2 => {
-              if (obj2.id === data.id) {
-                return {
-                  ...obj2,
-                  selected: !obj2.selected,
-                  tmpSelected: !obj2.tmpSelected,
-                }
-              } else {
-                return obj2
-              }
-            })
+    }
 
-            return { ...obj, chips: tmp }
+    // 기존 chip을 해제 처리하고, 다른 박스의 chip을 선택한 다음 다시 기존 chip을 선택하는 케이스
+    if ((!selectedChipData.selected && selectedChipData.tmpSelected)) {
+      priceUnitListWithHeaders[alignment].map(obj => {
+        if (obj.id !== selectedData.id) {
+          obj.chips.map(chip => {
+            if (chip.id === selectedChipData.id && chip.selected && chip.tmpSelected) {
+              // 겹치는 Chip 있음
+              flag = false
+            }
+          })
+        }
+      })
+    }
+    // 겹치는 Chip 없음
+    return flag
+  }
+
+  const onClickRangeChip = (
+    data: { id: number; title: string; selected: boolean, tmpSelected: boolean },
+    value: PriceUnitListWithHeaders,
+  ) => {
+    if (checkRangeChipDuplication(data,value)) {
+      if (alignment === 'Memsource') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.Memsource.map(obj => {
+            if (obj.id === value.id) {
+              const tmp = obj.chips.map(obj2 => {
+                if (obj2.id === data.id) {
+                  return {
+                    ...obj2,
+                    selected: !obj2.selected,
+                    tmpSelected: !obj2.tmpSelected,
+                  }
+                } else {
+                  return obj2
+                }
+              })
+
+              return { ...obj, chips: tmp }
+            } else {
+              return obj
+            }
+          })
+
+          if (res) {
+            return { ...prevState, Memsource: res }
           } else {
-            return obj
+            return prevState
           }
         })
+      } else if (alignment === 'memoQ') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.memoQ.map(obj => {
+            if (obj.id === value.id) {
+              const tmp = obj.chips.map(obj2 => {
+                if (obj2.id === data.id) {
+                  return {
+                    ...obj2,
+                    selected: !obj2.selected,
+                    tmpSelected: !obj2.tmpSelected,
+                  }
+                } else {
+                  return obj2
+                }
+              })
 
-        if (res) {
-          return { ...prevState, memoQ: res }
-        } else {
-          return prevState
-        }
+              return { ...obj, chips: tmp }
+            } else {
+              return obj
+            }
+          })
+
+          if (res) {
+            return { ...prevState, memoQ: res }
+          } else {
+            return prevState
+          }
+        })
+      }
+    } else {
+      openModal({
+        type: `CAT-Interface-Chip-Duplication-Modal`,
+        children: (
+          <CATInterfaceChipDuplicationModal
+            onClose={() =>
+              closeModal(
+                `CAT-Interface-Chip-Duplication-Modal`,
+              )
+            }
+          />
+        ),
       })
     }
   }
@@ -316,8 +370,6 @@ const CatInterface = ({
             // ),
           ]
         : withHeaders
-
-      console.log(withHeaders)
 
       const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface!.memoQ
         .length
@@ -382,10 +434,6 @@ const CatInterface = ({
       }))
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
-
-  useEffect(() => {
-    console.log(priceUnitListWithHeaders)
-  }, [priceUnitListWithHeaders])
 
   return (
     <Card
@@ -563,8 +611,6 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
                             isEditingCatInterface
                               ? onClickRangeChip(data, obj)
                               : null
@@ -685,8 +731,6 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
                             isEditingCatInterface
                               ? onClickRangeChip(data, obj)
                               : null
