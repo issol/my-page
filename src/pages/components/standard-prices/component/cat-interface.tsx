@@ -99,6 +99,16 @@ const CatInterface = ({
     [key: string]: PriceUnitListWithHeaders[]
   }>({ Memsource: [], memoQ: [] })
 
+  // CATUnit의 정렬순서를 PriceUnit과 동일한 순서로 맞춥니다.
+  const sortCATUnitList = (CATUnitData:PriceUnitListWithHeaders[]) => {
+    const sortedData: PriceUnitListWithHeaders[] = []
+    priceUnitList.map(priceUnit => {
+      const dummy = CATUnitData.find(CATUnit => CATUnit.priceUnitPairId === priceUnit.id)
+      if(dummy) sortedData.push(dummy)
+    })
+    return sortedData
+  }
+
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
 
   const handleAlignment = (
@@ -405,8 +415,8 @@ const CatInterface = ({
         : withHeaders
       setPriceUnitListWithHeaders(prevState => ({
         ...prevState,
-        Memsource: memSource,
-        memoQ: memoQ,
+        Memsource: sortCATUnitList(memSource),
+        memoQ: sortCATUnitList(memoQ),
       }))
     } else if (!isLoading && catInterface && priceUnitList.length === 0) {
       const formattedHeader = catInterface.headers.map((value, idx) => ({
