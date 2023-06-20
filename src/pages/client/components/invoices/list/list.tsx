@@ -165,7 +165,7 @@ const ClientInvoiceList = ({
                         }}
                         size='small'
                       >
-                        <Box>Invoice name</Box>
+                        <Box>Project name</Box>
                       </TableCell>
                       {separateLine()}
 

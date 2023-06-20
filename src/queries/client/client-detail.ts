@@ -67,11 +67,14 @@ export const useGetClientProjectsCalendar = (id: number, date: string) => {
   )
 }
 
-export const useGetClientInvoiceList = (filter: ClientInvoiceFilterType) => {
+export const useGetClientInvoiceList = (
+  id: number,
+  filter: ClientInvoiceFilterType,
+) => {
   return useQuery<{ data: ClientInvoiceListType[]; totalCount: number }>(
-    ['client-invoices', filter],
+    [`${id}-client-invoices`, filter],
     () => {
-      return getClientInvoiceList(filter)
+      return getClientInvoiceList(id, filter)
     },
     {
       staleTime: 60 * 1000, // 1
@@ -83,11 +86,16 @@ export const useGetClientInvoiceList = (filter: ClientInvoiceFilterType) => {
   )
 }
 
-export const useGetClientInvoicesCalendar = (id: number, date: string) => {
+export const useGetClientInvoicesCalendar = (
+  id: number,
+  year: string,
+  month: string,
+  filter: ClientInvoiceFilterType,
+) => {
   return useQuery(
     'get-client-invoices-calendar',
     () => {
-      return getClientInvoicesCalendarData(id, date)
+      return getClientInvoicesCalendarData(id, year, month, filter)
     },
     {
       suspense: true,

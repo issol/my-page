@@ -390,42 +390,15 @@ export type ClientInvoiceCalendarEventType = ClientInvoiceListType & {
 }
 
 export const getClientInvoiceList = async (
+  id: number,
   filter: ClientInvoiceFilterType,
 ): Promise<{ data: ClientInvoiceListType[]; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
-    // )
+    const { data } = await axios.get(
+      `/api/enough/u/client/${id}/invoices?${makeQuery(filter)}`,
+    )
 
-    const list: ClientInvoiceListType[] = [
-      {
-        id: 0,
-        iId: 'I-000001',
-        invoiceName: 'Invoice name',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 1,
-        iId: 'I-000002',
-        invoiceName: 'Invoice name2',
-        amount: 4000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice2',
-        currency: 'USD',
-      },
-    ]
-    // return data
-    return {
-      data: list,
-      totalCount: list.length,
-    }
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
@@ -433,69 +406,27 @@ export const getClientInvoiceList = async (
 
 export const getClientInvoicesCalendarData = async (
   id: number,
-  date: string,
+  year: string,
+  month: string,
+  filter: ClientInvoiceFilterType,
 ): Promise<ClientInvoiceCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
   const color_overdue = 'overdue'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project?date=${date}`,
+      `/api/enough/u/client/${id}/invoices?year=${year}&month=${
+        month + 1
+      }&${makeQuery(filter)}`,
     )
 
-    const list: ClientInvoiceListType[] = [
-      {
-        id: 1,
-        iId: 'I-000001',
-        invoiceName: 'Invoice name',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 2,
-        iId: 'I-000002',
-        invoiceName: 'Invoice name2',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 3,
-        iId: 'I-000003',
-        invoiceName: 'Invoice name3',
-        amount: 4000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 4,
-        iId: 'I-000004',
-        invoiceName: 'Invoice name4',
-        amount: 3000,
-        paymentDueDate: '2023-04-23T14:13:15Z',
-        invoicedDate: '2023-04-19T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-    ]
     return {
-      data: list.map((item: ClientInvoiceListType, idx: number) => {
+      data: data.map((item: ClientInvoiceListType, idx: number) => {
         return {
           ...item,
           extendedProps: {
             calendar:
-              item.status === 'Overdue'
+              item.invoiceStatus === 'Overdue'
                 ? color_overdue
                 : colors[idx % colors.length],
           },

@@ -1,4 +1,6 @@
 import { CurrencyType } from '../common/standard-price'
+import { InvoiceReceivableStatusType } from '../invoice/common.type'
+import { CountryType } from '../sign/personalInfoTypes'
 
 export type ClientProjectFilterType = {
   take: number
@@ -32,8 +34,11 @@ export type ClientInvoiceFilterType = {
   take: number
   skip: number
   search?: string
-  invoicedDate?: Date[]
-  paymentDueDate?: Date[]
+  invoicedDateTo: Date | null
+  invoicedDateFrom: Date | null
+
+  paymentDueDateFrom?: Date | null
+  paymentDueDateTo?: Date | null
   hidePaidInvoices?: boolean
   status?: string[]
   sort?: string
@@ -41,12 +46,16 @@ export type ClientInvoiceFilterType = {
 
 export type ClientInvoiceListType = {
   id: number
-  iId: string
+  corporationId: string
   invoiceName: string
   amount: number
-  invoicedDate: string
-  paymentDueDate: string
-  invoiceDescription: string
-  status: string
+  invoicedAt: string
+  payDueAt: string
+  payDueTimezone: CountryType
+  description: string
+  invoiceStatus: InvoiceReceivableStatusType
   currency: CurrencyType
+  order: {
+    projectName: string
+  }
 }
