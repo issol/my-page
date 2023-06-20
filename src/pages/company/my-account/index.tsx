@@ -4,9 +4,17 @@ import { AuthContext } from '@src/context/AuthContext'
 import { RoleType } from '@src/context/types'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { Fragment, useContext, useState } from 'react'
+import { Fragment, useContext, useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 import Contracts from './contracts'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import { managerProfileSchema } from '@src/types/schema/profile.schema'
+import { ManagerInfo } from '@src/types/sign/personalInfoTypes'
+import useModal from '@src/hooks/useModal'
+
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 
 const MyAccount = () => {
   const [contractsEdit, setContractsEdit] = useState(false)
@@ -15,8 +23,80 @@ const MyAccount = () => {
     return `/images/signup/role-${role.toLowerCase()}.png`
   }
 
+  const { openModal, closeModal } = useModal()
+
   const { user } = useContext(AuthContext)
   const role = useAppSelector(state => state.userAccess.role)
+  console.log(role)
+
+  const {
+    control,
+    handleSubmit,
+    setValue,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, isValid },
+  } = useForm<ManagerInfo>({
+    mode: 'onChange',
+    resolver: yupResolver(managerProfileSchema),
+  })
+
+  useEffect(() => {
+    if (user) {
+      reset({
+        firstName: user.firstName,
+        lastName: user.lastName,
+        middleName: user.middleName,
+        email: user.email,
+        phone: user.phone,
+        department: user.department,
+        jobTitle: user.jobTitle,
+        fax: user.fax,
+        mobile: user.mobile,
+        timezone: user.timezone,
+      })
+    }
+  }, [user])
+
+  const handleSaveInfo = () => {
+    const data = getValues()
+    // TODO API 연결
+
+    setContractsEdit(false)
+    closeModal('SaveMyAccountModal')
+  }
+
+  const handleCancelInfo = () => {
+    setContractsEdit(false)
+    closeModal('CancelMyAccountModal')
+    reset()
+  }
+
+  const onClickSave = () => {
+    openModal({
+      type: 'SaveMyAccountModal',
+      children: (
+        <EditSaveModal
+          onClose={() => closeModal('SaveMyAccountModal')}
+          onClick={handleSaveInfo}
+        />
+      ),
+    })
+  }
+
+  const onClickCancel = () => {
+    openModal({
+      type: 'CancelMyAccountModal',
+      children: (
+        <DiscardModal
+          title='Are you sure to discard all changes?'
+          onClose={() => closeModal('CancelMyAccountModal')}
+          onClick={handleCancelInfo}
+        />
+      ),
+    })
+  }
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -62,7 +142,7 @@ const MyAccount = () => {
                         </Fragment>
                       )
                     })}
-                    {PermissionChip(role[0].type)}
+                    {PermissionChip(role[0]?.type)}
                   </Box>
                 </Box>
 
@@ -89,7 +169,14 @@ const MyAccount = () => {
       <Contracts
         edit={contractsEdit}
         setEdit={setContractsEdit}
+        control={control}
         userInfo={user!}
+        watch={watch}
+        errors={errors}
+        isValid={isValid}
+        reset={reset}
+        onClickSave={onClickSave}
+        onClickCancel={onClickCancel}
       />
     </Box>
   )
