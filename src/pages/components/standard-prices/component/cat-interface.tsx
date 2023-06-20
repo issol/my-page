@@ -679,7 +679,16 @@ const CatInterface = ({
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price ?? ''}
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          getPrice(obj.price ?? 0, selectedLanguagePair?.priceFactor ?? 0),
+                          priceData.decimalPlace,
+                          priceData.roundingProcedure,
+                          priceData.currency,
+                        ),
+                        priceData.currency,
+                        priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+                      ) ?? ''}
                       &nbsp;
                       {obj.title === '-' ? '' : priceData.currency}
                       &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
