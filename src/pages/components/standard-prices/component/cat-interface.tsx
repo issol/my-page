@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
+  LanguagePairListType,
   CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
@@ -40,6 +41,12 @@ import {
 import toast from 'react-hot-toast'
 import useModal from '@src/hooks/useModal'
 import CATInterfaceChipDuplicationModal from '@src/pages/components/standard-prices-modal/modal/CAT-interface-chip-duplication-modal'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+  countDecimalPlaces,
+  getPrice,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
@@ -47,6 +54,7 @@ type Props = {
   existPriceUnit: boolean
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   isEditingCatInterface: boolean
+  selectedLanguagePair: LanguagePairListType | null
 }
 const CatInterface = ({
   priceUnitList,
@@ -54,6 +62,7 @@ const CatInterface = ({
   existPriceUnit,
   setIsEditingCatInterface,
   isEditingCatInterface,
+  selectedLanguagePair
 }: Props) => {
 
   const queryClient = useQueryClient()
@@ -541,7 +550,16 @@ const CatInterface = ({
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price ?? ''}
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          getPrice(obj.price ?? 0, selectedLanguagePair?.priceFactor ?? 0),
+                          priceData.decimalPlace,
+                          priceData.roundingProcedure,
+                          priceData.currency,
+                        ),
+                        priceData.currency,
+                        priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+                      ) ?? ''}
                       &nbsp;
                       {obj.title === '-' ? '' : priceData.currency}
                       &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;

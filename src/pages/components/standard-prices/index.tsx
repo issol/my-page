@@ -497,6 +497,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
                 existPriceUnit={priceUnitList.length > 0}
                 setIsEditingCatInterface={setIsEditingCatInterface}
                 isEditingCatInterface={isEditingCatInterface}
+                selectedLanguagePair={selectedLanguagePair}
               />
             </Grid>
           )}
