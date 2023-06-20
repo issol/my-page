@@ -86,6 +86,9 @@ const PriceUnit = ({
                 priceData.currency,
               ),
               priceData.currency,
+              // price의 currency를 바꾸면 language pair의 currency가 같이 업데이트 되지 않는 이슈가 있음
+              // 따라서 currency를 보고 decimalPlace 값을 컨트롤 하는것에 예외 케이스가 많아서, 우선은 decimalPlace 값이 10보다 클경우는 KRW, JPY로 보고
+              // 그에 맞는 로직을 타도록 임시 수정 함
               priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
             )}
           sx={{
