@@ -64,7 +64,7 @@ const CatInterface = ({
   isEditingCatInterface,
   selectedLanguagePair
 }: Props) => {
-
+  console.log("init data",priceUnitList,priceData)
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
   const { openModal, closeModal } = useModal()
@@ -621,7 +621,7 @@ const CatInterface = ({
                       )}
 
                       <Typography variant='body2' sx={{}}>
-                        Words
+                        {priceData.catBasis}
                       </Typography>
                     </Box>
                   </Box>
@@ -750,7 +750,7 @@ const CatInterface = ({
                       )}
 
                       <Typography variant='body2' sx={{}}>
-                        Words
+                        {priceData.catBasis}
                       </Typography>
                     </Box>
                   </Box>
