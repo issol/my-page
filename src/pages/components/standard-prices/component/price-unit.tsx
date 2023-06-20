@@ -128,7 +128,7 @@ const PriceUnit = ({
       sortable: false,
       renderHeader: () => <Box>Weighting (%)</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box>{row.weighting ?? '-'} %</Box>
+        <Box>{(row.weighting && row.weighting !== 0) ? row.weighting : '-'} %</Box>
       ),
     },
   ]
