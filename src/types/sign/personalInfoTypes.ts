@@ -64,6 +64,7 @@ export type ManagerUserInfoType = {
     mobilePhone?: string
     telephone?: string
     fax?: string
+    department?: string
   }
 }
 
@@ -71,6 +72,8 @@ export type ManagerInfo = {
   firstName: string
   middleName?: string
   lastName: string
+  email?: string
+  department?: string
   jobTitle?: string
   timezone: CountryType
   mobile?: string
