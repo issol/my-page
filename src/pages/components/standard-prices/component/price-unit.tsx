@@ -1,4 +1,5 @@
 import Box from '@mui/material/Box'
+import Tooltip from '@mui/material/Tooltip'
 import Button from '@mui/material/Button'
 import Card from '@mui/material/Card'
 import Typography from '@mui/material/Typography'
@@ -6,12 +7,15 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import {
   formatByRoundingProcedure,
   formatCurrency,
+  countDecimalPlaces,
+  getPrice,
 } from '@src/shared/helpers/price.helper'
 import {
   LanguagePairListType,
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
+import { decimalPlace } from '@src/shared/const/price/decimalPlace'
 
 type Props = {
   list: PriceUnitListType[]
@@ -30,12 +34,6 @@ const PriceUnit = ({
   selectedLanguagePair,
   onClickSetPriceUnit,
 }: Props) => {
-  function getPrice(price: number) {
-    if (selectedLanguagePair?.priceFactor) {
-      return price * selectedLanguagePair.priceFactor
-    }
-    return price
-  }
 
   const columns: GridColumns<PriceUnitListType> = [
     {
@@ -73,17 +71,45 @@ const PriceUnit = ({
       renderHeader: () => <Box>Price</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => {
         return (
-          <Box>
-            {formatCurrency(
+          <Tooltip
+          title={
+            formatCurrency(
               formatByRoundingProcedure(
-                getPrice(row.price),
+                getPrice(row.price, selectedLanguagePair?.priceFactor ?? 0),
                 priceData.decimalPlace,
                 priceData.roundingProcedure,
                 priceData.currency,
               ),
               priceData.currency,
+              // price의 currency를 바꾸면 language pair의 currency가 같이 업데이트 되지 않는 이슈가 있음
+              // 따라서 currency를 보고 decimalPlace 값을 컨트롤 하는것에 예외 케이스가 많아서, 우선은 decimalPlace 값이 10보다 클경우는 KRW, JPY로 보고
+              // 그에 맞는 로직을 타도록 임시 수정 함
+              priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
             )}
-          </Box>
+          sx={{
+            backgroundColor: 'black',
+            color: 'white',
+          }}
+        >
+            <Box
+              sx={{
+                overflow: 'hidden',
+                textOverflow: 'ellipsis',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              {formatCurrency(
+                formatByRoundingProcedure(
+                  getPrice(row.price, selectedLanguagePair?.priceFactor ?? 0),
+                  priceData.decimalPlace,
+                  priceData.roundingProcedure,
+                  priceData.currency,
+                ),
+                priceData.currency,
+                priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+              )}
+            </Box>
+          </Tooltip>
         )
       },
     },
@@ -97,7 +123,7 @@ const PriceUnit = ({
       sortable: false,
       renderHeader: () => <Box>Weighting (%)</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box>{row.weighting ?? '-'} %</Box>
+        <Box>{(row.weighting && row.weighting !== 0) ? row.weighting : '-'} %</Box>
       ),
     },
   ]

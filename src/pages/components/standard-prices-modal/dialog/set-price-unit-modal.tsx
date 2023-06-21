@@ -280,7 +280,7 @@ const SetPriceUnitModal = ({
         unitId: value.id,
         quantity: value.unit === 'Percent' ? '-' : 1,
         price: 1.0,
-        weighting: value.weighting ?? '-',
+        weighting: (!value.weighting || value.weighting === 0 || value.unit === 'Percent') ? '-' : value.weighting,
         title: value.title,
         isBase: value.parentPriceUnitId === null,
         parentPriceUnitId: value.parentPriceUnitId,
@@ -439,6 +439,7 @@ const SetPriceUnitModal = ({
             size='medium'
             sx={{ height: '42px' }}
             onClick={onClickAddPriceUnit}
+            disabled={priceUnits.length===0}
           >
             Add
           </Button>
@@ -725,7 +726,7 @@ const SetPriceUnitModal = ({
                               <Input
                                 id='icons-start-adornment'
                                 label='Weighting(%)*'
-                                value={value || ''}
+                                value={(value === 0) ? '-' : value}
                                 disabled={data.isBase}
                                 onChange={e => {
                                   const { value } = e.target
@@ -850,7 +851,7 @@ const SetPriceUnitModal = ({
                 type='submit'
                 disabled={
                   pairFields.some(item => {
-                    return !item.weighting || !item.quantity || !item.price
+                    return (!item.weighting && item.weighting !== 0) || !item.quantity || !item.price
                   }) || pairFields.length === 0
                 }
               >

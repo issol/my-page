@@ -28,7 +28,7 @@ import {
 } from 'src/@core/components/chips/chips'
 
 // ** types
-import { ProProjectType, SortingType } from '@src/apis/pro-projects.api'
+import { ProProjectType, SortingType } from '@src/apis/pro/pro-projects.api'
 
 type Props = {
   isCardHeader?: boolean

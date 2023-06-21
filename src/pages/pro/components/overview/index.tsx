@@ -83,7 +83,7 @@ import {
   useGetProOverview,
   useGetProWorkDays,
 } from '@src/queries/pro/pro-details.query'
-import { changeProStatus } from '@src/apis/pro-details.api'
+import { changeProStatus } from '@src/apis/pro/pro-details.api'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 const defaultValues: AddRoleType = {

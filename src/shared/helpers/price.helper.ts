@@ -23,12 +23,13 @@ export function getCurrencyMark(currency: CurrencyType | null | undefined) {
   const currencySymbol = formatter.format(0)?.replace(/\d./g, '').trim()
   return currencySymbol
 }
-export function formatCurrency(num: number | string, currency: CurrencyType) {
+
+export function formatCurrency(num: number | string, currency: CurrencyType, decimalPlace?: number) {
   const currentLocale = locale[currency]
   const formatter = new Intl.NumberFormat(currentLocale, {
     style: 'currency',
     currency: currency,
-    minimumFractionDigits: 2,
+    minimumFractionDigits: decimalPlace ?? 0
   })
   return formatter.format(Number(num))
 }
@@ -40,37 +41,84 @@ export function formatByRoundingProcedure(
   currency: CurrencyType,
 ): number | string {
   try {
-    if (currency === 'USD' || currency === 'SGD') {
-      const factor = Math.pow(
-        10,
-        roundingType === 4 ? decimalPlace - 1 : decimalPlace,
-      )
-
-      let type = null
-      if (typeof roundingType === 'string') {
-        //@ts-ignore
-        type = RoundingProcedureObj[roundingType]
-      } else {
-        type = Number(roundingType)
-      }
-
-      switch (type) {
-        case 0:
-          return price.toFixed(decimalPlace)
-        case 1:
-          return (Math.ceil(price * factor) / factor).toFixed(2)
-        case 2:
-          return (Math.floor(price * factor) / factor).toFixed(2)
-        case 3:
-          return (Math.round(price * factor) / factor).toFixed(2)
-        case 4:
-          return (Math.ceil(price * factor) / factor).toFixed(2)
-      }
+    let type = 0
+    let precision = 0
+    let returnPrice = 0
+    if (typeof roundingType === 'string') {
+      //@ts-ignore
+      type = RoundingProcedureObj[roundingType]
+    } else {
+      type = Number(roundingType)
     }
-    const rounded = Math.round(price / decimalPlace) * decimalPlace
 
-    return rounded
+    if (currency === 'KRW' || currency === 'JPY') {
+      precision = calculateDigit(decimalPlace)
+    } else precision = decimalPlace
+
+    if (type === 4 && (currency === 'USD' || currency === 'SGD')) {
+      precision = precision - 1
+    }
+
+    switch (type) {
+      case 0:
+        returnPrice = round(price, precision)
+        break
+      case 1:
+        returnPrice = roundUp(price, precision)
+        break
+      case 2:
+        returnPrice = truncate(price, precision)
+        break
+      case 3:
+        returnPrice = rounding(price, precision)
+        break
+      case 4:
+        returnPrice = roundUp(price, precision)
+        break
+    }
+    if (currency === 'USD' || currency === 'SGD') {
+      return returnPrice.toFixed(precision)
+    }
+    return returnPrice
   } catch (e) {
     return 0
   }
+}
+
+export function countDecimalPlaces(number: any) {
+  const decimalPart = number.toString().split('.')[1]
+  return decimalPart ? decimalPart.length : 0
+}
+
+export function calculateDigit(number: number): number {
+  if (number === 0) {
+    return 0;
+  }
+
+  let count = 1;
+  while (number >= 1) {
+    number /= 10;
+    count--;
+  }
+  return count;
+}
+
+function round(number: number, precision: number): number {
+  const factor = Math.pow(10, precision)
+  return Math.round(number * factor) / factor
+}
+
+function roundUp(number: number, precision: number): number {
+  const factor = Math.pow(10, precision)
+  return Math.ceil(number * factor) / factor
+}
+
+function truncate(number: number, precision: number): number {
+  const factor = Math.pow(10, precision)
+  return Math.trunc(number * factor) / factor
+}
+
+function rounding(number: number, precision: number): number {
+  const factor = Math.pow(10, precision)
+  return Math.round(number * factor) / factor
 }

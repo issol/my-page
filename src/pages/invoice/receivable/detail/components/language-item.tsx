@@ -115,9 +115,7 @@ const InvoiceLanguageAndItem = ({
     clientId: clientId,
   })
 
-  const priceInfo = prices?.find(
-    value => value.id === langItem.items[0].priceId,
-  )
+  const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]

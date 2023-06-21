@@ -4,7 +4,13 @@ import { Box, Button, Grid, Tab, Typography, styled } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 
 import TabContext from '@mui/lab/TabContext'
-import { MouseEvent, SyntheticEvent, useEffect, useState } from 'react'
+import {
+  MouseEvent,
+  SyntheticEvent,
+  useContext,
+  useEffect,
+  useState,
+} from 'react'
 
 import ProjectTeam from '../project-team'
 import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
@@ -27,6 +33,9 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import InvoiceClient from '../client'
+import { invoice_receivable } from '@src/shared/const/permission-class'
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { checkEditable } from '@src/apis/invoice/receivable.api'
 
 type Props = {
   history: InvoiceVersionHistoryType
@@ -39,6 +48,8 @@ type Props = {
     id: number
     statusName: string
   }[]
+  isUpdatable: boolean
+  isDeletable: boolean
 }
 
 const InvoiceVersionHistoryModal = ({
@@ -49,7 +60,11 @@ const InvoiceVersionHistoryModal = ({
   prices,
   pricesSuccess,
   statusList,
+  isUpdatable,
+  isDeletable,
 }: Props) => {
+  console.log(history)
+
   const [value, setValue] = useState<string>('1')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const handleChange = (event: SyntheticEvent, newValue: string) => {
@@ -58,10 +73,10 @@ const InvoiceVersionHistoryModal = ({
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
-  console.log(history)
-
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
+
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState<boolean>(false)
 
   const {
     control: itemControl,
@@ -130,6 +145,11 @@ const InvoiceVersionHistoryModal = ({
   }
 
   useEffect(() => {
+    if (history) {
+      checkEditable(history.id).then(res => {
+        setIsUserInTeamMember(res)
+      })
+    }
     if (history.items) {
       setLanguagePairs(
         history.items?.languagePairs?.map(item => ({
@@ -160,12 +180,12 @@ const InvoiceVersionHistoryModal = ({
       })
       itemReset({ items: result })
     }
-    if (history.projectTeam) {
+    if (history.members) {
       const teams: Array<{
         type: MemberType
         id: number | null
         name: string
-      }> = history.projectTeam.map(item => ({
+      }> = history.members.map(item => ({
         type:
           item.position === 'projectManager'
             ? 'projectManagerId'
@@ -179,6 +199,10 @@ const InvoiceVersionHistoryModal = ({
           lastName: item?.lastName!,
         }),
       }))
+      setIsUserInTeamMember(
+        history.members.some(value => value.userId === user?.userId!),
+      )
+
       resetTeam({ teams })
     }
   }, [history])
@@ -261,6 +285,8 @@ const InvoiceVersionHistoryModal = ({
               edit={false}
               orderId={history.id}
               statusList={statusList}
+              isUpdatable={isUpdatable}
+              isDeletable={isDeletable}
             />
           </TabPanel>
           <TabPanel value='2' sx={{ height: '100%', minHeight: '552px' }}>
@@ -290,13 +316,14 @@ const InvoiceVersionHistoryModal = ({
               edit={false}
               setTax={() => null}
               setTaxable={() => null}
+              isUpdatable={isUpdatable}
             />
           </TabPanel>
           <TabPanel value='4' sx={{ height: '100%', minHeight: '552px' }}>
             <ProjectTeam
               type='history'
-              list={history.projectTeam}
-              listCount={history.projectTeam.length}
+              list={history.members}
+              listCount={history.members.length}
               columns={getProjectTeamColumns()}
               page={page}
               pageSize={pageSize}
@@ -305,6 +332,7 @@ const InvoiceVersionHistoryModal = ({
               edit={false}
               setEdit={() => console.log('no')}
               orderId={history.id}
+              isUpdatable={isUpdatable}
             />
           </TabPanel>
         </TabContext>
@@ -324,9 +352,15 @@ const InvoiceVersionHistoryModal = ({
           >
             Close
           </Button>
-          <Button variant='contained' sx={{ width: '226px' }} onClick={onClick}>
-            Restore this version
-          </Button>
+          {isUpdatable && isUserInTeamMember && (
+            <Button
+              variant='contained'
+              sx={{ width: '226px' }}
+              onClick={onClick}
+            >
+              Restore this version
+            </Button>
+          )}
         </Box>
       </Box>
     </Box>

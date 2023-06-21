@@ -13,13 +13,13 @@ import {
 } from 'src/apis/company.api'
 
 import { ModalContext } from 'src/context/ModalContext'
-import DeclineSignUpRequestModal from './components/modal/decline-signup-request-modal'
-import ApproveSignUpRequestModal from './components/modal/approve-signup-request.modal'
+import DeclineSignUpRequestModal from '../components/modal/decline-signup-request-modal'
+import ApproveSignUpRequestModal from '../components/modal/approve-signup-request.modal'
 import toast from 'react-hot-toast'
 import Button from '@mui/material/Button'
 import Box from '@mui/material/Box'
-import SignUpRequests from './components/sign-up-requests'
-import MemberList from './components/member-list'
+import SignUpRequests from '../components/sign-up-requests'
+import MemberList from '../components/member-list'
 import {
   MembersType,
   RequestPayloadType,
@@ -29,7 +29,7 @@ import {
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
 const RoleArray = ['TAD', 'LPM']
-const Company = () => {
+const Members = () => {
   const ability = useContext(AbilityContext)
   const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('update', 'permission_request'),
@@ -281,9 +281,9 @@ const Company = () => {
   )
 }
 
-export default Company
+export default Members
 
-Company.acl = {
+Members.acl = {
   action: 'read',
   subject: 'members',
 }

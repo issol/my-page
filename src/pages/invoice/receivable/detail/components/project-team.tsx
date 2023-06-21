@@ -70,6 +70,7 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
+  isUpdatable: boolean
 }
 
 const InvoiceProjectTeam = ({
@@ -97,6 +98,7 @@ const InvoiceProjectTeam = ({
   getInvoiceInfo,
   invoiceInfo,
   onSave,
+  isUpdatable,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -218,7 +220,7 @@ const InvoiceProjectTeam = ({
             }}
           >
             <Typography variant='h6'>Project team</Typography>
-            {type === 'detail' ? (
+            {type === 'detail' && isUpdatable ? (
               <IconButton onClick={() => setEdit(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>

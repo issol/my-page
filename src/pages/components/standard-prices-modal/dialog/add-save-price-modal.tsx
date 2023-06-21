@@ -441,7 +441,20 @@ const AddSavePriceModal = ({
                                 ? 10
                                 : 0,
                             )
-                          e.target.value = filteredValue
+                          if (
+                            watch('currency').value === 'KRW' ||
+                            watch('currency').value === 'JPY') {
+                              let convertValue = ''
+                              if (filteredValue !== '') {
+                                convertValue += '1'
+                                for (let i = 1; i < filteredValue.length; i++) {
+                                  convertValue += '0'
+                                }
+                              }
+                              e.target.value = convertValue
+                            } else {
+                              e.target.value = filteredValue
+                            }
                           onChange(e.target.value)
                         }
                       }}

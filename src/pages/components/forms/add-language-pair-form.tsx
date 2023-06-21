@@ -117,7 +117,7 @@ export default function AddLanguagePairForm({
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>
-          Language pairs ({languagePairs.length ?? 0})
+          Language pairs ({languagePairs?.length ?? 0})
         </Typography>
         {type === 'detail' ? (
           <></>
@@ -191,94 +191,97 @@ export default function AddLanguagePairForm({
               </TableRow>
             </TableHead>
             <TableBody>
-              {!languagePairs.length ? (
+              {!languagePairs?.length ? (
                 <TableRow hover tabIndex={-1}>
                   <TableCell colSpan={3} align='center'>
                     Add language pairs for this project
                   </TableCell>
                 </TableRow>
               ) : null}
-              {languagePairs
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
-                .map((row, idx) => {
-                  const options = getPriceOptions(row.source, row.target)
-                  const matchingPrice = options.filter(
-                    item => item.groupName === 'Matching price',
-                  )
-                  if (
-                    matchingPrice.length === 1 &&
-                    languagePairs[idx].price === null
-                  ) {
-                    const copyPairs = [...languagePairs]
-                    copyPairs[idx].price = matchingPrice[0]
-                    setLanguagePairs(copyPairs)
-                  }
-                  return (
-                    <TableRow hover tabIndex={-1} key={row.id}>
-                      <TableCell>
-                        <Box display='flex' alignItems='center' gap='4px'>
-                          <Typography fontWeight='bold' variant='body2'>
-                            {languageHelper(row.source)}
-                          </Typography>
+              {languagePairs &&
+                languagePairs
+                  ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
+                  .map((row, idx) => {
+                    const options = getPriceOptions(row.source, row.target)
+                    const matchingPrice = options.filter(
+                      item => item.groupName === 'Matching price',
+                    )
+                    if (
+                      matchingPrice.length === 1 &&
+                      languagePairs[idx].price === null
+                    ) {
+                      const copyPairs = [...languagePairs]
+                      copyPairs[idx].price = matchingPrice[0]
+                      setLanguagePairs(copyPairs)
+                    }
+                    return (
+                      <TableRow hover tabIndex={-1} key={row.id}>
+                        <TableCell>
+                          <Box display='flex' alignItems='center' gap='4px'>
+                            <Typography fontWeight='bold' variant='body2'>
+                              {languageHelper(row.source)}
+                            </Typography>
 
-                          <Icon
-                            icon='material-symbols:arrow-forward'
-                            fontSize='20px'
-                            opacity={0.7}
-                          />
-                          <Typography fontWeight='bold' variant='body2'>
-                            {languageHelper(row.target)}
-                          </Typography>
-                        </Box>
-                      </TableCell>
-                      <TableCell>
-                        {type === 'detail' ? (
-                          <Typography variant='body1' fontSize={14}>
-                            {row.price?.priceName}
-                          </Typography>
-                        ) : (
-                          <Autocomplete
-                            value={
-                              !row.price
-                                ? null
-                                : options.find(
-                                    item => item.id === row.price?.id,
-                                  ) || null
-                            }
-                            size='small'
-                            sx={{ width: 300 }}
-                            options={options}
-                            groupBy={option => option?.groupName}
-                            onChange={(e, v) => {
-                              const copyPairs = [...languagePairs]
-                              copyPairs[idx].price = v
-                              setLanguagePairs(copyPairs)
-                            }}
-                            id='autocomplete-controlled'
-                            getOptionLabel={option => option.priceName}
-                            renderInput={params => (
-                              <TextField {...params} placeholder='Price' />
-                            )}
-                          />
-                        )}
-                      </TableCell>
-                      {type === 'detail' ? null : (
-                        <TableCell align='center'>
-                          <IconButton onClick={() => onDeleteLanguagePair(row)}>
-                            <Icon icon='mdi:trash-outline' />
-                          </IconButton>
+                            <Icon
+                              icon='material-symbols:arrow-forward'
+                              fontSize='20px'
+                              opacity={0.7}
+                            />
+                            <Typography fontWeight='bold' variant='body2'>
+                              {languageHelper(row.target)}
+                            </Typography>
+                          </Box>
                         </TableCell>
-                      )}
-                    </TableRow>
-                  )
-                })}
+                        <TableCell>
+                          {type === 'detail' ? (
+                            <Typography variant='body1' fontSize={14}>
+                              {row.price?.priceName}
+                            </Typography>
+                          ) : (
+                            <Autocomplete
+                              value={
+                                !row.price
+                                  ? null
+                                  : options.find(
+                                      item => item.id === row.price?.id,
+                                    ) || null
+                              }
+                              size='small'
+                              sx={{ width: 300 }}
+                              options={options}
+                              groupBy={option => option?.groupName}
+                              onChange={(e, v) => {
+                                const copyPairs = [...languagePairs]
+                                copyPairs[idx].price = v
+                                setLanguagePairs(copyPairs)
+                              }}
+                              id='autocomplete-controlled'
+                              getOptionLabel={option => option.priceName}
+                              renderInput={params => (
+                                <TextField {...params} placeholder='Price' />
+                              )}
+                            />
+                          )}
+                        </TableCell>
+                        {type === 'detail' ? null : (
+                          <TableCell align='center'>
+                            <IconButton
+                              onClick={() => onDeleteLanguagePair(row)}
+                            >
+                              <Icon icon='mdi:trash-outline' />
+                            </IconButton>
+                          </TableCell>
+                        )}
+                      </TableRow>
+                    )
+                  })}
             </TableBody>
           </Table>
         </TableContainer>
         <TablePagination
           rowsPerPageOptions={[5, 15, 30]}
           component='div'
-          count={languagePairs.length}
+          count={languagePairs?.length ?? 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onPageChange={handleChangePage}
