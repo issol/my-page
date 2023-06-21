@@ -33,7 +33,7 @@ export default function ContactPersonDetailModal({
 }: Props) {
   return (
     <Dialog open={true} maxWidth='lg' onClose={onClose}>
-      <DialogContent>
+      <DialogContent sx={{ padding: '50px 60px' }}>
         <CardHeader
           style={{ paddingLeft: 0 }}
           title={
@@ -50,7 +50,7 @@ export default function ContactPersonDetailModal({
                   lastName: data.lastName!,
                 })}
               </Typography>
-              <IconButton onClick={onClose}>
+              <IconButton onClick={onClose} sx={{ position: 'absolute', top: '20px', right: '20px' }}>
                 <Icon icon='material-symbols:close' />
               </IconButton>
             </Box>
