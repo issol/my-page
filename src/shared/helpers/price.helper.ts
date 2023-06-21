@@ -76,10 +76,7 @@ export function formatByRoundingProcedure(
         returnPrice = roundUp(price, precision)
         break
     }
-
-    console.log ("returnPrice",returnPrice)
     if (currency === 'USD' || currency === 'SGD') {
-      console.log ("returnPrice.toFixed(precision)",returnPrice.toFixed(precision))
       return returnPrice.toFixed(precision)
     }
     return returnPrice

@@ -492,11 +492,12 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           {page === 'client' && (
             <Grid item xs={12}>
               <CatInterface
-                priceUnitList={priceUnitList}
+                priceUnitList={sortPriceUnitList(priceUnitList)}
                 priceData={selectedPriceData}
                 existPriceUnit={priceUnitList.length > 0}
                 setIsEditingCatInterface={setIsEditingCatInterface}
                 isEditingCatInterface={isEditingCatInterface}
+                selectedLanguagePair={selectedLanguagePair}
               />
             </Grid>
           )}

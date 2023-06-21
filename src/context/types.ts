@@ -56,6 +56,7 @@ export type UserDataType = {
   jobTitle?: string
   fax?: string
   userId: number
+  department?: string
 }
 
 export type LoginSuccessResponse = {

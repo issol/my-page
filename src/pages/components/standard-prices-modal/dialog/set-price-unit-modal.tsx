@@ -726,7 +726,7 @@ const SetPriceUnitModal = ({
                               <Input
                                 id='icons-start-adornment'
                                 label='Weighting(%)*'
-                                value={value || ''}
+                                value={(value === 0) ? '-' : value}
                                 disabled={data.isBase}
                                 onChange={e => {
                                   const { value } = e.target

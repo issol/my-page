@@ -231,6 +231,22 @@ const UserDropdown = (props: Props) => {
           </Box>
         </Box>
         <Divider sx={{ mt: '0 !important' }} />
+        {role && hasTadAndLpm(role) && (
+          <MenuItem
+            onClick={() => {
+              router.push('/company/my-account')
+              handleDropdownClose()
+            }}
+            sx={{
+              py: 2,
+              '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' },
+            }}
+          >
+            <Icon icon='mdi:account-cog' />
+            My Account
+          </MenuItem>
+        )}
+        <Divider sx={{ mt: '10px !important' }} />
         <MenuItem
           onClick={handleLogout}
           sx={{

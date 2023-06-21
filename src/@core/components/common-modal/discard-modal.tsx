@@ -14,9 +14,10 @@ import AlertIcon from '../alert-icon'
 type Props = {
   onClose: any
   onClick: any
+  title?: string
 }
 
-const DiscardModal = ({ onClose, onClick }: Props) => {
+const DiscardModal = ({ onClose, onClick, title }: Props) => {
   return (
     <Box
       sx={{
@@ -49,7 +50,7 @@ const DiscardModal = ({ onClose, onClick }: Props) => {
           <AlertIcon type='error' />
 
           <Typography variant='body1' textAlign='center' mt='10px'>
-            Are you sure you want to discard all changes?
+            {title ?? 'Are you sure you want to discard all changes?'}
           </Typography>
         </Box>
 

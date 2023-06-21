@@ -176,13 +176,13 @@ export default function AddContactPersonForm<
                   }}
                 />
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 {renderTextFieldForm(idx, 'firstName', 'First name*', 50)}
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 {renderTextFieldForm(idx, 'middleName', 'Middle name', 50)}
               </Grid>
-              <Grid item xs={6}>
+              <Grid item xs={4}>
                 {renderTextFieldForm(idx, 'lastName', 'Last name*', 50)}
               </Grid>
               <Grid item xs={6}>
@@ -203,7 +203,9 @@ export default function AddContactPersonForm<
                   'Manager',
                 )}
               </Grid>
-
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
               <Grid item xs={6}>
                 <Controller
                   name={`contactPersons.${idx}.timezone`}
@@ -237,6 +239,9 @@ export default function AddContactPersonForm<
                   )}
                 />
                 {renderErrorMsg(idx, 'timezone')}
+              </Grid>
+              <Grid item xs={6}>
+                {renderPhoneField(idx, 'phone', 'Telephone')}
               </Grid>
               <Grid item xs={6}>
                 {renderPhoneField(idx, 'mobile', 'Mobile phone')}
