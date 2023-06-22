@@ -174,7 +174,7 @@ export default function PayableList({
       },
     },
   ]
-
+  console.log('daaa', list.data)
   return (
     <Box
       sx={{

@@ -19,13 +19,14 @@ export const useGetPayableList = (filter: InvoicePayableFilterType) => {
 }
 
 export const useGetPayableCalendar = (
-  date: string,
+  year: number,
+  month: number,
   filter: InvoicePayableFilterType,
 ) => {
   return useQuery(
-    ['invoice/payable/calendar', date, filter],
+    ['invoice/payable/calendar', year, month, filter],
     () => {
-      return getInvoicePayableCalendarData(date, filter)
+      return getInvoicePayableCalendarData(year, month, filter)
     },
     {
       suspense: true,

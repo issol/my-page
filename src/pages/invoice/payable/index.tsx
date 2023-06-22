@@ -66,7 +66,7 @@ export default function Payable() {
   const [statuses, setStatuses] = useState<number[]>([])
 
   const { data: list, isLoading } = useGetPayableList(activeFilter)
-
+  console.log('useGetPayableList', list)
   function onSearch() {
     setActiveFilter({
       ...filter,

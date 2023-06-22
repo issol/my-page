@@ -11,80 +11,80 @@ export const getPayableList = async (
   filter: InvoicePayableFilterType,
 ): Promise<{ data: InvoicePayableListType[]; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/invoice/status/list?${makeQuery(filter)}`,
-    // )
-    // return data.data
-    return {
-      data: [
-        {
-          id: 1,
-          corporationId: '12sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Invoice created',
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoicedAt: Date(),
-          payDueAt: Date(),
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: null,
-          paidDateTimezone: null,
-          totalPrice: 123,
-          currency: 'USD',
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-        {
-          id: 2,
-          corporationId: '11sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Paid',
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoicedAt: Date(),
-          payDueAt: Date(),
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: Date(),
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          totalPrice: 123,
-          currency: 'USD',
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-        {
-          id: 3,
-          corporationId: '11sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Invoice created',
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoicedAt: Date(),
-          payDueAt: Date(),
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: Date(),
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          totalPrice: 123000000,
-          currency: 'USD',
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-      ],
-      totalCount: 1,
-    }
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/list?${makeQuery(filter)}`,
+    )
+    return data
+    // return {
+    //   data: [
+    //     {
+    //       id: 1,
+    //       corporationId: '12sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Invoice created',
+    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
+    //       invoicedAt: Date(),
+    //       payDueAt: Date(),
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: null,
+    //       paidDateTimezone: null,
+    //       totalPrice: 123,
+    //       currency: 'USD',
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //     {
+    //       id: 2,
+    //       corporationId: '11sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Paid',
+    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
+    //       invoicedAt: Date(),
+    //       payDueAt: Date(),
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: Date(),
+    //       paidDateTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       totalPrice: 123,
+    //       currency: 'USD',
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //     {
+    //       id: 3,
+    //       corporationId: '11sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Invoice created',
+    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
+    //       invoicedAt: Date(),
+    //       payDueAt: Date(),
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: Date(),
+    //       paidDateTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       totalPrice: 123000000,
+    //       currency: 'USD',
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //   ],
+    //   totalCount: 1,
+    // }
   } catch (e: any) {
     return {
       data: [],
@@ -108,87 +108,90 @@ function getColor(status: InvoicePayableStatusType) {
 }
 
 export const getInvoicePayableCalendarData = async (
-  date: string,
+  year: number,
+  month: number,
   filter: InvoicePayableFilterType,
 ): Promise<{ data: Array<InvoicePayableListType>; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/quote?calendarDate=${date}?${makeQuery(filter)}`,
-    // )
-    const data = {
-      data: [
-        {
-          id: 1,
-          corporationId: '11sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoicedAt: '2023-06-18T18:58:01.727Z',
-          payDueAt: '2023-06-20T18:58:01.727Z',
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: '2023-06-20T18:58:01.727Z',
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          totalPrice: 123,
-          currency: 'USD' as CurrencyType,
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-        {
-          id: 2,
-          corporationId: '11sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Paid' as InvoicePayableStatusType,
-          pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-          invoicedAt: '2023-05-18T18:58:01.727Z',
-          payDueAt: '2023-05-20T18:58:01.727Z',
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: '2023-05-20T18:58:01.727Z',
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          totalPrice: 123,
-          currency: 'USD' as CurrencyType,
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-        {
-          id: 3,
-          corporationId: '11sdlfk',
-          adminCompanyName: 'Gloz',
-          invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-          pro: { name: 'bongbong', email: 'bon@glozinc.com' },
-          invoicedAt: '2023-06-14T18:58:01.727Z',
-          payDueAt: '2023-06-20T18:58:01.727Z',
-          payDueTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          paidAt: '2023-06-20T18:58:01.727Z',
-          paidDateTimezone: {
-            code: 'KR',
-            label: 'Korea, Republic of',
-            phone: '82',
-          },
-          totalPrice: 123,
-          currency: 'USD' as CurrencyType,
-          statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-        },
-      ],
-      totalCount: 0,
-    }
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/calendar?year=${year}&month=${month}&${makeQuery(
+        filter,
+      )}`,
+    )
+    // const data = {
+    //   data: [
+    //     {
+    //       id: 1,
+    //       corporationId: '11sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
+    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
+    //       invoicedAt: '2023-06-18T18:58:01.727Z',
+    //       payDueAt: '2023-06-20T18:58:01.727Z',
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: '2023-06-20T18:58:01.727Z',
+    //       paidDateTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       totalPrice: 123,
+    //       currency: 'USD' as CurrencyType,
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //     {
+    //       id: 2,
+    //       corporationId: '11sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Paid' as InvoicePayableStatusType,
+    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
+    //       invoicedAt: '2023-05-18T18:58:01.727Z',
+    //       payDueAt: '2023-05-20T18:58:01.727Z',
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: '2023-05-20T18:58:01.727Z',
+    //       paidDateTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       totalPrice: 123,
+    //       currency: 'USD' as CurrencyType,
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //     {
+    //       id: 3,
+    //       corporationId: '11sdlfk',
+    //       adminCompanyName: 'Gloz',
+    //       invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
+    //       pro: { name: 'bongbong', email: 'bon@glozinc.com' },
+    //       invoicedAt: '2023-06-14T18:58:01.727Z',
+    //       payDueAt: '2023-06-20T18:58:01.727Z',
+    //       payDueTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       paidAt: '2023-06-20T18:58:01.727Z',
+    //       paidDateTimezone: {
+    //         code: 'KR',
+    //         label: 'Korea, Republic of',
+    //         phone: '82',
+    //       },
+    //       totalPrice: 123,
+    //       currency: 'USD' as CurrencyType,
+    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
+    //     },
+    //   ],
+    //   totalCount: 0,
+    // }
     return {
       data: data.data?.map((item: InvoicePayableListType) => {
         return {
