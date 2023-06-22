@@ -81,7 +81,7 @@ export default function Clients() {
         setPageSize={(n: number) =>
           setActiveFilter({ ...activeFilter, take: n })
         }
-        list={list || { data: [], count: 0 }}
+        list={list || { data: [], count: 0, totalCount: 0 }}
         isLoading={isLoading}
       />
     </Grid>

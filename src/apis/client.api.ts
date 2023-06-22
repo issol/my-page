@@ -43,6 +43,7 @@ export type ClientRowType = {
 export type ClientListDataType = {
   data: Array<ClientRowType>
   count: number
+  totalCount: number
 }
 
 export const getClientList = async (
@@ -57,6 +58,7 @@ export const getClientList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }

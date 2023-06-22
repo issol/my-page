@@ -21,6 +21,7 @@ type Props = {
   list: {
     data: Array<ClientRowType> | []
     count: number
+    totalCount: number
   }
   isLoading: boolean
 }
@@ -143,7 +144,7 @@ export default function ClientList({
         <CardHeader
           title={
             <Box display='flex' justifyContent='space-between'>
-              <Typography variant='h6'>Clients ({list.count})</Typography>{' '}
+              <Typography variant='h6'>Clients ({list.totalCount})</Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink href='/client/add-new' color='white'>
                   Add new client
@@ -170,7 +171,7 @@ export default function ClientList({
             sx={{ overflowX: 'scroll', cursor: 'pointer' }}
             columns={columns}
             rows={list.data}
-            rowCount={list.count}
+            rowCount={list.totalCount}
             loading={isLoading}
             onCellClick={params => {
               router.push(`/client/detail/${params.row.clientId}`)
