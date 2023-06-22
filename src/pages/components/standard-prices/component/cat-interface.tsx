@@ -46,6 +46,7 @@ import {
   formatCurrency,
   countDecimalPlaces,
   getPrice,
+  sliceCurrencyMark,
 } from '@src/shared/helpers/price.helper'
 
 type Props = {
@@ -108,6 +109,7 @@ const CatInterface = ({
     [key: string]: PriceUnitListWithHeaders[]
   }>({ Memsource: [], memoQ: [] })
 
+  console.log("priceUnitListWithHeaders",priceUnitListWithHeaders)
   // CATUnit의 정렬순서를 PriceUnit과 동일한 순서로 맞춥니다.
   const sortCATUnitList = (CATUnitData:PriceUnitListWithHeaders[]) => {
     const sortedData: PriceUnitListWithHeaders[] = []
@@ -550,15 +552,17 @@ const CatInterface = ({
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {formatCurrency(
-                        formatByRoundingProcedure(
-                          getPrice(obj.price ?? 0, selectedLanguagePair?.priceFactor ?? 0),
-                          priceData.decimalPlace,
-                          priceData.roundingProcedure,
+                      {sliceCurrencyMark(
+                        formatCurrency(
+                          formatByRoundingProcedure(
+                            getPrice(obj.price ?? 0, selectedLanguagePair?.priceFactor ?? 0),
+                            priceData.decimalPlace,
+                            priceData.roundingProcedure,
+                            priceData.currency,
+                          ),
                           priceData.currency,
-                        ),
-                        priceData.currency,
-                        priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+                          priceData.decimalPlace >= 10 ? countDecimalPlaces(priceData.decimalPlace) : priceData.decimalPlace
+                        )
                       ) ?? ''}
                       &nbsp;
                       {obj.title === '-' ? '' : priceData.currency}
