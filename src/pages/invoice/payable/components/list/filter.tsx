@@ -24,7 +24,7 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** types
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
@@ -43,7 +43,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
 
   //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에)
   const { data: proList } = useGetProList({ take: 100, skip: 0 })
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,

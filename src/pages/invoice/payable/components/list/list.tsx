@@ -174,7 +174,7 @@ export default function PayableList({
       },
     },
   ]
-  console.log('daaa', list.data)
+
   return (
     <Box
       sx={{
@@ -202,7 +202,6 @@ export default function PayableList({
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
-        // onCellClick={params => router.push(`/invoice/payable/${params.id}`)}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}
