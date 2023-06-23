@@ -172,9 +172,29 @@ const CompanyInfo = () => {
     })
   }
 
+  const onClickAddAddress = () => {
+    appendAddress({
+      officeName: '',
+      baseAddress: '',
+      detailAddress: '',
+      country: {
+        label: '',
+        value: '',
+      },
+      city: '',
+      state: '',
+      zipCode: '',
+    })
+  }
+
   const onClickDeleteCeo = (id: string) => {
     const idx = ceoFields.map(item => item.id as string).indexOf(id)
     idx !== -1 && removeCeo(idx)
+  }
+
+  const onClickDeleteAddress = (id: string) => {
+    const idx = addressFields.map(item => item.id as string).indexOf(id)
+    idx !== -1 && removeAddress(idx)
   }
 
   useEffect(() => {
@@ -270,6 +290,10 @@ const CompanyInfo = () => {
                 control={addressControl}
                 isValid={addressIsValid}
                 addressFields={addressFields}
+                onClickCancel={onClickCancel}
+                onClickSave={onClickSave}
+                onClickAddAddress={onClickAddAddress}
+                onClickDeleteAddress={onClickDeleteAddress}
               />
             )}
           </TabPanel>

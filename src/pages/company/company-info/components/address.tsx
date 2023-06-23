@@ -39,6 +39,10 @@ type Props = {
     'address',
     'id'
   >[]
+  onClickCancel: () => void
+  onClickSave: () => void
+  onClickAddAddress: () => void
+  onClickDeleteAddress: (id: string) => void
 }
 
 const CompanyInfoAddress = ({
@@ -48,6 +52,10 @@ const CompanyInfoAddress = ({
   addressFields,
   control,
   isValid,
+  onClickCancel,
+  onClickSave,
+  onClickAddAddress,
+  onClickDeleteAddress,
 }: Props) => {
   const country = getTypeList('CountryCode')
   return (
@@ -69,7 +77,7 @@ const CompanyInfoAddress = ({
                       {(idx + 1).toString().padStart(2, '0')}.
                     </Typography>
                     {addressFields.length > 1 && (
-                      <IconButton>
+                      <IconButton onClick={() => onClickDeleteAddress(item.id)}>
                         <Icon icon='mdi:trash-outline' />
                       </IconButton>
                     )}
@@ -196,7 +204,7 @@ const CompanyInfoAddress = ({
           <Button
             variant='contained'
             disabled={addressFields.length >= 2}
-            // onClick={onClickAddCeo}
+            onClick={onClickAddAddress}
             sx={{ p: 0.7, minWidth: 26 }}
           >
             <Icon icon='material-symbols:add' fontSize={18} />
@@ -210,10 +218,12 @@ const CompanyInfoAddress = ({
               mt: '24px',
             }}
           >
-            <Button variant='outlined'>Cancel</Button>
+            <Button variant='outlined' onClick={onClickCancel}>
+              Cancel
+            </Button>
             <Button
               variant='contained'
-              // onClick={onClickSave}
+              onClick={onClickSave}
               disabled={!isValid}
             >
               Save

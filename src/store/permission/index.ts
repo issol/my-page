@@ -190,10 +190,6 @@ export const getPermission = createAsyncThunk(
             can: 'read',
           },
           {
-            subject: 'company_info',
-            can: 'read',
-          },
-          {
             subject: 'pro',
             can: 'read',
           },
@@ -214,9 +210,14 @@ export const getPermission = createAsyncThunk(
             can: 'read',
           },
           {
+            subject: 'company_info',
+            can: 'read',
+          },
+          {
             subject: 'company_price',
             can: 'read',
           },
+
           {
             subject: 'company_price',
             can: 'create',
