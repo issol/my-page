@@ -69,11 +69,11 @@ export type InvoicePayableDetailType = {
   subtotal: number
   totalPrice: number
   tax: number | null
-  jobs: {
-    count: number
-    totalCount: number
-    data: InvoicePayableJobType[]
-  }
+  // jobs: {
+  //   count: number
+  //   totalCount: number
+  //   data: InvoicePayableJobType[]
+  // }
 }
 
 export type InvoicePayableJobType = {

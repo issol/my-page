@@ -1,6 +1,7 @@
 import {
   getInvoicePayableCalendarData,
   getInvoicePayableDetail,
+  getInvoicePayableJobList,
   getPayableList,
 } from '@src/apis/invoice/payable.api'
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
@@ -44,6 +45,20 @@ export const useGetPayableDetail = (id: number) => {
     },
     {
       enabled: !!id,
+      suspense: true,
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
+    },
+  )
+}
+export const useGetPayableJobList = (payableId: number) => {
+  return useQuery(
+    ['invoice/payable/detail/jobs', payableId],
+    () => {
+      return getInvoicePayableJobList(payableId)
+    },
+    {
+      enabled: !!payableId,
       suspense: true,
       staleTime: 60 * 1000,
       keepPreviousData: true,

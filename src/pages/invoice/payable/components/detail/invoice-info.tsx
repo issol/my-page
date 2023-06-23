@@ -20,6 +20,12 @@ import InvoiceAmount from './invoice-amount'
 import InvoiceJobList from './job-list'
 import JobDetail from './job-detail'
 
+// ** types
+import {
+  InvoicePayableDetailType,
+  InvoicePayableJobType,
+} from '@src/types/invoice/payable.type'
+
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
@@ -38,7 +44,6 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** permission
 import { invoice_payable } from '@src/shared/const/permission-class'
-import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
 
 /* TODO:
 
@@ -49,8 +54,13 @@ import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
 
 type Props = {
   data: InvoicePayableDetailType | undefined
+  jobList: {
+    count: number
+    totalCount: number
+    data: InvoicePayableJobType[]
+  }
 }
-export default function InvoiceInfo({ data }: Props) {
+export default function InvoiceInfo({ data, jobList }: Props) {
   const { openModal, closeModal } = useModal()
 
   const { user } = useContext(AuthContext)
@@ -141,7 +151,7 @@ export default function InvoiceInfo({ data }: Props) {
                 justifyContent='space-between'
               >
                 <Typography variant='h6'>
-                  Jobs ({data?.jobs?.data?.length ?? 0})
+                  Jobs ({jobList.data?.length ?? 0})
                 </Typography>
                 <Button
                   size='small'
@@ -156,7 +166,7 @@ export default function InvoiceInfo({ data }: Props) {
             }
           />
           <InvoiceJobList
-            data={data?.jobs || { count: 0, totalCount: 0, data: [] }}
+            data={jobList}
             currency={data?.currency}
             isUpdatable={isUpdatable}
             selectedJobs={selectedJobs}

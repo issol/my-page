@@ -41,7 +41,10 @@ import { setInvoicePayableLang } from '@src/store/invoice-payable'
 // ** permission class
 import { invoice_payable } from '@src/shared/const/permission-class'
 import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
-import { useGetPayableDetail } from '@src/queries/invoice/payable.query'
+import {
+  useGetPayableDetail,
+  useGetPayableJobList,
+} from '@src/queries/invoice/payable.query'
 
 type MenuType = 'info' | 'history'
 
@@ -69,6 +72,7 @@ export default function PayableDetail() {
   const [menu, setMenu] = useState<MenuType>('info')
 
   const { data } = useGetPayableDetail(Number(id))
+  const { data: jobList } = useGetPayableJobList(Number(id))
 
   useEffect(() => {
     if (menuQuery && ['info', 'history'].includes(menuQuery)) {
@@ -245,7 +249,10 @@ export default function PayableDetail() {
           {/* Invoice info */}
           <TabPanel value='info' sx={{ pt: '24px' }}>
             <Suspense>
-              <InvoiceInfo data={data} />
+              <InvoiceInfo
+                data={data}
+                jobList={jobList || { count: 0, totalCount: 0, data: [] }}
+              />
             </Suspense>
           </TabPanel>
           {/* Version history */}

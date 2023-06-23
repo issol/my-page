@@ -3,6 +3,7 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import {
   InvoicePayableDetailType,
   InvoicePayableFilterType,
+  InvoicePayableJobType,
   InvoicePayableListType,
   PayableFormType,
 } from '@src/types/invoice/payable.type'
@@ -247,35 +248,55 @@ export const getInvoicePayableDetail = async (
       subtotal: 100,
       totalPrice: 1000,
       tax: 10,
-      jobs: {
-        count: 12,
-        totalCount: 112,
-        data: [
-          {
-            id: 1,
-            corporationId: 'KR-100',
-            serviceType: 'Editing',
-            name: 'bon',
-            totalPrice: 100000,
-            contactPerson: 'Bon',
-            deletedAt: null,
-            priceUnits: [
-              {
-                title: 'Price',
-                unitPrice: 1000,
-                quantity: 3,
-                prices: 100000,
-              },
-            ],
-          },
-        ],
-      },
     }
   } catch (e: any) {
     throw Error(e)
   }
 }
 
+export const getInvoicePayableJobList = async (
+  payableId: number,
+): Promise<{
+  count: number
+  totalCount: number
+  data: InvoicePayableJobType[]
+}> => {
+  try {
+    // const { data } = await axios.get(
+    //   `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
+    // )
+    // return data
+    return {
+      totalCount: 1,
+      count: 1,
+      data: [
+        {
+          id: 1,
+          corporationId: 'KR-100',
+          serviceType: 'Editing',
+          name: 'bon',
+          totalPrice: 100000,
+          contactPerson: 'Bon',
+          deletedAt: null,
+          priceUnits: [
+            {
+              title: 'Price',
+              unitPrice: 1000,
+              quantity: 3,
+              prices: 100000,
+            },
+          ],
+        },
+      ],
+    }
+  } catch (e) {
+    return {
+      totalCount: 0,
+      count: 0,
+      data: [],
+    }
+  }
+}
 export const updateInvoicePayable = async (form: PayableFormType) => {
   try {
     // const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
