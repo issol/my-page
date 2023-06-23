@@ -14,6 +14,7 @@ import {
 } from '@mui/material'
 import { countries } from '@src/@fake-db/autocomplete'
 import { UserDataType } from '@src/context/types'
+import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { getGmtTime, getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { CountryType, ManagerInfo } from '@src/types/sign/personalInfoTypes'
 import { Dispatch, SetStateAction } from 'react'
@@ -51,10 +52,6 @@ const Contracts = ({
   onClickSave,
   onClickCancel,
 }: Props) => {
-  function isInvalidPhoneNumber(str: string) {
-    const regex = /^[0-9]+$/
-    return str && !regex.test(str)
-  }
   return (
     <Card sx={{ padding: '24px' }}>
       {edit ? (
@@ -233,7 +230,9 @@ const Contracts = ({
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      watch('timezone') ? `+ 1) 012 345 6789` : `012 345 6789`
+                      !watch('timezone').phone
+                        ? `+ 1) 012 345 6789`
+                        : `012 345 6789`
                     }
                     onChange={e => {
                       if (isInvalidPhoneNumber(e.target.value)) return
@@ -264,7 +263,9 @@ const Contracts = ({
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      watch('timezone') ? `+ 1) 012 345 6789` : `012 345 6789`
+                      !watch('timezone').phone
+                        ? `+ 1) 012 345 6789`
+                        : `012 345 6789`
                     }
                     onChange={e => {
                       if (isInvalidPhoneNumber(e.target.value)) return
@@ -288,14 +289,16 @@ const Contracts = ({
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='phone'
+                name='fax'
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextField
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      watch('timezone') ? `+ 1) 012 345 6789` : `012 345 6789`
+                      !watch('timezone').phone
+                        ? `+ 1) 012 345 6789`
+                        : `012 345 6789`
                     }
                     onChange={e => {
                       if (isInvalidPhoneNumber(e.target.value)) return
@@ -312,7 +315,7 @@ const Contracts = ({
                         maxLength: 50,
                       },
                     }}
-                    label='Telephone'
+                    label='Fax'
                   />
                 )}
               />
