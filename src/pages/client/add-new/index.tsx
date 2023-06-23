@@ -22,7 +22,8 @@ import AddressesForm from '../components/forms/addresses-container'
 import ContactPersonForm from '../components/forms/contact-persons'
 import ClientPrices from '../components/forms/client-prices'
 import PriceActionModal from '@src/pages/components/standard-prices-modal/modal/price-action-modal'
-import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
+// import AddSavePriceModal from '@src/pages/components/client-prices-modal/dialog/add-save-price-modal'
+import AddSavePriceModal from '@src/pages/components/standard-prices-modal/dialog/add-save-price-modal'
 import NoPriceUnitModal from '@src/pages/components/standard-prices-modal/modal/no-price-unit-modal'
 import AddConfirmModal from '../components/modals/add-confirm-with-title-modal'
 import AddNewLanguagePairModal from '@src/pages/components/client-prices-modal/dialog/add-new-language-pair-modal'
@@ -247,6 +248,8 @@ export default function AddNewClient() {
             onSubmit={onSavePriceClick}
             onClickAction={onSubmitPrice}
             setPriceList={setPriceList}
+            page={'client'}
+            used={'client'}
           />
         ),
       })
@@ -276,6 +279,8 @@ export default function AddNewClient() {
           selectedPriceData={priceData}
           onClickAction={onSubmitPrice}
           setPriceList={setPriceList}
+          page={'client'}
+          used={'client'}
         />
       ),
     })
@@ -299,7 +304,7 @@ export default function AddNewClient() {
     })
   }
 
-  const onSubmitPrice = (type: string, data?: AddPriceType) => {
+  const onSubmitPrice = (type: string, data?: AddPriceType, selectedData?: StandardPriceListType) => {
     if (type === 'Add' || type === 'Discard') {
       if (type === 'Add' && data) {
         const formData: StandardPriceListType = {
@@ -311,8 +316,8 @@ export default function AddNewClient() {
           category: data?.category.value,
           currency: data?.currency.value,
           roundingProcedure: data?.roundingProcedure.value.toString()!,
-          languagePairs: [],
-          priceUnit: [],
+          languagePairs: selectedData?.languagePairs || [],
+          priceUnit: selectedData?.priceUnit || [],
           catInterface: { memSource: [], memoQ: [] },
         }
 
@@ -322,7 +327,7 @@ export default function AddNewClient() {
     }
   }
 
-  const onSavePriceClick = (data: AddPriceType, modalType: string) => {
+  const onSavePriceClick = (selectedData: StandardPriceListType, data: AddPriceType, modalType: string) => {
     openModal({
       type: `${modalType}Price${
         modalType === 'Edit' ? 'Cancel' : 'Discard'
@@ -337,6 +342,7 @@ export default function AddNewClient() {
             )
           }
           priceData={data!}
+          selectedPriceData={selectedData!}
           type={modalType === 'Add' ? 'Add' : 'Save'}
           onClickAction={onSubmitPrice}
         />
@@ -466,7 +472,7 @@ export default function AddNewClient() {
       })
       Promise.all(promiseArr).then(() =>
         router
-          .push(`/client/${clientId.current}`)
+          .push(`/client/detail/${clientId.current}`)
           .catch(() => onMutationError()),
       )
     }
@@ -515,6 +521,7 @@ export default function AddNewClient() {
         ?.length
         ? []
         : data.languagePairs.map(item => ({
+            priceId: priceId,
             source: item.source,
             target: item.target,
             priceFactor: item.priceFactor.toString(),

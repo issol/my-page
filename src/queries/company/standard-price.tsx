@@ -12,6 +12,9 @@ export type ClientPriceListFilterType = {
   source?: string
   target?: string
   clientId?: number | null
+  take?: number
+  skip?: number
+  isStandard?: boolean | null
 }
 
 export type ProPriceListFilterType = {
@@ -43,10 +46,7 @@ export const useGetProPriceList = (filter: ProPriceListFilterType) => {
 
 export const useGetStandardPrices = (
   page: 'pro' | 'client',
-  filter: {
-    take: number
-    skip: number
-  },
+  filter: ClientPriceListFilterType
 ) => {
   return useQuery<{
     data: Array<StandardPriceListType>

@@ -58,9 +58,10 @@ type Props = {
   proId?: number
   title: string
   page: 'pro' | 'client'
+  used?: string
 }
 
-const StandardPrices = ({ clientId, page, title, proId }: Props) => {
+const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
@@ -78,6 +79,8 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
   } = useGetStandardPrices(page, {
     take: standardPriceListPageSize,
     skip: standardPriceListPage * standardPriceListPageSize,
+    clientId: used === 'client' ? clientId : null,
+    isStandard: !used ? true : null
   })
 
   const [languagePairListPage, setLanguagePairListPage] = useState<number>(0)
@@ -261,6 +264,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
             onSubmit={onSubmit}
             onClickAction={onClickAction}
             page={page}
+            used={used}
           />
         ),
       })
@@ -293,6 +297,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           selectedPriceData={priceData!}
           onClickAction={onClickAction}
           page={page}
+          used={used}
         />
       ),
     })

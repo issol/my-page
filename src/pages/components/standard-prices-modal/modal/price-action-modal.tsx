@@ -192,7 +192,7 @@ export default function PriceActionModal({
                   ? 'Delete'
                   : '',
                 type === 'Add' || type === 'Save' ? priceData : undefined,
-                type === 'Delete' || type === 'Save'
+                type === 'Delete' || type === 'Save' || type === 'Add'
                   ? selectedPriceData
                   : undefined,
               )
