@@ -73,7 +73,7 @@ import {
   createLanguagePair,
   createPrice,
   setPriceUnitPair,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 
 // ** third parties
 import { toast } from 'react-hot-toast'

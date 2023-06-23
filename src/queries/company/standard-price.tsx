@@ -3,7 +3,7 @@ import {
   getClientPriceList,
   getProPriceList,
   getStandardPrice,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 
 import { useQuery } from 'react-query'

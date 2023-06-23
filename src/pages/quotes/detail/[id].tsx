@@ -106,7 +106,7 @@ import {
   patchQuoteProjectInfo,
   restoreVersion,
 } from '@src/apis/quotes.api'
-import { getClientPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'

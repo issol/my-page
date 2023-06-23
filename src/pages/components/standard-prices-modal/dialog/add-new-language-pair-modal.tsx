@@ -31,7 +31,7 @@ import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import LanguagePairActionModal from '../modal/language-pair-action-modal'
 import { Input } from './set-price-unit-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { createLanguagePair } from '@src/apis/company-price.api'
+import { createLanguagePair } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 
 const defaultValues: AddNewLanguagePair = {
