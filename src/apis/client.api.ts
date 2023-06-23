@@ -279,7 +279,7 @@ export const getClientProjectList = async (
 
 export type ClientProjectCalendarData = {
   data: Array<ClientProjectCalendarEventType>
-  totalCount: number
+  count: number
 }
 
 export type ClientProjectCalendarEventType = ClientProjectListType & {
@@ -289,89 +289,47 @@ export type ClientProjectCalendarEventType = ClientProjectListType & {
 
 export const getClientProjectsCalendarData = async (
   id: number,
-  date: string,
+  year: number,
+  month: number,
 ): Promise<ClientProjectCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
   const color_overdue = 'overdue'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project?date=${date}`,
+      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}`,
     )
 
-    const list: ClientProjectListType[] = [
-      {
-        id: 4,
-        corporationId: 'O-000004',
-        workName: 'The Glory',
-        projectName: 'The Glory 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-      {
-        id: 1,
-        corporationId: 'O-000001',
-        workName: 'Hoffman Website',
-        projectName: 'Website 4',
-        category: 'Webnovels',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-      {
-        id: 2,
-        corporationId: 'Q-000002',
-        workName: 'Black Mirror',
-        projectName: 'Black Mirror 3~4',
-        category: 'Documents/Text',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'quote',
-      },
-      {
-        id: 3,
-        corporationId: 'O-000003',
-        workName: 'DP',
-        projectName: 'DP 1.5',
-        category: 'OTT/Subtitle',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-    ]
     return {
-      data: list.map((item: ClientProjectListType, idx: number) => {
-        return {
-          ...item,
-          extendedProps: {
-            calendar:
-              item.status === 'Overdue'
-                ? color_overdue
-                : colors[idx % colors.length],
-          },
-          allDay: true,
-        }
-      }),
-      totalCount: data?.totalCount ?? 0,
+      data: data.data.map((item: ClientProjectListType, idx: number) => ({
+        ...item,
+        extendedProps: {
+          // TODO : change color by Order, Quote ( To. Jay )
+          calendar:
+            item.status === 'Overdue' ||
+            item.status === 'Overdue (Reminder sent)' ||
+            item.status === 'Canceled'
+              ? color_overdue
+              : item.status === 'In preparation'
+              ? '#F572D8'
+              : item.status === 'Checking in progress'
+              ? '#FDB528'
+              : item.status === 'Accepted by client'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #64C623'
+              : item.status === 'Tax invoice issued'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #46A4Ce'
+              : item.status === 'Paid'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #267838'
+              : 'default',
+        },
+        allDay: true,
+      })),
+      count: data.count ?? 0,
     }
   } catch (e: any) {
     return {
       data: [],
-      totalCount: 0,
+      count: 0,
     }
   }
 }
@@ -379,6 +337,7 @@ export const getClientProjectsCalendarData = async (
 export type ClientInvoiceCalendarData = {
   data: Array<ClientInvoiceCalendarEventType>
   totalCount: number
+  count: number
 }
 
 export type ClientInvoiceCalendarEventType = ClientInvoiceListType & {
@@ -403,39 +362,51 @@ export const getClientInvoiceList = async (
 
 export const getClientInvoicesCalendarData = async (
   id: number,
-  year: string,
-  month: string,
-  filter: ClientInvoiceFilterType,
+  year: number,
+  month: number,
+  // filter: ClientInvoiceFilterType,
 ): Promise<ClientInvoiceCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = 'overdue'
+  const color_overdue = '#FF4D49'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/invoices?year=${year}&month=${
-        month + 1
-      }&${makeQuery(filter)}`,
+      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month + 1}`,
     )
 
     return {
-      data: data.map((item: ClientInvoiceListType, idx: number) => {
+      data: data.data.map((item: ClientInvoiceListType, idx: number) => {
         return {
           ...item,
           extendedProps: {
             calendar:
-              item.invoiceStatus === 'Overdue'
+              item.invoiceStatus === 'Overdue' ||
+              item.invoiceStatus === 'Overdue (Reminder sent)' ||
+              item.invoiceStatus === 'Canceled'
                 ? color_overdue
-                : colors[idx % colors.length],
+                : item.invoiceStatus === 'In preparation'
+                ? '#F572D8'
+                : item.invoiceStatus === 'Checking in progress'
+                ? '#FDB528'
+                : item.invoiceStatus === 'Accepted by client'
+                ? ' #64C623'
+                : item.invoiceStatus === 'Tax invoice issued'
+                ? '#46A4Ce'
+                : item.invoiceStatus === 'Paid'
+                ? '#267838'
+                : 'default',
           },
           allDay: true,
         }
       }),
       totalCount: data?.totalCount ?? 0,
+      count: data?.count ?? 0,
     }
   } catch (e: any) {
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
 }

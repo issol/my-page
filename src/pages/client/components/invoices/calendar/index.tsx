@@ -48,7 +48,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
-  const { data } = useGetClientInvoicesCalendar(id, `${year}-${month}`)
+  const { data } = useGetClientInvoicesCalendar(id, year, month)
   const [event, setEvent] = useState<Array<ClientInvoiceCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
@@ -88,13 +88,10 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
         //@ts-ignore
         {
           id: 0,
-          iId: '',
+
           invoiceName: '',
-          amount: 0,
-          invoicedDate: '',
-          paymentDueDate: '',
-          invoiceDescription: '',
-          status: '',
+          totalPrice: 0,
+
           currency: 'USD',
           extendedProps: {
             calendar: 'primary',
@@ -106,7 +103,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   useEffect(() => {
     if (data?.data.length && hideFilter) {
-      setEvent(data.data.filter(item => item.status !== 'Delivered'))
+      setEvent(data.data.filter(item => item.invoiceStatus !== 'Paid'))
     } else if (data?.data.length && !hideFilter) {
       setEvent([...data.data])
     }

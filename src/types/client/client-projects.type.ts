@@ -48,13 +48,13 @@ export type ClientInvoiceListType = {
   id: number
   corporationId: string
   invoiceName: string
-  amount: number
+  totalPrice: number
   invoicedAt: string
   payDueAt: string
   payDueTimezone: CountryType
   description: string
   invoiceStatus: InvoiceReceivableStatusType
-  currency: CurrencyType
+  currency?: CurrencyType
   order: {
     projectName: string
   }

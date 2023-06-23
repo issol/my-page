@@ -35,7 +35,7 @@ export const useGetClientProjectList = (
   id: number,
   filter: ClientProjectFilterType,
 ) => {
-  return useQuery<{ data: ClientProjectListType[]; totalCount: number }>(
+  return useQuery<{ data: ClientProjectListType[]; count: number }>(
     ['client-projects', filter],
     () => {
       return getClientProjectList(id, filter)
@@ -50,14 +50,19 @@ export const useGetClientProjectList = (
   )
 }
 
-export const useGetClientProjectsCalendar = (id: number, date: string) => {
+export const useGetClientProjectsCalendar = (
+  id: number,
+  year: number,
+  month: number,
+) => {
   return useQuery(
     'get-client-project-calendar',
     () => {
-      return getClientProjectsCalendarData(id, date)
+      return getClientProjectsCalendarData(id, year, month)
     },
     {
       suspense: true,
+
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
@@ -88,14 +93,14 @@ export const useGetClientInvoiceList = (
 
 export const useGetClientInvoicesCalendar = (
   id: number,
-  year: string,
-  month: string,
-  filter: ClientInvoiceFilterType,
+  year: number,
+  month: number,
+  // filter: ClientInvoiceFilterType,
 ) => {
   return useQuery(
     'get-client-invoices-calendar',
     () => {
-      return getClientInvoicesCalendarData(id, year, month, filter)
+      return getClientInvoicesCalendarData(id, year, month)
     },
     {
       suspense: true,

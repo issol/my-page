@@ -150,7 +150,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {formatCurrency(row.amount, 'USD')}
+            {formatCurrency(row.totalPrice, row.currency ?? 'USD')}
           </Typography>
         </TableCell>
         {separateLine()}
