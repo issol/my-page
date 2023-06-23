@@ -55,6 +55,7 @@ export type ClientInvoiceListType = {
   description: string
   invoiceStatus: InvoiceReceivableStatusType
   currency?: CurrencyType
+  updatedAt: string
   order: {
     projectName: string
   }
