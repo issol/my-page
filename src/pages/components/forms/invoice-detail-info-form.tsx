@@ -201,7 +201,7 @@ export default function InvoiceDetailInfoForm({
 
       <Grid item xs={6}>
         <Controller
-          name='tax'
+          name='taxRate'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FormControl fullWidth error={Boolean(errors.tax)}>

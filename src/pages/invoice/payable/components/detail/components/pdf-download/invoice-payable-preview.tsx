@@ -10,7 +10,7 @@ import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 // ** types
 import { LanguageAndItemType } from '@src/types/orders/order-detail'
 import { UserDataType } from '@src/context/types'
-import { QuoteDownloadData } from '@src/types/common/quotes.type'
+import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
 
 // ** NextJs
 import { useRouter } from 'next/router'
@@ -48,7 +48,7 @@ import { ItemType } from '@src/types/common/item.type'
 //TODO: data 타입수정하기
 //TODO: 실데이터로 채우기
 type Props = {
-  data: any
+  data: InvoicePayableDownloadData
   type: 'preview' | 'download'
   user: UserDataType
   lang: 'EN' | 'KO'
@@ -105,9 +105,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
             >
               {columnName.companyName}
             </Typography>
-            <Typography variant='subtitle2'>
-              {columnName.companyAddress}
-            </Typography>
+            <Typography variant='subtitle2'>{data?.companyAddress}</Typography>
           </Box>
           <Box>
             <img src='/images/logos/gloz-logo-large.svg' alt='' />
@@ -127,7 +125,7 @@ const PrintInvoicePayablePreview = ({ data, type, user, lang }: Props) => {
           padding='20px'
         >
           <Typography variant='subtitle1' fontSize={14}>
-            {/* No. {data?.corporationId} */}
+            No. {data?.corporationId}
           </Typography>
 
           <Box display='flex' flexDirection='column' gap='10px'>

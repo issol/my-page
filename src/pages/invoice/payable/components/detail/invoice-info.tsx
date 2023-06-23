@@ -46,9 +46,6 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { invoice_payable } from '@src/shared/const/permission-class'
 
 /* TODO:
-
- Remove버튼, list의 checkbox는 퍼미션이 가능한 사람에게만 노출되도록 수정
-
  delete invoice추가
 */
 

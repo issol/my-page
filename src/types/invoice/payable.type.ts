@@ -69,11 +69,6 @@ export type InvoicePayableDetailType = {
   subtotal: number
   totalPrice: number
   tax: number | null
-  // jobs: {
-  //   count: number
-  //   totalCount: number
-  //   data: InvoicePayableJobType[]
-  // }
 }
 
 export type InvoicePayableJobType = {
@@ -98,14 +93,15 @@ export type InvoicePayableDownloadData = {
   companyAddress: string
   corporationId: string
   invoicedAt: string
-  paymentDueAt: { date: string; timezone: CountryType }
+  payDueAt: string
+  payDueTimezone: CountryType
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
   pro: {
     email: string
-    firstName: string
-    middleName: string | null
-    lastName: string
-    address: string
-    mobile: string
+    name: string
+    // address: string
+    // mobile: string
   }
   companyName: string
   jobName: string
