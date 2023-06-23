@@ -150,13 +150,14 @@ export default function OrderList() {
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
-      <PageHeader title={<Typography variant='h5'>Order list</Typography>} />
       <Box
         display='flex'
         width={'100%'}
-        justifyContent='right'
+        alignItems='center'
+        justifyContent='space-between'
         padding='10px 0 24px'
       >
+        <PageHeader title={<Typography variant='h5'>Order list</Typography>} />
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'
