@@ -40,16 +40,13 @@ import { toast } from 'react-hot-toast'
 
 // ** contexts
 import { AuthContext } from '@src/context/AuthContext'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
-
-// ** permission
-import { invoice_payable } from '@src/shared/const/permission-class'
 
 /* TODO:
  delete invoice추가
 */
 
 type Props = {
+  isUpdatable: boolean
   data: InvoicePayableDetailType | undefined
   jobList: {
     count: number
@@ -57,14 +54,10 @@ type Props = {
     data: InvoicePayableJobType[]
   }
 }
-export default function InvoiceInfo({ data, jobList }: Props) {
+export default function InvoiceInfo({ isUpdatable, data, jobList }: Props) {
   const { openModal, closeModal } = useModal()
 
   const { user } = useContext(AuthContext)
-  const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
-
-  const isUpdatable = ability.can('update', User)
 
   const [editInfo, setEditInfo] = useState(false)
   const [selectedJobs, setSelectedJobs] = useState<Array<number>>([])
@@ -128,6 +121,7 @@ export default function InvoiceInfo({ data, jobList }: Props) {
         <Card>
           <CardContent sx={{ padding: '24px' }}>
             <InvoiceDetailCard
+              isUpdatable={isUpdatable}
               data={data}
               editInfo={editInfo}
               setEditInfo={setEditInfo}

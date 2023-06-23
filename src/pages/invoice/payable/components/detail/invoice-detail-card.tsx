@@ -38,9 +38,6 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** permission
-import { invoice_payable } from '@src/shared/const/permission-class'
-
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
@@ -63,6 +60,7 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 import { toast } from 'react-hot-toast'
 
 type Props = {
+  isUpdatable: boolean
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
@@ -72,6 +70,7 @@ type Props = {
 version history
 */
 export default function InvoiceDetailCard({
+  isUpdatable,
   data,
   editInfo,
   setEditInfo,
@@ -83,9 +82,7 @@ export default function InvoiceDetailCard({
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
 
-  const isUpdatable = ability.can('update', User)
   const isAccountManager = ability.can('read', 'account_manage')
 
   // ** confirm page leaving
