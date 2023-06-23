@@ -31,6 +31,7 @@ import useModal from '@src/hooks/useModal'
 import InvoiceInfo from './components/detail/invoice-info'
 import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
 
 // ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
@@ -38,13 +39,12 @@ import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
 import { setInvoicePayable } from '@src/store/invoice-payable'
 import { setInvoicePayableLang } from '@src/store/invoice-payable'
 
-// ** permission class
-import { invoice_payable } from '@src/shared/const/permission-class'
-import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
+// ** apis
 import {
   useGetPayableDetail,
   useGetPayableJobList,
 } from '@src/queries/invoice/payable.query'
+import { useCheckInvoiceEditable } from '@src/queries/invoice/common.query'
 
 type MenuType = 'info' | 'history'
 
@@ -58,10 +58,8 @@ export default function PayableDetail() {
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
 
-  const isUpdatable = ability.can('update', User)
-  const isDeletable = ability.can('delete', User)
+  const { data: isUpdatable } = useCheckInvoiceEditable(Number(id))
   const isAccountManager = ability.can('read', 'account_manage')
 
   // ** store
@@ -268,6 +266,7 @@ export default function PayableDetail() {
           <TabPanel value='info' sx={{ pt: '24px' }}>
             <Suspense>
               <InvoiceInfo
+                isUpdatable={isUpdatable!}
                 data={data}
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
               />
@@ -281,7 +280,7 @@ export default function PayableDetail() {
           </TabPanel>
         </TabContext>
       </Grid>
-      {!isDeletable ? null : (
+      {!isUpdatable ? null : (
         <Grid item xs={4}>
           <Card sx={{ marginLeft: '12px' }}>
             <CardContent>
