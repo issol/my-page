@@ -26,14 +26,15 @@ import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 
 type Props = {
   id: number
+
   title: string
   onClose: () => void
   row: JobHistoryType
   orderDetail: ProjectInfoType
   priceUnitsList: PriceUnitListType[]
   item: JobItemType
+  originJobInfo: JobType
   projectTeam: {
-    id: string
     userId: number
     position: PositionType
     firstName: string
@@ -51,6 +52,7 @@ type Props = {
 */
 export default function HistoryDetail({
   id,
+  originJobInfo,
   title,
   onClose,
   row,
@@ -66,8 +68,16 @@ export default function HistoryDetail({
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)
 
-  const { data: jobInfo, refetch } = useGetJobInfo(row.id)
-  const { data: jobPrices } = useGetJobPrices(row.id)
+  const {
+    data: jobInfo,
+    refetch,
+    isLoading: jobInfoLoading,
+  } = useGetJobInfo(id, true)
+
+  const { data: jobPrices, isLoading: jobPricesLoading } = useGetJobPrices(
+    id,
+    true,
+  )
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -102,8 +112,8 @@ export default function HistoryDetail({
         {
           id: jobPrices?.id!,
           name: jobPrices?.priceName!,
-          source: jobPrices?.sourceLanguage!,
-          target: jobPrices?.targetLanguage!,
+          source: jobPrices?.source!,
+          target: jobPrices?.target!,
           priceId: jobPrices?.priceId!,
           detail: !jobPrices?.datas.length ? [] : jobPrices?.datas!,
           contactPersonId: 0,
@@ -170,7 +180,7 @@ export default function HistoryDetail({
                   >
                     <JobInfoDetailView
                       tab={'history'}
-                      row={jobInfo!}
+                      row={originJobInfo!}
                       orderDetail={orderDetail}
                       item={item}
                     />
@@ -216,40 +226,40 @@ export default function HistoryDetail({
             />
           </TabList>
           <TabPanel value='jobInfo' sx={{ pt: '30px' }}>
-            <ViewJobInfo
-              row={jobInfo!}
-              type='history'
-              item={item}
-              projectTeam={projectTeam}
-            />
+            {jobInfo && !jobInfoLoading && (
+              <ViewJobInfo
+                row={jobInfo!}
+                type='history'
+                item={item}
+                projectTeam={projectTeam}
+              />
+            )}
           </TabPanel>
           <TabPanel value='prices' sx={{ pt: '30px' }}>
-            <Suspense>
-              <ViewPrices
-                row={jobInfo!}
-                priceUnitsList={priceUnitsList ?? []}
-                itemControl={itemControl}
-                itemErrors={itemErrors}
-                getItem={getItem}
-                setItem={setItem}
-                itemTrigger={itemTrigger}
-                itemReset={itemReset}
-                isItemValid={isItemValid}
-                appendItems={appendItems}
-                fields={items}
-                type='history'
-              />
-            </Suspense>
+            <ViewPrices
+              row={jobInfo!}
+              priceUnitsList={priceUnitsList ?? []}
+              itemControl={itemControl}
+              itemErrors={itemErrors}
+              getItem={getItem}
+              setItem={setItem}
+              itemTrigger={itemTrigger}
+              itemReset={itemReset}
+              isItemValid={isItemValid}
+              appendItems={appendItems}
+              fields={items}
+              type='history'
+            />
           </TabPanel>
           <TabPanel value='assignPro'>
-            {/* <AssignPro
+            <AssignPro
               user={user!}
-              row={row.jobInfo}
+              row={jobInfo!}
               orderDetail={orderDetail}
               type='history'
-              assignProList={row.assignPro}
+              // assignProList={row.assignPro}
               item={item}
-            /> */}
+            />
           </TabPanel>
         </TabContext>
       </Box>

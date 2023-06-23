@@ -77,13 +77,7 @@ const OrderPreview = ({ onClose, data, lang }: Props) => {
             Download
           </Button>
         </Box>
-        {/* <MyPdfComponent /> */}
       </Box>
-      {/* <Document>
-        <Page size='A4'>
-          <Html>{html}</Html>
-        </Page>
-      </Document> */}
     </Box>
   )
 }

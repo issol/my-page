@@ -17,7 +17,7 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
-import { CalendarEventType, SortingType } from '@src/apis/pro-projects.api'
+import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
 import ClientProjectCalendar from './client-project-calendar'
@@ -72,10 +72,6 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
   }
 
   useEffect(() => {
-    refetch()
-  }, [year, month])
-
-  useEffect(() => {
     if (currentListId && data?.data) {
       console.log(currentListId)
 
@@ -91,7 +87,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
         //@ts-ignore
         {
           id: 0,
-          qId: '',
+          corporationId: '',
           serviceType: [],
           projectName: '',
           workName: '',
@@ -102,6 +98,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
           extendedProps: {
             calendar: 'primary',
           },
+          type: 'order',
         },
       ])
     }

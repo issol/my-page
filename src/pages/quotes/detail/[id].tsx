@@ -17,6 +17,8 @@ import {
   Button,
   Card,
   CardContent,
+  Dialog,
+  DialogContent,
   Grid,
   IconButton,
   Tab,
@@ -51,6 +53,7 @@ import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-
 import VersionHistory from './components/version-history'
 import VersionHistoryModal from './components/version-history-detail'
 import DownloadQuotesModal from './components/pdf-download/download-qoutes-modal'
+import PrintQuotePage from './components/pdf-download/quote-preview'
 
 // ** react hook form
 import { useFieldArray, useForm } from 'react-hook-form'
@@ -65,7 +68,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import {
+  ClientFormType as ClientPostType,
+  LanguagePairsPostType,
+  LanguagePairsType,
+  ProjectTeamFormType,
+} from '@src/types/common/orders-and-quotes.type'
+import {
   QuoteDownloadData,
+  QuoteStatusType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -73,8 +83,7 @@ import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { languageType } from '../add-new'
@@ -90,12 +99,19 @@ import {
   useGetProjectTeam,
   useGetVersionHistory,
 } from '@src/queries/quotes.query'
-import { deleteQuotes, restoreVersion } from '@src/apis/quotes.api'
-import { getPriceList } from '@src/apis/company-price.api'
+import {
+  deleteQuotes,
+  patchQuoteItems,
+  patchQuoteLanguagePairs,
+  patchQuoteProjectInfo,
+  restoreVersion,
+} from '@src/apis/quotes.api'
+import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 // ** react query
 import { useMutation, useQueryClient } from 'react-query'
@@ -103,17 +119,8 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
-import PrintQuotePage from './components/pdf-download/quote-preview'
-import { LanguagePairsPostType } from '@src/types/common/orders-and-quotes.type'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
-
-/**
- * TODO
- * save 함수 추가
- * project info status변경 api추가
- * version history구현
- */
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -155,6 +162,7 @@ export default function QuotesDetail() {
   const { data: project, isLoading: isProjectLoading } = useGetProjectInfo(
     Number(id),
   )
+
   const {
     control: projectInfoControl,
     getValues: getProjectInfoValues,
@@ -239,7 +247,7 @@ export default function QuotesDetail() {
   useEffect(() => {
     if (!isItemLoading && itemsWithLang) {
       ;(async function () {
-        const priceList = await getPriceList({})
+        const priceList = await getClientPriceList({})
         setLanguagePairs(
           itemsWithLang?.languagePairs?.map(item => {
             return {
@@ -296,7 +304,7 @@ export default function QuotesDetail() {
         address => address.isSelected,
       )?.addressType
       clientReset({
-        clientId: client.client.clientId,
+        clientId: client?.client?.clientId,
         contactPersonId: client?.contactPerson?.id ?? null,
         addressType: addressType === 'additional' ? 'shipping' : addressType,
       })
@@ -366,11 +374,11 @@ export default function QuotesDetail() {
           lastName: item?.lastName!,
         }),
       }))
-      resetTeam({ teams })
+      if (teams.length) resetTeam({ teams })
     }
   }, [isTeamLoading])
 
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [tax, setTax] = useState<number | null>(project!.tax)
   const [taxable, setTaxable] = useState(project?.taxable || false)
@@ -422,18 +430,18 @@ export default function QuotesDetail() {
 
   const restoreMutation = useMutation((id: number) => restoreVersion(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(`quotes-history-${id}`)
+      queryClient.invalidateQueries(`quotesHistory`)
     },
     onError: () => onMutationError(),
   })
 
-  const onClickRestoreVersion = (id: number) => {
+  const onClickRestoreVersion = () => {
     openModal({
       type: 'RestoreConfirmModal',
       children: (
         <ModalWithButtonName
           message='Are you sure you want to restore this version?'
-          onClick={() => restoreMutation.mutate(id)}
+          onClick={() => restoreMutation.mutate(Number(id))}
           onClose={() => closeModal('RestoreConfirmModal')}
           iconType='error'
           rightButtonName='Restore'
@@ -446,12 +454,44 @@ export default function QuotesDetail() {
     openModal({
       type: 'VersionHistoryModal',
       children: (
-        <VersionHistoryModal
-          history={history}
+        <Dialog
+          open={true}
           onClose={() => closeModal('VersionHistoryModal')}
-          onClick={onClickRestoreVersion}
-          isUpdatable={isUpdatable}
-        />
+          maxWidth='lg'
+          fullWidth
+        >
+          <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
+            <Grid container spacing={6}>
+              <VersionHistoryModal id={Number(id)} history={history} />
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                gap='12px'
+                alignItems='center'
+                justifyContent='center'
+              >
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  sx={{ width: '226px' }}
+                  onClick={() => closeModal('VersionHistoryModal')}
+                >
+                  Close
+                </Button>
+                {isUpdatable ? (
+                  <Button
+                    variant='contained'
+                    sx={{ width: '226px' }}
+                    onClick={onClickRestoreVersion}
+                  >
+                    Restore this version
+                  </Button>
+                ) : null}
+              </Grid>
+            </Grid>
+          </DialogContent>
+        </Dialog>
       ),
     })
   }
@@ -463,43 +503,93 @@ export default function QuotesDetail() {
       children: (
         <EditSaveModal
           onClose={() => closeModal('EditSaveModal')}
-          onClick={callBack}
+          onClick={() => {
+            closeModal('EditSaveModal')
+            callBack()
+          }}
         />
       ),
     })
   }
 
+  type updateProjectInfoType =
+    | QuotesProjectInfoFormType
+    | ProjectTeamFormType
+    | ClientPostType
+    | { tax: null | number; taxable: boolean }
+    | { status: QuoteStatusType }
+
+  const updateProject = useMutation(
+    (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
+    {
+      onSuccess: () => {
+        setEditProject(false)
+        setEditClient(false)
+        setEditTeam(false)
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetail'],
+        })
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
   function onProjectInfoSave() {
-    //
+    const projectInfo = getProjectInfoValues()
+    onSave(() => updateProject.mutate(projectInfo))
   }
-  function onItemSave() {
-    // tax, taxable도 같이 보내기 & item, languagePair, projectInfo mutation붙이기
+
+  async function onItemSave() {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
+    const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
-          langPairId: Number(item.id),
+          // langPairId: Number(item.id),
           source: item.source,
           target: item.target,
           priceId: item.price.id,
         }
       }
+
       return {
-        langPairId: Number(item.id),
+        // langPairId: Number(item.id),
         source: item.source,
         target: item.target,
+      }
+    })
+
+    onSave(async () => {
+      try {
+        await patchQuoteLanguagePairs(Number(id), langs)
+        await patchQuoteItems(Number(id), items)
+        updateProject.mutate({ tax, taxable })
+        setEditItems(false)
+        queryClient.invalidateQueries({
+          queryKey: ['quotesDetailItems'],
+        })
+      } catch (e: any) {
+        onMutationError()
       }
     })
   }
 
   function onClientSave() {
-    //
+    const form = getClientValue()
+    const clientInfo: ClientPostType = {
+      //@ts-ignore
+      addressType: form.addressType,
+      clientId: form.clientId!,
+      contactPersonId: form.contactPersonId,
+    }
+    onSave(() => updateProject.mutate(clientInfo))
   }
+
   function onProjectTeamSave() {
-    //
+    const teams = transformTeamData(getTeamValues())
+    onSave(() => updateProject.mutate(teams))
   }
 
   function onDiscard({ callback }: { callback: () => void }) {
@@ -548,7 +638,7 @@ export default function QuotesDetail() {
   const deleteQuotesMutation = useMutation((id: number) => deleteQuotes(id), {
     onSuccess: () => {
       queryClient.invalidateQueries({
-        queryKey: ['get-quotes/list', 'get-quotes/calendar'],
+        queryKey: ['quotesList'],
       })
       router.push('/quotes')
     },
@@ -578,6 +668,9 @@ export default function QuotesDetail() {
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
     makePdfData(lang)
+    patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
+      onMutationError(),
+    )
     closeModal('PreviewModal')
   }
 
@@ -615,7 +708,10 @@ export default function QuotesDetail() {
               <Button
                 variant='outlined'
                 sx={{ width: 226 }}
-                onClick={() => closeModal('PreviewModal')}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setIsReady(false))
+                }}
               >
                 Close
               </Button>
@@ -643,7 +739,7 @@ export default function QuotesDetail() {
         <DownloadQuotesModal
           onClose={() => {
             closeModal('DownloadQuotesModal')
-            dispatch(setIsReady(null))
+            dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
         />
@@ -817,7 +913,7 @@ export default function QuotesDetail() {
                       {renderSubmitButton({
                         onCancel: () =>
                           onDiscard({ callback: () => setEditProject(false) }),
-                        onSave: () => onSave(onProjectInfoSave),
+                        onSave: () => onProjectInfoSave(),
                         isValid: isProjectInfoValid,
                       })}
                     </Grid>
@@ -830,6 +926,9 @@ export default function QuotesDetail() {
                       project={project}
                       setEditMode={setEditProject}
                       isUpdatable={isUpdatable}
+                      updateStatus={(status: QuoteStatusType) =>
+                        updateProject.mutate({ status: status })
+                      }
                     />
                   </Card>
                   <Grid container sx={{ mt: '24px' }}>
@@ -852,6 +951,8 @@ export default function QuotesDetail() {
               )}
             </Suspense>
           </TabPanel>
+
+          {/* Languages & Items */}
           <TabPanel value='item' sx={{ pt: '24px' }}>
             <Card>
               <CardContent sx={{ padding: '24px' }}>
@@ -881,13 +982,15 @@ export default function QuotesDetail() {
                   ? renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditItems(false) }),
-                      onSave: () => onSave(onItemSave),
+                      onSave: () => onItemSave(),
                       isValid: isItemValid || (taxable && tax! > 0),
                     })
                   : null}
               </CardContent>
             </Card>
           </TabPanel>
+
+          {/* Client */}
           <TabPanel value='client' sx={{ pt: '24px' }}>
             <Card sx={{ padding: '24px' }}>
               {editClient ? (
@@ -898,12 +1001,13 @@ export default function QuotesDetail() {
                     watch={clientWatch}
                     setTax={setTax}
                     setTaxable={setTaxable}
+                    type='quotes'
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditClient(false) }),
-                      onSave: () => onSave(onClientSave),
+                      onSave: () => onClientSave(),
                       isValid: isClientValid,
                     })}
                   </Grid>
@@ -917,6 +1021,8 @@ export default function QuotesDetail() {
               )}
             </Card>
           </TabPanel>
+
+          {/* Team */}
           <TabPanel value='team' sx={{ pt: '24px' }}>
             <Suspense>
               {editTeam ? (
@@ -936,7 +1042,7 @@ export default function QuotesDetail() {
                     {renderSubmitButton({
                       onCancel: () =>
                         onDiscard({ callback: () => setEditTeam(false) }),
-                      onSave: () => onSave(onProjectTeamSave),
+                      onSave: () => onProjectTeamSave(),
                       isValid: isTeamValid,
                     })}
                   </Grid>
@@ -984,6 +1090,8 @@ export default function QuotesDetail() {
               )}
             </Suspense>
           </TabPanel>
+
+          {/* Version history */}
           <TabPanel value='history' sx={{ pt: '24px' }}>
             <VersionHistory
               list={versionHistory || []}
@@ -1001,7 +1109,7 @@ export default function QuotesDetail() {
 }
 
 QuotesDetail.acl = {
-  subject: 'quotes',
+  subject: 'quote',
   action: 'read',
 }
 

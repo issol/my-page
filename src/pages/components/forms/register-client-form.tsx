@@ -41,6 +41,7 @@ type Props = {
   clientList: Array<{ value: number; label: string }>
   setTax: (n: number) => void
   setTaxable: (n: boolean) => void
+  type: string
 }
 
 export default function RegisterClientForm({
@@ -50,6 +51,7 @@ export default function RegisterClientForm({
   clientList,
   setTax,
   setTaxable,
+  type,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -199,11 +201,9 @@ export default function RegisterClientForm({
                 options={clientList}
                 onChange={(e, v) => {
                   onChange(v ? v.value : '')
-                  if (v) {
-                    getDetail(Number(v.value))
-                  }
                 }}
                 disableClearable
+                disabled={type === 'invoice'}
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField

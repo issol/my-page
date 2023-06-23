@@ -1,18 +1,19 @@
 import logger from '@src/@core/utils/logger'
+
 import {
   FilterType,
   getProProjectList,
+  getProjectCalendarData,
   getWorkNameFilterList,
-} from './../../apis/pro-projects.api'
-import { getProjectCalendarData } from '@src/apis/pro-projects.api'
+} from '@src/apis/pro/pro-projects.api'
 import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetWorkNameList = () => {
+export const useGetWorkNameList = (id: number) => {
   return useQuery(
     'get-project/workname',
     () => {
-      return getWorkNameFilterList()
+      return getWorkNameFilterList(id)
     },
     {
       suspense: true,
@@ -41,7 +42,7 @@ export const useGetProjectList = (id: number, filter: FilterType) => {
 
 export const useGetProjectCalendarData = (id: number, date: string) => {
   return useQuery(
-    'get-project-calendar',
+    ['get-project-calendar', id, date],
     () => {
       return getProjectCalendarData(id, date)
     },

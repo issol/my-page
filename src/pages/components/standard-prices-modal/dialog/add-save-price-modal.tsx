@@ -33,7 +33,11 @@ import {
 } from '@src/shared/const/service-type/service-types'
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
-import { RoundingProcedureList } from '@src/shared/const/rounding-procedure/rounding-procedure'
+import {
+  RoundingProcedureList,
+  RoundingProcedureObjReversed,
+  RoundingProcedureObj
+} from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { useForm } from 'react-hook-form'
 
 import { yupResolver } from '@hookform/resolvers/yup'
@@ -48,9 +52,12 @@ import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import PriceActionModal from '../modal/price-action-modal'
 import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
-import { createPrice } from '@src/apis/company-price.api'
+import { createPrice } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import CopyPriceModal from '@src/pages/components/client-prices-modal/dialog/copy-price-modal'
+import Icon from 'src/@core/components/icon'
 
 const defaultValue = {
   priceName: '',
@@ -68,10 +75,16 @@ type Props = {
   onClose: any
   type: string
   selectedPriceData?: StandardPriceListType
-
-  onSubmit: (data: AddPriceType, modalType: string) => void
+  setPriceList?: Dispatch<SetStateAction<[] | StandardPriceListType[]>>
+  onSubmit: (
+    selectedData: StandardPriceListType,
+    data: AddPriceType,
+    modalType: string,
+  ) => void
 
   onClickAction: (type: string) => void
+  page: 'client' | 'pro'
+  used?: string
 }
 
 const AddSavePriceModal = ({
@@ -79,10 +92,10 @@ const AddSavePriceModal = ({
   onClose,
   type,
   selectedPriceData,
-
   onSubmit,
-
   onClickAction,
+  page,
+  used,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
@@ -104,13 +117,19 @@ const AddSavePriceModal = ({
     trigger,
     getValues,
     setValue,
-
     formState: { errors, dirtyFields, isValid },
   } = useForm<AddPriceType>({
     mode: 'onChange',
     defaultValues: defaultValue,
     resolver: yupResolver(standardPricesSchema),
   })
+  const {
+    data: standardPrices,
+    isLoading,
+    refetch,
+  } = useGetStandardPrices('client', { take: 1000, skip: 0 })
+  const [selected, setSelected] = useState<StandardPriceListType | null>(null)
+  const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
   const resetData = () => {
     reset({
@@ -124,52 +143,141 @@ const AddSavePriceModal = ({
       memoForPrice: '',
     })
   }
+
   useEffect(() => {
-    if (type === 'Edit' && selectedPriceData) {
-      setValue('priceName', selectedPriceData.priceName)
-
-      setValue('category', {
-        label: selectedPriceData.category,
-        value: selectedPriceData.category,
-      })
-
-      setValue(
-        'serviceType',
-        selectedPriceData.serviceType.map(value => ({
-          label: value,
-          value: value,
-        })),
-      )
-      setValue('currency', {
-        label:
-          selectedPriceData.currency === 'USD'
-            ? '$ USD'
-            : selectedPriceData.currency === 'KRW'
-            ? '₩ KRW'
-            : selectedPriceData.currency === 'JPY'
-            ? '¥ JPY'
-            : selectedPriceData.currency === 'SGD'
-            ? '$ SGD'
-            : '',
-        value: selectedPriceData.currency,
-      })
-      setValue('catBasis', {
-        label: selectedPriceData.catBasis,
-        value: selectedPriceData.catBasis,
-      })
-      setValue('decimalPlace', selectedPriceData.decimalPlace)
-      setValue('roundingProcedure', {
-        label: selectedPriceData.roundingProcedure,
-        value: parseInt(
-          getKeyByValue(
-            PriceRoundingResponseEnum,
-            selectedPriceData.roundingProcedure,
-          )?.split('_')[1]!,
-        ),
-      })
-      setValue('memoForPrice', selectedPriceData.memoForPrice)
+    if (selectedPriceData) {
+      setSelected(selectedPriceData)
     }
-  }, [type, selectedPriceData])
+  }, [selectedPriceData])
+
+  useEffect(() => {
+    if (selected) {
+      if (type === 'Add') {
+        setValue('priceName', selected.priceName, setValueOptions)
+        setValue(
+          'category',
+          {
+            label: selected.category,
+            value: selected.category,
+          },
+          setValueOptions,
+        )
+        setValue(
+          'serviceType',
+          selected.serviceType.map(
+            value => ({
+              label: value,
+              value: value,
+            }),
+            setValueOptions,
+          ),
+        )
+        setValue(
+          'currency',
+          {
+            label:
+              selected.currency === 'USD'
+                ? '$ USD'
+                : selected.currency === 'KRW'
+                ? '₩ KRW'
+                : selected.currency === 'JPY'
+                ? '¥ JPY'
+                : selected.currency === 'SGD'
+                ? '$ SGD'
+                : '',
+            value: selected.currency,
+          },
+          setValueOptions,
+        )
+        setValue(
+          'catBasis',
+          {
+            label: selected.catBasis!,
+            value: selected.catBasis!,
+          },
+          setValueOptions,
+        )
+        setValue('decimalPlace', selected.decimalPlace)
+        setValue('memoForPrice', selected?.memoForPrice ?? '', setValueOptions)
+
+        const roundingLabel =
+          //@ts-ignore
+          RoundingProcedureObjReversed[Number(selected.roundingProcedure)]
+        //@ts-ignore
+        const roundingValue = RoundingProcedureObj[selected.roundingProcedure]
+        setValue(
+          'roundingProcedure',
+          {
+            label: roundingLabel ?? selected.roundingProcedure,
+            value: roundingValue ?? selected.roundingProcedure,
+          },
+          setValueOptions,
+        )
+      } else if (type === 'Edit') {
+        setValue('priceName', selected.priceName)
+        setValue('category', {
+          label: selected.category,
+          value: selected.category,
+        })
+
+        setValue(
+          'serviceType',
+          selected.serviceType.map(value => ({
+            label: value,
+            value: value,
+          })),
+        )
+        setValue('currency', {
+          label:
+          selected.currency === 'USD'
+              ? '$ USD'
+              : selected.currency === 'KRW'
+              ? '₩ KRW'
+              : selected.currency === 'JPY'
+              ? '¥ JPY'
+              : selected.currency === 'SGD'
+              ? '$ SGD'
+              : '',
+          value: selected.currency,
+        })
+        page === 'client' &&
+          setValue('catBasis', {
+            label: selected.catBasis!,
+            value: selected.catBasis!,
+          })
+        setValue('decimalPlace', selected.decimalPlace)
+        setValue('roundingProcedure', {
+          label: selected.roundingProcedure,
+          value: parseInt(
+            getKeyByValue(
+              PriceRoundingResponseEnum,
+              selected.roundingProcedure,
+            )?.split('_')[1]!,
+          ),
+        })
+        setValue('memoForPrice', selected.memoForPrice)
+      }
+    }
+
+  }, [type, selected])
+
+  function openCopyPriceModal() {
+    openModal({
+      type: 'copy-price',
+      children: (
+        <CopyPriceModal
+          list={standardPrices ?? { data: [], count: 0 }}
+          open={true}
+          onSubmit={onAddCopiedPrice}
+          onClose={() => closeModal('copy-price')}
+        />
+      ),
+    })
+  }
+
+  function onAddCopiedPrice(data: StandardPriceListType) {
+    setSelected(data)
+  }
 
   return (
     <Dialog
@@ -193,14 +301,34 @@ const AddSavePriceModal = ({
         }}
       >
         {type === 'Add' ? (
-          <Typography variant='h5' sx={{ mb: '30px' }}>
-            Add new price
-          </Typography>
+          <Box
+            display='flex'
+            alignItems='center'
+            justifyContent='space-between'
+            mb='30px'
+          >
+            <Typography variant='h5'>Add new price</Typography>
+            {used && used === 'client' ? (
+              <Button
+                sx={{
+                  position: 'absolute',
+                  right: '75px'
+                }}
+                variant='outlined'
+                startIcon={<Icon icon='ic:baseline-file-download' />}
+                onClick={openCopyPriceModal}
+              >
+                Copy price
+              </Button>
+            ) : null}
+          </Box>
         ) : null}
         <form
           noValidate
           autoComplete='off'
-          onSubmit={handleSubmit(data => onSubmit(data, type))}
+          onSubmit={handleSubmit(data =>
+            onSubmit(selected!, data, type),
+          )}
         >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>
@@ -368,31 +496,34 @@ const AddSavePriceModal = ({
                 </FormHelperText>
               )}
             </Grid>
-            <Grid item xs={6}>
-              <Controller
-                control={control}
-                name='catBasis'
-                render={({ field: { onChange, value } }) => (
-                  <Autocomplete
-                    fullWidth
-                    isOptionEqualToValue={(option, newValue) => {
-                      return option.value === newValue.value
-                    }}
-                    onChange={(event, item) => {
-                      onChange(item)
-                    }}
-                    value={value || { value: '', label: '' }}
-                    defaultValue={{ label: 'Words', value: 'Words' }}
-                    options={CatBasisList}
-                    id='CAT Basis'
-                    getOptionLabel={option => option.label}
-                    renderInput={params => (
-                      <TextField {...params} label='CAT calculation basis' />
-                    )}
-                  />
-                )}
-              />
-            </Grid>
+            {page === 'client' ? (
+              <Grid item xs={6}>
+                <Controller
+                  control={control}
+                  name='catBasis'
+                  render={({ field: { onChange, value } }) => (
+                    <Autocomplete
+                      fullWidth
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      onChange={(event, item) => {
+                        onChange(item)
+                      }}
+                      value={value || { value: '', label: '' }}
+                      defaultValue={{ label: 'Words', value: 'Words' }}
+                      options={CatBasisList}
+                      id='CAT Basis'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField {...params} label='CAT calculation basis' />
+                      )}
+                    />
+                  )}
+                />
+              </Grid>
+            ) : null}
+
             <Grid item xs={6}>
               <FormControl fullWidth>
                 <Controller
@@ -429,7 +560,21 @@ const AddSavePriceModal = ({
                                 ? 10
                                 : 0,
                             )
-                          e.target.value = filteredValue
+                          if (
+                            watch('currency').value === 'KRW' ||
+                            watch('currency').value === 'JPY'
+                          ) {
+                            let convertValue = ''
+                            if (filteredValue !== '') {
+                              convertValue += '1'
+                              for (let i = 1; i < filteredValue.length; i++) {
+                                convertValue += '0'
+                              }
+                            }
+                            e.target.value = convertValue
+                          } else {
+                            e.target.value = filteredValue
+                          }
                           onChange(e.target.value)
                         }
                       }}
@@ -453,7 +598,7 @@ const AddSavePriceModal = ({
                 )}
               </FormControl>
             </Grid>
-            <Grid item xs={6}>
+            <Grid item xs={page === 'client' ? 6 : 12}>
               <Controller
                 control={control}
                 rules={{ required: true }}

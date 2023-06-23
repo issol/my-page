@@ -35,43 +35,39 @@ const ClientInvoiceCalendar = (props: Props) => {
   // ** Refs
   const calendarRef = useRef()
 
-  if (event.length) {
-    const calendarOptions = {
-      events: finalEvent,
-      plugins: [dayGridPlugin],
-      initialView: 'dayGridMonth',
-      headerToolbar: {
-        start: 'sidebarToggle, prev, next, title',
-        end: '',
-      },
+  const calendarOptions = {
+    events: finalEvent,
+    plugins: [dayGridPlugin],
+    initialView: 'dayGridMonth',
+    headerToolbar: {
+      start: 'sidebarToggle, prev, next, title',
+      end: '',
+    },
 
-      dayMaxEvents: 3,
-      eventResizableFromStart: true,
-      ref: calendarRef,
-      direction,
+    dayMaxEvents: 3,
+    eventResizableFromStart: true,
+    ref: calendarRef,
+    direction,
 
-      eventClassNames({ event: calendarEvent }: any) {
-        const colorName = calendarEvent._def.extendedProps.calendar
-        return [`bg-${colorName}`]
-      },
-      eventClick({ event }: any) {
-        setCurrentListId(Number(event?.id))
-      },
-    }
-
-    async function handleMonthChange(payload: DatesSetArg) {
-      const currDate = payload.view.currentStart
-      const currYear = currDate.getFullYear()
-      const currMonth = currDate.getMonth()
-      setYear(currYear)
-      setMonth(currMonth)
-    }
-
-    // @ts-ignore
-    return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
-  } else {
-    return null
+    eventClassNames({ event: calendarEvent }: any) {
+      const colorName = calendarEvent._def.extendedProps.calendar
+      return [`bg-${colorName}`]
+    },
+    eventClick({ event }: any) {
+      setCurrentListId(Number(event?.id))
+    },
   }
+
+  async function handleMonthChange(payload: DatesSetArg) {
+    const currDate = payload.view.currentStart
+    const currYear = currDate.getFullYear()
+    const currMonth = currDate.getMonth()
+    setYear(currYear)
+    setMonth(currMonth)
+  }
+
+  // @ts-ignore
+  return <FullCalendar {...calendarOptions} datesSet={handleMonthChange} />
 }
 
 export default ClientInvoiceCalendar

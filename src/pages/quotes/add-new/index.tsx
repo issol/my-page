@@ -64,8 +64,8 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForQuotes,
   createLangPairForQuotes,
@@ -79,7 +79,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -136,7 +138,7 @@ export default function AddNewQuotes() {
       children: (
         <PageLeaveModal
           onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
+          onClick={() => router.push('/quotes')}
         />
       ),
     })
@@ -215,10 +217,10 @@ export default function AddNewQuotes() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
@@ -456,6 +458,7 @@ export default function AddNewQuotes() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                type='quotes'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -622,6 +625,6 @@ export default function AddNewQuotes() {
 }
 
 AddNewQuotes.acl = {
-  subject: 'quotes',
+  subject: 'quote',
   action: 'create',
 }

@@ -23,6 +23,11 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
+import { useAppSelector } from '@src/hooks/useRedux'
+import { LPMMenu, TADMenu, PROMenu } from '@src/shared/const/menu/menu'
+import {
+  getCurrentRole
+} from 'src/shared/auth/storage'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
@@ -32,6 +37,8 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
   // ** Hooks
   const { settings, saveSettings } = useSettings()
 
+  // const { currentRole } = useAppSelector(state => state.userAccess)
+  const currentRole = getCurrentRole()
   // ** Vars for server side navigation
   // const { menuItems: verticalMenuItems } = ServerSideVerticalNavItems()
   // const { menuItems: horizontalMenuItems } = ServerSideHorizontalNavItems()
@@ -76,7 +83,15 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
       }}
       horizontalLayoutProps={{
         navMenu: {
-          navItems: HorizontalNavItems(),
+          navItems: currentRole
+            ? currentRole.name === 'TAD'
+              ? HorizontalNavItems().filter(value =>
+                  TADMenu.includes(value.title),
+                )
+              : HorizontalNavItems().filter(value =>
+                  LPMMenu.includes(value.title),
+                )
+            : HorizontalNavItems(),
         },
         appBar: {
           content: () => (

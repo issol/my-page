@@ -11,7 +11,6 @@ import { CurrencyType } from '../common/standard-price'
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
 export type ProjectTeamListType = {
-  id: string
   userId: number
   position: PositionType
   firstName: string
@@ -40,7 +39,7 @@ export type ProjectInfoType = {
   projectDueTimezone: CountryType
   projectDescription: string
   tax: number
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type ClientType = {
@@ -97,24 +96,26 @@ export type OrderDownloadData = {
 
 export type LanguageAndItemType = {
   id: number
-  languagePairs: Array<{
-    id: number
-    source: string
-    target: string
-    price: {
-      id: number
-      name: string
-      isStandard: boolean
-      category: string
-      serviceType: Array<string>
-      currency: CurrencyType
-      calculationBasis: string
-      rounding: number
-      numberPlace: number
-      authorId: number
-    } | null
-  }>
+  languagePairs: Array<LanguagePairTypeInItem>
   items: ItemType[]
+}
+
+export type LanguagePairTypeInItem = {
+  id: number
+  source: string
+  target: string
+  price: {
+    id: number
+    name: string
+    isStandard: boolean
+    category: string
+    serviceType: Array<string>
+    currency: CurrencyType
+    calculationBasis: string
+    rounding: number
+    numberPlace: number
+    authorId: number
+  } | null
 }
 
 export type OrderDetailType = {

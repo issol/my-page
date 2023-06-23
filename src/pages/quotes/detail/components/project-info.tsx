@@ -16,7 +16,7 @@ import styled from 'styled-components'
 
 // ** values
 import { QuotesStatus } from '@src/shared/const/status/statuses'
-import { ProjectInfoType } from '@src/types/common/quotes.type'
+import { ProjectInfoType, QuoteStatusType } from '@src/types/common/quotes.type'
 import { Fragment } from 'react'
 import {
   FullDateHelper,
@@ -28,13 +28,14 @@ type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
   isUpdatable: boolean
+  updateStatus?: (status: QuoteStatusType) => void
 }
 
-// TODO : status 변경 api 붙이기
 export default function QuotesProjectInfoDetail({
   project,
   setEditMode,
   isUpdatable,
+  updateStatus,
 }: Props) {
   return (
     <Fragment>
@@ -73,9 +74,11 @@ export default function QuotesProjectInfoDetail({
                   autoHighlight
                   fullWidth
                   options={QuotesStatus}
-                  // onChange={(e, v) => {
-                  //   onChange(v?.value ?? '')
-                  // }}
+                  onChange={(e, v) => {
+                    if (updateStatus && v?.value) {
+                      updateStatus(v.value as QuoteStatusType)
+                    }
+                  }}
                   value={
                     QuotesStatus.find(item => item.value === project.status) ||
                     null

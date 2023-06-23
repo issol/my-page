@@ -23,9 +23,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => (StandardPriceListType & {
-    groupName: string
-  })[]
+  ) => Array<StandardPriceListType & { groupName: string }>
   itemControl: Control<
     {
       items: ItemType[]
@@ -65,7 +63,6 @@ const Row = ({
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
-  console.log('itemData : ', itemData)
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${0}.detail`
@@ -75,8 +72,8 @@ const Row = ({
     ) || null
   console.log(priceData)
 
-  const sourceLanguage = getItem(`items.${0}.source`)
-  const targetLanguage = getItem(`items.${0}.target`)
+  const sourceLanguage = itemData.source
+  const targetLanguage = itemData.target
   const languagePairData = priceData?.languagePairs?.find(
     i => i.source === sourceLanguage && i.target === targetLanguage,
   )
@@ -101,7 +98,7 @@ const Row = ({
     let total = 0
     const data = getItem(itemName)
     if (data?.length) {
-      const price = data.reduce((res, item) => (res = +item.prices), 0)
+      const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
       if (minimumPrice && showMinimum.show && price < minimumPrice) {
         data.forEach(item => {
           total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -111,7 +108,7 @@ const Row = ({
         total = price
       }
     }
-
+    if (total === itemData.totalPrice) return
     setItem(`items.${0}.totalPrice`, total, {
       shouldDirty: true,
       shouldValidate: true,
@@ -137,6 +134,8 @@ const Row = ({
     } else {
       prices = detail.unitPrice * detail.quantity
     }
+
+    if (prices === data[index].prices) return
     setItem(`items.${0}.detail.${index}.prices`, prices, {
       shouldDirty: true,
       shouldValidate: true,

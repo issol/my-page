@@ -1,4 +1,4 @@
-import { ProProjectType } from '@src/apis/pro-projects.api'
+import { ProProjectType } from '@src/apis/pro/pro-projects.api'
 
 function getRandomDate(start: Date, end: Date): Date {
   const randomMs =

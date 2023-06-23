@@ -2,7 +2,7 @@
 import { CreateClientBodyType } from '@src/apis/client.api'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import authConfig from 'src/configs/auth'
-import { UserDataType } from 'src/context/types'
+import { UserDataType, UserRoleType } from 'src/context/types'
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
 
 export function removeAllStorage() {
@@ -83,5 +83,24 @@ export function setRedirectPath(path: string) {
 export function removeRedirectPath() {
   if (typeof window === 'object') {
     window.localStorage.removeItem(authConfig.redirectPath)
+  }
+}
+
+// Role Switch
+export function getCurrentRole() {
+  if (typeof window === 'object') {
+    const value = window.sessionStorage.getItem(authConfig.currentRole)
+    try {
+      return (value !== undefined && value !== null) ? JSON.parse(value) : null;
+    } catch {
+      return null
+    }
+    // return JSON.parse(window.localStorage.getItem(authConfig.currentRole))
+  }
+}
+
+export function setCurrentRole(role?: UserRoleType) {
+  if (typeof window === 'object') {
+    window.sessionStorage.setItem(authConfig.currentRole, JSON.stringify(role))
   }
 }

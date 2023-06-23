@@ -1,5 +1,8 @@
 import AlertIcon from '@src/@core/components/alert-icon'
-import { SmallModalContainer } from '@src/@core/components/modal'
+import {
+  ModalContainer,
+  SmallModalContainer,
+} from '@src/@core/components/modal'
 import { Box, Button, Typography } from '@mui/material'
 
 type Props = {
@@ -8,7 +11,7 @@ type Props = {
 }
 export default function PageLeaveModal({ onClose, onClick }: Props) {
   return (
-    <SmallModalContainer>
+    <SmallModalContainer style={{ minWidth: '440px' }}>
       <AlertIcon type='error' />
       <Typography variant='body1' textAlign='center' mt='10px'>
         Are you sure you want to leave this page? Changes you made may not be

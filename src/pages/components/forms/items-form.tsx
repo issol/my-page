@@ -61,9 +61,12 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 
 // ** values
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** helpers
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
+import Link from 'next/link'
+import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -81,6 +84,7 @@ type Props = {
   ) => Array<StandardPriceListType & { groupName: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: string
+  orderId?: number
 }
 
 export type DetailNewDataType = {
@@ -108,6 +112,7 @@ export default function ItemForm({
   getPriceOptions,
   priceUnitsList,
   type,
+  orderId,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -170,7 +175,6 @@ export default function ItemForm({
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
     const itemData = getValues(`items.${idx}`)
-    console.log('itemData : ', itemData)
 
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
@@ -178,8 +182,8 @@ export default function ItemForm({
       getPriceOptions(itemData.source, itemData.target).find(
         price => price.id === itemData.priceId,
       ) || null
-    const sourceLanguage = getValues(`items.${idx}.source`)
-    const targetLanguage = getValues(`items.${idx}.target`)
+    const sourceLanguage = itemData.source
+    const targetLanguage = itemData.target
     const languagePairData = priceData?.languagePairs?.find(
       i => i.source === sourceLanguage && i.target === targetLanguage,
     )
@@ -204,7 +208,10 @@ export default function ItemForm({
       let total = 0
       const data = getValues(itemName)
       if (data?.length) {
-        const price = data.reduce((res, item) => (res = +item.prices), 0)
+        const price = data.reduce(
+          (res, item) => (res += Number(item.prices)),
+          0,
+        )
         if (minimumPrice && showMinimum.show && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -215,6 +222,7 @@ export default function ItemForm({
         }
       }
 
+      if (total === itemData.totalPrice) return
       setValue(`items.${idx}.totalPrice`, total, {
         shouldDirty: true,
         shouldValidate: true,
@@ -240,6 +248,8 @@ export default function ItemForm({
       } else {
         prices = detail.unitPrice * detail.quantity
       }
+
+      if (prices === data[index].prices) return
       setValue(`items.${idx}.detail.${index}.prices`, prices, {
         shouldDirty: true,
         shouldValidate: true,
@@ -297,8 +307,8 @@ export default function ItemForm({
     return (
       <Box
         style={{
-          border: '1px solid #F5F5F7',
-          borderRadius: '8px',
+          border: '1px solid rgba(76, 78, 100, 0.22)',
+          borderRadius: '10px',
           marginBottom: '14px',
         }}
       >
@@ -321,10 +331,12 @@ export default function ItemForm({
                 </IconButton>
                 <Typography fontWeight={500}>
                   {idx + 1 <= 10 ? `0${idx + 1}.` : `${idx + 1}.`}&nbsp;
-                  {type === 'detail' ? getValues(`items.${idx}.name`) : null}
+                  {type === 'detail' || type === 'invoiceDetail'
+                    ? getValues(`items.${idx}.name`)
+                    : null}
                 </Typography>
               </Box>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <IconButton onClick={() => onItemRemove(idx)}>
                   <Icon icon='mdi:trash-outline' />
                 </IconButton>
@@ -333,7 +345,7 @@ export default function ItemForm({
           </Grid>
           {cardOpen ? (
             <>
-              {type === 'detail' ? null : (
+              {type === 'detail' || type === 'invoiceDetail' ? null : (
                 <Grid item xs={12}>
                   <Controller
                     name={`items.${idx}.name`}
@@ -352,9 +364,8 @@ export default function ItemForm({
                   />
                 </Grid>
               )}
-
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -379,11 +390,8 @@ export default function ItemForm({
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <FullWidthDatePicker
-                        showTimeSelect
-                        timeFormat='HH:mm'
-                        timeIntervals={15}
+                        {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
-                        dateFormat='MM/dd/yyyy h:mm aa'
                         onChange={onChange}
                         customInput={<CustomInput label='Item due date*' />}
                       />
@@ -392,7 +400,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -451,7 +459,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -493,7 +501,7 @@ export default function ItemForm({
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={languagePairs.sort((a, b) =>
+                          options={[...languagePairs].sort((a, b) =>
                             a.source.localeCompare(b.source),
                           )}
                           getOptionLabel={option =>
@@ -529,7 +537,7 @@ export default function ItemForm({
                 )}
               </Grid>
               <Grid item xs={6}>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Box
                     sx={{
                       display: 'flex',
@@ -640,7 +648,7 @@ export default function ItemForm({
                 <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                   Item description
                 </Typography>
-                {type === 'detail' ? (
+                {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
                     {getValues(`items.${idx}.description`)}
                   </Typography>
@@ -677,17 +685,19 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              <Grid item xs={12}>
-                <TmAnalysisForm
-                  control={control}
-                  index={idx}
-                  details={details}
-                  priceData={priceData}
-                  priceFactor={priceFactor}
-                  onCopyAnalysis={onCopyAnalysis}
-                  type={type}
-                />
-              </Grid>
+              {type === 'invoiceDetail' ? null : (
+                <Grid item xs={12}>
+                  <TmAnalysisForm
+                    control={control}
+                    index={idx}
+                    details={details}
+                    priceData={priceData}
+                    priceFactor={priceFactor}
+                    onCopyAnalysis={onCopyAnalysis}
+                    type={type}
+                  />
+                </Grid>
+              )}
               {/* TM analysis */}
             </>
           ) : null}
@@ -708,6 +718,15 @@ export default function ItemForm({
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
+        {type === 'invoiceDetail' && orderId && (
+          <Link
+            href={`/orders/job-list/details/?orderId=${orderId}`}
+            style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+          >
+            Jobs
+            <Icon icon='ic:outline-arrow-forward' color='#666CFF' />
+          </Link>
+        )}
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />

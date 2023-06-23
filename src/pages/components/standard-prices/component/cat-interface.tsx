@@ -11,6 +11,7 @@ import Box from '@mui/material/Box'
 
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import {
+  LanguagePairListType,
   CatInterfaceParams,
   PriceUnitListType,
   PriceUnitListWithHeaders,
@@ -36,8 +37,17 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   createCatInterface,
   patchCatInterface,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
+import useModal from '@src/hooks/useModal'
+import CATInterfaceChipDuplicationModal from '@src/pages/components/standard-prices-modal/modal/CAT-interface-chip-duplication-modal'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+  countDecimalPlaces,
+  getPrice,
+  sliceCurrencyMark,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
   priceUnitList: PriceUnitListType[]
@@ -45,6 +55,7 @@ type Props = {
   existPriceUnit: boolean
   setIsEditingCatInterface: Dispatch<SetStateAction<boolean>>
   isEditingCatInterface: boolean
+  selectedLanguagePair: LanguagePairListType | null
 }
 const CatInterface = ({
   priceUnitList,
@@ -52,11 +63,12 @@ const CatInterface = ({
   existPriceUnit,
   setIsEditingCatInterface,
   isEditingCatInterface,
+  selectedLanguagePair,
 }: Props) => {
-  console.log(priceUnitList)
-
+  console.log('init data', priceUnitList, priceData)
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
+  const { openModal, closeModal } = useModal()
 
   const { data: catInterface, isLoading } = useGetCatInterfaceHeaders(
     alignment!,
@@ -94,7 +106,21 @@ const CatInterface = ({
   const [priceUnitListWithHeaders, setPriceUnitListWithHeaders] = useState<{
     Memsource: PriceUnitListWithHeaders[]
     memoQ: PriceUnitListWithHeaders[]
+    [key: string]: PriceUnitListWithHeaders[]
   }>({ Memsource: [], memoQ: [] })
+
+  console.log('priceUnitListWithHeaders', priceUnitListWithHeaders)
+  // CATUnit의 정렬순서를 PriceUnit과 동일한 순서로 맞춥니다.
+  const sortCATUnitList = (CATUnitData: PriceUnitListWithHeaders[]) => {
+    const sortedData: PriceUnitListWithHeaders[] = []
+    priceUnitList.map(priceUnit => {
+      const dummy = CATUnitData.find(
+        CATUnit => CATUnit.priceUnitPairId === priceUnit.id,
+      )
+      if (dummy) sortedData.push(dummy)
+    })
+    return sortedData
+  }
 
   const [editingItemId, setEditingItemId] = useState<number | null>(null)
 
@@ -190,8 +216,8 @@ const CatInterface = ({
     }
     createCatInterfacePairMutation.mutate({
       type:
-        priceData.catInterface.memoQ.length > 0 ||
-        priceData.catInterface.memSource.length > 0
+        priceData.catInterface?.memoQ.length! > 0 ||
+        priceData.catInterface?.memSource.length! > 0
           ? 'patch'
           : 'post',
       id: priceData.id,
@@ -200,65 +226,126 @@ const CatInterface = ({
     setIsEditingCatInterface(false)
   }
 
-  const onClickRangeChip = (
-    data: { id: number; title: string; selected: boolean },
-    value: PriceUnitListWithHeaders,
+  const checkRangeChipDuplication = (
+    selectedChipData: {
+      id: number
+      title: string
+      selected: boolean
+      tmpSelected: boolean
+    },
+    selectedData: PriceUnitListWithHeaders,
   ) => {
-    if (alignment === 'Memsource') {
-      setPriceUnitListWithHeaders(prevState => {
-        const res = prevState.Memsource.map(obj => {
-          if (obj.id === value.id) {
-            const tmp = obj.chips.map(obj2 => {
-              if (obj2.id === data.id) {
-                return {
-                  ...obj2,
-                  selected: !obj2.selected,
-                  tmpSelected: !obj2.tmpSelected,
-                }
-              } else {
-                return obj2
-              }
-            })
-
-            return { ...obj, chips: tmp }
-          } else {
-            return obj
-          }
-        })
-
-        if (res) {
-          return { ...prevState, Memsource: res }
-        } else {
-          return prevState
+    let flag = true
+    // selectedChipData.tmpSelected 가 false인 경우 지금 chip을 선택했다는 의미임
+    if (!selectedChipData.tmpSelected) {
+      priceUnitListWithHeaders[alignment].map(obj => {
+        if (obj.id !== selectedData.id) {
+          obj.chips.map(chip => {
+            if (chip.id === selectedChipData.id && chip.selected) {
+              // 겹치는 Chip 있음
+              flag = false
+            }
+          })
         }
       })
-    } else if (alignment === 'memoQ') {
-      setPriceUnitListWithHeaders(prevState => {
-        const res = prevState.memoQ.map(obj => {
-          if (obj.id === value.id) {
-            const tmp = obj.chips.map(obj2 => {
-              if (obj2.id === data.id) {
-                return {
-                  ...obj2,
-                  selected: !obj2.selected,
-                  tmpSelected: !obj2.tmpSelected,
-                }
-              } else {
-                return obj2
-              }
-            })
+    }
 
-            return { ...obj, chips: tmp }
+    // 기존 chip을 해제 처리하고, 다른 박스의 chip을 선택한 다음 다시 기존 chip을 선택하는 케이스
+    if (!selectedChipData.selected && selectedChipData.tmpSelected) {
+      priceUnitListWithHeaders[alignment].map(obj => {
+        if (obj.id !== selectedData.id) {
+          obj.chips.map(chip => {
+            if (
+              chip.id === selectedChipData.id &&
+              chip.selected &&
+              chip.tmpSelected
+            ) {
+              // 겹치는 Chip 있음
+              flag = false
+            }
+          })
+        }
+      })
+    }
+    // 겹치는 Chip 없음
+    return flag
+  }
+
+  const onClickRangeChip = (
+    data: {
+      id: number
+      title: string
+      selected: boolean
+      tmpSelected: boolean
+    },
+    value: PriceUnitListWithHeaders,
+  ) => {
+    if (checkRangeChipDuplication(data, value)) {
+      if (alignment === 'Memsource') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.Memsource.map(obj => {
+            if (obj.id === value.id) {
+              const tmp = obj.chips.map(obj2 => {
+                if (obj2.id === data.id) {
+                  return {
+                    ...obj2,
+                    selected: !obj2.selected,
+                    tmpSelected: !obj2.tmpSelected,
+                  }
+                } else {
+                  return obj2
+                }
+              })
+
+              return { ...obj, chips: tmp }
+            } else {
+              return obj
+            }
+          })
+
+          if (res) {
+            return { ...prevState, Memsource: res }
           } else {
-            return obj
+            return prevState
           }
         })
+      } else if (alignment === 'memoQ') {
+        setPriceUnitListWithHeaders(prevState => {
+          const res = prevState.memoQ.map(obj => {
+            if (obj.id === value.id) {
+              const tmp = obj.chips.map(obj2 => {
+                if (obj2.id === data.id) {
+                  return {
+                    ...obj2,
+                    selected: !obj2.selected,
+                    tmpSelected: !obj2.tmpSelected,
+                  }
+                } else {
+                  return obj2
+                }
+              })
 
-        if (res) {
-          return { ...prevState, memoQ: res }
-        } else {
-          return prevState
-        }
+              return { ...obj, chips: tmp }
+            } else {
+              return obj
+            }
+          })
+
+          if (res) {
+            return { ...prevState, memoQ: res }
+          } else {
+            return prevState
+          }
+        })
+      }
+    } else {
+      openModal({
+        type: `CAT-Interface-Chip-Duplication-Modal`,
+        children: (
+          <CATInterfaceChipDuplicationModal
+            onClose={() => closeModal(`CAT-Interface-Chip-Duplication-Modal`)}
+          />
+        ),
       })
     }
   }
@@ -283,14 +370,11 @@ const CatInterface = ({
         unit: value.unit,
         chips: formattedHeader,
       }))
-      console.log(priceUnitList)
-      console.log(priceData.catInterface)
-      console.log(withHeaders)
 
-      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface
+      const memSource: PriceUnitListWithHeaders[] = priceData.catInterface!
         .memSource.length
         ? [
-            ...priceData.catInterface.memSource.map(value => ({
+            ...priceData.catInterface!.memSource.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -307,8 +391,8 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
             // ...withHeaders.filter(
@@ -320,12 +404,10 @@ const CatInterface = ({
           ]
         : withHeaders
 
-      console.log(withHeaders)
-
-      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface.memoQ
+      const memoQ: PriceUnitListWithHeaders[] = priceData.catInterface!.memoQ
         .length
         ? [
-            ...priceData.catInterface.memoQ.map(value => ({
+            ...priceData.catInterface!.memoQ.map(value => ({
               id: value.id,
               priceUnitPairId: value.priceUnitPairId,
               title: value.priceUnitTitle,
@@ -342,8 +424,8 @@ const CatInterface = ({
             })),
             ...withHeaders.filter(
               value =>
-                !priceData.catInterface.memSource
-                  .map(data => data.priceUnitTitle)
+                !priceData
+                  .catInterface!.memSource.map(data => data.priceUnitTitle)
                   .includes(value.title),
             ),
             // ...withHeaders.filter(
@@ -356,8 +438,8 @@ const CatInterface = ({
         : withHeaders
       setPriceUnitListWithHeaders(prevState => ({
         ...prevState,
-        Memsource: memSource,
-        memoQ: memoQ,
+        Memsource: sortCATUnitList(memSource),
+        memoQ: sortCATUnitList(memoQ),
       }))
     } else if (!isLoading && catInterface && priceUnitList.length === 0) {
       const formattedHeader = catInterface.headers.map((value, idx) => ({
@@ -385,10 +467,6 @@ const CatInterface = ({
       }))
     }
   }, [catInterface, isLoading, priceUnitList, priceData])
-
-  useEffect(() => {
-    console.log(priceUnitListWithHeaders)
-  }, [priceUnitListWithHeaders])
 
   return (
     <Card
@@ -486,7 +564,23 @@ const CatInterface = ({
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price ?? ''}
+                      {sliceCurrencyMark(
+                        formatCurrency(
+                          formatByRoundingProcedure(
+                            getPrice(
+                              obj.price ?? 0,
+                              selectedLanguagePair?.priceFactor ?? 0,
+                            ),
+                            priceData.decimalPlace,
+                            priceData.roundingProcedure,
+                            priceData.currency,
+                          ),
+                          priceData.currency,
+                          priceData.decimalPlace >= 10
+                            ? countDecimalPlaces(priceData.decimalPlace)
+                            : priceData.decimalPlace,
+                        ),
+                      ) ?? ''}
                       &nbsp;
                       {obj.title === '-' ? '' : priceData.currency}
                       &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
@@ -548,7 +642,7 @@ const CatInterface = ({
                       )}
 
                       <Typography variant='body2' sx={{}}>
-                        Words
+                        {priceData.catBasis}
                       </Typography>
                     </Box>
                   </Box>
@@ -566,8 +660,6 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
                             isEditingCatInterface
                               ? onClickRangeChip(data, obj)
                               : null
@@ -608,7 +700,21 @@ const CatInterface = ({
                     }}
                   >
                     <Typography sx={{ fontSize: '14px', fontWeight: 600 }}>
-                      {obj.price ?? ''}
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          getPrice(
+                            obj.price ?? 0,
+                            selectedLanguagePair?.priceFactor ?? 0,
+                          ),
+                          priceData.decimalPlace,
+                          priceData.roundingProcedure,
+                          priceData.currency,
+                        ),
+                        priceData.currency,
+                        priceData.decimalPlace >= 10
+                          ? countDecimalPlaces(priceData.decimalPlace)
+                          : priceData.decimalPlace,
+                      ) ?? ''}
                       &nbsp;
                       {obj.title === '-' ? '' : priceData.currency}
                       &nbsp;{obj.title === '-' ? '' : 'per'}&nbsp;
@@ -670,7 +776,7 @@ const CatInterface = ({
                       )}
 
                       <Typography variant='body2' sx={{}}>
-                        Words
+                        {priceData.catBasis}
                       </Typography>
                     </Box>
                   </Box>
@@ -688,8 +794,6 @@ const CatInterface = ({
                             '& .Mui-disabled': { opacity: 1 },
                           }}
                           onClick={() => {
-                            console.log(obj)
-
                             isEditingCatInterface
                               ? onClickRangeChip(data, obj)
                               : null

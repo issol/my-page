@@ -1,6 +1,6 @@
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
-import { StandardPriceListType } from '@src/types/common/standard-price'
+
 import { useState, MouseEvent, SetStateAction, Dispatch } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'

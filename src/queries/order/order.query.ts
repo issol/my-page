@@ -30,7 +30,7 @@ export const useGetOrderListInJob = (filter: OrderListFilterType) => {
 
 export const useGetOrderListCalendar = (year: number, month: number) => {
   return useQuery(
-    'get-client-invoices-calendar',
+    ['get-client-invoices-calendar', year, month],
     () => {
       return getOrderListCalendar(year, month)
     },
@@ -50,6 +50,7 @@ export const useGetProjectInfo = (id: number) => {
     staleTime: 60 * 1000, // 1
 
     suspense: true,
+    enabled: !!id && !isNaN(id),
   })
 }
 
@@ -58,7 +59,7 @@ export const useGetProjectTeam = (id: number) => {
     staleTime: 60 * 1000, // 1
 
     suspense: false,
-
+    enabled: !!id,
     // select: data => {
     //   return data.map(value => ({ ...value, id: uuidv4() }))
     // },

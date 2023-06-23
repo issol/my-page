@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
 import { FileType } from '@src/types/common/file.type'
 import { JobItemType, JobType } from '@src/types/common/item.type'
+import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import {
   AssignProFilterPostType,
@@ -13,14 +14,15 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 export const getAssignProList = async (
   id: number,
   filters: AssignProFilterPostType,
+  isHistory: boolean,
 ): Promise<{
   totalCount: number
   data: AssignProListType[]
   count: number
 }> => {
-  const { data } = await axios.get(
-    `/api/enough/u/pro/job/${id}?${makeQuery(filters)}`,
-  )
+  const { data } = isHistory
+    ? await axios.get(`/api/enough/u/job/${id}/request/history`)
+    : await axios.get(`/api/enough/u/pro/job/${id}?${makeQuery(filters)}`)
 
   return data
 }
@@ -46,15 +48,21 @@ export const getJobDetails = async (
   }
 }
 
-export const getJobInfo = async (id: number): Promise<JobType> => {
+export const getJobInfo = async (
+  id: number,
+  isHistory: boolean,
+): Promise<JobType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/info`)
+    const { data } = isHistory
+      ? await axios.get(`/api/enough/u/job/history/${id}`)
+      : await axios.get(`/api/enough/u/job/${id}/info`)
     console.log(data)
 
     return data
   } catch (e: any) {
     return {
       id: 0,
+      order: { id: -1 },
       corporationId: '',
       name: '',
       status: 'In preparation',
@@ -88,21 +96,27 @@ export const deleteJob = async (id: number) => {
 
 export const getJobPrices = async (
   id: number,
+  isHistory: boolean,
 ): Promise<JobPricesDetailType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/job/${id}/price`)
-    return data
-  } catch (e: any) {
+    const { data } = isHistory
+      ? await axios.get(`/api/enough/u/job/history/${id}/price`)
+      : await axios.get(`/api/enough/u/job/${id}/price`)
+    console.log(data)
+
     return {
-      id: 0,
-      sourceLanguage: '',
-      targetLanguage: '',
-      priceId: 0,
-      totalPrice: 0,
-      currency: 'USD',
-      priceName: '',
-      datas: [],
+      ...data,
+      datas:
+        data?.datas?.map((item: ItemResType) => ({
+          ...item,
+          name: item?.itemName,
+          source: item?.sourceLanguage,
+          target: item?.targetLanguage,
+          totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+        })) || [],
     }
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
 

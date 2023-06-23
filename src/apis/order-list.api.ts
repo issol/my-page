@@ -1,5 +1,6 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import { OrderStatusType } from '@src/types/common/orders.type'
 import {
   OrderListFilterType,
   OrderListForJobType,
@@ -62,19 +63,43 @@ export const getOrderListInJob = async (
   }
 }
 
+function getColor(status: OrderStatusType) {
+  return status === 'In preparation'
+    ? `#F572D8`
+    : status === 'In progress'
+    ? `#FDB528`
+    : status === 'Completed'
+    ? `#72E128`
+    : status === 'Invoiced'
+    ? `#9B6CD8`
+    : status === 'Canceled'
+    ? '#FF4D49'
+    : null
+}
+
 export const getOrderListCalendar = async (
   year: number,
   month: number,
 ): Promise<{ data: OrderListCalendarEventType[]; totalCount: number }> => {
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = 'overdue'
-
   try {
     const { data } = await axios.get(
       `/api/enough/u/order/list?year=${year}&month=${month}`,
     )
 
-    return data
+    // return data
+
+    return {
+      data: data.data?.map((item: OrderListType, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar: getColor(item.status),
+          },
+          allDay: true,
+        }
+      }),
+      totalCount: data?.totalCount ?? 0,
+    }
 
     // const data: OrderListType[] = [
     //   {

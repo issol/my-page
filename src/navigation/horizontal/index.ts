@@ -29,7 +29,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/client`,
           action: 'read',
 
-          icon: 'solar:dollar-minimalistic-bold',
+          icon: 'mdi:account-star-outline',
           subject: 'client',
         },
         {
@@ -107,7 +107,7 @@ const navigation = (): HorizontalNavItemsType => {
       children: [
         {
           title: 'Members',
-          path: `/company`,
+          path: `/company/members`,
           action: 'update',
           icon: 'material-symbols:person',
           subject: 'permission_request',
@@ -119,6 +119,20 @@ const navigation = (): HorizontalNavItemsType => {
           icon: 'solar:dollar-minimalistic-bold',
           subject: 'company_price',
         },
+        {
+          title: 'My Account',
+          path: `/company/my-account`,
+          action: 'read',
+          icon: 'mdi:account-check-outline',
+          subject: 'my_account',
+        },
+        {
+          title: 'Company Info',
+          path: `/company/company-info`,
+          action: 'read',
+          icon: 'material-symbols:lock-open-outline',
+          subject: 'company_info',
+        },
       ],
     },
     {
@@ -126,7 +140,7 @@ const navigation = (): HorizontalNavItemsType => {
       icon: 'material-symbols:request-quote-outline',
       path: '/quotes',
       action: 'read',
-      subject: 'quotes',
+      subject: 'quote',
     },
     {
       title: 'Orders',
@@ -139,7 +153,7 @@ const navigation = (): HorizontalNavItemsType => {
           path: `/orders/order-list`,
           action: 'read',
 
-          icon: 'solar:dollar-minimalistic-bold',
+          icon: 'material-symbols:list-alt-outline-sharp',
           subject: 'order',
         },
         {
@@ -148,6 +162,29 @@ const navigation = (): HorizontalNavItemsType => {
           action: 'read',
           icon: 'material-symbols:person',
           subject: 'job_list',
+        },
+      ],
+    },
+    {
+      title: 'Invoices',
+      icon: 'material-symbols:receipt-long',
+      action: 'read',
+      subject: 'invoice_receivable',
+      children: [
+        {
+          title: 'Receivables',
+          path: `/invoice/receivable`,
+          action: 'read',
+
+          icon: 'mdi:box-down',
+          subject: 'invoice_receivable',
+        },
+        {
+          title: 'Payables',
+          path: `/invoice/payable`,
+          action: 'read',
+          icon: 'raphael:dollar',
+          subject: 'invoice_payable',
         },
       ],
     },

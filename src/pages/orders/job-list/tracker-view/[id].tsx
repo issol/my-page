@@ -28,7 +28,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** apis
-import { useGetJobsTrackeDetail } from '@src/queries/jobs.query'
+import { useGetJobsTrackerDetail } from '@src/queries/jobs.query'
 import { updateIsDelivered } from '@src/apis/jobs.api'
 import { useMutation, useQueryClient } from 'react-query'
 
@@ -48,6 +48,7 @@ import { toast } from 'react-hot-toast'
 import { job_list } from '@src/shared/const/permission-class'
 
 export type DetailFilterType = {
+  workName: string
   isMyJobs: boolean
   isDelivered: boolean
   isDueDatePast: boolean
@@ -57,6 +58,7 @@ export type DetailFilterType = {
 }
 
 export const initialFilter: DetailFilterType = {
+  workName: '',
   isMyJobs: true,
   isDelivered: true,
   isDueDatePast: true,
@@ -69,7 +71,7 @@ export const initialFilter: DetailFilterType = {
 // status아이콘 추가
 export default function JobTrackerDetail() {
   const router = useRouter()
-  const id = Number(router.query.id)
+  const workName = router.query.workName
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
@@ -83,8 +85,9 @@ export default function JobTrackerDetail() {
   const [pageSize, setPageSize] = useState(10)
   const [filter, setFilter] = useState<DetailFilterType>({ ...initialFilter })
 
-  const { data: list, isLoading } = useGetJobsTrackeDetail(id, {
+  const { data: list, isLoading } = useGetJobsTrackerDetail({
     ...filter,
+    workName: workName! as string,
     take: pageSize,
     skip: skip * pageSize,
   })
@@ -313,7 +316,7 @@ export default function JobTrackerDetail() {
           </IconButton>
           <img src='/images/icons/etc/folder-icon.png' aria-hidden alt='' />
           <Typography sx={{ paddingLeft: '8px' }} variant='h5'>
-            {list?.workName ?? '-'}
+            {workName ?? '-'}
           </Typography>
         </PageHeader>
       </Grid>

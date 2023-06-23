@@ -1,32 +1,12 @@
 import axios from 'src/configs/axios'
 import logger from '@src/@core/utils/logger'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { PriceUnitListType } from '@src/types/common/standard-price'
-
-export type PriceUnitDataType = {
-  data: Array<PriceUnitType>
-  count: number
-  totalCount: number
-}
-export type PriceUnitType = {
-  id: number
-  isBase: boolean
-  authorId?: number
-  title: string
-  unit: string
-  weighting: number | null
-  isActive: boolean
-  parentPriceUnitId: number | null
-  subPriceUnits: Array<{
-    id: number
-    isBase: boolean
-    title: string
-    unit: string
-    weighting: number
-    isActive: boolean
-    parentPriceUnitId: number | null
-  }>
-}
+import {
+  PriceUnitListType,
+  PriceUnitDataType,
+  PriceUnitType,
+  PriceUnitFormType
+} from '@src/types/common/standard-price'
 
 export type FilterType = {
   skip: number
@@ -49,7 +29,7 @@ export const getPriceUnitList = async (
   }
 }
 
-export const getAllPriceUnitList = async (): Promise<
+export const getAllClientPriceUnitList = async (): Promise<
   Array<PriceUnitListType>
 > => {
   try {
@@ -60,19 +40,6 @@ export const getAllPriceUnitList = async (): Promise<
   }
 }
 
-export type PriceUnitFormType = {
-  title?: string
-  unit?: string
-  weighting?: number | null
-  isBase?: boolean
-  isActive?: boolean
-  subPriceUnits?: Array<{
-    title?: string
-    unit?: string
-    weighting?: number | null
-    isActive?: boolean
-  }>
-}
 export const postPriceUnit = async (
   form: PriceUnitFormType,
 ): Promise<PriceUnitDataType> => {

@@ -304,6 +304,7 @@ const ClientPriceList = ({
                       selected={selected}
                       handleRowClick={handleRowClick}
                       isSelected={isSelected}
+                      page={'client'}
                     />
                   ))
                 )}

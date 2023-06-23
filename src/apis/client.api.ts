@@ -43,6 +43,7 @@ export type ClientRowType = {
 export type ClientListDataType = {
   data: Array<ClientRowType>
   count: number
+  totalCount: number
 }
 
 export const getClientList = async (
@@ -57,6 +58,7 @@ export const getClientList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -229,44 +231,47 @@ export const deleteClient = async (
 }
 
 export const getClientProjectList = async (
+  clientId: number,
   filter: ClientProjectFilterType,
 ): Promise<{ data: ClientProjectListType[]; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
-    // )
+    const { data } = await axios.get(
+      `/api/enough/u/client/${clientId}/projects?${makeQuery(filter)}`,
+    )
 
-    const list: ClientProjectListType[] = [
-      {
-        id: 0,
-        qId: 'Q-000001',
-        workName: 'The Glory',
-        projectName: 'The Glory 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2022-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2022-04-20T14:13:15Z',
-        projectDescription: 'Test',
-      },
-      {
-        id: 1,
-        qId: 'O-000001',
-        workName: 'Dark Night',
-        projectName: 'Dark Night 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2022-04-28T14:13:15Z',
-        status: 'Active',
-        orderDate: '2022-04-20T14:13:15Z',
-        projectDescription: 'Test2',
-      },
-    ]
-    // return data
-    return {
-      data: list,
-      totalCount: list.length,
-    }
+    // const list: ClientProjectListType[] = [
+    //   {
+    //     id: 0,
+    //     corporationId: 'Q-000001',
+    //     workName: 'The Glory',
+    //     projectName: 'The Glory 1~2',
+    //     category: 'Webcomics',
+    //     serviceType: ['Translation', 'Proofreading'],
+    //     dueDate: '2022-04-27T14:13:15Z',
+    //     status: 'Active',
+    //     orderDate: '2022-04-20T14:13:15Z',
+    //     projectDescription: 'Test',
+    //     type: 'quote',
+    //   },
+    //   {
+    //     id: 1,
+    //     corporationId: 'O-000001',
+    //     workName: 'Dark Night',
+    //     projectName: 'Dark Night 1~2',
+    //     category: 'Webcomics',
+    //     serviceType: ['Translation', 'Proofreading'],
+    //     dueDate: '2022-04-28T14:13:15Z',
+    //     status: 'Active',
+    //     orderDate: '2022-04-20T14:13:15Z',
+    //     projectDescription: 'Test2',
+    //     type: 'order',
+    //   },
+    // ]
+    return data
+    // return {
+    //   data: list,
+    //   totalCount: list.length,
+    // }
   } catch (e: any) {
     throw new Error(e)
   }
@@ -297,7 +302,7 @@ export const getClientProjectsCalendarData = async (
     const list: ClientProjectListType[] = [
       {
         id: 4,
-        qId: 'Q-000001',
+        corporationId: 'O-000004',
         workName: 'The Glory',
         projectName: 'The Glory 1~2',
         category: 'Webcomics',
@@ -306,10 +311,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
       {
         id: 1,
-        qId: 'O-000001',
+        corporationId: 'O-000001',
         workName: 'Hoffman Website',
         projectName: 'Website 4',
         category: 'Webnovels',
@@ -318,10 +324,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
       {
         id: 2,
-        qId: 'Q-000002',
+        corporationId: 'Q-000002',
         workName: 'Black Mirror',
         projectName: 'Black Mirror 3~4',
         category: 'Documents/Text',
@@ -330,10 +337,11 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'quote',
       },
       {
         id: 3,
-        qId: 'O-000002',
+        corporationId: 'O-000003',
         workName: 'DP',
         projectName: 'DP 1.5',
         category: 'OTT/Subtitle',
@@ -342,6 +350,7 @@ export const getClientProjectsCalendarData = async (
         status: 'Active',
         orderDate: '2023-04-20T14:13:15Z',
         projectDescription: 'Test',
+        type: 'order',
       },
     ]
     return {

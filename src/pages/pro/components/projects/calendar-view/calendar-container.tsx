@@ -19,7 +19,7 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
 import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
-import { CalendarEventType, SortingType } from '@src/apis/pro-projects.api'
+import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 import ProjectsList from '../list-view/list'
 
 type Props = {
@@ -42,8 +42,8 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch } = useGetProjectCalendarData(id, `${year}-${month}`)
+  const [month, setMonth] = useState(new Date().getMonth())
+  const { data } = useGetProjectCalendarData(id, `${year}-${month}`)
   const [event, setEvent] = useState<Array<CalendarEventType>>([])
 
   const [skip, setSkip] = useState(0)
@@ -51,10 +51,6 @@ const CalendarContainer = ({ id, sort, setSort }: Props) => {
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<Array<CalendarEventType>>([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {

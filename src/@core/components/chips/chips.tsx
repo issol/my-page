@@ -5,6 +5,11 @@ import { StatusType } from '@src/apis/client.api'
 import { OrderStatusType } from '@src/types/orders/order-list'
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
+import {
+  InvoicePayableStatusType,
+  InvoiceReceivableStatusType,
+} from '@src/types/invoice/common.type'
+import { RoleType, UserType } from '@src/context/types'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -319,3 +324,105 @@ export const AssignmentStatusChip = styled(Chip)<{ status: string }>`
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;`
       : null};
 `
+
+export function InvoicePayableChip(status: InvoicePayableStatusType) {
+  const color =
+    status === 'Invoice created'
+      ? '#F572D8'
+      : status === 'Invoice accepted'
+      ? '#9B6CD8'
+      : status === 'Paid'
+      ? '#FF4D49'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={status === 'Overdue' ? `🔴 ${status}` : status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function InvoiceReceivableChip(status: InvoiceReceivableStatusType) {
+  const color =
+    status === 'In preparation'
+      ? '#F572D8'
+      : status === 'Checking in progress'
+      ? '#FDB528'
+      : status === 'Accepted by client'
+      ? '#64C623'
+      : status === 'Tax invoice issued'
+      ? '#46A4C2'
+      : status === 'Paid'
+      ? '#267838'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Overdue (Reminder sent)'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={
+        status === 'Overdue' || status === 'Overdue (Reminder sent)'
+          ? `🔴 ${status}`
+          : status
+      }
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function MemberChip(role: RoleType) {
+  const color = role === 'TAD' ? '#FF4D49' : role === 'LPM' ? '#666CFF' : ''
+  return (
+    <CustomChip
+      label={role}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function PermissionChip(permission: UserType) {
+  const color =
+    permission === 'Master'
+      ? '#666CFF80'
+      : permission === 'Manager'
+      ? '#26C6F980'
+      : permission === 'General'
+      ? '#72E12880'
+      : ''
+  return (
+    <CustomChip
+      label={permission}
+      skin='light'
+      sx={{
+        background: '#fff',
+        color: color,
+        border: `1px solid ${color}`,
+      }}
+      size='small'
+    />
+  )
+}

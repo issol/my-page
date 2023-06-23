@@ -69,8 +69,8 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 
 // ** apis
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   createItemsForOrder,
   createLangPairForOrder,
@@ -85,7 +85,7 @@ import {
 } from '@src/apis/order-detail.api'
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { getPriceList } from '@src/apis/company-price.api'
+import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 export type languageType = {
   id: number | string
@@ -94,7 +94,9 @@ export type languageType = {
   price: StandardPriceListType | null
 }
 
-export const defaultOption: StandardPriceListType & { groupName: string } = {
+export const defaultOption: StandardPriceListType & {
+  groupName: string
+} = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
@@ -108,6 +110,23 @@ export const defaultOption: StandardPriceListType & { groupName: string } = {
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
+}
+
+export const proDefaultOption: StandardPriceListType & {
+  groupName: string
+} = {
+  id: NOT_APPLICABLE,
+  isStandard: false,
+  priceName: 'Not applicable',
+  groupName: 'Not applicable',
+  category: '',
+  serviceType: [],
+  currency: 'USD',
+  catBasis: '',
+  decimalPlace: 0,
+  roundingProcedure: '',
+  languagePairs: [],
+  priceUnit: [],
 }
 
 export default function AddNewOrder() {
@@ -159,7 +178,7 @@ export default function AddNewOrder() {
       children: (
         <PageLeaveModal
           onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
+          onClick={() => router.push('/orders/order-list')}
         />
       ),
     })
@@ -238,10 +257,10 @@ export default function AddNewOrder() {
   })
 
   // ** step4
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
@@ -425,7 +444,7 @@ export default function AddNewOrder() {
   }
 
   async function onCopyOrder(id: number | null) {
-    const priceList = await getPriceList({})
+    const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
       getProjectTeam(id)
@@ -489,7 +508,7 @@ export default function AddNewOrder() {
                 code: '',
               },
             },
-            taxable: res.taxable,
+            taxable: res.isTaxable,
           })
           setTax(res?.tax ?? null)
         })
@@ -609,6 +628,7 @@ export default function AddNewOrder() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                type='order'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

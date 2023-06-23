@@ -19,6 +19,7 @@ import { ProListJobInfoType } from '@src/types/pro/list'
 import { PositionType, ProjectInfoType } from '@src/types/orders/order-detail'
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import { JobItemType } from '@src/types/common/item.type'
+import { useGetJobInfo } from '@src/queries/order/job.query'
 
 type CellType = {
   row: JobHistoryType
@@ -31,7 +32,6 @@ type Props = {
   priceUnitsList: PriceUnitListType[]
   item: JobItemType
   projectTeam: {
-    id: string
     userId: number
     position: PositionType
     firstName: string
@@ -57,6 +57,12 @@ export default function JobHistory({
   const { user } = useContext(AuthContext)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
+
+  const {
+    data: originJobInfo,
+
+    isLoading: originJobInfoLoading,
+  } = useGetJobInfo(jobId, false)
 
   const { data: list, isLoading } = useGetJobHistory(jobId, {
     skip,
@@ -152,36 +158,41 @@ export default function JobHistory({
             loading={isLoading}
             onCellClick={params => {
               closeModal('JobDetailViewModal')
-              openModal({
-                type: 'history-detail',
-                children: (
-                  <Box
-                    sx={{
-                      maxWidth: '1180px',
-                      width: '100%',
-                      maxHeight: '90vh',
-                      background: '#ffffff',
-                      boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
-                      borderRadius: '10px',
-                      overflow: 'scroll',
-                      '&::-webkit-scrollbar': {
-                        display: 'none',
-                      },
-                    }}
-                  >
-                    <HistoryDetail
-                      id={params.row.id}
-                      title={`[Request .${params.row.version}] ${jobCorId}`}
-                      row={params.row}
-                      onClose={() => closeModal('history-detail')}
-                      orderDetail={orderDetail}
-                      priceUnitsList={priceUnitsList}
-                      item={item}
-                      projectTeam={projectTeam}
-                    />
-                  </Box>
-                ),
-              })
+              {
+                !originJobInfoLoading &&
+                  originJobInfo &&
+                  openModal({
+                    type: 'history-detail',
+                    children: (
+                      <Box
+                        sx={{
+                          maxWidth: '1180px',
+                          width: '100%',
+                          maxHeight: '90vh',
+                          background: '#ffffff',
+                          boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+                          borderRadius: '10px',
+                          overflow: 'scroll',
+                          '&::-webkit-scrollbar': {
+                            display: 'none',
+                          },
+                        }}
+                      >
+                        <HistoryDetail
+                          id={params.row.id}
+                          originJobInfo={originJobInfo}
+                          title={`[Request .${params.row.version}] ${jobCorId}`}
+                          row={params.row}
+                          onClose={() => closeModal('history-detail')}
+                          orderDetail={orderDetail}
+                          priceUnitsList={priceUnitsList}
+                          item={item}
+                          projectTeam={projectTeam}
+                        />
+                      </Box>
+                    ),
+                  })
+              }
             }}
             rowsPerPageOptions={[10, 25, 50]}
             pagination

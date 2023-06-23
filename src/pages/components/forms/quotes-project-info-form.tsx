@@ -21,7 +21,7 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { Fragment, ReactNode, useEffect, useState } from 'react'
+import { Fragment, ReactNode, useContext, useEffect, useState } from 'react'
 
 // ** react hook form
 import {
@@ -51,10 +51,12 @@ import {
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { countries } from 'src/@fake-db/autocomplete'
 import { QuotesStatus } from '@src/shared/const/status/statuses'
+import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
   control: Control<QuotesProjectInfoFormType, any>
@@ -76,12 +78,13 @@ export default function ProjectInfoForm({
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
   )
+  const { user } = useContext(AuthContext)
   const [newWorkName, setNewWorkName] = useState('')
 
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
-  const { data, isSuccess } = useGetWorkNameList()
+  const { data, isSuccess } = useGetWorkNameList(user!.userId)
 
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -154,11 +157,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote date*' />}
             />
@@ -436,11 +436,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote deadline' />}
             />
@@ -488,11 +485,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Quote expiry date' />}
             />
@@ -540,11 +534,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Estimated delivery date' />}
             />
@@ -592,11 +583,8 @@ export default function ProjectInfoForm({
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
+              {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={<CustomInput label='Project due date' />}
             />

@@ -57,12 +57,12 @@ import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
+import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useFieldArray, useForm } from 'react-hook-form'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { itemSchema } from '@src/types/schema/item.schema'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import {
   MemberType,
   ProjectTeamType,
@@ -129,8 +129,8 @@ const OrderDetail = () => {
     Number(id!),
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.taxable || false)
-  const { data: priceUnitsList } = useGetAllPriceList()
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
+  const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const {
     control: itemControl,
@@ -210,7 +210,7 @@ const OrderDetail = () => {
 
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
-  const { data: prices, isSuccess } = useGetPriceList({
+  const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: client?.client.clientId,
   })
 

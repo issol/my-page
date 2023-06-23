@@ -245,9 +245,9 @@ const EditJobInfo = ({
     )
   })
 
+  console.log('data', getValues())
   const onSubmit = () => {
     const data = getValues()
-
     if (files.length) {
       const fileInfo: Array<{
         jobId: number

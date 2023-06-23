@@ -17,9 +17,10 @@ import TablePagination from '@mui/material/TablePagination'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { Dispatch, SetStateAction, useState, MouseEvent } from 'react'
 import { v4 as uuidv4 } from 'uuid'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 type Props = {
-  list: StandardPriceListType[]
+  list: Array<StandardPriceListType>
   listCount: number
   isLoading: boolean
   listPage: number
@@ -34,6 +35,7 @@ type Props = {
   isSelected: (index: number) => boolean
   selected: number | null
   title: string
+  page: 'pro' | 'client'
 }
 const PriceList = ({
   list,
@@ -51,6 +53,7 @@ const PriceList = ({
   isSelected,
   selected,
   title,
+  page,
 }: Props) => {
   return (
     <Card sx={{ padding: '20px 0' }}>
@@ -69,7 +72,9 @@ const PriceList = ({
           Add new price
         </Button>
       </Box>
-      {isLoading ? null : (
+      {isLoading ? (
+        <FallbackSpinner noImage={true} />
+      ) : (
         <>
           <TableContainer component={Paper}>
             <Table aria-label='collapsible table'>
@@ -125,7 +130,7 @@ const PriceList = ({
                       // paddingRight: '0 !important',
                       display: 'flex !important',
                       alignItems: 'center',
-                      flex: 0.34,
+                      flex: page === 'client' ? 0.34 : 0.36272,
                     }}
                     size='small'
                   >
@@ -155,7 +160,7 @@ const PriceList = ({
                       // paddingRight: '0 !important',
                       display: 'flex',
                       alignItems: 'center',
-                      flex: 0.136,
+                      flex: page === 'client' ? 0.136 : 0.15872,
                     }}
                     size='small'
                   >
@@ -185,7 +190,7 @@ const PriceList = ({
                       // paddingRight: '0 !important',
                       display: 'flex',
                       alignItems: 'center',
-                      flex: 0.264,
+                      flex: page === 'client' ? 0.264 : 0.2736,
                     }}
                     size='small'
                   >
@@ -215,7 +220,7 @@ const PriceList = ({
                       // paddingRight: '0 !important',
                       display: 'flex',
                       alignItems: 'center',
-                      flex: 0.096,
+                      flex: page === 'client' ? 0.096 : 0.11872,
                     }}
                     size='small'
                   >
@@ -235,37 +240,40 @@ const PriceList = ({
                       alt='sep'
                     />
                   </TableCell>
+                  {page === 'client' && (
+                    <TableCell
+                      sx={{
+                        height: '54px',
 
-                  <TableCell
-                    sx={{
-                      height: '54px',
+                        fontWeight: '400 !important',
+                        fontSize: '14px !important',
+                        // paddingRight: '0 !important',
+                        display: 'flex',
 
-                      fontWeight: '400 !important',
-                      fontSize: '14px !important',
-                      // paddingRight: '0 !important',
-                      display: 'flex',
+                        alignItems: 'center',
+                        flex: 0.104,
+                      }}
+                      size='small'
+                    >
+                      <Box>CAT basis</Box>
+                    </TableCell>
+                  )}
+                  {page === 'client' && (
+                    <TableCell
+                      sx={{
+                        height: '54px',
 
-                      alignItems: 'center',
-                      flex: 0.104,
-                    }}
-                    size='small'
-                  >
-                    <Box>CAT basis</Box>
-                  </TableCell>
-                  <TableCell
-                    sx={{
-                      height: '54px',
-
-                      padding: '16px 0',
-                      textAlign: 'center',
-                      flex: 0.0096,
-                    }}
-                  >
-                    <img
-                      src='/images/icons/pro-icons/seperator.svg'
-                      alt='sep'
-                    />
-                  </TableCell>
+                        padding: '16px 0',
+                        textAlign: 'center',
+                        flex: 0.0096,
+                      }}
+                    >
+                      <img
+                        src='/images/icons/pro-icons/seperator.svg'
+                        alt='sep'
+                      />
+                    </TableCell>
+                  )}
 
                   <TableCell
                     sx={{
@@ -293,6 +301,7 @@ const PriceList = ({
                     selected={selected}
                     handleRowClick={handleRowClick}
                     isSelected={isSelected}
+                    page={page}
                   />
                 ))}
               </TableBody>

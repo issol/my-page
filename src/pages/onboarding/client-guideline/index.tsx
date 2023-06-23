@@ -56,7 +56,11 @@ export default function ClientGuidLines() {
   const { data: list, isLoading } = useGetGuideLines(activeFilter)
 
   function onSearch() {
-    setActiveFilter({ ...filter })
+    setActiveFilter({
+      ...filter,
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {

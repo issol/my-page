@@ -1,4 +1,4 @@
-import { getProList } from '@src/apis/pro-list.api'
+import { getProList } from '@src/apis/pro/pro-list.api'
 
 import { ProListFilterType, ProListType } from '@src/types/pro/list'
 import { useQuery } from 'react-query'

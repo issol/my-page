@@ -15,10 +15,11 @@ import Paper from '@mui/material/Paper'
 
 import { AddRoleType } from 'src/types/onboarding/list'
 import { AddPriceType } from '@src/types/company/standard-client-prices'
-import { Dispatch, SetStateAction, useContext } from 'react'
+import { Dispatch, SetStateAction, useContext, useEffect } from 'react'
 import { ModalContext } from '@src/context/ModalContext'
 import useModal from '@src/hooks/useModal'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+
 type Props = {
   priceData?: AddPriceType
   priceName?: string
@@ -39,6 +40,10 @@ export default function PriceActionModal({
   onClickAction,
   priceName,
 }: Props) {
+  useEffect(() => {
+    console.log(selectedPriceData)
+  }, [selectedPriceData])
+
   return (
     <Dialog
       open={true}
@@ -187,10 +192,12 @@ export default function PriceActionModal({
                   ? 'Delete'
                   : '',
                 type === 'Add' || type === 'Save' ? priceData : undefined,
-                type === 'Delete' || type === 'Save'
+                type === 'Delete' || type === 'Save' || type === 'Add'
                   ? selectedPriceData
                   : undefined,
               )
+              // Add 케이스에서 onClose()가 두개 있어야 모달이 닫힘
+              onClose()
             }}
           >
             {type === 'Add'

@@ -1,7 +1,12 @@
-import { getProOverview, getProWorkDays } from '@src/apis/pro-details.api'
+import { getProOverview, getProWorkDays } from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
 import _ from 'lodash'
+import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
+import {
+  getProInvoiceList,
+  getProInvoiceListCalendar,
+} from '@src/apis/pro/pro-invoice.api'
 
 export const useGetProOverview = (userId: number) => {
   const id = typeof userId === 'number' ? userId : 0
@@ -34,6 +39,38 @@ export const useGetProWorkDays = (userId: number, year: number) => {
       staleTime: 60 * 1000, // 1
       suspense: true,
       useErrorBoundary: (error: any) => error.response?.status >= 400,
+    },
+  )
+}
+
+export const useGetProInvoiceList = (
+  id: number,
+  filters: ProInvoiceListFilterType,
+) => {
+  return useQuery(
+    [`${id}-pro-invoice-list`, filters],
+    () => getProInvoiceList(id, filters),
+    {
+      staleTime: 60 * 1000,
+      suspense: true,
+    },
+  )
+}
+
+export const useGetProInvoiceListCalendar = (
+  year: number,
+  month: number,
+  filter: ProInvoiceListFilterType,
+) => {
+  return useQuery(
+    ['invoice/receivable/calendar', year, month, filter],
+    () => {
+      return getProInvoiceListCalendar(year, month, filter)
+    },
+    {
+      suspense: true,
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
     },
   )
 }

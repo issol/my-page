@@ -24,7 +24,7 @@ import {
 import {
   FilterType as ActiveFilterType,
   SortingType,
-} from '@src/apis/pro-projects.api'
+} from '@src/apis/pro/pro-projects.api'
 import logger from '@src/@core/utils/logger'
 
 export type FilterType = {
@@ -63,7 +63,7 @@ export default function ProjectsDetail({ id }: Props) {
   const [sort, setSort] = useState<SortingType>('DESC')
   const [skip, setSkip] = useState(0)
 
-  const { data: workName } = useGetWorkNameList()
+  const { data: workName } = useGetWorkNameList(id)
 
   const { data: list } = useGetProjectList(id, activeFilter)
 

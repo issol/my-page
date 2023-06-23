@@ -64,12 +64,8 @@ const defaultFilters: QuotesFilterType = {
   search: '',
   take: 10,
   skip: 0,
-  idOrder: 'DESC',
-  quoteDateOrder: 'DESC',
-  quoteDeadlineOrder: 'DESC',
-  quoteExpiryDateOrder: 'DESC',
-  hideCompletedQuotes: false,
-  seeMyQuotes: false,
+  hideCompletedQuotes: 0,
+  seeMyQuotes: 0,
 }
 
 type Props = { id: number; user: UserDataType }
@@ -83,8 +79,6 @@ export default function Quotes({ id, user }: Props) {
 
   const [hideCompletedQuotes, setHideCompletedQuotes] = useState(false)
   const [seeMyQuotes, setSeeMyQuotes] = useState(false)
-  const [selectedInvoiceRow, setSelectedInvoiceRow] =
-    useState<ClientInvoiceListType | null>(null)
 
   const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
@@ -112,17 +106,13 @@ export default function Quotes({ id, user }: Props) {
     setFilters(defaultFilters)
   }
 
-  const handleRowClick = (row: ClientInvoiceListType) => {
-    setSelectedInvoiceRow(row)
-  }
-
   const handleHideCompletedQuotes = (
     event: React.ChangeEvent<HTMLInputElement>,
   ) => {
     setHideCompletedQuotes(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedQuotes: event.target.checked,
+      hideCompletedQuotes: event.target.checked ? 1 : 0,
     }))
   }
 
@@ -130,7 +120,7 @@ export default function Quotes({ id, user }: Props) {
     setSeeMyQuotes(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      seeMyQuotes: event.target.checked,
+      seeMyQuotes: event.target.checked ? 1 : 0,
     }))
   }
 
@@ -158,10 +148,6 @@ export default function Quotes({ id, user }: Props) {
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
-      idOrder: 'DESC',
-      quoteDateOrder: 'DESC',
-      quoteDeadlineOrder: 'DESC',
-      quoteExpiryDateOrder: 'DESC',
     }
 
     setFilters(filter)
@@ -234,7 +220,7 @@ export default function Quotes({ id, user }: Props) {
                   title={
                     <Box display='flex' justifyContent='space-between'>
                       <Typography variant='h6'>
-                        Clients ({list?.totalCount ?? 0})
+                        Quotes ({list?.totalCount ?? 0})
                       </Typography>{' '}
                       <Button variant='contained'>
                         <StyledNextLink href='/quotes/add-new' color='white'>
@@ -255,6 +241,8 @@ export default function Quotes({ id, user }: Props) {
                   setPageSize={setClientInvoiceListPageSize}
                   list={list || { data: [], totalCount: 0 }}
                   isLoading={isLoading}
+                  filter={filters}
+                  setFilter={setFilters}
                 />
               </Card>
             </Grid>

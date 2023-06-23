@@ -1,5 +1,5 @@
 // ** react
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 
 // ** mui
 import {
@@ -20,7 +20,7 @@ import {
   PriceUnitDataType,
   PriceUnitFormType,
   PriceUnitType,
-} from '@src/apis/price-units.api'
+} from '@src/types/common/standard-price'
 import Switch from '@mui/material/Switch'
 
 import styled, { css } from 'styled-components'
@@ -43,7 +43,7 @@ type Props = {
   pageSize: number
   setSkip: (n: number) => void
   setPageSize: (n: number) => void
-  list: Omit<PriceUnitDataType, 'totalCount'>
+  list: PriceUnitDataType
   onEditClick: (row: PriceUnitType) => void
   onDeleteClick: (row: PriceUnitType) => void
   onBasePriceClick: (isChecked: boolean, row: PriceUnitType) => void
@@ -79,6 +79,26 @@ export default function PriceUnitTable({
 
     const [open, setOpen] = useState<boolean>(false)
 
+    // 각 Row별로 open을 컨트롤 하고 싶었으나 잘 되지 않아서 일단 기존 코드를 사용하는 것으로 바꿔둠
+    // const [open, setOpen] = useState<boolean[]>(Array(list.data.length).fill(false))
+    // const handleToggleOpen = (index: number) => {
+    //   setOpen((prevOpenStates) => {
+    //     const newOpenStates = [...prevOpenStates]
+    //     newOpenStates[index] = !newOpenStates[index]
+    //     return newOpenStates.map((state, idx) => {
+    //       // 기존에 true로 설정된 값은 유지되도록 함
+    //       if (idx !== index && prevOpenStates[idx]) {
+    //         return true
+    //       }
+    //       return state
+    //     })
+    //   })
+    // }
+
+    // const getRowIndex = (id: number) => {
+    //   return list.data.findIndex((item) => item.id === id)
+    // }
+
     return (
       <Fragment>
         {editModeRow?.id === row.id ? (
@@ -106,8 +126,12 @@ export default function PriceUnitTable({
                   <IconButton
                     aria-label='expand row'
                     size='small'
-                    onClick={() => setOpen(!open)}
+                    onClick={(e) => {
+                      // handleToggleOpen(getRowIndex(row.id))
+                      setOpen(!open)
+                    }}
                   >
+                    {/* <Icon icon={open[getRowIndex(row.id)] ? 'mdi:chevron-up' : 'mdi:chevron-down'} /> */}
                     <Icon icon={open ? 'mdi:chevron-up' : 'mdi:chevron-down'} />
                   </IconButton>
                 ) : null}
@@ -122,7 +146,13 @@ export default function PriceUnitTable({
               <TableCell align='left'>
                 <Switch
                   checked={row.isActive}
-                  onChange={e => onToggleActive(row.id, e.target.checked)}
+                  onChange={e => {
+                    onToggleActive(row.id, e.target.checked)
+                    // Base price의 토글을 변경할 경우 하위 price도 동일하게 업데이트
+                    row.subPriceUnits.map(subPriceUnit => {
+                      onToggleActive(subPriceUnit.id, e.target.checked)
+                    })
+                  }}
                   disabled={!abilityCheck('update', user?.id!)}
                 />
               </TableCell>
@@ -136,6 +166,7 @@ export default function PriceUnitTable({
                 />
               </TableCell>
             </CustomTableRow>
+            {/* {open[getRowIndex(row.id)] */}
             {open
               ? row.subPriceUnits?.map(subItem => (
                   <CustomTableRow
@@ -160,9 +191,17 @@ export default function PriceUnitTable({
                     <TableCell align='left'>
                       <Switch
                         checked={subItem.isActive}
-                        onChange={e =>
+                        onChange={e => {
                           onToggleActive(subItem.id, e.target.checked)
-                        }
+                          // 하위 price가 active로 변경되었는데 Base price가 inactive인 경우 Base price도 함께 Active로 변경
+                          if(
+                              row.id === subItem.parentPriceUnitId &&
+                              !row.isActive &&
+                              e.target.checked
+                            ) {
+                            onToggleActive(row.id, e.target.checked)
+                          }
+                        }}
                         disabled={!abilityCheck('update', user?.id!)}
                       />
                     </TableCell>
@@ -233,7 +272,7 @@ export default function PriceUnitTable({
       <TablePagination
         page={skip}
         component='div'
-        count={list.count}
+        count={list.totalCount}
         rowsPerPage={pageSize}
         onPageChange={(e, page) => setSkip(page)}
         rowsPerPageOptions={[10, 25, 50]}

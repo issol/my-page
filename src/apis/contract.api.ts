@@ -60,6 +60,7 @@ export type ContractFormType = {
   writer: string
   email: string
   content: any
+  text: string
 }
 
 export const postContract = async (param: ContractFormType) => {

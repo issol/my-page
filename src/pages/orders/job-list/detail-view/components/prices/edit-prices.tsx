@@ -1,13 +1,19 @@
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Autocomplete, Box, Button, Card, Grid, TextField } from '@mui/material'
-import { PriceUnitType } from '@src/apis/price-units.api'
 import useModal from '@src/hooks/useModal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import ItemForm from '@src/pages/components/forms/items-form'
-import { defaultOption, languageType } from '@src/pages/orders/add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { useGetAllPriceList } from '@src/queries/price-units.query'
+import {
+  defaultOption,
+  languageType,
+  proDefaultOption,
+} from '@src/pages/orders/add-new'
+import {
+  useGetClientPriceList,
+  useGetProPriceList,
+} from '@src/queries/company/standard-price'
+import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { ItemType, JobType, PostItemType } from '@src/types/common/item.type'
 import {
@@ -32,7 +38,7 @@ import {
 import Row from './row'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 
@@ -88,23 +94,12 @@ const EditPrices = ({
   row,
   jobPrices,
 }: Props) => {
-  const { data: prices, isSuccess } = useGetPriceList({
-    clientId: 7,
-  })
+  const { data: prices, isSuccess } = useGetProPriceList({})
+  const queryClient = useQueryClient()
 
-  console.log(isItemValid)
+  console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
-
-  const saveJobPricesMutation = useMutation(
-    (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
-      saveJobPrices(data.jobId, data.prices),
-    {
-      onSuccess: () => {
-        console.log('success')
-      },
-    },
-  )
 
   const { openModal, closeModal } = useModal()
 
@@ -121,7 +116,7 @@ const EditPrices = ({
   >(null)
 
   const getPriceOptions = (source: string, target: string) => {
-    if (!isSuccess) return [defaultOption]
+    if (!isSuccess) return [proDefaultOption]
     const filteredList = prices
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
@@ -133,30 +128,13 @@ const EditPrices = ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
-    return [defaultOption].concat(filteredList)
+    return [proDefaultOption].concat(filteredList)
   }
 
   const options =
     row.sourceLanguage && row.targetLanguage
       ? getPriceOptions(row.sourceLanguage, row.targetLanguage)
-      : [defaultOption]
-
-  const onSubmit = () => {
-    const data = getItem(`items.${0}`)
-    setSuccess(true)
-
-    // toast('Job info added successfully')
-    console.log('items', data)
-
-    const res: SaveJobPricesParamsType = {
-      jobId: row.id,
-      priceId: data.priceId!,
-      totalPrice: data.totalPrice,
-      currency: data.detail![0].currency,
-      detail: data.detail!,
-    }
-    saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
-  }
+      : [proDefaultOption]
 
   useEffect(() => {
     const timer = setTimeout(() => {
@@ -172,10 +150,9 @@ const EditPrices = ({
     if (jobPrices) {
       console.log(jobPrices)
 
-      const res = getPriceOptions(
-        jobPrices.sourceLanguage,
-        jobPrices.targetLanguage,
-      ).find(value => value.id === jobPrices.priceId)
+      const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
+        value => value.id === jobPrices.priceId,
+      )
       setPrice(res!)
     }
   }, [jobPrices])
@@ -235,7 +212,7 @@ const EditPrices = ({
           <Box sx={{ flex: 1 }}>
             <Autocomplete
               fullWidth
-              value={price}
+              value={price ?? null}
               options={options}
               groupBy={option => option?.groupName}
               onChange={(e, v) => {
@@ -279,7 +256,7 @@ const EditPrices = ({
           </Box>
         </Box>
       </Box>
-      <Box
+      {/* <Box
         mt='20px'
         sx={{
           display: 'flex',
@@ -290,7 +267,7 @@ const EditPrices = ({
         <Button variant='contained' onClick={onSubmit} disabled={!isItemValid}>
           Save draft
         </Button>
-      </Box>
+      </Box> */}
     </>
   )
 }

@@ -40,6 +40,8 @@ export type OrderListType = {
   projectDueTimezone: CountryType
   currency: CurrencyType
   totalPrice: number
+  items?: Array<any>
+  isEditable?: boolean
 }
 
 export type OrderListForJobType = {

@@ -1,6 +1,6 @@
 import {
   FilterType,
-  getAllPriceUnitList,
+  getAllClientPriceUnitList,
   getPriceUnitList,
 } from '@src/apis/price-units.api'
 import { toast } from 'react-hot-toast'
@@ -25,11 +25,11 @@ export const useGetPriceUnitList = (filter: FilterType) => {
   )
 }
 
-export const useGetAllPriceList = () => {
+export const useGetAllClientPriceList = () => {
   return useQuery(
     ['get-price-unit/list/all'],
     () => {
-      return getAllPriceUnitList()
+      return getAllClientPriceUnitList()
     },
     {
       suspense: false,

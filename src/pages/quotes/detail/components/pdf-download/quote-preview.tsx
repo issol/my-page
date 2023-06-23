@@ -32,7 +32,7 @@ import styled from 'styled-components'
 
 // ** store
 import { useAppDispatch } from '@src/hooks/useRedux'
-import { resetQuoteLang, setIsReady } from '@src/store/quote'
+import { setIsReady } from '@src/store/quote'
 
 // ** apis
 import { useMutation } from 'react-query'
@@ -108,8 +108,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                 fontWeight={lang === 'EN' ? 600 : 800}
                 fontSize={14}
               >
-                {/* TODO:{data.adminCompanyName} */}
-                {columnName.companyName}
+                {data.adminCompanyName}
               </Typography>
               <Typography variant='subtitle2'>
                 {columnName.companyAddress}

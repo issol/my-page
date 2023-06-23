@@ -95,8 +95,8 @@ export default function QuotesClientDetail({
                     <Typography variant='body2'>
                       {getGmtTimeEng(
                         client.contactPerson !== null
-                          ? client.contactPerson.timezone.code
-                          : client.client.timezone.code,
+                          ? client?.contactPerson?.timezone.code
+                          : client?.client?.timezone.code,
                       )}
                     </Typography>
                   </Box>

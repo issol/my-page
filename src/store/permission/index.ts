@@ -182,6 +182,14 @@ export const getPermission = createAsyncThunk(
             },
           },
           {
+            subject: 'members',
+            can: 'read',
+          },
+          {
+            subject: 'my_account',
+            can: 'read',
+          },
+          {
             subject: 'pro',
             can: 'read',
           },
@@ -202,9 +210,14 @@ export const getPermission = createAsyncThunk(
             can: 'read',
           },
           {
+            subject: 'company_info',
+            can: 'read',
+          },
+          {
             subject: 'company_price',
             can: 'read',
           },
+
           {
             subject: 'company_price',
             can: 'create',
@@ -253,19 +266,19 @@ export const getPermission = createAsyncThunk(
             can: 'delete',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'read',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'create',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'update',
           },
           {
-            subject: 'quotes',
+            subject: 'quote',
             can: 'delete',
           },
           {
@@ -298,6 +311,38 @@ export const getPermission = createAsyncThunk(
           },
           {
             subject: 'job_list',
+            can: 'delete',
+          },
+          {
+            subject: 'invoice_receivable',
+            can: 'read',
+          },
+          {
+            subject: 'invoice_receivable',
+            can: 'create',
+          },
+          {
+            subject: 'invoice_receivable',
+            can: 'update',
+          },
+          {
+            subject: 'invoice_receivable',
+            can: 'delete',
+          },
+          {
+            subject: 'invoice_payable',
+            can: 'read',
+          },
+          {
+            subject: 'invoice_payable',
+            can: 'create',
+          },
+          {
+            subject: 'invoice_payable',
+            can: 'update',
+          },
+          {
+            subject: 'invoice_payable',
             can: 'delete',
           },
         ]
@@ -326,22 +371,30 @@ const initialState: {
   isLoading: boolean
   permission: PermissionObjectType
   role: Array<UserRoleType>
+  currentRole: UserRoleType | null
 } = {
   permission: [{ subject: 'none', can: 'read' }],
   role: [],
   isLoading: false,
+  currentRole: null,
 }
 
 export const permissionSlice: Slice<{
   isLoading: boolean
   permission: PermissionObjectType
   role: Array<UserRoleType>
+  currentRole: UserRoleType | null
 }> = createSlice({
   name: 'permission',
   initialState,
   reducers: {
     resetRole: state => {
       state.role = []
+    },
+    setCurrentRole: (state, action) => {
+      console.log(action)
+
+      state.currentRole = action.payload
     },
   },
   extraReducers: builder => {
@@ -366,6 +419,6 @@ export const permissionSlice: Slice<{
   },
 })
 
-export const { resetRole } = permissionSlice.actions
+export const { resetRole, setCurrentRole } = permissionSlice.actions
 
 export default permissionSlice.reducer

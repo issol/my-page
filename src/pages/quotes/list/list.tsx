@@ -1,23 +1,20 @@
-import { Button, Card, Grid, Typography } from '@mui/material'
+import { Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import CardHeader from '@mui/material/CardHeader'
+import { DataGrid, GridColumns, GridSortDirection } from '@mui/x-data-grid'
 import {
-  ClientStatusChip,
   ExtraNumberChip,
   JobTypeChip,
   QuoteStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
-import { StyledNextLink } from '@src/@core/components/customLink'
 import { useRouter } from 'next/router'
 import { QuotesListType } from '@src/types/common/quotes.type'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { useContext } from 'react'
+import { useContext, useState } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 
 type QuotesListCellType = {
   row: QuotesListType
@@ -33,6 +30,8 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  filter: QuotesFilterType
+  setFilter: (filter: QuotesFilterType) => void
 }
 
 export default function QuotesList({
@@ -42,9 +41,12 @@ export default function QuotesList({
   setPageSize,
   list,
   isLoading,
+  filter,
+  setFilter,
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
+
   const columns: GridColumns<QuotesListType> = [
     {
       field: 'corporationId',
@@ -131,11 +133,24 @@ export default function QuotesList({
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
-            <JobTypeChip type={row.category} label={row.category} />
+            {!row.category ? (
+              '-'
+            ) : (
+              <JobTypeChip
+                type={row.category}
+                label={row.category}
+                size='small'
+              />
+            )}
+            {!row.serviceType || !row.serviceType?.length ? null : (
+              <ServiceTypeChip size='small' label={row.serviceType[0]} />
+            )}
 
-            <ServiceTypeChip label={row.serviceType[0]} />
-            {row.serviceType.length > 1 ? (
-              <ExtraNumberChip label={row.serviceType.slice(1).length} />
+            {row.serviceType?.length > 1 ? (
+              <ExtraNumberChip
+                size='small'
+                label={row.serviceType.slice(1).length}
+              />
             ) : null}
           </Box>
         )
@@ -145,11 +160,9 @@ export default function QuotesList({
     {
       flex: 0.1,
       minWidth: 280,
-      field: 'quoteDate',
+      field: 'quoteRegisteredDate',
       headerName: 'Quote date',
-      hideSortIcons: true,
       disableColumnMenu: true,
-      sortable: false,
       renderHeader: () => <Box>Quote date</Box>,
       renderCell: ({ row }: QuotesListCellType) => {
         return (
@@ -161,11 +174,9 @@ export default function QuotesList({
     {
       flex: 0.1,
       minWidth: 280,
-      field: 'projectDueDate',
+      field: 'quoteDeadline',
       headerName: 'Quote deadline',
-      hideSortIcons: true,
       disableColumnMenu: true,
-      sortable: false,
       renderHeader: () => <Box>Quote deadline</Box>,
       renderCell: ({ row }: QuotesListCellType) => {
         return (
@@ -178,11 +189,9 @@ export default function QuotesList({
     {
       flex: 0.1,
       minWidth: 280,
-      field: 'quoteExpiry',
+      field: 'expiryDate',
       headerName: 'Quote expiry date',
-      hideSortIcons: true,
       disableColumnMenu: true,
-      sortable: false,
       renderHeader: () => <Box>Quote expiry date</Box>,
       renderCell: ({ row }: QuotesListCellType) => {
         return (
@@ -190,21 +199,24 @@ export default function QuotesList({
         )
       },
     },
-    //
-    // {
-    //   flex: 0.1,
-    //   minWidth: 140,
-    //   field: 'totalPrice',
-    //   headerName: 'Total price',
-    //   hideSortIcons: true,
-    //   disableColumnMenu: true,
-    //   sortable: false,
-    //   renderHeader: () => <Box>Total price</Box>,
-    //   renderCell: ({ row }: QuotesListCellType) => {
-    //     return <Box>{formatCurrency(row.totalPrice, row.currency)}</Box>
 
-    //   },
-    // },
+    {
+      flex: 0.1,
+      minWidth: 140,
+      field: 'totalPrice',
+      headerName: 'Total price',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => <Box>Total price</Box>,
+      renderCell: ({ row }: QuotesListCellType) => {
+        return (
+          <Box>
+            {!row.currency ? '-' : formatCurrency(row.totalPrice, row.currency)}
+          </Box>
+        )
+      },
+    },
   ]
 
   function NoList() {
@@ -237,14 +249,21 @@ export default function QuotesList({
           NoRowsOverlay: () => NoList(),
           NoResultsOverlay: () => NoList(),
         }}
+        sortingMode='server'
+        onSortModelChange={e => {
+          if (e.length) {
+            const value = e[0] as { field: SortType; sort: GridSortDirection }
+            setFilter({ ...filter, sort: value.field, ordering: value.sort })
+          }
+        }}
         sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
         rows={list.data}
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
-        // onCellClick={params => {
-        //   router.push(`/client/detail/${params.row.clientId}`)
-        // }}
+        onCellClick={params => {
+          router.push(`/quotes/detail/${params.row.id}`)
+        }}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}

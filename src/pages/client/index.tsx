@@ -31,7 +31,11 @@ export default function Clients() {
   const { data: list, isLoading } = useGetClientList(activeFilter)
 
   function onSearch() {
-    setActiveFilter({ ...filter })
+    setActiveFilter({
+      ...filter,
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {
@@ -77,7 +81,7 @@ export default function Clients() {
         setPageSize={(n: number) =>
           setActiveFilter({ ...activeFilter, take: n })
         }
-        list={list || { data: [], count: 0 }}
+        list={list || { data: [], count: 0, totalCount: 0 }}
         isLoading={isLoading}
       />
     </Grid>

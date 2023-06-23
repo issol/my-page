@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment } from 'react'
+import { useState, SyntheticEvent, Fragment, useEffect } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -22,10 +22,17 @@ import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
-import { RoleType } from 'src/context/types'
+import { RoleType, UserRoleType } from 'src/context/types'
 
 // ** hooks
-import { useAppSelector } from 'src/hooks/useRedux'
+import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
+import { Switch } from '@mui/material'
+// import { setCurrentRole } from '@src/store/permission'
+import {
+  setCurrentRole,
+  getCurrentRole
+} from 'src/shared/auth/storage'
+import { current } from '@reduxjs/toolkit'
 
 interface Props {
   settings: Settings
@@ -43,6 +50,8 @@ const BadgeContentSpan = styled('span')(({ theme }) => ({
 const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
+  const [checked, setChecked] = useState<boolean>(false)
+  const dispatch = useAppDispatch()
 
   // ** redux
   const { role } = useAppSelector(state => state.userAccess)
@@ -68,6 +77,35 @@ const UserDropdown = (props: Props) => {
       router.push(url)
     }
     setAnchorEl(null)
+  }
+
+  useEffect(() =>{
+    if(role && hasTadAndLpm(role)) {
+      const currentRole = getCurrentRole()
+      if(currentRole.name === 'TAD') setChecked(false)
+      else if (currentRole.name === 'LPM') setChecked(true)
+      else setChecked(false)
+    }
+  }, [role])
+
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setChecked(event.target.checked)
+    // 스위치가 바뀔때 Role을 세션 스토리지에 저장
+    if (hasTadAndLpm(role)) {
+      setCurrentRole(
+        event.target.checked
+        ? role.find(item => item.name === 'LPM')
+        : role.find(item => item.name === 'TAD')
+      )
+    }
+    router.push('/home')
+  }
+
+  function hasTadAndLpm(role: UserRoleType[]): boolean {
+    return (
+      role.some(value => value.name === 'TAD') &&
+      role.some(value => value.name === 'LPM')
+    )
   }
 
   const styles = {
@@ -152,23 +190,78 @@ const UserDropdown = (props: Props) => {
                   ? 'anonymous'
                   : auth?.user?.username}
               </Typography>
-              <Typography
-                variant='body2'
-                sx={{
-                  fontSize: '0.8rem',
-                  color: 'text.disabled',
-                  display: 'flex',
-                  gap: '4px',
-                }}
-              >
-                {role?.map((value, index) => {
-                  return <Fragment key={index}>{value?.name} </Fragment>
-                })}
-              </Typography>
+
+              {role && hasTadAndLpm(role) ? (
+                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <Typography
+                    fontSize={14}
+                    fontWeight={checked ? 400 : 600}
+                    color={checked ? '#BDBDBD' : '#666CFF'}
+                  >
+                    TAD
+                  </Typography>
+                  <Switch
+                    checked={checked}
+                    onChange={handleChange}
+                    inputProps={{ 'aria-label': 'controlled' }}
+                    sx={{
+                      '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                        color: '#666CFF',
+                        '.MuiSwitch-thumb': {
+                          color: '#666CFF',
+                        },
+                      },
+                      '.MuiSwitch-track': {
+                        backgroundColor: '#666CFF',
+                      },
+                    }}
+                  />
+                  <Typography
+                    fontSize={14}
+                    fontWeight={checked ? 600 : 400}
+                    color={checked ? '#666CFF' : '#BDBDBD'}
+                  >
+                    LPM
+                  </Typography>
+                </Box>
+              ) : (
+                role?.map((value, index) => {
+                  return (
+                    <Typography
+                      key={index}
+                      variant='body2'
+                      sx={{
+                        fontSize: '0.8rem',
+                        color: 'text.disabled',
+                        display: 'flex',
+                        gap: '4px',
+                      }}
+                    >
+                      {value?.name}
+                    </Typography>
+                  )
+                })
+              )}
             </Box>
           </Box>
         </Box>
         <Divider sx={{ mt: '0 !important' }} />
+        {role && (
+          <MenuItem
+            onClick={() => {
+              router.push('/company/my-account')
+              handleDropdownClose()
+            }}
+            sx={{
+              py: 2,
+              '& svg': { mr: 2, fontSize: '1.375rem', color: 'text.primary' },
+            }}
+          >
+            <Icon icon='mdi:account-cog' />
+            My Account
+          </MenuItem>
+        )}
+        <Divider sx={{ mt: '10px !important' }} />
         <MenuItem
           onClick={handleLogout}
           sx={{

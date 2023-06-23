@@ -3,8 +3,8 @@ import { Box, Button, Typography } from '@mui/material'
 import AlertIcon from '../alert-icon'
 
 type Props = {
-  onClose: any
-  onClick: any
+  onClose: () => void
+  onClick: () => void
 }
 
 const EditSaveModal = ({ onClose, onClick }: Props) => {

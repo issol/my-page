@@ -1,29 +1,59 @@
 import {
   getCatInterfaceHeaders,
-  getPriceList,
-  getStandardClientPrice,
-} from '@src/apis/company-price.api'
+  getClientPriceList,
+  getProPriceList,
+  getStandardPrice,
+} from '@src/apis/company/company-price.api'
 import { StandardPriceListType } from '@src/types/common/standard-price'
+
 import { useQuery } from 'react-query'
 
-export type PriceListFilterType = {
+export type ClientPriceListFilterType = {
   source?: string
   target?: string
   clientId?: number | null
+  take?: number
+  skip?: number
+  isStandard?: boolean | null
 }
-export const useGetPriceList = (filter: PriceListFilterType) => {
-  return useQuery(['price-list', filter], () => getPriceList(filter), {
+
+export type ProPriceListFilterType = {
+  proId?: number
+  source?: string
+  target?: string
+}
+export const useGetClientPriceList = (filter: ClientPriceListFilterType) => {
+  return useQuery(
+    ['client-price-list', filter],
+    () => getClientPriceList(filter),
+    {
+      staleTime: 60 * 1000, // 1
+      keepPreviousData: true,
+      suspense: false,
+      // enabled: !!filter?.clientId,
+    },
+  )
+}
+
+export const useGetProPriceList = (filter: ProPriceListFilterType) => {
+  return useQuery(['pro-price-list', filter], () => getProPriceList(filter), {
     staleTime: 60 * 1000, // 1
     keepPreviousData: true,
     suspense: false,
-    enabled: !!filter?.clientId,
+    // enabled: !!filter?.clientId,
   })
 }
 
-export const useGetStandardPrices = () => {
-  return useQuery<{ data: StandardPriceListType[]; count: number }>(
-    'standard-client-prices',
-    () => getStandardClientPrice(),
+export const useGetStandardPrices = (
+  page: 'pro' | 'client',
+  filter: ClientPriceListFilterType
+) => {
+  return useQuery<{
+    data: Array<StandardPriceListType>
+    count: number
+  }>(
+    [`standard-${page}-prices`, filter],
+    () => getStandardPrice(page, filter),
     {
       staleTime: 60 * 1000, // 1
 

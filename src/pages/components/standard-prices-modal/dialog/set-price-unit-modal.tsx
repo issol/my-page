@@ -37,7 +37,7 @@ import {
   useForm,
 } from 'react-hook-form'
 
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitType } from '@src/types/common/standard-price'
 import {
   Dispatch,
   SetStateAction,
@@ -58,10 +58,9 @@ import {
 } from 'react-query'
 import toast from 'react-hot-toast'
 import {
-  patchPriceUnitPair,
   putPriceUnitPair,
   setPriceUnitPair,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
 
 type Props = {
@@ -82,6 +81,7 @@ type Props = {
       unknown
     >
   >
+  page: 'pro' | 'client'
 }
 
 const SetPriceUnitModal = ({
@@ -92,6 +92,7 @@ const SetPriceUnitModal = ({
   priceUnitPair,
   refetch,
   setIsEditingCatInterface,
+  page,
 }: Props) => {
   const { closeModal, openModal } = useModal()
   const queryClient = useQueryClient()
@@ -137,10 +138,6 @@ const SetPriceUnitModal = ({
     name: 'pair',
   })
 
-  useEffect(() => {
-    console.log("pairFields",pairFields)
-  }, pairFields)
-
   const calculateRoundedRatio = (total: number, value: number) => {
     const ratio = (value / total) * 100
     const roundedRatio = ratio.toFixed(5)
@@ -149,10 +146,7 @@ const SetPriceUnitModal = ({
 
   const setPriceUnitMutation = useMutation(
     (value: { data: SetPriceUnitPair[]; type: string; id: number }) =>
-      // value.type === 'Save'
-      //   ? setPriceUnitPair(value.data, value.id)
-      //   : patchPriceUnitPair(value.data, value.id),
-      putPriceUnitPair(value.data, value.id),
+      putPriceUnitPair(value.data, value.id, page),
     {
       onSuccess: (data, variables) => {
         refetch()
@@ -174,7 +168,6 @@ const SetPriceUnitModal = ({
   )
 
   const onClickAction = (type: string, data?: SetPriceUnitPair[]) => {
-    console.log(type)
     if (type === 'Discard') {
       closeModal('setPriceUnitModal')
     } else if (type === 'Save' || type === 'EditSave') {
@@ -290,7 +283,10 @@ const SetPriceUnitModal = ({
         unitId: value.id,
         quantity: value.unit === 'Percent' ? '-' : 1,
         price: 1.0,
-        weighting: value.weighting ?? '-',
+        weighting:
+          !value.weighting || value.weighting === 0 || value.unit === 'Percent'
+            ? '-'
+            : value.weighting,
         title: value.title,
         isBase: value.parentPriceUnitId === null,
         parentPriceUnitId: value.parentPriceUnitId,
@@ -449,6 +445,7 @@ const SetPriceUnitModal = ({
             size='medium'
             sx={{ height: '42px' }}
             onClick={onClickAddPriceUnit}
+            disabled={priceUnits.length === 0}
           >
             Add
           </Button>
@@ -735,7 +732,7 @@ const SetPriceUnitModal = ({
                               <Input
                                 id='icons-start-adornment'
                                 label='Weighting(%)*'
-                                value={value || ''}
+                                value={(value === 0) ? '-' : value}
                                 disabled={data.isBase}
                                 onChange={e => {
                                   const { value } = e.target
@@ -858,10 +855,15 @@ const SetPriceUnitModal = ({
               <Button
                 variant='contained'
                 type='submit'
-                disabled={pairFields.some(item => {
-                  return !item.weighting || !item.quantity || !item.price
-                }) || pairFields.length === 0
-              }
+                disabled={
+                  pairFields.some(item => {
+                    return (
+                      (!item.weighting && item.weighting !== 0) ||
+                      !item.quantity ||
+                      !item.price
+                    )
+                  }) || pairFields.length === 0
+                }
               >
                 Save
               </Button>

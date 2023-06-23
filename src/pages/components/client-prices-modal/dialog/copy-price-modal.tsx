@@ -3,9 +3,8 @@ import Dialog from '@mui/material/Dialog'
 
 import DialogContent from '@mui/material/DialogContent'
 
-import { StandardPriceListType } from '@src/types/common/standard-price'
-
 import { DataGrid } from '@mui/x-data-grid'
+import { StandardPriceListType } from '@src/types/common/standard-price'
 import { useState } from 'react'
 
 type Props = {

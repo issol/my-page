@@ -2,6 +2,7 @@
   width: 21cm;
   min-height: 29.7cm;
   margin: 0 auto;
+  -webkit-print-color-adjust: exact;
 }
 
 @page {
@@ -31,6 +32,10 @@
 
   .thxTo {
     page-break-inside: avoid;
+  }
+  .total {
+    page-break-inside: avoid;
+    page-break-after: auto;
   }
 }
 .container {

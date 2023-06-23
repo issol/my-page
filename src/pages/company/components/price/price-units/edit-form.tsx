@@ -1,6 +1,6 @@
 import { Fragment, useState } from 'react'
 import PriceUnitForm from './form'
-import { PriceUnitType } from '@src/apis/price-units.api'
+import { PriceUnitType } from '@src/types/common/standard-price'
 import SaveModal from './modal/save-modal'
 
 type Props = {

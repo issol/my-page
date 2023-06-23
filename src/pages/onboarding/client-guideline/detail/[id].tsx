@@ -390,6 +390,10 @@ const ClientGuidelineDetail = () => {
     }
   }
 
+  function onClickBack() {
+    router.push('/onboarding/client-guideline/')
+  }
+
   return (
     <>
       {!data ? (
@@ -409,7 +413,7 @@ const ClientGuidelineDetail = () => {
                     <Icon
                       icon='mdi:chevron-left'
                       cursor='pointer'
-                      onClick={() => router.back()}
+                      onClick={() => onClickBack()}
                     />
                     {currentVersion?.title}
                   </Typography>
