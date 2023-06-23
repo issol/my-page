@@ -1,14 +1,16 @@
-import { Fragment, useContext } from 'react'
+import { Fragment, useContext, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** style components
 import { Icon } from '@iconify/react'
 import {
+  Autocomplete,
   Box,
   Button,
   Divider,
   Grid,
   IconButton,
+  TextField,
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
@@ -22,11 +24,15 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import InvoiceDetailInfoForm from '@src/pages/components/forms/invoice-detail-info-form'
 
 // ** types & schemas
-import { PayableFormType } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableDetailType,
+  PayableFormType,
+} from '@src/types/invoice/payable.type'
 import {
   getInvoiceDetailInfoSchema,
   invoiceDetailInfoDefaultValue,
 } from '@src/types/schema/invoice-detail-info.schema'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 // ** react hook form
 import { useForm } from 'react-hook-form'
@@ -42,15 +48,36 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** helpers
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+
+// ** values
+import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
+
+// ** apis
+import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
+
+// ** third parties
+import { toast } from 'react-hot-toast'
 
 type Props = {
+  data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
 }
 
-/* TODO: 실 데이터로 채우기 */
-export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
+/* TODO:
+version history
+*/
+export default function InvoiceDetailCard({
+  data,
+  editInfo,
+  setEditInfo,
+}: Props) {
   const router = useRouter()
+  const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
 
@@ -80,8 +107,6 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
   const {
     control,
     getValues,
-    setValue,
-    handleSubmit,
     reset,
     formState: { errors, isValid },
   } = useForm<PayableFormType>({
@@ -90,6 +115,38 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
     resolver: yupResolver(getInvoiceDetailInfoSchema(isAccountManager)),
   })
 
+  useEffect(() => {
+    if (data) {
+      reset({
+        taxInfo: data.taxInfo ?? '',
+        taxRate: data.taxRate,
+        invoiceStatus: data.invoiceStatus,
+        payDueAt: data.payDueAt,
+        payDueTimezone: data.payDueTimezone,
+        paidAt: data.paidAt,
+        paidDateTimezone: data.paidDateTimezone,
+        description: data.description,
+        subtotal: data.subtotal,
+        totalPrice: data.totalPrice,
+        tax: data.tax,
+      })
+    }
+  }, [data])
+
+  const updateMutation = useMutation(
+    (form: PayableFormType) => updateInvoicePayable(form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   function onInvoiceSave() {
     openModal({
       type: 'save',
@@ -97,7 +154,7 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
         <ConfirmSaveAllChanges
           onClose={() => closeModal('save')}
           onSave={() => {
-            //TODO: save mutation붙이기
+            updateMutation.mutate(getValues())
             setEditInfo(false)
             closeModal('save')
           }}
@@ -106,13 +163,18 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
     })
   }
 
+  function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatusType) {
+    updateMutation.mutate({ invoiceStatus })
+  }
+
   return (
     <DatePickerWrapper>
       <Grid container spacing={6}>
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice detail</Typography>
-            {isUpdatable || isAccountManager ? (
+            {(isUpdatable || isAccountManager) &&
+            data?.invoiceStatus !== 'Paid' ? (
               <IconButton onClick={() => setEditInfo(!editInfo)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
@@ -123,6 +185,7 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
         {editInfo ? (
           <Fragment>
             <InvoiceDetailInfoForm
+              data={data}
               control={control}
               errors={errors}
               isAccountManager={isAccountManager}
@@ -167,13 +230,39 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Invoice date</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>
+                  {data?.invoicedAt ?? '-'}
+                </CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Status</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                {isUpdatable ? (
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    value={
+                      InvoicePayableStatus.find(
+                        item => item.value === data?.invoiceStatus,
+                      ) ?? null
+                    }
+                    onChange={(e, v) => {
+                      if (v?.value) {
+                        onInvoiceStatusChange(
+                          v.value as InvoicePayableStatusType,
+                        )
+                      }
+                    }}
+                    options={InvoicePayableStatus}
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField {...params} label='Status' />
+                    )}
+                  />
+                ) : (
+                  <CustomTypo variant='body2'>{data?.invoiceStatus}</CustomTypo>
+                )}
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
@@ -182,20 +271,22 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Pro</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>
+                  {data?.pro?.name ?? '-'}
+                </CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={6}></Grid>
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax info</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>{data?.taxInfo ?? '-'}</CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Tax rate</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>{data?.taxRate ?? '-'}</CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
@@ -204,13 +295,23 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Payment due</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>
+                  {FullDateTimezoneHelper(
+                    data?.payDueAt,
+                    data?.payDueTimezone?.code,
+                  )}
+                </CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={6}>
               <LabelContainer>
                 <CustomTypo fontWeight={600}>Payment date</CustomTypo>
-                <CustomTypo variant='body2'>dsdf</CustomTypo>
+                <CustomTypo variant='body2'>
+                  {FullDateTimezoneHelper(
+                    data?.paidAt,
+                    data?.paidDateTimezone?.code,
+                  )}
+                </CustomTypo>
               </LabelContainer>
             </Grid>
             <Grid item xs={12}>
@@ -219,7 +320,9 @@ export default function InvoiceDetailCard({ editInfo, setEditInfo }: Props) {
             <Grid item xs={12}>
               <Box>
                 <CustomTypo fontWeight={600}>Invoice description</CustomTypo>
-                <CustomTypo variant='body2'>sdfdf</CustomTypo>
+                <CustomTypo variant='body2'>
+                  {data?.description ?? '-'}
+                </CustomTypo>
               </Box>
             </Grid>
           </Fragment>

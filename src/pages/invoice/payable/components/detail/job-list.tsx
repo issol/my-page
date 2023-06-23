@@ -13,32 +13,52 @@ import TableRow from '@mui/material/TableRow'
 import Paper from '@mui/material/Paper'
 import { Icon } from '@iconify/react'
 import styled, { css } from 'styled-components'
-
-/* TODO:
-실데이터 표기로 교체
-disabled디자인 추가하기 (text decoration)
-
-*/
+import { InvoicePayableJobType } from '@src/types/invoice/payable.type'
+import { ServiceTypeChip } from '@src/@core/components/chips/chips'
+import { CurrencyType } from '@src/types/common/standard-price'
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 type Props = {
+  data: {
+    count: number
+    totalCount: number
+    data: InvoicePayableJobType[]
+  }
+  currency: CurrencyType | undefined
   onRowClick: (id: number) => void
   selectedJobs: number[]
   setSelectedJobs: (id: number[]) => void
   isUpdatable: boolean
 }
 export default function InvoiceJobList({
+  data,
+  currency,
   onRowClick,
   selectedJobs,
   setSelectedJobs,
   isUpdatable,
 }: Props) {
-  function Row() {
+  const { data: jobList } = data
+
+  const [page, setPage] = useState(0)
+  const [pageSize, setPageSize] = useState(10)
+  const [isAllSelected, setIsAllSelected] = useState(false)
+
+  function Row({ item }: { item: InvoicePayableJobType }) {
     const [open, setOpen] = useState(false)
+    const currencyMark = getCurrencyMark(currency)
+    const disabledTextUi = {
+      textDecoration: !!item.deletedAt ? 'line-through' : '',
+    }
     return (
       <Fragment>
-        <CustomTableRow isDisabled={false}>
+        <CustomTableRow $isDisabled={!!item.deletedAt}>
           <TableCell>
-            <Checkbox disabled={!isUpdatable} />
+            <Checkbox
+              disabled={!isUpdatable}
+              checked={selectedJobs.includes(item.id)}
+              onChange={() => setSelectedJobs([...selectedJobs, item.id])}
+            />
           </TableCell>
           <TableCell>
             <IconButton onClick={() => setOpen(!open)}>
@@ -48,37 +68,64 @@ export default function InvoiceJobList({
               />
             </IconButton>
           </TableCell>
-
+          {/* No. */}
           <TableCell sx={{ textDecoration: 'line-through' }}>
             <Button
               variant='text'
               color='secondary'
               onClick={() => onRowClick(9)}
             >
-              dd
+              <Typography sx={disabledTextUi}>{item.id}</Typography>
             </Button>
           </TableCell>
-          <TableCell></TableCell>
-          <TableCell></TableCell>
-          <TableCell></TableCell>
+          {/* Job (Service type) */}
+          <TableCell>
+            <ServiceTypeChip label={item.serviceType} size='small' />
+          </TableCell>
+          {/* Job name */}
+          <TableCell>
+            <Typography sx={disabledTextUi}>{item.name}</Typography>
+          </TableCell>
+          {/* Prices */}
+          <TableCell>
+            <Typography
+              fontWeight={600}
+              sx={disabledTextUi}
+            >{`${currencyMark} ${item.totalPrice.toLocaleString()}`}</Typography>
+          </TableCell>
+          {/* Contact person */}
+          <TableCell sx={disabledTextUi}>{item.contactPerson}</TableCell>
         </CustomTableRow>
         {open ? (
           <TableRow>
-            <TableCell></TableCell>
-            <TableCell></TableCell>
+            <TableCell>{/* empty */}</TableCell>
+            <TableCell>{/* empty */}</TableCell>
             <TableCell colSpan={5}>
               <Box>
                 <Typography fontSize={14} fontWeight={600}>
                   Price details
                 </Typography>
                 <ul>
-                  <li>
-                    <Box display='flex' gap='24px'>
-                      <Typography fontWeight={600}>Munute subtitle</Typography>
-                      <Typography variant='body2'>(2,000 X 15)</Typography>
-                      <Typography variant='body2'>30,000</Typography>
-                    </Box>
-                  </li>
+                  {item?.priceUnits?.map((price, i) => {
+                    const unitPrice = `${currencyMark} ${price.unitPrice.toLocaleString()}`
+                    const priceUnit =
+                      price.quantity < 1
+                        ? unitPrice
+                        : `(${unitPrice} X ${price.quantity})`
+                    return (
+                      <li key={i}>
+                        <Box display='flex' gap='24px' alignItems='center'>
+                          <Typography fontWeight={600}>
+                            {price?.title}
+                          </Typography>
+                          <Typography variant='body2'>{priceUnit}</Typography>
+                          <Typography variant='body2'>
+                            {`${currencyMark} ${price.prices.toLocaleString()}`}
+                          </Typography>
+                        </Box>
+                      </li>
+                    )
+                  })}
                 </ul>
               </Box>
             </TableCell>
@@ -87,6 +134,20 @@ export default function InvoiceJobList({
       </Fragment>
     )
   }
+
+  function selectAll() {
+    if (isAllSelected) {
+      setIsAllSelected(false)
+      setSelectedJobs([])
+    } else {
+      const ids = jobList
+        ?.slice(page * pageSize, page * pageSize + pageSize)
+        ?.map(job => job.id)
+      setSelectedJobs(ids)
+      setIsAllSelected(true)
+    }
+  }
+
   return (
     <Fragment>
       <TableContainer component={Paper}>
@@ -94,7 +155,7 @@ export default function InvoiceJobList({
           <TableHead style={{ background: '#F5F5F7', textTransform: 'none' }}>
             <TableRow>
               <HeaderCell width='18px'>
-                <Checkbox /* onClick={()=> setSelectedJobs()} */ />
+                <Checkbox onChange={selectAll} />
               </HeaderCell>
               <HeaderCell width='18px'>
                 <Icon icon='mdi:chevron-down' fontSize={18} />
@@ -117,21 +178,23 @@ export default function InvoiceJobList({
             </TableRow>
           </TableHead>
           <TableBody>
-            {[1]?.map((row, idx) => (
-              <Row key={idx} />
-            ))}
+            {jobList
+              ?.slice(page * pageSize, page * pageSize + pageSize)
+              ?.map((item, idx) => (
+                <Row key={idx} item={item} />
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
-      {/* <TablePagination
-        page={skip}
+      <TablePagination
+        page={page}
         component='div'
-        count={list.totalCount}
+        count={data.totalCount}
         rowsPerPage={pageSize}
-        onPageChange={(e, page) => setSkip(page)}
+        onPageChange={(e, page) => setPage(page)}
         rowsPerPageOptions={[10, 25, 50]}
         onRowsPerPageChange={e => setPageSize(Number(e.target.value))}
-      /> */}
+      />
     </Fragment>
   )
 }
@@ -150,22 +213,23 @@ const HeaderCell = styled(TableCell)`
   }
 `
 
-const CustomTableRow = styled(TableRow)<{ isDisabled?: boolean }>`
+const CustomTableRow = styled(TableRow)<{ $isDisabled?: boolean }>`
   border-bottom: 1px solid rgba(76, 78, 100, 0.12);
-  ${({ isDisabled }) =>
-    isDisabled
+  ${({ $isDisabled }) =>
+    $isDisabled
       ? css`
       pointer-events:none;
-          position: relative;
-            &::after {
-              position: absolute;
-              width: 100%;
-              height:100%;
-              top: 0;
-              left: 0;
-              content: "";
-              mix-blend-mode:multiply;
-              background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;
+      position: relative;
+      width: 100%;
+      &::after {
+        content: "";
+        position: absolute;
+        width: 100%;
+        height:100%;
+        top: 0;
+        left: 0;
+        mix-blend-mode:multiply;
+        background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49;
   `
       : ``}
 `

@@ -9,11 +9,19 @@ import {
 } from '@mui/material'
 import styled from 'styled-components'
 
-// TODO: 실데이터로 교체하기
-export default function InvoiceAmount() {
+import { getCurrencyMark } from '@src/shared/helpers/price.helper'
+
+import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
+
+type Props = {
+  data: InvoicePayableDetailType | undefined
+}
+
+export default function InvoiceAmount({ data }: Props) {
+  const currency = getCurrencyMark(data?.currency)
   function renderRow(
     label: string,
-    price: string,
+    price: number,
     icon = true,
     color?: string,
   ) {
@@ -24,7 +32,7 @@ export default function InvoiceAmount() {
           <Typography variant='body2'>{label}</Typography>
         </FlexBox>
         <Typography variant='body2' fontSize='1rem' fontWeight={600}>
-          {price}
+          {`${currency} ${price.toLocaleString()}`}
         </Typography>
       </FlexBox>
     )
@@ -61,12 +69,17 @@ export default function InvoiceAmount() {
             }}
           >
             <FlexBox flexDirection='column' width='360px'>
-              {renderRow('Subtotal', '₩ 305,000', true, '#B3B6FF')}
-              {renderRow('Tax', '-₩ 305,000', true, '#666CFF')}
+              {renderRow('Subtotal', data?.subtotal ?? 0, true, '#B3B6FF')}
+              {renderRow(
+                'Tax',
+                data?.taxRate ? -data?.taxRate : 0,
+                true,
+                '#666CFF',
+              )}
               <Box width='360px'>
                 <Divider />
               </Box>
-              {renderRow('In total', '₩ 305,000', false)}
+              {renderRow('In total', data?.totalPrice ?? 0, false)}
             </FlexBox>
           </CardContent>
         </Card>

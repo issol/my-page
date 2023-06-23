@@ -38,15 +38,19 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** permission
 import { invoice_payable } from '@src/shared/const/permission-class'
+import { InvoicePayableDetailType } from '@src/types/invoice/payable.type'
 
 /* TODO:
- Jobs타이틀에 list총 갯수 표기하기
+
  Remove버튼, list의 checkbox는 퍼미션이 가능한 사람에게만 노출되도록 수정
- list에 fetched된 데이터 전달하기, 실데이터 표기하기
+
  delete invoice추가
 */
 
-export default function InvoiceInfo() {
+type Props = {
+  data: InvoicePayableDetailType | undefined
+}
+export default function InvoiceInfo({ data }: Props) {
   const { openModal, closeModal } = useModal()
 
   const { user } = useContext(AuthContext)
@@ -116,12 +120,16 @@ export default function InvoiceInfo() {
       <Grid item xs={12}>
         <Card>
           <CardContent sx={{ padding: '24px' }}>
-            <InvoiceDetailCard editInfo={editInfo} setEditInfo={setEditInfo} />
+            <InvoiceDetailCard
+              data={data}
+              editInfo={editInfo}
+              setEditInfo={setEditInfo}
+            />
           </CardContent>
         </Card>
       </Grid>
       <Grid item xs={12}>
-        <InvoiceAmount />
+        <InvoiceAmount data={data} />
       </Grid>
       <Grid item xs={12}>
         <Card>
@@ -132,7 +140,9 @@ export default function InvoiceInfo() {
                 alignItems='center'
                 justifyContent='space-between'
               >
-                <Typography variant='h6'>Jobs</Typography>
+                <Typography variant='h6'>
+                  Jobs ({data?.jobs?.data?.length ?? 0})
+                </Typography>
                 <Button
                   size='small'
                   variant='contained'
@@ -146,6 +156,8 @@ export default function InvoiceInfo() {
             }
           />
           <InvoiceJobList
+            data={data?.jobs || { count: 0, totalCount: 0, data: [] }}
+            currency={data?.currency}
             isUpdatable={isUpdatable}
             selectedJobs={selectedJobs}
             setSelectedJobs={setSelectedJobs}

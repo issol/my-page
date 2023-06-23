@@ -20,15 +20,19 @@ import styled from 'styled-components'
 
 // ** values
 import { countries } from 'src/@fake-db/autocomplete'
+import { TaxInfo } from '@src/shared/const/tax/tax-info'
 
 // ** apis
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** helpers
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 // ** types & schema
-import { PayableFormType } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableDetailType,
+  PayableFormType,
+} from '@src/types/invoice/payable.type'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 // ** Third Party Imports
@@ -47,19 +51,20 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import useModal from '@src/hooks/useModal'
 
 type Props = {
+  data: InvoicePayableDetailType | undefined
   control: Control<PayableFormType, any>
   errors: FieldErrors<PayableFormType>
   isAccountManager: boolean
 }
 export default function InvoiceDetailInfoForm({
+  data,
   control,
   errors,
   isAccountManager,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
-  /* TODO: payable status받아오는 api로 교체하기, Tax info에 넣을 값도 api요청하기 */
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
 
   function renderErrorMsg(errors: FieldError | undefined) {
     return (
@@ -106,10 +111,12 @@ export default function InvoiceDetailInfoForm({
         <TextField
           fullWidth
           disabled
+          value={data?.invoicedAt}
           label='Invoice date*'
           placeholder='Invoice date*'
         />
       </Grid>
+      {/* TODO: 이 값 추가 리샤 문의하기 */}
       <Grid item xs={6}>
         <TextField
           fullWidth
@@ -123,7 +130,7 @@ export default function InvoiceDetailInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='status'
+          name='invoiceStatus'
           control={control}
           render={({ field: { value, onChange } }) => (
             <Autocomplete
@@ -144,7 +151,7 @@ export default function InvoiceDetailInfoForm({
               renderInput={params => (
                 <TextField
                   {...params}
-                  error={Boolean(errors.status)}
+                  error={Boolean(errors.invoiceStatus)}
                   label='Status*'
                   placeholder='Status*'
                 />
@@ -152,10 +159,16 @@ export default function InvoiceDetailInfoForm({
             />
           )}
         />
-        {renderErrorMsg(errors.status)}
+        {renderErrorMsg(errors.invoiceStatus)}
       </Grid>
       <Grid item xs={6}>
-        <TextField fullWidth disabled label='Pro*' placeholder='Pro*' />
+        <TextField
+          fullWidth
+          disabled
+          value={data?.pro?.name}
+          label='Pro*'
+          placeholder='Pro*'
+        />
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -165,18 +178,12 @@ export default function InvoiceDetailInfoForm({
             <Autocomplete
               autoHighlight
               fullWidth
-              /* TODO: statusName이라고 되어 있는 부분 추후 api res에 따라 수정하기 */
-              options={statusList || []}
+              options={TaxInfo}
               onChange={(e, v) => {
-                onChange(v?.statusName ?? '')
+                onChange(v?.value ?? '')
               }}
-              value={
-                statusList?.find(item => item.statusName === value) ?? {
-                  id: 0,
-                  statusName: '',
-                }
-              }
-              getOptionLabel={option => option.statusName}
+              value={TaxInfo?.find(item => item.value === value) || null}
+              getOptionLabel={option => option.label}
               renderInput={params => (
                 <TextField
                   {...params}
@@ -202,10 +209,8 @@ export default function InvoiceDetailInfoForm({
                 value={value ?? null}
                 error={Boolean(errors.tax)}
                 onChange={e => {
-                  console.log('value', value)
+                  if (e.target.value.length > 10) return
                   onChange(e)
-                  // if (e.target.value.length > 10) return
-                  // onChange(e)
                 }}
                 type='number'
                 label='Tax rate*'
@@ -222,7 +227,7 @@ export default function InvoiceDetailInfoForm({
 
       <Grid item xs={6}>
         <Controller
-          name='paymentDueAt.date'
+          name='payDueAt'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
@@ -237,11 +242,11 @@ export default function InvoiceDetailInfoForm({
             />
           )}
         />
-        {renderErrorMsg(errors?.paymentDueAt?.date)}
+        {renderErrorMsg(errors?.payDueAt)}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='paymentDueAt.timezone'
+          name='payDueTimezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -264,7 +269,7 @@ export default function InvoiceDetailInfoForm({
                 <TextField
                   {...params}
                   label='Time zone'
-                  error={Boolean(errors?.paymentDueAt?.timezone)}
+                  error={Boolean(errors?.payDueTimezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -273,11 +278,11 @@ export default function InvoiceDetailInfoForm({
             />
           )}
         />
-        {renderErrorMsg(errors?.paymentDueAt?.timezone?.code)}
+        {renderErrorMsg(errors?.payDueTimezone?.code)}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='paymentDate.date'
+          name='paidAt'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
@@ -291,11 +296,11 @@ export default function InvoiceDetailInfoForm({
             />
           )}
         />
-        {renderErrorMsg(errors?.paymentDate?.date)}
+        {renderErrorMsg(errors?.paidAt)}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='paymentDate.timezone'
+          name='paidDateTimezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -317,7 +322,7 @@ export default function InvoiceDetailInfoForm({
                 <TextField
                   {...params}
                   label='Time zone'
-                  error={Boolean(errors?.paymentDate?.timezone)}
+                  error={Boolean(errors?.paidDateTimezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -326,14 +331,14 @@ export default function InvoiceDetailInfoForm({
             />
           )}
         />
-        {renderErrorMsg(errors?.paymentDate?.timezone?.code)}
+        {renderErrorMsg(errors?.paidDateTimezone?.code)}
       </Grid>
       <Grid item xs={12}>
         <Typography variant='h6' mb='24px'>
           Invoice description
         </Typography>
         <Controller
-          name='invoiceDescription'
+          name='description'
           control={control}
           render={({ field: { value, onChange } }) => (
             <>
@@ -342,7 +347,7 @@ export default function InvoiceDetailInfoForm({
                 multiline
                 fullWidth
                 disabled={isAccountManager}
-                error={Boolean(errors.invoiceDescription)}
+                error={Boolean(errors.description)}
                 placeholder='Write down an invoice description.'
                 value={value ?? ''}
                 onChange={onChange}

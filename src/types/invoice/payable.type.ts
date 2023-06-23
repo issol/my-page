@@ -38,18 +38,57 @@ export type InvoicePayableListType = {
 }
 
 export type PayableFormType = {
-  status?: InvoicePayableStatusType
+  taxInfo?: string
+  taxRate?: number
+  invoiceStatus?: InvoicePayableStatusType
+  payDueAt?: string
+  payDueTimezone?: CountryType
+  paidAt?: string | null
+  paidDateTimezone?: CountryType | null
+  description?: string
+  subtotal?: number
+  totalPrice?: number
+  tax?: number | null
+}
+
+export type InvoicePayableDetailType = {
+  id: number
+  corporationId: string
+  invoicedAt: string
+  invoiceStatus: InvoicePayableStatusType
+  pro: { name: string; email: string }
   taxInfo: string
-  tax: number | null //tax rate
-  paymentDueAt?: {
-    date: string
-    timezone: CountryType
+  taxRate: number
+  payDueAt: string
+  payDueTimezone: CountryType
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+  description: string
+  currency: CurrencyType
+  subtotal: number
+  totalPrice: number
+  tax: number | null
+  jobs: {
+    count: number
+    totalCount: number
+    data: InvoicePayableJobType[]
   }
-  paymentDate?: {
-    date: string
-    timezone: CountryType
-  }
-  invoiceDescription?: string | null
+}
+
+export type InvoicePayableJobType = {
+  id: number
+  corporationId: string
+  serviceType: string
+  name: string
+  totalPrice: number
+  contactPerson: string
+  deletedAt: string | null //TODO: 키값 변경 가능성 있음
+  priceUnits: {
+    title: string
+    unitPrice: number
+    quantity: number
+    prices: number
+  }[]
 }
 
 export type InvoicePayableDownloadData = {

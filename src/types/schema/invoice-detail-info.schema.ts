@@ -2,10 +2,7 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { PayableFormType } from '../invoice/payable.type'
 
-export const invoiceDetailInfoDefaultValue: PayableFormType = {
-  taxInfo: 'Korea resident',
-  tax: null,
-}
+export const invoiceDetailInfoDefaultValue: PayableFormType = {}
 
 export function getInvoiceDetailInfoSchema(isAccountManager: boolean) {
   return yup.object().shape({

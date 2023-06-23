@@ -41,9 +41,13 @@ import { setInvoicePayableLang } from '@src/store/invoice-payable'
 // ** permission class
 import { invoice_payable } from '@src/shared/const/permission-class'
 import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
+import { useGetPayableDetail } from '@src/queries/invoice/payable.query'
 
 type MenuType = 'info' | 'history'
 
+/* TODO:
+1. pdf기능 완성
+*/
 export default function PayableDetail() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -64,6 +68,8 @@ export default function PayableDetail() {
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>('info')
 
+  const { data } = useGetPayableDetail(Number(id))
+
   useEffect(() => {
     if (menuQuery && ['info', 'history'].includes(menuQuery)) {
       setMenu(menuQuery)
@@ -71,13 +77,9 @@ export default function PayableDetail() {
   }, [menuQuery])
 
   useEffect(() => {
+    if (!router.isReady) return
     router.replace(`/invoice/payable/${id}?menu=${menu}`)
   }, [menu, id])
-
-  //TODO: 실데이터로 교체하기
-  const data = {
-    corporationId: '123123',
-  }
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
@@ -193,11 +195,8 @@ export default function PayableDetail() {
           sx={{ background: '#ffffff', padding: '20px', borderRadius: '6px' }}
         >
           <Box display='flex' alignItems='center' gap='4px'>
-            <IconButton>
-              <Icon
-                icon='mdi:chevron-left'
-                onClick={() => router.push('/invoice/payable/')}
-              />
+            <IconButton onClick={() => router.push('/invoice/payable/')}>
+              <Icon icon='mdi:chevron-left' />
             </IconButton>
             <img
               src={'/images/icons/invoice/coin.png'}
@@ -205,7 +204,7 @@ export default function PayableDetail() {
               height={50}
               alt='invoice detail'
             />
-            <Typography variant='h5'>{data.corporationId}</Typography>
+            <Typography variant='h5'>{data?.corporationId}</Typography>
           </Box>
           <Box display='flex' alignItems='center' gap='18px'>
             <Button
@@ -246,7 +245,7 @@ export default function PayableDetail() {
           {/* Invoice info */}
           <TabPanel value='info' sx={{ pt: '24px' }}>
             <Suspense>
-              <InvoiceInfo />
+              <InvoiceInfo data={data} />
             </Suspense>
           </TabPanel>
           {/* Version history */}
