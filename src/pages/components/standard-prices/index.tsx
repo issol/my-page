@@ -53,6 +53,7 @@ import {
 } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import { useRouter } from 'next/router'
 
 type Props = {
   clientId?: number
@@ -63,6 +64,7 @@ type Props = {
 }
 
 const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
+  const router = useRouter()
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
@@ -254,7 +256,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
 
   const onClickAddNewPrice = () => {
     setSelectedModalType('Add')
-    if (priceUnit) {
+    if (priceUnit?.totalCount !== 0) {
       openModal({
         type: 'AddPriceModal',
         children: (
@@ -275,7 +277,10 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
         children: (
           <NoPriceUnitModal
             open={true}
-            onClose={() => closeModal('NoPriceUnitModal')}
+            onClose={() => {
+              closeModal('NoPriceUnitModal')
+              router.push({pathname: '/company/price/', query: {tab: 3}})
+            }}
           />
         ),
       })
