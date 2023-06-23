@@ -38,6 +38,8 @@ import {
   saveUserTokenToBrowser,
   getRedirectPath,
   removeRedirectPath,
+  getCurrentRole,
+  setCurrentRole,
 } from 'src/shared/auth/storage'
 
 // ** hooks
@@ -47,7 +49,7 @@ import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
 
 /* redux */
-import { getPermission, getRole, setCurrentRole } from 'src/store/permission'
+import { getPermission, getRole } from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
 import { useAppSelector } from 'src/hooks/useRedux'
 
@@ -104,12 +106,22 @@ const AuthProvider = ({ children }: Props) => {
     if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
       const redirectPath = getRedirectPath()
-      const TADRole =
-        hasTadAndLpm(userAccess.role) &&
-        userAccess.role.find(item => item.name === 'TAD')
-      TADRole
-        ? dispatch(setCurrentRole(TADRole))
-        : dispatch(setCurrentRole(userAccess.role[0]))
+      const storageRole = getCurrentRole()
+      // 세션 스토리지에 storageRole 값이 없는경우 사용자의 Role을 검사하여 설정(모든 유저 대상)
+      if (!storageRole) {
+        const TADRole =
+          hasTadAndLpm(userAccess.role) &&
+          userAccess.role.find(item => item.name === 'TAD')
+        TADRole
+          ? setCurrentRole(TADRole)
+          : setCurrentRole(userAccess.role[0])
+      }
+      else {
+        const findRole = userAccess.role.find(item => item.name === storageRole.name)
+        // 세션 스토리지에 storageRole 값이 있는 경우 name, type을 비교하여 현재 유저의 name, type과 다르면 업데이트
+        if (findRole && storageRole.type !== findRole?.type) setCurrentRole(findRole)
+        else setCurrentRole(userAccess.role[0])
+      }
       if (!user?.firstName) {
         if (roles?.includes('PRO')) {
           router.replace('/welcome/consumer')
