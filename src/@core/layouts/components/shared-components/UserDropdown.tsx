@@ -1,5 +1,5 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment } from 'react'
+import { useState, SyntheticEvent, Fragment, useEffect } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -27,7 +27,12 @@ import { RoleType, UserRoleType } from 'src/context/types'
 // ** hooks
 import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
-import { setCurrentRole } from '@src/store/permission'
+// import { setCurrentRole } from '@src/store/permission'
+import {
+  setCurrentRole,
+  getCurrentRole
+} from 'src/shared/auth/storage'
+import { current } from '@reduxjs/toolkit'
 
 interface Props {
   settings: Settings
@@ -74,15 +79,25 @@ const UserDropdown = (props: Props) => {
     setAnchorEl(null)
   }
 
+  useEffect(() =>{
+    if(role && hasTadAndLpm(role)) {
+      const currentRole = getCurrentRole()
+      if(currentRole.name === 'TAD') setChecked(false)
+      else if (currentRole.name === 'LPM') setChecked(true)
+      else setChecked(false)
+    }
+  }, [role])
+
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setChecked(event.target.checked)
-    dispatch(
+    // 스위치가 바뀔때 Role을 세션 스토리지에 저장
+    if (hasTadAndLpm(role)) {
       setCurrentRole(
         event.target.checked
-          ? role.find(item => item.name === 'LPM') ?? null
-          : role.find(item => item.name === 'TAD') ?? null,
-      ),
-    )
+        ? role.find(item => item.name === 'LPM')
+        : role.find(item => item.name === 'TAD')
+      )
+    }
     router.push('/home')
   }
 
@@ -231,7 +246,7 @@ const UserDropdown = (props: Props) => {
           </Box>
         </Box>
         <Divider sx={{ mt: '0 !important' }} />
-        {role && hasTadAndLpm(role) && (
+        {role && (
           <MenuItem
             onClick={() => {
               router.push('/company/my-account')
