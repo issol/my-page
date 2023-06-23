@@ -6,6 +6,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
   PriceUnitDataType,
+  PriceUnitType,
 } from '@src/types/common/standard-price'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -393,6 +394,11 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
 
     return sortedWithNestedPriceUnits
   }
+
+  const sortPriceUnitListByTitle = (priceUnitData: PriceUnitType[]) => {
+    return priceUnitData.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
   const onClickSetPriceUnit = () => {
     openModal({
       type: 'setPriceUnitModal',
@@ -400,7 +406,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
         <SetPriceUnitModal
           onClose={() => closeModal('setPriceUnitModal')}
           currency={selectedPriceData?.currency!}
-          priceUnit={filterPriceUnitList(priceUnit!)}
+          priceUnit={sortPriceUnitListByTitle(filterPriceUnitList(priceUnit!))}
           price={selectedPriceData!}
           priceUnitPair={sortPriceUnitList(selectedPriceData?.priceUnit!)}
           setIsEditingCatInterface={setIsEditingCatInterface}
