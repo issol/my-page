@@ -21,7 +21,7 @@ const addressSchema = yup.object().shape({
 })
 
 export const lpmCompanyInfoSchema = yup.object().shape({
-  companyName: yup.string().required(FormErrors.required),
+  name: yup.string().required(FormErrors.required),
   ceo: yup.array().of(ceoSchema),
   headquarter: yup.object().shape({
     value: yup.string().nullable(),

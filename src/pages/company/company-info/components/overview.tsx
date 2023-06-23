@@ -131,7 +131,7 @@ const CompanyInfoOverview = ({
           <Divider />
           <Box sx={{ width: '100%' }}>
             <Controller
-              name='companyName'
+              name='name'
               control={control}
               render={({ field: { value, onChange } }) => (
                 <TextField
@@ -237,7 +237,7 @@ const CompanyInfoOverview = ({
                         autoHighlight
                         fullWidth
                         options={country}
-                        onChange={(e, v) => onChange(v.value)}
+                        onChange={(e, v) => onChange(v)}
                         disableClearable
                         value={
                           !value
@@ -330,7 +330,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -363,7 +363,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -373,7 +373,7 @@ const CompanyInfoOverview = ({
                         }}
                         InputProps={{
                           startAdornment: watch('timezone') &&
-                            watch('timezone').phone && (
+                            watch('timezone')?.phone && (
                               <InputAdornment position='start'>
                                 {'+' + watch('timezone').phone}
                               </InputAdornment>
@@ -504,7 +504,7 @@ const CompanyInfoOverview = ({
                   Time zone:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16} fontWeight={400}>
-                  {getGmtTimeEng(companyInfo.timezone.code)}
+                  {getGmtTimeEng(companyInfo.timezone?.code)}
                 </Typography>
               </Box>
             </Box>

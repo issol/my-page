@@ -32,7 +32,8 @@ export type CompanyAddressFormType = {
 }
 
 export type CompanyInfoType = {
-  companyName: string
+  id: string
+  name: string
   logo?: string
   billingPlan?: {
     name: string
@@ -49,7 +50,8 @@ export type CompanyInfoType = {
 }
 
 export type CompanyInfoFormType = {
-  companyName: string
+  companyId: string
+  name: string
   logo?: string
   billingPlan?: {
     name: string
@@ -66,4 +68,17 @@ export type CompanyInfoFormType = {
   fax?: string
 
   address: Array<CompanyAddressFormType>
+}
+
+export type CompanyInfoParamsType = {
+  companyId: string
+  name: string
+  logo?: string
+  ceo?: Array<CEOInfoType>
+  headquarter?: string
+  timezone: CountryType
+  registrationNumber?: string
+  email?: string
+  phone?: string
+  fax?: string
 }

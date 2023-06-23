@@ -247,143 +247,148 @@ const CompanyInfoAddress = ({
           </Box>
           <Box>
             <Divider />
-            {companyInfo.address.map((value, index) => {
-              return (
-                <Box
-                  key={uuidv4()}
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-                >
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Chip
-                        label={value.officeName}
-                        rounded
-                        color={
-                          value.officeName === 'Korea office'
-                            ? 'info'
-                            : value.officeName === 'Japan office'
-                            ? 'success'
-                            : 'default'
-                        }
-                        skin='light'
-                        sx={{ color: '#000' }}
-                      />
-                    </Box>
-                  </Box>
-
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Street:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.baseAddress ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Street 2:
-                      </Typography>
-                      <Typography
-                        variant='subtitle2'
-                        fontSize={16}
-                        fontWeight={400}
+            {companyInfo.address &&
+              companyInfo.address?.map((value, index) => {
+                return (
+                  <Box
+                    key={uuidv4()}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '16px',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
                       >
-                        {value.detailAddress ?? '-'}
-                      </Typography>
+                        <Chip
+                          label={value.officeName}
+                          rounded
+                          color={
+                            value.officeName === 'Korea office'
+                              ? 'info'
+                              : value.officeName === 'Japan office'
+                              ? 'success'
+                              : 'default'
+                          }
+                          skin='light'
+                          sx={{ color: '#000' }}
+                        />
+                      </Box>
                     </Box>
+
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Street:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.baseAddress ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Street 2:
+                        </Typography>
+                        <Typography
+                          variant='subtitle2'
+                          fontSize={16}
+                          fontWeight={400}
+                        >
+                          {value.detailAddress ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          City:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.city ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          State:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.state ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Country:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.country ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          ZIP code:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.zipCode ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {index === companyInfo.address.length - 1 ? null : (
+                      <Divider />
+                    )}
                   </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        City:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.city ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        State:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.state ?? '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Country:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.country ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        ZIP code:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.zipCode ?? '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {index === companyInfo.address.length - 1 ? null : (
-                    <Divider />
-                  )}
-                </Box>
-              )
-            })}
+                )
+              })}
           </Box>
         </>
       )}
