@@ -1,0 +1,11 @@
+{
+  "companyName": "글로지(주)",
+  "companyAddress": "서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)",
+  "invoiceNumber": "인보이스 번호",
+  "invoiceDate": "정산 요청일",
+  "invoiceFrom": "Invoice from",
+  "jobDescription": "상세 내역",
+  "quantity": "수량",
+  "price": "단가",
+  "totalPrice": "금액"
+}

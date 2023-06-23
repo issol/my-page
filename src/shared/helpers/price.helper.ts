@@ -1,5 +1,6 @@
 import { CurrencyType } from '@src/types/common/standard-price'
 import { locale } from '../const/locale'
+import { currencyMarks } from '@src/shared/const/price/currencyMarks'
 import { RoundingProcedureObj } from '../const/rounding-procedure/rounding-procedure'
 
 export function getPrice(
@@ -121,4 +122,10 @@ function truncate(number: number, precision: number): number {
 function rounding(number: number, precision: number): number {
   const factor = Math.pow(10, precision)
   return Math.round(number * factor) / factor
+}
+
+export function sliceCurrencyMark(value: string) {
+  const mark = value.slice(0,1)
+  if (currencyMarks.find(currencyMark => currencyMark === mark)) return value.slice(1,value.length)
+  return value
 }

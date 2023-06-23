@@ -32,7 +32,7 @@ import styled from 'styled-components'
 
 // ** store
 import { useAppDispatch } from '@src/hooks/useRedux'
-import { resetQuoteLang, setIsReady } from '@src/store/quote'
+import { setIsReady } from '@src/store/quote'
 
 // ** apis
 import { useMutation } from 'react-query'

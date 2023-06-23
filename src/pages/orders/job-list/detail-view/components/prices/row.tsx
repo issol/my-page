@@ -63,7 +63,6 @@ const Row = ({
 }: Props) => {
   const [cardOpen, setCardOpen] = useState(true)
   const itemData = getItem(`items.${0}`)
-  console.log('itemData : ', itemData)
 
   /* price unit */
   const itemName: `items.${number}.detail` = `items.${0}.detail`

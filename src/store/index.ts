@@ -7,6 +7,7 @@ import modal from './modal'
 import order from './order'
 import quote from './quote'
 import invoice from './invoice'
+import invoicePayable from './invoice-payable'
 
 export const store = configureStore({
   reducer: {
@@ -15,6 +16,7 @@ export const store = configureStore({
     order,
     quote,
     invoice,
+    invoicePayable,
   },
   middleware: getDefaultMiddleware =>
     getDefaultMiddleware({

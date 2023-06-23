@@ -57,7 +57,10 @@ import {
   useQueryClient,
 } from 'react-query'
 import toast from 'react-hot-toast'
-import { putPriceUnitPair, setPriceUnitPair } from '@src/apis/company-price.api'
+import {
+  putPriceUnitPair,
+  setPriceUnitPair,
+} from '@src/apis/company/company-price.api'
 import BasePriceUnitRemoveModal from '../modal/base-price-unit-remove-modal'
 
 type Props = {
@@ -280,7 +283,10 @@ const SetPriceUnitModal = ({
         unitId: value.id,
         quantity: value.unit === 'Percent' ? '-' : 1,
         price: 1.0,
-        weighting: (!value.weighting || value.weighting === 0 || value.unit === 'Percent') ? '-' : value.weighting,
+        weighting:
+          !value.weighting || value.weighting === 0 || value.unit === 'Percent'
+            ? '-'
+            : value.weighting,
         title: value.title,
         isBase: value.parentPriceUnitId === null,
         parentPriceUnitId: value.parentPriceUnitId,
@@ -439,7 +445,7 @@ const SetPriceUnitModal = ({
             size='medium'
             sx={{ height: '42px' }}
             onClick={onClickAddPriceUnit}
-            disabled={priceUnits.length===0}
+            disabled={priceUnits.length === 0}
           >
             Add
           </Button>
@@ -851,7 +857,11 @@ const SetPriceUnitModal = ({
                 type='submit'
                 disabled={
                   pairFields.some(item => {
-                    return (!item.weighting && item.weighting !== 0) || !item.quantity || !item.price
+                    return (
+                      (!item.weighting && item.weighting !== 0) ||
+                      !item.quantity ||
+                      !item.price
+                    )
                   }) || pairFields.length === 0
                 }
               >

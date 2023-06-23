@@ -23,7 +23,6 @@ type Props = {
 
 export default function ItemPriceUnitTable({ itemDetail, totalPrice }: Props) {
   const Row = ({ idx, item }: { idx: number; item: ItemDetailType }) => {
-    console.log('item', item)
     return (
       <TableRow hover tabIndex={-1}>
         <TableCell>
@@ -73,7 +72,7 @@ export default function ItemPriceUnitTable({ itemDetail, totalPrice }: Props) {
             </TableRow>
           </TableHead>
           <TableBody>
-            {itemDetail.map((item, idx) => (
+            {itemDetail?.map((item, idx) => (
               <Row key={idx} idx={idx} item={item} />
             ))}
 
@@ -90,7 +89,7 @@ export default function ItemPriceUnitTable({ itemDetail, totalPrice }: Props) {
                 >
                   <Typography fontWeight='bold'>
                     {totalPrice}
-                    {getCurrencyMark(itemDetail[0].currency)}
+                    {getCurrencyMark(itemDetail[0]?.currency)}
                   </Typography>
                 </Box>
               </TableCell>

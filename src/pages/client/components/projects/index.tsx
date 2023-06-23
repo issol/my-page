@@ -72,7 +72,7 @@ export default function ClientProjects({ id, user }: Props) {
   })
 
   const { data: clientProjectList, isLoading } =
-    useGetClientProjectList(filters)
+    useGetClientProjectList(id, filters)
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,

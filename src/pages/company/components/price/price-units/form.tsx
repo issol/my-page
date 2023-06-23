@@ -273,7 +273,15 @@ export default function PriceUnitForm(props: Props) {
               name='isActive'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <Switch checked={value} onChange={onChange} />
+                <Switch
+                  checked={value}
+                  onChange={e => {
+                    if(subPrices.length && e.target.checked === false) {
+                      subPrices?.map((item, idx) => setValue(`subPriceUnits.${idx}.isActive`, false))
+                    }
+                    onChange(e.target.checked)
+                  }}
+                />
               )}
             />
           )}
@@ -387,7 +395,13 @@ export default function PriceUnitForm(props: Props) {
                           name={`subPriceUnits.${idx}.isActive`}
                           control={control}
                           render={({ field: { value, onChange } }) => (
-                            <Switch checked={value} onChange={onChange} />
+                            <Switch
+                              checked={value}
+                              onChange={e => {
+                                if(!getValues('isActive') && e.target.checked) setValue('isActive',e.target.checked)
+                                onChange(e.target.checked)
+                              }}
+                            />
                           )}
                         />
                       )}
