@@ -116,11 +116,12 @@ export default function InvoiceDetailInfoForm({
           placeholder='Invoice date*'
         />
       </Grid>
-      {/* TODO: 이 값 추가 리샤 문의하기 */}
+
       <Grid item xs={6}>
         <TextField
           fullWidth
           disabled
+          value={getGmtTime(data?.invoicedAtTimezone?.code)}
           label='Time zone*'
           placeholder='Time zone*'
         />
@@ -206,7 +207,7 @@ export default function InvoiceDetailInfoForm({
             <FormControl fullWidth error={Boolean(errors.tax)}>
               <InputLabel>Tax rate*</InputLabel>
               <OutlinedInput
-                value={value ?? null}
+                value={value ?? ''}
                 error={Boolean(errors.tax)}
                 onChange={e => {
                   if (e.target.value.length > 10) return

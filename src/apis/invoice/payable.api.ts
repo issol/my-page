@@ -225,9 +225,14 @@ export const getInvoicePayableDetail = async (
       id: 1,
       corporationId: 'sdf-1122',
       invoicedAt: Date(),
+      invoicedAtTimezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
       invoiceStatus: 'Invoice created',
       pro: { name: 'bon kim', email: 'bon@gloz.com' },
-      taxInfo: 'string',
+      taxInfo: 'Korea resident',
       taxRate: 10,
       payDueAt: Date(),
       payDueTimezone: {

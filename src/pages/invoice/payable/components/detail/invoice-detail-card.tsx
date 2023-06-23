@@ -121,14 +121,11 @@ export default function InvoiceDetailCard({
         taxInfo: data.taxInfo ?? '',
         taxRate: data.taxRate,
         invoiceStatus: data.invoiceStatus,
-        payDueAt: data.payDueAt,
+        payDueAt: data.payDueAt ?? '',
         payDueTimezone: data.payDueTimezone,
-        paidAt: data.paidAt,
+        paidAt: data.paidAt ?? '',
         paidDateTimezone: data.paidDateTimezone,
         description: data.description,
-        subtotal: data.subtotal,
-        totalPrice: data.totalPrice,
-        tax: data.tax,
       })
     }
   }, [data])

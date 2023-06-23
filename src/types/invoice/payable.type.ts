@@ -55,6 +55,7 @@ export type InvoicePayableDetailType = {
   id: number
   corporationId: string
   invoicedAt: string
+  invoicedAtTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType
   pro: { name: string; email: string }
   taxInfo: string

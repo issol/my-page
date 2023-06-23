@@ -130,8 +130,6 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
 
   useEffect(() => {
     if (jobPrices) {
-      console.log(jobPrices)
-
       const result = [
         {
           id: jobPrices.id!,
