@@ -20,31 +20,17 @@ export const quoteSlice: Slice<ReducerType> = createSlice({
       state.quoteTotalData = action.payload
       state.isReady = true
     },
-    resetQuote: state => {
-      state.quoteTotalData = initialState.quoteTotalData
-      state.isReady = false
-    },
 
     setQuoteLang: (state, action) => {
       state.lang = action.payload
     },
 
-    resetQuoteLang: state => {
-      state.lang = initialState.lang
-    },
-
-    setIsReady(state) {
-      state.isReady = false
+    setIsReady(state, action) {
+      state.isReady = action.payload
     },
   },
 })
 
-export const {
-  setQuote,
-  resetQuote,
-  setQuoteLang,
-  resetQuoteLang,
-  setIsReady,
-  initRequest,
-} = quoteSlice.actions
+export const { setQuote, setQuoteLang, setIsReady, initRequest } =
+  quoteSlice.actions
 export default quoteSlice.reducer

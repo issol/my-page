@@ -62,6 +62,7 @@ export const getJobInfo = async (
   } catch (e: any) {
     return {
       id: 0,
+      order: { id: -1 },
       corporationId: '',
       name: '',
       status: 'In preparation',
@@ -105,13 +106,14 @@ export const getJobPrices = async (
 
     return {
       ...data,
-      items: data.items.map((item: ItemResType) => ({
-        ...item,
-        name: item?.itemName,
-        source: item?.sourceLanguage,
-        target: item?.targetLanguage,
-        totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
-      })),
+      datas:
+        data?.datas?.map((item: ItemResType) => ({
+          ...item,
+          name: item?.itemName,
+          source: item?.sourceLanguage,
+          target: item?.targetLanguage,
+          totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
+        })) || [],
     }
   } catch (e: any) {
     throw new Error(e)

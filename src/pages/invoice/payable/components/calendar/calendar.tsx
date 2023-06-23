@@ -29,8 +29,8 @@ const PayableCalendar = (props: Props) => {
     return {
       ...item,
       title: item.pro.name,
-      start: item.invoicedAt,
-      end: item?.paidAt ? item?.paidAt : item.payDueAt,
+      start: item.statusUpdatedAt,
+      end: item.statusUpdatedAt,
     }
   })
 

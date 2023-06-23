@@ -708,7 +708,10 @@ export default function QuotesDetail() {
               <Button
                 variant='outlined'
                 sx={{ width: 226 }}
-                onClick={() => closeModal('PreviewModal')}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setIsReady(false))
+                }}
               >
                 Close
               </Button>
@@ -736,7 +739,7 @@ export default function QuotesDetail() {
         <DownloadQuotesModal
           onClose={() => {
             closeModal('DownloadQuotesModal')
-            dispatch(setIsReady(null))
+            dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
         />

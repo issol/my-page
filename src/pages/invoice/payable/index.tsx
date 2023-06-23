@@ -44,8 +44,6 @@ const initialFilter: InvoicePayableFilterType = {
   paidDateFrom: '',
   paidDateTo: '',
   search: '',
-  // mine: false,
-  // hidePaid: false,
   skip: 0,
   take: 10,
 }
