@@ -65,6 +65,8 @@ export const managerProfileSchema = yup.object().shape({
   middleName: yup.string().nullable(),
   lastName: yup.string().required(FormErrors.required),
   jobTitle: yup.string().nullable(),
+  email: yup.string().nullable(),
+  department: yup.string().nullable(),
   timezone: yup.object().shape({
     code: yup.string().required(FormErrors.required),
     label: yup.string().required(FormErrors.required),

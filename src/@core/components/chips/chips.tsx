@@ -9,6 +9,7 @@ import {
   InvoicePayableStatusType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
+import { RoleType, UserType } from '@src/context/types'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -382,6 +383,44 @@ export function InvoiceReceivableChip(status: InvoiceReceivableStatusType) {
       sx={{
         background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
         color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function MemberChip(role: RoleType) {
+  const color = role === 'TAD' ? '#FF4D49' : role === 'LPM' ? '#666CFF' : ''
+  return (
+    <CustomChip
+      label={role}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function PermissionChip(permission: UserType) {
+  const color =
+    permission === 'Master'
+      ? '#666CFF80'
+      : permission === 'Manager'
+      ? '#26C6F980'
+      : permission === 'General'
+      ? '#72E12880'
+      : ''
+  return (
+    <CustomChip
+      label={permission}
+      skin='light'
+      sx={{
+        background: '#fff',
+        color: color,
+        border: `1px solid ${color}`,
       }}
       size='small'
     />

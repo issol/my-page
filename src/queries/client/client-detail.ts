@@ -35,7 +35,7 @@ export const useGetClientProjectList = (
   id: number,
   filter: ClientProjectFilterType,
 ) => {
-  return useQuery<{ data: ClientProjectListType[]; count: number }>(
+  return useQuery<{ data: ClientProjectListType[]; totalCount: number }>(
     ['client-projects', filter],
     () => {
       return getClientProjectList(id, filter)

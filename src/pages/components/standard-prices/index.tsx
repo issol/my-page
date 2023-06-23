@@ -49,7 +49,7 @@ import {
   createPrice,
   deletePrice,
   patchPrice,
-} from '@src/apis/company-price.api'
+} from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
 
@@ -58,9 +58,10 @@ type Props = {
   proId?: number
   title: string
   page: 'pro' | 'client'
+  used?: string
 }
 
-const StandardPrices = ({ clientId, page, title, proId }: Props) => {
+const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
@@ -78,6 +79,8 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
   } = useGetStandardPrices(page, {
     take: standardPriceListPageSize,
     skip: standardPriceListPage * standardPriceListPageSize,
+    clientId: used === 'client' ? clientId : null,
+    isStandard: !used ? true : null
   })
 
   const [languagePairListPage, setLanguagePairListPage] = useState<number>(0)
@@ -261,6 +264,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
             onSubmit={onSubmit}
             onClickAction={onClickAction}
             page={page}
+            used={used}
           />
         ),
       })
@@ -293,6 +297,7 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           selectedPriceData={priceData!}
           onClickAction={onClickAction}
           page={page}
+          used={used}
         />
       ),
     })
@@ -348,17 +353,21 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
     })
   }
 
-  const filterPriceUnitList = (priceUnitData:PriceUnitDataType) => {
+  const filterPriceUnitList = (priceUnitData: PriceUnitDataType) => {
     // Set price unit에서는 price unit data의 isActive가 true인것만 보여줘야 함.
     // 추후에 백엔드에서 isActive가 true인것만 받아오는 api가 있어도 되겠음
     const filteredData = priceUnitData.data.filter(item => item.isActive)
 
     const filteredWithSubPriceUnits = filteredData.filter(item => {
-      return item.isActive || item.subPriceUnits.some(subItem => subItem.isActive)
+      return (
+        item.isActive || item.subPriceUnits.some(subItem => subItem.isActive)
+      )
     })
 
     return filteredWithSubPriceUnits.map(item => {
-      const filteredSubPriceUnits = item.subPriceUnits.filter(subItem => subItem.isActive)
+      const filteredSubPriceUnits = item.subPriceUnits.filter(
+        subItem => subItem.isActive,
+      )
       return {
         ...item,
         subPriceUnits: filteredSubPriceUnits,
@@ -366,19 +375,23 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
     })
   }
 
-  const sortPriceUnitList = (priceUnitData:PriceUnitListType[]) => {
-    const sortedData = [...priceUnitData].sort((a, b) => a.priceUnitId - b.priceUnitId)
+  const sortPriceUnitList = (priceUnitData: PriceUnitListType[]) => {
+    const sortedData = [...priceUnitData].sort(
+      (a, b) => a.priceUnitId - b.priceUnitId,
+    )
     const sortedWithNestedPriceUnits: PriceUnitListType[] = []
 
     sortedData.forEach(item => {
       if (!item.parentPriceUnitId) {
         sortedWithNestedPriceUnits.push(item)
-        const nestedItems = sortedData.filter(parentItem => parentItem.parentPriceUnitId === item.priceUnitId)
+        const nestedItems = sortedData.filter(
+          parentItem => parentItem.parentPriceUnitId === item.priceUnitId,
+        )
         sortedWithNestedPriceUnits.push(...nestedItems)
       }
     })
 
-    return sortedWithNestedPriceUnits;
+    return sortedWithNestedPriceUnits
   }
   const onClickSetPriceUnit = () => {
     openModal({
@@ -492,11 +505,12 @@ const StandardPrices = ({ clientId, page, title, proId }: Props) => {
           {page === 'client' && (
             <Grid item xs={12}>
               <CatInterface
-                priceUnitList={priceUnitList}
+                priceUnitList={sortPriceUnitList(priceUnitList)}
                 priceData={selectedPriceData}
                 existPriceUnit={priceUnitList.length > 0}
                 setIsEditingCatInterface={setIsEditingCatInterface}
                 isEditingCatInterface={isEditingCatInterface}
+                selectedLanguagePair={selectedLanguagePair}
               />
             </Grid>
           )}

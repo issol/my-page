@@ -43,6 +43,7 @@ export type ClientRowType = {
 export type ClientListDataType = {
   data: Array<ClientRowType>
   count: number
+  totalCount: number
 }
 
 export const getClientList = async (
@@ -57,6 +58,7 @@ export const getClientList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -229,18 +231,13 @@ export const deleteClient = async (
 }
 
 export const getClientProjectList = async (
-  id: number,
+  clientId: number,
   filter: ClientProjectFilterType,
 ): Promise<{ data: ClientProjectListType[]; count: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/projects?${makeQuery(filter)}`,
+      `/api/enough/u/client/${clientId}/projects?${makeQuery(filter)}`,
     )
-    // const { data } = await axios.get(
-    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
-    // )
-
-    return data
 
     // const list: ClientProjectListType[] = [
     //   {
@@ -270,7 +267,7 @@ export const getClientProjectList = async (
     //     type: 'order',
     //   },
     // ]
-    // // return data
+    return data
     // return {
     //   data: list,
     //   totalCount: list.length,

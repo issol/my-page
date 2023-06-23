@@ -136,6 +136,7 @@ export default function ClientDetail() {
             title='Client prices'
             clientId={userInfo?.clientId!}
             page='client'
+            used='client'
           />
         </TabPanel>
         <TabPanel value='4'>
