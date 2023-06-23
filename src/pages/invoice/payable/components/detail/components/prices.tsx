@@ -1,17 +1,6 @@
-import { Icon } from '@iconify/react'
-import { Box, Button, Card, Divider, Typography } from '@mui/material'
-import useModal from '@src/hooks/useModal'
-import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
-import { defaultOption } from '@src/pages/orders/add-new'
-import { useGetPriceList } from '@src/queries/company/standard-price'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
-import { ItemDetailType, ItemType, JobType } from '@src/types/common/item.type'
-import {
-  PriceUnitListType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
-import { Dispatch, SetStateAction, useMemo, useState } from 'react'
+import { Box, Card, Divider, Typography } from '@mui/material'
+import { ItemDetailType, JobType } from '@src/types/common/item.type'
+import { useMemo } from 'react'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
 import ItemPriceUnitTable from '@src/pages/components/item-detail/price-unit-table'
