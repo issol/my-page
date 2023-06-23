@@ -253,7 +253,7 @@ export const getInvoicePayableDetail = async (
             name: 'bon',
             totalPrice: 100000,
             contactPerson: 'Bon',
-            deletedAt: Date(),
+            deletedAt: null,
             priceUnits: [
               {
                 title: 'Price',

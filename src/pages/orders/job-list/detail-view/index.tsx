@@ -134,7 +134,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           source: jobPrices.source!,
           target: jobPrices.target!,
           priceId: jobPrices.priceId!,
-          detail: !jobPrices.datas.length ? [] : jobPrices.datas!,
+          detail: !jobPrices.datas.length ? [] : jobPrices.datas,
 
           totalPrice: Number(jobPrices?.totalPrice!),
         },
