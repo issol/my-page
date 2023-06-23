@@ -24,10 +24,11 @@ import { UserDataType } from '@src/context/types'
 import ClientInvoiceList from './list/list'
 
 import ClientInvoiceCalendarContainer from './calendar'
+import invoice from '@src/store/invoice'
 
 export type FilterType = {
-  invoicedDate: Date[]
-  paymentDueDate: Date[]
+  invoicedDate: Array<Date | null>
+  paymentDueDate: Array<Date | null>
   status: Array<{ label: string; value: string }>
   search: string
 }
@@ -37,6 +38,18 @@ const defaultValues: FilterType = {
   paymentDueDate: [],
   status: [],
   search: '',
+}
+
+const initialFilter: ClientInvoiceFilterType = {
+  status: [],
+  search: '',
+  take: 10,
+  skip: 0,
+  sort: 'DESC',
+  invoicedDateTo: null,
+  invoicedDateFrom: null,
+  paymentDueDateTo: null,
+  paymentDueDateFrom: null,
 }
 
 type Props = { id: number; user: UserDataType }
@@ -55,18 +68,12 @@ export default function ClientInvoices({ id, user }: Props) {
 
   const [selected, setSelected] = useState<number | null>(null)
 
-  const [filters, setFilters] = useState<ClientInvoiceFilterType>({
-    invoicedDate: [],
-    paymentDueDate: [],
-    status: [],
-    search: '',
-    take: clientInvoiceListPageSize,
-    skip: clientInvoiceListPageSize * clientInvoiceListPage,
-    sort: 'DESC',
-  })
+  const [filters, setFilters] = useState<ClientInvoiceFilterType>(initialFilter)
 
-  const { data: clientInvoiceList, isLoading } =
-    useGetClientInvoiceList(filters)
+  const { data: clientInvoiceList, isLoading } = useGetClientInvoiceList(
+    id,
+    filters,
+  )
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -78,16 +85,10 @@ export default function ClientInvoices({ id, user }: Props) {
       invoicedDate: [],
       paymentDueDate: [],
       search: '',
+      status: [],
     })
 
-    setFilters({
-      invoicedDate: [],
-      paymentDueDate: [],
-      search: '',
-      skip: 0,
-      take: 10,
-      sort: 'DESC',
-    })
+    setFilters(initialFilter)
   }
 
   const handleRowClick = (row: ClientInvoiceListType) => {
@@ -117,9 +118,11 @@ export default function ClientInvoices({ id, user }: Props) {
   const onSubmit = (data: FilterType) => {
     const { invoicedDate, paymentDueDate, search } = data
 
-    const filter = {
-      invoicedDate: invoicedDate.map(value => value),
-      paymentDueDate: paymentDueDate.map(value => value),
+    const filter: ClientInvoiceFilterType = {
+      invoicedDateFrom: invoicedDate[0],
+      invoicedDateTo: invoicedDate[1],
+      paymentDueDateFrom: paymentDueDate[0],
+      paymentDueDateTo: paymentDueDate[1],
 
       search: search,
       take: clientInvoiceListPageSize,
