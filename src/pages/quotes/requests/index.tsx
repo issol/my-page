@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -8,12 +8,102 @@ import { Box } from '@mui/system'
 import PageHeader from '@src/@core/components/page-header'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import styled from 'styled-components'
+import { RequestFilterType } from '@src/types/requests/filters'
+import Filter from './components/filter'
+import { ConstType } from '@src/pages/onboarding/client-guideline'
+import {
+  ServiceTypeList,
+  ServiceTypePair,
+} from '@src/shared/const/service-type/service-types'
+import List from './components/list'
+import { useGetClientRequestList } from '@src/queries/requests/client-request.query'
 
 // ** components
+
+export const initialFilter: RequestFilterType = {
+  status: [],
+  lsp: [],
+  category: [],
+  serviceType: [],
+  requestDateFrom: '',
+  requestDateTo: '',
+  desiredDueDateFrom: '',
+  desiredDueDateTo: '',
+  search: '',
+  mine: 0,
+  hideCompleted: 0,
+  skip: 0,
+  take: 10,
+}
 
 type MenuType = 'list' | 'calendar'
 export default function Requests() {
   const [menu, setMenu] = useState<MenuType>('list')
+
+  const [skip, setSkip] = useState(0)
+  const [serviceType, setServiceType] = useState<Array<ConstType>>([])
+  const [filter, setFilter] = useState<RequestFilterType>(initialFilter)
+  const [activeFilter, setActiveFilter] =
+    useState<RequestFilterType>(initialFilter)
+
+  const { data: list, isLoading } = useGetClientRequestList({ ...activeFilter })
+
+  function findServiceTypeFilter() {
+    let category: Array<ConstType> = []
+    if (filter.category?.length) {
+      filter.category.forEach(item => {
+        if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
+        category = category.concat(
+          ServiceTypePair[item as keyof typeof ServiceTypePair],
+        )
+      })
+    }
+
+    if (category?.length) {
+      const result = category.reduce(
+        (acc: Array<ConstType>, item: ConstType) => {
+          const found = acc.find(ac => ac.value === item.value)
+          if (!found) return acc.concat(item)
+          return acc
+        },
+        [],
+      )
+      return result
+    }
+    return ServiceTypeList
+  }
+
+  useEffect(() => {
+    const newFilter = findServiceTypeFilter()
+    setServiceType(newFilter)
+    if (newFilter.length)
+      setFilter({
+        ...filter,
+        serviceType: newFilter
+          .filter(item => filter.serviceType?.includes(item.value))
+          .map(item => item.value),
+      })
+  }, [filter.category])
+
+  function onSearch() {
+    setActiveFilter({
+      ...filter,
+      mine: activeFilter.mine,
+      hideCompleted: activeFilter.hideCompleted,
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
+  }
+
+  function onReset() {
+    setFilter({ ...initialFilter })
+    setActiveFilter({
+      ...initialFilter,
+      mine: activeFilter.mine,
+      hideCompleted: activeFilter.hideCompleted,
+    })
+  }
+
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -47,19 +137,13 @@ export default function Requests() {
         {
           menu === 'list' ? (
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              {/* <QuotesFilters
-          filter={filters}
-          control={control}
-          setFilter={setFilters}
-          onReset={onClickResetButton}
-          handleSubmit={handleSubmit}
-          onSubmit={onSubmit}
-          trigger={trigger}
-          serviceTypeList={serviceTypeList}
-          setServiceTypeList={setServiceTypeList}
-          categoryList={categoryList}
-          setCategoryList={setCategoryList}
-        /> */}
+              <Filter
+                serviceType={serviceType}
+                filter={filter}
+                setFilter={setFilter}
+                onReset={onReset}
+                search={onSearch}
+              />
               <Box
                 sx={{
                   display: 'flex',
@@ -67,17 +151,30 @@ export default function Requests() {
                   gap: '24px',
                 }}
               >
-                {/* <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            <Typography>See only my quotes</Typography>
-            <Switch checked={seeMyQuotes} onChange={handleSeeMyQuotes} />
-          </Box>
-          <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-            <Typography>Hide completed quotes</Typography>
-            <Switch
-              checked={hideCompletedQuotes}
-              onChange={handleHideCompletedQuotes}
-            />
-          </Box> */}
+                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <Typography>See only my requests</Typography>
+                  <Switch
+                    checked={activeFilter.mine === 1}
+                    onChange={e =>
+                      setActiveFilter({
+                        ...activeFilter,
+                        mine: e.target.checked ? 1 : 0,
+                      })
+                    }
+                  />
+                </Box>
+                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                  <Typography>Hide completed requests</Typography>
+                  <Switch
+                    checked={activeFilter.hideCompleted === 1}
+                    onChange={e =>
+                      setActiveFilter({
+                        ...activeFilter,
+                        hideCompleted: e.target.checked ? 1 : 0,
+                      })
+                    }
+                  />
+                </Box>
               </Box>
               <Grid item xs={12}>
                 <Card>
@@ -99,16 +196,25 @@ export default function Requests() {
                       '& .MuiCardHeader-title': { letterSpacing: '.15px' },
                     }}
                   />
-                  {/* <QuotesList
-              skip={quoteListPage}
-              setSkip={setClientInvoiceListPage}
-              pageSize={quoteListPageSize}
-              setPageSize={setClientInvoiceListPageSize}
-              list={list || { data: [], totalCount: 0 }}
-              isLoading={isLoading}
-              filter={filters}
-              setFilter={setFilters}
-            /> */}
+
+                  <List
+                    skip={skip}
+                    pageSize={activeFilter.skip}
+                    setSkip={(n: number) => {
+                      setSkip(n)
+                      setActiveFilter({
+                        ...activeFilter,
+                        skip: n * activeFilter.take,
+                      })
+                    }}
+                    setPageSize={(n: number) =>
+                      setActiveFilter({ ...activeFilter, take: n })
+                    }
+                    filter={activeFilter}
+                    setFilter={setActiveFilter}
+                    list={list || { count: 0, data: [] }}
+                    isLoading={isLoading}
+                  />
                 </Card>
               </Grid>
             </Box>

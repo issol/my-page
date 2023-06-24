@@ -10,6 +10,7 @@ import {
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
+import { RequestStatusType } from '@src/types/requests/common'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -421,6 +422,33 @@ export function PermissionChip(permission: UserType) {
         background: '#fff',
         color: color,
         border: `1px solid ${color}`,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ClientRequestStatusChip(status: RequestStatusType) {
+  const color =
+    status === 'Request created'
+      ? '#A81988'
+      : status === 'In preparation'
+      ? '#FDB528'
+      : status === 'Changed into quote'
+      ? '#64C623'
+      : status === 'Changed into order'
+      ? '#1A6BBA'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
       }}
       size='small'
     />
