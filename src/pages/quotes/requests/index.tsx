@@ -202,7 +202,10 @@ export default function Requests() {
                         Requests ({list?.count ?? 0})
                       </Typography>{' '}
                       <Button variant='contained'>
-                        <StyledNextLink href='/quotes/add-new' color='white'>
+                        <StyledNextLink
+                          href='/quotes/requests/add-new'
+                          color='white'
+                        >
                           Create new request
                         </StyledNextLink>
                       </Button>

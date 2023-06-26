@@ -5,7 +5,21 @@ import { RequestFormType } from '../requests/common.type'
 export const clientRequestDefaultValue: RequestFormType = {
   lspId: -0,
   contactPersonId: -0,
-  items: [],
+  items: [
+    {
+      name: '',
+      sourceLanguage: '',
+      targetLanguage: '',
+      category: '',
+      serviceType: [],
+      desiredDueDate: '',
+      desiredDueTimezone: {
+        phone: '',
+        label: '',
+        code: '',
+      },
+    },
+  ],
   sampleFiles: [],
 }
 
@@ -18,7 +32,7 @@ export const clientRequestSchema = yup.object().shape({
       sourceLanguage: yup.string().required(FormErrors.required),
       targetLanguage: yup.string().required(FormErrors.required),
       category: yup.string().required(FormErrors.required),
-      serviceType: yup.array().of(yup.string()),
+      serviceType: yup.array().of(yup.string()).min(1, FormErrors.required),
       unit: yup.string().nullable(),
       quantity: yup.number().nullable(),
       desiredDueDate: yup.string().required(FormErrors.required),
@@ -30,4 +44,5 @@ export const clientRequestSchema = yup.object().shape({
     }),
   ),
   sampleFiles: yup.array().nullable(),
+  description: yup.string().nullable(),
 })

@@ -12,6 +12,7 @@ export type RequestFormType = {
   contactPersonId: number
   items: RequestItemFormType[]
   sampleFiles: string[]
+  description?: string
 }
 
 export type RequestItemFormType = {
@@ -21,7 +22,7 @@ export type RequestItemFormType = {
   category: string
   serviceType: string[]
   unit?: string
-  quantity?: number
+  quantity?: number | null
   desiredDueDate: string
   desiredDueTimezone: CountryType
 }
