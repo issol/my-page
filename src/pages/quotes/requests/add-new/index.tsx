@@ -1,4 +1,4 @@
-import { useContext, useEffect, useMemo, useState } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
@@ -44,17 +44,79 @@ import {
 } from '@src/types/schema/client-request.schema'
 import { useGetClientList } from '@src/queries/client.query'
 import AddRequestForm from '@src/pages/components/forms/add-request-item-form'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { useDropzone } from 'react-dropzone'
+import { FileType } from '@src/types/common/file.type'
+import FileItem from '@src/@core/components/fileItem'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 export default function AddNewRequest() {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
 
+  const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
+
+  // ** file values
+  const MAXIMUM_FILE_SIZE = 2147483648
+
+  const [fileSize, setFileSize] = useState(0)
+  const [files, setFiles] = useState<File[]>([])
+
+  // ** Hooks
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg'],
+      'text/csv': ['.cvs'],
+      'application/pdf': ['.pdf'],
+      'text/plain': ['.txt'],
+      'application/vnd.ms-powerpoint': ['.ppt'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        ['.docx'],
+      'video/*': ['.avi', '.mp4', '.mkv', '.wmv', '.mov'],
+    },
+    maxSize: MAXIMUM_FILE_SIZE,
+    onDrop: (acceptedFiles: File[]) => {
+      const totalFileSize =
+        acceptedFiles.reduce((res, file) => (res += file.size), 0) + fileSize
+      if (totalFileSize > MAXIMUM_FILE_SIZE) {
+        onFileUploadReject()
+      } else {
+        setFiles(files.concat(acceptedFiles))
+        setFileSize(totalFileSize)
+      }
+    },
+    onDropRejected: () => onFileUploadReject(),
+  })
+
+  function onFileUploadReject() {
+    openModal({
+      type: 'dropReject',
+      children: (
+        <SimpleAlertModal
+          message={`The maximum file size you can upload is ${
+            Math.round(MAXIMUM_FILE_SIZE / 100) / 10000
+          }mb.`}
+          onClose={() => closeModal('dropReject')}
+        />
+      ),
+    })
+  }
+
+  const handleRemoveFile = (file: FileType) => {
+    const uploadedFiles = files
+    const filtered = uploadedFiles.filter((i: FileType) => i.name !== file.name)
+
+    setFiles([...filtered])
+  }
 
   /* TODO:
   api요청 3가지 항목
   1. contact person => api변경해야 함
   2. lsp => api변경 필요함
+  3. contact person timezone설정하기
+  4. 처음에는 작성자의 이름으로 contact person들어가있기
   */
 
   const {
@@ -87,6 +149,96 @@ export default function AddNewRequest() {
       })) || []
     )
   }, [clientList])
+
+  function onRequest() {
+    const data = getValues()
+    console.log(data, files)
+    if (files.length) {
+      //TODO: 파일 있을 떄
+      //   const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
+      //   []
+      // const language =
+      //   data.testType === 'Basic test'
+      //     ? `${data.target.value}`
+      //     : `${data.source.value}-${data.target.value}`
+      // const paths: string[] = data?.file?.map(file =>
+      //   getFilePath(
+      //     [
+      //       'testPaper',
+      //       data.testType === 'Basic test' ? 'basic' : 'skill',
+      //       data.jobType.value,
+      //       data.role.value,
+      //       language,
+      //       isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
+      //     ],
+      //     file.name,
+      //   ),
+      // )
+      // const promiseArr = paths.map((url, idx) => {
+      //   return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url)
+      //   .then(res => {
+      //     fileInfo.push({
+      //       name: data.file[idx].name,
+      //       size: data.file[idx]?.size,
+      //       fileKey: url,
+      //     })
+      //     return uploadFileToS3(res.url, data.file[idx])
+      //   })
+      // })
+      // Promise.all(promiseArr)
+      // .then(res => {
+      //   finalValue.files = fileInfo
+      //   patchValue.files = fileInfo
+      //   isFetched
+      //     ? patchTestMutation.mutate(patchValue)
+      //     : postTestMutation.mutate(finalValue)
+      // })
+      // .catch(err => {
+      //   isFetched
+      //     ? patchTestMutation.mutate(patchValue)
+      //     : postTestMutation.mutate(finalValue)
+      //   toast.error(
+      //     'Something went wrong while uploading files. Please try again.',
+      //     {
+      //       position: 'bottom-left',
+      //     },
+      //   )
+      // })
+    } else {
+      //TODO: 파일 없을 떄
+    }
+    openModal({
+      type: 'request',
+      children: (
+        <CustomModal
+          vary='successful'
+          title='Are you sure you want to send the request to the selected LSP?'
+          onClick={() => {
+            closeModal('request')
+            //TODO: add mutation
+          }}
+          onClose={() => closeModal('request')}
+          rightButtonText='Request'
+        />
+      ),
+    })
+  }
+
+  function onCancelRequest() {
+    openModal({
+      type: 'cancelRequest',
+      children: (
+        <DiscardModal
+          title='Are you sure you want to discard the request?'
+          onClick={() => {
+            closeModal('cancelRequest')
+            router.back()
+          }}
+          onClose={() => closeModal('cancelRequest')}
+        />
+      ),
+    })
+  }
 
   return (
     <Grid container spacing={6}>
@@ -268,6 +420,51 @@ export default function AddNewRequest() {
       {/* right */}
       <Grid item xs={3}>
         <Card
+          style={{
+            height: '306px',
+            overflow: 'scroll',
+            marginBottom: '24px',
+          }}
+        >
+          <Box
+            sx={{
+              padding: '20px',
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '12px',
+            }}
+          >
+            <Box display='flex' justifyContent='space-between'>
+              <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                Sample files
+              </Typography>
+              <Typography variant='body2'>
+                {Math.round(fileSize / 100) / 10 > 1000
+                  ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
+                  : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
+                /2 gb
+              </Typography>
+            </Box>
+            <div {...getRootProps({ className: 'dropzone' })}>
+              <Button variant='outlined' fullWidth>
+                <input {...getInputProps()} />
+                Upload files
+              </Button>
+            </div>
+            {files.map((file: FileType, index: number) => {
+              return (
+                <Box key={file.id}>
+                  <FileItem
+                    key={file.name}
+                    file={file}
+                    onClear={handleRemoveFile}
+                  />
+                </Box>
+              )
+            })}
+          </Box>
+        </Card>
+        <Card
           sx={{
             padding: '24px',
             display: 'flex',
@@ -275,10 +472,20 @@ export default function AddNewRequest() {
             gap: '12px',
           }}
         >
-          <Button fullWidth variant='outlined' color='secondary'>
+          <Button
+            fullWidth
+            variant='outlined'
+            color='secondary'
+            onClick={onCancelRequest}
+          >
             Cancel
           </Button>
-          <Button fullWidth variant='contained' disabled={!isValid}>
+          <Button
+            fullWidth
+            variant='contained'
+            disabled={!isValid}
+            onClick={onRequest}
+          >
             Request
           </Button>
         </Card>
