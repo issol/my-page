@@ -73,6 +73,11 @@ export default function ClientAddresses({
     return address?.filter(item => item.addressType !== 'billing')
   }
 
+  function resetAddress() {
+    reset({
+      clientAddresses: !filteredAddress()?.length ? [] : filteredAddress(),
+    })
+  }
   const {
     control,
     getValues,
@@ -93,10 +98,8 @@ export default function ClientAddresses({
   })
 
   useEffect(() => {
-    reset({
-      clientAddresses: !filteredAddress()?.length ? [] : filteredAddress(),
-    })
-  }, [filteredAddress()])
+    resetAddress()
+  }, [])
 
   const updateClientAddressMutation = useMutation(
     (body: { data: Array<ClientAddressType> }) => updateClientAddress(body),
@@ -121,7 +124,10 @@ export default function ClientAddresses({
       children: (
         <DiscardChangesModal
           onDiscard={() => setOpen(false)}
-          onClose={() => closeModal('discard')}
+          onClose={() => {
+            closeModal('discard')
+            resetAddress()
+          }}
         />
       ),
     })
