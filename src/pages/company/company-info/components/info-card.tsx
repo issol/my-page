@@ -60,14 +60,16 @@ const CompanyInfoCard = ({ companyInfo }: Props) => {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <Typography variant='h5'>{companyInfo?.companyName}</Typography>
+                <Typography variant='h5'>{companyInfo?.name}</Typography>
 
-                {companyInfo?.billingPlan && (
+                {companyInfo?.billingPlan ? (
                   <Chip
                     color='primary'
                     skin='light'
                     label={companyInfo?.billingPlan?.name}
                   />
+                ) : (
+                  <Chip color='primary' skin='light' label={'Premium'} />
                 )}
               </Box>
 

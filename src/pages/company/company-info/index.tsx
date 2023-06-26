@@ -13,6 +13,7 @@ import {
   useState,
   SyntheticEvent,
   useEffect,
+  useContext,
 } from 'react'
 import CompanyInfoCard from './components/info-card'
 import CompanyInfoOverview from './components/overview'
@@ -27,24 +28,58 @@ import {
 } from '@src/types/schema/lpm-company-info.schema'
 import {
   CompanyAddressFormType,
+  CompanyAddressParamsType,
   CompanyInfoFormType,
+  CompanyInfoParamsType,
   CompanyInfoType,
 } from '@src/types/company/info'
 import { set } from 'nprogress'
 import { c } from 'msw/lib/glossary-de6278a9'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import { AuthContext } from '@src/context/AuthContext'
+import { useMutation } from 'react-query'
+import {
+  patchCompanyAddress,
+  patchCompanyInfo,
+} from '@src/apis/company/company-info.api'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const CompanyInfo = () => {
   const { openModal, closeModal } = useModal()
 
   const [tab, setTab] = useState<string>('overview')
 
-  const { data: companyInfo } = useGetCompanyInfo()
+  const { user } = useContext(AuthContext)
+
+  const { data: companyInfo, refetch } = useGetCompanyInfo(user?.company!)
 
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
 
+  const isUpdatable =
+    getCurrentRole().type === 'Master' || getCurrentRole().type === 'Manager'
+
+  const patchCompanyInfoMutation = useMutation(
+    (data: CompanyInfoParamsType) => patchCompanyInfo(data),
+    {
+      onSuccess: data => {
+        refetch()
+        setInfoEdit(false)
+        closeModal('SaveEditCompanyInfoModal')
+      },
+    },
+  )
+
+  const patchCompanyAddressMutation = useMutation(
+    (data: { address: Array<CompanyAddressParamsType>; companyId: string }) =>
+      patchCompanyAddress(data.address, data.companyId),
+    {
+      onSuccess: data => {
+        refetch()
+      },
+    },
+  )
   const {
     control,
     handleSubmit,
@@ -60,7 +95,6 @@ const CompanyInfo = () => {
 
   const {
     control: addressControl,
-
     getValues: addressGetValues,
     watch: addressWatch,
     reset: addressReset,
@@ -112,53 +146,107 @@ const CompanyInfo = () => {
     setTab(newValue)
   }
 
-  const handleCancel = () => {
-    setInfoEdit(false)
-    setAddressEdit(false)
-    reset({
-      ...companyInfo,
+  const handleCancel = (type: 'info' | 'address') => {
+    if (type === 'info') {
+      setInfoEdit(false)
+      reset({
+        ...companyInfo,
 
-      headquarter: {
-        value: companyInfo?.headquarter!,
-        label: companyInfo?.headquarter!,
-      },
-    })
-    addressReset({
-      address: companyInfo?.address?.map(item => ({
-        ...item,
-        country: {
-          label: item.country,
-          value: item.country,
+        headquarter: {
+          value: companyInfo?.headquarter!,
+          label: companyInfo?.headquarter!,
         },
-      })),
-    })
+      })
+      if (companyInfo && companyInfo.ceo === null) {
+        appendCeo({
+          firstName: '',
+          middleName: '',
+          lastName: '',
+        })
+      }
+    } else {
+      setAddressEdit(false)
+
+      addressReset({
+        address: companyInfo?.companyAddresses?.map(item => ({
+          ...item,
+          country: {
+            label: item.country,
+            value: item.country,
+          },
+        })),
+      })
+      if (companyInfo && companyInfo.companyAddresses.length === 0) {
+        appendAddress({
+          name: '',
+          baseAddress: '',
+          detailAddress: '',
+          city: '',
+          state: '',
+          country: {
+            value: '',
+            label: '',
+          },
+          zipCode: '',
+        })
+      }
+    }
   }
 
-  const onClickCancel = () => {
+  const onClickCancel = (type: 'info' | 'address') => {
     openModal({
-      type: 'CancelEditCompanyInfoModal',
+      type: `CancelEditCompany${type}Modal`,
       children: (
         <DiscardChangesModal
-          onClose={() => closeModal('CancelEditCompanyInfoModal')}
-          onDiscard={handleCancel}
+          onClose={() => closeModal(`CancelEditCompany${type}Modal`)}
+          onDiscard={() => handleCancel(type)}
         />
       ),
     })
   }
 
-  const handleSave = () => {
-    setInfoEdit(false)
-    setAddressEdit(false)
-    // TODO API call
+  const handleSave = (type: 'info' | 'address') => {
+    if (companyInfo) {
+      if (type === 'info') {
+        const data = getValues()
+        const res = {
+          ...data,
+          headquarter: data.headquarter?.value,
+          ceo:
+            data.ceo &&
+            data.ceo.filter(
+              value => value.firstName !== '' && value.lastName !== '',
+            ).length > 0
+              ? data.ceo
+              : undefined,
+        }
+        patchCompanyInfoMutation.mutate({ ...res })
+      } else {
+        const data = addressGetValues()
+        console.log(data)
+
+        const res: Array<CompanyAddressParamsType> = data.address.map(
+          value => ({
+            ...value,
+            country: value.country?.value,
+          }),
+        )
+
+        patchCompanyAddressMutation.mutate({
+          address: res,
+          companyId: companyInfo.id!,
+        })
+      }
+    }
   }
 
-  const onClickSave = () => {
+  const onClickSave = (type: 'info' | 'address') => {
     openModal({
-      type: 'SaveEditCompanyInfoModal',
+      type: `SaveEditCompany${type}Modal`,
       children: (
         <EditSaveModal
-          onClose={() => closeModal('SaveEditCompanyInfoModal')}
-          onClick={handleSave}
+          onClose={() => closeModal(`SaveEditCompany${type}Modal`)}
+          onClick={() => handleSave(type)}
         />
       ),
     })
@@ -174,7 +262,7 @@ const CompanyInfo = () => {
 
   const onClickAddAddress = () => {
     appendAddress({
-      officeName: '',
+      name: '',
       baseAddress: '',
       detailAddress: '',
       country: {
@@ -206,9 +294,10 @@ const CompanyInfo = () => {
           value: companyInfo.headquarter!,
           label: companyInfo.headquarter!,
         },
+        companyId: companyInfo.id,
       })
       addressReset({
-        address: companyInfo?.address.map(item => ({
+        address: companyInfo.companyAddresses?.map(item => ({
           ...item,
           country: {
             label: item.country,
@@ -217,15 +306,18 @@ const CompanyInfo = () => {
         })),
       })
 
-      if (companyInfo.ceo && companyInfo.ceo.length === 0) {
+      if (companyInfo.ceo === null) {
         appendCeo({
           firstName: '',
           middleName: '',
           lastName: '',
         })
-      } else if (companyInfo.address && companyInfo.address.length === 0) {
+      }
+      if (companyInfo.companyAddresses.length === 0) {
+        console.log('hi')
+
         appendAddress({
-          officeName: '',
+          name: '',
           baseAddress: '',
           detailAddress: '',
           city: '',
@@ -280,6 +372,7 @@ const CompanyInfo = () => {
                 onClickAddCeo={onClickAddCeo}
                 onClickDeleteCeo={onClickDeleteCeo}
                 isValid={isValid}
+                isUpdatable={isUpdatable}
               />
             )}
             {!infoEdit && (
@@ -294,6 +387,7 @@ const CompanyInfo = () => {
                 onClickSave={onClickSave}
                 onClickAddAddress={onClickAddAddress}
                 onClickDeleteAddress={onClickDeleteAddress}
+                isUpdatable={isUpdatable}
               />
             )}
           </TabPanel>

@@ -43,11 +43,12 @@ type Props = {
   watch: UseFormWatch<
     Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>
   >
-  onClickCancel: () => void
-  onClickSave: () => void
+  onClickCancel: (type: 'info' | 'address') => void
+  onClickSave: (type: 'info' | 'address') => void
   onClickAddCeo: () => void
   onClickDeleteCeo: (id: string) => void
   isValid: boolean
+  isUpdatable: boolean
 }
 
 const CompanyInfoOverview = ({
@@ -62,6 +63,7 @@ const CompanyInfoOverview = ({
   onClickAddCeo,
   onClickDeleteCeo,
   isValid,
+  isUpdatable,
 }: Props) => {
   const country = getTypeList('CountryCode')
   return (
@@ -131,7 +133,7 @@ const CompanyInfoOverview = ({
           <Divider />
           <Box sx={{ width: '100%' }}>
             <Controller
-              name='companyName'
+              name='name'
               control={control}
               render={({ field: { value, onChange } }) => (
                 <TextField
@@ -237,7 +239,7 @@ const CompanyInfoOverview = ({
                         autoHighlight
                         fullWidth
                         options={country}
-                        onChange={(e, v) => onChange(v.value)}
+                        onChange={(e, v) => onChange(v)}
                         disableClearable
                         value={
                           !value
@@ -330,7 +332,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -363,7 +365,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -373,7 +375,7 @@ const CompanyInfoOverview = ({
                         }}
                         InputProps={{
                           startAdornment: watch('timezone') &&
-                            watch('timezone').phone && (
+                            watch('timezone')?.phone && (
                               <InputAdornment position='start'>
                                 {'+' + watch('timezone').phone}
                               </InputAdornment>
@@ -398,12 +400,12 @@ const CompanyInfoOverview = ({
                 mt: '24px',
               }}
             >
-              <Button variant='outlined' onClick={onClickCancel}>
+              <Button variant='outlined' onClick={() => onClickCancel('info')}>
                 Cancel
               </Button>
               <Button
                 variant='contained'
-                onClick={onClickSave}
+                onClick={() => onClickSave('info')}
                 disabled={!isValid}
               >
                 Save
@@ -422,12 +424,14 @@ const CompanyInfoOverview = ({
           >
             <Typography variant='h6'>Company information</Typography>
 
-            <IconButton
-              onClick={() => setEdit(true)}
-              // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-            >
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable && (
+              <IconButton
+                onClick={() => setEdit(true)}
+                // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+              >
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
           <Box
             sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
@@ -504,7 +508,7 @@ const CompanyInfoOverview = ({
                   Time zone:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16} fontWeight={400}>
-                  {getGmtTimeEng(companyInfo.timezone.code)}
+                  {getGmtTimeEng(companyInfo.timezone?.code)}
                 </Typography>
               </Box>
             </Box>
