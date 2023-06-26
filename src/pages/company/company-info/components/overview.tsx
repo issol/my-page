@@ -44,7 +44,7 @@ type Props = {
     Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>
   >
   onClickCancel: (type: 'info' | 'address') => void
-  onClickSave: () => void
+  onClickSave: (type: 'info' | 'address') => void
   onClickAddCeo: () => void
   onClickDeleteCeo: (id: string) => void
   isValid: boolean
@@ -405,7 +405,7 @@ const CompanyInfoOverview = ({
               </Button>
               <Button
                 variant='contained'
-                onClick={onClickSave}
+                onClick={() => onClickSave('info')}
                 disabled={!isValid}
               >
                 Save

@@ -28,6 +28,7 @@ import {
 } from '@src/types/schema/lpm-company-info.schema'
 import {
   CompanyAddressFormType,
+  CompanyAddressParamsType,
   CompanyInfoFormType,
   CompanyInfoParamsType,
   CompanyInfoType,
@@ -38,7 +39,10 @@ import DiscardChangesModal from '@src/pages/components/modals/discard-modals/dis
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import { AuthContext } from '@src/context/AuthContext'
 import { useMutation } from 'react-query'
-import { patchCompanyInfo } from '@src/apis/company/company-info.api'
+import {
+  patchCompanyAddress,
+  patchCompanyInfo,
+} from '@src/apis/company/company-info.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 const CompanyInfo = () => {
@@ -67,6 +71,15 @@ const CompanyInfo = () => {
     },
   )
 
+  const patchCompanyAddressMutation = useMutation(
+    (data: { address: Array<CompanyAddressParamsType>; companyId: string }) =>
+      patchCompanyAddress(data.address, data.companyId),
+    {
+      onSuccess: data => {
+        refetch()
+      },
+    },
+  )
   const {
     control,
     handleSubmit,
@@ -165,7 +178,7 @@ const CompanyInfo = () => {
       })
       if (companyInfo && companyInfo.companyAddresses.length === 0) {
         appendAddress({
-          officeName: '',
+          name: '',
           baseAddress: '',
           detailAddress: '',
           city: '',
@@ -192,32 +205,48 @@ const CompanyInfo = () => {
     })
   }
 
-  const handleSave = () => {
-    const data = getValues()
-    const res = {
-      ...data,
-      headquarter: data.headquarter?.value,
-      ceo:
-        data.ceo &&
-        data.ceo.filter(
-          value => value.firstName !== '' && value.lastName !== '',
-        ).length > 0
-          ? data.ceo
-          : undefined,
-    }
-    patchCompanyInfoMutation.mutate({ ...res })
-    // setAddressEdit(false)
+  const handleSave = (type: 'info' | 'address') => {
+    if (companyInfo) {
+      if (type === 'info') {
+        const data = getValues()
+        const res = {
+          ...data,
+          headquarter: data.headquarter?.value,
+          ceo:
+            data.ceo &&
+            data.ceo.filter(
+              value => value.firstName !== '' && value.lastName !== '',
+            ).length > 0
+              ? data.ceo
+              : undefined,
+        }
+        patchCompanyInfoMutation.mutate({ ...res })
+      } else {
+        const data = addressGetValues()
+        console.log(data)
 
-    // TODO API call
+        const res: Array<CompanyAddressParamsType> = data.address.map(
+          value => ({
+            ...value,
+            country: value.country?.value,
+          }),
+        )
+
+        patchCompanyAddressMutation.mutate({
+          address: res,
+          companyId: companyInfo.id!,
+        })
+      }
+    }
   }
 
-  const onClickSave = () => {
+  const onClickSave = (type: 'info' | 'address') => {
     openModal({
-      type: 'SaveEditCompanyInfoModal',
+      type: `SaveEditCompany${type}Modal`,
       children: (
         <EditSaveModal
-          onClose={() => closeModal('SaveEditCompanyInfoModal')}
-          onClick={handleSave}
+          onClose={() => closeModal(`SaveEditCompany${type}Modal`)}
+          onClick={() => handleSave(type)}
         />
       ),
     })
@@ -233,7 +262,7 @@ const CompanyInfo = () => {
 
   const onClickAddAddress = () => {
     appendAddress({
-      officeName: '',
+      name: '',
       baseAddress: '',
       detailAddress: '',
       country: {
@@ -288,7 +317,7 @@ const CompanyInfo = () => {
         console.log('hi')
 
         appendAddress({
-          officeName: '',
+          name: '',
           baseAddress: '',
           detailAddress: '',
           city: '',

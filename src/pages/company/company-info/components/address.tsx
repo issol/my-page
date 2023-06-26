@@ -40,7 +40,7 @@ type Props = {
     'id'
   >[]
   onClickCancel: (type: 'info' | 'address') => void
-  onClickSave: () => void
+  onClickSave: (type: 'info' | 'address') => void
   onClickAddAddress: () => void
   onClickDeleteAddress: (id: string) => void
   isUpdatable: boolean
@@ -87,7 +87,7 @@ const CompanyInfoAddress = ({
                 </Grid>
                 <Grid item xs={12}>
                   <Controller
-                    name={`address.${idx}.officeName`}
+                    name={`address.${idx}.name`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <TextField
@@ -136,7 +136,7 @@ const CompanyInfoAddress = ({
                         fullWidth
                         value={value || ''}
                         onChange={onChange}
-                        label='Office name'
+                        label='City'
                       />
                     )}
                   />
@@ -150,7 +150,7 @@ const CompanyInfoAddress = ({
                         fullWidth
                         value={value || ''}
                         onChange={onChange}
-                        label='Office name'
+                        label='State'
                       />
                     )}
                   />
@@ -164,14 +164,20 @@ const CompanyInfoAddress = ({
                         autoHighlight
                         fullWidth
                         options={country}
-                        onChange={(e, v) => onChange(v.value)}
-                        disableClearable
+                        onChange={(e, v) => {
+                          console.log(v)
+                          if (!v) {
+                            onChange({ value: '', label: '' })
+                          } else {
+                            onChange(v)
+                          }
+                        }}
                         value={
                           !value
                             ? { value: '', label: '' }
                             : country.filter(
                                 item => item.value === value.value,
-                              )[0]
+                              )[0] || null
                         }
                         renderInput={params => (
                           <TextField
@@ -225,7 +231,7 @@ const CompanyInfoAddress = ({
             </Button>
             <Button
               variant='contained'
-              onClick={onClickSave}
+              onClick={() => onClickSave('address')}
               disabled={!isValid}
             >
               Save
@@ -271,14 +277,14 @@ const CompanyInfoAddress = ({
                           flex: 1,
                         }}
                       >
-                        {value.officeName && (
+                        {value.name && (
                           <Chip
-                            label={value.officeName}
+                            label={value.name}
                             rounded
                             color={
-                              value.officeName === 'Korea office'
+                              value.name === 'Korea office'
                                 ? 'info'
-                                : value.officeName === 'Japan office'
+                                : value.name === 'Japan office'
                                 ? 'success'
                                 : 'default'
                             }
@@ -370,7 +376,7 @@ const CompanyInfoAddress = ({
                           Country:
                         </Typography>
                         <Typography variant='subtitle2' fontSize={16}>
-                          {value.country.label ?? '-'}
+                          {(value.country && value.country.label) ?? '-'}
                         </Typography>
                       </Box>
                       <Box

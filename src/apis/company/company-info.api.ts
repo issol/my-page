@@ -1,5 +1,6 @@
 import axios from '@src/configs/axios'
 import {
+  CompanyAddressParamsType,
   CompanyInfoFormType,
   CompanyInfoParamsType,
   CompanyInfoType,
@@ -60,6 +61,19 @@ export const getCompanyInfo = async (
 export const patchCompanyInfo = async (data: CompanyInfoParamsType) => {
   try {
     await axios.patch(`/api/enough/u/comp`, { ...data })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const patchCompanyAddress = async (
+  data: Array<CompanyAddressParamsType>,
+  companyId: string,
+) => {
+  try {
+    await axios.put(`/api/enough/u/company/address?companyId=${companyId}`, {
+      data: data,
+    })
   } catch (e: any) {
     throw new Error(e)
   }
