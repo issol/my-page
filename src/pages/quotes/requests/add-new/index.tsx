@@ -1,8 +1,9 @@
-import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
+import { useContext, useMemo, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useDropzone } from 'react-dropzone'
 
 // ** mui
 import {
@@ -10,16 +11,13 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   Divider,
   Grid,
   IconButton,
-  TableCell,
   TextField,
   Typography,
 } from '@mui/material'
 import PageHeader from '@src/@core/components/page-header'
-import styled from 'styled-components'
 
 // ** react hook form
 import { useForm, useFieldArray, Controller } from 'react-hook-form'
@@ -37,17 +35,22 @@ import { AuthContext } from '@src/context/AuthContext'
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
+
+// ** types & validation
 import { RequestFormType } from '@src/types/requests/common.type'
 import {
-  clientRequestDefaultValue,
+  getClientRequestDefaultValue,
   clientRequestSchema,
 } from '@src/types/schema/client-request.schema'
+import { FileType } from '@src/types/common/file.type'
+
+// ** apis
 import { useGetClientList } from '@src/queries/client.query'
+
+// ** components
 import AddRequestForm from '@src/pages/components/forms/add-request-item-form'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { useDropzone } from 'react-dropzone'
-import { FileType } from '@src/types/common/file.type'
 import FileItem from '@src/@core/components/fileItem'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
@@ -63,7 +66,7 @@ export default function AddNewRequest() {
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
 
-  // ** Hooks
+  // ** file managing
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
       'image/*': ['.png', '.jpg', '.jpeg'],
@@ -115,10 +118,9 @@ export default function AddNewRequest() {
   api요청 3가지 항목
   1. contact person => api변경해야 함
   2. lsp => api변경 필요함
-  3. contact person timezone설정하기
-  4. 처음에는 작성자의 이름으로 contact person들어가있기
   */
 
+  // ** forms
   const {
     control,
     getValues,
@@ -127,15 +129,16 @@ export default function AddNewRequest() {
     formState: { errors, isValid },
   } = useForm<RequestFormType>({
     mode: 'onChange',
-    defaultValues: clientRequestDefaultValue,
+    defaultValues: getClientRequestDefaultValue(user?.userId!),
     resolver: yupResolver(clientRequestSchema),
   })
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, update } = useFieldArray({
     control,
     name: 'items',
   })
 
+  // ** form options
   const { data: clientList } = useGetClientList({
     skip: 0,
     take: 1000,
@@ -146,6 +149,7 @@ export default function AddNewRequest() {
       clientList?.data?.map(item => ({
         value: item.clientId,
         label: item.name,
+        timezone: item.timezone,
       })) || []
     )
   }, [clientList])
@@ -269,26 +273,31 @@ export default function AddNewRequest() {
                 name='contactPersonId'
                 control={control}
                 render={({ field: { value, onChange } }) => {
-                  const personList = clients.map(item => ({
-                    value: item.value,
-                    label: item.label,
-                  }))
-                  const selectedPerson = personList.find(
+                  const selectedPerson = clients.find(
                     item => item.value === value,
                   )
                   return (
                     <Autocomplete
                       autoHighlight
                       fullWidth
-                      options={personList}
+                      options={clients}
                       onChange={(e, v) => {
                         onChange(v.value)
-                        const res = clients.filter(
-                          item => item.value === Number(v.value),
+                        fields.forEach((item, i) =>
+                          update(i, {
+                            ...item,
+                            desiredDueTimezone: v.timezone,
+                          }),
                         )
                       }}
                       disableClearable
-                      value={selectedPerson || { value: -0, label: '' }}
+                      value={
+                        selectedPerson || {
+                          value: -0,
+                          label: '',
+                          timezone: { phone: '', label: '', code: '' },
+                        }
+                      }
                       renderInput={params => (
                         <TextField
                           {...params}
@@ -361,6 +370,11 @@ export default function AddNewRequest() {
                 startIcon={<Icon icon='material-symbols:add' />}
                 disabled={!isValid}
                 onClick={() => {
+                  const contactPerson = getValues('contactPersonId')
+                  const timezone = clients?.find(
+                    c => c.value === contactPerson,
+                  )?.timezone
+
                   append({
                     name: '',
                     sourceLanguage: '',
@@ -368,11 +382,14 @@ export default function AddNewRequest() {
                     category: '',
                     serviceType: [],
                     desiredDueDate: '',
-                    desiredDueTimezone: {
-                      phone: '',
-                      label: '',
-                      code: '',
-                    },
+                    desiredDueTimezone:
+                      timezone !== undefined
+                        ? timezone
+                        : {
+                            phone: '',
+                            label: '',
+                            code: '',
+                          },
                   })
                 }}
               >

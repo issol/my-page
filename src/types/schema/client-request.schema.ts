@@ -2,25 +2,29 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { RequestFormType } from '../requests/common.type'
 
-export const clientRequestDefaultValue: RequestFormType = {
-  lspId: -0,
-  contactPersonId: -0,
-  items: [
-    {
-      name: '',
-      sourceLanguage: '',
-      targetLanguage: '',
-      category: '',
-      serviceType: [],
-      desiredDueDate: '',
-      desiredDueTimezone: {
-        phone: '',
-        label: '',
-        code: '',
+export function getClientRequestDefaultValue(
+  contactPersonId: number,
+): RequestFormType {
+  return {
+    lspId: -0,
+    contactPersonId,
+    items: [
+      {
+        name: '',
+        sourceLanguage: '',
+        targetLanguage: '',
+        category: '',
+        serviceType: [],
+        desiredDueDate: '',
+        desiredDueTimezone: {
+          phone: '',
+          label: '',
+          code: '',
+        },
       },
-    },
-  ],
-  sampleFiles: [],
+    ],
+    sampleFiles: [],
+  }
 }
 
 export const clientRequestSchema = yup.object().shape({
