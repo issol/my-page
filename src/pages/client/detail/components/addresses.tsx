@@ -69,6 +69,10 @@ export default function ClientAddresses({
 
   const { clientAddresses: address } = clientInfo
 
+  const filteredAddress = () => {
+    return address?.filter(item => item.addressType !== 'billing')
+  }
+
   const {
     control,
     getValues,
@@ -90,9 +94,9 @@ export default function ClientAddresses({
 
   useEffect(() => {
     reset({
-      clientAddresses: !address?.length ? [] : address,
+      clientAddresses: !filteredAddress()?.length ? [] : filteredAddress(),
     })
-  }, [address])
+  }, [filteredAddress()])
 
   const updateClientAddressMutation = useMutation(
     (body: { data: Array<ClientAddressType> }) => updateClientAddress(body),
@@ -170,12 +174,10 @@ export default function ClientAddresses({
         }
       />
       <CardContent>
-        {address?.length
-          ? address.map((item, idx) => {
+        {filteredAddress()?.length
+          ? filteredAddress()?.map((item, idx) => {
               const chipName =
-                item.addressType === 'billing'
-                  ? 'Billing address'
-                  : item.addressType === 'shipping'
+                item.addressType === 'shipping'
                   ? 'Shipping address'
                   : item.name
               return (
