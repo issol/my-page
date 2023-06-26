@@ -1,6 +1,6 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment } from 'react'
 
-// ** mui
+// ** style components
 import {
   Autocomplete,
   Box,
@@ -10,6 +10,10 @@ import {
   TextField,
   Typography,
 } from '@mui/material'
+import styled from 'styled-components'
+import { Icon } from '@iconify/react'
+
+// ** react hook form
 import {
   Control,
   Controller,
@@ -17,20 +21,27 @@ import {
   FieldError,
   FieldErrors,
   Merge,
-  UseFieldArrayAppend,
   UseFieldArrayRemove,
-  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
+
+// ** types
 import { RequestFormType } from '@src/types/requests/common.type'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
+
+// ** data
 import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { getGloLanguage } from '@src/shared/transformer/language.transformer'
+import { countries } from 'src/@fake-db/autocomplete'
+
+// ** apis
 import { useGetUnitOptions } from '@src/queries/options.query'
+
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
 
@@ -40,13 +51,6 @@ import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInp
 // ** Date picker wrapper
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
-
-import styled from 'styled-components'
-import { countries } from 'src/@fake-db/autocomplete'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { Icon } from '@iconify/react'
-import useModal from '@src/hooks/useModal'
-import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 
 type Props = {
   control: Control<RequestFormType, any>
@@ -64,27 +68,9 @@ export default function AddRequestForm({
   fields,
   remove,
 }: Props) {
-  const { openModal, closeModal } = useModal()
-
   const languageList = getGloLanguage()
 
   const { data: units } = useGetUnitOptions()
-
-  function onRemove(idx: number) {
-    openModal({
-      type: 'removeItem',
-      children: (
-        <DiscardModal
-          title='Are you sure you want to discard the request?'
-          onClick={() => {
-            remove(idx)
-            closeModal('removeItem')
-          }}
-          onClose={() => closeModal('removeItem')}
-        />
-      ),
-    })
-  }
 
   function renderErrorMsg(
     errors:
@@ -123,7 +109,7 @@ export default function AddRequestForm({
             >
               <Typography fontWeight={600}>{numbering}</Typography>
               {idx > 0 && (
-                <IconButton onClick={() => onRemove(idx)}>
+                <IconButton onClick={() => remove(idx)}>
                   <Icon icon='mdi:trash-outline' />
                 </IconButton>
               )}
