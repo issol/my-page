@@ -39,6 +39,7 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import { AuthContext } from '@src/context/AuthContext'
 import { useMutation } from 'react-query'
 import { patchCompanyInfo } from '@src/apis/company/company-info.api'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const CompanyInfo = () => {
   const { openModal, closeModal } = useModal()
@@ -51,6 +52,9 @@ const CompanyInfo = () => {
 
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
+
+  const isUpdatable =
+    getCurrentRole().type === 'Master' || getCurrentRole().type === 'Manager'
 
   const patchCompanyInfoMutation = useMutation(
     (data: CompanyInfoParamsType) => patchCompanyInfo(data),
@@ -78,7 +82,6 @@ const CompanyInfo = () => {
 
   const {
     control: addressControl,
-
     getValues: addressGetValues,
     watch: addressWatch,
     reset: addressReset,
@@ -130,35 +133,60 @@ const CompanyInfo = () => {
     setTab(newValue)
   }
 
-  const handleCancel = () => {
-    setInfoEdit(false)
-    setAddressEdit(false)
-    reset({
-      ...companyInfo,
+  const handleCancel = (type: 'info' | 'address') => {
+    if (type === 'info') {
+      setInfoEdit(false)
+      reset({
+        ...companyInfo,
 
-      headquarter: {
-        value: companyInfo?.headquarter!,
-        label: companyInfo?.headquarter!,
-      },
-    })
-    addressReset({
-      address: companyInfo?.address?.map(item => ({
-        ...item,
-        country: {
-          label: item.country,
-          value: item.country,
+        headquarter: {
+          value: companyInfo?.headquarter!,
+          label: companyInfo?.headquarter!,
         },
-      })),
-    })
+      })
+      if (companyInfo && companyInfo.ceo === null) {
+        appendCeo({
+          firstName: '',
+          middleName: '',
+          lastName: '',
+        })
+      }
+    } else {
+      setAddressEdit(false)
+
+      addressReset({
+        address: companyInfo?.companyAddresses?.map(item => ({
+          ...item,
+          country: {
+            label: item.country,
+            value: item.country,
+          },
+        })),
+      })
+      if (companyInfo && companyInfo.companyAddresses.length === 0) {
+        appendAddress({
+          officeName: '',
+          baseAddress: '',
+          detailAddress: '',
+          city: '',
+          state: '',
+          country: {
+            value: '',
+            label: '',
+          },
+          zipCode: '',
+        })
+      }
+    }
   }
 
-  const onClickCancel = () => {
+  const onClickCancel = (type: 'info' | 'address') => {
     openModal({
-      type: 'CancelEditCompanyInfoModal',
+      type: `CancelEditCompany${type}Modal`,
       children: (
         <DiscardChangesModal
-          onClose={() => closeModal('CancelEditCompanyInfoModal')}
-          onDiscard={handleCancel}
+          onClose={() => closeModal(`CancelEditCompany${type}Modal`)}
+          onDiscard={() => handleCancel(type)}
         />
       ),
     })
@@ -240,7 +268,7 @@ const CompanyInfo = () => {
         companyId: companyInfo.id,
       })
       addressReset({
-        address: companyInfo.address?.map(item => ({
+        address: companyInfo.companyAddresses?.map(item => ({
           ...item,
           country: {
             label: item.country,
@@ -255,7 +283,10 @@ const CompanyInfo = () => {
           middleName: '',
           lastName: '',
         })
-      } else if (companyInfo.address && companyInfo.address.length === 0) {
+      }
+      if (companyInfo.companyAddresses.length === 0) {
+        console.log('hi')
+
         appendAddress({
           officeName: '',
           baseAddress: '',
@@ -312,6 +343,7 @@ const CompanyInfo = () => {
                 onClickAddCeo={onClickAddCeo}
                 onClickDeleteCeo={onClickDeleteCeo}
                 isValid={isValid}
+                isUpdatable={isUpdatable}
               />
             )}
             {!infoEdit && (
@@ -326,6 +358,7 @@ const CompanyInfo = () => {
                 onClickSave={onClickSave}
                 onClickAddAddress={onClickAddAddress}
                 onClickDeleteAddress={onClickDeleteAddress}
+                isUpdatable={isUpdatable}
               />
             )}
           </TabPanel>

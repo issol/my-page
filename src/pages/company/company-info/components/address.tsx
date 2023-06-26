@@ -39,10 +39,11 @@ type Props = {
     'address',
     'id'
   >[]
-  onClickCancel: () => void
+  onClickCancel: (type: 'info' | 'address') => void
   onClickSave: () => void
   onClickAddAddress: () => void
   onClickDeleteAddress: (id: string) => void
+  isUpdatable: boolean
 }
 
 const CompanyInfoAddress = ({
@@ -56,6 +57,7 @@ const CompanyInfoAddress = ({
   onClickSave,
   onClickAddAddress,
   onClickDeleteAddress,
+  isUpdatable,
 }: Props) => {
   const country = getTypeList('CountryCode')
   return (
@@ -218,7 +220,7 @@ const CompanyInfoAddress = ({
               mt: '24px',
             }}
           >
-            <Button variant='outlined' onClick={onClickCancel}>
+            <Button variant='outlined' onClick={() => onClickCancel('address')}>
               Cancel
             </Button>
             <Button
@@ -241,14 +243,16 @@ const CompanyInfoAddress = ({
           >
             <Typography variant='h6'>Address</Typography>
 
-            <IconButton onClick={() => setEdit(true)}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable && (
+              <IconButton onClick={() => setEdit(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
           <Box>
             <Divider />
-            {companyInfo.address &&
-              companyInfo.address?.map((value, index) => {
+            {addressFields &&
+              addressFields?.map((value, index) => {
                 return (
                   <Box
                     key={uuidv4()}
@@ -267,19 +271,21 @@ const CompanyInfoAddress = ({
                           flex: 1,
                         }}
                       >
-                        <Chip
-                          label={value.officeName}
-                          rounded
-                          color={
-                            value.officeName === 'Korea office'
-                              ? 'info'
-                              : value.officeName === 'Japan office'
-                              ? 'success'
-                              : 'default'
-                          }
-                          skin='light'
-                          sx={{ color: '#000' }}
-                        />
+                        {value.officeName && (
+                          <Chip
+                            label={value.officeName}
+                            rounded
+                            color={
+                              value.officeName === 'Korea office'
+                                ? 'info'
+                                : value.officeName === 'Japan office'
+                                ? 'success'
+                                : 'default'
+                            }
+                            skin='light'
+                            sx={{ color: '#000' }}
+                          />
+                        )}
                       </Box>
                     </Box>
 
@@ -364,7 +370,7 @@ const CompanyInfoAddress = ({
                           Country:
                         </Typography>
                         <Typography variant='subtitle2' fontSize={16}>
-                          {value.country ?? '-'}
+                          {value.country.label ?? '-'}
                         </Typography>
                       </Box>
                       <Box
@@ -383,9 +389,7 @@ const CompanyInfoAddress = ({
                         </Typography>
                       </Box>
                     </Box>
-                    {index === companyInfo.address.length - 1 ? null : (
-                      <Divider />
-                    )}
+                    {index === addressFields.length - 1 ? null : <Divider />}
                   </Box>
                 )
               })}

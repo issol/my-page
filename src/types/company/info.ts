@@ -46,7 +46,7 @@ export type CompanyInfoType = {
   phone?: string
   fax?: string
 
-  address: Array<CompanyAddressType>
+  companyAddresses: Array<CompanyAddressType>
 }
 
 export type CompanyInfoFormType = {

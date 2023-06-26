@@ -43,11 +43,12 @@ type Props = {
   watch: UseFormWatch<
     Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>
   >
-  onClickCancel: () => void
+  onClickCancel: (type: 'info' | 'address') => void
   onClickSave: () => void
   onClickAddCeo: () => void
   onClickDeleteCeo: (id: string) => void
   isValid: boolean
+  isUpdatable: boolean
 }
 
 const CompanyInfoOverview = ({
@@ -62,6 +63,7 @@ const CompanyInfoOverview = ({
   onClickAddCeo,
   onClickDeleteCeo,
   isValid,
+  isUpdatable,
 }: Props) => {
   const country = getTypeList('CountryCode')
   return (
@@ -398,7 +400,7 @@ const CompanyInfoOverview = ({
                 mt: '24px',
               }}
             >
-              <Button variant='outlined' onClick={onClickCancel}>
+              <Button variant='outlined' onClick={() => onClickCancel('info')}>
                 Cancel
               </Button>
               <Button
@@ -422,12 +424,14 @@ const CompanyInfoOverview = ({
           >
             <Typography variant='h6'>Company information</Typography>
 
-            <IconButton
-              onClick={() => setEdit(true)}
-              // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-            >
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable && (
+              <IconButton
+                onClick={() => setEdit(true)}
+                // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+              >
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
           <Box
             sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
