@@ -21,8 +21,8 @@ import {
 } from '@src/@core/components/chips/chips'
 
 // ** types
-import { RequestListType } from '@src/types/requests/list'
-import { RequestFilterType, SortType } from '@src/types/requests/filters'
+import { RequestListType } from '@src/types/requests/list.type'
+import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
 import { useContext } from 'react'
@@ -42,8 +42,10 @@ type Props = {
   list: {
     data: RequestListType[]
     count: number
+    totalCount: number
   }
   isLoading: boolean
+  onRowClick: (id: number) => void
 }
 
 export default function List({
@@ -55,9 +57,8 @@ export default function List({
   setFilter,
   list,
   isLoading,
+  onRowClick,
 }: Props) {
-  const router = useRouter()
-
   const { user } = useContext(AuthContext)
 
   const columns = [
@@ -168,9 +169,11 @@ export default function List({
         const dueDate = row.items.length
           ? row.items[0]?.desiredDueDate
           : undefined
+        const timezone =
+          (row.items.length && row.items[0]?.desiredDueTimezone?.code) || ''
         return (
           <Box sx={{ overflowX: 'scroll' }}>
-            {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, user?.timezone!)}
+            {!dueDate ? '-' : FullDateTimezoneHelper(dueDate, timezone)}
           </Box>
         )
       },
@@ -207,6 +210,7 @@ export default function List({
           setFilter({ ...filter, sort: value.field, ordering: value.sort })
         }
       }}
+      onRowClick={e => onRowClick(e.row.id)}
       sx={{ overflowX: 'scroll', cursor: 'pointer' }}
       rows={list.data}
       rowCount={list.count}

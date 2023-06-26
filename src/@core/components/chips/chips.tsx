@@ -10,7 +10,7 @@ import {
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
-import { RequestStatusType } from '@src/types/requests/common'
+import { RequestStatusType } from '@src/types/requests/common.type'
 
 export function renderStatusChip(status: string) {
   const color =

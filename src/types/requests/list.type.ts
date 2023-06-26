@@ -1,4 +1,4 @@
-import { RequestItemFormType, RequestStatusType } from './common'
+import { RequestItemFormType, RequestStatusType } from './common.type'
 
 export type RequestListType = {
   id: number
@@ -6,5 +6,6 @@ export type RequestListType = {
   status: RequestStatusType
   lsp: { name: string; email: string }
   requestedAt: string
+  statusUpdatedAt: string | null
   items: RequestItemFormType[]
 }

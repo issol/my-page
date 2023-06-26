@@ -8,15 +8,26 @@ import { Box } from '@mui/system'
 import PageHeader from '@src/@core/components/page-header'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import styled from 'styled-components'
-import { RequestFilterType } from '@src/types/requests/filters'
+
+// ** components
 import Filter from './components/filter'
+import List from './components/list'
+
+// ** types
 import { ConstType } from '@src/pages/onboarding/client-guideline'
+import { RequestFilterType } from '@src/types/requests/filters.type'
+
+// ** values
 import {
   ServiceTypeList,
   ServiceTypePair,
 } from '@src/shared/const/service-type/service-types'
-import List from './components/list'
+
+// ** apis
 import { useGetClientRequestList } from '@src/queries/requests/client-request.query'
+
+// ** hooks
+import { useRouter } from 'next/router'
 
 // ** components
 
@@ -38,6 +49,8 @@ export const initialFilter: RequestFilterType = {
 
 type MenuType = 'list' | 'calendar'
 export default function Requests() {
+  const router = useRouter()
+
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [skip, setSkip] = useState(0)
@@ -102,6 +115,10 @@ export default function Requests() {
       mine: activeFilter.mine,
       hideCompleted: activeFilter.hideCompleted,
     })
+  }
+
+  function onRowClick(id: number) {
+    router.push(`/quotes/request/${id}`)
   }
 
   return (
@@ -182,7 +199,7 @@ export default function Requests() {
                     title={
                       <Box display='flex' justifyContent='space-between'>
                         <Typography variant='h6'>
-                          Requests {/* ({list?.totalCount ?? 0}) */}
+                          Requests ({list?.count ?? 0})
                         </Typography>{' '}
                         <Button variant='contained'>
                           <StyledNextLink href='/quotes/add-new' color='white'>
@@ -212,8 +229,9 @@ export default function Requests() {
                     }
                     filter={activeFilter}
                     setFilter={setActiveFilter}
-                    list={list || { count: 0, data: [] }}
+                    list={list || { count: 0, data: [], totalCount: 0 }}
                     isLoading={isLoading}
+                    onRowClick={onRowClick}
                   />
                 </Card>
               </Grid>

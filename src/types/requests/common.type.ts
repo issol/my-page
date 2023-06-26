@@ -9,14 +9,12 @@ export type RequestStatusType =
 
 export type RequestItemFormType = {
   name: string
-  source: string
-  target: string
+  sourceLanguage: string
+  targetLanguage: string
   category: string
   serviceType: string[]
   unit?: string
   quantity?: number
-  desiredDueDate: {
-    date: string
-    timezone: CountryType
-  }
+  desiredDueDate: string
+  desiredDueTimezone: CountryType
 }
