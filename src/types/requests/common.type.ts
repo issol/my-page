@@ -7,6 +7,14 @@ export type RequestStatusType =
   | 'Changed into order'
   | 'Canceled'
 
+export type RequestFormType = {
+  status: RequestStatusType
+  lsp: { name: string; email: string }
+  requestedAt: string
+  items: RequestItemFormType[]
+  sampleFiles: string[]
+}
+
 export type RequestItemFormType = {
   name: string
   sourceLanguage: string

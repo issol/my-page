@@ -32,11 +32,7 @@ import { RequestListType } from '@src/types/requests/list.type'
 import { useRouter } from 'next/router'
 import { useGetClientRequestCalendarData } from '@src/queries/requests/client-request.query'
 
-type Props = {
-  id: number
-}
-
-const CalendarContainer = ({ id }: Props) => {
+const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
   const router = useRouter()
@@ -162,25 +158,27 @@ const CalendarContainer = ({ id }: Props) => {
         </Box>
       </CalendarWrapper>
 
-      <List
-        skip={skip}
-        setSkip={setSkip}
-        pageSize={pageSize}
-        setPageSize={setPageSize}
-        filter={filter}
-        setFilter={setFilter}
-        list={
-          currentList?.length
-            ? {
-                data: currentList,
-                count: currentList?.length,
-                totalCount: currentList?.length,
-              }
-            : { data: [], count: 0, totalCount: 0 }
-        }
-        onRowClick={onRowClick}
-        isLoading={isLoading}
-      />
+      <Box mt={10} sx={{ background: 'white' }}>
+        <List
+          skip={skip}
+          setSkip={setSkip}
+          pageSize={pageSize}
+          setPageSize={setPageSize}
+          filter={filter}
+          setFilter={setFilter}
+          list={
+            currentList?.length
+              ? {
+                  data: currentList,
+                  count: currentList?.length,
+                  totalCount: currentList?.length,
+                }
+              : { data: [], count: 0, totalCount: 0 }
+          }
+          onRowClick={onRowClick}
+          isLoading={isLoading}
+        />
+      </Box>
     </Box>
   )
 }

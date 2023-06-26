@@ -28,6 +28,7 @@ import { useGetClientRequestList } from '@src/queries/requests/client-request.qu
 
 // ** hooks
 import { useRouter } from 'next/router'
+import CalendarContainer from './components/calendar'
 
 // ** components
 
@@ -151,93 +152,93 @@ export default function Requests() {
         </ButtonGroup>
       </Box>
       <Box>
-        {
-          menu === 'list' ? (
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-              <Filter
-                serviceType={serviceType}
-                filter={filter}
-                setFilter={setFilter}
-                onReset={onReset}
-                search={onSearch}
-              />
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'flex-end',
-                  gap: '24px',
-                }}
-              >
-                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <Typography>See only my requests</Typography>
-                  <Switch
-                    checked={activeFilter.mine === 1}
-                    onChange={e =>
-                      setActiveFilter({
-                        ...activeFilter,
-                        mine: e.target.checked ? 1 : 0,
-                      })
-                    }
-                  />
-                </Box>
-                <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
-                  <Typography>Hide completed requests</Typography>
-                  <Switch
-                    checked={activeFilter.hideCompleted === 1}
-                    onChange={e =>
-                      setActiveFilter({
-                        ...activeFilter,
-                        hideCompleted: e.target.checked ? 1 : 0,
-                      })
-                    }
-                  />
-                </Box>
+        {menu === 'list' ? (
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+            <Filter
+              serviceType={serviceType}
+              filter={filter}
+              setFilter={setFilter}
+              onReset={onReset}
+              search={onSearch}
+            />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                gap: '24px',
+              }}
+            >
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography>See only my requests</Typography>
+                <Switch
+                  checked={activeFilter.mine === 1}
+                  onChange={e =>
+                    setActiveFilter({
+                      ...activeFilter,
+                      mine: e.target.checked ? 1 : 0,
+                    })
+                  }
+                />
               </Box>
-              <Grid item xs={12}>
-                <Card>
-                  <CardHeader
-                    title={
-                      <Box display='flex' justifyContent='space-between'>
-                        <Typography variant='h6'>
-                          Requests ({list?.count ?? 0})
-                        </Typography>{' '}
-                        <Button variant='contained'>
-                          <StyledNextLink href='/quotes/add-new' color='white'>
-                            Create new request
-                          </StyledNextLink>
-                        </Button>
-                      </Box>
-                    }
-                    sx={{
-                      pb: 4,
-                      '& .MuiCardHeader-title': { letterSpacing: '.15px' },
-                    }}
-                  />
-
-                  <List
-                    skip={skip}
-                    pageSize={activeFilter.skip}
-                    setSkip={(n: number) => {
-                      setSkip(n)
-                      setActiveFilter({
-                        ...activeFilter,
-                        skip: n * activeFilter.take,
-                      })
-                    }}
-                    setPageSize={(n: number) =>
-                      setActiveFilter({ ...activeFilter, take: n })
-                    }
-                    filter={activeFilter}
-                    setFilter={setActiveFilter}
-                    list={list || { count: 0, data: [], totalCount: 0 }}
-                    isLoading={isLoading}
-                    onRowClick={onRowClick}
-                  />
-                </Card>
-              </Grid>
+              <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
+                <Typography>Hide completed requests</Typography>
+                <Switch
+                  checked={activeFilter.hideCompleted === 1}
+                  onChange={e =>
+                    setActiveFilter({
+                      ...activeFilter,
+                      hideCompleted: e.target.checked ? 1 : 0,
+                    })
+                  }
+                />
+              </Box>
             </Box>
-          ) : null // <CalendarContainer />
-        }
+            <Grid item xs={12}>
+              <Card>
+                <CardHeader
+                  title={
+                    <Box display='flex' justifyContent='space-between'>
+                      <Typography variant='h6'>
+                        Requests ({list?.count ?? 0})
+                      </Typography>{' '}
+                      <Button variant='contained'>
+                        <StyledNextLink href='/quotes/add-new' color='white'>
+                          Create new request
+                        </StyledNextLink>
+                      </Button>
+                    </Box>
+                  }
+                  sx={{
+                    pb: 4,
+                    '& .MuiCardHeader-title': { letterSpacing: '.15px' },
+                  }}
+                />
+
+                <List
+                  skip={skip}
+                  pageSize={activeFilter.skip}
+                  setSkip={(n: number) => {
+                    setSkip(n)
+                    setActiveFilter({
+                      ...activeFilter,
+                      skip: n * activeFilter.take,
+                    })
+                  }}
+                  setPageSize={(n: number) =>
+                    setActiveFilter({ ...activeFilter, take: n })
+                  }
+                  filter={activeFilter}
+                  setFilter={setActiveFilter}
+                  list={list || { count: 0, data: [], totalCount: 0 }}
+                  isLoading={isLoading}
+                  onRowClick={onRowClick}
+                />
+              </Card>
+            </Grid>
+          </Box>
+        ) : (
+          <CalendarContainer />
+        )}
       </Box>
     </Box>
   )
