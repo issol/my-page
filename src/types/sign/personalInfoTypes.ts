@@ -62,7 +62,7 @@ export type ManagerUserInfoType = {
     timezone?: CountryType
     jobTitle?: string
     mobilePhone?: string
-    telephone?: string
+    telePhone?: string
     fax?: string
     department?: string
   }
@@ -76,7 +76,7 @@ export type ManagerInfo = {
   department?: string
   jobTitle?: string
   timezone: CountryType
-  mobile?: string
-  phone?: string
+  mobilePhone?: string
+  telePhone?: string
   fax?: string
 }

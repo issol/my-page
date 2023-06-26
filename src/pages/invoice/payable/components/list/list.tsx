@@ -16,6 +16,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 // ** contexts
 import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
+import Link from 'next/link'
 
 type CellType = {
   row: InvoicePayableListType
@@ -76,9 +77,11 @@ export default function PayableList({
       renderCell: ({ row }: CellType) => {
         return (
           <Tooltip title={row.corporationId}>
-            <TableTitleTypography fontSize={14}>
-              {row.corporationId}
-            </TableTitleTypography>
+            <Link href={`/invoice/payable/${row.id}`}>
+              <TableTitleTypography fontSize={14}>
+                {row.corporationId}
+              </TableTitleTypography>
+            </Link>
           </Tooltip>
         )
       },
@@ -195,12 +198,10 @@ export default function PayableList({
           NoRowsOverlay: () => NoList(),
           NoResultsOverlay: () => NoList(),
         }}
-        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
         rows={list.data}
         rowCount={list.totalCount}
         loading={isLoading}
-        onCellClick={params => router.push(`/invoice/payable/${params.id}`)}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}

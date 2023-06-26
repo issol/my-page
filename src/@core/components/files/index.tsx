@@ -101,7 +101,7 @@ export default function FileInfo({
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Box display='flex' alignItems='center' justifyContent='space-between'>
-          <Box display='flex' alignItems='center' gap='10px'>
+          <Box display='flex' gap='10px' flexDirection='column'>
             <Typography variant='h6'>{title ?? 'Files'}</Typography>
             <Typography variant='body2'>
               {fileSize === 0

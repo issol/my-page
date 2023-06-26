@@ -31,11 +31,14 @@ export const useGetClientDetail = (id: number) => {
   )
 }
 
-export const useGetClientProjectList = (filter: ClientProjectFilterType) => {
-  return useQuery<{ data: ClientProjectListType[]; totalCount: number }>(
+export const useGetClientProjectList = (
+  id: number,
+  filter: ClientProjectFilterType,
+) => {
+  return useQuery<{ data: ClientProjectListType[]; count: number }>(
     ['client-projects', filter],
     () => {
-      return getClientProjectList(filter)
+      return getClientProjectList(id, filter)
     },
     {
       staleTime: 60 * 1000, // 1
@@ -47,14 +50,19 @@ export const useGetClientProjectList = (filter: ClientProjectFilterType) => {
   )
 }
 
-export const useGetClientProjectsCalendar = (id: number, date: string) => {
+export const useGetClientProjectsCalendar = (
+  id: number,
+  year: number,
+  month: number,
+) => {
   return useQuery(
     'get-client-project-calendar',
     () => {
-      return getClientProjectsCalendarData(id, date)
+      return getClientProjectsCalendarData(id, year, month)
     },
     {
       suspense: true,
+
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
           position: 'bottom-left',
@@ -64,11 +72,14 @@ export const useGetClientProjectsCalendar = (id: number, date: string) => {
   )
 }
 
-export const useGetClientInvoiceList = (filter: ClientInvoiceFilterType) => {
+export const useGetClientInvoiceList = (
+  id: number,
+  filter: ClientInvoiceFilterType,
+) => {
   return useQuery<{ data: ClientInvoiceListType[]; totalCount: number }>(
-    ['client-invoices', filter],
+    [`${id}-client-invoices`, filter],
     () => {
-      return getClientInvoiceList(filter)
+      return getClientInvoiceList(id, filter)
     },
     {
       staleTime: 60 * 1000, // 1
@@ -80,11 +91,16 @@ export const useGetClientInvoiceList = (filter: ClientInvoiceFilterType) => {
   )
 }
 
-export const useGetClientInvoicesCalendar = (id: number, date: string) => {
+export const useGetClientInvoicesCalendar = (
+  id: number,
+  year: number,
+  month: number,
+  // filter: ClientInvoiceFilterType,
+) => {
   return useQuery(
     'get-client-invoices-calendar',
     () => {
-      return getClientInvoicesCalendarData(id, date)
+      return getClientInvoicesCalendarData(id, year, month)
     },
     {
       suspense: true,

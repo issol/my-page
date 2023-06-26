@@ -43,6 +43,7 @@ export type ClientRowType = {
 export type ClientListDataType = {
   data: Array<ClientRowType>
   count: number
+  totalCount: number
 }
 
 export const getClientList = async (
@@ -57,6 +58,7 @@ export const getClientList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -229,46 +231,47 @@ export const deleteClient = async (
 }
 
 export const getClientProjectList = async (
+  clientId: number,
   filter: ClientProjectFilterType,
-): Promise<{ data: ClientProjectListType[]; totalCount: number }> => {
+): Promise<{ data: ClientProjectListType[]; count: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
-    // )
+    const { data } = await axios.get(
+      `/api/enough/u/client/${clientId}/projects?${makeQuery(filter)}`,
+    )
 
-    const list: ClientProjectListType[] = [
-      {
-        id: 0,
-        corporationId: 'Q-000001',
-        workName: 'The Glory',
-        projectName: 'The Glory 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2022-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2022-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'quote',
-      },
-      {
-        id: 1,
-        corporationId: 'O-000001',
-        workName: 'Dark Night',
-        projectName: 'Dark Night 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2022-04-28T14:13:15Z',
-        status: 'Active',
-        orderDate: '2022-04-20T14:13:15Z',
-        projectDescription: 'Test2',
-        type: 'order',
-      },
-    ]
-    // return data
-    return {
-      data: list,
-      totalCount: list.length,
-    }
+    // const list: ClientProjectListType[] = [
+    //   {
+    //     id: 0,
+    //     corporationId: 'Q-000001',
+    //     workName: 'The Glory',
+    //     projectName: 'The Glory 1~2',
+    //     category: 'Webcomics',
+    //     serviceType: ['Translation', 'Proofreading'],
+    //     dueDate: '2022-04-27T14:13:15Z',
+    //     status: 'Active',
+    //     orderDate: '2022-04-20T14:13:15Z',
+    //     projectDescription: 'Test',
+    //     type: 'quote',
+    //   },
+    //   {
+    //     id: 1,
+    //     corporationId: 'O-000001',
+    //     workName: 'Dark Night',
+    //     projectName: 'Dark Night 1~2',
+    //     category: 'Webcomics',
+    //     serviceType: ['Translation', 'Proofreading'],
+    //     dueDate: '2022-04-28T14:13:15Z',
+    //     status: 'Active',
+    //     orderDate: '2022-04-20T14:13:15Z',
+    //     projectDescription: 'Test2',
+    //     type: 'order',
+    //   },
+    // ]
+    return data
+    // return {
+    //   data: list,
+    //   totalCount: list.length,
+    // }
   } catch (e: any) {
     throw new Error(e)
   }
@@ -276,7 +279,7 @@ export const getClientProjectList = async (
 
 export type ClientProjectCalendarData = {
   data: Array<ClientProjectCalendarEventType>
-  totalCount: number
+  count: number
 }
 
 export type ClientProjectCalendarEventType = ClientProjectListType & {
@@ -286,89 +289,47 @@ export type ClientProjectCalendarEventType = ClientProjectListType & {
 
 export const getClientProjectsCalendarData = async (
   id: number,
-  date: string,
+  year: number,
+  month: number,
 ): Promise<ClientProjectCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
   const color_overdue = 'overdue'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project?date=${date}`,
+      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}`,
     )
 
-    const list: ClientProjectListType[] = [
-      {
-        id: 4,
-        corporationId: 'O-000004',
-        workName: 'The Glory',
-        projectName: 'The Glory 1~2',
-        category: 'Webcomics',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-      {
-        id: 1,
-        corporationId: 'O-000001',
-        workName: 'Hoffman Website',
-        projectName: 'Website 4',
-        category: 'Webnovels',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-      {
-        id: 2,
-        corporationId: 'Q-000002',
-        workName: 'Black Mirror',
-        projectName: 'Black Mirror 3~4',
-        category: 'Documents/Text',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'quote',
-      },
-      {
-        id: 3,
-        corporationId: 'O-000003',
-        workName: 'DP',
-        projectName: 'DP 1.5',
-        category: 'OTT/Subtitle',
-        serviceType: ['Translation', 'Proofreading'],
-        dueDate: '2023-04-27T14:13:15Z',
-        status: 'Active',
-        orderDate: '2023-04-20T14:13:15Z',
-        projectDescription: 'Test',
-        type: 'order',
-      },
-    ]
     return {
-      data: list.map((item: ClientProjectListType, idx: number) => {
-        return {
-          ...item,
-          extendedProps: {
-            calendar:
-              item.status === 'Overdue'
-                ? color_overdue
-                : colors[idx % colors.length],
-          },
-          allDay: true,
-        }
-      }),
-      totalCount: data?.totalCount ?? 0,
+      data: data.data.map((item: ClientProjectListType, idx: number) => ({
+        ...item,
+        extendedProps: {
+          // TODO : change color by Order, Quote ( To. Jay )
+          calendar:
+            item.status === 'Overdue' ||
+            item.status === 'Overdue (Reminder sent)' ||
+            item.status === 'Canceled'
+              ? color_overdue
+              : item.status === 'In preparation'
+              ? '#F572D8'
+              : item.status === 'Checking in progress'
+              ? '#FDB528'
+              : item.status === 'Accepted by client'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #64C623'
+              : item.status === 'Tax invoice issued'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #46A4Ce'
+              : item.status === 'Paid'
+              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #267838'
+              : 'default',
+        },
+        allDay: true,
+      })),
+      count: data.count ?? 0,
     }
   } catch (e: any) {
     return {
       data: [],
-      totalCount: 0,
+      count: 0,
     }
   }
 }
@@ -376,6 +337,7 @@ export const getClientProjectsCalendarData = async (
 export type ClientInvoiceCalendarData = {
   data: Array<ClientInvoiceCalendarEventType>
   totalCount: number
+  count: number
 }
 
 export type ClientInvoiceCalendarEventType = ClientInvoiceListType & {
@@ -384,42 +346,15 @@ export type ClientInvoiceCalendarEventType = ClientInvoiceListType & {
 }
 
 export const getClientInvoiceList = async (
+  id: number,
   filter: ClientInvoiceFilterType,
 ): Promise<{ data: ClientInvoiceListType[]; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/client/projects?${makeQuery(filter)}`,
-    // )
+    const { data } = await axios.get(
+      `/api/enough/u/client/${id}/invoices?${makeQuery(filter)}`,
+    )
 
-    const list: ClientInvoiceListType[] = [
-      {
-        id: 0,
-        iId: 'I-000001',
-        invoiceName: 'Invoice name',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 1,
-        iId: 'I-000002',
-        invoiceName: 'Invoice name2',
-        amount: 4000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice2',
-        currency: 'USD',
-      },
-    ]
-    // return data
-    return {
-      data: list,
-      totalCount: list.length,
-    }
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
@@ -427,81 +362,51 @@ export const getClientInvoiceList = async (
 
 export const getClientInvoicesCalendarData = async (
   id: number,
-  date: string,
+  year: number,
+  month: number,
+  // filter: ClientInvoiceFilterType,
 ): Promise<ClientInvoiceCalendarData> => {
   const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = 'overdue'
+  const color_overdue = '#FF4D49'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/pro/${id}/project?date=${date}`,
+      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month + 1}`,
     )
 
-    const list: ClientInvoiceListType[] = [
-      {
-        id: 1,
-        iId: 'I-000001',
-        invoiceName: 'Invoice name',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 2,
-        iId: 'I-000002',
-        invoiceName: 'Invoice name2',
-        amount: 3000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 3,
-        iId: 'I-000003',
-        invoiceName: 'Invoice name3',
-        amount: 4000,
-        paymentDueDate: '2023-04-27T14:13:15Z',
-        invoicedDate: '2023-04-20T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-      {
-        id: 4,
-        iId: 'I-000004',
-        invoiceName: 'Invoice name4',
-        amount: 3000,
-        paymentDueDate: '2023-04-23T14:13:15Z',
-        invoicedDate: '2023-04-19T14:13:15Z',
-        status: 'Active',
-        invoiceDescription: 'Test invoice',
-        currency: 'USD',
-      },
-    ]
     return {
-      data: list.map((item: ClientInvoiceListType, idx: number) => {
+      data: data.data.map((item: ClientInvoiceListType, idx: number) => {
         return {
           ...item,
           extendedProps: {
             calendar:
-              item.status === 'Overdue'
+              item.invoiceStatus === 'Overdue' ||
+              item.invoiceStatus === 'Overdue (Reminder sent)' ||
+              item.invoiceStatus === 'Canceled'
                 ? color_overdue
-                : colors[idx % colors.length],
+                : item.invoiceStatus === 'In preparation'
+                ? '#F572D8'
+                : item.invoiceStatus === 'Checking in progress'
+                ? '#FDB528'
+                : item.invoiceStatus === 'Accepted by client'
+                ? ' #64C623'
+                : item.invoiceStatus === 'Tax invoice issued'
+                ? '#46A4Ce'
+                : item.invoiceStatus === 'Paid'
+                ? '#267838'
+                : 'default',
           },
           allDay: true,
         }
       }),
       totalCount: data?.totalCount ?? 0,
+      count: data?.count ?? 0,
     }
   } catch (e: any) {
     return {
       data: [],
       totalCount: 0,
+      count: 0,
     }
   }
 }

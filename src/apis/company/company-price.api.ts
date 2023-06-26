@@ -42,10 +42,7 @@ export const getProPriceList = async (
 
 export const getStandardPrice = async (
   page: 'pro' | 'client',
-  filter: {
-    take: number
-    skip: number
-  },
+  filter: ClientPriceListFilterType
 ): Promise<{
   data: Array<StandardPriceListType>
   count: number

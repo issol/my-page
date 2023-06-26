@@ -8,6 +8,8 @@ import Box from '@mui/material/Box'
 import {
   ClientStatusChip,
   ExtraNumberChip,
+  InvoicePayableChip,
+  InvoiceReceivableChip,
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
@@ -117,7 +119,7 @@ export default function ClientInvoicesRows(props: {
               color: 'rgba(76, 78, 100, 0.87)',
             }}
           >
-            {row.iId}
+            {row.corporationId}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -133,7 +135,7 @@ export default function ClientInvoicesRows(props: {
           }}
           size='small'
         >
-          <Typography variant='body1'>{row.invoiceName}</Typography>
+          <Typography variant='body1'>{row.order.projectName}</Typography>
         </TableCell>
         {separateLine()}
         <TableCell
@@ -148,7 +150,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {formatCurrency(row.amount, row.currency)}
+            {formatCurrency(row.totalPrice, row.currency ?? 'USD')}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -168,7 +170,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.invoicedDate, user.timezone)}
+            {FullDateTimezoneHelper(row.invoicedAt, user.timezone)}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -184,7 +186,7 @@ export default function ClientInvoicesRows(props: {
           size='small'
         >
           <Typography variant='body1'>
-            {FullDateTimezoneHelper(row.paymentDueDate, user.timezone)}
+            {FullDateTimezoneHelper(row.payDueAt, row.payDueTimezone)}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -198,7 +200,8 @@ export default function ClientInvoicesRows(props: {
           }}
           size='small'
         >
-          <ClientStatusChip label={row.status} status={'Active'} />
+          {InvoiceReceivableChip(row.invoiceStatus)}
+          {/* <ClientStatusChip label={row.invoiceStatus} status={'Active'} /> */}
         </TableCell>
       </TableRow>
       <TableRow>
@@ -207,7 +210,7 @@ export default function ClientInvoicesRows(props: {
             <Grid container xs={12} padding='20px 64px'>
               <Grid item xs={3}>
                 <Title>Invoice description</Title>
-                <Desc>{row.invoiceDescription}</Desc>
+                <Desc>{row.description ?? '-'}</Desc>
               </Grid>
             </Grid>
             {/* <Grid container xs={12} padding='0 60px 20px 60px'>

@@ -47,8 +47,8 @@ export type UserDataType = {
   preferredName?: string
   preferredNamePronunciation?: string
   timezone: CountryType
-  mobile?: string
-  phone?: string
+  mobilePhone?: string
+  telePhone?: string
   jobInfo?: Array<JobInfoType>
   experience?: string
   resume?: Array<{ name: string; size: number }> | null

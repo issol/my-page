@@ -44,6 +44,7 @@ import AddContactPersonForm from '@src/pages/components/forms/add-contact-person
 import AddContactPersonConfirmModal from '../../components/modals/add-contact-person-confirm-modal'
 import SimpleAlertModal from '../../components/modals/simple-alert-modal'
 import DiscardContactPersonModal from '../../components/modals/discard-contact-person-modal'
+import CloseConfirmModal from '@src/pages/client/components/modals/close-confirm-modal'
 
 // ** fetch & mutation
 import { useMutation, useQueryClient } from 'react-query'
@@ -193,8 +194,18 @@ export default function ContactPersons({
   }
 
   function cancelUpdateForm() {
-    reset({ contactPersons: [] })
-    setOpen(false)
+    openModal({
+      type: 'close-confirm',
+      children: (
+        <CloseConfirmModal
+          message='Are you sure? Changes you made may not be saved.'
+          onClick={() => {
+            setOpen(false)
+          }}
+          onClose={() => closeModal('close-confirm')}
+        />
+      ),
+    })
   }
 
   const createContactPersonMutation = useMutation(
@@ -326,7 +337,7 @@ export default function ContactPersons({
         <DialogContent style={{ padding: '50px 60px' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} display='flex' justifyContent='flex-start'>
-              <Typography variant='h5'>Add contact person</Typography>
+              {formMode === 'create' ? <Typography variant='h5'>Add contact person</Typography> : ''}
             </Grid>
             <AddContactPersonForm
               fields={fields.length ? [fields[0]] : []}
@@ -346,7 +357,7 @@ export default function ContactPersons({
                   variant='outlined'
                   color='secondary'
                   onClick={() => {
-                    setOpen(false)
+                    // setOpen(false)
                     setOpenDiscard(true)
                   }}
                 >
@@ -375,7 +386,7 @@ export default function ContactPersons({
                 <Button
                   variant='contained'
                   disabled={!isValid}
-                  onClick={() => onSubmit(getValues())}
+                  onClick={() => setOpenAdd(true)}
                 >
                   Save
                 </Button>
@@ -387,7 +398,8 @@ export default function ContactPersons({
       <DiscardContactPersonModal
         open={openDiscard}
         onDiscard={() => {
-          reset({ contactPersons: [] })
+          setOpen(false)
+          // reset({ contactPersons: [] })
         }}
         onCancel={() => {
           setOpen(true)

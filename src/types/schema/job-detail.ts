@@ -55,3 +55,8 @@ export const addJobInfoFormSchema = yup.object().shape({
 })
 
 export const addPricesFormSchema = yup.object().shape({})
+
+export const editJobInfoSchema = yup.object().shape({
+  name: yup.string().required(FormErrors.required),
+  contactPersonId: yup.number().required(FormErrors.required),
+})

@@ -8,6 +8,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
   countDecimalPlaces,
+  getPrice,
 } from '@src/shared/helpers/price.helper'
 import {
   LanguagePairListType,
@@ -33,12 +34,6 @@ const PriceUnit = ({
   selectedLanguagePair,
   onClickSetPriceUnit,
 }: Props) => {
-  function getPrice(price: number) {
-    if (selectedLanguagePair?.priceFactor) {
-      return price * selectedLanguagePair.priceFactor
-    }
-    return price
-  }
 
   const columns: GridColumns<PriceUnitListType> = [
     {
@@ -80,7 +75,7 @@ const PriceUnit = ({
           title={
             formatCurrency(
               formatByRoundingProcedure(
-                getPrice(row.price),
+                getPrice(row.price, selectedLanguagePair?.priceFactor ?? 0),
                 priceData.decimalPlace,
                 priceData.roundingProcedure,
                 priceData.currency,
@@ -105,7 +100,7 @@ const PriceUnit = ({
             >
               {formatCurrency(
                 formatByRoundingProcedure(
-                  getPrice(row.price),
+                  getPrice(row.price, selectedLanguagePair?.priceFactor ?? 0),
                   priceData.decimalPlace,
                   priceData.roundingProcedure,
                   priceData.currency,
@@ -128,7 +123,7 @@ const PriceUnit = ({
       sortable: false,
       renderHeader: () => <Box>Weighting (%)</Box>,
       renderCell: ({ row }: { row: PriceUnitListType }) => (
-        <Box>{row.weighting ?? '-'} %</Box>
+        <Box>{(row.weighting && row.weighting !== 0) ? row.weighting : '-'} %</Box>
       ),
     },
   ]

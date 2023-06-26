@@ -108,7 +108,7 @@ export default function ClientInvoiceCalendarSideBar({
         variant='body2'
         sx={{ mt: 7, mb: 2.5, textTransform: 'none', fontWeight: 'bold' }}
       >
-        Invoices in {monthName}
+        Invoice status
       </Typography>
 
       {currEvent.length
@@ -117,18 +117,20 @@ export default function ClientInvoiceCalendarSideBar({
               <BoxFeature
                 key={item.id}
                 onClick={() => setCurrentListId(item.id)}
-                bg={colors[item?.extendedProps?.calendar!]?.backgroundColor}
+                bg={hexToRGBA(item?.extendedProps?.calendar!, 0.12)}
                 $bgSize={colors[item?.extendedProps?.calendar!]?.backgroundSize}
                 color={
-                  item.status === 'Overdue'
-                    ? colors[item?.extendedProps?.calendar!]?.color
+                  item.invoiceStatus === 'Overdue' ||
+                  item.invoiceStatus === 'Overdue (Reminder sent)'
+                    ? '#FF4D49'
                     : ''
                 }
               >
                 {/* {item.title} */}
-                {item.status === 'Overdue'
-                  ? `🔴 ${item.invoiceName}`
-                  : item.invoiceName}
+                {item.invoiceStatus === 'Overdue' ||
+                item.invoiceStatus === 'Overdue (Reminder sent)'
+                  ? `🔴 ${item.invoiceStatus}`
+                  : item.invoiceStatus}
               </BoxFeature>
             )
           })

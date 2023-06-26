@@ -108,6 +108,8 @@ export default function PriceUnitForm(props: Props) {
     if (subPrices.length > 1) {
       const idx = subPrices.map(item => item.id).indexOf(id)
       idx !== -1 && remove(idx)
+    } else {
+      resetSubPrice()
     }
   }
 
@@ -116,6 +118,12 @@ export default function PriceUnitForm(props: Props) {
       subPrices.forEach((item, idx) => {
         update(idx, { ...item, unit: unit })
       })
+    }
+  }
+
+  function resetSubPrice() {
+    if (subPrices.length === 1) {
+        update(0, { ...subPrices[0], title: '', weighting: null })
     }
   }
 
@@ -265,7 +273,15 @@ export default function PriceUnitForm(props: Props) {
               name='isActive'
               control={control}
               render={({ field: { value, onChange } }) => (
-                <Switch checked={value} onChange={onChange} />
+                <Switch
+                  checked={value}
+                  onChange={e => {
+                    if(subPrices.length && e.target.checked === false) {
+                      subPrices?.map((item, idx) => setValue(`subPriceUnits.${idx}.isActive`, false))
+                    }
+                    onChange(e.target.checked)
+                  }}
+                />
               )}
             />
           )}
@@ -379,7 +395,13 @@ export default function PriceUnitForm(props: Props) {
                           name={`subPriceUnits.${idx}.isActive`}
                           control={control}
                           render={({ field: { value, onChange } }) => (
-                            <Switch checked={value} onChange={onChange} />
+                            <Switch
+                              checked={value}
+                              onChange={e => {
+                                if(!getValues('isActive') && e.target.checked) setValue('isActive',e.target.checked)
+                                onChange(e.target.checked)
+                              }}
+                            />
                           )}
                         />
                       )}
@@ -388,7 +410,6 @@ export default function PriceUnitForm(props: Props) {
                       <Box width='100%' display='flex' justifyContent='center'>
                         <IconButton
                           onClick={() => removeSubPrice(item.id)}
-                          disabled={!isValid}
                         >
                           <Icon icon='mdi:trash-outline' />
                         </IconButton>

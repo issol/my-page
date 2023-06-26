@@ -53,6 +53,7 @@ export type JobItemType = {
 
 export type JobType = {
   id: number
+  order: { id: number }
   corporationId: string
   name: string
   status: JobStatusType

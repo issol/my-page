@@ -10,8 +10,7 @@ import { Typography } from '@mui/material'
 
 // ** components
 import Calendar from './calendar'
-import QuotesList from '../list/list'
-import CalendarSideBar from '@src/pages/components/sidebar'
+import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -29,6 +28,9 @@ import {
 // ** apis
 import { useGetPayableCalendar } from '@src/queries/invoice/payable.query'
 import PayableList from '../list/list'
+
+// ** values
+import { InvoicePayableCalendarStatus } from '@src/shared/const/status/statuses'
 
 const CalendarContainer = () => {
   // ** States
@@ -53,7 +55,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, isLoading } = useGetPayableCalendar(`${year}-${month}`, filter)
+  const { data, isLoading } = useGetPayableCalendar(year, month, filter)
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoicePayableListType>>
   >([])
@@ -98,16 +100,11 @@ const CalendarContainer = () => {
           },
         }}
       >
-        <CalendarSideBar
-          title='Invoice status'
+        <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          event={event}
-          month={month}
+          status={InvoicePayableCalendarStatus}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={setCurrentListId}
         />
         <Box
           sx={{

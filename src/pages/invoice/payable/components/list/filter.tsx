@@ -24,10 +24,12 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** types
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
+import { useGetProList } from '@src/queries/pro/pro-list.query'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   filter: InvoicePayableFilterType
@@ -35,12 +37,13 @@ type Props = {
   onReset: () => void
   search: () => void
 }
-//TODO: Pro filter list 추가하기
+
 export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
-
+  //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에)
+  const { data: proList } = useGetProList({ take: 100, skip: 0 })
+  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
@@ -75,7 +78,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     <Autocomplete
                       {...commonOptions}
                       multiple
-                      // disableCloseOnSelect
+                      disableCloseOnSelect
                       loading={isLoading}
                       options={statusList || []}
                       getOptionLabel={option => option.statusName}
@@ -112,34 +115,40 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>
                   <FormControl fullWidth>
-                    {/* <Autocomplete
-                    {...commonOptions}
-                    multiple
-                    disableCloseOnSelect
-                    options={RoleList}
-                    value={filter.role}
-                    limitTags={1}
-                    onChange={(e, v) =>
-                      setFilter({
-                        ...filter,
-                        role: v,
-                      })
-                    }
-                    id='role'
-                    renderInput={params => (
-                      <TextField
-                        {...params}
-                        label='Item name'
-                        placeholder='Item name'
-                      />
-                    )}
-                    renderOption={(props, option, { selected }) => (
-                      <li {...props}>
-                        <Checkbox checked={selected} sx={{ mr: 2 }} />
-                        {option.label}
-                      </li>
-                    )}
-                  /> */}
+                    <Autocomplete
+                      {...commonOptions}
+                      multiple
+                      disableCloseOnSelect
+                      options={proList?.data || []}
+                      getOptionLabel={option => option.id}
+                      value={
+                        !proList
+                          ? []
+                          : proList.data?.filter(pro =>
+                              filter.pro?.includes(Number(pro.id)),
+                            )
+                      }
+                      limitTags={1}
+                      onChange={(e, v) =>
+                        setFilter({
+                          ...filter,
+                          pro: v.map(i => Number(i.id)),
+                        })
+                      }
+                      renderInput={params => (
+                        <TextField {...params} label='Pro' placeholder='Pro' />
+                      )}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
+                          {getLegalName({
+                            firstName: option.firstName,
+                            middleName: option.middleName,
+                            lastName: option.lastName,
+                          })}
+                        </li>
+                      )}
+                    />
                   </FormControl>
                 </Grid>
                 <Grid item xs={12} sm={6} md={4}>

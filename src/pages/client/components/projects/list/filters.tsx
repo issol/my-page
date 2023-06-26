@@ -305,7 +305,7 @@ export default function ClientProjectsFilter({
                   <Grid item xs={4}>
                     <Controller
                       control={control}
-                      name='dueDate'
+                      name='dueAt'
                       render={({ field: { onChange, value } }) => (
                         <Box sx={{ width: '100%' }}>
                           <DatePicker

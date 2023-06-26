@@ -192,10 +192,12 @@ export default function PriceActionModal({
                   ? 'Delete'
                   : '',
                 type === 'Add' || type === 'Save' ? priceData : undefined,
-                type === 'Delete' || type === 'Save'
+                type === 'Delete' || type === 'Save' || type === 'Add'
                   ? selectedPriceData
                   : undefined,
               )
+              // Add 케이스에서 onClose()가 두개 있어야 모달이 닫힘
+              onClose()
             }}
           >
             {type === 'Add'

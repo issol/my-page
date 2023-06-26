@@ -1,5 +1,5 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useState } from 'react'
+import { MouseEvent, SyntheticEvent, useState, useEffect } from 'react'
 
 // ** MUI Imports
 import Tab from '@mui/material/Tab'
@@ -20,7 +20,12 @@ import { useGetPriceUnitList } from '@src/queries/price-units.query'
 // ** Components
 import PriceUnits from '../components/price/price-units'
 
+import { useRouter } from 'next/router'
+type tabMenu = '1' | '2' | '3'
+
 export default function Price() {
+  const router = useRouter()
+  const tabQuery = router.query.tab as tabMenu
   // ** State
   const [value, setValue] = useState<string>('1')
 
@@ -31,6 +36,10 @@ export default function Price() {
     skip: skip * pageSize,
     take: pageSize,
   })
+
+  useEffect(() => {
+    if (tabQuery && ['1', '2', '3'].includes(tabQuery)) setValue(tabQuery)
+  }, [tabQuery])
 
   const TabList = styled(MuiTabList)<TabListProps>(({ theme }) => ({
     marginBottom: '24px',
