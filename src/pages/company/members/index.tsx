@@ -6,9 +6,9 @@ import {
   useGetSignUpRequests,
 } from '@src/queries/company/company-members'
 import {
-  approveMembers,
+  deleteMember,
+  patchMember,
   requestAction,
-  undoMembers,
   undoRequest,
 } from 'src/apis/company/company-members.api'
 
@@ -34,7 +34,7 @@ const Members = () => {
   const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('update', 'permission_request'),
   )
-  const { data: members } = useGetMembers(
+  const { data: members, refetch } = useGetMembers(
     ability.can('update', 'permission_request'),
   )
 
@@ -61,20 +61,31 @@ const Members = () => {
   const undoRequestActionMutation = useMutation((user: SignUpRequestsType) =>
     undoRequest({ rId: user.rId, reply: 'no_reply' }),
   )
-
-  const undoMemberActionMutation = useMutation(
-    (user: MembersType) => undoMembers(user),
+  const patchMemberMutation = useMutation(
+    (data: { userId: number; permissionGroups: string[] }) => patchMember(data),
     {
       onSuccess: data => {
-        console.log('undo members')
+        refetch()
       },
     },
   )
 
-  const addMemberAfterApproveMutation = useMutation((user: MembersType) =>
-    approveMembers(user),
+  const deleteMemberMutation = useMutation(
+    (userId: number) => deleteMember(userId),
+    {
+      onSuccess: data => {
+        refetch()
+      },
+    },
   )
-  const handleDeleteRole = (role: string, user: SignUpRequestsType) => {
+
+  const handleDeleteRole = (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
@@ -86,7 +97,13 @@ const Members = () => {
     )
   }
 
-  const handleAddRole = (role: string, user: SignUpRequestsType) => {
+  const handleAddRole = (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
@@ -275,6 +292,8 @@ const Members = () => {
           membersPageSize={membersPageSize}
           setMembersPageSize={setMembersPageSize}
           memberList={memberList}
+          patchMemberMutation={patchMemberMutation}
+          deleteMemberMutation={deleteMemberMutation}
         />
       </Suspense>
     </Box>

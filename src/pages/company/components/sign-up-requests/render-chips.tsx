@@ -1,17 +1,31 @@
 import CustomChip from 'src/@core/components/mui/chip'
-import Icon from 'src/@core/components/icon'
+
 import { v4 as uuidv4 } from 'uuid'
-import { SignUpRequestsType } from 'src/types/company/members'
 
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
 type Props = {
-  user: SignUpRequestsType
-  handleDeleteRole: (role: string, user: SignUpRequestsType) => void
-  handleAddRole: (role: string, user: SignUpRequestsType) => void
+  user: {
+    id: number
+    roles: string[]
+  }
+  handleDeleteRole: (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => void
+  handleAddRole: (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => void
 }
 
-const RenderChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
+const RenderRoleChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
   const chips = user.roles.map((value: any) => {
     if (user.roles.length === 1) {
       return (
@@ -90,4 +104,4 @@ const RenderChips = ({ user, handleDeleteRole, handleAddRole }: Props) => {
   return <>{chips}</>
 }
 
-export default RenderChips
+export default RenderRoleChips
