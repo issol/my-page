@@ -61,7 +61,9 @@ export default function Price() {
   }))
 
   const handleChange = (event: SyntheticEvent, newValue: string) => {
-    setValue(newValue)
+    // setValue(newValue
+    router.push({pathname: '/company/price/', query: {tab: newValue}})
+
   }
   return (
     <TabContext value={value}>
