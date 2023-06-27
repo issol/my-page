@@ -11,8 +11,11 @@ export type RequestFormType = {
   lspId: number
   contactPersonId: number
   items: RequestItemFormType[]
-  sampleFiles: string[]
-  description?: string
+  sampleFiles: Array<{
+    fileName: string
+    fileSize: number
+  }>
+  notes?: string
 }
 
 export type RequestItemFormType = {

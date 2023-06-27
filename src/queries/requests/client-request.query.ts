@@ -1,5 +1,6 @@
 import {
   getClientRequestCalendarData,
+  getClientRequestDetail,
   getClientRequestList,
 } from '@src/apis/requests/client-request.api'
 import { RequestFilterType } from '@src/types/requests/filters.type'
@@ -30,6 +31,18 @@ export const useGetClientRequestCalendarData = (
       staleTime: 60 * 1000, // 1
       suspense: false,
       keepPreviousData: true,
+    },
+  )
+}
+export const useGetClientRequestDetail = (id: number) => {
+  return useQuery(
+    ['request/client/detail', id],
+    () => getClientRequestDetail(id),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: false,
+      keepPreviousData: true,
+      enabled: !!id,
     },
   )
 }

@@ -116,7 +116,7 @@ export default function AddNewRequest() {
 
   /* TODO:
   api요청 3가지 항목
-  1. contact person => api변경해야 함
+  1. contact person => api변경해야 함, 그리고 job title도 같이 filter에 표기해주기
   2. lsp => api변경 필요함
   */
 
@@ -409,7 +409,7 @@ export default function AddNewRequest() {
                 Notes
               </Typography>
               <Controller
-                name='description'
+                name='notes'
                 control={control}
                 render={({ field: { value, onChange } }) => (
                   <>
@@ -417,7 +417,7 @@ export default function AddNewRequest() {
                       rows={4}
                       multiline
                       fullWidth
-                      error={Boolean(errors.description)}
+                      error={Boolean(errors.notes)}
                       label='Write down a note'
                       value={value ?? ''}
                       onChange={onChange}

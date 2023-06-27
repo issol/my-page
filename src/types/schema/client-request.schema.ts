@@ -47,6 +47,14 @@ export const clientRequestSchema = yup.object().shape({
       }),
     }),
   ),
-  sampleFiles: yup.array().nullable(),
-  description: yup.string().nullable(),
+  sampleFiles: yup
+    .array()
+    .of(
+      yup.object().shape({
+        fileName: yup.string().nullable(),
+        fileSize: yup.number().nullable(),
+      }),
+    )
+    .nullable(),
+  notes: yup.string().nullable(),
 })

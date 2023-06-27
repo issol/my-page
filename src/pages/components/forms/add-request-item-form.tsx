@@ -125,6 +125,7 @@ export default function AddRequestForm({
                     fullWidth
                     value={value}
                     onChange={onChange}
+                    inputProps={{ maxLength: 200 }}
                     error={Boolean(errors?.items?.[idx]?.name)}
                     label='Item name*'
                     placeholder='Item name*'
