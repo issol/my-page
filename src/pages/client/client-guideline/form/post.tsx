@@ -297,7 +297,7 @@ const ClientGuidelineForm = () => {
             variant='outlined'
             onClick={() => {
               setModal(null)
-              router.push('/onboarding/client-guideline/')
+              router.push('/client/client-guideline/')
             }}
           >
             Discard
@@ -350,7 +350,7 @@ const ClientGuidelineForm = () => {
     (form: FormType) => postGuideline(form),
     {
       onSuccess: data => {
-        router.replace(`/onboarding/client-guideline/detail/${data.id}`)
+        router.replace(`/client/client-guideline/detail/${data.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })
