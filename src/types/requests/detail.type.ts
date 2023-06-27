@@ -1,7 +1,6 @@
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { RequestItemFormType, RequestStatusType } from './common.type'
 
-//TODO: 홒 공유하기
 export type RequestDetailType = {
   id: number
   corporationId: string
@@ -14,7 +13,7 @@ export type RequestDetailType = {
     filePath: string
     fileName: string
     fileExtension: string
-    fileSize?: number
+    fileSize: number
   }>
   requestedAt: string
   statusUpdatedAt: string | null
