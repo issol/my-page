@@ -495,9 +495,9 @@ const ClientGuidelineForm = () => {
                         options={ClientListIncludeGloz}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         value={value}
                         id='client'
@@ -534,9 +534,9 @@ const ClientGuidelineForm = () => {
                         value={value}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         id='category'
                         getOptionLabel={option => option.label}
@@ -573,9 +573,9 @@ const ClientGuidelineForm = () => {
                       value={value}
                       // filterSelectedOptions
                       onChange={(e, v) => {
-                        checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
+                        checkGuideline()
                       }}
                       id='serviceType'
                       getOptionLabel={option => option.label}
