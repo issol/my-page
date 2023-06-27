@@ -156,7 +156,6 @@ const PriceUnit = ({
         sx={{
           width: '100%',
           height: '262px',
-          overflow: 'scroll',
           '& .MuiDataGrid-columnHeaderTitle': {
             textTransform: 'none',
           },
@@ -195,7 +194,7 @@ const PriceUnit = ({
           columns={columns}
           loading={isLoading}
           rows={list ?? []}
-          autoHeight
+          autoHeight={false}
           disableSelectionOnClick
           rowCount={listCount ?? 0}
         />
