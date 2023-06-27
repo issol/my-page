@@ -1,22 +1,38 @@
 import axios from '@src/configs/axios'
 
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { RequestStatusType } from '@src/types/requests/common.type'
+import {
+  RequestFormType,
+  RequestStatusType,
+} from '@src/types/requests/common.type'
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 import { RequestListType } from '@src/types/requests/list.type'
+
+export const createClientRequest = async (
+  form: RequestFormType,
+): Promise<RequestFormType & { id: number }> => {
+  try {
+    const { data } = await axios.post(`/api/enough/u/request`, form)
+    return data
+  } catch (error: any) {
+    throw new Error(error)
+  }
+}
 
 export const getClientRequestList = async (
   filter: RequestFilterType,
 ): Promise<{ data: RequestListType[]; count: number; totalCount: number }> => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/job?${makeQuery(filter)}`)
-    // return data
-    return {
-      count: 1,
-      totalCount: 0,
-      data: [],
-    }
+    const { data } = await axios.get(
+      `/api/enough/u/request/list?${makeQuery(filter)}`,
+    )
+    return data
+    // return {
+    //   count: 1,
+    //   totalCount: 0,
+    //   data: [],
+    // }
   } catch (error) {
     return {
       data: [],
@@ -46,11 +62,12 @@ export const getClientRequestCalendarData = async (
   filter: RequestFilterType,
 ): Promise<{ data: RequestListType[]; count: number; totalCount: number }> => {
   try {
-    /* TODO: endpoint변경하기 */
-    // const { data } = await axios.get(
-    //   `/api/enough/u/quote?year=${year}&month=${month}&${makeQuery(filter)}`,
-    // )
-    const data = { data: [], count: 1, totalCount: 0 }
+    const { data } = await axios.get(
+      `/api/enough/u/request/list?year=${year}&month=${month}&${makeQuery(
+        filter,
+      )}`,
+    )
+
     return {
       data: data.data?.map((item: RequestListType, idx: number) => {
         return {
@@ -77,48 +94,48 @@ export const getClientRequestDetail = async (
   id: number,
 ): Promise<RequestDetailType> => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/job?${makeQuery(filter)}`)
-    // return data
-    return {
-      id: 1,
-      corporationId: '2123',
-      lsp: { id: 2, name: 'Bon', email: 'bon@gloz.con' },
-      status: 'Request created',
-      contactPerson: {
-        id: 1,
-        personType: 'Mr.',
-        firstName: 'Hop',
-        lastName: 'Risha',
-        jobTitle: 'Manager',
-        timezone: {
-          code: '',
-          label: '',
-          phone: '',
-        },
-        email: 'leriel@gloz.com',
-      },
-      items: [
-        {
-          id: 1,
-          name: 'Item',
-          sourceLanguage: 'ko',
-          targetLanguage: 'en',
-          category: 'OTT/Subtitle',
-          serviceType: ['DTP'],
-          unit: 'Percent',
-          quantity: 0,
-          desiredDueDate: Date(),
-          desiredDueTimezone: {
-            code: '',
-            label: '',
-            phone: '',
-          },
-        },
-      ],
-      requestedAt: Date(),
-      statusUpdatedAt: Date(),
-      notes: '',
-    }
+    const { data } = await axios.get(`/api/enough/u/request/${id}`)
+    return data
+    // return {
+    //   id: 1,
+    //   corporationId: '2123',
+    //   lsp: { id: 2, name: 'Bon', email: 'bon@gloz.con' },
+    //   status: 'Request created',
+    //   contactPerson: {
+    //     id: 1,
+    //     personType: 'Mr.',
+    //     firstName: 'Hop',
+    //     lastName: 'Risha',
+    //     jobTitle: 'Manager',
+    //     timezone: {
+    //       code: '',
+    //       label: '',
+    //       phone: '',
+    //     },
+    //     email: 'leriel@gloz.com',
+    //   },
+    //   items: [
+    //     {
+    //       id: 1,
+    //       name: 'Item',
+    //       sourceLanguage: 'ko',
+    //       targetLanguage: 'en',
+    //       category: 'OTT/Subtitle',
+    //       serviceType: ['DTP'],
+    //       unit: 'Percent',
+    //       quantity: 0,
+    //       desiredDueDate: Date(),
+    //       desiredDueTimezone: {
+    //         code: '',
+    //         label: '',
+    //         phone: '',
+    //       },
+    //     },
+    //   ],
+    //   requestedAt: Date(),
+    //   statusUpdatedAt: Date(),
+    //   notes: '',
+    // }
   } catch (e: any) {
     throw new Error(e)
   }
