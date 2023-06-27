@@ -207,6 +207,7 @@ const ClientGuidelineForm = () => {
           </ModalButtonGroup>
         </ModalContainer>,
       )
+      setIsDuplicated(false)
     }
   }, [isDuplicated])
 
@@ -227,8 +228,8 @@ const ClientGuidelineForm = () => {
     const { category, client, serviceType } = getValues()
     if (category.value && client.value && serviceType.value) {
       checkGuidelineExistence(
-        category.value,
         client.value,
+        category.value,
         serviceType.value,
       ).then(res => setIsDuplicated(res))
     }
