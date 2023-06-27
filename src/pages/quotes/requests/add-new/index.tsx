@@ -32,10 +32,6 @@ import { toast } from 'react-hot-toast'
 // ** context
 import { AuthContext } from '@src/context/AuthContext'
 
-// ** helpers
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import languageHelper from '@src/shared/helpers/language.helper'
-
 // ** types & validation
 import { RequestFormType } from '@src/types/requests/common.type'
 import {
@@ -53,6 +49,11 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import FileItem from '@src/@core/components/fileItem'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import { createClientRequest } from '@src/apis/requests/client-request.api'
+import { useMutation } from 'react-query'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -154,63 +155,55 @@ export default function AddNewRequest() {
     )
   }, [clientList])
 
-  function onRequest() {
-    const data = getValues()
-    console.log(data, files)
+  const createMutation = useMutation(
+    (form: RequestFormType) => createClientRequest(form),
+    {
+      onSuccess: res => {
+        router.push(`/quotes/requests/${res.id}`)
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  function mutateData() {
+    const data: RequestFormType = getValues()
     if (files.length) {
-      //TODO: 파일 있을 떄
-      //   const fileInfo: Array<{ name: string; size: number; fileKey: string }> =
-      //   []
-      // const language =
-      //   data.testType === 'Basic test'
-      //     ? `${data.target.value}`
-      //     : `${data.source.value}-${data.target.value}`
-      // const paths: string[] = data?.file?.map(file =>
-      //   getFilePath(
-      //     [
-      //       'testPaper',
-      //       data.testType === 'Basic test' ? 'basic' : 'skill',
-      //       data.jobType.value,
-      //       data.role.value,
-      //       language,
-      //       isFetched ? `V${testDetail?.currentVersion.version!}` : 'V1',
-      //     ],
-      //     file.name,
-      //   ),
-      // )
-      // const promiseArr = paths.map((url, idx) => {
-      //   return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url)
-      //   .then(res => {
-      //     fileInfo.push({
-      //       name: data.file[idx].name,
-      //       size: data.file[idx]?.size,
-      //       fileKey: url,
-      //     })
-      //     return uploadFileToS3(res.url, data.file[idx])
-      //   })
-      // })
-      // Promise.all(promiseArr)
-      // .then(res => {
-      //   finalValue.files = fileInfo
-      //   patchValue.files = fileInfo
-      //   isFetched
-      //     ? patchTestMutation.mutate(patchValue)
-      //     : postTestMutation.mutate(finalValue)
-      // })
-      // .catch(err => {
-      //   isFetched
-      //     ? patchTestMutation.mutate(patchValue)
-      //     : postTestMutation.mutate(finalValue)
-      //   toast.error(
-      //     'Something went wrong while uploading files. Please try again.',
-      //     {
-      //       position: 'bottom-left',
-      //     },
-      //   )
-      // })
+      const fileInfo: Array<{ fileName: string; fileSize: number }> = []
+      //TODO: paths 수정필요
+      const paths: string[] = files?.map(file =>
+        getFilePath(['testPaper'], file.name),
+      )
+      const promiseArr = paths.map((url, idx) => {
+        return getUploadUrlforCommon(S3FileType.REQUEST, url).then(res => {
+          fileInfo.push({
+            fileName: files[idx].name,
+            fileSize: files[idx]?.size,
+          })
+          return uploadFileToS3(res.url, files[idx])
+        })
+      })
+      Promise.all(promiseArr)
+        .then(res => {
+          data.sampleFiles = fileInfo
+          createMutation.mutate(data)
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
     } else {
-      //TODO: 파일 없을 떄
+      createMutation.mutate(data)
     }
+  }
+  function onRequest() {
     openModal({
       type: 'request',
       children: (
@@ -218,8 +211,8 @@ export default function AddNewRequest() {
           vary='successful'
           title='Are you sure you want to send the request to the selected LSP?'
           onClick={() => {
+            mutateData()
             closeModal('request')
-            //TODO: add mutation
           }}
           onClose={() => closeModal('request')}
           rightButtonText='Request'
