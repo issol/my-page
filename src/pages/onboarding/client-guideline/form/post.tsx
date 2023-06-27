@@ -207,6 +207,7 @@ const ClientGuidelineForm = () => {
           </ModalButtonGroup>
         </ModalContainer>,
       )
+      resetFormSelection()
       setIsDuplicated(false)
     }
   }, [isDuplicated])
