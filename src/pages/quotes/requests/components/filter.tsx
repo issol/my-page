@@ -27,12 +27,13 @@ import DatePicker from 'react-datepicker'
 import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
 
 // ** types
-import { RequestFilterType } from '@src/types/requests/filters'
+import { RequestFilterType } from '@src/types/requests/filters.type'
 import { useGetProList } from '@src/queries/pro/pro-list.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
 type Props = {
   filter: RequestFilterType
@@ -56,8 +57,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
         )
   }
 
-  /* TODO: lsp받는 api로 변경하기 */
-  const { data: lpmList } = useGetProList({ take: 100, skip: 0 })
+  const { data: companies } = useGetCompanyOptions('LSP')
 
   /* TODO: api변경하기 */
   const { data: statusList, isLoading } = useGetInvoicePayableStatus()
@@ -136,20 +136,20 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       {...commonOptions}
                       multiple
                       disableCloseOnSelect
-                      options={lpmList?.data || []}
+                      options={companies || []}
                       getOptionLabel={option => option.id}
                       value={
-                        !lpmList
+                        !companies
                           ? []
-                          : lpmList.data?.filter(lsp =>
-                              filter.lsp?.includes(lsp.userId),
+                          : companies?.filter(lsp =>
+                              filter.lsp?.includes(lsp.id),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          lsp: v.map(i => i.userId),
+                          lsp: v.map(i => i.id),
                         })
                       }
                       renderInput={params => (
@@ -158,11 +158,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {getLegalName({
-                            firstName: option.firstName,
-                            middleName: option.middleName,
-                            lastName: option.lastName,
-                          })}
+                          {option.name}
                         </li>
                       )}
                     />

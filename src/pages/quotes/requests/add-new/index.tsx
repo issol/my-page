@@ -54,6 +54,7 @@ import { useMutation } from 'react-query'
 import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -118,7 +119,6 @@ export default function AddNewRequest() {
   /* TODO:
   api요청 3가지 항목
   1. contact person => api변경해야 함, 그리고 job title도 같이 filter에 표기해주기
-  2. lsp => api변경 필요함
   */
 
   // ** forms
@@ -144,6 +144,7 @@ export default function AddNewRequest() {
     skip: 0,
     take: 1000,
   })
+  const { data: companies } = useGetCompanyOptions('LSP')
 
   const clients = useMemo(() => {
     return (
@@ -173,9 +174,11 @@ export default function AddNewRequest() {
     const data: RequestFormType = getValues()
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
-      //TODO: paths 수정필요
       const paths: string[] = files?.map(file =>
-        getFilePath(['testPaper'], file.name),
+        getFilePath(
+          [S3FileType.REQUEST, user?.userId.toString()!, 'sampleFile'],
+          file.name,
+        ),
       )
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.REQUEST, url).then(res => {
@@ -310,10 +313,11 @@ export default function AddNewRequest() {
                 name='lspId'
                 control={control}
                 render={({ field: { value, onChange } }) => {
-                  const personList = clients.map(item => ({
-                    value: item.value,
-                    label: item.label,
-                  }))
+                  const personList =
+                    companies?.map(item => ({
+                      value: item.id,
+                      label: item.name,
+                    })) || []
                   const selectedPerson = personList.find(
                     item => item.value === value,
                   )
@@ -324,12 +328,9 @@ export default function AddNewRequest() {
                       options={personList}
                       onChange={(e, v) => {
                         onChange(v.value)
-                        const res = clients.filter(
-                          item => item.value === Number(v.value),
-                        )
                       }}
                       disableClearable
-                      value={selectedPerson || { value: -0, label: '' }}
+                      value={selectedPerson || { value: '', label: '' }}
                       renderInput={params => (
                         <TextField
                           {...params}

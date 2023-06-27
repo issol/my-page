@@ -1,26 +1,67 @@
+// ** style components
 import { Icon } from '@iconify/react'
 import {
   Box,
   Button,
   Card,
+  Dialog,
+  DialogContent,
   Divider,
   Grid,
   IconButton,
   Typography,
 } from '@mui/material'
-
-import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { useRouter } from 'next/router'
 import styled from 'styled-components'
+
+// ** components
 import RequestDetailCard from './components/detail/request-detail'
 import FileItem from '@src/@core/components/fileItem'
-import { S3FileType } from '@src/shared/const/signedURLFileType'
+
+// ** apis
+import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
+
+// ** hooks
+import { useRouter } from 'next/router'
+import { useContext } from 'react'
+import useModal from '@src/hooks/useModal'
+import { useMutation } from 'react-query'
+
+// ** values
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+
+// ** toast
 import { toast } from 'react-hot-toast'
 
+// ** permission
+import { client_request } from '@src/shared/const/permission-class'
+
+// ** contexts
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { AuthContext } from '@src/context/AuthContext'
+import CancelRequestModal from './components/modal/cancel-request-modal'
+import { cancelRequest } from '@src/apis/requests/client-request.api'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+
+/* TODO:
+1. cancel request mutation추가하기
+2. status가 canceld일 때 reason모달 띄워주기
+3. 다운로드 함수 완성하기
+*/
 export default function RequestDetail() {
   const router = useRouter()
   const { id } = router.query
+
+  const { openModal, closeModal } = useModal()
+
+  const ability = useContext(AbilityContext)
+  const { user } = useContext(AuthContext)
+
+  const User = new client_request(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+  const isCreatable = ability.can('create', User)
 
   const { data } = useGetClientRequestDetail(Number(id))
 
@@ -69,6 +110,49 @@ export default function RequestDetail() {
     //   })
   }
 
+  const cancelMutation = useMutation(
+    ({ id, form }: { id: number; form: CancelReasonType }) =>
+      cancelRequest(id, form),
+    {},
+  )
+
+  function mutateCancel(data: { option: string; reason?: string }) {
+    cancelMutation.mutate({
+      id: Number(id),
+      form: {
+        from: 'lsp',
+        reason: data.option,
+        message: data.reason ?? '',
+      },
+    })
+  }
+
+  function onCancelRequest() {
+    openModal({
+      type: 'cancelRequest',
+      children: (
+        <Dialog open={true} onClose={() => closeModal('cancelRequest')}>
+          <DialogContent style={{ width: '482px', padding: '20px' }}>
+            <CancelRequestModal
+              onClose={() => closeModal('cancelRequest')}
+              onClick={mutateCancel}
+            />
+          </DialogContent>
+        </Dialog>
+      ),
+    })
+  }
+
+  function isNotCancelable() {
+    if (!isDeletable) return true
+    const status = data?.status
+    return (
+      status === 'Changed into order' ||
+      status === 'Changed into quote' ||
+      status === 'Canceled'
+    )
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -92,7 +176,13 @@ export default function RequestDetail() {
         </Card>
         <Grid item xs={4} mt='24px'>
           <Card sx={{ padding: '24px' }}>
-            <Button fullWidth variant='outlined' color='error'>
+            <Button
+              fullWidth
+              variant='outlined'
+              color='error'
+              disabled={isNotCancelable()}
+              onClick={onCancelRequest}
+            >
               Cancel this request
             </Button>
           </Card>

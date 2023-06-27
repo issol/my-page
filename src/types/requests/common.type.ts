@@ -8,7 +8,7 @@ export type RequestStatusType =
   | 'Canceled'
 
 export type RequestFormType = {
-  lspId: number
+  lspId: string
   contactPersonId: number
   items: RequestItemFormType[]
   sampleFiles: Array<{

@@ -6,7 +6,7 @@ export function getClientRequestDefaultValue(
   contactPersonId: number,
 ): RequestFormType {
   return {
-    lspId: -0,
+    lspId: '',
     contactPersonId,
     items: [
       {
@@ -28,7 +28,7 @@ export function getClientRequestDefaultValue(
 }
 
 export const clientRequestSchema = yup.object().shape({
-  lspId: yup.number().required(FormErrors.required),
+  lspId: yup.string().required(FormErrors.required),
   contactPersonId: yup.number().required(FormErrors.required),
   items: yup.array().of(
     yup.object().shape({
@@ -41,9 +41,9 @@ export const clientRequestSchema = yup.object().shape({
       quantity: yup.number().nullable(),
       desiredDueDate: yup.string().required(FormErrors.required),
       desiredDueTimezone: yup.object().shape({
-        code: yup.string().nullable(),
-        label: yup.string().nullable(),
-        phone: yup.string().nullable(),
+        code: yup.string().required(FormErrors.required),
+        label: yup.string().required(FormErrors.required),
+        phone: yup.string().required(FormErrors.required),
       }),
     }),
   ),

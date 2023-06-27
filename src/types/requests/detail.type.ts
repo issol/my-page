@@ -4,7 +4,7 @@ import { RequestItemFormType, RequestStatusType } from './common.type'
 export type RequestDetailType = {
   id: number
   corporationId: string
-  lsp: { id: number; name: string; email: string }
+  lsp: { id: string; name: string; email: string }
   contactPerson: ContactPersonType
   status: RequestStatusType
   items: Array<RequestItemFormType & { id: number }>
@@ -18,4 +18,11 @@ export type RequestDetailType = {
   requestedAt: string
   statusUpdatedAt: string | null
   notes?: string
+  canceledReason?: CancelReasonType
+}
+
+export type CancelReasonType = {
+  from: 'client' | 'lsp'
+  reason: string
+  message: string
 }

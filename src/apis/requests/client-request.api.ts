@@ -5,7 +5,10 @@ import {
   RequestFormType,
   RequestStatusType,
 } from '@src/types/requests/common.type'
-import { RequestDetailType } from '@src/types/requests/detail.type'
+import {
+  CancelReasonType,
+  RequestDetailType,
+} from '@src/types/requests/detail.type'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 import { RequestListType } from '@src/types/requests/list.type'
 
@@ -136,6 +139,19 @@ export const getClientRequestDetail = async (
     //   statusUpdatedAt: Date(),
     //   notes: '',
     // }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+//TODO: 수정필요
+export const cancelRequest = async (
+  id: number,
+  form: CancelReasonType,
+): Promise<RequestDetailType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/request/${id}`)
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
