@@ -401,14 +401,14 @@ const ClientGuidelineEdit = () => {
       )
       const promiseArr = paths.map((url, idx) => {
         return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url)
-          .then(res => {
-            fileInfo.push({
-              name: data.file[idx].name,
-              size: data.file[idx]?.size,
-              fileUrl: url,
-            })
-            return uploadFileToS3(res.url, data.file[idx])
+        .then(res => {
+          fileInfo.push({
+            name: data.file[idx].name,
+            size: data.file[idx]?.size,
+            fileUrl: url,
           })
+          return uploadFileToS3(res.url, data.file[idx])
+        })
       })
       Promise.all(promiseArr)
       .then(res => {

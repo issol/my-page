@@ -49,6 +49,7 @@ type Props = {
     count: number
   }
   isLoading: boolean
+  page: 'client' | 'onboarding'
 }
 
 type ChipColorType =
@@ -68,11 +69,12 @@ export default function ClientGuideLineList({
   list,
   isLoading,
   user,
+  page,
 }: Props) {
   const router = useRouter()
 
   function moveToDetail(id: number) {
-    router.push(`/onboarding/client-guideline/detail/${id}`)
+    router.push(`/${page}/client-guideline/detail/${id}`)
   }
 
   const columns = [
@@ -165,7 +167,7 @@ export default function ClientGuideLineList({
               </Typography>{' '}
               <Button variant='contained'>
                 <StyledNextLink
-                  href='/onboarding/client-guideline/form/post'
+                  href={`/${page}/client-guideline/form/post`}
                   color='white'
                 >
                   Add client guideline
