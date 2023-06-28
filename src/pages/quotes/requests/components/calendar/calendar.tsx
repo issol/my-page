@@ -8,7 +8,7 @@ import styled from 'styled-components'
 
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { Box } from '@mui/material'
-import { RequestListType } from '@src/types/requests/list'
+import { RequestListType } from '@src/types/requests/list.type'
 
 type Props = {
   event: Array<CalendarEventType<RequestListType>>
