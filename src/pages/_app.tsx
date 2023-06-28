@@ -163,6 +163,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
 const App = (props: ExtendedAppProps) => {
   const router = useRouter()
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+
   const [queryClient] = useState(
     () =>
       new QueryClient({
