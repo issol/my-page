@@ -90,6 +90,9 @@ import {
 import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
 
+import { closeModal, openModal } from '@src/store/modal'
+import PageLeaveModal from './client/components/modals/page-leave-modal'
+
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
   require('../mocks')
@@ -163,6 +166,7 @@ const Guard = ({ children, authGuard, guestGuard }: GuardProps) => {
 const App = (props: ExtendedAppProps) => {
   const router = useRouter()
   const { Component, emotionCache = clientSideEmotionCache, pageProps } = props
+
   const [queryClient] = useState(
     () =>
       new QueryClient({

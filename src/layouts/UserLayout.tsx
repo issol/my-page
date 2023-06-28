@@ -25,9 +25,8 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 import { useSettings } from 'src/@core/hooks/useSettings'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { LPMMenu, TADMenu, PROMenu } from '@src/shared/const/menu/menu'
-import {
-  getCurrentRole
-} from 'src/shared/auth/storage'
+import { getCurrentRole } from 'src/shared/auth/storage'
+import { useConfirmLeave } from '@src/hooks/useUnload'
 interface Props {
   children: ReactNode
   contentHeightFixed?: boolean
