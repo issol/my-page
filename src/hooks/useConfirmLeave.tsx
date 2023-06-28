@@ -72,7 +72,7 @@ export const useConfirmLeave = ({
     }
 
     return cleanUp
-  }, [navigationConfig, hasConfirmed, router, shouldWarn])
+  }, [navigationConfig, hasConfirmed, router, shouldWarn, toUrl])
 
   const ConfirmLeaveModal = () => (
     <Dialog open={navigationConfig.isModalOpen} maxWidth='lg'>

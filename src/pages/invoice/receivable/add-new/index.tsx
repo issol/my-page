@@ -108,7 +108,7 @@ import {
 } from '@src/types/invoice/receivable.type'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { createInvoice } from '@src/apis/invoice/receivable.api'
-import { useConfirmLeave } from '@src/hooks/useUnload'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 export type languageType = {
   id: number | string

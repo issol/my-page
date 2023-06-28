@@ -58,7 +58,7 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
-import { useConfirmLeave } from '@src/hooks/useUnload'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type Props = {
   isUpdatable: boolean

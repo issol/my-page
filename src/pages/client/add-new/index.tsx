@@ -77,7 +77,7 @@ import {
 
 // ** third parties
 import { toast } from 'react-hot-toast'
-import { useConfirmLeave } from '@src/hooks/useUnload'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type PriceListCopyRowType = Omit<
   StandardPriceListType,
