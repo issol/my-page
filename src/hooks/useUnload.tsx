@@ -23,7 +23,6 @@ export const useConfirmLeave = ({
     isModalOpen: false,
   })
 
-  // Use beforeunload to prevent closing the tab, refreshing the page or moving outside the Next app
   useEffect(() => {
     const handleWindowClose = (e: BeforeUnloadEvent) => {
       if (!shouldWarn) return
@@ -42,7 +41,6 @@ export const useConfirmLeave = ({
     }
   }, [shouldWarn])
 
-  // Use routeChangeStart to prevent navigation inside of the Next app
   useEffect(() => {
     const onRouteChangeStart = (route: string) => {
       // if (!shouldWarn || hasConfirmed) return
