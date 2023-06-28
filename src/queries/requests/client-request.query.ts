@@ -2,10 +2,19 @@ import {
   getClientRequestCalendarData,
   getClientRequestDetail,
   getClientRequestList,
+  getRequestStatusList,
 } from '@src/apis/requests/client-request.api'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
+
+export const useGetClientRequestStatus = () => {
+  return useQuery(['request/client/statuses'], () => getRequestStatusList(), {
+    staleTime: 60 * 1000, // 1
+    suspense: false,
+    keepPreviousData: true,
+  })
+}
 
 export const useGetClientRequestList = (filter: RequestFilterType) => {
   return useQuery(

@@ -1,3 +1,4 @@
+import { RequestStatusType } from './requests/common.type'
 import { CountryType } from './sign/personalInfoTypes'
 
 export type UnitOptionType = {
@@ -19,4 +20,10 @@ export type CompanyOptionType = {
   fax: string | null
   ceo: string | null
   timezone: CountryType
+}
+
+export type ClientRequestListType = {
+  id: number
+  statusCode: number
+  statusName: RequestStatusType
 }

@@ -34,6 +34,7 @@ import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { useGetCompanyOptions } from '@src/queries/options.query'
+import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 
 type Props = {
   filter: RequestFilterType
@@ -59,8 +60,8 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
 
   const { data: companies } = useGetCompanyOptions('LSP')
 
-  /* TODO: api변경하기 */
-  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
+  const { data: statusList, isLoading } = useGetClientRequestStatus()
+
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
@@ -100,7 +101,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       options={statusList || []}
                       getOptionLabel={option => option.statusName}
                       value={
-                        !statusList || !filter.lsp?.length
+                        !statusList || !filter.status?.length
                           ? []
                           : statusList?.filter(item =>
                               filter.status?.includes(item.statusName),
@@ -137,7 +138,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       multiple
                       disableCloseOnSelect
                       options={companies || []}
-                      getOptionLabel={option => option.id}
+                      getOptionLabel={option => option.name}
                       value={
                         !companies
                           ? []

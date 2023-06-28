@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
 
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import { ClientRequestListType } from '@src/types/options.type'
 import {
   RequestFormType,
   RequestStatusType,
@@ -11,6 +12,17 @@ import {
 } from '@src/types/requests/detail.type'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 import { RequestListType } from '@src/types/requests/list.type'
+
+export const getRequestStatusList = async (): Promise<
+  ClientRequestListType[]
+> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/request/status/list`)
+    return data
+  } catch (error: any) {
+    return []
+  }
+}
 
 export const createClientRequest = async (
   form: RequestFormType,
