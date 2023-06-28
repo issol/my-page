@@ -20,8 +20,9 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
   const [selected, setSelected] = useState('')
   const [reason, setReason] = useState('')
   const options = [
-    'The project has been canceled/put on hold.',
-    'The project will be handled by a different agency.',
+    'The task/language is currently unavailable.',
+    'The due date needs to be adjusted.',
+    'The request has been canceled upon the client’s request.',
     'Others',
   ]
 
@@ -68,7 +69,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
       </Grid>
       <Grid item xs={12}>
         <Typography fontWeight={600} mb='8px'>
-          Message to LSP
+          Message to client
         </Typography>
         <TextField
           rows={4}

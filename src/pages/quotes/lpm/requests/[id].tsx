@@ -6,7 +6,6 @@ import {
   Card,
   Dialog,
   DialogContent,
-  Divider,
   Grid,
   IconButton,
   Typography,
@@ -18,13 +17,15 @@ import styled from 'styled-components'
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
 import FileItem from '@src/@core/components/fileItem'
-import CancelRequestModal from './components/modal/cancel-request-modal'
 import CanceledReasonModal from './components/modal/canceled-reason-modal'
 import { StyledNextLink } from '@src/@core/components/customLink'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import CancelRequestModal from './components/modal/cancel-request-modal'
 
 // ** apis
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import { updateRequest } from '@src/apis/requests/client-request.api'
 
 // ** hooks
 import { useRouter } from 'next/router'
@@ -44,11 +45,11 @@ import { client_request } from '@src/shared/const/permission-class'
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
-import { updateRequest } from '@src/apis/requests/client-request.api'
 
 // ** types
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
+import { RequestStatusType } from '@src/types/requests/common.type'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -153,6 +154,33 @@ export default function RequestDetail() {
     },
   )
 
+  function onStatusChange(status: RequestStatusType) {
+    openModal({
+      type: 'statusChange',
+      children: (
+        <CustomModal
+          title='Are you sure you want to change the status to [In preparation]? It cannot be unchanged.'
+          onClose={() => closeModal('statusChange')}
+          onClick={() => {
+            if (data !== undefined) {
+              cancelMutation.mutate({
+                id: Number(id),
+                form: {
+                  ...data,
+                  lspId: data.lsp.id,
+                  status: status,
+                },
+              })
+            }
+            closeModal('statusChange')
+          }}
+          vary='error'
+          rightButtonText='Change'
+        />
+      ),
+    })
+  }
+
   function mutateCancel(form: { option: string; reason?: string }) {
     closeModal('cancelRequest')
     if (data !== undefined) {
@@ -163,7 +191,7 @@ export default function RequestDetail() {
           lspId: data.lsp.id,
           status: 'Canceled',
           canceledReason: {
-            from: 'client',
+            from: 'lsp',
             reason: form.option,
             message: form.reason ?? '',
           },
@@ -215,75 +243,150 @@ export default function RequestDetail() {
     )
   }
 
+  function createNextStep(type: 'quote' | 'order') {
+    switch (type) {
+      case 'quote':
+        openModal({
+          type: 'requestNextStep',
+          children: (
+            <CustomModal
+              title='Are you sure you want to create a quote with this request?'
+              onClose={() => closeModal('requestNextStep')}
+              onClick={() => {
+                router.push({
+                  pathname: `/quotes/add-new/`,
+                  query: { requestId: id },
+                })
+                closeModal('requestNextStep')
+              }}
+              vary='error'
+              rightButtonText='Request'
+            />
+          ),
+        })
+
+        return
+      case 'order':
+        openModal({
+          type: 'requestNextStep',
+          children: (
+            <CustomModal
+              title='Are you sure you want to create an order with this request?'
+              onClose={() => closeModal('requestNextStep')}
+              onClick={() => {
+                router.push({
+                  pathname: `/orders/add-new/`,
+                  query: { requestId: id },
+                })
+                closeModal('requestNextStep')
+              }}
+              vary='error'
+              rightButtonText='Request'
+            />
+          ),
+        })
+
+        return
+    }
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
         <Box
           display='flex'
           alignItems='center'
-          gap='8px'
+          justifyContent='space-between'
           sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
         >
           <Box display='flex' alignItems='center' gap='8px'>
-            <IconButton onClick={() => router.back()}>
-              <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
-            </IconButton>
-            <img
-              src='/images/icons/request-icons/airplane.png'
-              aria-hidden
-              alt='request detail'
-            />
-            <Typography variant='h6'>{data?.corporationId}</Typography>
-          </Box>
-          {data?.linkedQuote || data?.linkedOrder ? (
-            <div>
-              <IconButton
-                aria-label='more'
-                aria-haspopup='true'
-                onClick={handleClick}
-              >
-                <Icon icon='mdi:dots-vertical' />
+            <Box display='flex' alignItems='center' gap='8px'>
+              <IconButton onClick={() => router.back()}>
+                <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
               </IconButton>
-              <Menu
-                keepMounted
-                id='link menu'
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                open={Boolean(anchorEl)}
-                PaperProps={{
-                  style: {
-                    maxHeight: 48 * 4.5,
-                  },
-                }}
-              >
-                {data?.linkedQuote && (
-                  <MenuItem onClick={handleClose}>
-                    <StyledNextLink
-                      href={`/quotes/detail/${data?.linkedQuote.id}`}
-                      color='black'
-                    >
-                      Linked quote : {data?.linkedQuote.corporationId}
-                    </StyledNextLink>
-                  </MenuItem>
-                )}
-                {data?.linkedOrder && (
-                  <MenuItem onClick={handleClose}>
-                    <StyledNextLink
-                      href={`/quotes/detail/${data?.linkedOrder.id}`}
-                      color='black'
-                    >
-                      Linked order : {data?.linkedOrder.corporationId}
-                    </StyledNextLink>
-                  </MenuItem>
-                )}
-              </Menu>
-            </div>
-          ) : null}
+              <img
+                src='/images/icons/request-icons/airplane.png'
+                aria-hidden
+                alt='request detail'
+              />
+              <Typography variant='h6'>{data?.corporationId}</Typography>
+            </Box>
+            {!data?.linkedQuote || data?.linkedOrder ? (
+              <div>
+                <IconButton
+                  aria-label='more'
+                  aria-haspopup='true'
+                  onClick={handleClick}
+                >
+                  <Icon icon='mdi:dots-vertical' />
+                </IconButton>
+                <Menu
+                  keepMounted
+                  id='link menu'
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  open={Boolean(anchorEl)}
+                  PaperProps={{
+                    style: {
+                      maxHeight: 48 * 4.5,
+                    },
+                  }}
+                >
+                  {data?.linkedQuote && (
+                    <MenuItem onClick={handleClose}>
+                      <StyledNextLink
+                        href={`/quotes/detail/${data?.linkedQuote.id}`}
+                        color='black'
+                      >
+                        Linked quote : {data?.linkedQuote.corporationId}
+                      </StyledNextLink>
+                    </MenuItem>
+                  )}
+                  {data?.linkedOrder && (
+                    <MenuItem onClick={handleClose}>
+                      <StyledNextLink
+                        href={`/quotes/detail/${data?.linkedOrder.id}`}
+                        color='black'
+                      >
+                        Linked order : {data?.linkedOrder.corporationId}
+                      </StyledNextLink>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </div>
+            ) : null}
+          </Box>
+          <Box display='flex' gap='16px'>
+            <Button
+              variant='outlined'
+              onClick={() => createNextStep('quote')}
+              disabled={
+                data?.status === 'Changed into quote' ||
+                data?.status === 'Canceled'
+              }
+            >
+              Create quote
+            </Button>
+            <Button
+              variant='outlined'
+              onClick={() => createNextStep('order')}
+              disabled={
+                data?.status === 'Changed into order' ||
+                data?.status === 'Canceled'
+              }
+            >
+              Create order
+            </Button>
+          </Box>
         </Box>
       </Grid>
       <Grid item xs={9}>
         <Card sx={{ padding: '24px' }}>
-          <RequestDetailCard data={data} openReasonModal={openReasonModal} />
+          <RequestDetailCard
+            data={data}
+            openReasonModal={openReasonModal}
+            onStatusChange={onStatusChange}
+          />
         </Card>
         <Grid item xs={4} mt='24px'>
           <Card sx={{ padding: '24px' }}>

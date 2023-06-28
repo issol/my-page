@@ -72,6 +72,7 @@ import {
   createQuotesInfo,
 } from '@src/apis/quotes.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 
 export type languageType = {
   id: number | string
@@ -102,6 +103,9 @@ export default function AddNewQuotes() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
+  const requestId = router.query.requestId
+  const { data } = useGetClientRequestDetail(Number(requestId))
+
   const { openModal, closeModal } = useModal()
 
   // ** stepper
@@ -131,20 +135,6 @@ export default function AddNewQuotes() {
       title: ' Languages & Items',
     },
   ]
-
-  // ** confirm page leaving
-  // router.beforePopState(() => {
-  //   openModal({
-  //     type: 'alert-modal',
-  //     children: (
-  //       <PageLeaveModal
-  //         onClose={() => closeModal('alert-modal')}
-  //         onClick={() => router.push('/quotes')}
-  //       />
-  //     ),
-  //   })
-  //   return false
-  // })
 
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
