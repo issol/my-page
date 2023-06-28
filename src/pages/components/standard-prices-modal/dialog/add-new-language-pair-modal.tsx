@@ -88,9 +88,8 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
         })
       },
       onError: error => {
-        console.log("addLanguagePairMutation-error",error.response.data.message)
-        const errorMessage = error.response.data.message
-        if (errorMessage === '이미 존재하는 언어페어입니다.') {
+        console.log("addLanguagePairMutation-error",error)
+        if (error === 'LanguagePairDuplication') {
           openModal({
             type: 'LanguagePairDuplicationModal',
             children: (
