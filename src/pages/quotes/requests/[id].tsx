@@ -23,7 +23,7 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 
 // ** hooks
 import { useRouter } from 'next/router'
-import { useContext } from 'react'
+import { useContext, useMemo } from 'react'
 import useModal from '@src/hooks/useModal'
 import { useMutation } from 'react-query'
 
@@ -42,6 +42,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import CancelRequestModal from './components/modal/cancel-request-modal'
 import { cancelRequest } from '@src/apis/requests/client-request.api'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import { FileType } from '@src/types/common/file.type'
 
 /* TODO:
 1. cancel request mutation추가하기
@@ -65,49 +66,58 @@ export default function RequestDetail() {
 
   const { data } = useGetClientRequestDetail(Number(id))
 
-  const downloadFile = (name: string) => {
-    // const language =
-    //     currentVersion?.testType === 'basic'
-    //       ? `${currentVersion?.target}`
-    //       : `${currentVersion?.source}-${currentVersion?.target}`
-    //   const path = getFilePath(
-    //     [
-    //       'testPaper',
-    //       currentVersion?.testType === 'basic' ? 'basic' : 'skill',
-    //       currentVersion?.jobType!,
-    //       currentVersion?.role!,
-    //       language,
-    //       `V${currentVersion?.version!}`,
-    //     ],
-    //     fileName,
-    //   )
-    //     getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path)
-    //     .then(res => {
-    //       fetch(res.url, { method: 'GET' })
-    //       .then(res => {
-    //         return res.blob()
-    //       })
-    //       .then(blob => {
-    //         const url = window.URL.createObjectURL(blob)
-    //         const a = document.createElement('a')
-    //         a.href = url
-    //         a.download = `${name}`
-    //         document.body.appendChild(a)
-    //         a.click()
-    //         setTimeout((_: any) => {
-    //           window.URL.revokeObjectURL(url)
-    //         }, 60000)
-    //         a.remove()
-    //       })
-    //       .catch(err =>
-    //         toast.error(
-    //           'Something went wrong while uploading files. Please try again.',
-    //           {
-    //             position: 'bottom-left',
-    //           },
-    //         ),
-    //       )
-    //   })
+  const fileSize = useMemo(() => {
+    if (data?.sampleFiles) {
+      return data.sampleFiles.reduce(
+        (res, { fileSize }) => (res += fileSize),
+        0,
+      )
+    }
+    return 0
+  }, [data])
+
+  const downloadFile = (file: FileType) => {
+    getDownloadUrlforCommon(S3FileType.REQUEST, file?.file!).then(res => {
+      fetch(res.url, { method: 'GET' })
+        .then(res => {
+          console.log('res', res)
+          return res.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${file.name}`
+          document.body.appendChild(a)
+          a.click()
+          setTimeout((_: any) => {
+            window.URL.revokeObjectURL(url)
+          }, 60000)
+          a.remove()
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
+    })
+  }
+
+  function downloadAllFiles() {
+    const sampleFiles = data?.sampleFiles
+    if (sampleFiles?.length) {
+      sampleFiles.forEach(file => {
+        const fileParam: FileType = {
+          name: file.fileName,
+          file: file.filePath,
+          size: file.fileSize,
+        }
+        downloadFile(fileParam)
+      })
+    }
   }
 
   const cancelMutation = useMutation(
@@ -205,21 +215,24 @@ export default function RequestDetail() {
                     Sample files
                   </Typography>
                   <Typography variant='body2'>
-                    {/* {Math.round(fileSize / 100) / 10 > 1000
-                  ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                  : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                /2 gb */}
+                    {Math.round(fileSize / 100) / 10 > 1000
+                      ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
+                      : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
+                    /2 gb
                   </Typography>
                 </Box>
-
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  startIcon={<Icon icon='mdi:download' />}
-                  // onClick={() => downloadAllFiles(currentRow?.files)}
-                >
-                  Download all
-                </Button>
+                {!data?.sampleFiles?.length ? (
+                  '-'
+                ) : (
+                  <Button
+                    variant='outlined'
+                    fullWidth
+                    startIcon={<Icon icon='mdi:download' />}
+                    onClick={() => downloadAllFiles()}
+                  >
+                    Download all
+                  </Button>
+                )}
               </Box>
               <Box
                 sx={{
@@ -242,7 +255,11 @@ export default function RequestDetail() {
                     return (
                       <Box key={file.id}>
                         <FileItem
-                          file={{ name: file.fileName, size: file?.fileSize }}
+                          file={{
+                            name: file.fileName,
+                            size: file?.fileSize,
+                            file: file.filePath,
+                          }}
                           onClick={downloadFile}
                         />
                       </Box>
