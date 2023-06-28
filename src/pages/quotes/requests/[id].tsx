@@ -77,10 +77,10 @@ export default function RequestDetail() {
   }, [data])
 
   const downloadFile = (file: FileType) => {
-    getDownloadUrlforCommon(S3FileType.REQUEST, file?.file!).then(res => {
+    const url = file?.file?.substring(1) || ''
+    getDownloadUrlforCommon(S3FileType.REQUEST, url).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
-          console.log('res', res)
           return res.blob()
         })
         .then(blob => {

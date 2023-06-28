@@ -176,7 +176,7 @@ export default function AddNewRequest() {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
         getFilePath(
-          [S3FileType.REQUEST, user?.userId.toString()!, 'sampleFile'],
+          ['request', user?.userId.toString()!, 'sampleFile'],
           file.name,
         ),
       )

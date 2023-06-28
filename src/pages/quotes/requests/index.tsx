@@ -119,7 +119,7 @@ export default function Requests() {
   }
 
   function onRowClick(id: number) {
-    router.push(`/quotes/request/${id}`)
+    router.push(`/quotes/requests/${id}`)
   }
 
   return (
