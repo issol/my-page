@@ -4,6 +4,7 @@ export type AlertType =
   | 'error-report'
   | 'progress'
   | 'successful'
+  | 'question-info'
 
 export default function AlertIcon({ type }: { type: AlertType }) {
   const basePath = '/images/icons/project-icons/'
@@ -20,6 +21,8 @@ export default function AlertIcon({ type }: { type: AlertType }) {
         return 'status-progress.png'
       case 'successful':
         return 'status-successful.png'
+      case 'question-info':
+        return 'status-question-info.png'
       default:
         return ''
     }
