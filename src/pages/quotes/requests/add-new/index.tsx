@@ -54,7 +54,11 @@ import { useMutation } from 'react-query'
 import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { useGetCompanyOptions } from '@src/queries/options.query'
+import {
+  useGetCompanyOptions,
+  useGetContactPersonOptions,
+} from '@src/queries/options.query'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -116,11 +120,6 @@ export default function AddNewRequest() {
     setFiles([...filtered])
   }
 
-  /* TODO:
-  api요청 3가지 항목
-  1. contact person => api변경해야 함, 그리고 job title도 같이 filter에 표기해주기
-  */
-
   // ** forms
   const {
     control,
@@ -140,17 +139,19 @@ export default function AddNewRequest() {
   })
 
   // ** form options
-  const { data: clientList } = useGetClientList({
-    skip: 0,
-    take: 1000,
-  })
+  const { data: clientList } = useGetContactPersonOptions()
+
   const { data: companies } = useGetCompanyOptions('LSP')
 
   const clients = useMemo(() => {
     return (
-      clientList?.data?.map(item => ({
-        value: item.clientId,
-        label: item.name,
+      clientList?.map(item => ({
+        value: item.userId,
+        label: `${getLegalName({
+          firstName: item.firstName,
+          middleName: item.middleName,
+          lastName: item.lastName,
+        })} ${item.jobTitle ? '/ ' + item.jobTitle : ''}`,
         timezone: item.timezone,
       })) || []
     )

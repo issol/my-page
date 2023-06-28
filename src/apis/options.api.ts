@@ -4,6 +4,7 @@ import {
   CompanyType,
   UnitOptionType,
 } from '@src/types/options.type'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
 // option값으로 사용할 데이터 받아오는 api모듬
 
@@ -21,6 +22,17 @@ export const getCompanyList = async (
 ): Promise<CompanyOptionType[]> => {
   try {
     const { data } = await axios.get(`/api/enough/u/comp/list?type=${type}`)
+    return data
+  } catch (error) {
+    return []
+  }
+}
+
+export const getContactPersonList = async (): Promise<
+  Array<ContactPersonType & { userId: number }>
+> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/contact-person/list`)
     return data
   } catch (error) {
     return []
