@@ -71,6 +71,7 @@ import {
   createLangPairForQuotes,
   createQuotesInfo,
 } from '@src/apis/quotes.api'
+import { useConfirmLeave } from '@src/hooks/useUnload'
 
 export type languageType = {
   id: number | string
@@ -132,18 +133,18 @@ export default function AddNewQuotes() {
   ]
 
   // ** confirm page leaving
-  router.beforePopState(() => {
-    openModal({
-      type: 'alert-modal',
-      children: (
-        <PageLeaveModal
-          onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/quotes')}
-        />
-      ),
-    })
-    return false
-  })
+  // router.beforePopState(() => {
+  //   openModal({
+  //     type: 'alert-modal',
+  //     children: (
+  //       <PageLeaveModal
+  //         onClose={() => closeModal('alert-modal')}
+  //         onClick={() => router.push('/quotes')}
+  //       />
+  //     ),
+  //   })
+  //   return false
+  // })
 
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
@@ -404,8 +405,15 @@ export default function AddNewQuotes() {
     return result
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/invoice/payable/',
+  })
+
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <PageHeader
         title={
           <Box display='flex' alignItems='center' gap='8px'>

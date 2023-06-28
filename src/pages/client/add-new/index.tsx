@@ -15,7 +15,7 @@ import PageHeader from '@src/@core/components/page-header'
 import Icon from 'src/@core/components/icon'
 
 // ** components
-import PageLeaveModal from '../components/modals/page-leave-modal'
+
 import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '../components/forms/company-info-container'
 import AddressesForm from '../components/forms/addresses-container'

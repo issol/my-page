@@ -58,6 +58,7 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
+import { useConfirmLeave } from '@src/hooks/useUnload'
 
 type Props = {
   isUpdatable: boolean
@@ -85,21 +86,21 @@ export default function InvoiceDetailCard({
 
   const isAccountManager = ability.can('read', 'account_manage')
 
-  // ** confirm page leaving
-  router.beforePopState(() => {
-    if (editInfo) {
-      openModal({
-        type: 'alert-modal',
-        children: (
-          <PageLeaveModal
-            onClose={() => closeModal('alert-modal')}
-            onClick={() => router.push('/invoice/payable/')}
-          />
-        ),
-      })
-    }
-    return false
-  })
+  // // ** confirm page leaving
+  // router.beforePopState(() => {
+  //   if (editInfo) {
+  //     openModal({
+  //       type: 'alert-modal',
+  //       children: (
+  //         <PageLeaveModal
+  //           onClose={() => closeModal('alert-modal')}
+  //           onClick={() => router.push('/invoice/payable/')}
+  //         />
+  //       ),
+  //     })
+  //   }
+  //   return false
+  // })
 
   const {
     control,
@@ -161,9 +162,16 @@ export default function InvoiceDetailCard({
     updateMutation.mutate({ invoiceStatus })
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/invoice/payable/',
+  })
+
   return (
     <DatePickerWrapper>
       <Grid container spacing={6}>
+        <ConfirmLeaveModal />
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice detail</Typography>
