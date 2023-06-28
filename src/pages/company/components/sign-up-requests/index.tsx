@@ -7,6 +7,7 @@ import Typography from '@mui/material/Typography'
 import RenderChips from 'src/pages/company/components/sign-up-requests/render-chips'
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction } from 'react'
+import RenderRoleChips from 'src/pages/company/components/sign-up-requests/render-chips'
 
 type Props = {
   data: SignUpRequestsType[]
@@ -14,8 +15,20 @@ type Props = {
   requestsPageSize: number
   setRequestsPage: Dispatch<SetStateAction<number>>
   setRequestsPageSize: Dispatch<SetStateAction<number>>
-  handleDeleteRole: (role: string, user: SignUpRequestsType) => void
-  handleAddRole: (role: string, user: SignUpRequestsType) => void
+  handleDeleteRole: (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => void
+  handleAddRole: (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => void
   handleDeclineSignUpRequest: (user: SignUpRequestsType) => void
   handleApproveSignUpRequest: (user: SignUpRequestsType) => void
   checkPermission: () => boolean
@@ -77,7 +90,7 @@ const SignUpRequests = ({
             {/* {row.role.map(value => {
               return <div>{value}</div>
             })} */}
-            <RenderChips
+            <RenderRoleChips
               user={row}
               handleDeleteRole={handleDeleteRole}
               handleAddRole={handleAddRole}

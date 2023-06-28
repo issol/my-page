@@ -116,7 +116,7 @@ export default function ClientProjectCalendarSideBar({
               <BoxFeature
                 key={item.id}
                 onClick={() => setCurrentListId(item.id)}
-                bg={colors[item?.extendedProps?.calendar!]?.backgroundColor}
+                bg={hexToRGBA(item?.extendedProps?.calendar!, 0.12)}
                 $bgSize={colors[item?.extendedProps?.calendar!]?.backgroundSize}
                 color={
                   item.status === 'Overdue'
@@ -125,9 +125,7 @@ export default function ClientProjectCalendarSideBar({
                 }
               >
                 {/* {item.title} */}
-                {item.status === 'Overdue'
-                  ? `🔴 ${item.projectName}`
-                  : item.projectName}
+                {item.status === 'Overdue' ? `🔴 ${item.status}` : item.status}
               </BoxFeature>
             )
           })

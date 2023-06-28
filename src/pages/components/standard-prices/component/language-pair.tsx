@@ -546,7 +546,6 @@ const LanguagePair = ({
                     alignItems: 'center',
                   }}
                 >
-                  dd
                 </Box>
               )
             },
@@ -571,7 +570,7 @@ const LanguagePair = ({
           loading={isLoading}
           editMode='row'
           rows={list ?? []}
-          autoHeight
+          autoHeight={false}
           // disableSelectionOnClick
           hideFooterSelectedRowCount
           paginationMode='server'

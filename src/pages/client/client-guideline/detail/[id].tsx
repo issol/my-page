@@ -148,7 +148,7 @@ const ClientGuidelineDetail = () => {
   )
   const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
     onSuccess: () => {
-      router.push('/onboarding/client-guideline')
+      router.push('/client/client-guideline')
     },
     onError: () => {
       toast.error('Something went wrong. Please try again.', {
@@ -304,7 +304,7 @@ const ClientGuidelineDetail = () => {
   }
 
   function onEdit() {
-    router.push(`/onboarding/client-guideline/form/${id}`)
+    router.push(`/client/client-guideline/form/${id}`)
   }
 
   function onRestore() {
@@ -390,6 +390,10 @@ const ClientGuidelineDetail = () => {
     }
   }
 
+  function onClickBack() {
+    router.push('/client/client-guideline/')
+  }
+
   return (
     <>
       {!data ? (
@@ -409,7 +413,7 @@ const ClientGuidelineDetail = () => {
                     <Icon
                       icon='mdi:chevron-left'
                       cursor='pointer'
-                      onClick={() => router.back()}
+                      onClick={() => onClickBack()}
                     />
                     {currentVersion?.title}
                   </Typography>
@@ -557,8 +561,8 @@ const ClientGuidelineDetail = () => {
               </Card>
               <Card style={{ marginTop: '24px' }}>
                 {
-                  isAuthor('delete', currentVersion?.userId!) 
-                  || isAuthor('update', currentVersion?.userId!) 
+                  isAuthor('update', currentVersion?.userId!)
+                  || isAuthor('delete', currentVersion?.userId!)
                   ? (<Box
                   sx={{
                     padding: '20px',

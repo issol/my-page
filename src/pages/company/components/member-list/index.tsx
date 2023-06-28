@@ -1,15 +1,54 @@
 import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 import Box from '@mui/material/Box'
 import Card from '@mui/material/Card'
-import { DataGrid, GridColDef } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridCellModes,
+  GridCellModesModel,
+  GridCellParams,
+  GridColumns,
+  GridEditRowsModel,
+  GridEventListener,
+  GridRowId,
+} from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
 import Typography from '@mui/material/Typography'
 import RenderMembersChips from './render-members-chips'
 
-import { Dispatch, SetStateAction } from 'react'
+import {
+  Dispatch,
+  SetStateAction,
+  useState,
+  MouseEvent,
+  useCallback,
+  useMemo,
+  useEffect,
+} from 'react'
+import {
+  Button,
+  IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+} from '@mui/material'
+import { Icon } from '@iconify/react'
+import useModal from '@src/hooks/useModal'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
+import { UseMutationResult, useMutation } from 'react-query'
+import { patchMember } from '@src/apis/company/company-members.api'
+import toast from 'react-hot-toast'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 interface CellType {
   row: MembersType
+}
+
+interface SelectedCellParams {
+  id: GridRowId
+  field: string
 }
 
 type Props = {
@@ -18,6 +57,16 @@ type Props = {
   membersPageSize: number
   setMembersPageSize: Dispatch<SetStateAction<number>>
   memberList: MembersType[]
+  patchMemberMutation: UseMutationResult<
+    void,
+    unknown,
+    {
+      userId: number
+      permissionGroups: string[]
+    },
+    unknown
+  >
+  deleteMemberMutation: UseMutationResult<void, unknown, number, unknown>
 }
 const MemberList = ({
   membersPage,
@@ -25,18 +74,189 @@ const MemberList = ({
   membersPageSize,
   setMembersPageSize,
   memberList,
+  patchMemberMutation,
+  deleteMemberMutation,
 }: Props) => {
-  const columns: GridColDef[] = [
-    {
-      flex: 0.1,
-      minWidth: 70,
-      field: 'id',
-      headerName: 'ID',
-      hide: true,
+  const { openModal, closeModal } = useModal()
+
+  const [selectedMember, setSelectedMember] = useState<MembersType | null>(null)
+  const [members, setMembers] = useState<Array<MembersType>>(memberList)
+  const [editRow, setEditRow] = useState<boolean>(false)
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
+    event.stopPropagation()
+    setSelectedMember(member)
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
+  const handleEditCancel = () => {
+    setEditRow(false)
+    setSelectedMember(null)
+  }
+
+  const handleDeleteMember = () => {
+    deleteMemberMutation.mutate(selectedMember!.id, {
+      onSuccess: () => {
+        setEditRow(false)
+        setSelectedMember(null)
+        setMembers(memberList)
+        closeModal('DeleteMemberModal')
+      },
+      onError: () => {
+        setEditRow(false)
+        setSelectedMember(null)
+        setMembers(memberList)
+        closeModal('DeleteMemberModal')
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    })
+  }
+
+  const handleEditSave = () => {
+    const res = members.find(value => value.id === selectedMember!.id)
+    if (res) {
+      patchMemberMutation.mutate(
+        {
+          userId: res!.id,
+          permissionGroups: res!.role,
+        },
+        {
+          onSuccess: () => {
+            setEditRow(false)
+            setMembers(memberList)
+            closeModal('EditSaveMemberModal')
+          },
+          onError: () => {
+            setEditRow(false)
+            setMembers(memberList)
+            closeModal('EditSaveMemberModal')
+            toast.error('Something went wrong. Please try again.', {
+              position: 'bottom-left',
+            })
+          },
+        },
+      )
+    }
+
+    // setSelectedMember(null)
+  }
+
+  const onClickEditSave = () => {
+    if (selectedMember) {
+      const obj: MembersType = members.find(
+        value => value.id === selectedMember.id,
+      )!
+      if (selectedMember === obj) {
+        setEditRow(false)
+        setSelectedMember(null)
+        // setMembers(memberList)
+      } else {
+        openModal({
+          type: 'EditSaveMemberModal',
+          children: (
+            <EditSaveModal
+              onClose={() => closeModal('EditSaveMemberModal')}
+              onClick={handleEditSave}
+            />
+          ),
+        })
+      }
+    }
+  }
+
+  const onClickEditMember = () => {
+    setEditRow(true)
+    handleClose()
+  }
+
+  const onClickDeleteMember = () => {
+    handleClose()
+    openModal({
+      type: 'DeleteMemberModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('DeleteMemberModal')}
+          onClick={handleDeleteMember}
+          title={`Are you sure you want to delete ${getLegalName({
+            firstName: selectedMember?.firstName,
+            middleName: selectedMember?.middleName,
+            lastName: selectedMember?.lastName,
+          })} from the organization?`}
+          vary='error'
+          rightButtonText='Delete'
+        />
+      ),
+    })
+  }
+
+  const onClickEditCancel = () => {
+    if (selectedMember) {
+      const obj: MembersType = members.find(
+        value => value.id === selectedMember.id,
+      )!
+      if (selectedMember === obj) {
+        setEditRow(false)
+        setSelectedMember(null)
+        setMembers(memberList)
+      } else {
+        openModal({
+          type: 'EditCancelMemberModal',
+          children: (
+            <DiscardChangesModal
+              onClose={() => closeModal('EditCancelMemberModal')}
+              onDiscard={handleEditCancel}
+            />
+          ),
+        })
+      }
+    }
+  }
+
+  const handleDeleteRole = (
+    role: string,
+    user: {
+      id: number
+      role: string[]
     },
+  ) => {
+    setMembers(prevState =>
+      prevState.map(value => ({
+        ...value,
+        role:
+          value.id === user.id
+            ? value.role.filter(char => char !== role)
+            : value.role,
+      })),
+    )
+  }
+
+  const handleAddRole = (
+    role: string,
+    user: {
+      id: number
+      role: string[]
+    },
+  ) => {
+    setMembers(prevState =>
+      prevState.map(value => ({
+        ...value,
+        role: value.id === user.id ? ['LPM', 'TAD'] : value.role,
+      })),
+    )
+  }
+
+  const columns: GridColumns<MembersType> = [
     {
-      flex: 0.2,
-      minWidth: 250,
+      flex: 0.28,
+      minWidth: 350,
       field: 'email',
       headerName: 'Legal name / Email',
       hideSortIcons: true,
@@ -81,9 +301,9 @@ const MemberList = ({
       },
     },
     {
-      flex: 0.2,
+      flex: 0.256,
       field: 'jobTitle',
-      minWidth: 250,
+      minWidth: 320,
       headerName: 'Job title',
       hideSortIcons: true,
       filterable: false,
@@ -98,30 +318,39 @@ const MemberList = ({
       },
     },
     {
-      flex: 0.2,
       field: 'role',
-      minWidth: 250,
+      minWidth: 201,
+      flex: 0.1608,
       headerName: 'Role',
       hideSortIcons: true,
       filterable: false,
       sortable: false,
       disableColumnMenu: true,
+
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
             {/* {row.role.map(value => {
               return <div>{value}</div>
             })} */}
-            <RenderMembersChips member={row} />
+            <RenderMembersChips
+              user={{
+                id: row.id,
+                role: row.role,
+              }}
+              handleDeleteRole={handleDeleteRole}
+              handleAddRole={handleAddRole}
+              editRow={editRow}
+            />
             {/* {RenderChips(row.role, handleDeleteRole)} */}
           </Typography>
         )
       },
     },
     {
-      flex: 0.15,
       field: 'permission',
-      minWidth: 150,
+      minWidth: 160,
+      flex: 0.128,
       headerName: 'Permission',
       hideSortIcons: true,
       filterable: false,
@@ -135,7 +364,44 @@ const MemberList = ({
         )
       },
     },
+    {
+      field: 'action',
+      minWidth: 219,
+      flex: 0.1752,
+      headerName: 'Action',
+      hideSortIcons: true,
+      filterable: false,
+      sortable: false,
+      disableColumnMenu: true,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <>
+            {editRow ? (
+              <Box sx={{ display: 'flex', gap: '12px' }}>
+                <Button variant='outlined' onClick={onClickEditCancel}>
+                  Cancel
+                </Button>
+                <Button variant='contained' onClick={onClickEditSave}>
+                  Save
+                </Button>
+              </Box>
+            ) : (
+              <IconButton
+                sx={{ width: '24px', height: '24px', padding: 0 }}
+                onClick={event => handleClick(event, row)}
+              >
+                <Icon icon='mdi:dots-horizontal' />
+              </IconButton>
+            )}
+          </>
+        )
+      },
+    },
   ]
+
+  useEffect(() => {
+    setMembers(memberList)
+  }, [memberList])
   return (
     <Card>
       <CardHeader
@@ -151,6 +417,55 @@ const MemberList = ({
           },
         }}
       >
+        <Menu
+          elevation={8}
+          anchorEl={anchorEl}
+          id='customized-menu'
+          onClose={handleClose}
+          open={Boolean(anchorEl)}
+          anchorOrigin={{
+            vertical: 'bottom',
+            horizontal: 'right',
+          }}
+          transformOrigin={{
+            vertical: 'top',
+            horizontal: 'right',
+          }}
+        >
+          <MenuItem
+            sx={{ gap: 2 }}
+            onClick={() => {
+              selectedMember && onClickEditMember()
+            }}
+          >
+            <ListItemIcon
+              sx={{
+                minWidth: '16px !important',
+                marginRight: '0 !important',
+              }}
+            >
+              <Icon icon='mdi:pencil-outline' fontSize={16} />
+            </ListItemIcon>
+            <ListItemText primary='Edit' />
+          </MenuItem>
+          <MenuItem
+            sx={{ gap: 2 }}
+            onClick={() => {
+              selectedMember && onClickDeleteMember()
+            }}
+          >
+            {/* onClick={() => onClickDeletePrice(row)} */}
+            <ListItemIcon
+              sx={{
+                minWidth: '16px !important',
+                marginRight: '0 !important',
+              }}
+            >
+              <Icon icon='mdi:delete-outline' fontSize={16} />
+            </ListItemIcon>
+            <ListItemText primary='Delete' />
+          </MenuItem>
+        </Menu>
         <DataGrid
           components={{
             NoRowsOverlay: () => {
@@ -189,13 +504,15 @@ const MemberList = ({
             },
           }}
           columns={columns}
-          rows={memberList ?? []}
+          rows={members ?? []}
+          // onCellClick={onCellClick}
+
           autoHeight
           disableSelectionOnClick
           pageSize={membersPageSize}
           rowsPerPageOptions={[5, 10, 25, 50]}
           page={membersPage}
-          rowCount={memberList.length}
+          rowCount={members.length}
           onPageChange={(newPage: number) => {
             setMembersPage(newPage)
           }}

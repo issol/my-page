@@ -125,14 +125,14 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         !proList
                           ? []
                           : proList.data?.filter(pro =>
-                              filter.pro?.includes(Number(pro.id)),
+                              filter.pro?.includes(pro.userId),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          pro: v.map(i => Number(i.id)),
+                          pro: v.map(i => i.userId),
                         })
                       }
                       renderInput={params => (

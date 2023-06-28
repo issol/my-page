@@ -357,7 +357,7 @@ const ClientGuidelineEdit = () => {
     (form: FormType) => updateGuideline(id, form),
     {
       onSuccess: data => {
-        router.push(`/onboarding/client-guideline/detail/${data?.id}`)
+        router.push(`/client/client-guideline/detail/${data?.id}`)
         toast.success('Success', {
           position: 'bottom-left',
         })

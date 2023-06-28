@@ -39,10 +39,11 @@ type Props = {
     'address',
     'id'
   >[]
-  onClickCancel: () => void
-  onClickSave: () => void
+  onClickCancel: (type: 'info' | 'address') => void
+  onClickSave: (type: 'info' | 'address') => void
   onClickAddAddress: () => void
   onClickDeleteAddress: (id: string) => void
+  isUpdatable: boolean
 }
 
 const CompanyInfoAddress = ({
@@ -56,6 +57,7 @@ const CompanyInfoAddress = ({
   onClickSave,
   onClickAddAddress,
   onClickDeleteAddress,
+  isUpdatable,
 }: Props) => {
   const country = getTypeList('CountryCode')
   return (
@@ -85,7 +87,7 @@ const CompanyInfoAddress = ({
                 </Grid>
                 <Grid item xs={12}>
                   <Controller
-                    name={`address.${idx}.officeName`}
+                    name={`address.${idx}.name`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <TextField
@@ -134,7 +136,7 @@ const CompanyInfoAddress = ({
                         fullWidth
                         value={value || ''}
                         onChange={onChange}
-                        label='Office name'
+                        label='City'
                       />
                     )}
                   />
@@ -148,7 +150,7 @@ const CompanyInfoAddress = ({
                         fullWidth
                         value={value || ''}
                         onChange={onChange}
-                        label='Office name'
+                        label='State'
                       />
                     )}
                   />
@@ -162,14 +164,20 @@ const CompanyInfoAddress = ({
                         autoHighlight
                         fullWidth
                         options={country}
-                        onChange={(e, v) => onChange(v.value)}
-                        disableClearable
+                        onChange={(e, v) => {
+                          console.log(v)
+                          if (!v) {
+                            onChange({ value: '', label: '' })
+                          } else {
+                            onChange(v)
+                          }
+                        }}
                         value={
                           !value
                             ? { value: '', label: '' }
                             : country.filter(
                                 item => item.value === value.value,
-                              )[0]
+                              )[0] || null
                         }
                         renderInput={params => (
                           <TextField
@@ -218,12 +226,12 @@ const CompanyInfoAddress = ({
               mt: '24px',
             }}
           >
-            <Button variant='outlined' onClick={onClickCancel}>
+            <Button variant='outlined' onClick={() => onClickCancel('address')}>
               Cancel
             </Button>
             <Button
               variant='contained'
-              onClick={onClickSave}
+              onClick={() => onClickSave('address')}
               disabled={!isValid}
             >
               Save
@@ -241,149 +249,156 @@ const CompanyInfoAddress = ({
           >
             <Typography variant='h6'>Address</Typography>
 
-            <IconButton onClick={() => setEdit(true)}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable && (
+              <IconButton onClick={() => setEdit(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
           <Box>
             <Divider />
-            {companyInfo.address.map((value, index) => {
-              return (
-                <Box
-                  key={uuidv4()}
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
-                >
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Chip
-                        label={value.officeName}
-                        rounded
-                        color={
-                          value.officeName === 'Korea office'
-                            ? 'info'
-                            : value.officeName === 'Japan office'
-                            ? 'success'
-                            : 'default'
-                        }
-                        skin='light'
-                        sx={{ color: '#000' }}
-                      />
-                    </Box>
-                  </Box>
-
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Street:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.baseAddress ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Street 2:
-                      </Typography>
-                      <Typography
-                        variant='subtitle2'
-                        fontSize={16}
-                        fontWeight={400}
+            {addressFields &&
+              addressFields?.map((value, index) => {
+                return (
+                  <Box
+                    key={uuidv4()}
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '16px',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
                       >
-                        {value.detailAddress ?? '-'}
-                      </Typography>
+                        {value.name && (
+                          <Chip
+                            label={value.name}
+                            rounded
+                            color={
+                              value.name === 'Korea office'
+                                ? 'info'
+                                : value.name === 'Japan office'
+                                ? 'success'
+                                : 'default'
+                            }
+                            skin='light'
+                            sx={{ color: '#000' }}
+                          />
+                        )}
+                      </Box>
                     </Box>
+
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Street:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.baseAddress ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Street 2:
+                        </Typography>
+                        <Typography
+                          variant='subtitle2'
+                          fontSize={16}
+                          fontWeight={400}
+                        >
+                          {value.detailAddress ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          City:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.city ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          State:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.state ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          Country:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {(value.country && value.country.label) ?? '-'}
+                        </Typography>
+                      </Box>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '8px',
+                          flex: 1,
+                        }}
+                      >
+                        <Typography variant='subtitle1' fontWeight={600}>
+                          ZIP code:
+                        </Typography>
+                        <Typography variant='subtitle2' fontSize={16}>
+                          {value.zipCode ?? '-'}
+                        </Typography>
+                      </Box>
+                    </Box>
+                    {index === addressFields.length - 1 ? null : <Divider />}
                   </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        City:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.city ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        State:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.state ?? '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        Country:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.country ?? '-'}
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        alignItems: 'center',
-                        gap: '8px',
-                        flex: 1,
-                      }}
-                    >
-                      <Typography variant='subtitle1' fontWeight={600}>
-                        ZIP code:
-                      </Typography>
-                      <Typography variant='subtitle2' fontSize={16}>
-                        {value.zipCode ?? '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  {index === companyInfo.address.length - 1 ? null : (
-                    <Divider />
-                  )}
-                </Box>
-              )
-            })}
+                )
+              })}
           </Box>
         </>
       )}

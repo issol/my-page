@@ -6,7 +6,7 @@ import { Box } from '@mui/system'
 import { Button, Card, Typography } from '@mui/material'
 import { RoleType } from '@src/context/types'
 
-import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { useRouter } from 'next/router'
 
 export type UserInfoCardType = {
   userInfo: {
@@ -15,6 +15,7 @@ export type UserInfoCardType = {
   }
 }
 export default function ClientInfoCard({ userInfo }: UserInfoCardType) {
+  const router = useRouter()
   function getProfileImg(role: RoleType) {
     return `/images/signup/role-${role.toLowerCase()}.png`
   }
@@ -48,8 +49,18 @@ export default function ClientInfoCard({ userInfo }: UserInfoCardType) {
             </Box>
 
             <Box sx={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-              <Button variant='outlined'>Create quote</Button>
-              <Button variant='outlined'>Create order</Button>
+              <Button
+                variant='outlined'
+                onClick={() => router.push('/quotes/add-new/')}
+              >
+                Create quote
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={() => router.push('/orders/add-new/')}
+              >
+                Create order
+              </Button>
             </Box>
           </Box>
         </Box>

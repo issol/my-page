@@ -29,6 +29,7 @@ import { useGetProOverview } from '@src/queries/pro/pro-details.query'
 import { AuthContext } from '@src/context/AuthContext'
 import { useAppSelector } from '@src/hooks/useRedux'
 import ProInvoices from '../components/invoices'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export default function ProDetail() {
   const router = useRouter()
@@ -40,7 +41,8 @@ export default function ProDetail() {
     setValue(newValue)
   }
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
-  const currentRole = useAppSelector(state => state.userAccess.currentRole)
+  // const currentRole = useAppSelector(state => state.userAccess.currentRole)
+  const currentRole = getCurrentRole()
 
   return (
     <div>

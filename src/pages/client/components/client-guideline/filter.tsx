@@ -75,6 +75,7 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
+                  disableCloseOnSelect
                   value={filterValue(ClientListIncludeGloz, 'client')}
                   onChange={(e, v) =>
                     setFilter({ ...filter, client: v.map(item => item.value) })
@@ -101,35 +102,38 @@ export default function Filters({
             </Grid>
             <Grid item xs={6}>
               <FormControl fullWidth>
-                <Autocomplete
-                  autoHighlight
-                  fullWidth
-                  multiple
-                  options={CategoryList}
-                  value={filterValue(CategoryList, 'category')}
-                  onChange={(e, v) =>
-                    setFilter({
-                      ...filter,
-                      category: v.map(item => item.value),
-                    })
-                  }
-                  // filterSelectedOptions
-                  id='category'
-                  getOptionLabel={option => option.label}
-                  renderInput={params => (
-                    <TextField
-                      {...params}
-                      label='Category'
-                      placeholder='Category'
-                    />
-                  )}
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props}>
-                      <Checkbox checked={selected} sx={{ mr: 2 }} />
-                      {option.label}
-                    </li>
-                  )}
-                />
+                <FormControl fullWidth>
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    multiple
+                    disableCloseOnSelect
+                    options={CategoryList}
+                    value={filterValue(CategoryList, 'category')}
+                    onChange={(e, v) =>
+                      setFilter({
+                        ...filter,
+                        category: v.map(item => item.value),
+                      })
+                    }
+                    // filterSelectedOptions
+                    id='category'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Category'
+                        placeholder='Category'
+                      />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
+                </FormControl>
               </FormControl>
             </Grid>
             <Grid item xs={6}>
@@ -138,7 +142,8 @@ export default function Filters({
                   autoHighlight
                   fullWidth
                   multiple
-                  options={serviceType || []}
+                  disableCloseOnSelect
+                  options={ServiceTypeList || []}
                   value={filterValue(ServiceTypeList, 'serviceType')}
                   onChange={(e, v) =>
                     setFilter({

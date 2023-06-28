@@ -111,7 +111,12 @@ export const createLanguagePair = async (
   data: LanguagePairParams[],
   page: 'pro' | 'client',
 ) => {
-  await axios.post(`/api/enough/u/${page}-price/language/pair`, { data: data })
+  try {
+    await axios.post(`/api/enough/u/${page}-price/language/pair`, { data: data })
+  } catch ( e: any) {
+    if(e.response.data.message === '이미 존재하는 언어페어입니다.') throw 'LanguagePairDuplication'
+    else throw new Error(e)
+  }
 }
 
 export const patchLanguagePair = async (
