@@ -76,8 +76,9 @@ export default function AddNewRequest() {
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
 
+  const [preventLeave, setPreventLeave] = useState(true)
   const { ConfirmLeaveModal } = useConfirmLeave({
-    shouldWarn: true,
+    shouldWarn: preventLeave,
     toUrl: '/quotes/requests/',
   })
 
@@ -217,6 +218,7 @@ export default function AddNewRequest() {
     }
   }
   function onRequest() {
+    setPreventLeave(false)
     openModal({
       type: 'request',
       children: (
