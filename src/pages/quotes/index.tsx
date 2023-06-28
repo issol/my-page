@@ -1,33 +1,32 @@
 import { useState } from 'react'
 
-import styled from 'styled-components'
-
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import FormControlLabel from '@mui/material/FormControlLabel'
-// ** components
-
-import { useForm } from 'react-hook-form'
-import {
-  ClientInvoiceFilterType,
-  ClientInvoiceListType,
-} from '@src/types/client/client-projects.type'
-
-import { useGetClientInvoiceList } from '@src/queries/client/client-detail'
-
-import { UserDataType } from '@src/context/types'
+import styled from 'styled-components'
+import { StyledNextLink } from '@src/@core/components/customLink'
 import PageHeader from '@src/@core/components/page-header'
+
+// ** components
+import CalendarContainer from './calendar'
+import QuotesFilters from './list/filters'
+import QuotesList from './list/list'
+
+// ** hooks
+import { useForm } from 'react-hook-form'
+
+// ** types
+import { UserDataType } from '@src/context/types'
 import { QuotesFilterType } from '@src/types/quotes/quote'
+
+// ** values
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
-import QuotesFilters from './list/filters'
+
+// ** apis
 import { useGetQuotesList } from '@src/queries/quotes.query'
-import QuotesList from './list/list'
-import CalendarContainer from './calendar'
-import { StyledNextLink } from '@src/@core/components/customLink'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -155,13 +154,14 @@ export default function Quotes({ id, user }: Props) {
 
   return (
     <Box display='flex' flexDirection='column'>
-      <PageHeader title={<Typography variant='h5'>Quote list</Typography>} />
       <Box
         display='flex'
         width={'100%'}
-        justifyContent='right'
+        alignItems='center'
+        justifyContent='space-between'
         padding='10px 0 24px'
       >
+        <PageHeader title={<Typography variant='h5'>Quote list</Typography>} />
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'

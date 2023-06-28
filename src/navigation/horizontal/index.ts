@@ -138,9 +138,24 @@ const navigation = (): HorizontalNavItemsType => {
     {
       title: 'Quotes',
       icon: 'material-symbols:request-quote-outline',
-      path: '/quotes',
       action: 'read',
       subject: 'quote',
+      children: [
+        {
+          title: 'Request List',
+          path: `/quotes/requests`,
+          action: 'read',
+          icon: 'ic:outline-send',
+          subject: 'client_request',
+        },
+        {
+          title: 'Quote List',
+          path: `/quotes`,
+          action: 'read',
+          icon: 'material-symbols:request-quote-outline',
+          subject: 'quote',
+        },
+      ],
     },
     {
       title: 'Orders',

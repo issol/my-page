@@ -152,6 +152,7 @@ export default function QuotesDetail() {
   }, [menuQuery])
 
   useEffect(() => {
+    if (!router.isReady) return
     router.replace(`/quotes/detail/${id}?menu=${menu}`)
   }, [menu, id])
 
