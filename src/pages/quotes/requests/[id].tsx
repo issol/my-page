@@ -11,6 +11,8 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
+import Menu from '@mui/material/Menu'
+import MenuItem from '@mui/material/MenuItem'
 import styled from 'styled-components'
 
 // ** components
@@ -23,9 +25,9 @@ import { getDownloadUrlforCommon } from '@src/apis/common.api'
 
 // ** hooks
 import { useRouter } from 'next/router'
-import { useContext, useMemo } from 'react'
+import { MouseEvent, useContext, useMemo, useState } from 'react'
 import useModal from '@src/hooks/useModal'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
@@ -40,9 +42,15 @@ import { client_request } from '@src/shared/const/permission-class'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
 import CancelRequestModal from './components/modal/cancel-request-modal'
-import { cancelRequest } from '@src/apis/requests/client-request.api'
-import { CancelReasonType } from '@src/types/requests/detail.type'
+import { updateRequest } from '@src/apis/requests/client-request.api'
+import {
+  CancelReasonType,
+  RequestDetailType,
+} from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
+import CanceledReasonModal from './components/modal/canceled-reason-modal'
+import Link from 'next/link'
+import { StyledNextLink } from '@src/@core/components/customLink'
 
 /* TODO:
 1. cancel request mutation추가하기
@@ -52,6 +60,8 @@ import { FileType } from '@src/types/common/file.type'
 export default function RequestDetail() {
   const router = useRouter()
   const { id } = router.query
+
+  const queryClient = useQueryClient()
 
   const { openModal, closeModal } = useModal()
 
@@ -63,6 +73,16 @@ export default function RequestDetail() {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
   const isCreatable = ability.can('create', User)
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const { data } = useGetClientRequestDetail(Number(id))
 
@@ -95,15 +115,17 @@ export default function RequestDetail() {
           }, 60000)
           a.remove()
         })
-        .catch(err =>
-          toast.error(
-            'Something went wrong while uploading files. Please try again.',
-            {
-              position: 'bottom-left',
-            },
-          ),
-        )
+        .catch(err => onError())
     })
+  }
+
+  function onError() {
+    toast.error(
+      'Something went wrong while uploading files. Please try again.',
+      {
+        position: 'bottom-left',
+      },
+    )
   }
 
   function downloadAllFiles() {
@@ -121,19 +143,56 @@ export default function RequestDetail() {
   }
 
   const cancelMutation = useMutation(
-    ({ id, form }: { id: number; form: CancelReasonType }) =>
-      cancelRequest(id, form),
-    {},
+    ({
+      id,
+      form,
+    }: {
+      id: number
+      form: Omit<RequestDetailType, 'lsp'> & { lspId: string }
+    }) => updateRequest(id, form),
+    {
+      onSuccess: () => {
+        return queryClient.invalidateQueries({
+          queryKey: 'request/client/detail',
+        })
+      },
+      onError: () => onError(),
+    },
   )
 
-  function mutateCancel(data: { option: string; reason?: string }) {
-    cancelMutation.mutate({
-      id: Number(id),
-      form: {
-        from: 'lsp',
-        reason: data.option,
-        message: data.reason ?? '',
-      },
+  function mutateCancel(form: { option: string; reason?: string }) {
+    closeModal('cancelRequest')
+    if (data !== undefined) {
+      cancelMutation.mutate({
+        id: Number(id),
+        form: {
+          ...data,
+          lspId: data.lsp.id,
+          status: 'Canceled',
+          canceledReason: {
+            from: 'lsp',
+            reason: form.option,
+            message: form.reason ?? '',
+          },
+        },
+      })
+    }
+  }
+
+  function openReasonModal() {
+    openModal({
+      type: 'reason',
+      children: (
+        <Dialog open={true} onClose={() => closeModal('reason')}>
+          <DialogContent style={{ width: '360px', padding: '20px' }}>
+            <CanceledReasonModal
+              data={data?.canceledReason}
+              onClose={() => closeModal('reason')}
+              onClick={mutateCancel}
+            />
+          </DialogContent>
+        </Dialog>
+      ),
     })
   }
 
@@ -166,7 +225,12 @@ export default function RequestDetail() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
-        <Box sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}>
+        <Box
+          display='flex'
+          alignItems='center'
+          gap='8px'
+          sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
+        >
           <Box display='flex' alignItems='center' gap='8px'>
             <IconButton onClick={() => router.back()}>
               <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
@@ -178,11 +242,55 @@ export default function RequestDetail() {
             />
             <Typography variant='h6'>{data?.corporationId}</Typography>
           </Box>
+          {data?.linkedQuote || data?.linkedOrder ? (
+            <div>
+              <IconButton
+                aria-label='more'
+                aria-haspopup='true'
+                onClick={handleClick}
+              >
+                <Icon icon='mdi:dots-vertical' />
+              </IconButton>
+              <Menu
+                keepMounted
+                id='link menu'
+                anchorEl={anchorEl}
+                onClose={handleClose}
+                open={Boolean(anchorEl)}
+                PaperProps={{
+                  style: {
+                    maxHeight: 48 * 4.5,
+                  },
+                }}
+              >
+                {data?.linkedQuote && (
+                  <MenuItem onClick={handleClose}>
+                    <StyledNextLink
+                      href={`/quotes/detail/${data?.linkedQuote.id}`}
+                      color='black'
+                    >
+                      Linked quote : {data?.linkedQuote.corporationId}
+                    </StyledNextLink>
+                  </MenuItem>
+                )}
+                {data?.linkedOrder && (
+                  <MenuItem onClick={handleClose}>
+                    <StyledNextLink
+                      href={`/quotes/detail/${data?.linkedOrder.id}`}
+                      color='black'
+                    >
+                      Linked order : {data?.linkedOrder.corporationId}
+                    </StyledNextLink>
+                  </MenuItem>
+                )}
+              </Menu>
+            </div>
+          ) : null}
         </Box>
       </Grid>
       <Grid item xs={9}>
         <Card sx={{ padding: '24px' }}>
-          <RequestDetailCard data={data} />
+          <RequestDetailCard data={data} openReasonModal={openReasonModal} />
         </Card>
         <Grid item xs={4} mt='24px'>
           <Card sx={{ padding: '24px' }}>
@@ -239,7 +347,7 @@ export default function RequestDetail() {
                   padding: '0 20px',
                   overflow: 'scroll',
                   marginBottom: '12px',
-                  height: '454px',
+                  height: '306px',
 
                   '&::-webkit-scrollbar': { display: 'none' },
                 }}

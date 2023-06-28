@@ -23,8 +23,9 @@ import { RequestDetailType } from '@src/types/requests/detail.type'
 
 type Props = {
   data: RequestDetailType | undefined
+  openReasonModal: () => void
 }
-export default function RequestDetailCard({ data }: Props) {
+export default function RequestDetailCard({ data, openReasonModal }: Props) {
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -41,8 +42,13 @@ export default function RequestDetailCard({ data }: Props) {
       <Grid item xs={6}>
         <LabelContainer>
           <CustomTypo fontWeight={600}>Status</CustomTypo>
-          <Box display='flex'>
+          <Box display='flex' alignItems='center' gap='8px'>
             {!data?.status ? null : ClientRequestStatusChip(data?.status)}
+            {data?.status === 'Canceled' && (
+              <IconButton sx={{ padding: 0 }} onClick={openReasonModal}>
+                <Icon icon='material-symbols:help-outline' />
+              </IconButton>
+            )}
           </Box>
         </LabelContainer>
       </Grid>

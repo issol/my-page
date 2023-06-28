@@ -43,11 +43,6 @@ export const getClientRequestList = async (
       `/api/enough/u/request/list?${makeQuery(filter)}`,
     )
     return data
-    // return {
-    //   count: 1,
-    //   totalCount: 0,
-    //   data: [],
-    // }
   } catch (error) {
     return {
       data: [],
@@ -156,13 +151,12 @@ export const getClientRequestDetail = async (
   }
 }
 
-//TODO: 수정필요
-export const cancelRequest = async (
+export const updateRequest = async (
   id: number,
-  form: CancelReasonType,
+  form: Omit<RequestDetailType, 'lsp'> & { lspId: string },
 ): Promise<RequestDetailType> => {
   try {
-    const { data } = await axios.patch(`/api/enough/u/request/${id}`)
+    const { data } = await axios.put(`/api/enough/u/request/${id}`, form)
     return data
   } catch (e: any) {
     throw new Error(e)

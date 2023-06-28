@@ -4,6 +4,8 @@ import { useRouter } from 'next/router'
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import { useDropzone } from 'react-dropzone'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useMutation } from 'react-query'
 
 // ** mui
 import {
@@ -41,7 +43,12 @@ import {
 import { FileType } from '@src/types/common/file.type'
 
 // ** apis
-import { useGetClientList } from '@src/queries/client.query'
+import {
+  useGetCompanyOptions,
+  useGetContactPersonOptions,
+} from '@src/queries/options.query'
+import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
+import { createClientRequest } from '@src/apis/requests/client-request.api'
 
 // ** components
 import AddRequestForm from '@src/pages/components/forms/add-request-item-form'
@@ -49,16 +56,13 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import FileItem from '@src/@core/components/fileItem'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import { createClientRequest } from '@src/apis/requests/client-request.api'
-import { useMutation } from 'react-query'
+
+// ** helpers
 import { getFilePath } from '@src/shared/transformer/filePath.transformer'
-import { getUploadUrlforCommon, uploadFileToS3 } from '@src/apis/common.api'
-import { S3FileType } from '@src/shared/const/signedURLFileType'
-import {
-  useGetCompanyOptions,
-  useGetContactPersonOptions,
-} from '@src/queries/options.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+
+// ** values
+import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -71,6 +75,11 @@ export default function AddNewRequest() {
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
+
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    shouldWarn: true,
+    toUrl: '/quotes/requests/',
+  })
 
   // ** file managing
   const { getRootProps, getInputProps } = useDropzone({
@@ -243,6 +252,7 @@ export default function AddNewRequest() {
 
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <Grid item xs={12}>
         <PageHeader
           title={

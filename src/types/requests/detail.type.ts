@@ -3,7 +3,7 @@ import { RequestItemFormType, RequestStatusType } from './common.type'
 
 export type RequestDetailType = {
   id: number
-  corporationId: string
+  corporationId: number
   lsp: { id: string; name: string; email: string }
   contactPerson: ContactPersonType
   status: RequestStatusType
@@ -19,8 +19,14 @@ export type RequestDetailType = {
   statusUpdatedAt: string | null
   notes?: string
   canceledReason?: CancelReasonType
+  linkedQuote?: LinkedInfoType
+  linkedOrder?: LinkedInfoType
 }
 
+export type LinkedInfoType = {
+  id: number
+  corporationId: number
+}
 export type CancelReasonType = {
   from: 'client' | 'lsp'
   reason: string
