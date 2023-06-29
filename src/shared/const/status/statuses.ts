@@ -393,3 +393,26 @@ export const InvoiceCalenderStatus = [
     label: '#FF4D49',
   },
 ]
+
+export const ClientRequestCalendarStatus = [
+  {
+    value: 'Request created',
+    label: '#666CFF',
+  },
+  {
+    value: 'In preparation',
+    label: '#FDB528',
+  },
+  {
+    value: 'Changed into order',
+    label: '#1A6BBA',
+  },
+  {
+    value: 'Changed into quote',
+    label: '#64C623',
+  },
+  {
+    value: 'Canceled',
+    label: '#FF4D49',
+  },
+]

@@ -86,6 +86,7 @@ import {
 
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 export type languageType = {
   id: number | string
@@ -172,18 +173,18 @@ export default function AddNewOrder() {
   ]
 
   // ** confirm page leaving
-  router.beforePopState(() => {
-    openModal({
-      type: 'alert-modal',
-      children: (
-        <PageLeaveModal
-          onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/orders/order-list')}
-        />
-      ),
-    })
-    return false
-  })
+  // router.beforePopState(() => {
+  //   openModal({
+  //     type: 'alert-modal',
+  //     children: (
+  //       <PageLeaveModal
+  //         onClose={() => closeModal('alert-modal')}
+  //         onClick={() => router.push('/orders/order-list')}
+  //       />
+  //     ),
+  //   })
+  //   return false
+  // })
 
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
@@ -549,8 +550,15 @@ export default function AddNewOrder() {
     }
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/orders/order-list',
+  })
+
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <PageHeader
         title={
           <Box
