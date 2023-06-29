@@ -90,7 +90,7 @@ const MyAccount = () => {
         timezone: data.timezone,
         jobTitle: data.jobTitle,
         mobilePhone: data.mobilePhone,
-        telePhone: data.mobilePhone,
+        telePhone: data.telePhone,
         department: data.department,
         fax: data.fax,
       },

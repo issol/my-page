@@ -83,7 +83,11 @@ export default function Quotes({ id, user }: Props) {
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
 
-  const { data: list, isLoading } = useGetQuotesList(filters)
+  const { data: list, isLoading } = useGetQuotesList({
+    ...filters,
+    skip: quoteListPage * quoteListPageSize,
+    take: quoteListPageSize,
+  })
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
