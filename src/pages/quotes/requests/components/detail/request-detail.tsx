@@ -57,9 +57,9 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
           <CustomTypo fontWeight={600}>Contact person</CustomTypo>
           <CustomTypo variant='body2'>
             {getLegalName({
-              firstName: data?.contactPerson.firstName!,
-              middleName: data?.contactPerson.middleName,
-              lastName: data?.contactPerson.lastName!,
+              firstName: data?.contactPerson?.firstName!,
+              middleName: data?.contactPerson?.middleName,
+              lastName: data?.contactPerson?.lastName!,
             })}
             {data?.contactPerson?.jobTitle
               ? ` / ${data?.contactPerson?.jobTitle}`
@@ -79,12 +79,12 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
       {data?.items?.map((item, idx) => {
         const numbering = idx + 1 > 9 ? `${idx}.` + 1 : `0${idx + 1}.`
         return (
-          <Grid item xs={12} key={item.id}>
+          <Grid item xs={12} key={item?.id}>
             <ItemBox>
               <Grid container spacing={6}>
                 <Grid item xs={12}>
                   <Typography variant='h6'>
-                    {numbering} {item.name}
+                    {numbering} {item?.name}
                   </Typography>
                 </Grid>
 
