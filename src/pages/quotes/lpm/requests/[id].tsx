@@ -40,7 +40,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { toast } from 'react-hot-toast'
 
 // ** permission
-import { client_request } from '@src/shared/const/permission-class'
+import { lpm_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
@@ -62,7 +62,7 @@ export default function RequestDetail() {
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
 
-  const User = new client_request(user?.id!)
+  const User = new lpm_request(user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
