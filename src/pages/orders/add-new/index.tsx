@@ -391,7 +391,12 @@ export default function AddNewOrder() {
         target: item.target,
       }
     })
-    const stepOneData = { ...teams, ...clients, ...projectInfo }
+    const stepOneData = {
+      ...teams,
+      ...clients,
+      ...projectInfo,
+      requestId: requestId ?? null,
+    }
     createOrderInfo(stepOneData)
       .then(res => {
         if (res.id) {

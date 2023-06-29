@@ -14,7 +14,7 @@ import { MemSourceType, MemoQType } from '@src/types/common/tm-analysis.type'
 
 export type CreateOrderFormType = ProjectTeamFormType &
   ClientFormType &
-  OrderProjectInfoFormType
+  OrderProjectInfoFormType & { requestId?: number }
 
 // ** step 1-3
 export const createOrderInfo = async (

@@ -397,7 +397,12 @@ export default function AddNewQuotes() {
         target: item.target,
       }
     })
-    const stepOneData = { ...teams, ...clients, ...projectInfo }
+    const stepOneData = {
+      ...teams,
+      ...clients,
+      ...projectInfo,
+      requestId: requestId ?? null,
+    }
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
