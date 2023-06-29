@@ -1,8 +1,9 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** mui
 import {
@@ -43,7 +44,6 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -59,6 +59,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
 import { AuthContext } from '@src/context/AuthContext'
@@ -71,7 +72,6 @@ import {
   createLangPairForQuotes,
   createQuotesInfo,
 } from '@src/apis/quotes.api'
-import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 
 export type languageType = {
@@ -104,7 +104,7 @@ export default function AddNewQuotes() {
   const { user } = useContext(AuthContext)
 
   const requestId = router.query.requestId
-  const { data } = useGetClientRequestDetail(Number(requestId))
+  const { data: requestData } = useGetClientRequestDetail(Number(requestId))
 
   const { openModal, closeModal } = useModal()
 
@@ -142,7 +142,7 @@ export default function AddNewQuotes() {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
-    handleSubmit: submitTeam,
+    reset: resetTeam,
     watch: teamWatch,
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
@@ -234,6 +234,56 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
+
+  useEffect(() => {
+    if (requestId) {
+      initializeForm()
+    }
+  }, [requestId])
+
+  //TODO: 잘 되는지 테스트 필요
+  function initializeForm() {
+    if (requestId && requestData) {
+      const { client } = requestData || undefined
+      clientReset({
+        clientId: client.clientId,
+        contactPersonId: requestData.contactPerson.id,
+        contacts: {
+          timezone: client?.timezone,
+          phone: client?.phone ?? '',
+          mobile: client?.mobile ?? '',
+          fax: client?.fax ?? '',
+          email: client?.email ?? '',
+          addresses:
+            client?.addresses?.filter(
+              item => item.addressType !== 'additional',
+            ) || [],
+        },
+      })
+
+      const { items } = requestData || []
+      const desiredDueDates = items?.map(i => i.desiredDueDate)
+      const isCategoryNotSame = items.some(
+        i => i.category !== items[0]?.category,
+      )
+      projectInfoReset({
+        projectDueDate: {
+          date: findEarliestDate(desiredDueDates),
+        },
+        category: isCategoryNotSame ? '' : items[0].category,
+        serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
+        projectDescription: requestData?.notes ?? '',
+      })
+      const itemLangPairs =
+        items?.map(i => ({
+          id: i.id,
+          source: i.sourceLanguage,
+          target: i.targetLanguage,
+          price: null,
+        })) || []
+      setLanguagePairs(itemLangPairs)
+    }
+  }
 
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
