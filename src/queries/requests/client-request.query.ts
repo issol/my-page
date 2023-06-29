@@ -11,7 +11,7 @@ import { useQuery } from 'react-query'
 export const useGetClientRequestStatus = () => {
   return useQuery(['request/client/statuses'], () => getRequestStatusList(), {
     staleTime: 60 * 1000, // 1
-    suspense: false,
+    suspense: true,
     keepPreviousData: true,
   })
 }
@@ -22,7 +22,7 @@ export const useGetClientRequestList = (filter: RequestFilterType) => {
     () => getClientRequestList(filter),
     {
       staleTime: 60 * 1000, // 1
-      suspense: false,
+      suspense: true,
       keepPreviousData: true,
     },
   )
@@ -38,7 +38,7 @@ export const useGetClientRequestCalendarData = (
     () => getClientRequestCalendarData(year, month, filter),
     {
       staleTime: 60 * 1000, // 1
-      suspense: false,
+      suspense: true,
       keepPreviousData: true,
     },
   )
@@ -49,7 +49,8 @@ export const useGetClientRequestDetail = (id: number) => {
     () => getClientRequestDetail(id),
     {
       staleTime: 60 * 1000, // 1
-      suspense: false,
+      suspense: true,
+      useErrorBoundary: true,
       keepPreviousData: true,
       enabled: !!id,
     },

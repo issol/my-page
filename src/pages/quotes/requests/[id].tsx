@@ -13,7 +13,6 @@ import {
 } from '@mui/material'
 import Menu from '@mui/material/Menu'
 import MenuItem from '@mui/material/MenuItem'
-import styled from 'styled-components'
 
 // ** components
 import RequestDetailCard from './components/detail/request-detail'
@@ -49,6 +48,8 @@ import { updateRequest } from '@src/apis/requests/client-request.api'
 // ** types
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
+import ErrorBoundary from '@src/@core/components/error/error-boundary'
+import ErrorFallback from '@src/@core/components/error/error-fallback'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -216,186 +217,175 @@ export default function RequestDetail() {
   }
 
   return (
-    <Grid container spacing={6}>
-      <Grid item xs={12}>
-        <Box
-          display='flex'
-          alignItems='center'
-          gap='8px'
-          sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
-        >
-          <Box display='flex' alignItems='center' gap='8px'>
-            <IconButton onClick={() => router.back()}>
-              <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
-            </IconButton>
-            <img
-              src='/images/icons/request-icons/airplane.png'
-              aria-hidden
-              alt='request detail'
-            />
-            <Typography variant='h6'>{data?.corporationId}</Typography>
-          </Box>
-          {data?.linkedQuote || data?.linkedOrder ? (
-            <div>
-              <IconButton
-                aria-label='more'
-                aria-haspopup='true'
-                onClick={handleClick}
-              >
-                <Icon icon='mdi:dots-vertical' />
+    <ErrorBoundary FallbackComponent={<ErrorFallback />}>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <Box
+            display='flex'
+            alignItems='center'
+            gap='8px'
+            sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
+          >
+            <Box display='flex' alignItems='center' gap='8px'>
+              <IconButton onClick={() => router.back()}>
+                <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
               </IconButton>
-              <Menu
-                keepMounted
-                id='link menu'
-                anchorEl={anchorEl}
-                onClose={handleClose}
-                open={Boolean(anchorEl)}
-                PaperProps={{
-                  style: {
-                    maxHeight: 48 * 4.5,
-                  },
-                }}
-              >
-                {data?.linkedQuote && (
-                  <MenuItem onClick={handleClose}>
-                    <StyledNextLink
-                      href={`/quotes/detail/${data?.linkedQuote.id}`}
-                      color='black'
-                    >
-                      Linked quote : {data?.linkedQuote.corporationId}
-                    </StyledNextLink>
-                  </MenuItem>
-                )}
-                {data?.linkedOrder && (
-                  <MenuItem onClick={handleClose}>
-                    <StyledNextLink
-                      href={`/quotes/detail/${data?.linkedOrder.id}`}
-                      color='black'
-                    >
-                      Linked order : {data?.linkedOrder.corporationId}
-                    </StyledNextLink>
-                  </MenuItem>
-                )}
-              </Menu>
-            </div>
-          ) : null}
-        </Box>
-      </Grid>
-      <Grid item xs={9}>
-        <Card sx={{ padding: '24px' }}>
-          <RequestDetailCard data={data} openReasonModal={openReasonModal} />
-        </Card>
-        <Grid item xs={4} mt='24px'>
-          <Card sx={{ padding: '24px' }}>
-            <Button
-              fullWidth
-              variant='outlined'
-              color='error'
-              disabled={isNotCancelable()}
-              onClick={onCancelRequest}
-            >
-              Cancel this request
-            </Button>
-          </Card>
+              <img
+                src='/images/icons/request-icons/airplane.png'
+                aria-hidden
+                alt='request detail'
+              />
+              <Typography variant='h6'>{data?.corporationId}</Typography>
+            </Box>
+            {data?.linkedQuote || data?.linkedOrder ? (
+              <div>
+                <IconButton
+                  aria-label='more'
+                  aria-haspopup='true'
+                  onClick={handleClick}
+                >
+                  <Icon icon='mdi:dots-vertical' />
+                </IconButton>
+                <Menu
+                  keepMounted
+                  id='link menu'
+                  anchorEl={anchorEl}
+                  onClose={handleClose}
+                  open={Boolean(anchorEl)}
+                  PaperProps={{
+                    style: {
+                      maxHeight: 48 * 4.5,
+                    },
+                  }}
+                >
+                  {data?.linkedQuote && (
+                    <MenuItem onClick={handleClose}>
+                      <StyledNextLink
+                        href={`/quotes/detail/${data?.linkedQuote.id}`}
+                        color='black'
+                      >
+                        Linked quote : {data?.linkedQuote.corporationId}
+                      </StyledNextLink>
+                    </MenuItem>
+                  )}
+                  {data?.linkedOrder && (
+                    <MenuItem onClick={handleClose}>
+                      <StyledNextLink
+                        href={`/quotes/detail/${data?.linkedOrder.id}`}
+                        color='black'
+                      >
+                        Linked order : {data?.linkedOrder.corporationId}
+                      </StyledNextLink>
+                    </MenuItem>
+                  )}
+                </Menu>
+              </div>
+            ) : null}
+          </Box>
         </Grid>
-      </Grid>
-      <Grid item xs={3}>
-        <Box display='flex' flexDirection='column' gap='24px'>
-          <Box sx={{ width: '100%' }}>
-            <Card>
-              <Box
-                sx={{
-                  padding: '20px',
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '12px',
-                }}
+        <Grid item xs={9}>
+          <Card sx={{ padding: '24px' }}>
+            <RequestDetailCard data={data} openReasonModal={openReasonModal} />
+          </Card>
+          <Grid item xs={4} mt='24px'>
+            <Card sx={{ padding: '24px' }}>
+              <Button
+                fullWidth
+                variant='outlined'
+                color='error'
+                disabled={isNotCancelable()}
+                onClick={onCancelRequest}
               >
-                <Box display='flex' justifyContent='space-between'>
-                  <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
-                    Sample files
-                  </Typography>
-                  <Typography variant='body2'>
-                    {Math.round(fileSize / 100) / 10 > 1000
-                      ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                      : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                    /2 gb
-                  </Typography>
+                Cancel this request
+              </Button>
+            </Card>
+          </Grid>
+        </Grid>
+        <Grid item xs={3}>
+          <Box display='flex' flexDirection='column' gap='24px'>
+            <Box sx={{ width: '100%' }}>
+              <Card>
+                <Box
+                  sx={{
+                    padding: '20px',
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '12px',
+                  }}
+                >
+                  <Box display='flex' justifyContent='space-between'>
+                    <Typography sx={{ fontWeight: 600, fontSize: '14px' }}>
+                      Sample files
+                    </Typography>
+                    <Typography variant='body2'>
+                      {Math.round(fileSize / 100) / 10 > 1000
+                        ? `${(Math.round(fileSize / 100) / 10000).toFixed(
+                            1,
+                          )} mb`
+                        : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
+                      /2 gb
+                    </Typography>
+                  </Box>
+                  {!data?.sampleFiles?.length ? (
+                    '-'
+                  ) : (
+                    <Button
+                      variant='outlined'
+                      fullWidth
+                      startIcon={<Icon icon='mdi:download' />}
+                      onClick={() => downloadAllFiles()}
+                    >
+                      Download all
+                    </Button>
+                  )}
                 </Box>
-                {!data?.sampleFiles?.length ? (
-                  '-'
-                ) : (
-                  <Button
-                    variant='outlined'
-                    fullWidth
-                    startIcon={<Icon icon='mdi:download' />}
-                    onClick={() => downloadAllFiles()}
-                  >
-                    Download all
-                  </Button>
-                )}
-              </Box>
-              <Box
-                sx={{
-                  padding: '0 20px',
-                  overflow: 'scroll',
-                  marginBottom: '12px',
-                  height: '306px',
+                <Box
+                  sx={{
+                    padding: '0 20px',
+                    overflow: 'scroll',
+                    marginBottom: '12px',
+                    height: '306px',
 
-                  '&::-webkit-scrollbar': { display: 'none' },
-                }}
-              >
-                {data?.sampleFiles?.map(
-                  (file: {
-                    id?: number
-                    filePath: string
-                    fileName: string
-                    fileExtension: string
-                    fileSize: number
-                  }) => {
-                    return (
-                      <Box key={file.id}>
-                        <FileItem
-                          file={{
-                            name: file.fileName,
-                            size: file?.fileSize,
-                            file: file.filePath,
-                          }}
-                          onClick={downloadFile}
-                        />
-                      </Box>
-                    )
-                  },
-                )}
-              </Box>
+                    '&::-webkit-scrollbar': { display: 'none' },
+                  }}
+                >
+                  {data?.sampleFiles?.map(
+                    (file: {
+                      id?: number
+                      filePath: string
+                      fileName: string
+                      fileExtension: string
+                      fileSize: number
+                    }) => {
+                      return (
+                        <Box key={file.id}>
+                          <FileItem
+                            file={{
+                              name: file.fileName,
+                              size: file?.fileSize,
+                              file: file.filePath,
+                            }}
+                            onClick={downloadFile}
+                          />
+                        </Box>
+                      )
+                    },
+                  )}
+                </Box>
+              </Card>
+            </Box>
+            <Card sx={{ padding: '24px' }}>
+              <Typography fontWeight='bold'>Notes</Typography>
+              <Typography variant='body2' mt='24px'>
+                {data?.notes ? data?.notes : '-'}
+              </Typography>
             </Card>
           </Box>
-          <Card sx={{ padding: '24px' }}>
-            <Typography fontWeight='bold'>Notes</Typography>
-            <Typography variant='body2' mt='24px'>
-              {data?.notes ? data?.notes : '-'}
-            </Typography>
-          </Card>
-        </Box>
+        </Grid>
       </Grid>
-    </Grid>
+    </ErrorBoundary>
   )
 }
-
-const LabelContainer = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-`
-const CustomTypo = styled(Typography)`
-  font-size: 14px;
-`
-
-const ItemBox = styled(Box)`
-  padding: 20px;
-  border-radius: 10px;
-  background: #f5f5f5;
-`
 
 RequestDetail.acl = {
   subject: 'client_request',

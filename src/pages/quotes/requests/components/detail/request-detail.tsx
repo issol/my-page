@@ -34,7 +34,7 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
           <CustomTypo variant='body2'>
             {FullDateTimezoneHelper(
               data?.requestedAt,
-              data?.contactPerson?.timezone.code,
+              data?.contactPerson?.timezone,
             )}
           </CustomTypo>
         </LabelContainer>
