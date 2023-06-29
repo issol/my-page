@@ -3,7 +3,7 @@ import { GridSortDirection } from '@mui/x-data-grid'
 export type RequestFilterType = {
   status?: string[]
   lsp?: string[]
-  client?: string[] //TODO: 홒 공유하기. string일지 number일지 문의
+  client?: number[]
   category?: string[]
   serviceType?: string[]
   requestDateFrom?: string

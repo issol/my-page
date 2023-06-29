@@ -24,17 +24,16 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
+import { useGetClientList } from '@src/queries/client.query'
+import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 
 // ** types
 import { RequestFilterType } from '@src/types/requests/filters.type'
-import { useGetProList } from '@src/queries/pro/pro-list.query'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
+
+// ** values
 import { CategoryList } from '@src/shared/const/category/categories'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
-import { useGetCompanyOptions } from '@src/queries/options.query'
-import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 
 type Props = {
   filter: RequestFilterType
@@ -58,8 +57,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
         )
   }
 
-  //TODO: lsp에 등록된 client전체 리스트 api로 변경해야 함
-  const { data: companies } = useGetCompanyOptions('LSP')
+  const { data: clients } = useGetClientList({ skip: 0, take: 1000 })
 
   const { data: statusList, isLoading } = useGetClientRequestStatus()
 
@@ -138,20 +136,20 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       {...commonOptions}
                       multiple
                       disableCloseOnSelect
-                      options={companies || []}
+                      options={clients?.data || []}
                       getOptionLabel={option => option.name}
                       value={
-                        !companies
+                        !clients?.data
                           ? []
-                          : companies?.filter(lsp =>
-                              filter.client?.includes(lsp.id),
+                          : clients?.data?.filter(client =>
+                              filter.client?.includes(client.clientId),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          client: v.map(i => i.id),
+                          client: v.map(i => i.clientId),
                         })
                       }
                       renderInput={params => (
