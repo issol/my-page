@@ -13,17 +13,17 @@ import Button from '@mui/material/Button'
 import Typography from '@mui/material/Typography'
 import AlertIcon from '@src/@core/components/alert-icon'
 import languageHelper from '@src/shared/helpers/language.helper'
-import { SetPriceUnit } from '@src/types/common/standard-price'
+import {
+  CommonPriceUnitType,
+  SetPriceUnit,
+} from '@src/types/common/standard-price'
 import { FieldArrayWithId } from 'react-hook-form'
 
 type Props = {
   onClose: any
-  item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>
+  item: CommonPriceUnitType
   isBase: boolean
-  onClickAction: (
-    item: FieldArrayWithId<SetPriceUnit, 'pair', 'id'>,
-    isBase: boolean,
-  ) => void
+  onClickAction: (item: CommonPriceUnitType, isBase: boolean) => void
 }
 export default function BasePriceUnitRemoveModal({
   onClose,
