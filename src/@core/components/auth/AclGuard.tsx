@@ -53,11 +53,7 @@ const AclGuard = (props: AclGuardProps) => {
     return <>{children}</>
   }
   // Check the access of current user and render pages
-  console.log('AclGuard-ability', ability)
-  console.log(
-    'AclGuard-page ability check',
-    ability?.can(aclAbilities.action, aclAbilities.subject),
-  )
+
   if (ability && ability.can(aclAbilities.action, aclAbilities.subject)) {
     return (
       <AbilityContext.Provider value={ability}>

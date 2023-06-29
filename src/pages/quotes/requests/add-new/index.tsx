@@ -156,7 +156,7 @@ export default function AddNewRequest() {
   const clients = useMemo(() => {
     return (
       clientList?.map(item => ({
-        value: item.userId,
+        value: item.id,
         label: `${getLegalName({
           firstName: item.firstName,
           middleName: item.middleName,
