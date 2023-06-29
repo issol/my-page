@@ -65,7 +65,7 @@ type Props = {
   watch: UseFormWatch<ClientFormType>
   setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
-  type: string
+  type: 'order' | 'invoice' | 'quotes' | 'request'
 }
 export default function ClientQuotesFormContainer({
   control,
@@ -274,7 +274,7 @@ export default function ClientQuotesFormContainer({
         alignItems='center'
       >
         <Typography variant='h6'>Select client</Typography>
-        {type === 'invoice' ? null : (
+        {type === 'invoice' || type === 'request' ? null : (
           <Button variant='contained' onClick={() => setOpenForm(true)}>
             Add new client
           </Button>
