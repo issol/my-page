@@ -83,7 +83,7 @@ export default function List({
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => ClientRequestStatusChip(row.status),
     },
-    /* TODO: row에 client정보가 필요함 */
+
     {
       flex: 0.15,
       minWidth: 180,

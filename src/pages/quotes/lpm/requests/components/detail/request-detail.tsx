@@ -97,13 +97,12 @@ export default function RequestDetailCard({
       <Grid item xs={6}>
         <LabelContainer>
           <CustomTypo fontWeight={600}>Client</CustomTypo>
-          {/* TODO: client실 데이터로 변경하기. link, name */}
           <StyledNextLink
-            href={`/client/detail/${11}`}
+            href={`/client/detail/${data?.client.clientId}`}
             color='black'
             style={{ textDecoration: 'underline' }}
           >
-            HYPE
+            {data?.client?.name}
           </StyledNextLink>
         </LabelContainer>
       </Grid>
