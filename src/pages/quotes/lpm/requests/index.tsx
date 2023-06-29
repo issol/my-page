@@ -166,6 +166,8 @@ export default function LpmRequests() {
                 gap: '24px',
               }}
             >
+              {/* TODO:테스트용 코드로 반드시 삭제하기 */}
+              {list!.data[0].client.email}
               <Box sx={{ display: 'flex', gap: '4px', alignItems: 'center' }}>
                 <Typography>Hide completed requests</Typography>
                 <Switch
