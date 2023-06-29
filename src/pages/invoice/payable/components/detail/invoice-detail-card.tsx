@@ -46,6 +46,7 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -58,7 +59,6 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
-import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type Props = {
   isUpdatable: boolean
@@ -85,22 +85,6 @@ export default function InvoiceDetailCard({
   const ability = useContext(AbilityContext)
 
   const isAccountManager = ability.can('read', 'account_manage')
-
-  // // ** confirm page leaving
-  // router.beforePopState(() => {
-  //   if (editInfo) {
-  //     openModal({
-  //       type: 'alert-modal',
-  //       children: (
-  //         <PageLeaveModal
-  //           onClose={() => closeModal('alert-modal')}
-  //           onClick={() => router.push('/invoice/payable/')}
-  //         />
-  //       ),
-  //     })
-  //   }
-  //   return false
-  // })
 
   const {
     control,
@@ -163,8 +147,7 @@ export default function InvoiceDetailCard({
   }
 
   const { ConfirmLeaveModal } = useConfirmLeave({
-    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: editInfo,
     toUrl: '/invoice/payable/',
   })
 
