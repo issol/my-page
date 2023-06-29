@@ -87,6 +87,8 @@ import {
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 export type languageType = {
   id: number | string
@@ -132,13 +134,20 @@ export const proDefaultOption: StandardPriceListType & {
 
 export default function AddNewOrder() {
   const router = useRouter()
+  const requestId = router.query?.requestId
+  const orderId = router.query?.orderId
+
   const { user } = useContext(AuthContext)
+
+  const { data: requestData } = useGetClientRequestDetail(Number(requestId))
 
   useEffect(() => {
     if (!router.isReady) return
-    const orderId = Number(router.query.orderId)
-    if (!isNaN(orderId)) {
-      onCopyOrder(orderId)
+    if (orderId) {
+      onCopyOrder(Number(orderId))
+    }
+    if (requestId) {
+      initializeFormWithRequest()
     }
   }, [router.query])
 
@@ -171,20 +180,6 @@ export default function AddNewOrder() {
       title: ' Languages & Items',
     },
   ]
-
-  // ** confirm page leaving
-  // router.beforePopState(() => {
-  //   openModal({
-  //     type: 'alert-modal',
-  //     children: (
-  //       <PageLeaveModal
-  //         onClose={() => closeModal('alert-modal')}
-  //         onClick={() => router.push('/orders/order-list')}
-  //       />
-  //     ),
-  //   })
-  //   return false
-  // })
 
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
@@ -444,6 +439,50 @@ export default function AddNewOrder() {
     return result
   }
 
+  //TODO: 잘 되는지 테스트 필요
+  function initializeFormWithRequest() {
+    if (requestId && requestData) {
+      const { client } = requestData || undefined
+      clientReset({
+        clientId: client.clientId,
+        contactPersonId: requestData.contactPerson.id,
+        contacts: {
+          timezone: client?.timezone,
+          phone: client?.phone ?? '',
+          mobile: client?.mobile ?? '',
+          fax: client?.fax ?? '',
+          email: client?.email ?? '',
+          addresses:
+            client?.addresses?.filter(
+              item => item.addressType !== 'additional',
+            ) || [],
+        },
+      })
+
+      const { items } = requestData || []
+      const desiredDueDates = items?.map(i => i.desiredDueDate)
+      const isCategoryNotSame = items.some(
+        i => i.category !== items[0]?.category,
+      )
+      projectInfoReset({
+        projectDueDate: {
+          date: findEarliestDate(desiredDueDates),
+        },
+        category: isCategoryNotSame ? '' : items[0].category,
+        serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
+        projectDescription: requestData?.notes ?? '',
+      })
+      const itemLangPairs =
+        items?.map(i => ({
+          id: i.id,
+          source: i.sourceLanguage,
+          target: i.targetLanguage,
+          price: null,
+        })) || []
+      setLanguagePairs(itemLangPairs)
+    }
+  }
+
   async function onCopyOrder(id: number | null) {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
@@ -636,7 +675,7 @@ export default function AddNewOrder() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
-                type='order'
+                type={requestId ? 'request' : 'order'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

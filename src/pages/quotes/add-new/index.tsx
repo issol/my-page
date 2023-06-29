@@ -103,7 +103,7 @@ export default function AddNewQuotes() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
-  const requestId = router.query.requestId
+  const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
 
   const { openModal, closeModal } = useModal()
@@ -236,13 +236,14 @@ export default function AddNewQuotes() {
   })
 
   useEffect(() => {
+    if (!router.isReady) return
     if (requestId) {
-      initializeForm()
+      initializeFormWithRequest()
     }
   }, [requestId])
 
   //TODO: 잘 되는지 테스트 필요
-  function initializeForm() {
+  function initializeFormWithRequest() {
     if (requestId && requestData) {
       const { client } = requestData || undefined
       clientReset({
