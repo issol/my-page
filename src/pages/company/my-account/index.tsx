@@ -24,6 +24,7 @@ import { useAuth } from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 
 const MyAccount = () => {
+  const auth = useAuth()
   const [contractsEdit, setContractsEdit] = useState(false)
 
   function getProfileImg(role: RoleType) {
@@ -44,6 +45,11 @@ const MyAccount = () => {
         setContractsEdit(false)
         closeModal('SaveMyAccountModal')
         refetch()
+        /* @ts-ignore */
+        auth.updateUserInfo({
+          userId: Number(userInfo?.id),
+          email: userInfo?.email!,
+        })
       },
     },
   )
