@@ -5,12 +5,12 @@ import { FileType } from 'src/types/common/file.type'
 
 type Props = {
   file: FileType
-  onClick?: (name: string) => void
+  onClick?: (file: FileType) => void
   onClear?: (file: FileType) => void
 }
 export default function FileItem({ file, onClick, onClear }: Props) {
   return (
-    <FileList key={file.name} onClick={() => onClick && onClick(file.name)}>
+    <FileList key={file.name} onClick={() => onClick && onClick(file)}>
       <div className='file-details'>
         <div className='file-preview'>
           <Icon

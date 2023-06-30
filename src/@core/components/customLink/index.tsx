@@ -2,7 +2,7 @@ import Link from 'next/link'
 import styled from 'styled-components'
 
 export const StyledNextLink = styled(Link)<{
-  color?: 'primary' | 'secondary' | 'white'
+  color?: 'primary' | 'secondary' | 'white' | 'black'
 }>`
   text-decoration: none;
   color: ${({ color }) =>
@@ -10,5 +10,7 @@ export const StyledNextLink = styled(Link)<{
       ? '#6D788D'
       : color === 'white'
       ? '#ffffff'
+      : color === 'black'
+      ? 'rgba(76, 78, 100, 0.87);'
       : '#666cff'};
 `

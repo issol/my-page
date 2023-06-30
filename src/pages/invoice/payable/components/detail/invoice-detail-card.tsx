@@ -38,9 +38,6 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** permission
-import { invoice_payable } from '@src/shared/const/permission-class'
-
 // ** components
 import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
@@ -61,8 +58,10 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type Props = {
+  isUpdatable: boolean
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
@@ -72,6 +71,7 @@ type Props = {
 version history
 */
 export default function InvoiceDetailCard({
+  isUpdatable,
   data,
   editInfo,
   setEditInfo,
@@ -83,26 +83,24 @@ export default function InvoiceDetailCard({
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
 
-  const isUpdatable = ability.can('update', User)
   const isAccountManager = ability.can('read', 'account_manage')
 
-  // ** confirm page leaving
-  router.beforePopState(() => {
-    if (editInfo) {
-      openModal({
-        type: 'alert-modal',
-        children: (
-          <PageLeaveModal
-            onClose={() => closeModal('alert-modal')}
-            onClick={() => router.push('/invoice/payable/')}
-          />
-        ),
-      })
-    }
-    return false
-  })
+  // // ** confirm page leaving
+  // router.beforePopState(() => {
+  //   if (editInfo) {
+  //     openModal({
+  //       type: 'alert-modal',
+  //       children: (
+  //         <PageLeaveModal
+  //           onClose={() => closeModal('alert-modal')}
+  //           onClick={() => router.push('/invoice/payable/')}
+  //         />
+  //       ),
+  //     })
+  //   }
+  //   return false
+  // })
 
   const {
     control,
@@ -164,9 +162,16 @@ export default function InvoiceDetailCard({
     updateMutation.mutate({ invoiceStatus })
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/invoice/payable/',
+  })
+
   return (
     <DatePickerWrapper>
       <Grid container spacing={6}>
+        <ConfirmLeaveModal />
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice detail</Typography>

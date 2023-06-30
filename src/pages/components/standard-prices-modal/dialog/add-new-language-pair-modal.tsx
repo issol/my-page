@@ -29,6 +29,7 @@ import {
 import { languagePairSchema } from '@src/types/schema/price-unit.schema'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import LanguagePairActionModal from '../modal/language-pair-action-modal'
+import LanguagePairDuplicationModal from '@src/pages/components/standard-prices-modal/modal/language-pair-duplication-modal'
 import { Input } from './set-price-unit-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { createLanguagePair } from '@src/apis/company/company-price.api'
@@ -78,6 +79,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
     (data: LanguagePairParams[]) => createLanguagePair(data, page),
     {
       onSuccess: data => {
+        closeModal('setPriceUnitModal')
         // refetch()
         queryClient.invalidateQueries(`standard-${page}-prices`)
 
@@ -86,9 +88,22 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
         })
       },
       onError: error => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
+        console.log("addLanguagePairMutation-error",error)
+        if (error === 'LanguagePairDuplication') {
+          openModal({
+            type: 'LanguagePairDuplicationModal',
+            children: (
+              <LanguagePairDuplicationModal
+                onClose={() => closeModal('LanguagePairDuplicationModal')}
+              />
+            ),
+          })
+        } else {
+          closeModal('setPriceUnitModal')
+          toast.error('Something went wrong. Please try again.', {
+            position: 'bottom-left',
+          })
+        }
       },
     },
   )
@@ -182,8 +197,8 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
   }
 
   const onClickAction = (type: string, data?: LanguagePairParams[]) => {
-    closeModal('setPriceUnitModal')
     if (type === 'Discard') {
+      closeModal('setPriceUnitModal')
       reset({
         pair: [
           { source: '', target: '', priceFactor: null, minimumPrice: null },

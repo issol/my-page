@@ -69,9 +69,10 @@ export const checkGuidelineExistence = async (
   serviceType: string,
 ): Promise<boolean> => {
   try {
-    return await axios.get(
+    const { data } = await axios.get(
       `/api/enough/onboard/guideline/created-check?client=${client}&category=${category}&serviceType=${serviceType}`,
     )
+    return data
   } catch (e: any) {
     throw new Error(e)
   }

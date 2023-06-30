@@ -207,7 +207,6 @@ const SetPriceUnitModal = ({
           ? value.weighting.toString()
           : null,
     }))
-    console.log(res)
 
     openModal({
       type: 'saveSetPriceUnitModal',

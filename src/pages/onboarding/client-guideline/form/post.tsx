@@ -207,6 +207,8 @@ const ClientGuidelineForm = () => {
           </ModalButtonGroup>
         </ModalContainer>,
       )
+      resetFormSelection()
+      setIsDuplicated(false)
     }
   }, [isDuplicated])
 
@@ -227,8 +229,8 @@ const ClientGuidelineForm = () => {
     const { category, client, serviceType } = getValues()
     if (category.value && client.value && serviceType.value) {
       checkGuidelineExistence(
-        category.value,
         client.value,
+        category.value,
         serviceType.value,
       ).then(res => setIsDuplicated(res))
     }
@@ -495,9 +497,9 @@ const ClientGuidelineForm = () => {
                         options={ClientListIncludeGloz}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         value={value}
                         id='client'
@@ -534,9 +536,9 @@ const ClientGuidelineForm = () => {
                         value={value}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         id='category'
                         getOptionLabel={option => option.label}
@@ -573,9 +575,9 @@ const ClientGuidelineForm = () => {
                       value={value}
                       // filterSelectedOptions
                       onChange={(e, v) => {
-                        checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
+                        checkGuideline()
                       }}
                       id='serviceType'
                       getOptionLabel={option => option.label}

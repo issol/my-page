@@ -102,3 +102,13 @@ export class invoice_receivable {
     })
   }
 }
+
+export class client_request {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_request.prototype.constructor, 'name', {
+      value: 'client_request',
+    })
+  }
+}

@@ -10,11 +10,18 @@ import Contracts from './contracts'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { managerProfileSchema } from '@src/types/schema/profile.schema'
-import { ManagerInfo } from '@src/types/sign/personalInfoTypes'
+import {
+  ManagerInfo,
+  ManagerUserInfoType,
+} from '@src/types/sign/personalInfoTypes'
 import useModal from '@src/hooks/useModal'
 
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import { useMutation } from 'react-query'
+import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
+import { useAuth } from '@src/hooks/useAuth'
+import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 
 const MyAccount = () => {
   const [contractsEdit, setContractsEdit] = useState(false)
@@ -26,13 +33,24 @@ const MyAccount = () => {
   const { openModal, closeModal } = useModal()
 
   const { user } = useContext(AuthContext)
+  const { data: userInfo, refetch } = useGetProfile(user?.id! ?? 0)
   const role = useAppSelector(state => state.userAccess.role)
-  console.log(role)
+
+  const saveUserInfoMutation = useMutation(
+    (data: ManagerUserInfoType & { userId: number }) =>
+      updateManagerUserInfo({ ...data, company: 'GloZ' }),
+    {
+      onSuccess: () => {
+        setContractsEdit(false)
+        closeModal('SaveMyAccountModal')
+        refetch()
+      },
+    },
+  )
 
   const {
     control,
-    handleSubmit,
-    setValue,
+
     getValues,
     watch,
     reset,
@@ -43,28 +61,41 @@ const MyAccount = () => {
   })
 
   useEffect(() => {
-    if (user) {
+    if (userInfo) {
       reset({
-        firstName: user.firstName,
-        lastName: user.lastName,
-        middleName: user.middleName,
-        email: user.email,
-        phone: user.phone,
-        department: user.department,
-        jobTitle: user.jobTitle,
-        fax: user.fax,
-        mobile: user.mobile,
-        timezone: user.timezone,
+        firstName: userInfo.firstName,
+        lastName: userInfo.lastName,
+        middleName: userInfo.middleName,
+        email: userInfo.email,
+        telePhone: userInfo.telePhone,
+        department: userInfo.department,
+        jobTitle: userInfo.jobTitle,
+        fax: userInfo.fax,
+        mobilePhone: userInfo.mobilePhone,
+        timezone: userInfo.timezone,
       })
     }
-  }, [user])
+  }, [userInfo])
 
   const handleSaveInfo = () => {
     const data = getValues()
-    // TODO API 연결
 
-    setContractsEdit(false)
-    closeModal('SaveMyAccountModal')
+    const finalData: ManagerUserInfoType & { userId: number } = {
+      userId: userInfo?.userId ?? 0,
+      firstName: data.firstName,
+      middleName: data.middleName,
+      lastName: data.lastName,
+      country: data.timezone.label,
+      extraData: {
+        timezone: data.timezone,
+        jobTitle: data.jobTitle,
+        mobilePhone: data.mobilePhone,
+        telePhone: data.telePhone,
+        department: data.department,
+        fax: data.fax,
+      },
+    }
+    saveUserInfoMutation.mutate(finalData)
   }
 
   const handleCancelInfo = () => {
@@ -129,9 +160,9 @@ const MyAccount = () => {
                 >
                   <Typography variant='h5'>
                     {getLegalName({
-                      firstName: user?.firstName,
-                      lastName: user?.lastName,
-                      middleName: user?.middleName,
+                      firstName: userInfo?.firstName,
+                      lastName: userInfo?.lastName,
+                      middleName: userInfo?.middleName,
                     })}
                   </Typography>
                   <Box sx={{ display: 'flex', gap: '8px' }}>
@@ -154,10 +185,10 @@ const MyAccount = () => {
                   }}
                 >
                   <Typography variant='body2'>
-                    {user?.department ?? '-'} |&nbsp;
+                    {userInfo?.department ?? '-'} |&nbsp;
                   </Typography>
                   <Typography variant='body2'>
-                    {user?.jobTitle ?? '-'}
+                    {userInfo?.jobTitle ?? '-'}
                   </Typography>
                 </Box>
               </Box>
@@ -170,7 +201,7 @@ const MyAccount = () => {
         edit={contractsEdit}
         setEdit={setContractsEdit}
         control={control}
-        userInfo={user!}
+        userInfo={userInfo!}
         watch={watch}
         errors={errors}
         isValid={isValid}

@@ -223,7 +223,7 @@ const Contracts = ({
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='mobile'
+                name='mobilePhone'
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextField
@@ -256,7 +256,7 @@ const Contracts = ({
             </Grid>
             <Grid item xs={6}>
               <Controller
-                name='phone'
+                name='telePhone'
                 control={control}
                 render={({ field: { onChange, value } }) => (
                   <TextField
@@ -402,9 +402,12 @@ const Contracts = ({
                 <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />
                 <LabelTitle>Mobile phone:</LabelTitle>
                 <Label>
-                  {!userInfo.mobile
+                  {!userInfo.mobilePhone
                     ? '-'
-                    : '+' + userInfo.timezone.phone + ') ' + userInfo.mobile}
+                    : '+' +
+                      userInfo.timezone.phone +
+                      ') ' +
+                      userInfo.mobilePhone}
                 </Label>
               </Box>
               <Box
@@ -418,9 +421,9 @@ const Contracts = ({
                 <Icon icon='mdi:phone' style={{ opacity: '0.7' }} />
                 <LabelTitle>Telephone:</LabelTitle>
                 <Label>
-                  {!userInfo.phone
+                  {!userInfo.telePhone
                     ? '-'
-                    : '+' + userInfo.timezone.phone + ') ' + userInfo.phone}
+                    : '+' + userInfo.timezone.phone + ') ' + userInfo.telePhone}
                 </Label>
               </Box>
             </Box>
@@ -433,7 +436,7 @@ const Contracts = ({
                   flex: 1,
                 }}
               >
-                <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />
+                <Icon icon='ic:baseline-home' style={{ opacity: '0.7' }} />
                 <LabelTitle>Fax:</LabelTitle>
                 <Label>
                   {!userInfo.fax

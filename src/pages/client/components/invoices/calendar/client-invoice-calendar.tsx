@@ -24,8 +24,8 @@ const ClientInvoiceCalendar = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      start: item.invoicedDate,
-      end: item.paymentDueDate,
+      start: item.updatedAt,
+      end: item.updatedAt,
       title: item.invoiceName,
     }
   })
