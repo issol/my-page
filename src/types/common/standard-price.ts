@@ -103,15 +103,38 @@ export type SetPriceUnit = {
     title: string
     parentPriceUnitId: number | null
     subPriceUnits?: Array<{
-      id: number
+      unitId: number | null
+      quantity: number | null | string
       isBase: boolean
       title: string
       unit: string
-      weighting: number
-      isActive?: boolean
+      weighting: number | null | string
+      price: number | null | string
       parentPriceUnitId: number | null
     }>
   }[]
+}
+
+export type CommonPriceUnitType = {
+  id?: number
+  unit: string
+  isBase: boolean
+  unitId: number | null
+  quantity: number | null | string
+  price: number | null | string
+  weighting: number | null | string
+  title: string
+  parentPriceUnitId: number | null
+  subPriceUnits?: Array<{
+    unitId: number | null
+    quantity: number | null | string
+    isBase: boolean
+    title: string
+    unit: string
+    weighting: number | null | string
+    price: number | null | string
+    parentPriceUnitId: number | null
+  }>
 }
 
 export type SetPriceUnitPair = {
@@ -154,6 +177,17 @@ export type PriceUnitType = {
     isActive: boolean
     parentPriceUnitId: number | null
   }>
+}
+
+export type SubPriceUnitType = {
+  unitId: number | null
+  quantity: number | null | string
+  isBase: boolean
+  title: string
+  unit: string
+  weighting: number | null | string
+  price: number | null | string
+  parentPriceUnitId: number | null
 }
 
 export type PriceUnitFormType = {

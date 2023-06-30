@@ -241,6 +241,8 @@ const LanguagePair = ({
   }
 
   const onClickSaveEditLanguagePair = () => {
+    console.log('hi')
+
     openModal({
       type: 'editSaveLanguagePairModal',
       children: (
@@ -545,8 +547,7 @@ const LanguagePair = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
-                >
-                </Box>
+                ></Box>
               )
             },
           }}
