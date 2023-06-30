@@ -104,7 +104,7 @@ export const getQuotesCalendarData = async (
 
 export type CreateQuotesFormType = ProjectTeamFormType &
   ClientFormType &
-  QuotesProjectInfoFormType
+  QuotesProjectInfoFormType & { requestId?: number }
 
 // ** step 1-3
 export const createQuotesInfo = async (

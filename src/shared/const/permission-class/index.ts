@@ -112,3 +112,13 @@ export class client_request {
     })
   }
 }
+
+export class lpm_request {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(lpm_request.prototype.constructor, 'name', {
+      value: 'lpm_request',
+    })
+  }
+}

@@ -71,11 +71,6 @@ import languageHelper from '@src/shared/helpers/language.helper'
 // ** apis
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import {
-  createItemsForOrder,
-  createLangPairForOrder,
-  createOrderInfo,
-} from '@src/apis/order.api'
 
 import {
   getClient,

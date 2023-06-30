@@ -361,6 +361,22 @@ export const getPermission = createAsyncThunk(
             subject: 'client_request',
             can: 'delete',
           },
+          {
+            subject: 'lpm_request',
+            can: 'read',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'create',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'update',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {

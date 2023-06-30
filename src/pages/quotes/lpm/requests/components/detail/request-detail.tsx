@@ -1,11 +1,14 @@
 import { Icon } from '@iconify/react'
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
   Divider,
+  FormControl,
   Grid,
   IconButton,
+  TextField,
   Typography,
 } from '@mui/material'
 import {
@@ -13,19 +16,28 @@ import {
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
+import { StyledNextLink } from '@src/@core/components/customLink'
+import { RequestStatusType } from '@src/types/requests/common.type'
 
 type Props = {
   data: RequestDetailType | undefined
   openReasonModal: () => void
+  onStatusChange: (status: RequestStatusType) => void
 }
-export default function RequestDetailCard({ data, openReasonModal }: Props) {
+export default function RequestDetailCard({
+  data,
+  openReasonModal,
+  onStatusChange,
+}: Props) {
+  const { data: statusList, isLoading } = useGetClientRequestStatus()
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -34,7 +46,7 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
           <CustomTypo variant='body2'>
             {FullDateTimezoneHelper(
               data?.requestedAt,
-              data?.contactPerson?.timezone,
+              data?.contactPerson?.timezone.code,
             )}
           </CustomTypo>
         </LabelContainer>
@@ -42,29 +54,56 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
       <Grid item xs={6}>
         <LabelContainer>
           <CustomTypo fontWeight={600}>Status</CustomTypo>
-          <Box display='flex' alignItems='center' gap='8px'>
-            {!data?.status ? null : ClientRequestStatusChip(data?.status)}
-            {data?.status === 'Canceled' && (
-              <IconButton sx={{ padding: 0 }} onClick={openReasonModal}>
-                <Icon icon='material-symbols:help-outline' />
-              </IconButton>
-            )}
-          </Box>
+          {data?.status === 'Request created' ? (
+            <FormControl fullWidth>
+              <Autocomplete
+                loading={isLoading}
+                options={
+                  statusList?.filter(
+                    status => status.statusName === 'In preparation',
+                  ) || []
+                }
+                size='small'
+                getOptionLabel={option => option.statusName}
+                value={
+                  !statusList || !data?.status
+                    ? null
+                    : statusList?.find(item =>
+                        data?.status?.includes(item.statusName),
+                      )
+                }
+                limitTags={1}
+                onChange={(e, v) => {
+                  if (v?.statusName) onStatusChange(v?.statusName)
+                }}
+                id='status'
+                renderInput={params => (
+                  <TextField {...params} placeholder='Status' />
+                )}
+              />
+            </FormControl>
+          ) : (
+            <Box display='flex' alignItems='center' gap='8px'>
+              {!data?.status ? null : ClientRequestStatusChip(data?.status)}
+              {data?.status === 'Canceled' && (
+                <IconButton sx={{ padding: 0 }} onClick={openReasonModal}>
+                  <Icon icon='material-symbols:help-outline' />
+                </IconButton>
+              )}
+            </Box>
+          )}
         </LabelContainer>
       </Grid>
       <Grid item xs={6}>
         <LabelContainer>
-          <CustomTypo fontWeight={600}>Contact person</CustomTypo>
-          <CustomTypo variant='body2'>
-            {getLegalName({
-              firstName: data?.contactPerson?.firstName!,
-              middleName: data?.contactPerson?.middleName,
-              lastName: data?.contactPerson?.lastName!,
-            })}
-            {data?.contactPerson?.jobTitle
-              ? ` / ${data?.contactPerson?.jobTitle}`
-              : ''}
-          </CustomTypo>
+          <CustomTypo fontWeight={600}>Client</CustomTypo>
+          <StyledNextLink
+            href={`/client/detail/${data?.client.clientId}`}
+            color='black'
+            style={{ textDecoration: 'underline' }}
+          >
+            {data?.client?.name}
+          </StyledNextLink>
         </LabelContainer>
       </Grid>
       <Grid item xs={6}>
@@ -79,12 +118,12 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
       {data?.items?.map((item, idx) => {
         const numbering = idx + 1 > 9 ? `${idx}.` + 1 : `0${idx + 1}.`
         return (
-          <Grid item xs={12} key={item?.id}>
+          <Grid item xs={12} key={item.id}>
             <ItemBox>
               <Grid container spacing={6}>
                 <Grid item xs={12}>
                   <Typography variant='h6'>
-                    {numbering} {item?.name}
+                    {numbering} {item.name}
                   </Typography>
                 </Grid>
 

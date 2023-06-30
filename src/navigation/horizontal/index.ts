@@ -149,6 +149,13 @@ const navigation = (): HorizontalNavItemsType => {
           subject: 'client_request',
         },
         {
+          title: 'Request List',
+          path: `/quotes/lpm/requests`,
+          action: 'read',
+          icon: 'ic:outline-send',
+          subject: 'lpm_request',
+        },
+        {
           title: 'Quote List',
           path: `/quotes`,
           action: 'read',

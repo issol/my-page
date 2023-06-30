@@ -83,18 +83,19 @@ export default function List({
       renderHeader: () => <Box>Status</Box>,
       renderCell: ({ row }: CellType) => ClientRequestStatusChip(row.status),
     },
+
     {
       flex: 0.15,
       minWidth: 180,
       field: 'email',
-      headerName: 'LSP / Email',
+      headerName: 'Client / Email',
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>LSP / Email</Box>,
+      renderHeader: () => <Box>Client / Email</Box>,
       renderCell: ({ row }: CellType) => (
         <Box>
-          <Typography fontWeight='bold'>{row.lsp.name}</Typography>
-          <Typography variant='body2'>{row.lsp.email}</Typography>
+          <Typography fontWeight='bold'>{row.client.name}</Typography>
+          <Typography variant='body2'>{row.client.email}</Typography>
         </Box>
       ),
     },
