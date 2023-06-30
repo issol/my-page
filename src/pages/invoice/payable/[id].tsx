@@ -285,6 +285,7 @@ export default function PayableDetail() {
             <TabPanel value='info' sx={{ pt: '24px' }}>
               <Suspense>
                 <InvoiceInfo
+                  payableId={Number(id)}
                   isUpdatable={isUpdatable!}
                   data={data}
                   jobList={jobList || { count: 0, totalCount: 0, data: [] }}

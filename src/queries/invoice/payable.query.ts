@@ -13,7 +13,7 @@ export const useGetPayableList = (filter: InvoicePayableFilterType) => {
     () => getPayableList(filter),
     {
       staleTime: 60 * 1000, // 1
-      useErrorBoundary: true,
+
       suspense: false,
       keepPreviousData: true,
     },

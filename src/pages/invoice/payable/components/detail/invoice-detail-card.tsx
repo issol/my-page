@@ -61,6 +61,7 @@ import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 import { toast } from 'react-hot-toast'
 
 type Props = {
+  payableId: number
   isUpdatable: boolean
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
@@ -71,6 +72,7 @@ type Props = {
 version history
 */
 export default function InvoiceDetailCard({
+  payableId,
   isUpdatable,
   data,
   editInfo,
@@ -113,7 +115,7 @@ export default function InvoiceDetailCard({
   }, [data])
 
   const updateMutation = useMutation(
-    (form: PayableFormType) => updateInvoicePayable(form),
+    (form: PayableFormType) => updateInvoicePayable(payableId, form),
     {
       onSuccess: () => {
         queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })

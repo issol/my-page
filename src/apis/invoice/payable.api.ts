@@ -122,10 +122,16 @@ export const getInvoicePayableJobList = async (
     }
   }
 }
-export const updateInvoicePayable = async (form: PayableFormType) => {
+export const updateInvoicePayable = async (
+  payableId: number,
+  form: PayableFormType,
+) => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-    // return data
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/payable/${payableId}`,
+      form,
+    )
+    return data
   } catch (e: any) {
     throw Error(e)
   }
@@ -140,11 +146,17 @@ export const deleteInvoicePayable = async (id: number) => {
   }
 }
 
-// export const deleteInvoicePayableJobs = async (form: PayableFormType) => {
-//   try {
-//     const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}/remove-job`)
-//     return data
-//   } catch (e: any) {
-//     throw Error(e)
-//   }
-// }
+export const deleteInvoicePayableJobs = async (
+  payableId: number,
+  jobIds: number[],
+) => {
+  try {
+    const { data } = await axios.delete(
+      `/api/enough/u/invoice/payable/${payableId}/remove-job`,
+      { data: { jobIds } },
+    )
+    return data
+  } catch (e: any) {
+    throw Error(e)
+  }
+}
