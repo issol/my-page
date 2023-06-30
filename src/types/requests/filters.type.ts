@@ -3,6 +3,7 @@ import { GridSortDirection } from '@mui/x-data-grid'
 export type RequestFilterType = {
   status?: string[]
   lsp?: string[]
+  client?: number[]
   category?: string[]
   serviceType?: string[]
   requestDateFrom?: string

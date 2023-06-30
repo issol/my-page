@@ -103,52 +103,13 @@ export const getClientRequestCalendarData = async (
 export const getClientRequestDetail = async (
   id: number,
 ): Promise<RequestDetailType> => {
-  try {
-    const { data } = await axios.get(`/api/enough/u/request/${id}`)
-    return data
-    // return {
-    //   id: 1,
-    //   corporationId: '2123',
-    //   lsp: { id: 2, name: 'Bon', email: 'bon@gloz.con' },
-    //   status: 'Request created',
-    //   contactPerson: {
-    //     id: 1,
-    //     personType: 'Mr.',
-    //     firstName: 'Hop',
-    //     lastName: 'Risha',
-    //     jobTitle: 'Manager',
-    //     timezone: {
-    //       code: '',
-    //       label: '',
-    //       phone: '',
-    //     },
-    //     email: 'leriel@gloz.com',
-    //   },
-    //   items: [
-    //     {
-    //       id: 1,
-    //       name: 'Item',
-    //       sourceLanguage: 'ko',
-    //       targetLanguage: 'en',
-    //       category: 'OTT/Subtitle',
-    //       serviceType: ['DTP'],
-    //       unit: 'Percent',
-    //       quantity: 0,
-    //       desiredDueDate: Date(),
-    //       desiredDueTimezone: {
-    //         code: '',
-    //         label: '',
-    //         phone: '',
-    //       },
-    //     },
-    //   ],
-    //   requestedAt: Date(),
-    //   statusUpdatedAt: Date(),
-    //   notes: '',
-    // }
-  } catch (e: any) {
-    throw new Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/request/${id}`)
+  return data
+  // try {
+
+  // } catch (e: any) {
+  //   throw new Error(e)
+  // }
 }
 
 export const updateRequest = async (

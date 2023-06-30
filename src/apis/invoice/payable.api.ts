@@ -139,9 +139,10 @@ export const deleteInvoicePayable = async (id: number) => {
     throw Error(e)
   }
 }
+
 // export const deleteInvoicePayableJobs = async (form: PayableFormType) => {
 //   try {
-//     const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}`)
+//     const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}/remove-job`)
 //     return data
 //   } catch (e: any) {
 //     throw Error(e)

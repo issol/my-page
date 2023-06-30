@@ -24,16 +24,21 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoicePayableStatus } from '@src/queries/invoice/common.query'
+import { useGetClientList } from '@src/queries/client.query'
+import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
 
 // ** types
-import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
-import { useGetProList } from '@src/queries/pro/pro-list.query'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { RequestFilterType } from '@src/types/requests/filters.type'
+import { ConstType } from '@src/pages/onboarding/client-guideline'
+
+// ** values
+import { CategoryList } from '@src/shared/const/category/categories'
+import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 
 type Props = {
-  filter: InvoicePayableFilterType
-  setFilter: (n: InvoicePayableFilterType) => void
+  filter: RequestFilterType
+  setFilter: (n: RequestFilterType) => void
+  serviceType: Array<ConstType>
   onReset: () => void
   search: () => void
 }
@@ -41,9 +46,21 @@ type Props = {
 export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
-  //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에) [bon]
-  const { data: proList } = useGetProList({ take: 100, skip: 0 })
-  const { data: statusList, isLoading } = useGetInvoicePayableStatus()
+  function filterValue(
+    option: any,
+    keyName: keyof Pick<RequestFilterType, 'category' | 'serviceType'>,
+  ) {
+    return !filter[keyName]
+      ? option[0]
+      : option.filter((item: { value: string; label: string }) =>
+          filter[keyName]?.includes(item.value),
+        )
+  }
+
+  const { data: clients } = useGetClientList({ skip: 0, take: 1000 })
+
+  const { data: statusList, isLoading } = useGetClientRequestStatus()
+
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
@@ -73,7 +90,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
           <Collapse in={collapsed}>
             <CardContent>
               <Grid container spacing={6} rowSpacing={4}>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <FormControl fullWidth>
                     <Autocomplete
                       {...commonOptions}
@@ -83,17 +100,17 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       options={statusList || []}
                       getOptionLabel={option => option.statusName}
                       value={
-                        !statusList
+                        !statusList || !filter.status?.length
                           ? []
                           : statusList?.filter(item =>
-                              filter.invoiceStatus?.includes(item.statusName),
+                              filter.status?.includes(item.statusName),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          invoiceStatus: v.map(item => item.statusName),
+                          status: v.map(item => item.statusName),
                         })
                       }
                       id='status'
@@ -113,57 +130,125 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <FormControl fullWidth>
                     <Autocomplete
                       {...commonOptions}
                       multiple
                       disableCloseOnSelect
-                      options={proList?.data || []}
-                      getOptionLabel={option => option.id}
+                      options={clients?.data || []}
+                      getOptionLabel={option => option.name}
                       value={
-                        !proList
+                        !clients?.data
                           ? []
-                          : proList.data?.filter(pro =>
-                              filter.pro?.includes(pro.userId),
+                          : clients?.data?.filter(client =>
+                              filter.client?.includes(client.clientId),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          pro: v.map(i => i.userId),
+                          client: v.map(i => i.clientId),
                         })
                       }
                       renderInput={params => (
-                        <TextField {...params} label='Pro' placeholder='Pro' />
+                        <TextField
+                          {...params}
+                          label='Client'
+                          placeholder='Client'
+                        />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {getLegalName({
-                            firstName: option.firstName,
-                            middleName: option.middleName,
-                            lastName: option.lastName,
-                          })}
+                          {option.name}
                         </li>
                       )}
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={12} sm={6} md={3}>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      autoHighlight
+                      fullWidth
+                      multiple
+                      disableCloseOnSelect
+                      limitTags={1}
+                      options={CategoryList}
+                      value={filterValue(CategoryList, 'category')}
+                      onChange={(e, v) =>
+                        setFilter({
+                          ...filter,
+                          category: v.map(item => item.value),
+                        })
+                      }
+                      id='category'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          label='Category'
+                          placeholder='Category'
+                        />
+                      )}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
+                          {option.label}
+                        </li>
+                      )}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
+                  <FormControl fullWidth>
+                    <Autocomplete
+                      autoHighlight
+                      fullWidth
+                      multiple
+                      limitTags={1}
+                      disableCloseOnSelect
+                      options={ServiceTypeList || []}
+                      value={filterValue(ServiceTypeList, 'serviceType')}
+                      onChange={(e, v) =>
+                        setFilter({
+                          ...filter,
+                          serviceType: v.map(item => item.value),
+                        })
+                      }
+                      id='serviceType'
+                      getOptionLabel={option => option.label}
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          label='Service type'
+                          placeholder='Service type'
+                        />
+                      )}
+                      renderOption={(props, option, { selected }) => (
+                        <li {...props}>
+                          <Checkbox checked={selected} sx={{ mr: 2 }} />
+                          {option.label}
+                        </li>
+                      )}
+                    />
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6} md={3}>
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
                       monthsShown={1}
                       endDate={
-                        filter?.invoicedDateTo
-                          ? new Date(filter.invoicedDateTo)
+                        filter?.requestDateTo
+                          ? new Date(filter.requestDateTo)
                           : null
                       }
                       startDate={
-                        filter?.invoicedDateFrom
-                          ? new Date(filter.invoicedDateFrom)
+                        filter?.requestDateFrom
+                          ? new Date(filter.requestDateFrom)
                           : null
                       }
                       shouldCloseOnSelect={false}
@@ -171,29 +256,29 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          invoicedDateFrom: e[0]?.toString(),
-                          invoicedDateTo: e[1]?.toString(),
+                          requestDateFrom: e[0]?.toString(),
+                          requestDateTo: e[1]?.toString(),
                         })
                       }}
                       customInput={
-                        <CustomInput label='Invoice date' icon='calendar' />
+                        <CustomInput label='Request date' icon='calendar' />
                       }
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+                <Grid item xs={12} sm={6} md={3}>
                   <FormControl fullWidth>
                     <DatePicker
                       selectsRange
                       monthsShown={1}
                       endDate={
-                        filter?.payDueDateTo
-                          ? new Date(filter.payDueDateTo)
+                        filter?.desiredDueDateTo
+                          ? new Date(filter.desiredDueDateTo)
                           : null
                       }
                       startDate={
-                        filter?.payDueDateFrom
-                          ? new Date(filter.payDueDateFrom)
+                        filter?.desiredDueDateFrom
+                          ? new Date(filter.desiredDueDateFrom)
                           : null
                       }
                       shouldCloseOnSelect={false}
@@ -201,49 +286,22 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          payDueDateFrom: e[0]?.toString(),
-                          payDueDateTo: e[1]?.toString(),
+                          desiredDueDateFrom: e[0]?.toString(),
+                          desiredDueDateTo: e[1]?.toString(),
                         })
                       }}
                       customInput={
-                        <CustomInput label='Payment due' icon='calendar' />
+                        <CustomInput label='Desired due date' icon='calendar' />
                       }
                     />
                   </FormControl>
                 </Grid>
-                <Grid item xs={12} sm={6} md={4}>
+
+                <Grid item xs={12} sm={6} md={6}>
                   <FormControl fullWidth>
-                    <DatePicker
-                      selectsRange
-                      monthsShown={1}
-                      endDate={
-                        filter?.paidDateTo ? new Date(filter.paidDateTo) : null
-                      }
-                      startDate={
-                        filter?.paidDateFrom
-                          ? new Date(filter.paidDateFrom)
-                          : null
-                      }
-                      shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        setFilter({
-                          ...filter,
-                          paidDateFrom: e[0]?.toString(),
-                          paidDateTo: e[1]?.toString(),
-                        })
-                      }}
-                      customInput={
-                        <CustomInput label='Payment date' icon='calendar' />
-                      }
-                    />
-                  </FormControl>
-                </Grid>
-                <Grid item xs={12} sm={6} md={4}>
-                  <FormControl fullWidth>
-                    <InputLabel>Search Pros</InputLabel>
+                    <InputLabel>Search Items</InputLabel>
                     <OutlinedInput
-                      label='Search Pros'
+                      label='Search Items'
                       value={filter.search}
                       onChange={e =>
                         setFilter({ ...filter, search: e.target.value })
