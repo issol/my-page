@@ -111,7 +111,10 @@ export default function List({
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography>{itemName}</Typography>
             {row.items.length > 1 && (
-              <ExtraNumberChip size='small' label={`${row.items.length - 1}`} />
+              <ExtraNumberChip
+                size='small'
+                label={`+ ${row.items.length - 1}`}
+              />
             )}
           </Box>
         )
@@ -132,15 +135,15 @@ export default function List({
             {category && (
               <JobTypeChip size='small' type={category} label={category} />
             )}
-            {serviceTypes.length && (
+            {serviceTypes.length ? (
               <ServiceTypeChip size='small' label={serviceTypes[0]} />
-            )}
-            {serviceTypes.length > 1 && (
+            ) : null}
+            {serviceTypes.length > 1 ? (
               <ExtraNumberChip
                 size='small'
                 label={`${serviceTypes.length - 1}`}
               />
-            )}
+            ) : null}
           </Box>
         )
       },
