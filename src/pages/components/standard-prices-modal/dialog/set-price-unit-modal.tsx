@@ -31,6 +31,7 @@ import {
   SetPriceUnit,
   SetPriceUnitPair,
   StandardPriceListType,
+  SubPriceUnitType,
 } from '@src/types/common/standard-price'
 import { setPriceUnitSchema } from '@src/types/schema/price-unit.schema'
 import {
@@ -102,50 +103,19 @@ const SetPriceUnitModal = ({
   const queryClient = useQueryClient()
 
   const [priceUnits, setPriceUnits] = useState<PriceUnitType[]>([])
-  const [subPriceUnits, setSubPriceUnits] = useState<
-    Array<{
-      unitId: number | null
-      quantity: number | null | string
-      isBase: boolean
-      title: string
-      unit: string
-      weighting: number | null | string
-      price: number | null | string
-      parentPriceUnitId: number | null
-    }>
-  >([])
-
-  const [subUnitIndex, setSubIndex] = useState(0)
+  const [subPriceUnits, setSubPriceUnits] = useState<Array<SubPriceUnitType>>(
+    [],
+  )
 
   const [baseUnitPrice, setBaseUnitPrice] = useState<
     { id: number; price: number }[]
   >([])
 
-  const [subUnitPrice, setSubUnitPrice] = useState<
-    Array<{
-      id: number
-      priceUnitId: number
-      isBase: boolean
-      title: string
-      unit: string
-      weighting: number
-      parentPriceUnitId: number
-    }>
-  >([])
   const [priceUnitOptions, setPriceUnitOptions] =
     useState<PriceUnitType[]>(priceUnit)
 
   const [subPriceUnitOptions, setSubPriceUnitOptions] = useState<
-    Array<{
-      unitId: number | null
-      quantity: number | null | string
-      isBase: boolean
-      title: string
-      unit: string
-      weighting: number | null | string
-      price: number | null | string
-      parentPriceUnitId: number | null
-    }>
+    Array<SubPriceUnitType>
   >([])
 
   const [selectedPriceUnits, setSelectedPriceUnits] = useState<PriceUnitType[]>(
@@ -162,10 +132,6 @@ const SetPriceUnitModal = ({
   ) => {
     setSubPriceUnits(newValue)
   }
-
-  useEffect(() => {
-    console.log(subPriceUnitOptions)
-  }, [subPriceUnitOptions])
 
   const {
     control,
@@ -233,18 +199,7 @@ const SetPriceUnitModal = ({
     }
   }
 
-  function formatSubPriceUnitData(
-    data: Array<{
-      unitId: number | null
-      quantity: number | null | string
-      isBase: boolean
-      title: string
-      unit: string
-      weighting: number | null | string
-      price: number | null | string
-      parentPriceUnitId: number | null
-    }>,
-  ) {
+  function formatSubPriceUnitData(data: Array<SubPriceUnitType>) {
     return data.reduce<SetPriceUnitPair[]>((acc, curr) => {
       const { unitId, quantity, price, weighting } = curr
       acc.push({
@@ -394,16 +349,7 @@ const SetPriceUnitModal = ({
   }
 
   const removeSubPair = (
-    item: {
-      unitId: number | null
-      quantity: number | null | string
-      isBase: boolean
-      title: string
-      unit: string
-      weighting: number | null | string
-      price: number | null | string
-      parentPriceUnitId: number | null
-    },
+    item: SubPriceUnitType,
     baseIndex: number,
     baseUnitId: number,
     subIndex: number,
@@ -412,7 +358,6 @@ const SetPriceUnitModal = ({
     let subUnits = base.subPriceUnits!
 
     subUnits.splice(subIndex, 1)
-    console.log(baseUnitId)
 
     let arr = subPriceUnitOptions
 
@@ -433,18 +378,12 @@ const SetPriceUnitModal = ({
       })
     arr = _.sortBy(arr, ['unitId'])
 
-    console.log(priceUnit.find(value => value.id === baseUnitId)!)
-
-    console.log(arr)
-
     setSubPriceUnitOptions(_.uniqBy(arr, 'unitId'))
 
     const result = {
       ...base,
       subPriceUnits: subUnits,
     }
-
-    console.log(result)
 
     update(baseIndex, result)
     trigger('pair')
@@ -556,12 +495,8 @@ const SetPriceUnitModal = ({
   }
 
   useEffect(() => {
-    console.log(subPriceUnits)
-  }, [subPriceUnits])
-
-  useEffect(() => {
     setPriceUnitOptions(priceUnit)
-    console.log(priceUnit)
+    console.log(priceUnitPair)
 
     const subUnit = priceUnitPair
       .filter(value => value.parentPriceUnitId !== null)
@@ -576,24 +511,6 @@ const SetPriceUnitModal = ({
         quantity: data.quantity ?? '-',
         price: data.price,
       }))
-
-    const subOptions = priceUnit
-      .map(value => value.subPriceUnits)
-      .flat()
-      .map(data => ({
-        unitId: data.id,
-        quantity: data.unit === 'Percent' ? '-' : 1,
-        price: (1.0 * data.weighting! ?? 0) / 100,
-        weighting: data.weighting ?? '-',
-        title: data.title,
-        isBase: data.parentPriceUnitId === null,
-        parentPriceUnitId: data.parentPriceUnitId!,
-        unit: data.unit,
-      }))
-
-    console.log(subOptions)
-
-    setSubPriceUnitOptions(subOptions)
 
     priceUnitPair.map(value => {
       if (value.parentPriceUnitId === null) {
@@ -615,6 +532,27 @@ const SetPriceUnitModal = ({
           ...prevState,
           { id: value.priceUnitId, price: Number(value.price) },
         ])
+      } else {
+        const subOptions = priceUnit
+          .map(item => item.subPriceUnits)
+          .flat()
+          .map(data => {
+            return data.id === value.priceUnitId
+              ? {
+                  unitId: data.id,
+                  quantity: data.unit === 'Percent' ? '-' : 1,
+                  price: (1.0 * data.weighting! ?? 0) / 100,
+                  weighting: data.weighting ?? '-',
+                  title: data.title,
+                  isBase: data.parentPriceUnitId === null,
+                  parentPriceUnitId: data.parentPriceUnitId!,
+                  unit: data.unit,
+                }
+              : null
+          })
+          .filter(data => data !== null) as Array<SubPriceUnitType>
+
+        setSubPriceUnitOptions(subOptions)
       }
     })
 

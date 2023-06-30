@@ -179,6 +179,17 @@ export type PriceUnitType = {
   }>
 }
 
+export type SubPriceUnitType = {
+  unitId: number | null
+  quantity: number | null | string
+  isBase: boolean
+  title: string
+  unit: string
+  weighting: number | null | string
+  price: number | null | string
+  parentPriceUnitId: number | null
+}
+
 export type PriceUnitFormType = {
   title?: string
   unit?: string
