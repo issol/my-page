@@ -52,15 +52,17 @@ export const useConfirmLeave = ({
         !hasConfirmed
       ) {
         setNavigationConfig({
-          nextRoute: toUrl,
+          nextRoute: route === toUrl ? toUrl : route,
           isModalOpen: true,
         })
-        router.events.emit('routeChangeError')
+        router.events.emit('routeChangeError', 'navigation aborted', route)
         // eslint-disable-next-line @typescript-eslint/no-throw-literal
         throw 'navigation aborted'
       }
     }
+
     router.events.on('routeChangeStart', onRouteChangeStart)
+
     const cleanUp = () => {
       router.events.off('routeChangeStart', onRouteChangeStart)
     }
@@ -87,6 +89,7 @@ export const useConfirmLeave = ({
           <Button
             variant='outlined'
             onClick={() => {
+              window.history.pushState('', '')
               router.push(router.asPath)
               {
                 setNavigationConfig({
@@ -102,6 +105,10 @@ export const useConfirmLeave = ({
             variant='contained'
             onClick={() => {
               setHasConfirmed(true)
+              setNavigationConfig(prevState => ({
+                ...prevState,
+                isModalOpen: false,
+              }))
             }}
           >
             Leave this page
