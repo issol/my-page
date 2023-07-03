@@ -16,7 +16,6 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
@@ -32,6 +31,10 @@ import InvoiceInfo from './components/detail/invoice-info'
 import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
+import ErrorBoundary from '@src/@core/components/error/error-boundary'
+import ErrorFallback from '@src/@core/components/error/error-fallback'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import PayableHistory from './components/detail/version-history'
 
 // ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
@@ -53,17 +56,11 @@ import {
   deleteInvoicePayable,
   updateInvoicePayable,
 } from '@src/apis/invoice/payable.api'
+
 import { toast } from 'react-hot-toast'
-import ErrorBoundary from '@src/@core/components/error/error-boundary'
-import ErrorFallback from '@src/@core/components/error/error-fallback'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import PayableHistory from './components/detail/version-history'
 
 type MenuType = 'info' | 'history'
 
-/* TODO:
-1. pdf기능 완성
-*/
 export default function PayableDetail() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()

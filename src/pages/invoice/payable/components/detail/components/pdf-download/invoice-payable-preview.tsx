@@ -3,8 +3,6 @@ import { Fragment, useEffect } from 'react'
 // ** helpers
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { getAddress } from '@src/shared/helpers/address-helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 
 // ** types
@@ -38,15 +36,13 @@ import { setIsReady } from '@src/store/quote'
 import quoteEn from '@src/shared/i18/invoice-payable/en.json'
 import quoteKo from '@src/shared/i18/invoice-payable/ko.json'
 
-// ** components
-// import MakeTable from './rows'
-
 // ** hooks
 import useModal from '@src/hooks/useModal'
+
+// ** types & helpers
 import { ItemType } from '@src/types/common/item.type'
 import languageHelper from '@src/shared/helpers/language.helper'
 
-//TODO: 실데이터로 채우기
 type Props = {
   data: InvoicePayableDownloadData
   type: 'preview' | 'download'

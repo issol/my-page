@@ -12,7 +12,7 @@ const InvoicePayablePrint = () => {
   const invoicePayable = useAppSelector(
     state => state.invoicePayable.invoicePayableData,
   )
-  const lang = useAppSelector(state => state.quote.lang)
+  const lang = useAppSelector(state => state.invoicePayable.lang)
   const { user } = useContext(AuthContext)
   if (!invoicePayable) {
     return <Error404 />
