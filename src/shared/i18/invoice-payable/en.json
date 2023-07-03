@@ -7,5 +7,7 @@
   "jobDescription": "Job description",
   "quantity": "Quantity",
   "price": "Price",
-  "totalPrice": "Total price"
+  "totalPrice": "Total price",
+  "subTotal": "Subtotal",
+  "tax": "Tax"
 }

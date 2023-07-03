@@ -63,8 +63,6 @@ type MenuType = 'info' | 'history'
 
 /* TODO:
 1. pdf기능 완성
-2. version history
-3. confirm invoice
 */
 export default function PayableDetail() {
   const { openModal, closeModal } = useModal()
@@ -239,33 +237,33 @@ export default function PayableDetail() {
     })
   }
 
-  //TODO: pdf다운 시, 다운받을 데이터를 서버에서 받을지, 아니면
-  //추가로 필요한 데이터들을 모두 payable detail api로 리턴받을지 리샤에게 문의하기
   function makePdfData(lang: 'EN' | 'KO') {
-    // if (data) {
-    //   const res: InvoicePayableDownloadData = {
-    //     invoiceId: data.id,
-    //     adminCompanyName: 'GloZ',
-    //     companyAddress:
-    //       lang === 'EN'
-    //         ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-    //         : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
-    //     corporationId: data.corporationId,
-    //     invoicedAt: data.invoicedAt,
-    //     payDueAt: data.payDueAt,
-    //     payDueTimezone: data.payDueTimezone,
-    //     paidAt: data.paidAt,
-    //     paidDateTimezone: data.paidDateTimezone,
-    //     pro: {
-    //       email: data.pro.email,
-    //       name: data.pro.name,
-    //     },
-    //   }
-    //   dispatch(setInvoicePayable(res))
-    //   dispatch(setInvoicePayableLang(lang))
-    // }
-    dispatch(setInvoicePayableLang(lang))
-    dispatch(setInvoicePayableIsReady(true))
+    if (data) {
+      const res: InvoicePayableDownloadData = {
+        invoiceId: data.id,
+        adminCompanyName: 'GloZ',
+        companyAddress:
+          lang === 'EN'
+            ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
+            : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
+        corporationId: data.corporationId,
+        invoicedAt: data.invoicedAt,
+        payDueAt: data.payDueAt,
+        payDueTimezone: data.payDueTimezone,
+        paidAt: data.paidAt,
+        paidDateTimezone: data.paidDateTimezone,
+        pro: { ...data.pro },
+        jobList: jobList?.data || [],
+        subTotal: data.subtotal,
+        tax: data.tax,
+        totalPrice: data.totalPrice,
+        taxRate: data.taxRate,
+        currency: data.currency,
+      }
+      dispatch(setInvoicePayable(res))
+      dispatch(setInvoicePayableLang(lang))
+      // dispatch(setInvoicePayableIsReady(true))
+    }
   }
 
   return (

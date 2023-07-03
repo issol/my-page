@@ -170,21 +170,22 @@ export const getPayableHistoryList = async (
     const { data } = await axios.get(
       `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
     )
-    return data.map((history: any) => ({
-      ...history,
-      jobs: {
-        ...history.jobs,
-        data: history.jobs.data.map((job: any) => ({
-          ...job,
-          priceUnits: job.prices.map((i: any) => ({
-            title: job.name,
-            unitPrice: Number(job.unitPrice),
-            quantity: Number(job.quantity),
-            prices: Number(job.prices),
-          })),
-        })),
-      },
-    }))
+    // return data.map((history: any) => ({
+    //   ...history,
+    //   jobs: {
+    //     ...history.jobs,
+    //     data: history.jobs.data.map((job: any) => ({
+    //       ...job,
+    //       priceUnits: job.prices.map((i: any) => ({
+    //         title: job.name,
+    //         unitPrice: Number(job.unitPrice),
+    //         quantity: Number(job.quantity),
+    //         prices: Number(job.prices),
+    //       })),
+    //     })),
+    //   },
+    // }))
+    return data
   } catch (e: any) {
     return []
   }

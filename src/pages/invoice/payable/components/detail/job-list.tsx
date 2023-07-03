@@ -48,12 +48,12 @@ export default function InvoiceJobList({
     const [open, setOpen] = useState(false)
     const currencyMark = getCurrencyMark(currency)
     const disabledTextUi = {
-      textDecoration: !!item.deletedAt ? 'line-through' : '',
+      textDecoration: item.isRemove ? 'line-through' : '',
     }
-    console.log('item', item)
+
     return (
       <Fragment>
-        <CustomTableRow $isDisabled={!!item.deletedAt}>
+        <CustomTableRow $isDisabled={item.isRemove}>
           <TableCell>
             <Checkbox
               disabled={!isUpdatable}
@@ -107,7 +107,7 @@ export default function InvoiceJobList({
                   Price details
                 </Typography>
                 <ul>
-                  {item?.priceUnits?.map((price, i) => {
+                  {item?.prices?.map((price, i) => {
                     const unitPrice = `${currencyMark} ${price.unitPrice.toLocaleString()}`
                     const priceUnit =
                       price.quantity < 1
@@ -117,7 +117,7 @@ export default function InvoiceJobList({
                       <li key={i}>
                         <Box display='flex' gap='24px' alignItems='center'>
                           <Typography fontWeight={600}>
-                            {price?.title}
+                            {price?.name}
                           </Typography>
                           <Typography variant='body2'>{priceUnit}</Typography>
                           <Typography variant='body2'>
