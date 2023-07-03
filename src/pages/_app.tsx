@@ -73,8 +73,14 @@ import '../../styles/slick.css'
 import '../../styles/slick-theme.css'
 import '../../styles/print.css'
 
-import { QueryClient, QueryClientProvider } from 'react-query'
-import ErrorBoundary from 'src/@core/components/error/error-boundary'
+import {
+  QueryClient,
+  QueryClientProvider,
+  useQueryErrorResetBoundary,
+} from 'react-query'
+// import ErrorBoundary from 'src/@core/components/error/error-boundary'
+import { ErrorBoundary } from 'react-error-boundary'
+
 import ErrorFallback from 'src/@core/components/error/error-fallback'
 import FallbackSpinner from 'src/@core/components/spinner'
 
@@ -204,6 +210,8 @@ const App = (props: ExtendedAppProps) => {
   //   body: `Welcome to TAD DEMO`,
   // })
 
+  const { reset } = useQueryErrorResetBoundary()
+  const [errorString, setErrorString] = useState('app')
   return (
     <QueryClientProvider client={queryClient}>
       <Provider store={store}>
@@ -238,7 +246,18 @@ const App = (props: ExtendedAppProps) => {
                           >
                             <Suspense fallback={<FallbackSpinner />}>
                               <ErrorBoundary
-                                FallbackComponent={<ErrorFallback />}
+                                onReset={details => {
+                                  reset()
+                                  setErrorString('')
+                                }}
+                                resetKeys={[errorString]}
+                                fallbackRender={({ resetErrorBoundary }) => {
+                                  return (
+                                    <ErrorFallback
+                                      resetErrorBoundary={resetErrorBoundary}
+                                    />
+                                  )
+                                }}
                               >
                                 {getLayout(<Component {...pageProps} />)}
                               </ErrorBoundary>
