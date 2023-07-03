@@ -134,7 +134,6 @@ export default function InvoiceInfo({
         <Card>
           <CardContent sx={{ padding: '24px' }}>
             <InvoiceDetailCard
-              payableId={payableId}
               isUpdatable={isUpdatable}
               data={data}
               updatePayable={updateMutation}

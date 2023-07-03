@@ -1,23 +1,48 @@
+// ** style components
 import { Icon } from '@iconify/react'
 import {
   Box,
+  Button,
+  Card,
+  CardContent,
   CardHeader,
   Dialog,
   DialogContent,
+  Grid,
   IconButton,
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
+
+// ** context
 import { AuthContext } from '@src/context/AuthContext'
+
+// ** hooks
 import useModal from '@src/hooks/useModal'
-import { useGetPayableHistory } from '@src/queries/invoice/payable.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { PayableHistoryType } from '@src/types/invoice/payable.type'
 import { useContext, useState } from 'react'
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** apis
+import { useGetPayableHistory } from '@src/queries/invoice/payable.query'
+import { restoreInvoicePayable } from '@src/apis/invoice/payable.api'
+
+// ** helpers
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+
+// ** types
+import { PayableHistoryType } from '@src/types/invoice/payable.type'
+
+// ** components
+import InvoiceDetailCard from './invoice-detail-card'
+import InvoiceAmount from './invoice-amount'
+import InvoiceJobList from './job-list'
+import { toast } from 'react-hot-toast'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   invoiceId: number
   invoiceCorporationId: string
+  isUpdatable: boolean
 }
 
 type CellType = {
@@ -27,32 +52,144 @@ type CellType = {
 export default function PayableHistory({
   invoiceId,
   invoiceCorporationId,
+  isUpdatable,
 }: Props) {
-  const { data } = useGetPayableHistory(invoiceId, invoiceCorporationId)
-  console.log('history', data)
-  const { openModal, closeModal } = useModal()
   const { user } = useContext(AuthContext)
+
+  const queryClient = useQueryClient()
+
+  const { data } = useGetPayableHistory(invoiceId, invoiceCorporationId)
+
+  const { openModal, closeModal } = useModal()
+
   const [pageSize, setPageSize] = useState(5)
 
-  function onRowClick(data: any) {
-    console.log('data', data)
+  const restore = useMutation(() => restoreInvoicePayable(Number(invoiceId)), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+      queryClient.invalidateQueries({ queryKey: 'invoice/payable/history' })
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+
+  function restoreVersion() {
+    closeModal('detail')
+    openModal({
+      type: 'restore',
+      children: (
+        <CustomModal
+          vary='error'
+          title='Are you sure you want to restore this version?'
+          rightButtonText='Restore'
+          onClose={() => closeModal('restore')}
+          onClick={() => {
+            restore.mutate()
+            closeModal('restore')
+          }}
+        />
+      ),
+    })
+  }
+
+  function onRowClick(data: PayableHistoryType) {
+    const jobList = data.jobs
     openModal({
       type: 'detail',
       children: (
         <Dialog open={true} onClose={() => closeModal('detail')} maxWidth='lg'>
           <DialogContent>
-            <Box display='flex' alignItems='center' gap='4px'>
-              <IconButton onClick={() => closeModal('detail')}>
-                <Icon icon='mdi:chevron-left' />
-              </IconButton>
-              <img
-                src={'/images/icons/invoice/coin.png'}
-                width={50}
-                height={50}
-                alt='invoice detail'
-              />
-              <Typography variant='h5'>{data?.corporationId}</Typography>
-            </Box>
+            <Grid container spacing={6}>
+              <Grid item xs={12} display='flex' alignItems='center' gap='4px'>
+                <IconButton onClick={() => closeModal('detail')}>
+                  <Icon icon='mdi:chevron-left' />
+                </IconButton>
+                <img
+                  src={'/images/icons/invoice/coin.png'}
+                  width={50}
+                  height={50}
+                  alt='invoice detail'
+                />
+                <Typography variant='h5'>{data?.corporationId}</Typography>
+              </Grid>
+              <Grid item xs={12}>
+                <Card>
+                  <CardContent sx={{ padding: '24px' }}>
+                    <InvoiceDetailCard
+                      isUpdatable={false}
+                      data={{
+                        ...data,
+                        invoicedAtTimezone: data.invoicedTimezone,
+                      }}
+                      editInfo={false}
+                      setEditInfo={() => {
+                        return null
+                      }}
+                    />
+                  </CardContent>
+                </Card>
+              </Grid>
+              <Grid item xs={12}>
+                <InvoiceAmount
+                  data={{
+                    ...data,
+                    invoicedAtTimezone: data.invoicedTimezone,
+                  }}
+                />
+              </Grid>
+              <Grid item xs={12}>
+                <Card>
+                  <CardHeader
+                    title={
+                      <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
+                      >
+                        <Typography variant='h6'>
+                          Jobs ({jobList?.totalCount ?? 0})
+                        </Typography>
+                      </Box>
+                    }
+                  />
+                  <InvoiceJobList
+                    data={jobList}
+                    currency={data?.currency}
+                    isUpdatable={false}
+                    selectedJobs={[]}
+                    setSelectedJobs={() => []}
+                    onRowClick={() => {
+                      return null
+                    }}
+                  />
+                </Card>
+              </Grid>
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                justifyContent='center'
+                gap='12px'
+              >
+                <Button
+                  variant='outlined'
+                  color='secondary'
+                  onClick={() => closeModal('detail')}
+                >
+                  Close
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={!isUpdatable}
+                  onClick={restoreVersion}
+                >
+                  Restore this version
+                </Button>
+              </Grid>
+            </Grid>
           </DialogContent>
         </Dialog>
       ),

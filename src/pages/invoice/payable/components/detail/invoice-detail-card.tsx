@@ -1,5 +1,4 @@
 import { Fragment, useContext, useEffect } from 'react'
-import { useRouter } from 'next/router'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -17,7 +16,6 @@ import styled from 'styled-components'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** components
@@ -39,7 +37,6 @@ import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
@@ -55,31 +52,25 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
 
 type Props = {
-  payableId: number
   isUpdatable: boolean
-  updatePayable: UseMutationResult<any, unknown, PayableFormType, unknown>
+  updatePayable?: UseMutationResult<any, unknown, PayableFormType, unknown>
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
 }
 
 export default function InvoiceDetailCard({
-  payableId,
   isUpdatable,
   updatePayable,
   data,
   editInfo,
   setEditInfo,
 }: Props) {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-
   const { openModal, closeModal } = useModal()
 
-  const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
 
-  const isAccountManager = ability.can('read', 'account_manage')
+  const isAccountManager = ability?.can('read', 'account_manage')
 
   const {
     control,
@@ -114,6 +105,7 @@ export default function InvoiceDetailCard({
         <ConfirmSaveAllChanges
           onClose={() => closeModal('save')}
           onSave={() => {
+            if (!updatePayable) return
             updatePayable.mutate(getValues())
             setEditInfo(false)
             closeModal('save')
@@ -124,6 +116,7 @@ export default function InvoiceDetailCard({
   }
 
   function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatusType) {
+    if (!updatePayable) return
     updatePayable.mutate({ invoiceStatus })
   }
 

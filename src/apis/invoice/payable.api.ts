@@ -170,7 +170,21 @@ export const getPayableHistoryList = async (
     const { data } = await axios.get(
       `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
     )
-    return data
+    return data.map((history: any) => ({
+      ...history,
+      jobs: {
+        ...history.jobs,
+        data: history.jobs.data.map((job: any) => ({
+          ...job,
+          priceUnits: job.prices.map((i: any) => ({
+            title: job.name,
+            unitPrice: Number(job.unitPrice),
+            quantity: Number(job.quantity),
+            prices: Number(job.prices),
+          })),
+        })),
+      },
+    }))
   } catch (e: any) {
     return []
   }
@@ -184,5 +198,18 @@ export const checkPayableEditable = async (id: number): Promise<boolean> => {
     return data
   } catch (e: any) {
     return false
+  }
+}
+
+export const restoreInvoicePayable = async (
+  historyId: number,
+): Promise<void> => {
+  try {
+    const { data } = await axios.put(
+      `/api/enough/u/invoice/payable/restore/${historyId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

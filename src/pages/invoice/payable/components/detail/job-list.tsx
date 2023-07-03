@@ -50,6 +50,7 @@ export default function InvoiceJobList({
     const disabledTextUi = {
       textDecoration: !!item.deletedAt ? 'line-through' : '',
     }
+    console.log('item', item)
     return (
       <Fragment>
         <CustomTableRow $isDisabled={!!item.deletedAt}>
@@ -91,7 +92,7 @@ export default function InvoiceJobList({
             <Typography
               fontWeight={600}
               sx={disabledTextUi}
-            >{`${currencyMark} ${item.totalPrice.toLocaleString()}`}</Typography>
+            >{`${currencyMark} ${item.totalPrice?.toLocaleString()}`}</Typography>
           </TableCell>
           {/* Contact person */}
           <TableCell sx={disabledTextUi}>{item.contactPerson}</TableCell>

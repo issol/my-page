@@ -345,6 +345,7 @@ export default function PayableDetail() {
               <Card>
                 <Suspense>
                   <PayableHistory
+                    isUpdatable={isUpdatable || false}
                     invoiceId={Number(id)}
                     invoiceCorporationId={data?.corporationId!}
                   />
