@@ -24,6 +24,7 @@ import JobDetail from './job-detail'
 import {
   InvoicePayableDetailType,
   InvoicePayableJobType,
+  PayableFormType,
 } from '@src/types/invoice/payable.type'
 
 // ** hooks
@@ -32,7 +33,7 @@ import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-
 
 // ** apis
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 
 import { toast } from 'react-hot-toast'
 
@@ -42,6 +43,7 @@ import { deleteInvoicePayableJobs } from '@src/apis/invoice/payable.api'
 type Props = {
   payableId: number
   isUpdatable: boolean
+  updateMutation: UseMutationResult<any, unknown, PayableFormType, unknown>
   data: InvoicePayableDetailType | undefined
   jobList: {
     count: number
@@ -53,6 +55,7 @@ export default function InvoiceInfo({
   payableId,
   isUpdatable,
   data,
+  updateMutation,
   jobList,
 }: Props) {
   const queryClient = useQueryClient()
@@ -134,6 +137,7 @@ export default function InvoiceInfo({
               payableId={payableId}
               isUpdatable={isUpdatable}
               data={data}
+              updatePayable={updateMutation}
               editInfo={editInfo}
               setEditInfo={setEditInfo}
             />

@@ -165,14 +165,14 @@ export const deleteInvoicePayableJobs = async (
 export const getPayableHistoryList = async (
   invoiceId: number,
   invoiceCorporationId: string,
-): Promise<{ data: PayableHistoryType[]; totalCount: number }> => {
+): Promise<PayableHistoryType[]> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
     )
     return data
   } catch (e: any) {
-    throw new Error(e)
+    return []
   }
 }
 

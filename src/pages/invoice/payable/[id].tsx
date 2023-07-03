@@ -334,6 +334,7 @@ export default function PayableDetail() {
                 <InvoiceInfo
                   payableId={Number(id)}
                   isUpdatable={isUpdatable!}
+                  updateMutation={updateMutation}
                   data={data}
                   jobList={jobList || { count: 0, totalCount: 0, data: [] }}
                 />
@@ -343,12 +344,10 @@ export default function PayableDetail() {
             <TabPanel value='history' sx={{ pt: '24px' }}>
               <Card>
                 <Suspense>
-                  <CardContent sx={{ padding: '24px' }}>
-                    <PayableHistory
-                      invoiceId={Number(id)}
-                      invoiceCorporationId={data?.corporationId!}
-                    />
-                  </CardContent>
+                  <PayableHistory
+                    invoiceId={Number(id)}
+                    invoiceCorporationId={data?.corporationId!}
+                  />
                 </Suspense>
               </Card>
             </TabPanel>
