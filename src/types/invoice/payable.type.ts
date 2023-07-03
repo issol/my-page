@@ -49,6 +49,8 @@ export type PayableFormType = {
   subtotal?: number
   totalPrice?: number
   tax?: number | null
+  invoiceConfirmedAt?: string
+  invoiceConfirmTimezone?: CountryType
 }
 
 export type InvoicePayableDetailType = {
@@ -69,6 +71,7 @@ export type InvoicePayableDetailType = {
   subtotal: number
   totalPrice: number
   tax: number | null
+  invoiceConfirmedAt: string | null
 }
 
 export type InvoicePayableJobType = {
@@ -85,6 +88,33 @@ export type InvoicePayableJobType = {
     quantity: number
     prices: number
   }[]
+}
+
+export type PayableHistoryType = {
+  version: number
+  account: string
+  id: number
+  corporationId: string
+  invoicedAt: string
+  invoiceStatus: InvoicePayableStatusType
+  pro: { name: string; email: string }
+  taxInfo: string
+  taxRate: number
+  payDueAt: string
+  payDueTimezone: CountryType
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+  description: string
+  currency: string
+  subtotal: number
+  totalPrice: number
+  tax: number
+
+  jobs: {
+    count: number
+    totalCount: number
+    data: Array<InvoicePayableJobType>
+  }
 }
 
 export type InvoicePayableDownloadData = {

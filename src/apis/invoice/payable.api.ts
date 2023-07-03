@@ -5,6 +5,7 @@ import {
   InvoicePayableJobType,
   InvoicePayableListType,
   PayableFormType,
+  PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -158,5 +159,30 @@ export const deleteInvoicePayableJobs = async (
     return data
   } catch (e: any) {
     throw Error(e)
+  }
+}
+
+export const getPayableHistoryList = async (
+  invoiceId: number,
+  invoiceCorporationId: string,
+): Promise<{ data: PayableHistoryType[]; totalCount: number }> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const checkPayableEditable = async (id: number): Promise<boolean> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/${id}/editable`,
+    )
+    return data
+  } catch (e: any) {
+    return false
   }
 }

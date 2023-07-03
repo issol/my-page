@@ -35,26 +35,36 @@ import PrintInvoicePayablePreview from './components/detail/components/pdf-downl
 
 // ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
-import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableDownloadData,
+  PayableFormType,
+} from '@src/types/invoice/payable.type'
 import { setInvoicePayable } from '@src/store/invoice-payable'
 import { setInvoicePayableLang } from '@src/store/invoice-payable'
 
 // ** apis
 import {
+  useCheckInvoicePayableEditable,
   useGetPayableDetail,
   useGetPayableJobList,
 } from '@src/queries/invoice/payable.query'
-import { useCheckInvoiceEditable } from '@src/queries/invoice/common.query'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteInvoicePayable } from '@src/apis/invoice/payable.api'
+import {
+  deleteInvoicePayable,
+  updateInvoicePayable,
+} from '@src/apis/invoice/payable.api'
 import { toast } from 'react-hot-toast'
 import ErrorBoundary from '@src/@core/components/error/error-boundary'
 import ErrorFallback from '@src/@core/components/error/error-fallback'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import PayableHistory from './components/detail/version-history'
 
 type MenuType = 'info' | 'history'
 
 /* TODO:
 1. pdf기능 완성
+2. version history
+3. confirm invoice
 */
 export default function PayableDetail() {
   const { openModal, closeModal } = useModal()
@@ -66,7 +76,7 @@ export default function PayableDetail() {
 
   const queryClient = useQueryClient()
 
-  const { data: isUpdatable } = useCheckInvoiceEditable(Number(id))
+  const { data: isUpdatable } = useCheckInvoicePayableEditable(Number(id))
   const isAccountManager = ability.can('read', 'account_manage')
 
   // ** store
@@ -89,6 +99,41 @@ export default function PayableDetail() {
     if (!router.isReady) return
     router.replace(`/invoice/payable/${id}?menu=${menu}`)
   }, [menu, id])
+
+  const updateMutation = useMutation(
+    (form: PayableFormType) => updateInvoicePayable(Number(id), form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  function onConfirmInvoice() {
+    openModal({
+      type: 'confirm',
+      children: (
+        <CustomModal
+          vary='successful'
+          title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
+          rightButtonText='Confirm'
+          onClose={() => closeModal('confirm')}
+          onClick={() => {
+            updateMutation.mutate({
+              invoiceConfirmedAt: Date(),
+              invoiceConfirmTimezone: user?.timezone!,
+            })
+            closeModal('confirm')
+          }}
+        />
+      ),
+    })
+  }
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
@@ -253,8 +298,10 @@ export default function PayableDetail() {
               >
                 Download invoice
               </Button>
-              {isUpdatable ? (
-                <Button variant='contained'>Confirm invoice</Button>
+              {isUpdatable && data?.invoiceConfirmedAt === null ? (
+                <Button variant='contained' onClick={onConfirmInvoice}>
+                  Confirm invoice
+                </Button>
               ) : null}
             </Box>
           </Box>
@@ -295,7 +342,14 @@ export default function PayableDetail() {
             {/* Version history */}
             <TabPanel value='history' sx={{ pt: '24px' }}>
               <Card>
-                <CardContent sx={{ padding: '24px' }}></CardContent>
+                <Suspense>
+                  <CardContent sx={{ padding: '24px' }}>
+                    <PayableHistory
+                      invoiceId={Number(id)}
+                      invoiceCorporationId={data?.corporationId!}
+                    />
+                  </CardContent>
+                </Suspense>
               </Card>
             </TabPanel>
           </TabContext>

@@ -45,7 +45,7 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** helpers
@@ -54,26 +54,19 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 // ** values
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
 
-// ** apis
-import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
-
-// ** third parties
-import { toast } from 'react-hot-toast'
-
 type Props = {
   payableId: number
   isUpdatable: boolean
+  updatePayable: UseMutationResult<any, unknown, PayableFormType, unknown>
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
 }
 
-/* TODO:
-version history
-*/
 export default function InvoiceDetailCard({
   payableId,
   isUpdatable,
+  updatePayable,
   data,
   editInfo,
   setEditInfo,
@@ -114,20 +107,6 @@ export default function InvoiceDetailCard({
     }
   }, [data])
 
-  const updateMutation = useMutation(
-    (form: PayableFormType) => updateInvoicePayable(payableId, form),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
-
   function onInvoiceSave() {
     openModal({
       type: 'save',
@@ -135,7 +114,7 @@ export default function InvoiceDetailCard({
         <ConfirmSaveAllChanges
           onClose={() => closeModal('save')}
           onSave={() => {
-            updateMutation.mutate(getValues())
+            updatePayable.mutate(getValues())
             setEditInfo(false)
             closeModal('save')
           }}
@@ -145,7 +124,7 @@ export default function InvoiceDetailCard({
   }
 
   function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatusType) {
-    updateMutation.mutate({ invoiceStatus })
+    updatePayable.mutate({ invoiceStatus })
   }
 
   const { ConfirmLeaveModal } = useConfirmLeave({

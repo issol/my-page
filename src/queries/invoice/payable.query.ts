@@ -1,7 +1,9 @@
 import {
+  checkPayableEditable,
   getInvoicePayableCalendarData,
   getInvoicePayableDetail,
   getInvoicePayableJobList,
+  getPayableHistoryList,
   getPayableList,
 } from '@src/apis/invoice/payable.api'
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
@@ -61,6 +63,36 @@ export const useGetPayableJobList = (payableId: number) => {
       enabled: !!payableId,
       suspense: true,
       staleTime: 60 * 1000,
+      keepPreviousData: true,
+    },
+  )
+}
+export const useGetPayableHistory = (
+  invoiceId: number,
+  invoiceCorporationId: string,
+) => {
+  return useQuery(
+    ['invoice/payable/history', invoiceId, invoiceCorporationId],
+    () => {
+      return getPayableHistoryList(invoiceId, invoiceCorporationId)
+    },
+    {
+      enabled: !!invoiceId && !!invoiceCorporationId,
+      suspense: true,
+      staleTime: 60 * 1000,
+      keepPreviousData: true,
+    },
+  )
+}
+
+export const useCheckInvoicePayableEditable = (id: number) => {
+  return useQuery(
+    ['invoice/payable/editable', id],
+    () => checkPayableEditable(id),
+    {
+      staleTime: 60 * 1000, // 1
+      enabled: !!id,
+      suspense: false,
       keepPreviousData: true,
     },
   )
