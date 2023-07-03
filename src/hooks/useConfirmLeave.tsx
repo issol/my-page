@@ -52,15 +52,17 @@ export const useConfirmLeave = ({
         !hasConfirmed
       ) {
         setNavigationConfig({
-          nextRoute: toUrl,
+          nextRoute: route === toUrl ? toUrl : route,
           isModalOpen: true,
         })
-        router.events.emit('routeChangeError')
+        router.events.emit('routeChangeError', 'navigation aborted', route)
         // eslint-disable-next-line @typescript-eslint/no-throw-literal
         throw 'navigation aborted'
       }
     }
+
     router.events.on('routeChangeStart', onRouteChangeStart)
+
     const cleanUp = () => {
       router.events.off('routeChangeStart', onRouteChangeStart)
     }
@@ -76,38 +78,96 @@ export const useConfirmLeave = ({
 
   const ConfirmLeaveModal = () => (
     <Dialog open={navigationConfig.isModalOpen} maxWidth='lg'>
-      <SmallModalContainer style={{ minWidth: '440px' }}>
-        <AlertIcon type='error' />
-        <Typography variant='body1' textAlign='center' mt='10px'>
-          Are you sure you want to leave this page? Changes you made may not be
-          saved.
-        </Typography>
+      <Box
+        sx={{
+          maxWidth: '372px',
+          width: '100%',
+          background: '#ffffff',
+          boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+          borderRadius: '10px',
+        }}
+      >
+        <Box
+          sx={{
+            padding: '20px',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center',
+              flexDirection: 'column',
+              alignItems: 'center',
+              gap: '8px',
+            }}
+          >
+            <AlertIcon type='error' />
+            <Typography
+              variant='subtitle2'
+              textAlign='center'
+              fontWeight={400}
+              fontSize={16}
+              mt='10px'
+              sx={{
+                lineHeight: '24px',
+                letterSpacing: 0.1,
+              }}
+            >
+              Are you sure you want to leave this page? Changes you made may not
+              be saved.
+            </Typography>
+          </Box>
 
-        <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
-          <Button
-            variant='outlined'
-            onClick={() => {
-              router.push(router.asPath)
-              {
-                setNavigationConfig({
-                  nextRoute: null,
+          <Box display='flex' gap='10px' justifyContent='center' mt='26px'>
+            <Button
+              variant='outlined'
+              onClick={() => {
+                window.history.pushState('', '')
+                router.push(router.asPath)
+                {
+                  setNavigationConfig({
+                    nextRoute: null,
+                    isModalOpen: false,
+                  })
+                }
+              }}
+            >
+              <Typography
+                fontSize={14}
+                color={'#666CFF'}
+                fontWeight={500}
+                fontStyle={'normal'}
+                letterSpacing={'0.01px'}
+              >
+                Stay on this page
+              </Typography>
+            </Button>
+            <Button
+              variant='contained'
+              onClick={() => {
+                setHasConfirmed(true)
+                setNavigationConfig(prevState => ({
+                  ...prevState,
                   isModalOpen: false,
-                })
-              }
-            }}
-          >
-            Stay on this page
-          </Button>
-          <Button
-            variant='contained'
-            onClick={() => {
-              setHasConfirmed(true)
-            }}
-          >
-            Leave this page
-          </Button>
+                }))
+              }}
+            >
+              <Typography
+                fontSize={14}
+                color={'#FFFFFF'}
+                fontWeight={500}
+                fontStyle={'normal'}
+                letterSpacing={'0.01px'}
+              >
+                Leave this page
+              </Typography>
+            </Button>
+          </Box>
         </Box>
-      </SmallModalContainer>
+      </Box>
     </Dialog>
   )
 
