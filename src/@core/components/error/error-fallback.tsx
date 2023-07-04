@@ -1,14 +1,28 @@
+import { Button } from '@mui/material'
 import { useRouter } from 'next/router'
 
 import styled from 'styled-components'
 
-export default function ErrorFallback() {
+type Props = {
+  resetErrorBoundary: (...args: any[]) => void
+}
+export default function ErrorFallback({ resetErrorBoundary }: Props) {
   const router = useRouter()
 
   return (
     <Container>
       <h1 className='title'>Something went wrong.</h1>
       <p className='desc'>Please try again.</p>
+      <Button
+        variant='contained'
+        style={{ border: 'none' }}
+        onClick={() => {
+          resetErrorBoundary()
+          router.back()
+        }}
+      >
+        Go back to home
+      </Button>
     </Container>
   )
 }
