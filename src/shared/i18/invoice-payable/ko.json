@@ -7,5 +7,7 @@
   "jobDescription": "상세 내역",
   "quantity": "수량",
   "price": "단가",
-  "totalPrice": "금액"
+  "totalPrice": "실제 지급액",
+  "subTotal": "총 금액",
+  "tax": "세액"
 }

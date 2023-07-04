@@ -38,7 +38,6 @@ type Props = {
   isLoading: boolean
 }
 
-// TODO: totalPrice컬럼 완료하기
 export default function ReceivableList({
   skip,
   pageSize,
@@ -217,9 +216,9 @@ export default function ReceivableList({
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
-        // const price = `${getCurrencyMark(
-        //   row.currency,
-        // )} ${row.totalPrice.toLocaleString('ko-KR')}`
+        const price = `${getCurrencyMark(
+          row.currency,
+        )} ${row.totalPrice.toLocaleString('ko-KR')}`
         const date = FullDateTimezoneHelper(
           row.salesCheckedAt,
           row?.salesCheckedDateTimezone?.code,

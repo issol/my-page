@@ -25,14 +25,18 @@ import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'
 import Filter from './components/list/filter'
 import PayableList from './components/list/list'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
+import CalendarContainer from './components/calendar'
 
 // ** apis
 import { useGetPayableList } from '@src/queries/invoice/payable.query'
 import { Icon } from '@iconify/react'
+import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import CalendarContainer from './components/calendar'
+import { useMutation, useQueryClient } from 'react-query'
+import { toast } from 'react-hot-toast'
+import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 
 const initialFilter: InvoicePayableFilterType = {
   invoiceStatus: [],
@@ -49,7 +53,7 @@ const initialFilter: InvoicePayableFilterType = {
 }
 
 export default function Payable() {
-  const { user } = useContext(AuthContext)
+  const queryClient = useQueryClient()
   const ability = useContext(AbilityContext)
 
   const { openModal, closeModal } = useModal()
@@ -80,14 +84,32 @@ export default function Payable() {
     setActiveFilter({ ...initialFilter })
   }
 
-  // ** TODO: onClick함수 수정
+  const updateMutation = useMutation(
+    (data: { id: number; status: InvoicePayableStatusType }) =>
+      updateInvoicePayable(data.id, { invoiceStatus: data.status }),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
   function onChangeStatusToPaid() {
     openModal({
       type: 'changeStatus',
       children: (
         <ModalWithButtonName
           message={`Are you sure you want to change ${statuses.length} invoice(s) as paid?`}
-          onClick={() => null}
+          onClick={() => {
+            statuses.forEach(st => {
+              updateMutation.mutateAsync({ id: st, status: 'Paid' })
+            })
+          }}
           onClose={() => closeModal('changeStatus')}
           rightButtonName='Change'
         />

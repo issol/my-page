@@ -49,6 +49,8 @@ export type PayableFormType = {
   subtotal?: number
   totalPrice?: number
   tax?: number | null
+  invoiceConfirmedAt?: string
+  invoiceConfirmTimezone?: CountryType
 }
 
 export type InvoicePayableDetailType = {
@@ -57,7 +59,20 @@ export type InvoicePayableDetailType = {
   invoicedAt: string
   invoicedAtTimezone: CountryType
   invoiceStatus: InvoicePayableStatusType
-  pro: { name: string; email: string }
+  pro: {
+    name: string
+    email: string
+    address: {
+      baseAddress?: string | null //street1
+      detailAddress?: string | null //street2
+      city?: string | null
+      state?: string | null
+      country?: string | null
+      zipCode?: string | null
+    }
+    mobile: string | null
+    timezone: CountryType
+  }
   taxInfo: string
   taxRate: number
   payDueAt: string
@@ -69,6 +84,7 @@ export type InvoicePayableDetailType = {
   subtotal: number
   totalPrice: number
   tax: number | null
+  invoiceConfirmedAt: string | null
 }
 
 export type InvoicePayableJobType = {
@@ -78,13 +94,44 @@ export type InvoicePayableJobType = {
   name: string
   totalPrice: number
   contactPerson: string
-  deletedAt: string | null //TODO: 키값 변경 가능성 있음
-  priceUnits: {
-    title: string
+  isRemove: boolean
+  sourceLanguage: string
+  targetLanguage: string
+  prices: {
+    name: string
     unitPrice: number
     quantity: number
-    prices: number
+    prices: string
   }[]
+}
+
+export type PayableHistoryType = {
+  id: number
+  version: number
+  account: string
+  corporationId: string
+  invoicedAt: string
+  invoicedTimezone: CountryType
+  invoiceStatus: InvoicePayableStatusType
+  invoiceConfirmedAt: string | null
+  pro: { name: string; email: string }
+  taxInfo: string
+  taxRate: number
+  payDueAt: string
+  payDueTimezone: CountryType
+  paidAt: string | null
+  paidDateTimezone: CountryType | null
+  description: string
+  currency: CurrencyType
+  subtotal: number
+  totalPrice: number
+  tax: number
+
+  jobs: {
+    count: number
+    totalCount: number
+    data: Array<InvoicePayableJobType>
+  }
 }
 
 export type InvoicePayableDownloadData = {
@@ -100,14 +147,21 @@ export type InvoicePayableDownloadData = {
   pro: {
     email: string
     name: string
-    // address: string
-    // mobile: string
+    address: {
+      baseAddress?: string | null //street1
+      detailAddress?: string | null //street2
+      city?: string | null
+      state?: string | null
+      country?: string | null
+      zipCode?: string | null
+    }
+    mobile: string | null
+    timezone: CountryType
   }
-  companyName: string
-  jobName: string
-  langItem: LanguageAndItemType
-  subtotal: string
-  total: string
-  taxPercent: number
-  tax: string | null
+  jobList: InvoicePayableJobType[]
+  subTotal: number
+  tax: number | null
+  taxRate: number
+  totalPrice: number
+  currency: CurrencyType
 }
