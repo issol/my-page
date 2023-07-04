@@ -48,6 +48,8 @@ export type InvoiceReceivableListType = {
   invoiceStatus: InvoiceReceivableStatusType
   authorId: number
   salesCategory: string | null
+  currency: CurrencyType
+  totalPrice: number
   description: string | null
   notes: string | null
   setReminder: boolean

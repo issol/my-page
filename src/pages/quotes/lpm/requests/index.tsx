@@ -30,7 +30,6 @@ import { useRouter } from 'next/router'
 import CalendarContainer from './components/calendar'
 
 // ** components
-
 export const initialFilter: RequestFilterType = {
   status: [],
   client: [],
