@@ -17,3 +17,19 @@ export const PauseReason = {
     'Thank you for applying for this role, however, the project you were offered is on-hold or has not been confirmed yet. Please note that we are always looking for qualified linguists and are constantly receiving new projects from a wide variety of clients, so we will resume your process as soon as we can!\n- TAD Onboarding Team',
   Others: '',
 }
+
+export const RequestRevisionReason = [
+  'The price quoted is higher than what I had anticipated.',
+  'The due date falls outside my preferred timeline.',
+  'There is a discrepancy between the information provided in the request and the quoted details.',
+  'Others',
+]
+
+export const RejectQuoteReason = [
+  'The project has been canceled/put on hold.',
+  'The project will be handled by a different agency.',
+  'The price quoted is higher than what I had anticipated.',
+  'The due date falls outside my preferred timeline.',
+  'There is a discrepancy between the information provided in the request and the quoted details.',
+  'Others',
+]

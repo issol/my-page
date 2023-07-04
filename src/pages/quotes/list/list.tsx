@@ -1,7 +1,13 @@
 import { Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns, GridSortDirection } from '@mui/x-data-grid'
+import {
+  DataGrid,
+  GridColumns,
+  GridRowParams,
+  GridSortDirection,
+  gridClasses,
+} from '@mui/x-data-grid'
 import {
   ExtraNumberChip,
   JobTypeChip,
@@ -15,6 +21,7 @@ import { useContext, useState } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
+import { UserRoleType } from '@src/context/types'
 
 type QuotesListCellType = {
   row: QuotesListType
@@ -32,6 +39,7 @@ type Props = {
   isLoading: boolean
   filter: QuotesFilterType
   setFilter: (filter: QuotesFilterType) => void
+  role: UserRoleType
 }
 
 export default function QuotesList({
@@ -43,6 +51,7 @@ export default function QuotesList({
   isLoading,
   filter,
   setFilter,
+  role,
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
@@ -97,7 +106,9 @@ export default function QuotesList({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Client name / Email</Box>,
+      renderHeader: () => (
+        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Client name'} / Email</Box>
+      ),
       renderCell: ({ row }: QuotesListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
@@ -256,14 +267,26 @@ export default function QuotesList({
             setFilter({ ...filter, sort: value.field, ordering: value.sort })
           }
         }}
-        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        sx={{
+          overflowX: 'scroll',
+          cursor: 'pointer',
+          [`& .${gridClasses.row}.disabled`]: {
+            opacity: 0.5,
+            cursor: 'not-allowed',
+          },
+        }}
         columns={columns}
         rows={list.data}
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params => {
+          if (params.row.status === 'Under revision') return
           router.push(`/quotes/detail/${params.row.id}`)
         }}
+        getRowClassName={params =>
+          params.row.status === 'Under revision' ? 'disabled' : 'normal'
+        }
+        isRowSelectable={params => params.row.status !== 'Accepted'}
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}

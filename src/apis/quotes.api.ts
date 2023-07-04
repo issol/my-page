@@ -69,6 +69,14 @@ function getColor(status: QuoteStatusType) {
     ? '#1A6BBA'
     : status === 'Canceled'
     ? '#FF4D49'
+    : status === 'Under review'
+    ? '#FDB528'
+    : status === 'Revised'
+    ? '#AD7028'
+    : status === 'Revision requested'
+    ? '#A81988'
+    : status === 'Under revision'
+    ? '26C6F9'
     : null
 }
 

@@ -21,6 +21,7 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  Switch,
   Tab,
   Typography,
 } from '@mui/material'
@@ -119,19 +120,29 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import ClientQuote from './components/client-quote'
 
-type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
+type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
 export default function QuotesDetail() {
   const router = useRouter()
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
   const { id } = router.query
 
   const { openModal, closeModal } = useModal()
 
   const menuQuery = router.query.menu as MenuType
-  const [menu, setMenu] = useState<MenuType>('project')
+  const [menu, setMenu] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
+  )
+  const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const User = new quotes(user?.id!)
 
@@ -668,7 +679,9 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
-    makePdfData(lang)
+    makePdfData()
+    dispatch(setQuoteLang(lang))
+    dispatch(setQuote(downloadData))
     patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
       onMutationError(),
     )
@@ -743,12 +756,17 @@ export default function QuotesDetail() {
             dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
+          clientQuoteLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
         />
       ),
     })
   }
 
-  function makePdfData(lang: 'EN' | 'KO') {
+  function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
     const res: QuoteDownloadData = {
@@ -786,9 +804,13 @@ export default function QuotesDetail() {
       clientAddress: client?.clientAddress ?? [],
       langItem: itemsWithLang,
     }
-    dispatch(setQuoteLang(lang))
-    dispatch(setQuote(res))
+
+    setDownloadData(res)
   }
+
+  useEffect(() => {
+    makePdfData()
+  }, [project, client])
 
   return (
     <Grid container spacing={6}>
@@ -829,27 +851,29 @@ export default function QuotesDetail() {
               <Typography variant='h5'>{project?.corporationId}</Typography>
             </Box>
           </Box>
-          <Box display='flex' alignItems='center' gap='14px'>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadQuotes}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download quote
-            </Button>
-            <Button
-              variant='outlined'
-              onClick={() =>
-                router.push({
-                  pathname: `/orders/add-new`,
-                  query: { orderId: id },
-                })
-              }
-            >
-              Create order
-            </Button>
-          </Box>
+          {currentRole && currentRole.name === 'CLIENT' ? null : (
+            <Box display='flex' alignItems='center' gap='14px'>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickDownloadQuotes}
+              >
+                <Icon icon='material-symbols:request-quote' />
+                Download quote
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={() =>
+                  router.push({
+                    pathname: `/orders/add-new`,
+                    query: { orderId: id },
+                  })
+                }
+              >
+                Create order
+              </Button>
+            </Box>
+          )}
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -859,6 +883,16 @@ export default function QuotesDetail() {
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
+            {currentRole && currentRole.name === 'CLIENT' ? (
+              <CustomTap
+                value='quote'
+                label='Quote'
+                iconPosition='start'
+                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            ) : null}
+
             <CustomTap
               value='project'
               label='Project info'
@@ -897,6 +931,20 @@ export default function QuotesDetail() {
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           </TabList>
+
+          <TabPanel value='quote' sx={{ pt: '24px' }}>
+            <Suspense>
+              {downloadData ? (
+                <ClientQuote
+                  downloadData={downloadData!}
+                  user={user!}
+                  downloadLanguage={downloadLanguage}
+                  setDownloadLanguage={setDownloadLanguage}
+                  onClickDownloadQuotes={onClickDownloadQuotes}
+                />
+              ) : null}
+            </Suspense>
+          </TabPanel>
           {/* Project info */}
           <TabPanel value='project' sx={{ pt: '24px' }}>
             <Suspense>

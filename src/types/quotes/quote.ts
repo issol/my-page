@@ -15,6 +15,9 @@ export type QuotesFilterType = {
   serviceType?: string[]
   ordering?: GridSortDirection
   sort?: SortType
+  estimatedDeliveryDate?: Date[]
+  projectDueDate?: Date[]
+  lsp?: string[]
 }
 
 export type SortType =

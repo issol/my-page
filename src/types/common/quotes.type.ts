@@ -19,6 +19,10 @@ export type QuoteStatusType =
   | 'Accepted'
   | 'Changed into order'
   | 'Canceled'
+  | 'Under review'
+  | 'Revision requested'
+  | 'Under revision'
+  | 'Revised'
 
 export type QuotesProjectInfoFormType = {
   status: QuoteStatusType

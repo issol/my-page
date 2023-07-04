@@ -27,14 +27,18 @@ import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** apis
 import { useGetQuotesList } from '@src/queries/quotes.query'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export type FilterType = {
   quoteDate: Date[]
-  quoteDeadline: Date[]
-  quoteExpiryDate: Date[]
+  quoteDeadline?: Date[]
+  quoteExpiryDate?: Date[]
+  estimatedDeliveryDate?: Date[]
+  projectDueDate?: Date[]
+  lsp?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: string }>
-  client: Array<{ label: string; value: string }>
+  client?: Array<{ label: string; value: string }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -45,6 +49,8 @@ const defaultValues: FilterType = {
   quoteDate: [],
   quoteDeadline: [],
   quoteExpiryDate: [],
+  projectDueDate: [],
+  estimatedDeliveryDate: [],
   status: [],
   client: [],
   category: [],
@@ -56,6 +62,8 @@ const defaultFilters: QuotesFilterType = {
   quoteDate: [],
   quoteDeadline: [],
   quoteExpiryDate: [],
+  projectDueDate: [],
+  estimatedDeliveryDate: [],
   status: [],
   client: [],
   category: [],
@@ -83,6 +91,8 @@ export default function Quotes({ id, user }: Props) {
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
 
+  const currentRole = getCurrentRole()
+
   const { data: list, isLoading } = useGetQuotesList({
     ...filters,
     skip: quoteListPage * quoteListPageSize,
@@ -103,6 +113,9 @@ export default function Quotes({ id, user }: Props) {
       client: [],
       category: [],
       serviceType: [],
+      estimatedDeliveryDate: [],
+      projectDueDate: [],
+      lsp: [],
       search: '',
     })
 
@@ -137,17 +150,22 @@ export default function Quotes({ id, user }: Props) {
       serviceType,
       category,
       search,
+      estimatedDeliveryDate,
+      projectDueDate,
+      lsp,
     } = data
 
     const filter: QuotesFilterType = {
       quoteDate: quoteDate.map(value => value),
-      quoteDeadline: quoteDeadline.map(value => value),
-      quoteExpiryDate: quoteExpiryDate.map(value => value),
+      quoteDeadline: quoteDeadline?.map(value => value),
+      quoteExpiryDate: quoteExpiryDate?.map(value => value),
       status: status.map(value => value.value),
-      client: client.map(value => value.value),
+      client: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-
+      estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
+      projectDueDate: projectDueDate?.map(value => value),
+      lsp: lsp?.map(value => value.value),
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
@@ -155,6 +173,8 @@ export default function Quotes({ id, user }: Props) {
 
     setFilters(filter)
   }
+
+  console.log(currentRole)
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -198,6 +218,7 @@ export default function Quotes({ id, user }: Props) {
               setServiceTypeList={setServiceTypeList}
               categoryList={categoryList}
               setCategoryList={setCategoryList}
+              role={currentRole!}
             />
             <Box
               sx={{
@@ -226,11 +247,13 @@ export default function Quotes({ id, user }: Props) {
                       <Typography variant='h6'>
                         Quotes ({list?.totalCount ?? 0})
                       </Typography>{' '}
-                      <Button variant='contained'>
-                        <StyledNextLink href='/quotes/add-new' color='white'>
-                          Create new quote
-                        </StyledNextLink>
-                      </Button>
+                      {currentRole && currentRole.name === 'CLIENT' ? null : (
+                        <Button variant='contained'>
+                          <StyledNextLink href='/quotes/add-new' color='white'>
+                            Create new quote
+                          </StyledNextLink>
+                        </Button>
+                      )}
                     </Box>
                   }
                   sx={{
@@ -247,6 +270,7 @@ export default function Quotes({ id, user }: Props) {
                   isLoading={isLoading}
                   filter={filters}
                   setFilter={setFilters}
+                  role={currentRole!}
                 />
               </Card>
             </Grid>
