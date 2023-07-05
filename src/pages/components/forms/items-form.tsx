@@ -572,12 +572,6 @@ export default function ItemForm({
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
                       )
-                      const matchingPrice = options.find(
-                        item => item.groupName === 'Matching price',
-                      )
-                      if (matchingPrice) {
-                        onChange(matchingPrice.id)
-                      }
                       return (
                         <Autocomplete
                           autoHighlight
