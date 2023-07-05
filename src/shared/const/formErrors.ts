@@ -11,4 +11,6 @@ export const FormErrors = {
   passwordLength: '9-20 characters',
   passwordRegexCase: 'Uppercase and lowercase characters',
   passwordRegexSpecialChar: 'At least one number and special character',
+  invalidNumber: 'Invalid number',
+  invalidCardNumber: 'Only numbers and special characters are allowed',
 } as const

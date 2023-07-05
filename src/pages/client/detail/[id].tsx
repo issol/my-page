@@ -43,6 +43,7 @@ import { AuthContext } from '@src/context/AuthContext'
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import PaymentInfo from '../components/payment-info'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -149,7 +150,10 @@ export default function ClientDetail() {
             isCreatable={isCreatable}
           />
         </TabPanel>
-        <TabPanel value='5'></TabPanel>
+        <TabPanel value='5'>
+          {/* payment info */}
+          <PaymentInfo clientId={Number(id)} />
+        </TabPanel>
       </TabContext>
     </Box>
   )
