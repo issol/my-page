@@ -79,7 +79,7 @@ export class quotes {
   constructor(authorId: number) {
     this.authorId = authorId
     Object.defineProperty(quotes.prototype.constructor, 'name', {
-      value: 'quotes',
+      value: 'quote',
     })
   }
 }

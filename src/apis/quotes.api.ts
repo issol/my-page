@@ -55,9 +55,9 @@ function getColor(status: QuoteStatusType) {
     ? '#666CFF'
     : status === 'In preparation'
     ? `#F572D8`
-    : status === 'Review before submission'
+    : status === 'Internal review'
     ? `#20B6E5`
-    : status === 'Pending'
+    : status === 'Client review'
     ? `#FDB528`
     : status === 'Expired'
     ? '#FF4D49'

@@ -191,12 +191,12 @@ export const QuotesStatus = [
     label: 'In preparation',
   },
   {
-    value: 'Review before submission',
-    label: 'Review before submission',
+    value: 'Internal review',
+    label: 'Internal review',
   },
   {
-    value: 'Pending',
-    label: 'Pending',
+    value: 'Client review',
+    label: 'Client review',
   },
   {
     value: 'Expired',
