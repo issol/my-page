@@ -264,110 +264,108 @@ export default function PayableDetail() {
   }
 
   return (
-    <ErrorBoundary FallbackComponent={<ErrorFallback />}>
-      <Grid container spacing={6}>
-        <Grid item xs={12}>
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='space-between'
-            sx={{ background: '#ffffff', padding: '20px', borderRadius: '6px' }}
-          >
-            <Box display='flex' alignItems='center' gap='4px'>
-              <IconButton onClick={() => router.push('/invoice/payable/')}>
-                <Icon icon='mdi:chevron-left' />
-              </IconButton>
-              <img
-                src={'/images/icons/invoice/coin.png'}
-                width={50}
-                height={50}
-                alt='invoice detail'
-              />
-              <Typography variant='h5'>{data?.corporationId}</Typography>
-            </Box>
-            <Box display='flex' alignItems='center' gap='18px'>
-              <Button
-                onClick={onDownloadInvoiceClick}
-                variant='outlined'
-                startIcon={<Icon icon='ic:baseline-download' />}
-              >
-                Download invoice
-              </Button>
-              {isUpdatable && data?.invoiceConfirmedAt === null ? (
-                <Button variant='contained' onClick={onConfirmInvoice}>
-                  Confirm invoice
-                </Button>
-              ) : null}
-            </Box>
+    <Grid container spacing={6}>
+      <Grid item xs={12}>
+        <Box
+          display='flex'
+          alignItems='center'
+          justifyContent='space-between'
+          sx={{ background: '#ffffff', padding: '20px', borderRadius: '6px' }}
+        >
+          <Box display='flex' alignItems='center' gap='4px'>
+            <IconButton onClick={() => router.push('/invoice/payable/')}>
+              <Icon icon='mdi:chevron-left' />
+            </IconButton>
+            <img
+              src={'/images/icons/invoice/coin.png'}
+              width={50}
+              height={50}
+              alt='invoice detail'
+            />
+            <Typography variant='h5'>{data?.corporationId}</Typography>
           </Box>
-        </Grid>
-        <Grid item xs={12}>
-          <TabContext value={menu}>
-            <TabList
-              onChange={(e, v) => setMenu(v)}
-              aria-label='Quote detail Tab menu'
-              style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+          <Box display='flex' alignItems='center' gap='18px'>
+            <Button
+              onClick={onDownloadInvoiceClick}
+              variant='outlined'
+              startIcon={<Icon icon='ic:baseline-download' />}
             >
-              <CustomTap
-                value='info'
-                label='Invoice info'
-                iconPosition='start'
-                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              Download invoice
+            </Button>
+            {isUpdatable && data?.invoiceConfirmedAt === null ? (
+              <Button variant='contained' onClick={onConfirmInvoice}>
+                Confirm invoice
+              </Button>
+            ) : null}
+          </Box>
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <TabContext value={menu}>
+          <TabList
+            onChange={(e, v) => setMenu(v)}
+            aria-label='Quote detail Tab menu'
+            style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+          >
+            <CustomTap
+              value='info'
+              label='Invoice info'
+              iconPosition='start'
+              icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+            />
+            <CustomTap
+              value='history'
+              label='Version history'
+              iconPosition='start'
+              icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
+              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+            />
+          </TabList>
+          {/* Invoice info */}
+          <TabPanel value='info' sx={{ pt: '24px' }}>
+            <Suspense>
+              <InvoiceInfo
+                payableId={Number(id)}
+                isUpdatable={isUpdatable!}
+                updateMutation={updateMutation}
+                data={data}
+                jobList={jobList || { count: 0, totalCount: 0, data: [] }}
               />
-              <CustomTap
-                value='history'
-                label='Version history'
-                iconPosition='start'
-                icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-              />
-            </TabList>
-            {/* Invoice info */}
-            <TabPanel value='info' sx={{ pt: '24px' }}>
+            </Suspense>
+          </TabPanel>
+          {/* Version history */}
+          <TabPanel value='history' sx={{ pt: '24px' }}>
+            <Card>
               <Suspense>
-                <InvoiceInfo
-                  payableId={Number(id)}
-                  isUpdatable={isUpdatable!}
-                  updateMutation={updateMutation}
-                  data={data}
-                  jobList={jobList || { count: 0, totalCount: 0, data: [] }}
+                <PayableHistory
+                  isUpdatable={isUpdatable || false}
+                  invoiceId={Number(id)}
+                  invoiceCorporationId={data?.corporationId!}
                 />
               </Suspense>
-            </TabPanel>
-            {/* Version history */}
-            <TabPanel value='history' sx={{ pt: '24px' }}>
-              <Card>
-                <Suspense>
-                  <PayableHistory
-                    isUpdatable={isUpdatable || false}
-                    invoiceId={Number(id)}
-                    invoiceCorporationId={data?.corporationId!}
-                  />
-                </Suspense>
-              </Card>
-            </TabPanel>
-          </TabContext>
-        </Grid>
-        {!isUpdatable ? null : (
-          <Grid item xs={4}>
-            <Card sx={{ marginLeft: '12px' }}>
-              <CardContent>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  color='error'
-                  size='large'
-                  onClick={onClickDelete}
-                >
-                  Delete this invoice
-                </Button>
-              </CardContent>
             </Card>
-          </Grid>
-        )}
+          </TabPanel>
+        </TabContext>
       </Grid>
-    </ErrorBoundary>
+      {!isUpdatable ? null : (
+        <Grid item xs={4}>
+          <Card sx={{ marginLeft: '12px' }}>
+            <CardContent>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                onClick={onClickDelete}
+              >
+                Delete this invoice
+              </Button>
+            </CardContent>
+          </Card>
+        </Grid>
+      )}
+    </Grid>
   )
 }
 
