@@ -62,7 +62,7 @@ export type InvoicePayableDetailType = {
   pro: {
     name: string
     email: string
-    address: {
+    address?: {
       baseAddress?: string | null //street1
       detailAddress?: string | null //street2
       city?: string | null
@@ -70,8 +70,8 @@ export type InvoicePayableDetailType = {
       country?: string | null
       zipCode?: string | null
     }
-    mobile: string | null
-    timezone: CountryType
+    mobile?: string | null
+    timezone?: CountryType
   }
   taxInfo: string
   taxRate: number
@@ -147,7 +147,7 @@ export type InvoicePayableDownloadData = {
   pro: {
     email: string
     name: string
-    address: {
+    address?: {
       baseAddress?: string | null //street1
       detailAddress?: string | null //street2
       city?: string | null
@@ -155,8 +155,8 @@ export type InvoicePayableDownloadData = {
       country?: string | null
       zipCode?: string | null
     }
-    mobile: string | null
-    timezone: CountryType
+    mobile?: string | null
+    timezone?: CountryType
   }
   jobList: InvoicePayableJobType[]
   subTotal: number
