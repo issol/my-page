@@ -45,6 +45,10 @@ import {
   UseFormSetValue,
 } from 'react-hook-form'
 import { UserRoleType } from '@src/context/types'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
   languagePairs: Array<languageType>
@@ -120,6 +124,10 @@ export default function QuotesLanguageItemsDetail({
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
+
+  const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
+
+  console.log(priceInfo)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -260,7 +268,50 @@ export default function QuotesLanguageItemsDetail({
       ) : null}
 
       {/* tax */}
-      {role.name === 'CLIENT' ? null : (
+      {role.name === 'CLIENT' ? (
+        <Grid item xs={12}>
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                gap: '20px',
+                borderBottom: '2px solid #666CFF',
+                justifyContent: 'center',
+                width: '257px',
+              }}
+            >
+              <Typography
+                fontWeight={600}
+                variant='subtitle1'
+                sx={{
+                  padding: '16px 16px 16px 20px',
+                  flex: 1,
+                  textAlign: 'right',
+                }}
+              >
+                Subtotal
+              </Typography>
+              <Typography
+                fontWeight={600}
+                variant='subtitle1'
+                sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+              >
+                {formatCurrency(
+                  formatByRoundingProcedure(
+                    items.reduce((acc, cur) => {
+                      return acc + cur.totalPrice
+                    }, 0),
+                    priceInfo?.decimalPlace!,
+                    priceInfo?.roundingProcedure!,
+                    priceInfo?.currency ?? 'USD',
+                  ),
+                  priceInfo?.currency ?? 'USD',
+                )}
+              </Typography>
+            </Box>
+          </Box>
+        </Grid>
+      ) : (
         <Grid
           item
           xs={12}
