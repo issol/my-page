@@ -907,13 +907,18 @@ export default function QuotesDetail() {
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTap
-              value='client'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='client'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
               value='team'
               label='Project team'
@@ -974,28 +979,36 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
-                      isUpdatable={isUpdatable}
+                      isUpdatable={
+                        isUpdatable &&
+                        currentRole! &&
+                        currentRole.name !== 'CLIENT'
+                      }
                       updateStatus={(status: QuoteStatusType) =>
                         updateProject.mutate({ status: status })
                       }
+                      role={currentRole!}
+                      client={client}
                     />
                   </Card>
-                  <Grid container sx={{ mt: '24px' }}>
-                    <Grid item xs={4}>
-                      <Card sx={{ padding: '20px', width: '100%' }}>
-                        <Button
-                          variant='outlined'
-                          fullWidth
-                          color='error'
-                          size='large'
-                          disabled={!isDeletable}
-                          onClick={onClickDelete}
-                        >
-                          Delete this quote
-                        </Button>
-                      </Card>
+                  {currentRole && currentRole.name === 'CLIENT' ? null : (
+                    <Grid container sx={{ mt: '24px' }}>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={!isDeletable}
+                            onClick={onClickDelete}
+                          >
+                            Delete this quote
+                          </Button>
+                        </Card>
+                      </Grid>
                     </Grid>
-                  </Grid>
+                  )}
                 </Fragment>
               )}
             </Suspense>
@@ -1025,7 +1038,10 @@ export default function QuotesDetail() {
                   setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={
+                    isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
+                  }
+                  role={currentRole!}
                 />
                 {editItems
                   ? renderSubmitButton({
@@ -1106,8 +1122,12 @@ export default function QuotesDetail() {
                       padding: '15px 20px',
                     }}
                   >
-                    <Typography variant='h6'>Project team</Typography>
-                    {isUpdatable ? (
+                    <Typography variant='h6'>
+                      Project team ({team?.length})
+                    </Typography>
+                    {isUpdatable &&
+                    currentRole &&
+                    currentRole.name !== 'CLIENT' ? (
                       <IconButton onClick={() => setEditTeam(!editTeam)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>
@@ -1123,7 +1143,9 @@ export default function QuotesDetail() {
                     <DataGrid
                       autoHeight
                       getRowId={row => row.userId}
-                      columns={getProjectTeamColumns()}
+                      columns={getProjectTeamColumns(
+                        (currentRole && currentRole.name) ?? '',
+                      )}
                       rows={team ?? []}
                       rowCount={team?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}

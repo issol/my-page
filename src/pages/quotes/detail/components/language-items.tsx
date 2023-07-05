@@ -44,6 +44,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
 } from 'react-hook-form'
+import { UserRoleType } from '@src/context/types'
 
 type Props = {
   languagePairs: Array<languageType>
@@ -89,6 +90,7 @@ type Props = {
   isEditMode: boolean
   setIsEditMode: (n: boolean) => void
   isUpdatable: boolean
+  role: UserRoleType
 }
 
 export default function QuotesLanguageItemsDetail({
@@ -112,6 +114,7 @@ export default function QuotesLanguageItemsDetail({
   setTaxable,
   setIsEditMode,
   isUpdatable,
+  role,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -197,6 +200,7 @@ export default function QuotesLanguageItemsDetail({
       totalPrice: 0,
     })
   }
+  console.log(isEditMode)
 
   return (
     <Grid container>
@@ -208,15 +212,17 @@ export default function QuotesLanguageItemsDetail({
         ) : null}
       </Grid>
       {/* languages */}
-      <Grid item xs={12} mt={6}>
-        <AddLanguagePairForm
-          languagePairs={languagePairs}
-          setLanguagePairs={setLanguagePairs}
-          getPriceOptions={getPriceOptions}
-          type={isEditMode ? 'edit' : 'detail'}
-          onDeleteLanguagePair={onDeleteLanguagePair}
-        />
-      </Grid>
+      {role.name === 'CLIENT' ? null : (
+        <Grid item xs={12} mt={6}>
+          <AddLanguagePairForm
+            languagePairs={languagePairs}
+            setLanguagePairs={setLanguagePairs}
+            getPriceOptions={getPriceOptions}
+            type={isEditMode ? 'edit' : 'detail'}
+            onDeleteLanguagePair={onDeleteLanguagePair}
+          />
+        </Grid>
+      )}
 
       {/* items */}
       <Grid item xs={12} mt={6} mb={6}>
@@ -254,52 +260,55 @@ export default function QuotesLanguageItemsDetail({
       ) : null}
 
       {/* tax */}
-      <Grid
-        item
-        xs={12}
-        display='flex'
-        padding='24px'
-        alignItems='center'
-        justifyContent='space-between'
-        mt={6}
-        mb={6}
-        sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-      >
-        <Box display='flex' alignItems='center' gap='4px'>
-          <Checkbox
-            disabled={!isEditMode}
-            checked={taxable}
-            onChange={e => {
-              if (!e.target.checked) {
-                setTax(null)
-              }
-              setTaxable(e.target.checked)
-            }}
-          />
-          <Typography>Tax</Typography>
-        </Box>
-        <Box display='flex' alignItems='center' gap='4px'>
-          {isEditMode ? (
-            <>
-              <TextField
-                size='small'
-                type='number'
-                value={!tax ? '-' : tax}
-                disabled={!taxable}
-                sx={{ maxWidth: '120px', padding: 0 }}
-                inputProps={{ inputMode: 'decimal' }}
-                onChange={e => {
-                  if (e.target.value.length > 10) return
-                  setTax(Number(e.target.value))
-                }}
-              />
-              %
-            </>
-          ) : (
-            <Box>{tax ? `${tax} %` : null} </Box>
-          )}
-        </Box>
-      </Grid>
+      {role.name === 'CLIENT' ? null : (
+        <Grid
+          item
+          xs={12}
+          display='flex'
+          padding='24px'
+          alignItems='center'
+          justifyContent='space-between'
+          mt={6}
+          mb={6}
+          sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+        >
+          <Box display='flex' alignItems='center' gap='4px'>
+            <Checkbox
+              disabled={!isEditMode}
+              checked={taxable}
+              onChange={e => {
+                if (!e.target.checked) {
+                  setTax(null)
+                }
+                setTaxable(e.target.checked)
+              }}
+            />
+            <Typography>Tax</Typography>
+          </Box>
+
+          <Box display='flex' alignItems='center' gap='4px'>
+            {isEditMode ? (
+              <>
+                <TextField
+                  size='small'
+                  type='number'
+                  value={!tax ? '-' : tax}
+                  disabled={!taxable}
+                  sx={{ maxWidth: '120px', padding: 0 }}
+                  inputProps={{ inputMode: 'decimal' }}
+                  onChange={e => {
+                    if (e.target.value.length > 10) return
+                    setTax(Number(e.target.value))
+                  }}
+                />
+                %
+              </>
+            ) : (
+              <Box>{tax ? `${tax} %` : null} </Box>
+            )}
+          </Box>
+        </Grid>
+      )}
     </Grid>
   )
 }

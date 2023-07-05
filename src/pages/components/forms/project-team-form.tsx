@@ -43,6 +43,7 @@ import Icon from 'src/@core/components/icon'
 import { getUserInfo } from '@src/apis/user.api'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useState } from 'react'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<ProjectTeamType, any>
@@ -80,6 +81,8 @@ export default function ProjectTeamForm({
     }>
   >(memberList)
   const setValueOptions = { shouldValidate: true, shouldDirty: true }
+
+  const currentRole = getCurrentRole()
 
   function renderHeader(title: string) {
     return (

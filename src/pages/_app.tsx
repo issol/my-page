@@ -79,7 +79,6 @@ import {
   useQueryErrorResetBoundary,
 } from 'react-query'
 // import ErrorBoundary from 'src/@core/components/error/error-boundary'
-import { ErrorBoundary } from 'react-error-boundary'
 
 import ErrorFallback from 'src/@core/components/error/error-fallback'
 import FallbackSpinner from 'src/@core/components/spinner'
@@ -95,6 +94,7 @@ import {
 
 import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
+import ErrorBoundary from '@src/@core/components/error/error-boundary'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
