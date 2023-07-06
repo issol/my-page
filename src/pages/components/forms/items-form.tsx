@@ -67,6 +67,7 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import Link from 'next/link'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -115,6 +116,7 @@ export default function ItemForm({
   orderId,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const currentRole = getCurrentRole()
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -572,12 +574,6 @@ export default function ItemForm({
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
                       )
-                      const matchingPrice = options.find(
-                        item => item.groupName === 'Matching price',
-                      )
-                      if (matchingPrice) {
-                        onChange(matchingPrice.id)
-                      }
                       return (
                         <Autocomplete
                           autoHighlight
@@ -685,7 +681,8 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              {type === 'invoiceDetail' ? null : (
+              {type === 'invoiceDetail' ||
+              (currentRole && currentRole.name === 'CLIENT') ? null : (
                 <Grid item xs={12}>
                   <TmAnalysisForm
                     control={control}

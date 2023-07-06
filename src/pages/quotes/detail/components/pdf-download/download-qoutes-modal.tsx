@@ -11,10 +11,13 @@ import { ChangeEvent, useState } from 'react'
 type Props = {
   onClose: any
   onClick: (lang: 'EN' | 'KO') => void
+  clientQuoteLang?: 'EN' | 'KO'
 }
 
-const DownloadQuotesModal = ({ onClose, onClick }: Props) => {
-  const [lang, setLang] = useState<string | null>(null)
+const DownloadQuotesModal = ({ onClose, onClick, clientQuoteLang }: Props) => {
+  const [lang, setLang] = useState<string | null>(
+    clientQuoteLang ? (clientQuoteLang === 'EN' ? 'English' : 'Korean') : null,
+  )
 
   const handleLangChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLang(event.target.value)
@@ -109,7 +112,7 @@ const DownloadQuotesModal = ({ onClose, onClick }: Props) => {
             onClick={() => onClick(lang && lang === 'English' ? 'EN' : 'KO')}
             disabled={lang === null}
           >
-            Preview
+            {clientQuoteLang ? 'Download' : 'Preview'}
           </Button>
         </Box>
       </Box>

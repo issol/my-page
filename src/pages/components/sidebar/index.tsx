@@ -85,7 +85,7 @@ export default function CalendarSideBar<T>({
         variant='body2'
         sx={{ mt: 7, mb: 2.5, textTransform: 'none', fontWeight: 'bold' }}
       >
-        {title ?? 'Projects in'} {monthName}
+        {title ?? 'Projects in'}
       </Typography>
 
       {currEvent.length

@@ -7,7 +7,7 @@ import styled from 'styled-components'
 
 type Props = {
   alertIconStatus?: string
-  status: Array<{value:string, label:string}>
+  status: Array<{ value: string; label: string }>
   mdAbove: boolean
   leftSidebarWidth: number
 }
@@ -15,9 +15,8 @@ export default function CalendarStatusSideBar({
   alertIconStatus,
   status,
   mdAbove,
-  leftSidebarWidth
+  leftSidebarWidth,
 }: Props) {
-
   return (
     <Drawer
       variant={mdAbove ? 'permanent' : 'temporary'}
@@ -42,7 +41,6 @@ export default function CalendarStatusSideBar({
         },
       }}
     >
-
       {status.length
         ? status?.map((item: any) => {
             return (
@@ -50,11 +48,7 @@ export default function CalendarStatusSideBar({
                 key={item.value}
                 bg={item.label}
                 $bgSize={item.value === alertIconStatus ? '5px 5px' : ''}
-                color={
-                  item.value === alertIconStatus
-                    ? item.label
-                    : ''
-                }
+                color={item.value === alertIconStatus ? item.label : ''}
               >
                 {item.value === alertIconStatus
                   ? `🔴 ${item.value}`

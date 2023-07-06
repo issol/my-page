@@ -416,3 +416,89 @@ export const ClientRequestCalendarStatus = [
     label: '#FF4D49',
   },
 ]
+
+export const ClientQuoteStatus = [
+  {
+    value: 'New',
+    label: 'New',
+  },
+  {
+    value: 'Under review',
+    label: 'Under review',
+  },
+  {
+    value: 'Revision requested',
+    label: 'Revision requested',
+  },
+  {
+    value: 'Under revision',
+    label: 'Under revision',
+  },
+  {
+    value: 'Revised',
+    label: 'Revised',
+  },
+  {
+    value: 'Accepted',
+    label: 'Accepted',
+  },
+  {
+    value: 'Changed into order',
+    label: 'Changed into order',
+  },
+  {
+    value: 'Expired',
+    label: 'Expired',
+  },
+  {
+    value: 'Rejected',
+    label: 'Rejected',
+  },
+  {
+    value: 'Canceled',
+    label: 'Canceled',
+  },
+]
+
+export const ClientQuoteCalendarStatus = [
+  {
+    value: 'New',
+    label: '#666CFF',
+  },
+  {
+    value: 'Under review',
+    label: '#FDB528',
+  },
+  {
+    value: 'Revision requested',
+    label: '#A81988',
+  },
+  {
+    value: 'Under revision',
+    label: '#26C6F9',
+  },
+  {
+    value: 'Revised',
+    label: '#AD7028',
+  },
+  {
+    value: 'Accepted',
+    label: '#64C623',
+  },
+  {
+    value: 'Changed into order',
+    label: '#1A6BBA',
+  },
+  {
+    value: 'Expired',
+    label: '#FF4D49',
+  },
+  {
+    value: 'Rejected',
+    label: '#FF4D49',
+  },
+  {
+    value: 'Canceled',
+    label: '#FF4D49',
+  },
+]

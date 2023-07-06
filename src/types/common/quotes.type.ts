@@ -19,6 +19,10 @@ export type QuoteStatusType =
   | 'Accepted'
   | 'Changed into order'
   | 'Canceled'
+  | 'Under review'
+  | 'Revision requested'
+  | 'Under revision'
+  | 'Revised'
 
 export type QuotesProjectInfoFormType = {
   status: QuoteStatusType
@@ -94,7 +98,7 @@ export type VersionHistoryType = HistoryType & {
 export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
-  projectTeam: ProjectTeamListType[]
+  projectTeam: { members: ProjectTeamListType[]; quoteId: number }
   items: LanguageAndItemType
 }
 

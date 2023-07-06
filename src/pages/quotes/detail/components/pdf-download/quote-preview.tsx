@@ -393,7 +393,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                             fontSize: '14px',
                           }}
                         >
-                          Total:
+                          Subtotal:
                         </Typography>
                         <Typography
                           variant='subtitle1'

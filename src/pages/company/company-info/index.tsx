@@ -57,8 +57,11 @@ const CompanyInfo = () => {
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
 
+  const currentRole = getCurrentRole()
+
   const isUpdatable =
-    getCurrentRole().type === 'Master' || getCurrentRole().type === 'Manager'
+    currentRole &&
+    (currentRole.type === 'Master' || currentRole.type === 'Manager')
 
   const patchCompanyInfoMutation = useMutation(
     (data: CompanyInfoParamsType) => patchCompanyInfo(data),
@@ -372,7 +375,7 @@ const CompanyInfo = () => {
                 onClickAddCeo={onClickAddCeo}
                 onClickDeleteCeo={onClickDeleteCeo}
                 isValid={isValid}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUpdatable!}
               />
             )}
             {!infoEdit && (
@@ -387,7 +390,7 @@ const CompanyInfo = () => {
                 onClickSave={onClickSave}
                 onClickAddAddress={onClickAddAddress}
                 onClickDeleteAddress={onClickDeleteAddress}
-                isUpdatable={isUpdatable}
+                isUpdatable={isUpdatable!}
               />
             )}
           </TabPanel>

@@ -21,6 +21,7 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  Switch,
   Tab,
   Typography,
 } from '@mui/material'
@@ -119,19 +120,29 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import ClientQuote from './components/client-quote'
 
-type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
+type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
 export default function QuotesDetail() {
   const router = useRouter()
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
   const { id } = router.query
 
   const { openModal, closeModal } = useModal()
 
   const menuQuery = router.query.menu as MenuType
-  const [menu, setMenu] = useState<MenuType>('project')
+  const [menu, setMenu] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
+  )
+  const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const User = new quotes(user?.id!)
 
@@ -464,32 +475,34 @@ export default function QuotesDetail() {
           <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
             <Grid container spacing={6}>
               <VersionHistoryModal id={Number(id)} history={history} />
-              <Grid
-                item
-                xs={12}
-                display='flex'
-                gap='12px'
-                alignItems='center'
-                justifyContent='center'
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  sx={{ width: '226px' }}
-                  onClick={() => closeModal('VersionHistoryModal')}
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  gap='12px'
+                  alignItems='center'
+                  justifyContent='center'
                 >
-                  Close
-                </Button>
-                {isUpdatable ? (
                   <Button
-                    variant='contained'
+                    variant='outlined'
+                    color='secondary'
                     sx={{ width: '226px' }}
-                    onClick={onClickRestoreVersion}
+                    onClick={() => closeModal('VersionHistoryModal')}
                   >
-                    Restore this version
+                    Close
                   </Button>
-                ) : null}
-              </Grid>
+                  {isUpdatable ? (
+                    <Button
+                      variant='contained'
+                      sx={{ width: '226px' }}
+                      onClick={onClickRestoreVersion}
+                    >
+                      Restore this version
+                    </Button>
+                  ) : null}
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
         </Dialog>
@@ -668,7 +681,9 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
-    makePdfData(lang)
+    makePdfData()
+    dispatch(setQuoteLang(lang))
+    dispatch(setQuote(downloadData))
     patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
       onMutationError(),
     )
@@ -743,12 +758,17 @@ export default function QuotesDetail() {
             dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
+          clientQuoteLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
         />
       ),
     })
   }
 
-  function makePdfData(lang: 'EN' | 'KO') {
+  function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
     const res: QuoteDownloadData = {
@@ -786,9 +806,13 @@ export default function QuotesDetail() {
       clientAddress: client?.clientAddress ?? [],
       langItem: itemsWithLang,
     }
-    dispatch(setQuoteLang(lang))
-    dispatch(setQuote(res))
+
+    setDownloadData(res)
   }
+
+  useEffect(() => {
+    makePdfData()
+  }, [project, client])
 
   return (
     <Grid container spacing={6}>
@@ -829,27 +853,29 @@ export default function QuotesDetail() {
               <Typography variant='h5'>{project?.corporationId}</Typography>
             </Box>
           </Box>
-          <Box display='flex' alignItems='center' gap='14px'>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadQuotes}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download quote
-            </Button>
-            <Button
-              variant='outlined'
-              onClick={() =>
-                router.push({
-                  pathname: `/orders/add-new`,
-                  query: { orderId: id },
-                })
-              }
-            >
-              Create order
-            </Button>
-          </Box>
+          {currentRole && currentRole.name === 'CLIENT' ? null : (
+            <Box display='flex' alignItems='center' gap='14px'>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickDownloadQuotes}
+              >
+                <Icon icon='material-symbols:request-quote' />
+                Download quote
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={() =>
+                  router.push({
+                    pathname: `/orders/add-new`,
+                    query: { orderId: id },
+                  })
+                }
+              >
+                Create order
+              </Button>
+            </Box>
+          )}
         </Box>
       </Grid>
       <Grid item xs={12}>
@@ -859,6 +885,16 @@ export default function QuotesDetail() {
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
+            {currentRole && currentRole.name === 'CLIENT' ? (
+              <CustomTap
+                value='quote'
+                label='Quote'
+                iconPosition='start'
+                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            ) : null}
+
             <CustomTap
               value='project'
               label='Project info'
@@ -873,13 +909,18 @@ export default function QuotesDetail() {
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTap
-              value='client'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='client'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
               value='team'
               label='Project team'
@@ -897,6 +938,21 @@ export default function QuotesDetail() {
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           </TabList>
+
+          <TabPanel value='quote' sx={{ pt: '24px' }}>
+            <Suspense>
+              {downloadData ? (
+                <ClientQuote
+                  downloadData={downloadData!}
+                  user={user!}
+                  downloadLanguage={downloadLanguage}
+                  setDownloadLanguage={setDownloadLanguage}
+                  onClickDownloadQuotes={onClickDownloadQuotes}
+                  type='detail'
+                />
+              ) : null}
+            </Suspense>
+          </TabPanel>
           {/* Project info */}
           <TabPanel value='project' sx={{ pt: '24px' }}>
             <Suspense>
@@ -926,28 +982,37 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
-                      isUpdatable={isUpdatable}
+                      isUpdatable={
+                        isUpdatable &&
+                        currentRole! &&
+                        currentRole.name !== 'CLIENT'
+                      }
                       updateStatus={(status: QuoteStatusType) =>
                         updateProject.mutate({ status: status })
                       }
+                      role={currentRole!}
+                      client={client}
+                      type='detail'
                     />
                   </Card>
-                  <Grid container sx={{ mt: '24px' }}>
-                    <Grid item xs={4}>
-                      <Card sx={{ padding: '20px', width: '100%' }}>
-                        <Button
-                          variant='outlined'
-                          fullWidth
-                          color='error'
-                          size='large'
-                          disabled={!isDeletable}
-                          onClick={onClickDelete}
-                        >
-                          Delete this quote
-                        </Button>
-                      </Card>
+                  {currentRole && currentRole.name === 'CLIENT' ? null : (
+                    <Grid container sx={{ mt: '24px' }}>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={!isDeletable}
+                            onClick={onClickDelete}
+                          >
+                            Delete this quote
+                          </Button>
+                        </Card>
+                      </Grid>
                     </Grid>
-                  </Grid>
+                  )}
                 </Fragment>
               )}
             </Suspense>
@@ -977,7 +1042,10 @@ export default function QuotesDetail() {
                   setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={
+                    isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
+                  }
+                  role={currentRole!}
                 />
                 {editItems
                   ? renderSubmitButton({
@@ -1058,8 +1126,12 @@ export default function QuotesDetail() {
                       padding: '15px 20px',
                     }}
                   >
-                    <Typography variant='h6'>Project team</Typography>
-                    {isUpdatable ? (
+                    <Typography variant='h6'>
+                      Project team ({team?.length})
+                    </Typography>
+                    {isUpdatable &&
+                    currentRole &&
+                    currentRole.name !== 'CLIENT' ? (
                       <IconButton onClick={() => setEditTeam(!editTeam)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>
@@ -1075,7 +1147,9 @@ export default function QuotesDetail() {
                     <DataGrid
                       autoHeight
                       getRowId={row => row.userId}
-                      columns={getProjectTeamColumns()}
+                      columns={getProjectTeamColumns(
+                        (currentRole && currentRole.name) ?? '',
+                      )}
                       rows={team ?? []}
                       rowCount={team?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}
