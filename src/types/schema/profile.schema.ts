@@ -31,6 +31,8 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
     }),
     mobile: yup.string().nullable(),
     phone: yup.string().nullable(),
+    dateOfBirth: yup.string().nullable(),
+    residence: yup.string().nullable(),
     jobInfo: yup.array().of(
       yup.object().shape({
         jobType: yup.string().required(FormErrors.required),

@@ -57,6 +57,8 @@ export type UserDataType = {
   fax?: string
   userId: number
   department?: string
+  residence?: string
+  dateOfBirth?: string
 }
 
 export type LoginSuccessResponse = {
