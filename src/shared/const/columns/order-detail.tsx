@@ -6,9 +6,7 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 
-export const getProjectTeamColumns = (role: string) => {
-  console.log(role)
-
+export const getProjectTeamColumns = (role?: string) => {
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
