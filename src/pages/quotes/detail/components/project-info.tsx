@@ -41,6 +41,7 @@ type Props = {
   updateStatus?: (status: QuoteStatusType) => void
   role: UserRoleType
   client?: ClientType
+  type: 'detail' | 'history'
 }
 
 export default function QuotesProjectInfoDetail({
@@ -50,6 +51,7 @@ export default function QuotesProjectInfoDetail({
   updateStatus,
   role,
   client,
+  type,
 }: Props) {
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const { openModal, closeModal } = useModal()
@@ -296,9 +298,11 @@ export default function QuotesProjectInfoDetail({
                     {client?.contactPerson?.jobTitle
                       ? ` / ${client?.contactPerson?.jobTitle}`
                       : ''}
-                    <IconButton onClick={() => setContactPersonEdit(true)}>
-                      <Icon icon='mdi:pencil-outline' />
-                    </IconButton>
+                    {type === 'history' ? null : (
+                      <IconButton onClick={() => setContactPersonEdit(true)}>
+                        <Icon icon='mdi:pencil-outline' />
+                      </IconButton>
+                    )}
                   </CustomTypo>
                 )}
               </LabelContainer>

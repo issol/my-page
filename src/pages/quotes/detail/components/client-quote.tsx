@@ -10,9 +10,10 @@ import SelectReasonModal from '../../components/modal/select-reason-modal'
 type Props = {
   downloadData: QuoteDownloadData
   user: UserDataType
-  onClickDownloadQuotes: () => void
-  downloadLanguage: 'EN' | 'KO'
-  setDownloadLanguage: Dispatch<SetStateAction<'EN' | 'KO'>>
+  onClickDownloadQuotes?: () => void
+  downloadLanguage?: 'EN' | 'KO'
+  setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
+  type: 'detail' | 'history'
 }
 
 const ClientQuote = ({
@@ -21,6 +22,7 @@ const ClientQuote = ({
   onClickDownloadQuotes,
   downloadLanguage,
   setDownloadLanguage,
+  type,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -82,57 +84,9 @@ const ClientQuote = ({
   }
   return (
     <Grid container xs={12} spacing={4}>
-      <Grid item xs={8}>
-        <PrintQuotePage
-          data={downloadData!}
-          type={'preview'}
-          user={user!}
-          lang={'KO'}
-        />
-      </Grid>
-      <Grid item xs={4}>
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '24px',
-          }}
-        >
-          <Card
-            sx={{
-              padding: '24px',
-              gap: '14.89px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <Button variant='contained' fullWidth onClick={onClickAcceptQuote}>
-              Accept this quote
-            </Button>
-            <Button
-              variant='outlined'
-              fullWidth
-              onClick={() => onClickAction('Request')}
-            >
-              Request revision
-            </Button>
-            <Button
-              variant='outlined'
-              fullWidth
-              onClick={onClickDownloadQuotes}
-            >
-              Download quote
-            </Button>
-            <Button
-              variant='outlined'
-              color='error'
-              fullWidth
-              onClick={() => onClickAction('Reject')}
-            >
-              Reject this quote
-            </Button>
-          </Card>
-          <Card sx={{ padding: '24px' }}>
+      <Grid item xs={type === 'history' ? 12 : 8}>
+        {type === 'history' ? (
+          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Box
               sx={{
                 display: 'flex',
@@ -151,8 +105,8 @@ const ClientQuote = ({
               <Switch
                 checked={downloadLanguage === 'KO'}
                 onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
-                  console.log(event.target.checked)
-                  setDownloadLanguage(event.target.checked ? 'KO' : 'EN')
+                  setDownloadLanguage &&
+                    setDownloadLanguage(event.target.checked ? 'KO' : 'EN')
                 }}
                 inputProps={{ 'aria-label': 'controlled' }}
                 sx={{
@@ -175,9 +129,109 @@ const ClientQuote = ({
                 Korean
               </Typography>
             </Box>
-          </Card>
-        </Box>
+          </Box>
+        ) : null}
+        <PrintQuotePage
+          data={downloadData!}
+          type={'preview'}
+          user={user!}
+          lang={downloadLanguage ?? 'EN'}
+        />
       </Grid>
+      {type === 'history' ? null : (
+        <Grid item xs={4}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '24px',
+            }}
+          >
+            <Card
+              sx={{
+                padding: '24px',
+                gap: '14.89px',
+                display: 'flex',
+                flexDirection: 'column',
+              }}
+            >
+              <Button
+                variant='contained'
+                fullWidth
+                onClick={onClickAcceptQuote}
+              >
+                Accept this quote
+              </Button>
+              <Button
+                variant='outlined'
+                fullWidth
+                onClick={() => onClickAction('Request')}
+              >
+                Request revision
+              </Button>
+              <Button
+                variant='outlined'
+                fullWidth
+                onClick={onClickDownloadQuotes}
+              >
+                Download quote
+              </Button>
+              <Button
+                variant='outlined'
+                color='error'
+                fullWidth
+                onClick={() => onClickAction('Reject')}
+              >
+                Reject this quote
+              </Button>
+            </Card>
+            <Card sx={{ padding: '24px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '4px',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <Typography
+                  fontSize={14}
+                  fontWeight={downloadLanguage === 'KO' ? 400 : 600}
+                  color={downloadLanguage === 'KO' ? '#BDBDBD' : '#666CFF'}
+                >
+                  English
+                </Typography>
+                <Switch
+                  checked={downloadLanguage === 'KO'}
+                  onChange={(event: React.ChangeEvent<HTMLInputElement>) => {
+                    setDownloadLanguage &&
+                      setDownloadLanguage(event.target.checked ? 'KO' : 'EN')
+                  }}
+                  inputProps={{ 'aria-label': 'controlled' }}
+                  sx={{
+                    '.MuiSwitch-switchBase:not(.Mui-checked)': {
+                      color: '#666CFF',
+                      '.MuiSwitch-thumb': {
+                        color: '#666CFF',
+                      },
+                    },
+                    '.MuiSwitch-track': {
+                      backgroundColor: '#666CFF',
+                    },
+                  }}
+                />
+                <Typography
+                  fontSize={14}
+                  fontWeight={downloadLanguage === 'KO' ? 600 : 400}
+                  color={downloadLanguage === 'KO' ? '#666CFF' : '#BDBDBD'}
+                >
+                  Korean
+                </Typography>
+              </Box>
+            </Card>
+          </Box>
+        </Grid>
+      )}
     </Grid>
   )
 }

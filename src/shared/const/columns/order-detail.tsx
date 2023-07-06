@@ -7,6 +7,8 @@ import {
 } from '@src/types/orders/order-detail'
 
 export const getProjectTeamColumns = (role: string) => {
+  console.log(role)
+
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
@@ -57,7 +59,8 @@ export const getProjectTeamColumns = (role: string) => {
     {
       field: 'position',
 
-      minWidth: 250,
+      flex: 0.2182,
+
       headerName: 'Position',
       disableColumnMenu: true,
       renderHeader: () => <Box>Position</Box>,
@@ -66,7 +69,8 @@ export const getProjectTeamColumns = (role: string) => {
       },
     },
     {
-      minWidth: 300,
+      flex: 0.2618,
+
       field: 'member',
       headerName: 'Member',
       hideSortIcons: true,
@@ -86,7 +90,8 @@ export const getProjectTeamColumns = (role: string) => {
       },
     },
     {
-      minWidth: 349,
+      flex: 0.3045,
+
       field: 'jobTitle',
       headerName: 'Job title',
       hideSortIcons: true,
@@ -98,7 +103,8 @@ export const getProjectTeamColumns = (role: string) => {
       },
     },
     {
-      minWidth: 350,
+      flex: 0.3054,
+
       field: 'email',
       headerName: 'Email',
       hideSortIcons: true,

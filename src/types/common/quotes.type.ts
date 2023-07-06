@@ -98,7 +98,7 @@ export type VersionHistoryType = HistoryType & {
 export type HistoryType = {
   projectInfo: ProjectInfoType
   client: ClientType
-  projectTeam: ProjectTeamListType[]
+  projectTeam: { members: ProjectTeamListType[]; quoteId: number }
   items: LanguageAndItemType
 }
 

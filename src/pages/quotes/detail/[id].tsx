@@ -475,32 +475,34 @@ export default function QuotesDetail() {
           <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
             <Grid container spacing={6}>
               <VersionHistoryModal id={Number(id)} history={history} />
-              <Grid
-                item
-                xs={12}
-                display='flex'
-                gap='12px'
-                alignItems='center'
-                justifyContent='center'
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  sx={{ width: '226px' }}
-                  onClick={() => closeModal('VersionHistoryModal')}
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  gap='12px'
+                  alignItems='center'
+                  justifyContent='center'
                 >
-                  Close
-                </Button>
-                {isUpdatable ? (
                   <Button
-                    variant='contained'
+                    variant='outlined'
+                    color='secondary'
                     sx={{ width: '226px' }}
-                    onClick={onClickRestoreVersion}
+                    onClick={() => closeModal('VersionHistoryModal')}
                   >
-                    Restore this version
+                    Close
                   </Button>
-                ) : null}
-              </Grid>
+                  {isUpdatable ? (
+                    <Button
+                      variant='contained'
+                      sx={{ width: '226px' }}
+                      onClick={onClickRestoreVersion}
+                    >
+                      Restore this version
+                    </Button>
+                  ) : null}
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
         </Dialog>
@@ -946,6 +948,7 @@ export default function QuotesDetail() {
                   downloadLanguage={downloadLanguage}
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
+                  type='detail'
                 />
               ) : null}
             </Suspense>
@@ -989,6 +992,7 @@ export default function QuotesDetail() {
                       }
                       role={currentRole!}
                       client={client}
+                      type='detail'
                     />
                   </Card>
                   {currentRole && currentRole.name === 'CLIENT' ? null : (
