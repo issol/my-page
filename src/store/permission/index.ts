@@ -377,6 +377,22 @@ export const getPermission = createAsyncThunk(
             subject: 'lpm_request',
             can: 'delete',
           },
+          {
+            subject: 'pro_mypage',
+            can: 'read',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'create',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'update',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {

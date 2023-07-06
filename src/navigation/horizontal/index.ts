@@ -11,6 +11,13 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/dashboards`,
     },
     {
+      title: 'My page',
+      icon: 'iconamoon:profile-circle-fill',
+      action: 'read',
+      subject: 'pro_mypage',
+      path: `/mypage/pro`,
+    },
+    {
       title: 'Pros',
       icon: 'ic:baseline-people-outline',
       action: 'read',
