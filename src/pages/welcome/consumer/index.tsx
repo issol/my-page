@@ -64,7 +64,7 @@ import { AreaOfExpertiseList } from 'src/shared/const/area-of-expertise/area-of-
 import { JobList } from 'src/shared/const/job/jobs'
 import { ProRolePair } from 'src/shared/const/role/roles'
 
-import { profileSchema } from 'src/types/schema/profile.schema'
+import { getProfileSchema } from 'src/types/schema/profile.schema'
 import { ModalContext } from 'src/context/ModalContext'
 import styled from 'styled-components'
 
@@ -74,7 +74,13 @@ import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import { FilePathEnum, getPresignedUrl, getUploadUrlforCommon, postFiles, uploadFileToS3 } from 'src/apis/common.api'
+import {
+  FilePathEnum,
+  getPresignedUrl,
+  getUploadUrlforCommon,
+  postFiles,
+  uploadFileToS3,
+} from 'src/apis/common.api'
 import logger from '@src/@core/utils/logger'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
@@ -185,7 +191,7 @@ const PersonalInfoPro = () => {
   } = useForm<PersonalInfo>({
     defaultValues,
     mode: 'onChange',
-    resolver: yupResolver(profileSchema),
+    resolver: yupResolver(getProfileSchema('join')),
   })
 
   const {
@@ -276,44 +282,48 @@ const PersonalInfoPro = () => {
   const onSubmit = (data: PersonalInfo) => {
     if (data.resume?.length) {
       const promiseArr = data.resume.map((file, idx) => {
-        return getUploadUrlforCommon(S3FileType.RESUME, getResumeFilePath(auth.user?.id as number, file.name))
-        .then(res => {
+        return getUploadUrlforCommon(
+          S3FileType.RESUME,
+          getResumeFilePath(auth.user?.id as number, file.name),
+        ).then(res => {
           return uploadFileToS3(res.url, file)
         })
       })
       Promise.all(promiseArr)
-      .then(res => {
-        const finalData: ConsumerUserInfoType & { userId: number } = {
-          userId: auth.user?.id || 0,
-          firstName: data.firstName,
-          lastName: data.lastName,
-          country: data.timezone.label,
-          extraData: {
-            havePreferredName: data.havePreferred,
-            jobInfo: data.jobInfo,
-            middleName: data.middleName,
-            experience: data.experience,
-            legalNamePronunciation: data.legalNamePronunciation,
-            mobilePhone: data.mobile,
-            telephone: data.phone,
-            preferredName: data.preferredName,
-            resume: data.resume?.length ? data.resume.map(file => file.name) : [],
-            preferredNamePronunciation: data.preferredNamePronunciation,
-            pronounce: data.pronounce,
-            specialties: data.specialties?.map(item => item.value),
-            timezone: data.timezone,
-          },
-        }
-        updateUserInfoMutation.mutate(finalData)
-      })
-      .catch(err => {
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
-          },
-        )
-      })
+        .then(res => {
+          const finalData: ConsumerUserInfoType & { userId: number } = {
+            userId: auth.user?.id || 0,
+            firstName: data.firstName,
+            lastName: data.lastName,
+            country: data.timezone.label,
+            extraData: {
+              havePreferredName: data.havePreferred,
+              jobInfo: data.jobInfo,
+              middleName: data.middleName,
+              experience: data.experience,
+              legalNamePronunciation: data.legalNamePronunciation,
+              mobilePhone: data.mobile,
+              telephone: data.phone,
+              preferredName: data.preferredName,
+              resume: data.resume?.length
+                ? data.resume.map(file => file.name)
+                : [],
+              preferredNamePronunciation: data.preferredNamePronunciation,
+              pronounce: data.pronounce,
+              specialties: data.specialties?.map(item => item.value),
+              timezone: data.timezone,
+            },
+          }
+          updateUserInfoMutation.mutate(finalData)
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
     }
   }
 
