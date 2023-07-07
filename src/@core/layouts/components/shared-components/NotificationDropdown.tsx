@@ -29,13 +29,22 @@ import CustomAvatar from 'src/@core/components/mui/avatar'
 
 // ** Util Import
 import { getInitials } from 'src/@core/utils/get-initials'
+import { NotificationType } from '@src/types/common/notification.type'
+import { useRouter } from 'next/router'
 
 export type NotificationsType = {
   meta: string
   title: string
-  subtitle: string
+  createdAt: string
+  isRead: string
 } & (
-  | { avatarAlt: string; avatarImg: string; avatarText?: never; avatarColor?: never; avatarIcon?: never }
+  | {
+      avatarAlt: string
+      avatarImg: string
+      avatarText?: never
+      avatarColor?: never
+      avatarIcon?: never
+    }
   | {
       avatarAlt?: never
       avatarImg?: never
@@ -53,7 +62,7 @@ export type NotificationsType = {
 )
 interface Props {
   settings: Settings
-  notifications: NotificationsType[]
+  notifications: Array<NotificationType>
 }
 
 // ** Styled Menu component
@@ -63,12 +72,12 @@ const Menu = styled(MuiMenu)<MenuProps>(({ theme }) => ({
     overflow: 'hidden',
     marginTop: theme.spacing(4),
     [theme.breakpoints.down('sm')]: {
-      width: '100%'
-    }
+      width: '100%',
+    },
   },
   '& .MuiMenu-list': {
-    padding: 0
-  }
+    padding: 0,
+  },
 }))
 
 // ** Styled MenuItem component
@@ -76,20 +85,20 @@ const MenuItem = styled(MuiMenuItem)<MenuItemProps>(({ theme }) => ({
   paddingTop: theme.spacing(3),
   paddingBottom: theme.spacing(3),
   '&:not(:last-of-type)': {
-    borderBottom: `1px solid ${theme.palette.divider}`
-  }
+    borderBottom: `1px solid ${theme.palette.divider}`,
+  },
 }))
 
 // ** Styled PerfectScrollbar component
 const PerfectScrollbar = styled(PerfectScrollbarComponent)({
-  maxHeight: 344
+  maxHeight: 344,
 })
 
 // ** Styled Avatar component
 const Avatar = styled(CustomAvatar)<CustomAvatarProps>({
   width: 38,
   height: 38,
-  fontSize: '1.125rem'
+  fontSize: '1.125rem',
 })
 
 // ** Styled component for the title in MenuItems
@@ -100,7 +109,7 @@ const MenuItemTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontSize: '0.875rem',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
-  marginBottom: theme.spacing(0.75)
+  marginBottom: theme.spacing(0.75),
 }))
 
 // ** Styled component for the subtitle in MenuItems
@@ -108,14 +117,30 @@ const MenuItemSubtitle = styled(Typography)<TypographyProps>({
   flex: '1 1 100%',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis'
+  textOverflow: 'ellipsis',
 })
 
-const ScrollWrapper = ({ children, hidden }: { children: ReactNode; hidden: boolean }) => {
+const ScrollWrapper = ({
+  children,
+  hidden,
+}: {
+  children: ReactNode
+  hidden: boolean
+}) => {
   if (hidden) {
-    return <Box sx={{ maxHeight: 349, overflowY: 'auto', overflowX: 'hidden' }}>{children}</Box>
+    return (
+      <Box sx={{ maxHeight: 349, overflowY: 'auto', overflowX: 'hidden' }}>
+        {children}
+      </Box>
+    )
   } else {
-    return <PerfectScrollbar options={{ wheelPropagation: false, suppressScrollX: true }}>{children}</PerfectScrollbar>
+    return (
+      <PerfectScrollbar
+        options={{ wheelPropagation: false, suppressScrollX: true }}
+      >
+        {children}
+      </PerfectScrollbar>
+    )
   }
 }
 
@@ -128,6 +153,7 @@ const NotificationDropdown = (props: Props) => {
 
   // ** Hook
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
+  const router = useRouter()
 
   // ** Vars
   const { direction } = settings
@@ -140,8 +166,18 @@ const NotificationDropdown = (props: Props) => {
     setAnchorEl(null)
   }
 
-  const RenderAvatar = ({ notification }: { notification: NotificationsType }) => {
-    const { avatarAlt, avatarImg, avatarIcon, avatarText, avatarColor } = notification
+  const onClickNotification = (id: number, url: string) => {
+    // TODO id로 해당 notification read로 만들어주기
+    router.push(url)
+  }
+
+  const RenderAvatar = ({
+    notification,
+  }: {
+    notification: NotificationsType
+  }) => {
+    const { avatarAlt, avatarImg, avatarIcon, avatarText, avatarColor } =
+      notification
 
     if (avatarImg) {
       return <Avatar alt={avatarAlt} src={avatarImg} />
@@ -162,13 +198,22 @@ const NotificationDropdown = (props: Props) => {
 
   return (
     <Fragment>
-      <IconButton color='inherit' aria-haspopup='true' onClick={handleDropdownOpen} aria-controls='customized-menu'>
+      <IconButton
+        color='inherit'
+        aria-haspopup='true'
+        onClick={handleDropdownOpen}
+        aria-controls='customized-menu'
+      >
         <Badge
           color='error'
           variant='dot'
-          invisible={!notifications.length}
+          // invisible={!notifications.length}
           sx={{
-            '& .MuiBadge-badge': { top: 4, right: 4, boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}` }
+            '& .MuiBadge-badge': {
+              top: 4,
+              right: 4,
+              boxShadow: theme => `0 0 0 2px ${theme.palette.background.paper}`,
+            },
           }}
         >
           <Icon icon='mdi:bell-outline' />
@@ -178,40 +223,89 @@ const NotificationDropdown = (props: Props) => {
         anchorEl={anchorEl}
         open={Boolean(anchorEl)}
         onClose={handleDropdownClose}
-        anchorOrigin={{ vertical: 'bottom', horizontal: direction === 'ltr' ? 'right' : 'left' }}
-        transformOrigin={{ vertical: 'top', horizontal: direction === 'ltr' ? 'right' : 'left' }}
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: direction === 'ltr' ? 'right' : 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: direction === 'ltr' ? 'right' : 'left',
+        }}
       >
         <MenuItem
           disableRipple
           disableTouchRipple
-          sx={{ cursor: 'default', userSelect: 'auto', backgroundColor: 'transparent !important' }}
+          sx={{
+            cursor: 'default',
+            userSelect: 'auto',
+            backgroundColor: 'transparent !important',
+          }}
         >
-          <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', width: '100%' }}>
-            <Typography sx={{ cursor: 'text', fontWeight: 600 }}>Notifications</Typography>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          >
+            <Typography sx={{ cursor: 'text', fontWeight: 600 }}>
+              Notifications
+            </Typography>
             <CustomChip
               skin='light'
               size='small'
               color='primary'
-              label={`${notifications.length} New`}
-              sx={{ height: 20, fontSize: '0.75rem', fontWeight: 500, borderRadius: '10px' }}
+              label={`${notifications?.length} New`}
+              sx={{
+                height: 20,
+                fontSize: '0.75rem',
+                fontWeight: 500,
+                borderRadius: '10px',
+              }}
             />
           </Box>
         </MenuItem>
         <ScrollWrapper hidden={hidden}>
-          {notifications.map((notification: NotificationsType, index: number) => (
-            <MenuItem key={index} onClick={handleDropdownClose}>
-              <Box sx={{ width: '100%', display: 'flex', alignItems: 'center' }}>
-                <RenderAvatar notification={notification} />
-                <Box sx={{ mx: 4, flex: '1 1', display: 'flex', overflow: 'hidden', flexDirection: 'column' }}>
-                  <MenuItemTitle>{notification.title}</MenuItemTitle>
-                  <MenuItemSubtitle variant='body2'>{notification.subtitle}</MenuItemSubtitle>
-                </Box>
-                <Typography variant='caption' sx={{ color: 'text.disabled' }}>
-                  {notification.meta}
-                </Typography>
-              </Box>
-            </MenuItem>
-          ))}
+          {notifications &&
+            notifications?.map(
+              (notification: NotificationType, index: number) => (
+                <MenuItem
+                  key={index}
+                  onClick={() =>
+                    onClickNotification(
+                      notification.id,
+                      notification.connectedLink
+                        ? notification.connectedLink
+                        : '',
+                    )
+                  }
+                >
+                  <Box
+                    sx={{
+                      width: '100%',
+                      display: 'flex',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        mx: 4,
+                        flex: '1 1',
+                        display: 'flex',
+                        overflow: 'hidden',
+                        flexDirection: 'column',
+                      }}
+                    >
+                      <MenuItemTitle>{notification.type}</MenuItemTitle>
+                      <MenuItemSubtitle variant='body2'>
+                        {notification.createdAt}
+                      </MenuItemSubtitle>
+                    </Box>
+                  </Box>
+                </MenuItem>
+              ),
+            )}
         </ScrollWrapper>
         <MenuItem
           disableRipple
@@ -222,11 +316,11 @@ const NotificationDropdown = (props: Props) => {
             cursor: 'default',
             userSelect: 'auto',
             backgroundColor: 'transparent !important',
-            borderTop: theme => `1px solid ${theme.palette.divider}`
+            borderTop: theme => `1px solid ${theme.palette.divider}`,
           }}
         >
           <Button fullWidth variant='contained' onClick={handleDropdownClose}>
-            Read All Notifications
+            Go to notification center
           </Button>
         </MenuItem>
       </Menu>
