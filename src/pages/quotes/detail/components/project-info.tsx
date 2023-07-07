@@ -33,6 +33,10 @@ import { ClientDetailType } from '@src/types/client/client'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import useModal from '@src/hooks/useModal'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import { UseMutationResult } from 'react-query'
+import { updateProjectInfoType } from '../[id]'
+import { update } from 'lodash'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -42,6 +46,12 @@ type Props = {
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
+  updateProject?: UseMutationResult<
+    void,
+    unknown,
+    updateProjectInfoType,
+    unknown
+  >
 }
 
 export default function QuotesProjectInfoDetail({
@@ -52,6 +62,7 @@ export default function QuotesProjectInfoDetail({
   role,
   client,
   type,
+  updateProject,
 }: Props) {
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const { openModal, closeModal } = useModal()
@@ -59,19 +70,15 @@ export default function QuotesProjectInfoDetail({
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
   )
-  const [contactPerson, setContactPerson] = useState<{
-    id: number
-    firstName: string
-    middleName: string | null
-    lastName: string
-    timezone: CountryType
-    phone: string | null
-    mobile: string | null
-    fax: string | null
-    email: string
-    label?: string
-  } | null>(null)
-  const [contactPersonList, setContactPersonList] = useState<Array<any>>([])
+  const [contactPersonId, setContactPersonId] = useState<number | null>(null)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<
+      ContactPersonType<number> & {
+        value: number
+        label: string
+      }
+    >
+  >([])
 
   const onClickReason = (status: string) => {
     openModal({
@@ -90,18 +97,33 @@ export default function QuotesProjectInfoDetail({
 
   const onClickEditSaveContactPerson = () => {
     // TODO api
-    setContactPersonEdit(false)
+    updateProject &&
+      updateProject.mutate(
+        { contactPersonId: contactPersonId },
+        {
+          onSuccess: () => {
+            setContactPersonEdit(false)
+          },
+        },
+      )
   }
 
   useEffect(() => {
     if (client) {
+      setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
+
       getClientDetail(client.client.clientId)
         .then(res => {
           setClientDetail(res)
           if (res?.contactPersons?.length) {
-            const result = res.contactPersons.map(item => ({
+            const result: Array<
+              ContactPersonType<number> & {
+                value: number
+                label: string
+              }
+            > = res.contactPersons.map(item => ({
               ...item,
-              value: item.id,
+              value: item.id!,
               label: !item?.jobTitle
                 ? getLegalName({
                     firstName: item.firstName!,
@@ -123,11 +145,10 @@ export default function QuotesProjectInfoDetail({
           setClientDetail(null)
           setContactPersonList([])
         })
-        .finally(() => {
-          setContactPerson(null)
-        })
     }
   }, [client])
+
+  console.log(contactPersonId)
 
   return (
     <Fragment>
@@ -225,23 +246,30 @@ export default function QuotesProjectInfoDetail({
                     <Autocomplete
                       autoHighlight
                       fullWidth
-                      options={contactPersonList.map(item => ({
-                        value: item.value,
-                        label: item.label,
-                      }))}
+                      options={contactPersonList
+                        .filter(item => item.id !== contactPersonId)
+                        .map(value => ({
+                          value: value.value,
+                          label: value.label,
+                        }))}
                       onChange={(e, v) => {
                         // onChange(v.value)
                         const res = contactPersonList.filter(
                           item => item.id === Number(v.value),
                         )
-                        setContactPerson(res.length ? res[0] : v)
+                        setContactPersonId(
+                          res.length ? res[0].id! : Number(v.value)!,
+                        )
                       }}
                       disableClearable
                       // disabled={type === 'request'}
                       value={
-                        contactPersonList.find(
-                          value => value.id === client?.contactPerson?.id,
-                        ) || { value: '', label: '' }
+                        contactPersonList
+                          .filter(value => value.id === contactPersonId)
+                          .map(value => ({
+                            value: value.value,
+                            label: value.label,
+                          }))[0] || { value: '', label: '' }
                       }
                       renderInput={params => (
                         <TextField

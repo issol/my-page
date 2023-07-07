@@ -23,6 +23,8 @@ type Props = {
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   leftButtonText?: string
   rightButtonText: string
+  action: string
+  from: 'lsp' | 'client'
 }
 
 const SelectReasonModal = ({
@@ -33,6 +35,8 @@ const SelectReasonModal = ({
   vary,
   leftButtonText,
   rightButtonText,
+  action,
+  from,
 }: Props) => {
   const [reason, setReason] = useState<string>('')
   const [messageToLsp, setMessageToLsp] = useState<string>('')
@@ -43,11 +47,6 @@ const SelectReasonModal = ({
 
   const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
     setReason((event.target as HTMLInputElement).value)
-
-    // const message: string =
-    //   rightButtonText === 'Reject'
-    //     ? RejectReason[(event.target as HTMLInputElement).value]
-    //     : PauseReason[(event.target as HTMLInputElement).value]
 
     setMessageToLsp((event.target as HTMLInputElement).value)
   }
@@ -190,7 +189,13 @@ const SelectReasonModal = ({
           </Button>
           <Button
             variant='contained'
-            onClick={onClick}
+            onClick={() =>
+              onClick(action, {
+                from: from,
+                reason: reason,
+                message: messageToLsp,
+              })
+            }
             disabled={reason === '' || messageToLsp === ''}
           >
             {rightButtonText}

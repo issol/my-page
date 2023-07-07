@@ -32,11 +32,12 @@ export type QuotesProjectInfoFormType = {
   category: string
   serviceType: Array<string>
   expertise?: Array<string>
-  quoteDate: string
+  quoteDate: { date: string; timezone: CountryType }
   projectDueDate: { date: string; timezone: CountryType }
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
+  isShowDescription: boolean
   tax: number | null
   taxable: boolean
 }
@@ -63,12 +64,14 @@ export type QuotesListType = {
   quoteDeadline: string
   quoteExpiry: string
   totalPrice: number
+  updatedAt: string
 }
 
 export type ProjectInfoType = {
   id: number
   corporationId: string
   quoteDate: string
+  quoteDateTimezone: CountryType
   status: QuoteStatusType
   workName: string
   category: string

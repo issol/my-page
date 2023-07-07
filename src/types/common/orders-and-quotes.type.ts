@@ -5,9 +5,9 @@ export type ProjectTeamFormType = {
 }
 
 export type ClientFormType = {
-  clientId: number
+  clientId?: number
   contactPersonId?: number | null
-  addressType: 'billing' | 'shipping'
+  addressType?: 'billing' | 'shipping'
 }
 
 export type LanguagePairsType = {

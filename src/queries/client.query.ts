@@ -3,7 +3,7 @@ import { toast } from 'react-hot-toast'
 import { useQuery } from 'react-query'
 import { FilterType } from 'src/pages/client'
 
-export const useGetClientList = (filter: FilterType, isClient?: boolean) => {
+export const useGetClientList = (filter: FilterType) => {
   return useQuery(
     ['get-client/list', filter],
     () => {
@@ -12,7 +12,7 @@ export const useGetClientList = (filter: FilterType, isClient?: boolean) => {
     {
       suspense: true,
       staleTime: 60 * 1000,
-      enabled: isClient,
+
       keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {

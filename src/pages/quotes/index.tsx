@@ -28,6 +28,7 @@ import { CategoryList } from '@src/shared/const/category/categories'
 // ** apis
 import { useGetQuotesList } from '@src/queries/quotes.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetClientList } from '@src/queries/client.query'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -97,6 +98,11 @@ export default function Quotes({ id, user }: Props) {
     ...filters,
     skip: quoteListPage * quoteListPageSize,
     take: quoteListPageSize,
+  })
+
+  const { data: clientList, isLoading: clientListLoading } = useGetClientList({
+    take: 1000,
+    skip: 0,
   })
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({

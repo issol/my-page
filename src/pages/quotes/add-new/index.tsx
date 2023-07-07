@@ -73,6 +73,7 @@ import {
   createQuotesInfo,
 } from '@src/apis/quotes.api'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 
 export type languageType = {
   id: number | string
@@ -203,9 +204,17 @@ export default function AddNewQuotes() {
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<QuotesProjectInfoFormType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      ...quotesProjectInfoDefaultValue,
+      quoteDate: {
+        date: Date(),
+        timezone: JSON.parse(getUserDataFromBrowser()!).timezone,
+      },
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
+
+  console.log(JSON.parse(getUserDataFromBrowser()!).timezone)
 
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -384,6 +393,11 @@ export default function AddNewQuotes() {
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
+
+    const subTotal = getItem().items.reduce(
+      (acc, item) => acc + item.totalPrice,
+      0,
+    )
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -543,6 +557,7 @@ export default function AddNewQuotes() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  getClientValue={getClientValue}
                 />
                 <Grid
                   item
