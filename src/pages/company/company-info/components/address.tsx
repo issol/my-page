@@ -281,13 +281,7 @@ const CompanyInfoAddress = ({
                           <Chip
                             label={value.name || 'Office'}
                             rounded
-                            color={
-                              value.name === 'Korea office'
-                                ? 'info'
-                                : value.name === 'Japan office'
-                                ? 'success'
-                                : 'info'
-                            }
+                            color={'info'}
                             skin='light'
                             sx={{ color: '#000' }}
                           />
