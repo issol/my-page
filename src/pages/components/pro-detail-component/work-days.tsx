@@ -31,7 +31,7 @@ const WorkDays = ({ timezone, available, off, setYear }: Props) => {
     const day = date.getDay()
     return day !== 0 && day !== 6
   }
-
+  console.log('off', off)
   return (
     <Card sx={{ padding: '20px' }}>
       <CardHeader title='Available work days' sx={{ padding: 0 }}></CardHeader>

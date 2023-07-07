@@ -47,7 +47,7 @@ export type ConsumerUserInfoType = {
     telephone?: string
     preferredName?: string
     preferredNamePronunciation?: string
-    pronounce?: PronounceType
+    pronounce?: PronounceType | null
     resume?: Array<string>
     specialties: Array<string>
     timezone: CountryType

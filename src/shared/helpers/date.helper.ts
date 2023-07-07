@@ -83,3 +83,56 @@ export function findEarliestDate(dateStrings: string[]) {
     return ''
   }
 }
+
+/**
+ * addOneDay
+ * @returns 2023-07-04
+ * @param date Date형태의 string
+ */
+export function addOneDay(date: string): string {
+  const timestamp = new Date(date).getTime()
+  if (isNaN(timestamp)) {
+    return ''
+  }
+  const oneDay = 24 * 60 * 60 * 1000
+  const nextDayTimestamp = timestamp + oneDay
+  const nextDate = dayjs(new Date(nextDayTimestamp))
+  const res = nextDate.format('YYYY-MM-DD').toString()
+  return res
+}
+
+/* getWeekends output : 
+  [
+    {
+      reason: '',
+      start: '2023-07-01',
+      end: '2023-07-01',
+    },
+  ]
+*/
+export function getWeekends(
+  year: number,
+  month: number,
+): Array<{ id?: number; reason: string; start: string; end: string }> {
+  const weekends = []
+  const startDate = new Date(year, month - 1, 1)
+  const endDate = new Date(year, month, 0)
+
+  for (
+    let date = startDate;
+    date <= endDate;
+    date.setDate(date.getDate() + 1)
+  ) {
+    const dayOfWeek = date.getDay()
+    if (dayOfWeek === 6 || dayOfWeek === 0) {
+      const day = dayjs(new Date(date)).format('YYYY-MM-DD').toString()
+      weekends.push({
+        reason: '',
+        start: day,
+        end: day,
+      })
+    }
+  }
+
+  return weekends
+}
