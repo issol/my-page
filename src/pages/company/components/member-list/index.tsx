@@ -90,8 +90,12 @@ const MemberList = ({
   const userAccess = useAppSelector(state => state.userAccess)
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
-    setSelectedMember(member)
-    setAnchorEl(event.currentTarget)
+    if(!selectedMember) {
+      setSelectedMember(member)
+      setAnchorEl(event.currentTarget)
+    } else {
+      onClickEditCancel()
+    }
   }
 
   const handleClose = () => {
@@ -99,8 +103,8 @@ const MemberList = ({
   }
 
   const handleEditCancel = () => {
-    setEditRow(false)
     setSelectedMember(null)
+    setEditRow(false)
   }
 
   const handleDeleteMember = () => {
@@ -201,25 +205,37 @@ const MemberList = ({
   }
 
   const onClickEditCancel = () => {
+    // if (selectedMember) {
+    //   const obj: MembersType = members.find(
+    //     value => value.id === selectedMember.id,
+    //   )!
+    //   if (selectedMember === obj) {
+    //     setEditRow(false)
+    //     setSelectedMember(null)
+    //     setMembers(memberList)
+    //   } else {
+    //     openModal({
+    //       type: 'EditCancelMemberModal',
+    //       children: (
+    //         <DiscardChangesModal
+    //           onClose={() => closeModal('EditCancelMemberModal')}
+    //           onDiscard={handleEditCancel}
+    //         />
+    //       ),
+    //     })
+    //   }
+    // }
+
     if (selectedMember) {
-      const obj: MembersType = members.find(
-        value => value.id === selectedMember.id,
-      )!
-      if (selectedMember === obj) {
-        setEditRow(false)
-        setSelectedMember(null)
-        setMembers(memberList)
-      } else {
-        openModal({
-          type: 'EditCancelMemberModal',
-          children: (
-            <DiscardChangesModal
-              onClose={() => closeModal('EditCancelMemberModal')}
-              onDiscard={handleEditCancel}
-            />
-          ),
-        })
-      }
+      openModal({
+        type: 'EditCancelMemberModal',
+        children: (
+          <DiscardChangesModal
+            onClose={() => closeModal('EditCancelMemberModal')}
+            onDiscard={handleEditCancel}
+          />
+        ),
+      })
     }
   }
 
@@ -331,7 +347,6 @@ const MemberList = ({
       disableColumnMenu: true,
 
       renderCell: ({ row }: CellType) => {
-        console.log("row",row)
         return (
           <Typography noWrap variant='body2'>
             {/* {row.role.map(value => {
@@ -344,7 +359,7 @@ const MemberList = ({
               }}
               handleDeleteRole={handleDeleteRole}
               handleAddRole={handleAddRole}
-              editRow={editRow}
+              editRow={editRow && selectedMember?.id === row.id}
             />
             {/* {RenderChips(row.role, handleDeleteRole)} */}
           </Typography>
@@ -385,7 +400,7 @@ const MemberList = ({
       renderCell: ({ row }: CellType) => {
         return (
           <>
-            {editRow ? (
+            {editRow && selectedMember?.id === row.id ? (
               <Box sx={{ display: 'flex', gap: '12px' }}>
                 <Button variant='outlined' onClick={onClickEditCancel}>
                   Cancel
@@ -445,7 +460,7 @@ const MemberList = ({
         >
           <MenuItem
             sx={{ gap: 2 }}
-            onClick={() => {
+            onClick={(e) => {
               selectedMember && onClickEditMember()
             }}
           >
