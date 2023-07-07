@@ -1,11 +1,17 @@
 import { Box, Button, Card, Grid, Switch, Typography } from '@mui/material'
 import PrintQuotePage from './pdf-download/quote-preview'
-import { QuoteDownloadData } from '@src/types/common/quotes.type'
+import {
+  QuoteDownloadData,
+  QuoteStatusType,
+} from '@src/types/common/quotes.type'
 import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import SelectReasonModal from '../../components/modal/select-reason-modal'
+import { UseMutationResult } from 'react-query'
+import { updateProjectInfoType } from '../[id]'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 type Props = {
   downloadData: QuoteDownloadData
@@ -14,6 +20,12 @@ type Props = {
   downloadLanguage?: 'EN' | 'KO'
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   type: 'detail' | 'history'
+  updateProject?: UseMutationResult<
+    void,
+    unknown,
+    updateProjectInfoType,
+    unknown
+  >
 }
 
 const ClientQuote = ({
@@ -23,22 +35,53 @@ const ClientQuote = ({
   downloadLanguage,
   setDownloadLanguage,
   type,
+  updateProject,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
-  const handleAcceptQuote = () => {
+  const handleAcceptQuote = (status: QuoteStatusType) => {
     // TODO API call
-    closeModal('AcceptQuoteModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status },
+        {
+          onSuccess: () => {
+            closeModal('AcceptQuoteModal')
+          },
+        },
+      )
   }
 
-  const handleRequestRevision = () => {
+  const handleRequestRevision = (
+    status: QuoteStatusType,
+    cancelReason: CancelReasonType,
+  ) => {
     // TODO API call
-    closeModal('RequestRevisionModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status, cancelReason: cancelReason },
+        {
+          onSuccess: () => {
+            closeModal('RequestRevisionModal')
+          },
+        },
+      )
   }
 
-  const handleRejectQuote = () => {
+  const handleRejectQuote = (
+    status: QuoteStatusType,
+    cancelReason: CancelReasonType,
+  ) => {
     // TODO API call
-    closeModal('RejectQuoteModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status, cancelReason: cancelReason },
+        {
+          onSuccess: () => {
+            closeModal('RejectQuoteModal')
+          },
+        },
+      )
   }
 
   const onClickAcceptQuote = () => {
@@ -56,28 +99,39 @@ const ClientQuote = ({
     })
   }
 
-  const onClickAction = (action: 'Request' | 'Reject') => {
+  const onClickAction = (action: 'Request revision' | 'Rejected') => {
     openModal({
-      type: `${action === 'Request' ? 'RequestRevision' : 'RejectQuote'}Modal`,
+      type: `${
+        action === 'Request revision' ? 'RequestRevision' : 'RejectQuote'
+      }Modal`,
       children: (
         <SelectReasonModal
           onClose={() =>
             closeModal(
               `${
-                action === 'Request' ? 'RequestRevision' : 'RejectQuote'
+                action === 'Request revision'
+                  ? 'RequestRevision'
+                  : 'RejectQuote'
               }Modal`,
             )
           }
-          onClick={() => {
-            action === 'Request' ? handleRequestRevision() : handleRejectQuote()
+          onClick={(
+            status: QuoteStatusType,
+            cancelReason: CancelReasonType,
+          ) => {
+            action === 'Request revision'
+              ? handleRequestRevision(status, cancelReason)
+              : handleRejectQuote(status, cancelReason)
           }}
-          vary={action === 'Request' ? 'successful' : 'error'}
+          vary={action === 'Request revision' ? 'successful' : 'error'}
           title={
-            action === 'Request'
+            action === 'Request revision'
               ? 'Are you sure you want to request a revision of the quote?'
               : 'Are you sure you want to reject this quote?'
           }
-          rightButtonText={action}
+          rightButtonText={action === 'Request revision' ? 'Request' : 'Reject'}
+          action={action}
+          from={'client'}
         />
       ),
     })
@@ -165,7 +219,7 @@ const ClientQuote = ({
               <Button
                 variant='outlined'
                 fullWidth
-                onClick={() => onClickAction('Request')}
+                onClick={() => onClickAction('Request revision')}
               >
                 Request revision
               </Button>
@@ -180,7 +234,7 @@ const ClientQuote = ({
                 variant='outlined'
                 color='error'
                 fullWidth
-                onClick={() => onClickAction('Reject')}
+                onClick={() => onClickAction('Rejected')}
               >
                 Reject this quote
               </Button>

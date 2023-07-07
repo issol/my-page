@@ -36,6 +36,7 @@ import { FilterType } from '..'
 import {
   ClientQuoteStatus,
   ClientStatus,
+  QuotesStatus,
   WorkStatus,
 } from '@src/shared/const/status/statuses'
 import {
@@ -169,7 +170,11 @@ export default function QuotesFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={ClientQuoteStatus}
+                          options={
+                            role.name === 'CLIENT'
+                              ? ClientQuoteStatus
+                              : QuotesStatus
+                          }
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (

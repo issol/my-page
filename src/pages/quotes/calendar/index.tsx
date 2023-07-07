@@ -52,7 +52,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetQuotesCalendarData(year, month, {
+  const { data, isLoading } = useGetQuotesCalendarData(year, month + 1, {
     seeMyQuotes,
     hideCompletedQuotes,
     ...filters,

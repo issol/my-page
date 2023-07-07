@@ -6,7 +6,7 @@ import { QuoteStatusType } from '../common/quotes.type'
 export const quotesProjectInfoDefaultValue = {
   status: 'New' as QuoteStatusType,
   projectName: '',
-  quoteDate: Date(),
+  isShowDescription: false,
 }
 export const quotesProjectInfoSchema = yup.object().shape({
   status: yup.string().required(FormErrors.required),
@@ -17,7 +17,15 @@ export const quotesProjectInfoSchema = yup.object().shape({
 
   serviceType: yup.array().of(yup.string()).nullable(),
   expertise: yup.array().of(yup.string()).nullable(),
-  quoteDate: yup.date().required(FormErrors.required),
+  // quoteDate: yup.date().required(FormErrors.required),
+  quoteDate: yup.object().shape({
+    date: yup.date().required(FormErrors.required),
+    timezone: yup.object().shape({
+      code: yup.string().required(),
+      label: yup.string().required(),
+      phone: yup.string().required(),
+    }),
+  }),
   projectDueDate: yup.object().shape({
     date: yup.date().nullable(),
     timezone: yup.object().shape({
@@ -50,4 +58,5 @@ export const quotesProjectInfoSchema = yup.object().shape({
       phone: yup.string().nullable(),
     }),
   }),
+  isShowDescription: yup.boolean().required(),
 })

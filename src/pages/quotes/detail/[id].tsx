@@ -122,8 +122,19 @@ import { toast } from 'react-hot-toast'
 import { quotes } from '@src/shared/const/permission-class'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './components/client-quote'
+import SelectReasonModal from '../components/modal/select-reason-modal'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { update } from 'lodash'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
+
+export type updateProjectInfoType =
+  | QuotesProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientPostType
+  | { tax: null | number; taxable: boolean }
+  | { status: QuoteStatusType }
+  | { status: QuoteStatusType; cancelReason: CancelReasonType }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -203,7 +214,10 @@ export default function QuotesDetail() {
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        quoteDate: project.quoteDate,
+        quoteDate: {
+          date: project.quoteDate,
+          timezone: project.quoteDateTimezone ?? defaultTimezone,
+        },
         projectDueDate: {
           date: project.projectDueAt,
           timezone: project.projectDueTimezone ?? defaultTimezone,
@@ -526,13 +540,6 @@ export default function QuotesDetail() {
     })
   }
 
-  type updateProjectInfoType =
-    | QuotesProjectInfoFormType
-    | ProjectTeamFormType
-    | ClientPostType
-    | { tax: null | number; taxable: boolean }
-    | { status: QuoteStatusType }
-
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
@@ -658,6 +665,25 @@ export default function QuotesDetail() {
     },
     onError: () => onMutationError(),
   })
+
+  const onClickCancel = () => {
+    openModal({
+      type: 'CancelQuoteModal',
+      children: (
+        <SelectReasonModal
+          onClose={() => closeModal('CancelQuoteModal')}
+          onClick={(status: QuoteStatusType, cancelReason: CancelReasonType) =>
+            updateProject.mutate({ status: status, cancelReason: cancelReason })
+          }
+          title='Are you sure you want to cancel this quote?'
+          vary='error'
+          rightButtonText='Cancel'
+          action='Canceled'
+          from='lsp'
+        />
+      ),
+    })
+  }
 
   const onClickDelete = () => {
     openModal({
@@ -874,6 +900,17 @@ export default function QuotesDetail() {
               >
                 Create order
               </Button>
+              <Button
+                variant='contained'
+                disabled={
+                  project?.status !== 'New' &&
+                  project?.status !== 'In preparation' &&
+                  project?.status !== 'Internal review' &&
+                  project?.status !== 'Under revision'
+                }
+              >
+                Confirm quote
+              </Button>
             </Box>
           )}
         </Box>
@@ -949,6 +986,7 @@ export default function QuotesDetail() {
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
+                  updateProject={updateProject}
                 />
               ) : null}
             </Suspense>
@@ -966,6 +1004,7 @@ export default function QuotesDetail() {
                         watch={projectInfoWatch}
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
+                        getClientValue={getClientValue}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -993,10 +1032,25 @@ export default function QuotesDetail() {
                       role={currentRole!}
                       client={client}
                       type='detail'
+                      updateProject={updateProject}
                     />
                   </Card>
                   {currentRole && currentRole.name === 'CLIENT' ? null : (
-                    <Grid container sx={{ mt: '24px' }}>
+                    <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={!isUpdatable}
+                            onClick={onClickCancel}
+                          >
+                            Cancel this quote
+                          </Button>
+                        </Card>
+                      </Grid>
                       <Grid item xs={4}>
                         <Card sx={{ padding: '20px', width: '100%' }}>
                           <Button
