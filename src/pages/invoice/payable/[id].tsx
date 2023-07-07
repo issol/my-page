@@ -31,8 +31,6 @@ import InvoiceInfo from './components/detail/invoice-info'
 import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
-import ErrorBoundary from '@src/@core/components/error/error-boundary'
-import ErrorFallback from '@src/@core/components/error/error-fallback'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import PayableHistory from './components/detail/version-history'
 
