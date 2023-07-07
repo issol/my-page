@@ -224,6 +224,7 @@ const CompanyInfo = () => {
               : undefined,
         }
         patchCompanyInfoMutation.mutate({ ...res })
+        setInfoEdit(false)
       } else {
         const data = addressGetValues()
         console.log(data)
@@ -239,6 +240,7 @@ const CompanyInfo = () => {
           address: res,
           companyId: companyInfo.id!,
         })
+        setAddressEdit(false)
       }
     }
   }

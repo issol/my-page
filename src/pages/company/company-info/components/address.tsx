@@ -277,21 +277,21 @@ const CompanyInfoAddress = ({
                           flex: 1,
                         }}
                       >
-                        {value.name && (
+                        {
                           <Chip
-                            label={value.name}
+                            label={value.name || 'Office'}
                             rounded
                             color={
                               value.name === 'Korea office'
                                 ? 'info'
                                 : value.name === 'Japan office'
                                 ? 'success'
-                                : 'default'
+                                : 'info'
                             }
                             skin='light'
                             sx={{ color: '#000' }}
                           />
-                        )}
+                        }
                       </Box>
                     </Box>
 
