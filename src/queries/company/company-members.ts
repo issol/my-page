@@ -9,7 +9,7 @@ import {
   ResponseRequestsType,
   SignUpRequestsType,
 } from 'src/types/company/members'
-
+import { splitRole, filterRole, sortRole } from '@src/shared/helpers/role-helper'
 export const useGetSignUpRequests = (ability: boolean) => {
   return useQuery(
     'signup-requests',
@@ -44,10 +44,12 @@ export const useGetMembers = (ability: boolean) => {
     enabled: ability,
 
     select: (data: ResponseMembersType[]) => {
+      const sortedRole = ''
+
       return data.map((value: ResponseMembersType) => ({
         id: value.userId,
-        role: value.permissionGroups,
-        permission: value.type ?? 'General',
+        role: sortRole(filterRole(splitRole(value.permissionGroups)),'role'),
+        permission: sortRole(filterRole(splitRole(value.permissionGroups)),'permission'),
         email: value.email,
         firstName: value.firstName ?? '-',
         middleName: value.middleName ?? '',
