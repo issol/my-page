@@ -35,3 +35,8 @@ export const sortRole = (role: RoleType[], mode: 'role' | 'permission') => {
   else if(mode === 'permission') return sortedData.map(item => item.permission)
   else return []
 }
+
+export const joinRole = (role:string[]) => {
+  // 현재는 새롭게 Role을 추가할때 permission은 무조건 General 이므로 ${role}-General 이 되도록 하드코딩함
+  return role.map((item, idx) => `${item}-General`)
+}

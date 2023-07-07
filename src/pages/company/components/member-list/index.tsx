@@ -42,6 +42,7 @@ import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
+import { joinRole } from '@src/shared/helpers/role-helper'
 
 interface CellType {
   row: MembersType
@@ -133,16 +134,18 @@ const MemberList = ({
       patchMemberMutation.mutate(
         {
           userId: res!.id,
-          permissionGroups: res!.role,
+          permissionGroups: joinRole(res!.role),
         },
         {
           onSuccess: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
           },
           onError: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
             toast.error('Something went wrong. Please try again.', {
