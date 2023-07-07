@@ -41,6 +41,7 @@ import { patchMember } from '@src/apis/company/company-members.api'
 import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 interface CellType {
   row: MembersType
@@ -67,6 +68,7 @@ type Props = {
     unknown
   >
   deleteMemberMutation: UseMutationResult<void, unknown, number, unknown>
+  hasGeneralPermission: boolean
 }
 const MemberList = ({
   membersPage,
@@ -76,6 +78,7 @@ const MemberList = ({
   memberList,
   patchMemberMutation,
   deleteMemberMutation,
+  hasGeneralPermission,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -84,7 +87,7 @@ const MemberList = ({
   const [editRow, setEditRow] = useState<boolean>(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-
+  const userAccess = useAppSelector(state => state.userAccess)
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
     setSelectedMember(member)
@@ -328,6 +331,7 @@ const MemberList = ({
       disableColumnMenu: true,
 
       renderCell: ({ row }: CellType) => {
+        console.log("row",row)
         return (
           <Typography noWrap variant='body2'>
             {/* {row.role.map(value => {
@@ -358,8 +362,13 @@ const MemberList = ({
       disableColumnMenu: true,
       renderCell: ({ row }: CellType) => {
         return (
+
           <Typography noWrap variant='body2'>
-            {row.permission}
+            {
+              row.permission.every(val => val === row.permission[0])
+              ? row.permission[0]
+              : row.permission.join(' / ')
+            }
           </Typography>
         )
       },
@@ -398,6 +407,8 @@ const MemberList = ({
       },
     },
   ]
+
+  const GeneralColumns = columns.filter(column => column.field !== 'action')
 
   useEffect(() => {
     setMembers(memberList)
@@ -503,7 +514,7 @@ const MemberList = ({
               )
             },
           }}
-          columns={columns}
+          columns={hasGeneralPermission ? GeneralColumns : columns}
           rows={members ?? []}
           // onCellClick={onCellClick}
 
