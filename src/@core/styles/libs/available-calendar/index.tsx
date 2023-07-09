@@ -46,6 +46,8 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       /* table */
       'table, tbody, td, thead, th, tr, .fc-scrollgrid.fc-scrollgrid-liquid': {
         border: 'none',
+
+        position: 'relative', //TODO: test code
       },
 
       /* day table header */
@@ -88,6 +90,27 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       '.fc-daygrid-day-top': {
         position: 'absolute',
         zIndex: 1,
+      },
+    },
+    '.offdays-menu': {
+      zIndex: 100,
+      cursor: 'pointer',
+      // position: 'absolute',
+      // top: '28px',
+      // left: '20px',
+      width: '82px',
+      background: '#ffffff',
+      borderRadius: '8px',
+      boxShadow:
+        '0px 3px 14px 2px rgba(76, 78, 100, 0.12), 0px 8px 10px 1px rgba(76, 78, 100, 0.14), 0px 5px 5px -3px rgba(76, 78, 100, 0.20)',
+      '& div': {
+        padding: '10px 10px',
+        display: 'flex',
+        justifyContent: 'flex-start',
+        borderRadius: '8px',
+        '&:hover': {
+          background: '#4c4e6497',
+        },
       },
     },
   }

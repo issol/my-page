@@ -37,11 +37,12 @@ import _ from 'lodash'
 import { yupResolver } from '@hookform/resolvers/yup'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import WorkDaysCalendar from './work-days-calendar'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import DatePicker, { CalendarContainer } from 'react-datepicker'
 import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import { getWeekends } from '@src/shared/helpers/date.helper'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
+import OffDayForm from './off-day-form'
+import { OffDayEventType } from '@src/types/common/calendar.type'
+import { offDaySchema } from '@src/types/schema/off-day.schema'
 /* TODO:
 about : 수정 버튼, 수정 form연결 및 schema => dialog 사용해야 함!!
 */
@@ -55,6 +56,7 @@ export default function MyPageOverview({ userInfo }: Props) {
 
   const [editProfile, setEditProfile] = useState(false)
   const [editNote, setEditNote] = useState(false)
+  const [editOffDay, setEditOffDay] = useState(false)
 
   //forms
   const [note, setNote] = useState('') //TODO: user정보로 초기화 해주기
@@ -79,8 +81,6 @@ export default function MyPageOverview({ userInfo }: Props) {
     resolver: yupResolver(getProfileSchema('edit')),
   })
 
-  const isFieldDirty = !_.isEmpty(dirtyFields)
-
   useEffect(() => {
     if (userInfo) {
       reset({
@@ -96,6 +96,7 @@ export default function MyPageOverview({ userInfo }: Props) {
     }
   }, [userInfo])
 
+  const isFieldDirty = !_.isEmpty(dirtyFields)
   function onCloseProfile() {
     if (isFieldDirty) {
       openModal({
@@ -127,6 +128,25 @@ export default function MyPageOverview({ userInfo }: Props) {
     setEditNote(false)
   }
 
+  /* available work days */
+  const {
+    control: offDayControl,
+    getValues: getOffDayValues,
+    setValue: setOffDayValues,
+    watch: watchOffDays,
+    reset: resetOffDay,
+    formState: { dirtyFields: offDayDirtyFields, isValid: isOffDayValid },
+  } = useForm<OffDayEventType>({
+    mode: 'onChange',
+    resolver: yupResolver(offDaySchema),
+  })
+
+  function onOffDaySave() {
+    //TODO: mutation붙이기 + confirm modal
+    setEditOffDay(false)
+    const data = getOffDayValues()
+  }
+
   const dateData = [
     {
       id: 1,
@@ -136,13 +156,32 @@ export default function MyPageOverview({ userInfo }: Props) {
     },
     {
       //   id: 2,
-      reason: '내맴',
+      reason: '일하기 싫어서',
       start: '2023-07-04',
       end: '2023-07-07',
+    },
+    {
+      //   id: 2,
+      reason: '일하기 싫어서',
+      start: '2023-08-01',
+      end: '2023-08-03',
+    },
+    {
+      //   id: 2,
+      reason: '일하기 싫어서',
+      start: '2023-06-01',
+      end: '2023-06-03',
     },
   ]
   const weekends = dateData.concat(getWeekends(2023, 7))
 
+  const offDayOptions = [
+    'I’ll be unavailable due to the other projects.',
+    'I’ll be on vacation.',
+    'Prefer not to share',
+    'etc.',
+  ]
+  console.log('vaelu', getOffDayValues())
   return (
     <Grid container spacing={6}>
       <Grid
@@ -173,13 +212,33 @@ export default function MyPageOverview({ userInfo }: Props) {
         <AvailableCalendarWrapper>
           <Card sx={{ padding: '20px' }}>
             <CardHeader
-              title='Available work days'
+              title={
+                <Box
+                  display='flex'
+                  alignItems='center'
+                  justifyContent='space-between'
+                >
+                  <Typography variant='h6'>Available work days</Typography>
+                  <IconButton onClick={() => setEditOffDay(true)}>
+                    <Icon
+                      style={{ color: 'rgb(102, 108, 255)' }}
+                      icon='gridicons:add'
+                    />
+                  </IconButton>
+                </Box>
+              }
               sx={{ mb: '24px', padding: 0 }}
             />
             <WorkDaysCalendar
               event={weekends}
+              year={year}
+              month={month}
               setMonth={setMonth}
               setYear={setYear}
+              showToolbar={true}
+              onEventClick={(event: any) => {
+                console.log('event', event)
+              }}
             />
             <Box
               display='flex'
@@ -193,7 +252,7 @@ export default function MyPageOverview({ userInfo }: Props) {
                 control={<Checkbox name='Off on weekends' />}
               />
 
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+              <Box display='flex' alignItems='center' gap='8px'>
                 <TimelineDot color='grey' />
                 <Typography
                   variant='caption'
@@ -293,6 +352,49 @@ export default function MyPageOverview({ userInfo }: Props) {
               Save
             </Button>
           </Box>
+        </DialogContent>
+      </Dialog>
+
+      {/* available day form */}
+      <Dialog
+        open={editOffDay}
+        onClose={() => setEditOffDay(false)}
+        maxWidth='xs'
+      >
+        <DialogContent>
+          <Grid container spacing={6}>
+            <OffDayForm
+              options={offDayOptions}
+              control={offDayControl}
+              setValue={setOffDayValues}
+              watch={watchOffDays}
+            />
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              alignItems='center'
+              gap='16px'
+              justifyContent='center'
+            >
+              <Button
+                variant='outlined'
+                onClick={() => {
+                  resetOffDay()
+                  setEditOffDay(false)
+                }}
+              >
+                Cancel
+              </Button>
+              <Button
+                variant='contained'
+                onClick={onOffDaySave}
+                disabled={!isOffDayValid || _.isEmpty(offDayDirtyFields)}
+              >
+                Save
+              </Button>
+            </Grid>
+          </Grid>
         </DialogContent>
       </Dialog>
     </Grid>
