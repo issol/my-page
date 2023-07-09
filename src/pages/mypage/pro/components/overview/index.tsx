@@ -136,7 +136,7 @@ export default function MyPageOverview({ userInfo }: Props) {
     watch: watchOffDays,
     reset: resetOffDay,
     formState: { dirtyFields: offDayDirtyFields, isValid: isOffDayValid },
-  } = useForm<OffDayEventType>({
+  } = useForm<OffDayEventType & { otherReason?: string }>({
     mode: 'onChange',
     resolver: yupResolver(offDaySchema),
   })
@@ -144,12 +144,16 @@ export default function MyPageOverview({ userInfo }: Props) {
   function onOffDaySave() {
     //TODO: mutation붙이기 + confirm modal
     setEditOffDay(false)
-    const data = getOffDayValues()
+    let data = getOffDayValues()
+    if (data?.otherReason) {
+      data = { ...data, reason: data.otherReason }
+    }
+    console.log('data', data)
   }
 
   const dateData = [
     {
-      id: 1,
+      id: 74,
       reason: '내맴',
       start: '2023-07-24',
       end: '2023-07-28',
@@ -161,13 +165,13 @@ export default function MyPageOverview({ userInfo }: Props) {
       end: '2023-07-07',
     },
     {
-      //   id: 2,
+      id: 75,
       reason: '일하기 싫어서',
       start: '2023-08-01',
       end: '2023-08-03',
     },
     {
-      //   id: 2,
+      id: 76,
       reason: '일하기 싫어서',
       start: '2023-06-01',
       end: '2023-06-03',
@@ -181,7 +185,7 @@ export default function MyPageOverview({ userInfo }: Props) {
     'Prefer not to share',
     'etc.',
   ]
-  console.log('vaelu', getOffDayValues())
+
   return (
     <Grid container spacing={6}>
       <Grid
@@ -236,8 +240,22 @@ export default function MyPageOverview({ userInfo }: Props) {
               setMonth={setMonth}
               setYear={setYear}
               showToolbar={true}
-              onEventClick={(event: any) => {
-                console.log('event', event)
+              onEventClick={(
+                type: 'edit' | 'delete',
+                info: OffDayEventType,
+              ) => {
+                //TODO: type에 따라 edit, delete처리 해주기
+                console.log(type, 'info', info)
+                if (type === 'edit') {
+                  const isEtc =
+                    offDayOptions.find(opt => opt === info.reason) === undefined
+                  resetOffDay({
+                    ...info,
+                    reason: isEtc ? 'etc.' : info.reason,
+                    otherReason: isEtc ? info.reason : '',
+                  })
+                  setEditOffDay(true)
+                }
               }}
             />
             <Box

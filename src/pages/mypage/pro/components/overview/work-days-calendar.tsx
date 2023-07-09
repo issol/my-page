@@ -24,7 +24,7 @@ type Props = {
   month: number
   setYear: Dispatch<SetStateAction<number>>
   setMonth: Dispatch<SetStateAction<number>>
-  onEventClick?: (event: any) => void
+  onEventClick?: (type: 'edit' | 'delete', info: OffDayEventType) => void
   showToolbar: boolean
 }
 
@@ -33,8 +33,8 @@ const WorkDaysCalendar = (props: Props) => {
   const { event, year, month, setYear, setMonth, showToolbar } = props
   const cYear = new Date().getFullYear()
   const cMonth = new Date().getMonth() + 1
-  const isEditDisabled = (cYear == year && cMonth < month) || cYear < year
-  console.log('isEditDisabled', isEditDisabled, year, month)
+  const isEditDisabled = (cYear === year && cMonth > month) || cYear > year
+
   const finalEvent = event?.map(item => {
     return {
       ...item,
@@ -52,6 +52,9 @@ const WorkDaysCalendar = (props: Props) => {
   // ** Refs
   const calendarRef = useRef()
 
+  const editBtn = document.getElementsByClassName('off-edit')
+  const deleteBtn = document.getElementsByClassName('off-delete')
+
   const calendarOptions = {
     events: finalEvent || [],
     plugins: [dayGridPlugin, interactionPlugin],
@@ -68,10 +71,28 @@ const WorkDaysCalendar = (props: Props) => {
 
       if (!props?.onEventClick || isEditDisabled) return
       makeMenuElement(eventEl)
-
-      //   if (props?.onEventClick) {
-      //     props.onEventClick(info)
-      //   }
+      if (
+        props?.onEventClick !== undefined &&
+        editBtn?.length &&
+        deleteBtn?.length
+      ) {
+        const data = {
+          id: Number(info?.event?._def?.publicId),
+          reason: info?.event?._def?.extendedProps?.reason,
+          start: info?.event?._instance?.range?.start,
+          end: info?.event?._instance?.range?.end,
+        }
+        editBtn[0].addEventListener('click', () => {
+          removeMenu()
+          // @ts-ignore
+          props?.onEventClick('edit', data)
+        })
+        deleteBtn[0].addEventListener('click', () => {
+          removeMenu()
+          // @ts-ignore
+          props?.onEventClick('delete', data)
+        })
+      }
     },
 
     eventMouseEnter(info: any) {
@@ -88,10 +109,6 @@ const WorkDaysCalendar = (props: Props) => {
     },
 
     eventMouseLeave() {
-      const menus = document.getElementsByClassName('offdays-menu')
-      Array.from(menus).forEach(menu => {
-        menu.remove()
-      })
       if (!showToolbar) return
       const tooltips = document.getElementsByClassName('tooltip')
       Array.from(tooltips).forEach(tooltip => {
@@ -103,7 +120,7 @@ const WorkDaysCalendar = (props: Props) => {
   async function handleMonthChange(payload: DatesSetArg) {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
-    const currMonth = currDate.getMonth() + 1 + 1
+    const currMonth = currDate.getMonth() + 1
     setYear(currYear)
     setMonth(currMonth)
   }
@@ -115,21 +132,24 @@ const WorkDaysCalendar = (props: Props) => {
     const isExist = document.getElementsByClassName('offdays-menu')
 
     let box1 = document.createElement('div')
-    box1.className = 'box'
+    box1.className = 'off-edit'
     box1.textContent = 'Edit'
     menu.appendChild(box1)
     let box2 = document.createElement('div')
-    box2.className = 'box'
+    box2.className = 'off-delete'
     box2.textContent = 'Delete'
     menu.appendChild(box2)
 
-    if (isExist?.length) return
+    if (isExist?.length) {
+      removeMenu()
+      return
+    }
     const parentEl =
       eventEl.parentElement.parentElement.parentElement.parentElement
         .parentElement.parentElement
 
     const rect = eventEl.getBoundingClientRect()
-    console.log('rect', rect)
+    // console.log('rect', rect)
     menu.style.position = 'absolute'
     adjustPosition(menu, rect)
     parentEl.appendChild(menu)
@@ -144,7 +164,14 @@ const WorkDaysCalendar = (props: Props) => {
     if (rect.y > 400) {
       menu.style.top = Number(Number(rect.top) / 1).toString() + 'px'
     }
-    menu.style.top = Number(Number(rect.top) / 5).toString() + 'px'
+    menu.style.top = Number(Number(rect.top) / 10).toString() + 'px'
+  }
+
+  function removeMenu() {
+    const menus = document.getElementsByClassName('offdays-menu')
+    Array.from(menus).forEach(menu => {
+      menu.remove()
+    })
   }
 
   //@ts-ignore
