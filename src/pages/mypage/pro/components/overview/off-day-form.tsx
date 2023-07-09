@@ -17,9 +17,9 @@ import { OffDayEventType } from '@src/types/common/calendar.type'
 
 type Props = {
   options: string[]
-  control: Control<OffDayEventType, any>
-  setValue: UseFormSetValue<OffDayEventType>
-  watch: UseFormWatch<OffDayEventType>
+  control: Control<OffDayEventType & { otherReason?: string }, any>
+  setValue: UseFormSetValue<OffDayEventType & { otherReason?: string }>
+  watch: UseFormWatch<OffDayEventType & { otherReason?: string }>
 }
 export default function OffDayForm({
   options,
@@ -29,6 +29,7 @@ export default function OffDayForm({
 }: Props) {
   const end = watch('end')
   const reason = watch('reason')
+
   return (
     <Fragment>
       <Grid item xs={12}>
@@ -94,7 +95,7 @@ export default function OffDayForm({
       {reason === 'etc.' ? (
         <Controller
           control={control}
-          name='reason'
+          name='otherReason'
           render={({ field: { onChange, value } }) => (
             <Grid item xs={12}>
               <TextField
