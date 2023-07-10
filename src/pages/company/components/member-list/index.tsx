@@ -42,7 +42,7 @@ import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
-import { joinRole } from '@src/shared/helpers/role-helper'
+import { splitPermissionName } from '@src/shared/helpers/role-helper'
 
 interface CellType {
   row: MembersType
@@ -106,6 +106,7 @@ const MemberList = ({
   const handleEditCancel = () => {
     setSelectedMember(null)
     setEditRow(false)
+    setMembers(memberList)
   }
 
   const handleDeleteMember = () => {
@@ -134,7 +135,7 @@ const MemberList = ({
       patchMemberMutation.mutate(
         {
           userId: res!.id,
-          permissionGroups: joinRole(res!.role),
+          permissionGroups: res!.role,
         },
         {
           onSuccess: () => {
@@ -156,7 +157,7 @@ const MemberList = ({
       )
     }
 
-    // setSelectedMember(null)
+    setSelectedMember(null)
   }
 
   const onClickEditSave = () => {
@@ -267,10 +268,15 @@ const MemberList = ({
       role: string[]
     },
   ) => {
+    const addRole = () => {
+      if (role.includes('LPM')) return [role, 'TAD-General']
+      else if (role.includes('TAD')) return ['LPM-General', role]
+      else return [role]
+    }
     setMembers(prevState =>
       prevState.map(value => ({
         ...value,
-        role: value.id === user.id ? ['LPM', 'TAD'] : value.role,
+        role: value.id === user.id ? addRole() : value.role,
       })),
     )
   }
@@ -379,13 +385,14 @@ const MemberList = ({
       sortable: false,
       disableColumnMenu: true,
       renderCell: ({ row }: CellType) => {
+        const splitPermission = row.role.map(item => splitPermissionName(item))
         return (
 
           <Typography noWrap variant='body2'>
             {
-              row.permission.every(val => val === row.permission[0])
-              ? row.permission[0]
-              : row.permission.join(' / ')
+              splitPermission.every(val => val === splitPermission[0])
+              ? splitPermission[0]
+              : splitPermission.join(' / ')
             }
           </Typography>
         )
