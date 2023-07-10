@@ -198,6 +198,10 @@ export default function PaymentInfo({ clientId }: Props) {
     //
   }
 
+  function onSaveBillingAddress() {
+    const data = getValues()
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12} md={8}>
@@ -222,6 +226,7 @@ export default function PaymentInfo({ clientId }: Props) {
               }
             />
             <CardContent>
+              {/* TODO: 받아온 데이터 넣어주기 */}
               <BillingAddress /* clientId={clientId}  */ />
             </CardContent>
           </Card>
@@ -270,10 +275,15 @@ export default function PaymentInfo({ clientId }: Props) {
               justifyContent='center'
               gap='16px'
             >
+              {/* TODO: cancel시 user data로 form reset해주기 */}
               <Button variant='outlined' onClick={() => setEditAddress(false)}>
                 Cancel
               </Button>
-              <Button variant='contained' disabled={!isValid}>
+              <Button
+                variant='contained'
+                disabled={!isValid}
+                onClick={onSaveBillingAddress}
+              >
                 Save
               </Button>
             </Grid>

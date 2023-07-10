@@ -4,6 +4,7 @@ import {
   ClientPaymentInfoDetail,
   OfficeType,
 } from '@src/types/payment-info/client/index.type'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 
 export const getClientOfficeList = async (
   clientId: number,
@@ -54,3 +55,19 @@ export const deleteClientPaymentInfo = async (
     throw new Error(e)
   }
 }
+
+/* TODO: api변경될 여지 있음 */
+// export const uploadClientPaymentFile = async (
+//   paymentId: number,
+//   file: FileItemType,
+// ): Promise<void> => {
+//   try {
+//     const { data } = await axios.post(
+//       `/api/enough/u/client/payment-info/${paymentId}/upload-file`,
+//       file,
+//     )
+//     return data
+//   } catch (e: any) {
+//     throw new Error(e)
+//   }
+// }

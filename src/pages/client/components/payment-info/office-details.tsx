@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -30,12 +29,18 @@ import {
   PaymentMethodUnionType,
   PaymentType,
 } from '@src/types/payment-info/client/index.type'
+
+// ** apis
 import {
   useGetClientOffice,
   useGetClientPaymentInfo,
 } from '@src/queries/payment/client-payment.query'
-import { useMutation, useQueryClient } from 'react-query'
 import { createClientPaymentInfo } from '@src/apis/payment/client-payment.api'
+
+// ** hooks
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** third parties
 import { toast } from 'react-hot-toast'
 
 type Props = {
@@ -60,7 +65,7 @@ export default function OfficeDetails({ clientId }: Props) {
           return -1
         })
     : []
-  console.log('earliestData', earliestData)
+
   const [office, setOffice] = useState<OfficeType>(
     paymentInfo && paymentInfo?.length <= 1
       ? paymentInfo[0].office
