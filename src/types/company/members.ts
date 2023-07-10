@@ -14,7 +14,7 @@ export type MembersType = {
   email: string
   jobTitle: string | null
   role: string[]
-  permission: string
+  permission: string[]
   createdAt: string
   updatedAt: string
 }

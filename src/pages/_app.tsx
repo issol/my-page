@@ -94,6 +94,7 @@ import {
 import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
 import { ErrorBoundary } from 'react-error-boundary'
+import DetailNoUser from '@src/@core/components/error/detail-no-user'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -250,12 +251,26 @@ const App = (props: ExtendedAppProps) => {
                                   setErrorString('')
                                 }}
                                 resetKeys={[errorString]}
-                                fallbackRender={({ resetErrorBoundary }) => {
-                                  return (
-                                    <ErrorFallback
-                                      resetErrorBoundary={resetErrorBoundary}
-                                    />
-                                  )
+                                fallbackRender={({
+                                  error,
+                                  resetErrorBoundary,
+                                }) => {
+                                  if (
+                                    error &&
+                                    error.response.status === 400 &&
+                                    (router.asPath.includes('/pro/detail') ||
+                                      router.asPath.includes(
+                                        '/onboarding/detail',
+                                      ))
+                                  ) {
+                                    return <DetailNoUser />
+                                  } else {
+                                    return (
+                                      <ErrorFallback
+                                        resetErrorBoundary={resetErrorBoundary}
+                                      />
+                                    )
+                                  }
                                 }}
                               >
                                 {getLayout(<Component {...pageProps} />)}

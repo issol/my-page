@@ -41,6 +41,8 @@ import { patchMember } from '@src/apis/company/company-members.api'
 import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { useAppSelector } from 'src/hooks/useRedux'
+import { splitPermissionName } from '@src/shared/helpers/role-helper'
 
 interface CellType {
   row: MembersType
@@ -67,6 +69,7 @@ type Props = {
     unknown
   >
   deleteMemberMutation: UseMutationResult<void, unknown, number, unknown>
+  hasGeneralPermission: boolean
 }
 const MemberList = ({
   membersPage,
@@ -76,6 +79,7 @@ const MemberList = ({
   memberList,
   patchMemberMutation,
   deleteMemberMutation,
+  hasGeneralPermission,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -84,11 +88,15 @@ const MemberList = ({
   const [editRow, setEditRow] = useState<boolean>(false)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
-
+  const userAccess = useAppSelector(state => state.userAccess)
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
-    setSelectedMember(member)
-    setAnchorEl(event.currentTarget)
+    if(!selectedMember) {
+      setSelectedMember(member)
+      setAnchorEl(event.currentTarget)
+    } else {
+      onClickEditCancel()
+    }
   }
 
   const handleClose = () => {
@@ -96,8 +104,9 @@ const MemberList = ({
   }
 
   const handleEditCancel = () => {
-    setEditRow(false)
     setSelectedMember(null)
+    setEditRow(false)
+    setMembers(memberList)
   }
 
   const handleDeleteMember = () => {
@@ -131,11 +140,13 @@ const MemberList = ({
         {
           onSuccess: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
           },
           onError: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
             toast.error('Something went wrong. Please try again.', {
@@ -146,7 +157,7 @@ const MemberList = ({
       )
     }
 
-    // setSelectedMember(null)
+    setSelectedMember(null)
   }
 
   const onClickEditSave = () => {
@@ -198,25 +209,37 @@ const MemberList = ({
   }
 
   const onClickEditCancel = () => {
+    // if (selectedMember) {
+    //   const obj: MembersType = members.find(
+    //     value => value.id === selectedMember.id,
+    //   )!
+    //   if (selectedMember === obj) {
+    //     setEditRow(false)
+    //     setSelectedMember(null)
+    //     setMembers(memberList)
+    //   } else {
+    //     openModal({
+    //       type: 'EditCancelMemberModal',
+    //       children: (
+    //         <DiscardChangesModal
+    //           onClose={() => closeModal('EditCancelMemberModal')}
+    //           onDiscard={handleEditCancel}
+    //         />
+    //       ),
+    //     })
+    //   }
+    // }
+
     if (selectedMember) {
-      const obj: MembersType = members.find(
-        value => value.id === selectedMember.id,
-      )!
-      if (selectedMember === obj) {
-        setEditRow(false)
-        setSelectedMember(null)
-        setMembers(memberList)
-      } else {
-        openModal({
-          type: 'EditCancelMemberModal',
-          children: (
-            <DiscardChangesModal
-              onClose={() => closeModal('EditCancelMemberModal')}
-              onDiscard={handleEditCancel}
-            />
-          ),
-        })
-      }
+      openModal({
+        type: 'EditCancelMemberModal',
+        children: (
+          <DiscardChangesModal
+            onClose={() => closeModal('EditCancelMemberModal')}
+            onDiscard={handleEditCancel}
+          />
+        ),
+      })
     }
   }
 
@@ -245,10 +268,15 @@ const MemberList = ({
       role: string[]
     },
   ) => {
+    const addRole = () => {
+      if (role.includes('LPM')) return [role, 'TAD-General']
+      else if (role.includes('TAD')) return ['LPM-General', role]
+      else return [role]
+    }
     setMembers(prevState =>
       prevState.map(value => ({
         ...value,
-        role: value.id === user.id ? ['LPM', 'TAD'] : value.role,
+        role: value.id === user.id ? addRole() : value.role,
       })),
     )
   }
@@ -340,7 +368,7 @@ const MemberList = ({
               }}
               handleDeleteRole={handleDeleteRole}
               handleAddRole={handleAddRole}
-              editRow={editRow}
+              editRow={editRow && selectedMember?.id === row.id}
             />
             {/* {RenderChips(row.role, handleDeleteRole)} */}
           </Typography>
@@ -357,9 +385,15 @@ const MemberList = ({
       sortable: false,
       disableColumnMenu: true,
       renderCell: ({ row }: CellType) => {
+        const splitPermission = row.role.map(item => splitPermissionName(item))
         return (
+
           <Typography noWrap variant='body2'>
-            {row.permission}
+            {
+              splitPermission.every(val => val === splitPermission[0])
+              ? splitPermission[0]
+              : splitPermission.join(' / ')
+            }
           </Typography>
         )
       },
@@ -376,7 +410,7 @@ const MemberList = ({
       renderCell: ({ row }: CellType) => {
         return (
           <>
-            {editRow ? (
+            {editRow && selectedMember?.id === row.id ? (
               <Box sx={{ display: 'flex', gap: '12px' }}>
                 <Button variant='outlined' onClick={onClickEditCancel}>
                   Cancel
@@ -398,6 +432,8 @@ const MemberList = ({
       },
     },
   ]
+
+  const GeneralColumns = columns.filter(column => column.field !== 'action')
 
   useEffect(() => {
     setMembers(memberList)
@@ -434,7 +470,7 @@ const MemberList = ({
         >
           <MenuItem
             sx={{ gap: 2 }}
-            onClick={() => {
+            onClick={(e) => {
               selectedMember && onClickEditMember()
             }}
           >
@@ -503,7 +539,7 @@ const MemberList = ({
               )
             },
           }}
-          columns={columns}
+          columns={hasGeneralPermission ? GeneralColumns : columns}
           rows={members ?? []}
           // onCellClick={onCellClick}
 

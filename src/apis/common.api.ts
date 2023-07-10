@@ -8,6 +8,14 @@ export enum FilePathEnum {
 }
 type Paths = FilePathEnum.resume | FilePathEnum.contract
 
+export type StatusType =
+  | 'RequestClient'
+  | 'Quote'
+  | 'Order'
+  | 'InvoiceReceivable'
+  | 'InvoicePayable'
+  | 'Job'
+
 //resume, contract form 용 (유저 개개인용)
 export const getPresignedUrl = async (
   userId: number,
@@ -79,4 +87,22 @@ export const uploadFileToS3 = async (url: string, file: any) => {
       'Content-Type': file.type,
     },
   })
+}
+
+export const getStatusList = async (
+  type: StatusType,
+): Promise<Array<{ value: number; label: string }>> => {
+  try {
+    const { data } = await axios.get(`/api/enough/u/status/list?type=${type}`)
+    console.log(data)
+
+    const res = data.map((item: any) => ({
+      label: item.status,
+      value: item.statusCode,
+    }))
+
+    return res
+  } catch (e: any) {
+    return []
+  }
 }

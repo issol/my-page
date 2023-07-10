@@ -32,7 +32,10 @@ import {
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
@@ -71,8 +74,9 @@ import {
   createItemsForQuotes,
   createLangPairForQuotes,
   createQuotesInfo,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 
 export type languageType = {
   id: number | string
@@ -201,11 +205,19 @@ export default function AddNewQuotes() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      ...quotesProjectInfoDefaultValue,
+      quoteDate: {
+        date: Date(),
+        timezone: JSON.parse(getUserDataFromBrowser()!).timezone,
+      },
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
+
+  console.log(JSON.parse(getUserDataFromBrowser()!).timezone)
 
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -384,6 +396,11 @@ export default function AddNewQuotes() {
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
+
+    const subTotal = getItem().items.reduce(
+      (acc, item) => acc + item.totalPrice,
+      0,
+    )
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -543,6 +560,7 @@ export default function AddNewQuotes() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  getClientValue={getClientValue}
                 />
                 <Grid
                   item

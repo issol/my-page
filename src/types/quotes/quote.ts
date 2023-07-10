@@ -9,7 +9,7 @@ export type QuotesFilterType = {
   quoteExpiryDate?: Date[]
   hideCompletedQuotes?: 0 | 1
   seeMyQuotes?: 0 | 1
-  status?: string[]
+  status?: number[]
   client?: string[]
   category?: string[]
   serviceType?: string[]
