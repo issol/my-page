@@ -45,6 +45,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   id?: number
@@ -56,6 +57,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   const [value, setValue] = useState<string>(
     currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
   )
+  const { data: statusList } = useGetStatusList('Quote')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -205,6 +207,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 downloadLanguage={downloadLanguage}
                 setDownloadLanguage={setDownloadLanguage}
                 type='history'
+                statusList={statusList!}
                 // onClickDownloadQuotes={onClickDownloadQuotes}
               />
             ) : null}
