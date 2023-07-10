@@ -74,6 +74,12 @@ type Props = {
   user: UserDataType
 }
 
+/* TODO
+1. file upload
+2. file delete
+3. off day post, delete, update
+4. userInfo update : profile, experience, notes, specialties
+*/
 export default function MyPageOverview({ user, userInfo }: Props) {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -482,7 +488,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 gap='10px'
                 mt='11px'
               >
-                {/* TODO: off on weekends값도 서버에 저장하기 */}
+                {/* TODO: off on weekends값도 서버에 저장하기, 유저 정보에 따라 checked처리 해주기. 나중에 off day받아올 때 쿼리 파라미터로 보내야 함 */}
                 <FormControlLabel
                   label='Off on weekends'
                   control={<Checkbox name='Off on weekends' />}
