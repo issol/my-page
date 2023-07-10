@@ -32,7 +32,10 @@ import {
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
@@ -71,7 +74,7 @@ import {
   createItemsForQuotes,
   createLangPairForQuotes,
   createQuotesInfo,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { getUserDataFromBrowser } from '@src/shared/auth/storage'
 
@@ -202,7 +205,7 @@ export default function AddNewQuotes() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
     defaultValues: {
       ...quotesProjectInfoDefaultValue,

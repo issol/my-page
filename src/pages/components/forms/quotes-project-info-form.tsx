@@ -57,16 +57,19 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import { AuthContext } from '@src/context/AuthContext'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
-  control: Control<QuotesProjectInfoFormType, any>
-  setValue: UseFormSetValue<QuotesProjectInfoFormType>
-  watch: UseFormWatch<QuotesProjectInfoFormType>
-  errors: FieldErrors<QuotesProjectInfoFormType>
+  control: Control<QuotesProjectInfoAddNewType, any>
+  setValue: UseFormSetValue<QuotesProjectInfoAddNewType>
+  watch: UseFormWatch<QuotesProjectInfoAddNewType>
+  errors: FieldErrors<QuotesProjectInfoAddNewType>
   clientTimezone?: CountryType | undefined
   getClientValue: UseFormGetValues<ClientFormType>
 }

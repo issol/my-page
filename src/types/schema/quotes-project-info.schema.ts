@@ -4,12 +4,11 @@ import { OrderStatusType } from '../common/orders.type'
 import { QuoteStatusType } from '../common/quotes.type'
 
 export const quotesProjectInfoDefaultValue = {
-  status: 'New' as QuoteStatusType,
   projectName: '',
   isShowDescription: false,
 }
 export const quotesProjectInfoSchema = yup.object().shape({
-  status: yup.string().required(FormErrors.required),
+  status: yup.number().required(FormErrors.required),
   workName: yup.string().nullable(),
   projectName: yup.string().required(FormErrors.required),
   projectDescription: yup.string().nullable(),

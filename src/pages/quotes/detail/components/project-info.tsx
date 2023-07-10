@@ -42,7 +42,7 @@ type Props = {
   project: ProjectInfoType | undefined
   setEditMode: (v: boolean) => void
   isUpdatable: boolean
-  updateStatus?: (status: QuoteStatusType) => void
+  updateStatus?: (status: number) => void
   role: UserRoleType
   client?: ClientType
   type: 'detail' | 'history'
@@ -52,6 +52,7 @@ type Props = {
     updateProjectInfoType,
     unknown
   >
+  statusList?: Array<{ value: number; label: string }>
 }
 
 export default function QuotesProjectInfoDetail({
@@ -63,6 +64,7 @@ export default function QuotesProjectInfoDetail({
   client,
   type,
   updateProject,
+  statusList,
 }: Props) {
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const { openModal, closeModal } = useModal()
@@ -186,14 +188,15 @@ export default function QuotesProjectInfoDetail({
                 <Autocomplete
                   autoHighlight
                   fullWidth
-                  options={QuotesStatus}
+                  options={statusList ?? []}
                   onChange={(e, v) => {
                     if (updateStatus && v?.value) {
-                      updateStatus(v.value as QuoteStatusType)
+                      updateStatus(v.value as number)
                     }
                   }}
                   value={
-                    QuotesStatus.find(item => item.value === project.status) ||
+                    (statusList &&
+                      statusList.find(item => item.label === project.status)) ||
                     null
                   }
                   renderInput={params => (

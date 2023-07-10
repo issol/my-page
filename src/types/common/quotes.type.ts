@@ -42,6 +42,24 @@ export type QuotesProjectInfoFormType = {
   taxable: boolean
 }
 
+export type QuotesProjectInfoAddNewType = {
+  status: number
+  workName?: string
+  projectName: string
+  projectDescription?: string
+  category: string
+  serviceType: Array<string>
+  expertise?: Array<string>
+  quoteDate: { date: string; timezone: CountryType }
+  projectDueDate: { date: string; timezone: CountryType }
+  quoteDeadline: { date: string; timezone: CountryType }
+  quoteExpiryDate: { date: string; timezone: CountryType }
+  estimatedDeliveryDate: { date: string; timezone: CountryType }
+  isShowDescription: boolean
+  tax: number | null
+  taxable: boolean
+}
+
 export type QuotesListType = {
   id: string
   corporationId: string

@@ -36,7 +36,7 @@ import { setIsReady } from '@src/store/quote'
 
 // ** apis
 import { useMutation } from 'react-query'
-import { patchQuoteProjectInfo } from '@src/apis/quotes.api'
+import { patchQuoteProjectInfo } from '@src/apis/quote/quotes.api'
 
 // ** languages
 import quoteEn from '@src/shared/i18/quotes/en.json'

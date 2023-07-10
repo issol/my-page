@@ -23,6 +23,7 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -258,8 +259,9 @@ export const patchQuoteProjectInfo = async (
     | QuotesProjectInfoFormType
     | ProjectTeamFormType
     | ClientFormType
-    | { status: QuoteStatusType }
+    | { status: number }
     | { tax: null | number; taxable: boolean }
+    | { status: number; cancelReason: CancelReasonType }
     | { downloadedAt: string },
 ) => {
   await axios.patch(`/api/enough/u/quote/${id}`, { ...form })

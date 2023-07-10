@@ -2,6 +2,7 @@ import {
   Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useContext,
   useEffect,
   useState,
@@ -77,6 +78,7 @@ import {
 import {
   QuoteDownloadData,
   QuoteStatusType,
+  QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -106,7 +108,7 @@ import {
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   restoreVersion,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
@@ -125,6 +127,8 @@ import ClientQuote from './components/client-quote'
 import SelectReasonModal from '../components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { update } from 'lodash'
+import { useGetStatusList } from '@src/queries/common.query'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -133,11 +137,12 @@ export type updateProjectInfoType =
   | ProjectTeamFormType
   | ClientPostType
   | { tax: null | number; taxable: boolean }
-  | { status: QuoteStatusType }
-  | { status: QuoteStatusType; cancelReason: CancelReasonType }
+  | { status: number }
+  | { status: number; cancelReason: CancelReasonType }
 
 export default function QuotesDetail() {
   const router = useRouter()
+  const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
   const currentRole = getCurrentRole()
@@ -193,27 +198,34 @@ export default function QuotesDetail() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      status: 20000,
+      projectName: '',
+      isShowDescription: false,
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
   useEffect(() => {
-    if (!isProjectLoading && project) {
+    if (!isProjectLoading && project && statusList) {
       const defaultTimezone = {
         code: '',
         phone: '',
         label: '',
       }
       projectInfoReset({
-        status: project.status,
+        status:
+          statusList?.find(value => value.label === project.status)?.value ??
+          20000,
         workName: project.workName,
         projectName: project.projectName,
         projectDescription: project.projectDescription,
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
+        isShowDescription: false,
         quoteDate: {
           date: project.quoteDate,
           timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -239,7 +251,7 @@ export default function QuotesDetail() {
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
     }
-  }, [isProjectLoading])
+  }, [isProjectLoading, statusList, project])
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -550,6 +562,7 @@ export default function QuotesDetail() {
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
+        queryClient.invalidateQueries(['quotesList'])
       },
       onError: () => onMutationError(),
     },
@@ -672,7 +685,7 @@ export default function QuotesDetail() {
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
-          onClick={(status: QuoteStatusType, cancelReason: CancelReasonType) =>
+          onClick={(status: number, cancelReason: CancelReasonType) =>
             updateProject.mutate({ status: status, cancelReason: cancelReason })
           }
           title='Are you sure you want to cancel this quote?'
@@ -680,6 +693,7 @@ export default function QuotesDetail() {
           rightButtonText='Cancel'
           action='Canceled'
           from='lsp'
+          statusList={statusList!}
         />
       ),
     })
@@ -719,6 +733,30 @@ export default function QuotesDetail() {
   function handlePrint() {
     closeModal('DownloadQuotesModal')
     router.push('/quotes/print')
+  }
+
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    if (editProject || editItems || editClient || editTeam) {
+      openModal({
+        type: 'EditAlertModal',
+        children: (
+          <EditAlertModal
+            onClose={() => closeModal('EditAlertModal')}
+            onClick={() => {
+              closeModal('EditAlertModal')
+              setMenu(newValue)
+              setEditProject(false)
+              setEditItems(false)
+              setEditClient(false)
+              setEditTeam(false)
+            }}
+          />
+        ),
+      })
+      return
+    }
+
+    setMenu(newValue)
   }
 
   useEffect(() => {
@@ -840,6 +878,8 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
+  console.log(getProjectInfoValues())
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -918,7 +958,7 @@ export default function QuotesDetail() {
       <Grid item xs={12}>
         <TabContext value={menu}>
           <TabList
-            onChange={(e, v) => setMenu(v)}
+            onChange={handleChange}
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
@@ -1026,13 +1066,14 @@ export default function QuotesDetail() {
                         currentRole! &&
                         currentRole.name !== 'CLIENT'
                       }
-                      updateStatus={(status: QuoteStatusType) =>
+                      updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
                       role={currentRole!}
                       client={client}
                       type='detail'
                       updateProject={updateProject}
+                      statusList={statusList!}
                     />
                   </Card>
                   {currentRole && currentRole.name === 'CLIENT' ? null : (

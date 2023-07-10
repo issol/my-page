@@ -102,6 +102,7 @@ type Props = {
     >
   >
   role: UserRoleType
+  quoteStatusList: Array<{ value: number; label: string }>
 }
 
 export default function QuotesFilters({
@@ -117,6 +118,7 @@ export default function QuotesFilters({
   categoryList,
   setCategoryList,
   role,
+  quoteStatusList,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -171,9 +173,10 @@ export default function QuotesFilters({
                           disableCloseOnSelect
                           limitTags={1}
                           options={
-                            role.name === 'CLIENT'
-                              ? ClientQuoteStatus
-                              : QuotesStatus
+                            quoteStatusList
+                            // role.name === 'CLIENT'
+                            //   ? ClientQuoteStatus
+                            //   : QuotesStatus
                           }
                           id='status'
                           getOptionLabel={option => option.label}
