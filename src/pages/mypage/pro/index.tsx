@@ -20,20 +20,26 @@ import Header from '../components/header'
 // ** types
 import { RoleType } from '@src/context/types'
 import MyPageOverview from './components/overview'
+import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 export default function ProMyPage() {
   const router = useRouter()
 
   const { user } = useContext(AuthContext)
+  const {
+    data: userInfo,
+    isError,
+    isFetched,
+  } = useGetMyOverview(Number(user?.userId!))
 
-  const userInfo = {
-    legalNamePronunciation: user?.legalNamePronunciation,
-    firstName: user?.firstName!,
-    lastName: user?.lastName!,
-    role: 'PRO' as RoleType,
-    email: user?.email!,
-  }
+  // const userInfo = {
+  //   legalNamePronunciation: user?.legalNamePronunciation,
+  //   firstName: user?.firstName!,
+  //   lastName: user?.lastName!,
+  //   role: 'PRO' as RoleType,
+  //   email: user?.email!,
+  // }
 
   const [value, setValue] = useState<MenuType>('overview')
 
@@ -76,7 +82,7 @@ export default function ProMyPage() {
             />
           </TabList>
           <TabPanel value='overview'>
-            <MyPageOverview userInfo={user!} />
+            <MyPageOverview userInfo={userInfo!} user={user!} />
           </TabPanel>
           <TabPanel value='paymentInfo'>payment info</TabPanel>
           <TabPanel value='myAccount'>my account</TabPanel>

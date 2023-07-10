@@ -7,16 +7,18 @@ import { Card, Divider, Typography } from '@mui/material'
 import { RoleType } from '@src/context/types'
 
 import { getLegalName } from 'src/shared/helpers/legalname.helper'
+import { DetailUserType } from '@src/types/common/detail-user.type'
 
 type UserInfoCardType = {
-  userInfo: {
-    legalNamePronunciation?: string | null | undefined
-    firstName: string
-    middleName?: string | undefined
-    lastName: string
-    role: RoleType
-    email: string
-  }
+  // userInfo: {
+  //   legalNamePronunciation?: string | null | undefined
+  //   firstName: string
+  //   middleName?: string | undefined
+  //   lastName: string
+  //   role: RoleType
+  //   email: string
+  // }
+  userInfo: DetailUserType
 }
 
 export default function Header({ userInfo }: UserInfoCardType) {
@@ -31,12 +33,7 @@ export default function Header({ userInfo }: UserInfoCardType) {
       <Card sx={{ padding: '24px' }}>
         <Box sx={{ position: 'relative', display: 'flex', gap: '30px' }}>
           <Card>
-            <img
-              width={110}
-              height={110}
-              src={getProfileImg(userInfo.role ?? 'PRO')}
-              alt=''
-            />
+            <img width={110} height={110} src={getProfileImg('PRO')} alt='' />
           </Card>
 
           <Box

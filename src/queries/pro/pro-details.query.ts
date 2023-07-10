@@ -1,4 +1,9 @@
-import { getProOverview, getProWorkDays } from '@src/apis/pro/pro-details.api'
+import {
+  getMyOffDays,
+  getMyOverview,
+  getProOverview,
+  getProWorkDays,
+} from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
 import _ from 'lodash'
@@ -71,6 +76,32 @@ export const useGetProInvoiceListCalendar = (
       suspense: true,
       staleTime: 60 * 1000,
       keepPreviousData: true,
+    },
+  )
+}
+
+//pro가 my page에서 보는 데이터
+export const useGetMyOverview = (userId: number) => {
+  const id = typeof userId === 'number' ? userId : 0
+  return useQuery(`myId:${userId}`, () => getMyOverview(id!), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
+    useErrorBoundary: true,
+  })
+}
+
+export const useGetMyOffDays = (
+  userId: number,
+  year: number,
+  month: number,
+) => {
+  return useQuery(
+    [`myOffDays:${userId}`, year, month],
+    () => getMyOffDays(userId, year, month),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      useErrorBoundary: true,
     },
   )
 }

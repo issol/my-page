@@ -22,7 +22,7 @@ type Props = {
   userInfo: {
     preferredName?: string
     preferredNamePronunciation?: string
-    pronounce?: string
+    pronounce?: string | null
     email: string
     timezone: CountryType
     mobilePhone?: string
