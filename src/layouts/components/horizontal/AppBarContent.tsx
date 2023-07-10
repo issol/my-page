@@ -7,12 +7,12 @@ import { Settings } from 'src/@core/context/settingsContext'
 // ** Components
 import UserDropdown from 'src/@core/layouts/components/shared-components/UserDropdown'
 
-import NotificationDropdown, {
-  NotificationsType,
-} from 'src/@core/layouts/components/shared-components/NotificationDropdown'
+import NotificationDropdown from 'src/@core/layouts/components/shared-components/NotificationDropdown'
 import { ShortcutsType } from 'src/@core/layouts/components/shared-components/ShortcutsDropdown'
 import { useGetNotificationList } from '@src/queries/notification.query'
 import { Suspense } from 'react'
+import { useMutation } from 'react-query'
+import { markAsRead } from '@src/apis/notification.api'
 
 interface Props {
   hidden: boolean
@@ -120,7 +120,16 @@ const AppBarContent = (props: Props) => {
   // ** Props
   const { hidden, settings, saveSettings } = props
 
-  const { data: notifications } = useGetNotificationList()
+  const { data: notifications, refetch } = useGetNotificationList(false)
+
+  const markAllAsReadMutation = useMutation(
+    (ids: number[]) => markAsRead(ids),
+    {
+      onSuccess: () => {
+        refetch()
+      },
+    },
+  )
 
   return (
     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -128,6 +137,7 @@ const AppBarContent = (props: Props) => {
         <NotificationDropdown
           settings={settings}
           notifications={notifications!}
+          markAllAsReadMutation={markAllAsReadMutation}
         />
       </Suspense>
       {/* <Autocomplete hidden={hidden} settings={settings} />

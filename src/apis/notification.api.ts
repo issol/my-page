@@ -13,14 +13,24 @@ export const notificationTest = async () => {
   return data
 }
 
-export const getNotificationList = async (): Promise<
-  Array<NotificationType>
-> => {
+export const getNotificationList = async (
+  allList: boolean,
+): Promise<Array<NotificationType>> => {
   try {
     const { data } = await axios.get(`/api/enough/u/notification`)
 
     return data.data
   } catch (e: any) {
     return []
+  }
+}
+
+export const markAsRead = async (id: number[]) => {
+  try {
+    await axios.patch(`/api/enough/u/notification`, {
+      notificationId: id,
+    })
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

@@ -1,5 +1,11 @@
 // ** React Imports
-import { useState, SyntheticEvent, Fragment, ReactNode } from 'react'
+import {
+  useState,
+  SyntheticEvent,
+  Fragment,
+  ReactNode,
+  useContext,
+} from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -19,7 +25,7 @@ import Icon from 'src/@core/components/icon'
 import PerfectScrollbarComponent from 'react-perfect-scrollbar'
 
 // ** Type Imports
-import { ThemeColor } from 'src/@core/layouts/types'
+
 import { Settings } from 'src/@core/context/settingsContext'
 import { CustomAvatarProps } from 'src/@core/components/mui/avatar/types'
 
@@ -28,41 +34,17 @@ import CustomChip from 'src/@core/components/mui/chip'
 import CustomAvatar from 'src/@core/components/mui/avatar'
 
 // ** Util Import
-import { getInitials } from 'src/@core/utils/get-initials'
+
 import { NotificationType } from '@src/types/common/notification.type'
 import { useRouter } from 'next/router'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { AuthContext } from '@src/context/AuthContext'
+import { UseMutationResult } from 'react-query'
 
-export type NotificationsType = {
-  meta: string
-  title: string
-  createdAt: string
-  isRead: string
-} & (
-  | {
-      avatarAlt: string
-      avatarImg: string
-      avatarText?: never
-      avatarColor?: never
-      avatarIcon?: never
-    }
-  | {
-      avatarAlt?: never
-      avatarImg?: never
-      avatarText: string
-      avatarIcon?: never
-      avatarColor?: ThemeColor
-    }
-  | {
-      avatarAlt?: never
-      avatarImg?: never
-      avatarText?: never
-      avatarIcon: ReactNode
-      avatarColor?: ThemeColor
-    }
-)
 interface Props {
   settings: Settings
   notifications: Array<NotificationType>
+  markAllAsReadMutation: UseMutationResult<void, unknown, number[], unknown>
 }
 
 // ** Styled Menu component
@@ -146,7 +128,7 @@ const ScrollWrapper = ({
 
 const NotificationDropdown = (props: Props) => {
   // ** Props
-  const { settings, notifications } = props
+  const { settings, notifications, markAllAsReadMutation } = props
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<(EventTarget & Element) | null>(null)
@@ -154,6 +136,7 @@ const NotificationDropdown = (props: Props) => {
   // ** Hook
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
   const router = useRouter()
+  const { user } = useContext(AuthContext)
 
   // ** Vars
   const { direction } = settings
@@ -171,29 +154,9 @@ const NotificationDropdown = (props: Props) => {
     router.push(url)
   }
 
-  const RenderAvatar = ({
-    notification,
-  }: {
-    notification: NotificationsType
-  }) => {
-    const { avatarAlt, avatarImg, avatarIcon, avatarText, avatarColor } =
-      notification
-
-    if (avatarImg) {
-      return <Avatar alt={avatarAlt} src={avatarImg} />
-    } else if (avatarIcon) {
-      return (
-        <Avatar skin='light' color={avatarColor}>
-          {avatarIcon}
-        </Avatar>
-      )
-    } else {
-      return (
-        <Avatar skin='light' color={avatarColor}>
-          {getInitials(avatarText as string)}
-        </Avatar>
-      )
-    }
+  const onClickMarkAllAsRead = () => {
+    const ids = notifications.map(item => item.id)
+    markAllAsReadMutation.mutate(ids)
   }
 
   return (
@@ -207,7 +170,7 @@ const NotificationDropdown = (props: Props) => {
         <Badge
           color='error'
           variant='dot'
-          // invisible={!notifications.length}
+          invisible={!notifications.length}
           sx={{
             '& .MuiBadge-badge': {
               top: 4,
@@ -243,27 +206,38 @@ const NotificationDropdown = (props: Props) => {
         >
           <Box
             sx={{
+              width: '100%',
               display: 'flex',
               justifyContent: 'space-between',
-              alignItems: 'center',
-              width: '100%',
             }}
           >
-            <Typography sx={{ cursor: 'text', fontWeight: 600 }}>
-              Notifications
-            </Typography>
-            <CustomChip
-              skin='light'
-              size='small'
-              color='primary'
-              label={`${notifications?.length} New`}
-              sx={{
-                height: 20,
-                fontSize: '0.75rem',
-                fontWeight: 500,
-                borderRadius: '10px',
-              }}
-            />
+            <Box sx={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+              <Typography sx={{ cursor: 'text', fontWeight: 600 }}>
+                Notifications
+              </Typography>
+              <CustomChip
+                skin='light'
+                size='small'
+                color='primary'
+                label={`${notifications?.length}`}
+                sx={{
+                  height: 20,
+                  fontSize: '0.75rem',
+                  fontWeight: 500,
+                  borderRadius: '10px',
+                }}
+              />
+            </Box>
+            <Box>
+              <Button
+                variant='contained'
+                size='small'
+                disabled={notifications.length === 0}
+                onClick={onClickMarkAllAsRead}
+              >
+                Mark all as read
+              </Button>
+            </Box>
           </Box>
         </MenuItem>
         <ScrollWrapper hidden={hidden}>
@@ -290,6 +264,19 @@ const NotificationDropdown = (props: Props) => {
                   >
                     <Box
                       sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <img
+                        src='/images/icons/quotes-icons/book.png'
+                        width={48}
+                        height={48}
+                        alt="notification's icon"
+                      />
+                    </Box>
+                    <Box
+                      sx={{
                         mx: 4,
                         flex: '1 1',
                         display: 'flex',
@@ -299,7 +286,10 @@ const NotificationDropdown = (props: Props) => {
                     >
                       <MenuItemTitle>{notification.type}</MenuItemTitle>
                       <MenuItemSubtitle variant='body2'>
-                        {notification.createdAt}
+                        {FullDateTimezoneHelper(
+                          notification.createdAt,
+                          user?.timezone,
+                        )}
                       </MenuItemSubtitle>
                     </Box>
                   </Box>
