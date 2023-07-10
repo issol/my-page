@@ -1027,6 +1027,7 @@ export default function QuotesDetail() {
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
                   updateProject={updateProject}
+                  statusList={statusList!}
                 />
               ) : null}
             </Suspense>

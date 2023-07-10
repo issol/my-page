@@ -1,9 +1,6 @@
 import { Box, Button, Card, Grid, Switch, Typography } from '@mui/material'
 import PrintQuotePage from './pdf-download/quote-preview'
-import {
-  QuoteDownloadData,
-  QuoteStatusType,
-} from '@src/types/common/quotes.type'
+import { QuoteDownloadData } from '@src/types/common/quotes.type'
 import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
@@ -26,6 +23,7 @@ type Props = {
     updateProjectInfoType,
     unknown
   >
+  statusList: { value: number; label: string }[]
 }
 
 const ClientQuote = ({
@@ -36,10 +34,11 @@ const ClientQuote = ({
   setDownloadLanguage,
   type,
   updateProject,
+  statusList,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
-  const handleAcceptQuote = (status: QuoteStatusType) => {
+  const handleAcceptQuote = (status: number) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
@@ -53,7 +52,7 @@ const ClientQuote = ({
   }
 
   const handleRequestRevision = (
-    status: QuoteStatusType,
+    status: number,
     cancelReason: CancelReasonType,
   ) => {
     // TODO API call
@@ -69,7 +68,7 @@ const ClientQuote = ({
   }
 
   const handleRejectQuote = (
-    status: QuoteStatusType,
+    status: number,
     cancelReason: CancelReasonType,
   ) => {
     // TODO API call
@@ -115,10 +114,7 @@ const ClientQuote = ({
               }Modal`,
             )
           }
-          onClick={(
-            status: QuoteStatusType,
-            cancelReason: CancelReasonType,
-          ) => {
+          onClick={(status: number, cancelReason: CancelReasonType) => {
             action === 'Request revision'
               ? handleRequestRevision(status, cancelReason)
               : handleRejectQuote(status, cancelReason)
@@ -132,6 +128,7 @@ const ClientQuote = ({
           rightButtonText={action === 'Request revision' ? 'Request' : 'Reject'}
           action={action}
           from={'client'}
+          statusList={statusList}
         />
       ),
     })
