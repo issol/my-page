@@ -20,9 +20,14 @@ export const getPermission = createAsyncThunk(
             subject: 'permission_request',
             can: 'read',
           },
+
           {
             subject: 'permission_request',
             can: 'update',
+          },
+          {
+            subject: 'my_page',
+            can: 'read',
           },
           {
             subject: 'personalInfo_pro',
