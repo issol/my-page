@@ -1,4 +1,4 @@
-import { Fragment, useEffect, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
 // ** style components
 import {
@@ -18,19 +18,25 @@ import {
 import {
   AccountMethodFormType,
   BankTransferFormType,
+  ClientPaymentInfoDetail,
   CreditCardFormType,
   JapanTaxFormType,
   KoreaTaxFormType,
+  OfficeTaxType,
   OfficeType,
   PayPalFormType,
   PaymentMethodPairs,
+  PaymentMethodUnionType,
   PaymentType,
   SingaporeTaxFormType,
   USTaxFormType,
 } from '@src/types/payment-info/client/index.type'
-import { OfficeTaxType, getTaxInfoSchema } from '@src/types/schema/tax-info'
 import {
-  PaymentMethodUnionType,
+  clientTaxInitialData,
+  getTaxInfoSchema,
+} from '@src/types/schema/tax-info'
+import {
+  clientPaymentInitialData,
   getPaymentMethodSchema,
 } from '@src/types/schema/payment-method'
 
@@ -51,6 +57,7 @@ import AccountMethodForm from '../forms/payment-method/account-method-form'
 type Props = {
   office: OfficeType
   open: boolean
+  paymentInfo: ClientPaymentInfoDetail[] | undefined
   onClose: () => void
   onSave: (
     paymentMethod: PaymentType,
@@ -63,36 +70,54 @@ type Props = {
 export default function PaymentMethodForm({
   open,
   office,
+  paymentInfo,
   onClose,
   onSave,
 }: Props) {
   const methodList = PaymentMethodPairs[office]
-  /* TODO: currentMethod의 default value는 받아온 데이터로 하기, 만약 저장된게 없을 경우 아래와 같이 하기 */
+
+  const currentPaymentInfo = useMemo(
+    () => paymentInfo?.find(i => i.office === office),
+    [office, paymentInfo],
+  )
+
   const [currentMethod, setCurrentMethod] = useState<PaymentType>(
-    methodList[0].value,
+    currentPaymentInfo?.paymentMethod || methodList[0].value,
   )
 
   const {
     control,
     getValues,
-    setValue,
     reset,
     formState: { errors, isValid },
   } = useForm<OfficeTaxType>({
     mode: 'onChange',
+    defaultValues: clientTaxInitialData(office),
     resolver: yupResolver(getTaxInfoSchema(office)),
   })
 
   const {
     control: payMethodControl,
     getValues: getPayMethodValues,
-    setValue: setPayMethodValue,
     reset: resetPayMethod,
     formState: { errors: payMethodErrors, isValid: isPayMethodValid },
   } = useForm<PaymentMethodUnionType>({
     mode: 'onChange',
+    defaultValues: clientPaymentInitialData(currentMethod),
     resolver: yupResolver(getPaymentMethodSchema(currentMethod)),
   })
+
+  useEffect(() => {
+    if (currentPaymentInfo?.taxData) {
+      reset(currentPaymentInfo?.taxData)
+    }
+  }, [office])
+
+  useEffect(() => {
+    if (currentPaymentInfo?.paymentData) {
+      resetPayMethod(currentPaymentInfo?.paymentData)
+    }
+  }, [currentMethod])
 
   function renderPaymentInfo(type: PaymentType) {
     switch (type) {

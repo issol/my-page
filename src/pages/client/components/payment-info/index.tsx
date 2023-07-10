@@ -31,6 +31,10 @@ import { toast } from 'react-hot-toast'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import { FilePostType } from '@src/apis/client-guideline.api'
 import FileInfo from '@src/@core/components/files'
+import {
+  useGetClientOffice,
+  useGetClientPaymentInfo,
+} from '@src/queries/payment/client-payment.query'
 
 type Props = {
   clientId: number
@@ -50,6 +54,7 @@ TODO:
 export default function PaymentInfo({ clientId }: Props) {
   const { openModal, closeModal } = useModal()
   const [editAddress, setEditAddress] = useState(false)
+
   const fileList: FileItemType[] = [
     {
       filePath: '7686/resume/pro-task디테일.png',
@@ -60,32 +65,32 @@ export default function PaymentInfo({ clientId }: Props) {
     },
     {
       url: '',
-      filePath: '',
+      filePath: 'sdfsdf',
       fileName: 'test2',
       fileSize: 400,
       fileExtension: 'pdf',
     },
     {
       url: '',
-      filePath: '',
+      filePath: 'wrer',
       fileName: 'test2',
       fileExtension: 'pdf',
     },
     {
       url: '',
-      filePath: '',
+      filePath: 'vsdf',
       fileName: 'test2',
       fileExtension: 'pdf',
     },
     {
       url: '',
-      filePath: '',
+      filePath: 'vvdsdf',
       fileName: 'test2',
       fileExtension: 'pdf',
     },
     {
       url: '',
-      filePath: '',
+      filePath: 'sfdfd',
       fileName: 'test2',
       fileExtension: 'pdf',
     },

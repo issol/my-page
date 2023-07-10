@@ -1,22 +1,38 @@
 import { Box, Grid, Typography } from '@mui/material'
 import styled from 'styled-components'
 
+// ** types
 import {
+  AccountMethodFormType,
+  BankTransferFormType,
+  ClientPaymentInfoDetail,
+  CreditCardFormType,
+  JapanTaxFormType,
+  KoreaTaxFormType,
   OfficeType,
+  PayPalFormType,
   PaymentType,
+  SingaporeTaxFormType,
+  USTaxFormType,
 } from '@src/types/payment-info/client/index.type'
-import { Fragment } from 'react'
+
+import { Fragment, useMemo } from 'react'
 
 type Props = {
   office: OfficeType
+  paymentInfo: ClientPaymentInfoDetail[] | undefined
 }
 
-/* TODO:
-- 실 데이터로 교체
-- edit form도 추가
-*/
-export default function PaymentMethod({ office }: Props) {
-  function renderInfo(label: string, value: string | undefined) {
+export default function PaymentMethod({ office, paymentInfo }: Props) {
+  const currentPaymentInfo = useMemo(
+    () => paymentInfo?.find(i => i.office === office),
+    [office, paymentInfo],
+  )
+
+  function renderInfo(
+    label: string,
+    value: string | number | null | undefined,
+  ) {
     return (
       <LabelContainer>
         <Typography fontWeight={600}>{label}</Typography>
@@ -24,62 +40,78 @@ export default function PaymentMethod({ office }: Props) {
       </LabelContainer>
     )
   }
+
   function renderPaymentInfo(type: PaymentType) {
     switch (type) {
       case 'bankTransfer':
       case 'directDeposit':
+        const deposit = currentPaymentInfo?.paymentData as
+          | BankTransferFormType
+          | undefined
         return (
           <>
             <Grid item xs={6}>
-              {renderInfo('Payment method', 'Bank')}
+              {renderInfo('Payment method', currentPaymentInfo?.paymentMethod)}
             </Grid>
             <Grid item xs={6}>
-              {renderInfo('Account holder name', 'Bank')}
+              {renderInfo('Bank name', deposit?.bankName)}
+            </Grid>
+            <Grid item xs={6}>
+              {renderInfo('Account holder name', deposit?.accountHolder)}
             </Grid>
           </>
         )
       case 'creditCard':
+        const creditCard = currentPaymentInfo?.paymentData as
+          | CreditCardFormType
+          | undefined
         return (
           <>
             <Grid item xs={6}>
-              {renderInfo('Payment method', 'Bank')}
+              {renderInfo('Payment method', currentPaymentInfo?.paymentMethod)}
             </Grid>
             <Grid item xs={6}>
-              {renderInfo('Credit card number', 'Bank')}
+              {renderInfo('Credit card number', creditCard?.cardNumber)}
             </Grid>
             <Grid item xs={6}>
-              {renderInfo('Credit card valid until', 'Bank')}
+              {renderInfo('Credit card valid until', creditCard?.validDueAt)}
             </Grid>
           </>
         )
       case 'paypal':
+        const paypal = currentPaymentInfo?.paymentData as
+          | PayPalFormType
+          | undefined
         return (
           <>
             <Grid item xs={6}>
-              {renderInfo('Payment method', 'Bank')}
+              {renderInfo('Payment method', currentPaymentInfo?.paymentMethod)}
             </Grid>
             <Grid item xs={6}>
-              {renderInfo('Email', 'Bank')}
+              {renderInfo('Email', paypal?.email)}
             </Grid>
           </>
         )
       case 'wise':
       case 'stripe':
       case 'airwallex':
+        const account = currentPaymentInfo?.paymentData as
+          | AccountMethodFormType
+          | undefined
         return (
           <>
             <Grid item xs={6}>
-              {renderInfo('Payment method', 'Bank')}
+              {renderInfo('Payment method', currentPaymentInfo?.paymentMethod)}
             </Grid>
             <Grid item xs={6}>
-              {renderInfo('Account', 'Bank')}
+              {renderInfo('Account', account?.account)}
             </Grid>
           </>
         )
       case 'check':
         return (
           <Grid item xs={6}>
-            {renderInfo('Payment method', 'Bank')}
+            {renderInfo('Payment method', currentPaymentInfo?.paymentMethod)}
           </Grid>
         )
     }
@@ -88,70 +120,90 @@ export default function PaymentMethod({ office }: Props) {
   function renderTaxInfo(type: OfficeType) {
     switch (type) {
       case 'Korea':
+        const korea = currentPaymentInfo?.taxData as
+          | KoreaTaxFormType
+          | undefined
+
         return (
           <>
             <Grid item xs={12}>
-              {renderInfo('Business registration number', 'Bank')}
+              {renderInfo(
+                'Business registration number',
+                korea?.businessNumber,
+              )}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Name of company', 'Bank')}
+              {renderInfo('Name of company', korea?.companyName)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Name of representative', 'Bank')}
+              {renderInfo('Name of representative', korea?.representativeName)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Business address', 'Bank')}
+              {renderInfo('Business address', korea?.businessAddress)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Business type/item', 'Bank')}
+              {renderInfo('Business type/item', korea?.businessType)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Email address of the invoice recipient', 'Bank')}
+              {renderInfo(
+                'Email address of the invoice recipient',
+                korea?.recipientEmail,
+              )}
             </Grid>
           </>
         )
       case 'US':
+        const us = currentPaymentInfo?.taxData as USTaxFormType | undefined
         return (
           <>
             <Grid item xs={12}>
-              {renderInfo('Client name/Business name', 'Bank')}
+              {renderInfo('Client name/Business name', us?.clientName)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Client address', 'Bank')}
+              {renderInfo('Client address', us?.clientAddress)}
             </Grid>
           </>
         )
       case 'Singapore':
+        const singapore = currentPaymentInfo?.taxData as
+          | SingaporeTaxFormType
+          | undefined
         return (
           <>
             <Grid item xs={12}>
-              {renderInfo('Client name/Business name', 'Bank')}
+              {renderInfo('Client name/Business name', singapore?.clientName)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Client address', 'Bank')}
+              {renderInfo('Client address', singapore?.clientAddress)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Tax ID', 'Bank')}
+              {renderInfo('Tax ID', singapore?.taxId)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('UEN ID', 'Bank')}
+              {renderInfo('UEN ID', singapore?.uenId)}
             </Grid>
           </>
         )
       case 'Japan':
+        const japan = currentPaymentInfo?.taxData as
+          | JapanTaxFormType
+          | undefined
         return (
           <>
             <Grid item xs={12}>
-              {renderInfo('Client name/Business name', 'Bank')}
+              {renderInfo('Client name/Business name', japan?.clientName)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Client address', 'Bank')}
+              {renderInfo('Client address', japan?.clientAddress)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Tax ID', 'Bank')}
+              {renderInfo('Tax ID', japan?.taxId)}
             </Grid>
             <Grid item xs={12}>
-              {renderInfo('Business registration number', 'Bank')}
+              {renderInfo(
+                'Business registration number',
+                japan?.businessNumber,
+              )}
             </Grid>
           </>
         )
@@ -167,7 +219,9 @@ export default function PaymentMethod({ office }: Props) {
               Payment
             </Typography>
           </Grid>
-          {renderPaymentInfo('bankTransfer')}
+          {renderPaymentInfo(
+            currentPaymentInfo?.paymentMethod ?? 'bankTransfer',
+          )}
         </Grid>
       </BorderBox>
       <BorderBox mt={'24px'}>
