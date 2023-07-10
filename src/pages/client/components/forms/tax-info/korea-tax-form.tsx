@@ -1,6 +1,5 @@
 import { FormHelperText, Grid, TextField } from '@mui/material'
-import { KoreaTaxFormType } from '@src/types/schema/tax-info/korea-tax.schema'
-import { Fragment } from 'react'
+import { KoreaTaxFormType } from '@src/types/payment-info/client/index.type'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 
 type Props = {

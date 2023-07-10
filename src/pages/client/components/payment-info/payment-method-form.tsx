@@ -16,23 +16,23 @@ import {
 
 // ** type & validation
 import {
+  AccountMethodFormType,
+  BankTransferFormType,
+  CreditCardFormType,
+  JapanTaxFormType,
+  KoreaTaxFormType,
   OfficeType,
+  PayPalFormType,
   PaymentMethodPairs,
   PaymentType,
+  SingaporeTaxFormType,
+  USTaxFormType,
 } from '@src/types/payment-info/client/index.type'
 import { OfficeTaxType, getTaxInfoSchema } from '@src/types/schema/tax-info'
-import { USTaxFormType } from '@src/types/schema/tax-info/us-tax.schema'
-import { SingaporeTaxFormType } from '@src/types/schema/tax-info/singapore-tax.schema'
-import { JapanTaxFormType } from '@src/types/schema/tax-info/japan-tax.schema'
 import {
   PaymentMethodUnionType,
   getPaymentMethodSchema,
 } from '@src/types/schema/payment-method'
-import { BankTransferFormType } from '@src/types/schema/payment-method/bank-transfer.schema'
-import { CreditCardFormType } from '@src/types/schema/payment-method/credit-card.schema'
-import { PayPalFormType } from '@src/types/schema/payment-method/paypal.schema'
-import { AccountMethodFormType } from '@src/types/schema/payment-method/account-method.schema'
-import { KoreaTaxFormType } from '@src/types/schema/tax-info/korea-tax.schema'
 
 // ** third parties
 import { yupResolver } from '@hookform/resolvers/yup'

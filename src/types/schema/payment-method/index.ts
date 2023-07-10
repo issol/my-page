@@ -1,14 +1,14 @@
-import { PaymentType } from '@src/types/payment-info/client/index.type'
-import {
-  BankTransferFormType,
-  bankTransferSchema,
-} from './bank-transfer.schema'
-import { CreditCardFormType, creditCardSchema } from './credit-card.schema'
-import { PayPalFormType, payPalSchema } from './paypal.schema'
 import {
   AccountMethodFormType,
-  accountMethodSchema,
-} from './account-method.schema'
+  BankTransferFormType,
+  CreditCardFormType,
+  PayPalFormType,
+  PaymentType,
+} from '@src/types/payment-info/client/index.type'
+import { bankTransferSchema } from './bank-transfer.schema'
+import { creditCardSchema } from './credit-card.schema'
+import { payPalSchema } from './paypal.schema'
+import { accountMethodSchema } from './account-method.schema'
 
 export function getPaymentMethodSchema(type: PaymentType) {
   switch (type) {

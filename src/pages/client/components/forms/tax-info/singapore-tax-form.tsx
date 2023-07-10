@@ -1,5 +1,5 @@
 import { FormHelperText, Grid, TextField } from '@mui/material'
-import { SingaporeTaxFormType } from '@src/types/schema/tax-info/singapore-tax.schema'
+import { SingaporeTaxFormType } from '@src/types/payment-info/client/index.type'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 
 type Props = {

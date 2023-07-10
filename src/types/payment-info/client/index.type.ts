@@ -35,3 +35,52 @@ export const PaymentMethodPairs: {
   ],
   Japan: [{ value: 'directDeposit', label: 'Direct deposit' }],
 }
+
+/* Tax form types */
+
+export type KoreaTaxFormType = {
+  businessNumber: number
+  companyName: string
+  representativeName: string
+  businessAddress: string
+  businessType: string
+  recipientEmail: string
+}
+
+export type USTaxFormType = {
+  clientName: string
+  clientAddress: string
+}
+
+export type SingaporeTaxFormType = {
+  clientName: string
+  clientAddress: string
+  taxId: number | null
+  uenId: number | null
+}
+
+export type JapanTaxFormType = {
+  clientName: string
+  clientAddress: string
+  taxId: number | null
+  businessNumber: number | null
+}
+
+/* Payment method types */
+export type BankTransferFormType = {
+  bankName: string
+  accountHolder: string
+}
+
+export type CreditCardFormType = {
+  cardNumber: string
+  validDueAt: string
+}
+
+export type PayPalFormType = {
+  email: string
+}
+
+export type AccountMethodFormType = {
+  account: string
+}
