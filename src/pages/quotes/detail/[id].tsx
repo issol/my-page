@@ -1028,6 +1028,7 @@ export default function QuotesDetail() {
                   type='detail'
                   updateProject={updateProject}
                   statusList={statusList!}
+                  project={project!}
                 />
               ) : null}
             </Suspense>

@@ -61,7 +61,7 @@ export type QuotesProjectInfoAddNewType = {
 }
 
 export type QuotesListType = {
-  id: string
+  id: number
   corporationId: string
   status: QuoteStatusType
   projectName: string

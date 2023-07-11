@@ -86,6 +86,9 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
   type: string
   orderId?: number
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+  }>
 }
 
 export type DetailNewDataType = {
@@ -114,6 +117,7 @@ export default function ItemForm({
   priceUnitsList,
   type,
   orderId,
+  itemTrigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -282,6 +286,7 @@ export default function ItemForm({
           ),
         })
       }
+      itemTrigger('items')
       getTotalPrice()
     }
 

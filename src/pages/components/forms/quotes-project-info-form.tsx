@@ -92,8 +92,13 @@ export default function ProjectInfoForm({
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    const formattedMinutes = minutes >= 30 ? 0 : 30
-    const formattedHours = minutes >= 30 ? now.getHours() + 1 : now.getHours()
+    console.log(minutes % 30)
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+    console.log(formattedMinutes)
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes
       .toString()
       .padStart(2, '0')}`
@@ -133,6 +138,16 @@ export default function ProjectInfoForm({
   useEffect(() => {
     onWorkNameInputChange(newWorkName)
   }, [newWorkName])
+
+  useEffect(() => {
+    if (getClientValue()) {
+      setValue(
+        'quoteDate.timezone',
+        getClientValue('contacts.timezone')!,
+        setValueOptions,
+      )
+    }
+  }, [getClientValue])
 
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)

@@ -14,7 +14,7 @@ type Props = {
   setYear: (year: number) => void
   setMonth: (month: number) => void
   direction: string
-  setCurrentListId: (id: string) => void
+  setCurrentListId: (id: number) => void
 }
 
 const Calendar = (props: Props) => {
@@ -56,7 +56,9 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      setCurrentListId(event?.id)
+      console.log(event.id)
+
+      setCurrentListId(Number(event?.id))
     },
   }
 
