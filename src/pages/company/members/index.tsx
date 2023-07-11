@@ -36,7 +36,7 @@ const Members = () => {
     ability.can('update', 'permission_request'),
   )
   const { data: members, refetch } = useGetMembers(
-    ability.can('update', 'permission_request'),
+    ability.can('read', 'members'),
   )
 
   const userAccess = useAppSelector(state => state.userAccess)
