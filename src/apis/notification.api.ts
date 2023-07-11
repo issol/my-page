@@ -1,5 +1,7 @@
 //https://api-dev.gloground.com/api/fcm
+import { makeQuery } from '@src/shared/transformer/query.transformer'
 import { NotificationType } from '@src/types/common/notification.type'
+import { NotificationCenterFilterType } from '@src/types/my-page/notification-center/notification.type'
 import axios from 'src/configs/axios'
 
 export const notificationTest = async () => {
@@ -14,14 +16,19 @@ export const notificationTest = async () => {
 }
 
 export const getNotificationList = async (
-  allList: boolean,
-): Promise<Array<NotificationType>> => {
+  filter: NotificationCenterFilterType,
+): Promise<{ data: Array<NotificationType>; count: number }> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/notification`)
+    const { data } = await axios.get(
+      `/api/enough/u/notification?${makeQuery(filter)}`,
+    )
 
-    return data.data
+    return data
   } catch (e: any) {
-    return []
+    return {
+      data: [],
+      count: 0,
+    }
   }
 }
 

@@ -43,7 +43,7 @@ import { UseMutationResult } from 'react-query'
 
 interface Props {
   settings: Settings
-  notifications: Array<NotificationType>
+  notifications: { data: Array<NotificationType>; count: number }
   markAllAsReadMutation: UseMutationResult<void, unknown, number[], unknown>
 }
 
@@ -155,8 +155,13 @@ const NotificationDropdown = (props: Props) => {
   }
 
   const onClickMarkAllAsRead = () => {
-    const ids = notifications.map(item => item.id)
+    const ids = notifications.data.map(item => item.id)
     markAllAsReadMutation.mutate(ids)
+  }
+
+  const onClickGotoNotificationCenter = () => {
+    handleDropdownClose()
+    router.push('/my-page/notification-center')
   }
 
   return (
@@ -170,7 +175,7 @@ const NotificationDropdown = (props: Props) => {
         <Badge
           color='error'
           variant='dot'
-          invisible={!notifications.length}
+          invisible={!notifications.count}
           sx={{
             '& .MuiBadge-badge': {
               top: 4,
@@ -219,7 +224,7 @@ const NotificationDropdown = (props: Props) => {
                 skin='light'
                 size='small'
                 color='primary'
-                label={`${notifications?.length}`}
+                label={`${notifications?.count}`}
                 sx={{
                   height: 20,
                   fontSize: '0.75rem',
@@ -232,7 +237,7 @@ const NotificationDropdown = (props: Props) => {
               <Button
                 variant='contained'
                 size='small'
-                disabled={notifications.length === 0}
+                disabled={notifications.count === 0}
                 onClick={onClickMarkAllAsRead}
               >
                 Mark all as read
@@ -241,8 +246,8 @@ const NotificationDropdown = (props: Props) => {
           </Box>
         </MenuItem>
         <ScrollWrapper hidden={hidden}>
-          {notifications &&
-            notifications?.map(
+          {notifications.data &&
+            notifications?.data.map(
               (notification: NotificationType, index: number) => (
                 <MenuItem
                   key={index}
@@ -309,7 +314,11 @@ const NotificationDropdown = (props: Props) => {
             borderTop: theme => `1px solid ${theme.palette.divider}`,
           }}
         >
-          <Button fullWidth variant='contained' onClick={handleDropdownClose}>
+          <Button
+            fullWidth
+            variant='contained'
+            onClick={onClickGotoNotificationCenter}
+          >
             Go to notification center
           </Button>
         </MenuItem>

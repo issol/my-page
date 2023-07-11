@@ -1,8 +1,11 @@
-import { Box, Grid, Typography } from '@mui/material'
+import { Box, Grid, Switch, Typography } from '@mui/material'
 import { NotificationCenterFilterType } from '@src/types/my-page/notification-center/notification.type'
-import { useState } from 'react'
+import { Suspense, useContext, useState } from 'react'
 import NotificationCenterFilter from './components/filter'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetNotificationList } from '@src/queries/notification.query'
+import NotificationList from './components/list'
+import { AuthContext } from '@src/context/AuthContext'
 
 const initialFilter: NotificationCenterFilterType = {
   category: [],
@@ -19,6 +22,14 @@ const NotificationCenter = () => {
     useState<NotificationCenterFilterType>(initialFilter)
   const [activeFilter, setActiveFilter] =
     useState<NotificationCenterFilterType>(initialFilter)
+
+  const {
+    data: notifications,
+    refetch,
+    isLoading,
+  } = useGetNotificationList(filter)
+
+  const { user } = useContext(AuthContext)
 
   function onSearch() {
     setActiveFilter({
@@ -54,6 +65,49 @@ const NotificationCenter = () => {
           onReset={onReset}
           currentRole={currentRole!}
         />
+      </Grid>
+      <Grid
+        item
+        xs={12}
+        display='flex'
+        gap='10px'
+        alignItems='center'
+        justifyContent='flex-end'
+      >
+        <Box display='flex' alignItems='center' gap='4px'>
+          <Typography>See only unread</Typography>
+          <Switch
+            checked={activeFilter.isShowUnread === 1}
+            onChange={e =>
+              setActiveFilter({
+                ...activeFilter,
+                isShowUnread: e.target.checked ? 1 : 0,
+              })
+            }
+          />
+        </Box>
+      </Grid>
+      <Grid item xs={12}>
+        <Suspense>
+          <NotificationList
+            list={notifications?.data ?? []}
+            count={notifications?.count ?? 0}
+            isLoading={isLoading}
+            user={user!}
+            pageSize={activeFilter.take}
+            skip={skip}
+            setSkip={(n: number) => {
+              setSkip(n)
+              setActiveFilter({
+                ...activeFilter,
+                skip: n * activeFilter.take!,
+              })
+            }}
+            setPageSize={(n: number) =>
+              setActiveFilter({ ...activeFilter, take: n })
+            }
+          />
+        </Suspense>
       </Grid>
     </Grid>
   )
