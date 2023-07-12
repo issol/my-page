@@ -42,7 +42,7 @@ import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
-import { splitPermissionName } from '@src/shared/helpers/role-helper'
+import { splitPermissionName } from '@src/shared/helpers/role.helper'
 
 interface CellType {
   row: MembersType

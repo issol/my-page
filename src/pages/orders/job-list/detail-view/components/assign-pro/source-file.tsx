@@ -28,6 +28,10 @@ import {
 import { useGetSourceFile } from '@src/queries/order/job.query'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
+// ** helpers
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+
 type Props = {
   info: AssignProListType
   row: JobType
@@ -48,7 +52,7 @@ type Props = {
 }
 const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
   const { openModal, closeModal } = useModal()
-  const MAXIMUM_FILE_SIZE = 20000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SOURCE_FILE
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
@@ -308,12 +312,8 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
               Source file to Pro
             </Typography>
             <Typography variant='subtitle2'>
-              {fileSize === 0
-                ? 0
-                : Math.round(fileSize / 100) / 10 > 1000
-                ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-              /2gb
+              {formatFileSize(fileSize)}
+              / {byteToGB(MAXIMUM_FILE_SIZE)}
             </Typography>
           </Box>
           <Box

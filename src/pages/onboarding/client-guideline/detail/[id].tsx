@@ -62,6 +62,8 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import logger from '@src/@core/utils/logger'
 import { client_guideline } from '@src/shared/const/permission-class'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 type CellType = {
   row: {
@@ -109,6 +111,7 @@ const ClientGuidelineDetail = () => {
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
 
   useEffect(() => {
     if (!Number.isNaN(id)) {
@@ -528,20 +531,8 @@ const ClientGuidelineDetail = () => {
                       Attached file
                     </Typography>
                     <Typography variant='body2'>
-                      {Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10 >
-                      1000
-                        ? `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10000
-                          ).toFixed(1)} mb`
-                        : `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10
-                          ).toFixed(1)} kb`}
-                      /50mb
+                      {formatFileSize(getFileSize(currentVersion?.files))}
+                      / {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
                   <Button
@@ -719,20 +710,8 @@ const ClientGuidelineDetail = () => {
                             Attached file
                           </Typography>
                           <Typography variant='body2'>
-                            {Math.round(getFileSize(currentRow?.files) / 100) /
-                              10 >
-                            1000
-                              ? `${(
-                                  Math.round(
-                                    getFileSize(currentRow?.files) / 100,
-                                  ) / 10000
-                                ).toFixed(1)} mb`
-                              : `${(
-                                  Math.round(
-                                    getFileSize(currentRow?.files) / 100,
-                                  ) / 10
-                                ).toFixed(1)} kb`}
-                            /50mb
+                            {formatFileSize(getFileSize(currentRow?.files))}
+                            / {byteToMB(MAXIMUM_FILE_SIZE)}
                           </Typography>
                         </Box>
                         <Button
