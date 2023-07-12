@@ -271,20 +271,6 @@ export default function AddNewQuotes() {
     }
   }, [prices, languagePairs])
 
-  console.log(
-    formatCurrency(
-      formatByRoundingProcedure(
-        getItem().items.reduce((acc, cur) => {
-          return acc + cur.totalPrice
-        }, 0),
-        priceInfo?.decimalPlace!,
-        priceInfo?.roundingProcedure!,
-        priceInfo?.currency ?? 'USD',
-      ),
-      priceInfo?.currency ?? 'USD',
-    ),
-  )
-
   //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
     if (requestId && requestData) {
@@ -414,6 +400,7 @@ export default function AddNewQuotes() {
       priceId: null,
       detail: [],
       totalPrice: 0,
+      isShowItemDescription: false,
     })
   }
 
@@ -458,25 +445,27 @@ export default function AddNewQuotes() {
       ...teams,
       ...clients,
       ...projectInfo,
+      quoteDate: {
+        date: new Date(projectInfo.quoteDate.date),
+        timezone: projectInfo.quoteDate.timezone,
+      },
       requestId: requestId ?? null,
     }
 
-    console.log(stepOneData)
-
-    // createQuotesInfo(stepOneData)
-    //   .then(res => {
-    //     if (res.id) {
-    //       Promise.all([
-    //         createLangPairForQuotes(res.id, langs),
-    //         createItemsForQuotes(res.id, items),
-    //       ])
-    //         .then(() => {
-    //           router.push(`/quotes/detail/${res.id}`)
-    //         })
-    //         .catch(e => onRequestError())
-    //     }
-    //   })
-    //   .catch(e => onRequestError())
+    createQuotesInfo(stepOneData)
+      .then(res => {
+        if (res.id) {
+          Promise.all([
+            createLangPairForQuotes(res.id, langs),
+            createItemsForQuotes(res.id, items),
+          ])
+            .then(() => {
+              router.push(`/quotes/detail/${res.id}`)
+            })
+            .catch(e => onRequestError())
+        }
+      })
+      .catch(e => onRequestError())
   }
 
   function onRequestError() {
@@ -604,6 +593,7 @@ export default function AddNewQuotes() {
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
                   getClientValue={getClientValue}
+                  getValues={getProjectInfoValues}
                 />
                 <Grid
                   item

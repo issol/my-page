@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
+  Checkbox,
   Divider,
   Grid,
   IconButton,
@@ -646,9 +647,38 @@ export default function ItemForm({
               />
               {/* price unit end */}
               <Grid item xs={12}>
-                <Typography variant='subtitle1' mb='24px' fontWeight={600}>
-                  Item description
-                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='subtitle1' mb='24px' fontWeight={600}>
+                    Item description
+                  </Typography>
+                  {type === 'detail' || type === 'invoiceDetail' ? null : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Controller
+                        name={`items.${idx}.isShowItemDescription`}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <Checkbox
+                            value={value}
+                            onChange={e => {
+                              onChange(e.target.checked)
+                            }}
+                            checked={value}
+                          />
+                        )}
+                      />
+
+                      <Typography variant='body2'>
+                        Show item description to client
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
                     {getValues(`items.${idx}.description`)}

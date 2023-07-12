@@ -210,6 +210,8 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isProjectLoading && project && statusList) {
+      console.log(project.quoteDateTimezone)
+
       const defaultTimezone = {
         code: '',
         phone: '',
@@ -226,6 +228,7 @@ export default function QuotesDetail() {
         serviceType: project.serviceType,
         expertise: project.expertise,
         isShowDescription: false,
+
         quoteDate: {
           date: project.quoteDate,
           timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -250,8 +253,14 @@ export default function QuotesDetail() {
 
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
+      setProjectInfo('quoteDate', {
+        date: project.quoteDate,
+        timezone: project.quoteDateTimezone ?? defaultTimezone,
+      })
     }
   }, [isProjectLoading, statusList, project])
+
+  console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -570,6 +579,8 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
+    console.log(projectInfo)
+
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -686,7 +697,14 @@ export default function QuotesDetail() {
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
           onClick={(status: number, cancelReason: CancelReasonType) =>
-            updateProject.mutate({ status: status, cancelReason: cancelReason })
+            updateProject.mutate(
+              { status: status, cancelReason: cancelReason },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
           }
           title='Are you sure you want to cancel this quote?'
           vary='error'
@@ -840,7 +858,10 @@ export default function QuotesDetail() {
       adminCompanyName: 'GloZ Inc.',
       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
       corporationId: project?.corporationId ?? '',
-      quoteDate: project?.quoteDate ?? '',
+      quoteDate: {
+        date: project?.quoteDate ?? '',
+        timezone: project?.quoteDateTimezone,
+      },
       projectDueDate: {
         date: project?.projectDueAt ?? '',
         timezone: project?.projectDueTimezone,
@@ -878,7 +899,26 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
-  console.log(getProjectInfoValues())
+  const deleteButtonDisabled = () => {
+    if (client?.contactPerson?.userId === null) {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status !== 'Expired')
+      )
+    } else {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status === 'Expired' &&
+          project?.isConfirmed)
+      )
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -1047,6 +1087,7 @@ export default function QuotesDetail() {
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
                         getClientValue={getClientValue}
+                        getValues={getProjectInfoValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -1087,7 +1128,11 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isUpdatable}
+                            disabled={
+                              !isUpdatable ||
+                              project?.status === 'Changed into order' ||
+                              project?.status === 'Canceled'
+                            }
                             onClick={onClickCancel}
                           >
                             Cancel this quote
@@ -1101,7 +1146,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isDeletable}
+                            disabled={deleteButtonDisabled()}
                             onClick={onClickDelete}
                           >
                             Delete this quote
@@ -1143,6 +1188,7 @@ export default function QuotesDetail() {
                     isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
                   }
                   role={currentRole!}
+                  itemTrigger={itemTrigger}
                 />
                 {editItems
                   ? renderSubmitButton({

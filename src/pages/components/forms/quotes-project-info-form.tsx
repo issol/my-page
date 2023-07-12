@@ -72,6 +72,7 @@ type Props = {
   errors: FieldErrors<QuotesProjectInfoAddNewType>
   clientTimezone?: CountryType | undefined
   getClientValue: UseFormGetValues<ClientFormType>
+  getValues: UseFormGetValues<QuotesProjectInfoAddNewType>
 }
 export default function ProjectInfoForm({
   control,
@@ -80,6 +81,7 @@ export default function ProjectInfoForm({
   errors,
   clientTimezone,
   getClientValue,
+  getValues,
 }: Props) {
   const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
@@ -140,14 +142,14 @@ export default function ProjectInfoForm({
   }, [newWorkName])
 
   useEffect(() => {
-    if (getClientValue()) {
+    if (getClientValue() && !getValues('quoteDate.timezone')) {
       setValue(
         'quoteDate.timezone',
         getClientValue('contacts.timezone')!,
         setValueOptions,
       )
     }
-  }, [getClientValue])
+  }, [getClientValue, getValues])
 
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)

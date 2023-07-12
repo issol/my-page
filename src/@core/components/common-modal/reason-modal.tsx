@@ -16,19 +16,21 @@ import { AddRoleType } from 'src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import AlertIcon from '../alert-icon'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ca } from 'date-fns/locale'
 type Props = {
   onClose: any
-  messageToUser: string
-  reason: string
+
   type: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  canceledReason: CancelReasonType | null
 }
 export default function ReasonModal({
   onClose,
-  messageToUser,
-  reason,
+
   type,
   vary,
+  canceledReason,
 }: Props) {
   return (
     <Box
@@ -74,18 +76,18 @@ export default function ReasonModal({
                 {type}&nbsp; reason
               </Typography>
               <Typography variant='body1'>
-                {reason === '' || !reason ? '-' : reason}
+                {canceledReason ? canceledReason?.reason : '-'}
               </Typography>
             </Box>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message to Pro
+                Message {canceledReason?.from === 'lsp' ? 'from' : 'to'} LSP
               </Typography>
               <Typography
                 variant='body1'
                 sx={{ whiteSpace: 'pre-line !important' }}
               >
-                {messageToUser === '' || !messageToUser ? '-' : messageToUser}
+                {canceledReason ? canceledReason?.message : '-'}
               </Typography>
             </Box>
           </Box>

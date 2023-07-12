@@ -3,6 +3,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '../orders/order-detail'
+import { CancelReasonType } from '../requests/detail.type'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { CountryType } from '../sign/personalInfoTypes'
@@ -14,6 +15,7 @@ export type QuoteStatusType =
   | 'In preparation'
   | 'Internal review'
   | 'Client review'
+  | 'Quote sent'
   | 'Expired'
   | 'Rejected'
   | 'Accepted'
@@ -107,6 +109,8 @@ export type ProjectInfoType = {
   estimatedDeliveryDateTimezone: CountryType
   tax: number | null
   taxable: boolean
+  isConfirmed: boolean
+  canceledReason: CancelReasonType | null
 }
 
 export type VersionHistoryType = HistoryType & {
@@ -129,7 +133,7 @@ export type QuoteDownloadData = {
   adminCompanyName: string
   companyAddress: string
   corporationId: string
-  quoteDate: string
+  quoteDate: { date: string; timezone: CountryType | undefined }
   projectDueDate: { date: string; timezone: CountryType | undefined }
   quoteDeadline: { date: string; timezone: CountryType | undefined }
   quoteExpiryDate: { date: string; timezone: CountryType | undefined }

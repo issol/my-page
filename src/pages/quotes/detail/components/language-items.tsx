@@ -43,6 +43,7 @@ import {
   UseFieldArrayRemove,
   UseFormGetValues,
   UseFormSetValue,
+  UseFormTrigger,
 } from 'react-hook-form'
 import { UserRoleType } from '@src/context/types'
 import {
@@ -79,6 +80,9 @@ type Props = {
     items: ItemType[]
   }>
   isItemValid: boolean
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+  }>
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
   appendItems: UseFieldArrayAppend<
@@ -119,6 +123,7 @@ export default function QuotesLanguageItemsDetail({
   setIsEditMode,
   isUpdatable,
   role,
+  itemTrigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const { data: prices, isSuccess } = useGetClientPriceList({
@@ -213,7 +218,7 @@ export default function QuotesLanguageItemsDetail({
   return (
     <Grid container>
       <Grid item xs={12} display='flex' justifyContent='flex-end'>
-        {isUpdatable ? (
+        {isUpdatable && !isEditMode ? (
           <IconButton onClick={() => setIsEditMode(!isEditMode)}>
             <Icon icon='mdi:pencil-outline' />
           </IconButton>
@@ -247,6 +252,7 @@ export default function QuotesLanguageItemsDetail({
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={isEditMode ? 'edit' : 'detail'}
+          itemTrigger={itemTrigger}
         />
       </Grid>
 
