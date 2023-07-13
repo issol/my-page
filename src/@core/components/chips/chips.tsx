@@ -269,11 +269,13 @@ export const QuoteStatusChip = styled(Chip)<{ status: QuoteStatusType }>`
       : status === 'Canceled'
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
       : status === 'Revision requested'
-      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #A81988;'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #A81988; color: #A81988;'
       : status === 'Under revision'
-      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #BA971A;'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #BA971A; color: #BA971A;'
       : status === 'Revised'
-      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #AD7028;'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #AD7028; color: #AD7028;'
+      : status === 'Quote sent'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #2B6603; color: #2B6603;'
       : null};
 `
 

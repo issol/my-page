@@ -261,8 +261,9 @@ export const patchQuoteProjectInfo = async (
     | ClientFormType
     | { status: number }
     | { tax: null | number; taxable: boolean }
-    | { status: number; cancelReason: CancelReasonType }
-    | { downloadedAt: string },
+    | { status: number; canceledReason: CancelReasonType }
+    | { downloadedAt: string }
+    | { isConfirmed: boolean },
 ) => {
   await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
 }

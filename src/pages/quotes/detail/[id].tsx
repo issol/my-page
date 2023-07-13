@@ -22,6 +22,10 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Switch,
   Tab,
   Typography,
@@ -129,6 +133,9 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import { update } from 'lodash'
 import { useGetStatusList } from '@src/queries/common.query'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
+import Link from 'next/link'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -138,7 +145,8 @@ export type updateProjectInfoType =
   | ClientPostType
   | { tax: null | number; taxable: boolean }
   | { status: number }
-  | { status: number; cancelReason: CancelReasonType }
+  | { status: number; canceledReason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
 
 export default function QuotesDetail() {
   const router = useRouter()
@@ -149,6 +157,17 @@ export default function QuotesDetail() {
   const { id } = router.query
 
   const { openModal, closeModal } = useModal()
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>(
@@ -210,6 +229,8 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isProjectLoading && project && statusList) {
+      console.log(project.quoteDateTimezone)
+
       const defaultTimezone = {
         code: '',
         phone: '',
@@ -226,6 +247,7 @@ export default function QuotesDetail() {
         serviceType: project.serviceType,
         expertise: project.expertise,
         isShowDescription: false,
+
         quoteDate: {
           date: project.quoteDate,
           timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -250,8 +272,14 @@ export default function QuotesDetail() {
 
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
+      setProjectInfo('quoteDate', {
+        date: project.quoteDate,
+        timezone: project.quoteDateTimezone ?? defaultTimezone,
+      })
     }
   }, [isProjectLoading, statusList, project])
+
+  console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -570,6 +598,8 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
+    console.log(projectInfo)
+
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -686,7 +716,14 @@ export default function QuotesDetail() {
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
           onClick={(status: number, cancelReason: CancelReasonType) =>
-            updateProject.mutate({ status: status, cancelReason: cancelReason })
+            updateProject.mutate(
+              { status: status, canceledReason: cancelReason },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
           }
           title='Are you sure you want to cancel this quote?'
           vary='error'
@@ -832,6 +869,30 @@ export default function QuotesDetail() {
     })
   }
 
+  const onClickConfirmQuote = () => {
+    openModal({
+      type: 'ConfirmQuoteModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmQuoteModal')}
+          onClick={() =>
+            updateProject.mutate(
+              { isConfirmed: true, status: 20003 },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to confirm this quote? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
+
   function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
@@ -840,7 +901,10 @@ export default function QuotesDetail() {
       adminCompanyName: 'GloZ Inc.',
       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
       corporationId: project?.corporationId ?? '',
-      quoteDate: project?.quoteDate ?? '',
+      quoteDate: {
+        date: project?.quoteDate ?? '',
+        timezone: project?.quoteDateTimezone,
+      },
       projectDueDate: {
         date: project?.projectDueAt ?? '',
         timezone: project?.projectDueTimezone,
@@ -878,7 +942,26 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
-  console.log(getProjectInfoValues())
+  const deleteButtonDisabled = () => {
+    if (client?.contactPerson?.userId === null) {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status !== 'Expired')
+      )
+    } else {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status === 'Expired' &&
+          project?.isConfirmed)
+      )
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -917,6 +1000,81 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
+              {currentRole &&
+              currentRole.name === 'CLIENT' &&
+              (project?.linkedOrder || project?.linkedRequest) ? (
+                <Box>
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    onClick={handleClick}
+                  >
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={anchorEl}
+                    id='customized-menu'
+                    onClose={handleClose}
+                    open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                  >
+                    {project?.linkedRequest ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked requests :
+                        <Link
+                          href={
+                            currentRole && currentRole.name === 'CLIENT'
+                              ? `/quotes/requests/${project?.linkedRequest.id}`
+                              : `/quotes/lpm/requests/${project?.linkedRequest.id}`
+                          }
+                        >
+                          {project?.linkedRequest.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                    {project.linkedOrder ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked order :
+                        <Link
+                          href={`/orders/order-list/detail/${project.linkedOrder.id}`}
+                        >
+                          {project?.linkedOrder.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                  </Menu>
+                </Box>
+              ) : null}
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <QuoteStatusChip
+                  size='small'
+                  label={project?.status ?? '-'}
+                  status={project?.status!}
+                />
+              ) : null}
             </Box>
           </Box>
           {currentRole && currentRole.name === 'CLIENT' ? null : (
@@ -942,6 +1100,7 @@ export default function QuotesDetail() {
               </Button>
               <Button
                 variant='contained'
+                onClick={onClickConfirmQuote}
                 disabled={
                   project?.status !== 'New' &&
                   project?.status !== 'In preparation' &&
@@ -1028,6 +1187,7 @@ export default function QuotesDetail() {
                   type='detail'
                   updateProject={updateProject}
                   statusList={statusList!}
+                  project={project!}
                 />
               ) : null}
             </Suspense>
@@ -1046,6 +1206,7 @@ export default function QuotesDetail() {
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
                         getClientValue={getClientValue}
+                        getValues={getProjectInfoValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -1086,7 +1247,11 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isUpdatable}
+                            disabled={
+                              !isUpdatable ||
+                              project?.status === 'Changed into order' ||
+                              project?.status === 'Canceled'
+                            }
                             onClick={onClickCancel}
                           >
                             Cancel this quote
@@ -1100,7 +1265,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isDeletable}
+                            disabled={deleteButtonDisabled()}
                             onClick={onClickDelete}
                           >
                             Delete this quote
@@ -1142,6 +1307,7 @@ export default function QuotesDetail() {
                     isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
                   }
                   role={currentRole!}
+                  itemTrigger={itemTrigger}
                 />
                 {editItems
                   ? renderSubmitButton({

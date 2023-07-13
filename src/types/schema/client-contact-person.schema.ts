@@ -26,6 +26,7 @@ export type ContactPersonType<T extends number | string = number> = {
   fax?: string | null
   memo?: string
   isReferred?: boolean
+  userId: number | null
 }
 
 export const contactPersonDefaultValue: ClientContactPersonType = {
