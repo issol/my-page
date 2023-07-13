@@ -225,6 +225,7 @@ export default function PaymentInfo({ clientId }: Props) {
   function resetBillingAddressForm() {
     if (billingAddress) {
       reset({
+        addressType: 'billing',
         baseAddress: billingAddress?.baseAddress ?? '',
         detailAddress: billingAddress?.detailAddress ?? '',
         city: billingAddress?.city ?? '',
