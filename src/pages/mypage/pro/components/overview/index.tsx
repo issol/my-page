@@ -61,13 +61,18 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { toast } from 'react-hot-toast'
 
 // ** api
-import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
 import { deleteResume } from '@src/apis/pro/pro-details.api'
 import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
 
 // ** value
 import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
+import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 
 type Props = {
   userInfo: DetailUserType
@@ -265,47 +270,28 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   function uploadFiles(files: File[]) {
-    // if (files.length) {
-    //   const fileInfo: Array<FilePostType> = []
-    //   const paths: string[] = files?.map(file =>
-    //     //TODO: 보낼 값은 백엔드에 문의하기
-    //     // getFilePath(
-    //     //   [
-    //     //     data.client.value,
-    //     //     data.category.value,
-    //     //     data.serviceType.value,
-    //     //     'V1',
-    //     //   ],
-    //     //   file.name,
-    //     // ),
-    //   )
-    //   const promiseArr = paths.map((url, idx) => {
-    //     return getUploadUrlforCommon(S3FileType.CLIENT_PAYMENT, url).then(
-    //       res => {
-    //         fileInfo.push({
-    //           name: files[idx].name,
-    //           size: files[idx]?.size,
-    //           fileUrl: url,
-    //         })
-    //         return uploadFileToS3(res.url, files[idx])
-    //       },
-    //     )
-    //   })
-    //   Promise.all(promiseArr)
-    //     .then(res => {
-    //       //TODO: mutation함수 추가하기
-    //       // finalValue.files = fileInfo
-    //       // guidelineMutation.mutate(finalValue)
-    //     })
-    //     .catch(err =>
-    //       toast.error(
-    //         'Something went wrong while uploading files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     )
-    // }
+    if (files?.length) {
+      const promiseArr = files.map((file, idx) => {
+        return getUploadUrlforCommon(
+          S3FileType.RESUME,
+          getResumeFilePath(user?.id as number, file.name),
+        ).then(res => {
+          return uploadFileToS3(res.url, file)
+        })
+      })
+      Promise.all(promiseArr)
+        .then(res => {
+          invalidateUserInfo()
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
+    }
   }
 
   const deleteResumeMutation = useMutation(
