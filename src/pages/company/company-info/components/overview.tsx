@@ -106,7 +106,7 @@ const CompanyInfoOverview = ({
             <SimpleAlertModal
               message='You can only upload image files.'
               onClose={() => {
-                onClickDeleteLogo()
+                handleDeleteLogo()
                 closeModal('FileTypeErrorModal')
               }}
             />
@@ -120,7 +120,7 @@ const CompanyInfoOverview = ({
             <SimpleAlertModal
               message={`The maximum file size you can upload is ${byteToMB(FILE_SIZE.COMPANY_LOGO)}.`}
               onClose={() => {
-                onClickDeleteLogo()
+                handleDeleteLogo()
                 closeModal('FileSizeErrorModal')
               }}
             />
@@ -142,6 +142,22 @@ const CompanyInfoOverview = ({
   })
 
   const onClickDeleteLogo = () => {
+    openModal({
+      type: 'LogoDeleteModal',
+      children: (
+        <SimpleAlertModal
+          message={`Are you sure you want to delete
+            current logo file?`}
+          onClose={() => {
+            handleDeleteLogo()
+            closeModal('LogoDeleteModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const handleDeleteLogo = () => {
     const imgElement = document.getElementById('company-logo') as HTMLImageElement
     if (imgElement) {
       imgElement.src = '/images/company/default-company-logo.svg'
