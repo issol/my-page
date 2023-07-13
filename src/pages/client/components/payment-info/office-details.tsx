@@ -4,7 +4,6 @@ import { useState } from 'react'
 import { Icon } from '@iconify/react'
 import {
   Box,
-  Button,
   Card,
   CardContent,
   CardHeader,
@@ -24,40 +23,98 @@ import PaymentMethodForm from './payment-method-form'
 
 // ** types
 import {
+  ClientPaymentFormType,
+  OfficeTaxType,
   OfficeType,
+  PaymentMethodUnionType,
   PaymentType,
 } from '@src/types/payment-info/client/index.type'
-import { PaymentMethodUnionType } from '@src/types/schema/payment-method'
-import { OfficeTaxType } from '@src/types/schema/tax-info'
+
+// ** apis
+import {
+  useGetClientOffice,
+  useGetClientPaymentInfo,
+} from '@src/queries/payment/client-payment.query'
+import { createClientPaymentInfo } from '@src/apis/payment/client-payment.api'
+
+// ** hooks
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** third parties
+import { toast } from 'react-hot-toast'
 
 type Props = {
   clientId: number
 }
 
-/* TODO:
-1. onSave함수에 mutation추가하기
-2. payment-method-form에 form reset할 데이터 프롭으로 보내주기
-3. office선택하는 dropdown에는 서버가 보내주는 리스트를 option값으로 주도록 변경하기
-4. default로 선택되는 office값 설정해주기.
-    - 하나의 office정보만 등록한 경우 해당 오피스가 기본으로 선택되어 있음
-    - 여러개 등록되어 있는 경우 가장 최근에 수정된 오피스가 디폴트로 변경됨
-*/
-
 export default function OfficeDetails({ clientId }: Props) {
-  const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
-  const [office, setOffice] = useState<OfficeType>('Korea')
+  /* const { data: officeList } = useGetClientOffice(clientId) */ //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
+  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
 
+  const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
+  const earliestData = paymentInfo
+    ? [...paymentInfo]
+        .filter(item => item?.updatedAt)
+        .sort((a, b) => {
+          if (a.updatedAt && b.updatedAt) {
+            return (
+              new Date(b.updatedAt)?.getTime() -
+              new Date(a.updatedAt)?.getTime()
+            )
+          }
+          return -1
+        })
+    : []
+
+  const [office, setOffice] = useState<OfficeType>(
+    paymentInfo?.length && paymentInfo?.length <= 1
+      ? paymentInfo[0].office
+      : earliestData.length
+      ? earliestData[0].office
+      : 'Korea',
+  )
+
+  const queryClient = useQueryClient()
   const [editForm, setEditForm] = useState(false)
+
+  const updatePaymentInfo = useMutation(
+    (form: ClientPaymentFormType) => createClientPaymentInfo(form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'get/client/payment' })
+      },
+      onError: () => onError(),
+    },
+  )
 
   function onSave(
     paymentMethod: PaymentType,
     office: OfficeType,
-    paymentInfo: PaymentMethodUnionType,
-    taxInfo: OfficeTaxType,
+    paymentData: PaymentMethodUnionType,
+    taxData: OfficeTaxType,
   ) {
-    //TODO:
-    //- 정보가 등록되어 있지 않은 경우 → 신규로 입력
-    //- 등록되어 있는 경우 → 수정
+    const existData = paymentInfo?.find(info => info.office === office)
+    const data = {
+      clientId,
+      office,
+      paymentMethod,
+      paymentData,
+      taxData,
+    }
+
+    updatePaymentInfo.mutate(
+      !existData ? data : { ...data, paymentId: existData.id },
+    )
+    setEditForm(false)
+  }
+
+  function onError() {
+    toast.error(
+      'Something went wrong while uploading files. Please try again.',
+      {
+        position: 'bottom-left',
+      },
+    )
   }
 
   return (
@@ -95,7 +152,7 @@ export default function OfficeDetails({ clientId }: Props) {
         }
       />
       <CardContent>
-        <PaymentMethod office={office} />
+        <PaymentMethod office={office} paymentInfo={paymentInfo} />
       </CardContent>
       <Dialog open={editForm} maxWidth='md'>
         <DialogContent sx={{ padding: '50px' }}>
@@ -103,6 +160,7 @@ export default function OfficeDetails({ clientId }: Props) {
             office={office}
             open={editForm}
             onSave={onSave}
+            paymentInfo={paymentInfo}
             onClose={() => setEditForm(false)}
           />
         </DialogContent>

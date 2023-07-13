@@ -1,15 +1,6 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
-export type KoreaTaxFormType = {
-  businessNumber: number
-  companyName: string
-  representativeName: string
-  businessAddress: string
-  businessType: string
-  recipientEmail: string
-}
-
 export const koreaTaxSchema = yup.object().shape({
   businessNumber: yup
     .number()

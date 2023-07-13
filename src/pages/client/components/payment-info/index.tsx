@@ -1,3 +1,6 @@
+import { useContext, useEffect, useState } from 'react'
+
+// ** style components
 import {
   Box,
   Button,
@@ -10,86 +13,109 @@ import {
   IconButton,
   Typography,
 } from '@mui/material'
+import { Icon } from '@iconify/react'
+
+// ** components
 import OfficeDetails from './office-details'
 import BillingAddress from './billing-address'
-import { useState } from 'react'
-import { Icon } from '@iconify/react'
-import useModal from '@src/hooks/useModal'
 import ClientBillingAddressesForm from '../forms/client-billing-address'
+import FileInfo from '@src/@core/components/files'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
+import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
+
+// ** types & schema
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { useForm } from 'react-hook-form'
-
-import {
-  getDownloadUrlforCommon,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { toast } from 'react-hot-toast'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
-import { FilePostType } from '@src/apis/client-guideline.api'
-import FileInfo from '@src/@core/components/files'
+
+// ** third parties
+import { toast } from 'react-hot-toast'
+
+// ** apis
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import {
+  useGetClientBillingAddress,
+  useGetClientPaymentFile,
+} from '@src/queries/payment/client-payment.query'
+import {
+  deleteClientPaymentFile,
+  updateClientBillingAddress,
+  uploadClientPaymentFile,
+} from '@src/apis/payment/client-payment.api'
+
+// ** context
+import { AbilityContext } from '@src/layouts/components/acl/Can'
+import { AuthContext } from '@src/context/AuthContext'
+
+import { client } from '@src/shared/const/permission-class'
 
 type Props = {
   clientId: number
 }
 
-/*
-TODO:
-1. BillingAddress에 실데이터 표기하기
-2. BillingAddressForm에 form reset할 데이터 프롭으로 보내주기
-3. billing address 저장 mutation붙이기
-4. fileList는 서버에서 불러온 값으로 교체하기
-5. uploadFiles함수 완성하기
-6. file delete함수 완성하기
-7. FileInfo의 isUpdatable, isDeletable은 ability check로 수정하기
-*/
-
 export default function PaymentInfo({ clientId }: Props) {
   const { openModal, closeModal } = useModal()
+
+  const queryClient = useQueryClient()
+
   const [editAddress, setEditAddress] = useState(false)
-  const fileList: FileItemType[] = [
-    {
-      filePath: '7686/resume/pro-task디테일.png',
-      fileName: 'pro-task디테일',
-      fileExtension: 'png',
-      fileSize: 200,
-      url: 'https://enough-upload-dev.gloground.com/7686/resume/pro-task%E1%84%83%E1%85%B5%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?Expires=1687169890&Key-Pair-Id=K3KY6G7GJ7W3IB&Signature=Et3zazpLpZtRRSmn4YBzhuL~Fx2Hwo7SuXaeFUeydpGxVkwHUAM~wZ3-dD7Z09g2syNWNvSNnL2IiVFBGOGV9jifUeScvK3sjkgQw48AKR9UCYKP9L7q3MTkWSSs-a97XNeLFaF~yXH6sZlpJw0y9vOmHJ10cmu~Uq7R9bY91qKd45GhDmdIOirH-cYI~BkjRrqSyy8kXDMhI03Gdyt6NoX4gaXwgZhUAbwA8YGfJiQjyXiHWtrFHM-ROWOTzJFrutIqGrnBbQaTNFORazK~eHKtFbVqumTgUvV~0LovacDbyLHjLvxynC3OZw7tcR4MGcguHdw0xk84ZJCtsbrdfw__',
-    },
-    {
-      url: '',
-      filePath: '',
-      fileName: 'test2',
-      fileSize: 400,
-      fileExtension: 'pdf',
-    },
-    {
-      url: '',
-      filePath: '',
-      fileName: 'test2',
-      fileExtension: 'pdf',
-    },
-    {
-      url: '',
-      filePath: '',
-      fileName: 'test2',
-      fileExtension: 'pdf',
-    },
-    {
-      url: '',
-      filePath: '',
-      fileName: 'test2',
-      fileExtension: 'pdf',
-    },
-    {
-      url: '',
-      filePath: '',
-      fileName: 'test2',
-      fileExtension: 'pdf',
-    },
-  ]
+
+  const ability = useContext(AbilityContext)
+  const { user } = useContext(AuthContext)
+
+  const User = new client(user?.id!)
+
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+
+  const { data: fileList } = useGetClientPaymentFile(clientId)
+  const { data: billingAddress } = useGetClientBillingAddress(clientId)
+
+  // const fileList: FileItemType[] = [
+  //   {
+  //     filePath: '7686/resume/pro-task디테일.png',
+  //     fileName: 'pro-task디테일',
+  //     fileExtension: 'png',
+  //     fileSize: 200,
+  //     url: 'https://enough-upload-dev.gloground.com/7686/resume/pro-task%E1%84%83%E1%85%B5%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?Expires=1687169890&Key-Pair-Id=K3KY6G7GJ7W3IB&Signature=Et3zazpLpZtRRSmn4YBzhuL~Fx2Hwo7SuXaeFUeydpGxVkwHUAM~wZ3-dD7Z09g2syNWNvSNnL2IiVFBGOGV9jifUeScvK3sjkgQw48AKR9UCYKP9L7q3MTkWSSs-a97XNeLFaF~yXH6sZlpJw0y9vOmHJ10cmu~Uq7R9bY91qKd45GhDmdIOirH-cYI~BkjRrqSyy8kXDMhI03Gdyt6NoX4gaXwgZhUAbwA8YGfJiQjyXiHWtrFHM-ROWOTzJFrutIqGrnBbQaTNFORazK~eHKtFbVqumTgUvV~0LovacDbyLHjLvxynC3OZw7tcR4MGcguHdw0xk84ZJCtsbrdfw__',
+  //   },
+  //   {
+  //     url: '',
+  //     filePath: 'sdfsdf',
+  //     fileName: 'test2',
+  //     fileSize: 400,
+  //     fileExtension: 'pdf',
+  //   },
+  //   {
+  //     url: '',
+  //     filePath: 'wrer',
+  //     fileName: 'test2',
+  //     fileExtension: 'pdf',
+  //   },
+  //   {
+  //     url: '',
+  //     filePath: 'vsdf',
+  //     fileName: 'test2',
+  //     fileExtension: 'pdf',
+  //   },
+  //   {
+  //     url: '',
+  //     filePath: 'vvdsdf',
+  //     fileName: 'test2',
+  //     fileExtension: 'pdf',
+  //   },
+  //   {
+  //     url: '',
+  //     filePath: 'sfdfd',
+  //     fileName: 'test2',
+  //     fileExtension: 'pdf',
+  //   },
+  // ]
 
   const {
     control,
@@ -99,10 +125,24 @@ export default function PaymentInfo({ clientId }: Props) {
     reset,
     formState: { errors, isValid },
   } = useForm<ClientAddressType>({
-    defaultValues: { addressType: 'billing' },
+    defaultValues: {
+      addressType: 'billing',
+      baseAddress: '',
+      detailAddress: '',
+      city: '',
+      state: '',
+      country: '',
+      zipCode: '',
+    },
     mode: 'onChange',
     resolver: yupResolver(clientBillingAddressSchema),
   })
+
+  useEffect(() => {
+    if (billingAddress) {
+      resetBillingAddressForm()
+    }
+  }, [billingAddress])
 
   const downloadAllFile = (file: FileItemType[] | null) => {
     if (file) {
@@ -131,14 +171,7 @@ export default function PaymentInfo({ clientId }: Props) {
                 a.remove()
                 // onClose()
               })
-              .catch(error =>
-                toast.error(
-                  'Something went wrong while uploading files. Please try again.',
-                  {
-                    position: 'bottom-left',
-                  },
-                ),
-              )
+              .catch(error => onError())
           },
         )
       })
@@ -146,51 +179,69 @@ export default function PaymentInfo({ clientId }: Props) {
   }
 
   function uploadFiles(files: File[]) {
-    // if (files.length) {
-    //   const fileInfo: Array<FilePostType> = []
-    //   const paths: string[] = files?.map(file =>
-    //     //TODO: 보낼 값은 백엔드에 문의하기
-    //     // getFilePath(
-    //     //   [
-    //     //     data.client.value,
-    //     //     data.category.value,
-    //     //     data.serviceType.value,
-    //     //     'V1',
-    //     //   ],
-    //     //   file.name,
-    //     // ),
-    //   )
-    //   const promiseArr = paths.map((url, idx) => {
-    //     return getUploadUrlforCommon(S3FileType.CLIENT_PAYMENT, url).then(
-    //       res => {
-    //         fileInfo.push({
-    //           name: files[idx].name,
-    //           size: files[idx]?.size,
-    //           fileUrl: url,
-    //         })
-    //         return uploadFileToS3(res.url, files[idx])
-    //       },
-    //     )
-    //   })
-    //   Promise.all(promiseArr)
-    //     .then(res => {
-    //       //TODO: mutation함수 추가하기
-    //       // finalValue.files = fileInfo
-    //       // guidelineMutation.mutate(finalValue)
-    //     })
-    //     .catch(err =>
-    //       toast.error(
-    //         'Something went wrong while uploading files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     )
-    // }
+    if (files.length) {
+      const promiseArr = files.map(i => uploadClientPaymentFile(clientId, i))
+
+      Promise.all(promiseArr)
+        .then(() => {
+          toast.success('Success', {
+            position: 'bottom-left',
+          })
+          queryClient.invalidateQueries({ queryKey: 'get/client/payment/file' })
+        })
+        .catch(e => onError())
+    }
   }
 
   function onDeleteFile(file: FileItemType) {
-    //
+    deleteClientPaymentFile(clientId, file.id!)
+      .then(() => {
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+        queryClient.invalidateQueries({ queryKey: 'get/client/payment/file' })
+      })
+      .catch(e => onError())
+  }
+
+  const updateBillingaddress = useMutation(
+    (form: ClientAddressType) => updateClientBillingAddress(clientId, form),
+    {
+      onSuccess: () => {
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+        queryClient.invalidateQueries({ queryKey: 'get/client/billingAddress' })
+      },
+      onError: () => onError(),
+    },
+  )
+
+  function onSaveBillingAddress() {
+    const data = getValues()
+    updateBillingaddress.mutate(data)
+  }
+
+  function resetBillingAddressForm() {
+    if (billingAddress) {
+      reset({
+        baseAddress: billingAddress?.baseAddress ?? '',
+        detailAddress: billingAddress?.detailAddress ?? '',
+        city: billingAddress?.city ?? '',
+        state: billingAddress?.state ?? '',
+        country: billingAddress?.country ?? '',
+        zipCode: billingAddress?.zipCode ?? '',
+      })
+    }
+  }
+
+  function onError() {
+    toast.error(
+      'Something went wrong while uploading files. Please try again.',
+      {
+        position: 'bottom-left',
+      },
+    )
   }
 
   return (
@@ -217,7 +268,7 @@ export default function PaymentInfo({ clientId }: Props) {
               }
             />
             <CardContent>
-              <BillingAddress /* clientId={clientId}  */ />
+              <BillingAddress billingAddress={billingAddress} />
             </CardContent>
           </Card>
         </Box>
@@ -228,7 +279,7 @@ export default function PaymentInfo({ clientId }: Props) {
         <Card>
           <CardContent>
             <FileInfo
-              fileList={fileList}
+              fileList={fileList || []}
               accept={{
                 'image/*': ['.png', '.jpg', '.jpeg'],
                 'text/csv': ['.cvs'],
@@ -243,8 +294,8 @@ export default function PaymentInfo({ clientId }: Props) {
               onDownloadAll={downloadAllFile}
               onFileDrop={uploadFiles}
               onDeleteFile={onDeleteFile}
-              isUpdatable={false}
-              isDeletable={false}
+              isUpdatable={isUpdatable}
+              isDeletable={isDeletable}
             />
           </CardContent>
         </Card>
@@ -265,10 +316,20 @@ export default function PaymentInfo({ clientId }: Props) {
               justifyContent='center'
               gap='16px'
             >
-              <Button variant='outlined' onClick={() => setEditAddress(false)}>
+              <Button
+                variant='outlined'
+                onClick={() => {
+                  setEditAddress(false)
+                  resetBillingAddressForm()
+                }}
+              >
                 Cancel
               </Button>
-              <Button variant='contained' disabled={!isValid}>
+              <Button
+                variant='contained'
+                disabled={!isValid}
+                onClick={onSaveBillingAddress}
+              >
                 Save
               </Button>
             </Grid>

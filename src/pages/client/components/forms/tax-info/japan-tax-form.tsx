@@ -1,5 +1,5 @@
 import { FormHelperText, Grid, TextField } from '@mui/material'
-import { JapanTaxFormType } from '@src/types/schema/tax-info/japan-tax.schema'
+import { JapanTaxFormType } from '@src/types/payment-info/client/index.type'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 
 type Props = {

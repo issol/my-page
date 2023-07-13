@@ -1,7 +1,6 @@
 import { FormHelperText, Grid, InputLabel, TextField } from '@mui/material'
 import CleaveWrapper from '@src/@core/styles/libs/react-cleave'
-import { CreditCardFormType } from '@src/types/schema/payment-method/credit-card.schema'
-import { USTaxFormType } from '@src/types/schema/tax-info/us-tax.schema'
+import { CreditCardFormType } from '@src/types/payment-info/client/index.type'
 import Cleave from 'cleave.js/react'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 

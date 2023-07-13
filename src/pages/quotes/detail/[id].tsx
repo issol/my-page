@@ -2,6 +2,7 @@ import {
   Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useContext,
   useEffect,
   useState,
@@ -77,6 +78,7 @@ import {
 import {
   QuoteDownloadData,
   QuoteStatusType,
+  QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -106,7 +108,7 @@ import {
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   restoreVersion,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
@@ -122,11 +124,25 @@ import { toast } from 'react-hot-toast'
 import { quotes } from '@src/shared/const/permission-class'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './components/client-quote'
+import SelectReasonModal from '../components/modal/select-reason-modal'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { update } from 'lodash'
+import { useGetStatusList } from '@src/queries/common.query'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
+export type updateProjectInfoType =
+  | QuotesProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientPostType
+  | { tax: null | number; taxable: boolean }
+  | { status: number }
+  | { status: number; cancelReason: CancelReasonType }
+
 export default function QuotesDetail() {
   const router = useRouter()
+  const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
   const currentRole = getCurrentRole()
@@ -182,28 +198,38 @@ export default function QuotesDetail() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      status: 20000,
+      projectName: '',
+      isShowDescription: false,
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
   useEffect(() => {
-    if (!isProjectLoading && project) {
+    if (!isProjectLoading && project && statusList) {
       const defaultTimezone = {
         code: '',
         phone: '',
         label: '',
       }
       projectInfoReset({
-        status: project.status,
+        status:
+          statusList?.find(value => value.label === project.status)?.value ??
+          20000,
         workName: project.workName,
         projectName: project.projectName,
         projectDescription: project.projectDescription,
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        quoteDate: project.quoteDate,
+        isShowDescription: false,
+        quoteDate: {
+          date: project.quoteDate,
+          timezone: project.quoteDateTimezone ?? defaultTimezone,
+        },
         projectDueDate: {
           date: project.projectDueAt,
           timezone: project.projectDueTimezone ?? defaultTimezone,
@@ -225,7 +251,7 @@ export default function QuotesDetail() {
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
     }
-  }, [isProjectLoading])
+  }, [isProjectLoading, statusList, project])
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -526,13 +552,6 @@ export default function QuotesDetail() {
     })
   }
 
-  type updateProjectInfoType =
-    | QuotesProjectInfoFormType
-    | ProjectTeamFormType
-    | ClientPostType
-    | { tax: null | number; taxable: boolean }
-    | { status: QuoteStatusType }
-
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
@@ -543,6 +562,7 @@ export default function QuotesDetail() {
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
+        queryClient.invalidateQueries(['quotesList'])
       },
       onError: () => onMutationError(),
     },
@@ -659,6 +679,26 @@ export default function QuotesDetail() {
     onError: () => onMutationError(),
   })
 
+  const onClickCancel = () => {
+    openModal({
+      type: 'CancelQuoteModal',
+      children: (
+        <SelectReasonModal
+          onClose={() => closeModal('CancelQuoteModal')}
+          onClick={(status: number, cancelReason: CancelReasonType) =>
+            updateProject.mutate({ status: status, cancelReason: cancelReason })
+          }
+          title='Are you sure you want to cancel this quote?'
+          vary='error'
+          rightButtonText='Cancel'
+          action='Canceled'
+          from='lsp'
+          statusList={statusList!}
+        />
+      ),
+    })
+  }
+
   const onClickDelete = () => {
     openModal({
       type: 'DeleteQuoteModal',
@@ -693,6 +733,30 @@ export default function QuotesDetail() {
   function handlePrint() {
     closeModal('DownloadQuotesModal')
     router.push('/quotes/print')
+  }
+
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    if (editProject || editItems || editClient || editTeam) {
+      openModal({
+        type: 'EditAlertModal',
+        children: (
+          <EditAlertModal
+            onClose={() => closeModal('EditAlertModal')}
+            onClick={() => {
+              closeModal('EditAlertModal')
+              setMenu(newValue)
+              setEditProject(false)
+              setEditItems(false)
+              setEditClient(false)
+              setEditTeam(false)
+            }}
+          />
+        ),
+      })
+      return
+    }
+
+    setMenu(newValue)
   }
 
   useEffect(() => {
@@ -814,6 +878,8 @@ export default function QuotesDetail() {
     makePdfData()
   }, [project, client])
 
+  console.log(getProjectInfoValues())
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -874,6 +940,17 @@ export default function QuotesDetail() {
               >
                 Create order
               </Button>
+              <Button
+                variant='contained'
+                disabled={
+                  project?.status !== 'New' &&
+                  project?.status !== 'In preparation' &&
+                  project?.status !== 'Internal review' &&
+                  project?.status !== 'Under revision'
+                }
+              >
+                Confirm quote
+              </Button>
             </Box>
           )}
         </Box>
@@ -881,7 +958,7 @@ export default function QuotesDetail() {
       <Grid item xs={12}>
         <TabContext value={menu}>
           <TabList
-            onChange={(e, v) => setMenu(v)}
+            onChange={handleChange}
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
@@ -949,6 +1026,8 @@ export default function QuotesDetail() {
                   setDownloadLanguage={setDownloadLanguage}
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
+                  updateProject={updateProject}
+                  statusList={statusList!}
                 />
               ) : null}
             </Suspense>
@@ -966,6 +1045,7 @@ export default function QuotesDetail() {
                         watch={projectInfoWatch}
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
+                        getClientValue={getClientValue}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -987,16 +1067,32 @@ export default function QuotesDetail() {
                         currentRole! &&
                         currentRole.name !== 'CLIENT'
                       }
-                      updateStatus={(status: QuoteStatusType) =>
+                      updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
                       role={currentRole!}
                       client={client}
                       type='detail'
+                      updateProject={updateProject}
+                      statusList={statusList!}
                     />
                   </Card>
                   {currentRole && currentRole.name === 'CLIENT' ? null : (
-                    <Grid container sx={{ mt: '24px' }}>
+                    <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={!isUpdatable}
+                            onClick={onClickCancel}
+                          >
+                            Cancel this quote
+                          </Button>
+                        </Card>
+                      </Grid>
                       <Grid item xs={4}>
                         <Card sx={{ padding: '20px', width: '100%' }}>
                           <Button

@@ -1,5 +1,5 @@
 import { FormHelperText, Grid, TextField } from '@mui/material'
-import { USTaxFormType } from '@src/types/schema/tax-info/us-tax.schema'
+import { USTaxFormType } from '@src/types/payment-info/client/index.type'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 
 type Props = {

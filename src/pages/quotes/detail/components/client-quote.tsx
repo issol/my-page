@@ -6,6 +6,9 @@ import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import SelectReasonModal from '../../components/modal/select-reason-modal'
+import { UseMutationResult } from 'react-query'
+import { updateProjectInfoType } from '../[id]'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 type Props = {
   downloadData: QuoteDownloadData
@@ -14,6 +17,13 @@ type Props = {
   downloadLanguage?: 'EN' | 'KO'
   setDownloadLanguage?: Dispatch<SetStateAction<'EN' | 'KO'>>
   type: 'detail' | 'history'
+  updateProject?: UseMutationResult<
+    void,
+    unknown,
+    updateProjectInfoType,
+    unknown
+  >
+  statusList: { value: number; label: string }[]
 }
 
 const ClientQuote = ({
@@ -23,22 +33,54 @@ const ClientQuote = ({
   downloadLanguage,
   setDownloadLanguage,
   type,
+  updateProject,
+  statusList,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
-  const handleAcceptQuote = () => {
+  const handleAcceptQuote = (status: number) => {
     // TODO API call
-    closeModal('AcceptQuoteModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status },
+        {
+          onSuccess: () => {
+            closeModal('AcceptQuoteModal')
+          },
+        },
+      )
   }
 
-  const handleRequestRevision = () => {
+  const handleRequestRevision = (
+    status: number,
+    cancelReason: CancelReasonType,
+  ) => {
     // TODO API call
-    closeModal('RequestRevisionModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status, cancelReason: cancelReason },
+        {
+          onSuccess: () => {
+            closeModal('RequestRevisionModal')
+          },
+        },
+      )
   }
 
-  const handleRejectQuote = () => {
+  const handleRejectQuote = (
+    status: number,
+    cancelReason: CancelReasonType,
+  ) => {
     // TODO API call
-    closeModal('RejectQuoteModal')
+    updateProject &&
+      updateProject?.mutate(
+        { status: status, cancelReason: cancelReason },
+        {
+          onSuccess: () => {
+            closeModal('RejectQuoteModal')
+          },
+        },
+      )
   }
 
   const onClickAcceptQuote = () => {
@@ -56,28 +98,37 @@ const ClientQuote = ({
     })
   }
 
-  const onClickAction = (action: 'Request' | 'Reject') => {
+  const onClickAction = (action: 'Request revision' | 'Rejected') => {
     openModal({
-      type: `${action === 'Request' ? 'RequestRevision' : 'RejectQuote'}Modal`,
+      type: `${
+        action === 'Request revision' ? 'RequestRevision' : 'RejectQuote'
+      }Modal`,
       children: (
         <SelectReasonModal
           onClose={() =>
             closeModal(
               `${
-                action === 'Request' ? 'RequestRevision' : 'RejectQuote'
+                action === 'Request revision'
+                  ? 'RequestRevision'
+                  : 'RejectQuote'
               }Modal`,
             )
           }
-          onClick={() => {
-            action === 'Request' ? handleRequestRevision() : handleRejectQuote()
+          onClick={(status: number, cancelReason: CancelReasonType) => {
+            action === 'Request revision'
+              ? handleRequestRevision(status, cancelReason)
+              : handleRejectQuote(status, cancelReason)
           }}
-          vary={action === 'Request' ? 'successful' : 'error'}
+          vary={action === 'Request revision' ? 'successful' : 'error'}
           title={
-            action === 'Request'
+            action === 'Request revision'
               ? 'Are you sure you want to request a revision of the quote?'
               : 'Are you sure you want to reject this quote?'
           }
-          rightButtonText={action}
+          rightButtonText={action === 'Request revision' ? 'Request' : 'Reject'}
+          action={action}
+          from={'client'}
+          statusList={statusList}
         />
       ),
     })
@@ -165,7 +216,7 @@ const ClientQuote = ({
               <Button
                 variant='outlined'
                 fullWidth
-                onClick={() => onClickAction('Request')}
+                onClick={() => onClickAction('Request revision')}
               >
                 Request revision
               </Button>
@@ -180,7 +231,7 @@ const ClientQuote = ({
                 variant='outlined'
                 color='error'
                 fullWidth
-                onClick={() => onClickAction('Reject')}
+                onClick={() => onClickAction('Rejected')}
               >
                 Reject this quote
               </Button>

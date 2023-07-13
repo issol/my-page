@@ -10,8 +10,8 @@ export const getProjectTeamColumns = (role?: string) => {
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
+      flex: 0.3355,
 
-      minWidth: 410,
       headerName: 'Position',
       disableColumnMenu: true,
       renderHeader: () => <Box>Position</Box>,
@@ -20,7 +20,7 @@ export const getProjectTeamColumns = (role?: string) => {
       },
     },
     {
-      minWidth: 420,
+      flex: 0.3363,
       field: 'member',
       headerName: 'Member',
       hideSortIcons: true,
@@ -40,7 +40,7 @@ export const getProjectTeamColumns = (role?: string) => {
       },
     },
     {
-      minWidth: 410,
+      flex: 0.3283,
       field: 'jobTitle',
       headerName: 'Job title',
       hideSortIcons: true,

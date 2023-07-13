@@ -1,5 +1,5 @@
 import { FormHelperText, Grid, TextField } from '@mui/material'
-import { AccountMethodFormType } from '@src/types/schema/payment-method/account-method.schema'
+import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 
 type Props = {

@@ -27,6 +27,7 @@ import {
 } from 'src/types/company/members'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
@@ -37,6 +38,15 @@ const Members = () => {
   const { data: members, refetch } = useGetMembers(
     ability.can('update', 'permission_request'),
   )
+
+  const userAccess = useAppSelector(state => state.userAccess)
+  const hasGeneralPermission = () => {
+    let flag = false
+    userAccess.role.map(item => {
+      if ((item.name === 'LPM' || item.name === 'TAD') && item.type ==='General') flag=true
+    })
+    return flag
+  }
 
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
@@ -271,7 +281,7 @@ const Members = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Suspense>
-        {user && user.length ? (
+        {user && user.length && !hasGeneralPermission() ? (
           <SignUpRequests
             data={user}
             requestsPage={requestsPage}
@@ -294,6 +304,7 @@ const Members = () => {
           memberList={memberList}
           patchMemberMutation={patchMemberMutation}
           deleteMemberMutation={deleteMemberMutation}
+          hasGeneralPermission={hasGeneralPermission()}
         />
       </Suspense>
     </Box>

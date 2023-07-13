@@ -273,7 +273,10 @@ export const getClientProjectList = async (
     //   totalCount: list.length,
     // }
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      data: [],
+      count: 0,
+    }
   }
 }
 

@@ -35,3 +35,84 @@ export const PaymentMethodPairs: {
   ],
   Japan: [{ value: 'directDeposit', label: 'Direct deposit' }],
 }
+
+export type ClientPaymentInfoDetail = {
+  id: number
+  createdAt: string
+  updatedAt: null | string
+  clientId: number
+  adminCompanyName: string
+  office: OfficeType
+  paymentMethod: PaymentType
+  paymentData: PaymentMethodUnionType
+  taxData: OfficeTaxType
+}
+
+export type ClientPaymentFormType = {
+  clientId: number
+  paymentId?: number // paymentId 가 전달되면 업데이트, 전달되지 않으면 생성
+  office: OfficeType
+  paymentMethod: PaymentType
+  paymentData: PaymentMethodUnionType
+  taxData: OfficeTaxType
+}
+
+/* Tax form types */
+export type OfficeTaxType =
+  | KoreaTaxFormType
+  | USTaxFormType
+  | SingaporeTaxFormType
+  | JapanTaxFormType
+
+export type KoreaTaxFormType = {
+  businessNumber: number
+  companyName: string
+  representativeName: string
+  businessAddress: string
+  businessType: string
+  recipientEmail: string
+}
+
+export type USTaxFormType = {
+  clientName: string
+  clientAddress: string
+}
+
+export type SingaporeTaxFormType = {
+  clientName: string
+  clientAddress: string
+  taxId: number | null
+  uenId: number | null
+}
+
+export type JapanTaxFormType = {
+  clientName: string
+  clientAddress: string
+  taxId: number | null
+  businessNumber: number | null
+}
+
+/* Payment method types */
+export type PaymentMethodUnionType =
+  | BankTransferFormType
+  | CreditCardFormType
+  | PayPalFormType
+  | AccountMethodFormType
+
+export type BankTransferFormType = {
+  bankName: string
+  accountHolder: string
+}
+
+export type CreditCardFormType = {
+  cardNumber: string
+  validDueAt: string
+}
+
+export type PayPalFormType = {
+  email: string
+}
+
+export type AccountMethodFormType = {
+  account: string
+}
