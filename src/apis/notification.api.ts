@@ -16,18 +16,29 @@ export const notificationTest = async () => {
 }
 
 export const getNotificationList = async (
+  pageParam: number,
   filter: NotificationCenterFilterType,
-): Promise<{ data: Array<NotificationType>; count: number }> => {
+): Promise<{
+  data: Array<NotificationType>
+  page: number
+  isLast: boolean
+  totalCount: number
+}> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/notification?${makeQuery(filter)}`,
     )
 
-    return data
+    const isLast =
+      Math.min(6 * (pageParam + 1), data.totalCount) === data.totalCount
+
+    return { ...data, page: pageParam, isLast: isLast }
   } catch (e: any) {
     return {
       data: [],
-      count: 0,
+      page: 0,
+      totalCount: 0,
+      isLast: true,
     }
   }
 }

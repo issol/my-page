@@ -3,11 +3,16 @@ import { NotificationCenterFilterType } from '@src/types/my-page/notification-ce
 import { useQuery } from 'react-query'
 
 export const useGetNotificationList = (
+  pageParam: number,
   filter: NotificationCenterFilterType,
 ) => {
-  return useQuery(['notificationList'], () => getNotificationList(filter), {
-    staleTime: 60 * 1000, // 1
-    suspense: true,
-    keepPreviousData: true,
-  })
+  return useQuery(
+    ['notificationList'],
+    () => getNotificationList(pageParam, filter),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      keepPreviousData: true,
+    },
+  )
 }
