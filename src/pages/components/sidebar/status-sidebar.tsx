@@ -7,7 +7,8 @@ import styled from 'styled-components'
 
 type Props = {
   alertIconStatus?: string
-  status: Array<{ value: number; label: string; color: string }>
+  status: Array<{ value: number | string; label: string; color: string }>
+
   mdAbove: boolean
   leftSidebarWidth: number
 }
@@ -43,7 +44,11 @@ export default function CalendarStatusSideBar({
     >
       {status.length
         ? status?.map(
-            (item: { value: number; label: string; color: string }) => {
+            (item: {
+              value: number | string
+              label: string
+              color: string
+            }) => {
               return (
                 <BoxFeature
                   key={item.value}
