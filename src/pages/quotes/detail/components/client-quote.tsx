@@ -63,7 +63,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, cancelReason: cancelReason },
+        { status: status, canceledReason: cancelReason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -79,7 +79,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, cancelReason: cancelReason },
+        { status: status, canceledReason: cancelReason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')

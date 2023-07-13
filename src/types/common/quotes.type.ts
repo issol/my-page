@@ -111,6 +111,15 @@ export type ProjectInfoType = {
   taxable: boolean
   isConfirmed: boolean
   canceledReason: CancelReasonType | null
+  linkedOrder: {
+    id: number
+    corporationId: string
+  } | null
+
+  linkedRequest: {
+    id: number
+    corporationId: string
+  } | null
 }
 
 export type VersionHistoryType = HistoryType & {
