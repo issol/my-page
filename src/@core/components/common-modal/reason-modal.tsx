@@ -63,7 +63,7 @@ export default function ReasonModal({
             justifyContent: 'center',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
+            mb: '8px',
           }}
         >
           <AlertIcon type={vary} />
@@ -79,12 +79,20 @@ export default function ReasonModal({
                 {canceledReason ? canceledReason?.reason : '-'}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px',
+                minHeight: '96px',
+              }}
+            >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
                 Message {canceledReason?.from === 'lsp' ? 'from' : 'to'} LSP
               </Typography>
               <Typography
-                variant='body1'
+                variant='body2'
+                fontSize={16}
                 sx={{ whiteSpace: 'pre-line !important' }}
               >
                 {canceledReason ? canceledReason?.message : '-'}

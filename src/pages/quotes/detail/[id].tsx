@@ -1068,13 +1068,13 @@ export default function QuotesDetail() {
                   </Menu>
                 </Box>
               ) : null}
-              <Box>
+              {currentRole && currentRole.name === 'CLIENT' ? (
                 <QuoteStatusChip
                   size='small'
                   label={project?.status ?? '-'}
                   status={project?.status!}
                 />
-              </Box>
+              ) : null}
             </Box>
           </Box>
           {currentRole && currentRole.name === 'CLIENT' ? null : (
