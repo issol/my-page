@@ -5,6 +5,7 @@ import {
   OfficeType,
 } from '@src/types/payment-info/client/index.type'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export const getClientOfficeList = async (
   clientId: number,
@@ -56,18 +57,97 @@ export const deleteClientPaymentInfo = async (
   }
 }
 
-/* TODO: api변경될 여지 있음 */
-// export const uploadClientPaymentFile = async (
-//   paymentId: number,
-//   file: FileItemType,
-// ): Promise<void> => {
-//   try {
-//     const { data } = await axios.post(
-//       `/api/enough/u/client/payment-info/${paymentId}/upload-file`,
-//       file,
-//     )
-//     return data
-//   } catch (e: any) {
-//     throw new Error(e)
-//   }
-// }
+/* TODO: endpoint, method변경될 수 있음 */
+export const updateClientBillingAddress = async (
+  clientId: number,
+  form: ClientAddressType,
+): Promise<ClientAddressType | undefined> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/u/client/${clientId}/address?type=billing`,
+      form,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getClientBillingAddress = async (
+  clientId: number,
+): Promise<ClientAddressType | undefined> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/${clientId}/address?type=billing`,
+    )
+    return data
+  } catch (e: any) {
+    return undefined
+  }
+}
+
+export const getClientPaymentFile = async (
+  clientId: number,
+): Promise<Array<FileItemType>> => {
+  try {
+    const {
+      data,
+    }: {
+      data: Array<{
+        id: number
+        name: string
+        type: string
+        size: string
+        file: {
+          type: string
+          data: []
+        }
+        clientId: number
+      }>
+    } = await axios.get(
+      `/api/enough/u/client/payment-info/file?clientId=${clientId}`,
+    )
+
+    return (
+      data?.map(i => ({
+        id: i.id,
+        url: '',
+        filePath: '',
+        fileName: i.name,
+        fileExtension: i.type,
+        fileSize: Number(i.size),
+      })) || []
+    )
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const uploadClientPaymentFile = async (
+  clientId: number,
+  file: File,
+): Promise<void> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/u/client/payment-info/${clientId}/upload-file`,
+      file,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteClientPaymentFile = async (
+  clientId: number,
+  fileId: number,
+): Promise<void> => {
+  try {
+    const { data } = await axios.delete(
+      `/api/enough/u/client/payment-info/delete-file/${fileId}?clientId=${clientId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

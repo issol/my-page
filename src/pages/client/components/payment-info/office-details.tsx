@@ -48,7 +48,7 @@ type Props = {
 }
 
 export default function OfficeDetails({ clientId }: Props) {
-  // const { data: officeList } = useGetClientOffice(clientId) //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
+  /* const { data: officeList } = useGetClientOffice(clientId) */ //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
   const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
 
   const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
@@ -67,7 +67,7 @@ export default function OfficeDetails({ clientId }: Props) {
     : []
 
   const [office, setOffice] = useState<OfficeType>(
-    paymentInfo && paymentInfo?.length <= 1
+    paymentInfo?.length && paymentInfo?.length <= 1
       ? paymentInfo[0].office
       : earliestData.length
       ? earliestData[0].office

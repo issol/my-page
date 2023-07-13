@@ -1,12 +1,12 @@
 import { Box, Grid, Typography } from '@mui/material'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import styled from 'styled-components'
 
-/* TODO:
-실데이터로 수정
-prop type 수정 (부모에게 데이터 받아오기)
-*/
-export default function BillingAddress() {
-  function renderInfo(label: string, value: string | undefined) {
+type Props = {
+  billingAddress: ClientAddressType | undefined
+}
+export default function BillingAddress({ billingAddress }: Props) {
+  function renderInfo(label: string, value: string | null | undefined) {
     return (
       <LabelContainer>
         <Typography fontWeight={600}>{label}</Typography>
@@ -18,22 +18,22 @@ export default function BillingAddress() {
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
-        {renderInfo('Street 1', 'Street')}
+        {renderInfo('Street 1', billingAddress?.baseAddress)}
       </Grid>
       <Grid item xs={6}>
-        {renderInfo('Street 2', 'Street')}
+        {renderInfo('Street 2', billingAddress?.detailAddress)}
       </Grid>
       <Grid item xs={6}>
-        {renderInfo('City', 'city')}
+        {renderInfo('City', billingAddress?.city)}
       </Grid>
       <Grid item xs={6}>
-        {renderInfo('State', '-')}
+        {renderInfo('State', billingAddress?.state)}
       </Grid>
       <Grid item xs={6}>
-        {renderInfo('Country', 'Country')}
+        {renderInfo('Country', billingAddress?.country)}
       </Grid>
       <Grid item xs={6}>
-        {renderInfo('Zip code', '234')}
+        {renderInfo('Zip code', billingAddress?.zipCode)}
       </Grid>
     </Grid>
   )
