@@ -58,7 +58,7 @@ export const deleteClientPaymentInfo = async (
 }
 
 export const updateClientBillingAddress = async (
-  clientId: number,
+  clientId: string,
   form: ClientAddressType,
 ): Promise<ClientAddressType | undefined> => {
   try {
