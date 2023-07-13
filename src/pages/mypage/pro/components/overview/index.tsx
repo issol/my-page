@@ -536,7 +536,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           </Card>
         </Grid>
 
-        <Grid item xs={9}>
+        <Grid item xs={12} md={12} lg={9}>
           <Grid container spacing={6}>
             {/* Resume */}
             <Grid item md={6} lg={6}>

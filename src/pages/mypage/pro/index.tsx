@@ -11,15 +11,16 @@ import Icon from 'src/@core/components/icon'
 
 // ** nextJS
 import { useRouter } from 'next/router'
-import { useContext, useState } from 'react'
+import { Suspense, useContext, useState } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 
 // ** components
 import Header from '../components/header'
-
-// ** types
-import { RoleType } from '@src/context/types'
+import FallbackSpinner from '@src/@core/components/spinner'
+import MyAccount from './components/my-account'
 import MyPageOverview from './components/overview'
+
+// ** apis
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
 
 type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
@@ -82,10 +83,14 @@ export default function ProMyPage() {
             />
           </TabList>
           <TabPanel value='overview'>
-            <MyPageOverview userInfo={userInfo!} user={user!} />
+            <Suspense fallback={<FallbackSpinner />}>
+              <MyPageOverview userInfo={userInfo!} user={user!} />
+            </Suspense>
           </TabPanel>
           <TabPanel value='paymentInfo'>payment info</TabPanel>
-          <TabPanel value='myAccount'>my account</TabPanel>
+          <TabPanel value='myAccount'>
+            <MyAccount user={user!} />
+          </TabPanel>
         </TabContext>
       </Grid>
     </Grid>
