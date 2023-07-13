@@ -57,6 +57,10 @@ import {
 } from '@src/apis/common.api'
 import { FilePostType } from '@src/apis/client-guideline.api'
 
+// ** helpers
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+
 type Props = {
   row: JobType
   contactPersonList: Array<{ value: string; label: string; userId: number }>
@@ -166,7 +170,7 @@ const EditJobInfo = ({
   })
 
   const description = watch('description')
-  const MAXIMUM_FILE_SIZE = 20000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.JOB_SAMPLE_FILE
 
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
@@ -833,12 +837,8 @@ const EditJobInfo = ({
 
             <Box>
               <Typography variant='subtitle2'>
-                {fileSize === 0
-                  ? 0
-                  : Math.round(fileSize / 100) / 10 > 1000
-                  ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                  : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                /2gb
+                {formatFileSize(fileSize)}
+                / {byteToGB(MAXIMUM_FILE_SIZE)}
               </Typography>
             </Box>
           </Box>

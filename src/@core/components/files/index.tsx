@@ -18,6 +18,10 @@ import useModal from '@src/hooks/useModal'
 import { useMemo } from 'react'
 import { useDropzone } from 'react-dropzone'
 
+// ** helpers
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+
 type Props = {
   title?: string
   fileList: FileItemType[]
@@ -35,7 +39,7 @@ export default function FileInfo({
   title,
   fileList,
   accept,
-  maximumFileSize = 50000000,
+  maximumFileSize = FILE_SIZE.DEFAULT,
   onFileDrop,
   onDeleteFile,
   onDownloadAll,
@@ -57,8 +61,8 @@ export default function FileInfo({
       children: (
         <SimpleAlertModal
           message={`The maximum file size you can upload is ${
-            Math.round(MAXIMUM_FILE_SIZE / 100) / 10000
-          }mb.`}
+            byteToMB(MAXIMUM_FILE_SIZE)
+          }.`}
           onClose={() => closeModal('dropReject')}
         />
       ),
@@ -104,12 +108,8 @@ export default function FileInfo({
           <Box display='flex' gap='10px' flexDirection='column'>
             <Typography variant='h6'>{title ?? 'Files'}</Typography>
             <Typography variant='body2'>
-              {fileSize === 0
-                ? 0
-                : Math.round(fileSize / 100) / 10 > 1000
-                ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-              /50mb
+              {formatFileSize(fileSize)}
+              / {byteToMB(MAXIMUM_FILE_SIZE)}
             </Typography>
           </Box>
           {isUpdatable ? (
