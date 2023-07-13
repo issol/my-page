@@ -77,8 +77,10 @@ function getColor(status: QuoteStatusType) {
     : status === 'Revision requested'
     ? '#A81988'
     : status === 'Under revision'
-    ? '26C6F9'
-    : null
+    ? '#26C6F9'
+    : status === 'Quote sent'
+    ? '#2B6603'
+    : ''
 }
 
 export const getQuotesCalendarData = async (
