@@ -55,7 +55,13 @@ const EditSaveModal = ({ onClose, onClick }: Props) => {
           <Button variant='outlined' onClick={onClose}>
             Cancel
           </Button>
-          <Button variant='contained' onClick={onClick}>
+          <Button
+            variant='contained'
+            onClick={() => {
+              onClick()
+              onClose()
+            }}
+          >
             Save
           </Button>
         </Box>

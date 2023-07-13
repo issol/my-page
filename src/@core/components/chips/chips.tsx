@@ -10,6 +10,7 @@ import {
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
+import { RequestStatusType } from '@src/types/requests/common.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -253,9 +254,9 @@ export const QuoteStatusChip = styled(Chip)<{ status: QuoteStatusType }>`
       ? `background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;`
       : status === 'In preparation'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #F572D8; color :#F572D8;`
-      : status === 'Review before submission'
+      : status === 'Internal review'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #20B6E5; color :#20B6E5;`
-      : status === 'Pending'
+      : status === 'Client review' || status === 'Under review'
       ? `background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;`
       : status === 'Expired'
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
@@ -267,6 +268,14 @@ export const QuoteStatusChip = styled(Chip)<{ status: QuoteStatusType }>`
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #1A6BBA; color: #1A6BBA;'
       : status === 'Canceled'
       ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
+      : status === 'Revision requested'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #A81988; color: #A81988;'
+      : status === 'Under revision'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #BA971A; color: #BA971A;'
+      : status === 'Revised'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #AD7028; color: #AD7028;'
+      : status === 'Quote sent'
+      ? 'background:linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #2B6603; color: #2B6603;'
       : null};
 `
 
@@ -421,6 +430,33 @@ export function PermissionChip(permission: UserType) {
         background: '#fff',
         color: color,
         border: `1px solid ${color}`,
+      }}
+      size='small'
+    />
+  )
+}
+
+export function ClientRequestStatusChip(status: RequestStatusType) {
+  const color =
+    status === 'Request created'
+      ? '#A81988'
+      : status === 'In preparation'
+      ? '#FDB528'
+      : status === 'Changed into quote'
+      ? '#64C623'
+      : status === 'Changed into order'
+      ? '#1A6BBA'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : ''
+
+  return (
+    <CustomChip
+      label={status}
+      skin='light'
+      sx={{
+        background: `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`,
+        color: color,
       }}
       size='small'
     />

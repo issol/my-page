@@ -241,6 +241,8 @@ const LanguagePair = ({
   }
 
   const onClickSaveEditLanguagePair = () => {
+    console.log('hi')
+
     openModal({
       type: 'editSaveLanguagePairModal',
       children: (
@@ -545,9 +547,7 @@ const LanguagePair = ({
                     justifyContent: 'center',
                     alignItems: 'center',
                   }}
-                >
-                  dd
-                </Box>
+                ></Box>
               )
             },
           }}
@@ -571,7 +571,7 @@ const LanguagePair = ({
           loading={isLoading}
           editMode='row'
           rows={list ?? []}
-          autoHeight
+          autoHeight={false}
           // disableSelectionOnClick
           hideFooterSelectedRowCount
           paginationMode='server'

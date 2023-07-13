@@ -33,7 +33,12 @@ import Icon from 'src/@core/components/icon'
 import format from 'date-fns/format'
 import addDays from 'date-fns/addDays'
 import { FilterType } from '..'
-import { ClientStatus, WorkStatus } from '@src/shared/const/status/statuses'
+import {
+  ClientQuoteStatus,
+  ClientStatus,
+  QuotesStatus,
+  WorkStatus,
+} from '@src/shared/const/status/statuses'
 import {
   ClientInvoiceFilterType,
   ClientProjectFilterType,
@@ -62,6 +67,7 @@ import {
 import { Category } from '@src/shared/const/category/category.enum'
 import _ from 'lodash'
 import { QuotesFilterType } from '@src/types/quotes/quote'
+import { UserRoleType } from '@src/context/types'
 
 type Props = {
   filter: QuotesFilterType
@@ -95,6 +101,8 @@ type Props = {
       }[]
     >
   >
+  role: UserRoleType
+  quoteStatusList: Array<{ value: number; label: string }>
 }
 
 export default function QuotesFilters({
@@ -109,6 +117,8 @@ export default function QuotesFilters({
   setServiceTypeList,
   categoryList,
   setCategoryList,
+  role,
+  quoteStatusList,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -162,7 +172,12 @@ export default function QuotesFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={WorkStatus}
+                          options={
+                            quoteStatusList
+                            // role.name === 'CLIENT'
+                            //   ? ClientQuoteStatus
+                            //   : QuotesStatus
+                          }
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
@@ -337,25 +352,35 @@ export default function QuotesFilters({
                       )}
                     />
                   </Grid>
+
                   <Grid item xs={3}>
                     <Controller
                       control={control}
-                      name='quoteDeadline'
+                      name={
+                        role.name === 'CLIENT'
+                          ? 'estimatedDeliveryDate'
+                          : 'quoteDeadline'
+                      }
                       render={({ field: { onChange, value } }) => (
                         <Box sx={{ width: '100%' }}>
                           <DatePicker
                             selectsRange
+                            autoComplete='off'
                             monthsShown={2}
-                            endDate={value[1]}
-                            selected={value[0]}
-                            startDate={value[0]}
+                            endDate={value && value![1]}
+                            selected={value && value![0]}
+                            startDate={value && value![0]}
                             shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
                               <CustomInput
-                                label='Quote deadline'
+                                label={
+                                  role.name === 'CLIENT'
+                                    ? 'Estimated delivery date'
+                                    : 'Quote deadline'
+                                }
                                 icon='calendar'
                               />
                             }
@@ -368,26 +393,37 @@ export default function QuotesFilters({
                   <Grid item xs={3}>
                     <Controller
                       control={control}
-                      name='quoteExpiryDate'
+                      name={
+                        role.name === 'CLIENT'
+                          ? 'projectDueDate'
+                          : 'quoteExpiryDate'
+                      }
                       render={({ field: { onChange, value } }) => (
                         <Box sx={{ width: '100%' }}>
-                          <DatePicker
-                            selectsRange
-                            monthsShown={2}
-                            endDate={value[1]}
-                            selected={value[0]}
-                            startDate={value[0]}
-                            shouldCloseOnSelect={false}
-                            id='date-range-picker-months'
-                            onChange={onChange}
-                            popperPlacement={popperPlacement}
-                            customInput={
-                              <CustomInput
-                                label='Quote expiry date'
-                                icon='calendar'
-                              />
-                            }
-                          />
+                          {value && (
+                            <DatePicker
+                              selectsRange
+                              autoComplete='off'
+                              monthsShown={2}
+                              endDate={value && value![1]}
+                              selected={value && value![0]}
+                              startDate={value && value![0]}
+                              shouldCloseOnSelect={false}
+                              id='date-range-picker-months'
+                              onChange={onChange}
+                              popperPlacement={popperPlacement}
+                              customInput={
+                                <CustomInput
+                                  label={
+                                    role.name === 'CLIENT'
+                                      ? 'Project due date'
+                                      : 'Quote expiry date'
+                                  }
+                                  icon='calendar'
+                                />
+                              }
+                            />
+                          )}
                         </Box>
                       )}
                     />
@@ -400,7 +436,7 @@ export default function QuotesFilters({
                         name='search'
                         render={({ field: { onChange, value } }) => (
                           <>
-                            <InputLabel>Search invoice name</InputLabel>
+                            <InputLabel>Search projects</InputLabel>
                             <OutlinedInput
                               label='Search invoice name'
                               value={value}

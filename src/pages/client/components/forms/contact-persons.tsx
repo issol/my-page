@@ -193,6 +193,7 @@ export default function ContactPersonForm<T extends number | string = string>({
         ? companyInfo.timezone
         : { code: '', label: '', phone: '' },
       email: '',
+      userId: null,
     })
   }
 

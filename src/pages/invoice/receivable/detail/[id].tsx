@@ -744,6 +744,7 @@ const ReceivableInvoiceDetail = () => {
                     removeItems={removeItems}
                     getTeamValues={getTeamValues}
                     invoiceInfo={invoiceInfo!}
+                    itemTrigger={itemTrigger}
                   />
                 </Grid>
               </Card>

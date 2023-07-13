@@ -6,9 +6,9 @@ import {
   useGetSignUpRequests,
 } from '@src/queries/company/company-members'
 import {
-  approveMembers,
+  deleteMember,
+  patchMember,
   requestAction,
-  undoMembers,
   undoRequest,
 } from 'src/apis/company/company-members.api'
 
@@ -27,6 +27,7 @@ import {
 } from 'src/types/company/members'
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
+import { useAppSelector } from 'src/hooks/useRedux'
 
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
@@ -34,9 +35,18 @@ const Members = () => {
   const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('update', 'permission_request'),
   )
-  const { data: members } = useGetMembers(
-    ability.can('update', 'permission_request'),
+  const { data: members, refetch } = useGetMembers(
+    ability.can('read', 'members'),
   )
+
+  const userAccess = useAppSelector(state => state.userAccess)
+  const hasGeneralPermission = () => {
+    let flag = false
+    userAccess.role.map(item => {
+      if ((item.name === 'LPM' || item.name === 'TAD') && item.type ==='General') flag=true
+    })
+    return flag
+  }
 
   const [requestsPage, setRequestsPage] = useState<number>(0)
   const [membersPage, setMembersPage] = useState<number>(0)
@@ -61,20 +71,31 @@ const Members = () => {
   const undoRequestActionMutation = useMutation((user: SignUpRequestsType) =>
     undoRequest({ rId: user.rId, reply: 'no_reply' }),
   )
-
-  const undoMemberActionMutation = useMutation(
-    (user: MembersType) => undoMembers(user),
+  const patchMemberMutation = useMutation(
+    (data: { userId: number; permissionGroups: string[] }) => patchMember(data),
     {
       onSuccess: data => {
-        console.log('undo members')
+        refetch()
       },
     },
   )
 
-  const addMemberAfterApproveMutation = useMutation((user: MembersType) =>
-    approveMembers(user),
+  const deleteMemberMutation = useMutation(
+    (userId: number) => deleteMember(userId),
+    {
+      onSuccess: data => {
+        refetch()
+      },
+    },
   )
-  const handleDeleteRole = (role: string, user: SignUpRequestsType) => {
+
+  const handleDeleteRole = (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
@@ -86,7 +107,13 @@ const Members = () => {
     )
   }
 
-  const handleAddRole = (role: string, user: SignUpRequestsType) => {
+  const handleAddRole = (
+    role: string,
+    user: {
+      id: number
+      roles: string[]
+    },
+  ) => {
     setUser(prevState =>
       prevState.map(value => ({
         ...value,
@@ -254,7 +281,7 @@ const Members = () => {
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
       <Suspense>
-        {user && user.length ? (
+        {user && user.length && !hasGeneralPermission() ? (
           <SignUpRequests
             data={user}
             requestsPage={requestsPage}
@@ -275,6 +302,9 @@ const Members = () => {
           membersPageSize={membersPageSize}
           setMembersPageSize={setMembersPageSize}
           memberList={memberList}
+          patchMemberMutation={patchMemberMutation}
+          deleteMemberMutation={deleteMemberMutation}
+          hasGeneralPermission={hasGeneralPermission()}
         />
       </Suspense>
     </Box>

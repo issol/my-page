@@ -7,32 +7,33 @@ type CEOInfoType = {
 }
 
 type CompanyAddressType = {
-  officeName: string | null
-  baseAddress: string | null
-  detailAddress: string | null
-  city: string | null
-  state: string | null
-  country: string | null
+  name?: string
+  baseAddress?: string
+  detailAddress?: string
+  city?: string
+  state?: string
+  country?: string
 
-  zipCode: string | null
+  zipCode?: string
 }
 
 export type CompanyAddressFormType = {
-  officeName: string | null
-  baseAddress: string | null
-  detailAddress: string | null
-  city: string | null
-  state: string | null
-  country: {
-    value: string | null
-    label: string | null
+  name?: string
+  baseAddress?: string
+  detailAddress?: string
+  city?: string
+  state?: string
+  country?: {
+    value: string
+    label: string
   }
 
-  zipCode: string | null
+  zipCode?: string
 }
 
 export type CompanyInfoType = {
-  companyName: string
+  id: string
+  name: string
   logo?: string
   billingPlan?: {
     name: string
@@ -45,11 +46,12 @@ export type CompanyInfoType = {
   phone?: string
   fax?: string
 
-  address: Array<CompanyAddressType>
+  companyAddresses: Array<CompanyAddressType>
 }
 
 export type CompanyInfoFormType = {
-  companyName: string
+  companyId: string
+  name: string
   logo?: string
   billingPlan?: {
     name: string
@@ -66,4 +68,27 @@ export type CompanyInfoFormType = {
   fax?: string
 
   address: Array<CompanyAddressFormType>
+}
+
+export type CompanyInfoParamsType = {
+  companyId: string
+  name: string
+  logo?: string
+  ceo?: Array<CEOInfoType>
+  headquarter?: string
+  timezone: CountryType
+  registrationNumber?: string
+  email?: string
+  phone?: string
+  fax?: string
+}
+
+export type CompanyAddressParamsType = {
+  name?: string
+  baseAddress?: string
+  detailAddress?: string
+  city?: string
+  state?: string
+  country?: string
+  zipCode?: string
 }

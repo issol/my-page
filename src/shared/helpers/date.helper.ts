@@ -62,3 +62,24 @@ export function FullDateHelper(value: any): string | undefined {
 
   return rtn
 }
+
+export function findEarliestDate(dateStrings: string[]) {
+  if (!dateStrings || dateStrings.length === 0) {
+    return ''
+  }
+
+  const dates: number[] = []
+  try {
+    dateStrings.forEach(dateStr => {
+      const date = new Date(dateStr)
+      dates.push(date.getTime())
+    })
+    if (dates.length === 0) {
+      return ''
+    }
+    const earliestDate = new Date(Math.min.apply(null, dates))
+    return earliestDate.toISOString().split('T')[0]
+  } catch (e) {
+    return ''
+  }
+}

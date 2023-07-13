@@ -1,41 +1,46 @@
-import { useState } from 'react'
-
-import styled from 'styled-components'
+import { Suspense, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
 import ButtonGroup from '@mui/material/ButtonGroup'
 import { Card, CardHeader, Grid, Switch, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import FormControlLabel from '@mui/material/FormControlLabel'
-// ** components
-
-import { useForm } from 'react-hook-form'
-import {
-  ClientInvoiceFilterType,
-  ClientInvoiceListType,
-} from '@src/types/client/client-projects.type'
-
-import { useGetClientInvoiceList } from '@src/queries/client/client-detail'
-
-import { UserDataType } from '@src/context/types'
+import styled from 'styled-components'
+import { StyledNextLink } from '@src/@core/components/customLink'
 import PageHeader from '@src/@core/components/page-header'
+
+// ** components
+import CalendarContainer from './calendar'
+import QuotesFilters from './list/filters'
+import QuotesList from './list/list'
+
+// ** hooks
+import { useForm } from 'react-hook-form'
+
+// ** types
+import { UserDataType } from '@src/context/types'
 import { QuotesFilterType } from '@src/types/quotes/quote'
+
+// ** values
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
-import QuotesFilters from './list/filters'
+
+// ** apis
 import { useGetQuotesList } from '@src/queries/quotes.query'
-import QuotesList from './list/list'
-import CalendarContainer from './calendar'
-import { StyledNextLink } from '@src/@core/components/customLink'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetClientList } from '@src/queries/client.query'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type FilterType = {
   quoteDate: Date[]
-  quoteDeadline: Date[]
-  quoteExpiryDate: Date[]
+  quoteDeadline?: Date[]
+  quoteExpiryDate?: Date[]
+  estimatedDeliveryDate?: Date[]
+  projectDueDate?: Date[]
+  lsp?: Array<{ label: string; value: string }>
 
-  status: Array<{ label: string; value: string }>
-  client: Array<{ label: string; value: string }>
+  status: Array<{ label: string; value: number }>
+  client?: Array<{ label: string; value: string }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -46,6 +51,8 @@ const defaultValues: FilterType = {
   quoteDate: [],
   quoteDeadline: [],
   quoteExpiryDate: [],
+  projectDueDate: [],
+  estimatedDeliveryDate: [],
   status: [],
   client: [],
   category: [],
@@ -57,6 +64,8 @@ const defaultFilters: QuotesFilterType = {
   quoteDate: [],
   quoteDeadline: [],
   quoteExpiryDate: [],
+  projectDueDate: [],
+  estimatedDeliveryDate: [],
   status: [],
   client: [],
   category: [],
@@ -72,6 +81,8 @@ type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
 export default function Quotes({ id, user }: Props) {
+  const { data: statusList } = useGetStatusList('Quote')
+
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [quoteListPage, setClientInvoiceListPage] = useState<number>(0)
@@ -84,7 +95,18 @@ export default function Quotes({ id, user }: Props) {
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
 
-  const { data: list, isLoading } = useGetQuotesList(filters)
+  const currentRole = getCurrentRole()
+
+  const { data: list, isLoading } = useGetQuotesList({
+    ...filters,
+    skip: quoteListPage * quoteListPageSize,
+    take: quoteListPageSize,
+  })
+
+  const { data: clientList, isLoading: clientListLoading } = useGetClientList({
+    take: 1000,
+    skip: 0,
+  })
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -100,6 +122,9 @@ export default function Quotes({ id, user }: Props) {
       client: [],
       category: [],
       serviceType: [],
+      estimatedDeliveryDate: [],
+      projectDueDate: [],
+      lsp: [],
       search: '',
     })
 
@@ -134,17 +159,22 @@ export default function Quotes({ id, user }: Props) {
       serviceType,
       category,
       search,
+      estimatedDeliveryDate,
+      projectDueDate,
+      lsp,
     } = data
 
     const filter: QuotesFilterType = {
       quoteDate: quoteDate.map(value => value),
-      quoteDeadline: quoteDeadline.map(value => value),
-      quoteExpiryDate: quoteExpiryDate.map(value => value),
+      quoteDeadline: quoteDeadline?.map(value => value),
+      quoteExpiryDate: quoteExpiryDate?.map(value => value),
       status: status.map(value => value.value),
-      client: client.map(value => value.value),
+      client: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
-
+      estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
+      projectDueDate: projectDueDate?.map(value => value),
+      lsp: lsp?.map(value => value.value),
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
@@ -155,13 +185,14 @@ export default function Quotes({ id, user }: Props) {
 
   return (
     <Box display='flex' flexDirection='column'>
-      <PageHeader title={<Typography variant='h5'>Quote list</Typography>} />
       <Box
         display='flex'
         width={'100%'}
-        justifyContent='right'
+        alignItems='center'
+        justifyContent='space-between'
         padding='10px 0 24px'
       >
+        <PageHeader title={<Typography variant='h5'>Quote list</Typography>} />
         <ButtonGroup variant='outlined'>
           <CustomBtn
             value='list'
@@ -182,19 +213,24 @@ export default function Quotes({ id, user }: Props) {
       <Box>
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <QuotesFilters
-              filter={filters}
-              control={control}
-              setFilter={setFilters}
-              onReset={onClickResetButton}
-              handleSubmit={handleSubmit}
-              onSubmit={onSubmit}
-              trigger={trigger}
-              serviceTypeList={serviceTypeList}
-              setServiceTypeList={setServiceTypeList}
-              categoryList={categoryList}
-              setCategoryList={setCategoryList}
-            />
+            <Suspense>
+              <QuotesFilters
+                filter={filters}
+                control={control}
+                setFilter={setFilters}
+                onReset={onClickResetButton}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                trigger={trigger}
+                serviceTypeList={serviceTypeList}
+                setServiceTypeList={setServiceTypeList}
+                categoryList={categoryList}
+                setCategoryList={setCategoryList}
+                role={currentRole!}
+                quoteStatusList={statusList!}
+              />
+            </Suspense>
+
             <Box
               sx={{
                 display: 'flex',
@@ -222,11 +258,13 @@ export default function Quotes({ id, user }: Props) {
                       <Typography variant='h6'>
                         Quotes ({list?.totalCount ?? 0})
                       </Typography>{' '}
-                      <Button variant='contained'>
-                        <StyledNextLink href='/quotes/add-new' color='white'>
-                          Create new quote
-                        </StyledNextLink>
-                      </Button>
+                      {currentRole && currentRole.name === 'CLIENT' ? null : (
+                        <Button variant='contained'>
+                          <StyledNextLink href='/quotes/add-new' color='white'>
+                            Create new quote
+                          </StyledNextLink>
+                        </Button>
+                      )}
                     </Box>
                   }
                   sx={{
@@ -243,6 +281,7 @@ export default function Quotes({ id, user }: Props) {
                   isLoading={isLoading}
                   filter={filters}
                   setFilter={setFilters}
+                  role={currentRole!}
                 />
               </Card>
             </Grid>

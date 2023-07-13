@@ -38,7 +38,6 @@ import ReactDraftWysiwyg from 'src/@core/components/react-draft-wysiwyg'
 
 // ** Styled Component Import
 import { EditorWrapper } from 'src/@core/styles/libs/react-draft-wysiwyg'
-7
 import CustomChip from 'src/@core/components/mui/chip'
 
 // ** Styles
@@ -94,6 +93,10 @@ import { OnboardingListRolePair } from '@src/shared/const/role/roles'
 import FallbackSpinner from '@src/@core/components/spinner'
 import OverlaySpinner from '@src/@core/components/spinner/overlay-spinner'
 
+// ** helpers
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+
 const defaultValues: TestMaterialPostType = {
   testType: 'Basic test',
   source: { value: '', label: '' },
@@ -136,7 +139,7 @@ const TestMaterialPost = () => {
   const [postFormError, setPostFormError] = useState(false)
 
   // ** file values
-  const MAXIMUM_FILE_SIZE = 50000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
@@ -187,10 +190,10 @@ const TestMaterialPost = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt='The maximum file size you can upload is 50mb.'
+                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
                   />
                   <Typography variant='body2'>
-                    The maximum file size you can upload is 50mb.
+                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -280,9 +283,7 @@ const TestMaterialPost = () => {
             {file.name}
           </Box>
           <Typography variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+            {formatFileSize(file.size)}
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -339,9 +340,7 @@ const TestMaterialPost = () => {
             {file.name}
           </Box>
           <Typography variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+            {formatFileSize(file.size)}
           </Typography>
         </Grid>
         <Grid item xs={2}>
@@ -1157,16 +1156,8 @@ const TestMaterialPost = () => {
                           Test guideline file
                         </Typography>
                         <Typography variant='body2'>
-                          {fileSize === 0
-                            ? 0
-                            : Math.round(fileSize / 100) / 10 > 1000
-                            ? `${(Math.round(fileSize / 100) / 10000).toFixed(
-                                1,
-                              )} mb`
-                            : `${(Math.round(fileSize / 100) / 10).toFixed(
-                                1,
-                              )} kb`}
-                          /50mb
+                          {formatFileSize(fileSize)}
+                          / {byteToMB(MAXIMUM_FILE_SIZE)}
                         </Typography>
                       </Box>
                       <div {...getRootProps({ className: 'dropzone' })}>

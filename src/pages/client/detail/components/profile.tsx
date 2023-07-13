@@ -54,7 +54,7 @@ export default function ClientProfile({
 
   function onMutationSuccess() {
     router.push('/client')
-    return queryClient.invalidateQueries(`get-client/memo`)
+    return queryClient.invalidateQueries(`get-client/list`)
   }
   function onMutationError() {
     toast.error('Something went wrong. Please try again.', {

@@ -62,7 +62,7 @@ export default function PriceUnitForm(props: Props) {
     handleSubmit,
     watch,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, dirtyFields, isValid },
   } = useForm<PriceFormType>({
     defaultValues,
     mode: 'onBlur',
@@ -235,7 +235,10 @@ export default function PriceUnitForm(props: Props) {
                 sx={{ minWidth: 200 }}
                 fullWidth
                 options={PriceUnits}
-                onChange={(e, v) => onChange(v?.value)}
+                onChange={(e, v) => {
+                  if (!v) onChange({ value: '', label: '' })
+                  else onChange(v.value)
+                }}
                 value={
                   PriceUnits.filter(item => item.label === value)[0] || {
                     value: '',
@@ -243,7 +246,13 @@ export default function PriceUnitForm(props: Props) {
                   }
                 }
                 getOptionLabel={option => option.label}
-                renderInput={params => <TextField {...params} label='Fixed rate' />}
+                renderInput={params => (
+                  <TextField
+                    {...params}
+                    label='Fixed rate'
+                    error={Boolean(errors.unit)}
+                  />
+                )}
               />
             )}
           />
@@ -293,7 +302,8 @@ export default function PriceUnitForm(props: Props) {
             </Button>
             <Button
               variant='contained'
-              disabled={!isValid}
+              // isValid가 unit 드롭다운 값을 제대로 체크하지 못해서 unit 체크조건 추가 설정(임시)
+              disabled={!isValid || Boolean(watch('unit') === '')}
               onClick={onAddClick}
             >
               {props.data ? 'Save' : 'Add'}
@@ -356,7 +366,7 @@ export default function PriceUnitForm(props: Props) {
                                 item => item.label === field.value,
                               )[0]
                             }
-                            renderInput={params => <TextField {...params} />}
+                            renderInput={params => <TextField {...params}  />}
                           />
                         )}
                       />

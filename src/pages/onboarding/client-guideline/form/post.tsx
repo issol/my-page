@@ -80,6 +80,8 @@ import { FormErrors } from 'src/shared/const/formErrors'
 // ** helpers
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import logger from '@src/@core/utils/logger'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 const defaultValues = {
   title: '',
@@ -102,7 +104,7 @@ const ClientGuidelineForm = () => {
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
 
   // ** file values
-  const MAXIMUM_FILE_SIZE = 50000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
@@ -141,10 +143,10 @@ const ClientGuidelineForm = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt='The maximum file size you can upload is 50mb.'
+                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
                   />
                   <Typography variant='body2'>
-                    The maximum file size you can upload is 50mb.
+                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -207,6 +209,8 @@ const ClientGuidelineForm = () => {
           </ModalButtonGroup>
         </ModalContainer>,
       )
+      resetFormSelection()
+      setIsDuplicated(false)
     }
   }, [isDuplicated])
 
@@ -227,8 +231,8 @@ const ClientGuidelineForm = () => {
     const { category, client, serviceType } = getValues()
     if (category.value && client.value && serviceType.value) {
       checkGuidelineExistence(
-        category.value,
         client.value,
+        category.value,
         serviceType.value,
       ).then(res => setIsDuplicated(res))
     }
@@ -495,9 +499,9 @@ const ClientGuidelineForm = () => {
                         options={ClientListIncludeGloz}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         value={value}
                         id='client'
@@ -534,9 +538,9 @@ const ClientGuidelineForm = () => {
                         value={value}
                         // filterSelectedOptions
                         onChange={(e, v) => {
-                          checkGuideline()
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
+                          checkGuideline()
                         }}
                         id='category'
                         getOptionLabel={option => option.label}
@@ -573,9 +577,9 @@ const ClientGuidelineForm = () => {
                       value={value}
                       // filterSelectedOptions
                       onChange={(e, v) => {
-                        checkGuideline()
                         if (!v) onChange({ value: '', label: '' })
                         else onChange(v)
+                        checkGuideline()
                       }}
                       id='serviceType'
                       getOptionLabel={option => option.label}
@@ -642,10 +646,8 @@ const ClientGuidelineForm = () => {
                     Attached file
                   </Typography>
                   <Typography variant='body2'>
-                    {Math.round(fileSize / 100) / 10 > 1000
-                      ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                      : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                    /50mb
+                    {formatFileSize(fileSize)}
+                    / {byteToMB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 <div {...getRootProps({ className: 'dropzone' })}>

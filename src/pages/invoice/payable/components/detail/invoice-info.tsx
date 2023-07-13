@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useState } from 'react'
 
 // ** style components
 import {
@@ -24,6 +24,7 @@ import JobDetail from './job-detail'
 import {
   InvoicePayableDetailType,
   InvoicePayableJobType,
+  PayableFormType,
 } from '@src/types/invoice/payable.type'
 
 // ** hooks
@@ -31,25 +32,18 @@ import useModal from '@src/hooks/useModal'
 import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 
 // ** apis
-import { deleteJob } from '@src/apis/job-detail.api'
-import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import { useMutation } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 
 import { toast } from 'react-hot-toast'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
-
-// ** permission
-import { invoice_payable } from '@src/shared/const/permission-class'
-
-/* TODO:
- delete invoice추가
-*/
+import { deleteInvoicePayableJobs } from '@src/apis/invoice/payable.api'
 
 type Props = {
+  payableId: number
+  isUpdatable: boolean
+  updateMutation: UseMutationResult<any, unknown, PayableFormType, unknown>
   data: InvoicePayableDetailType | undefined
   jobList: {
     count: number
@@ -57,33 +51,45 @@ type Props = {
     data: InvoicePayableJobType[]
   }
 }
-export default function InvoiceInfo({ data, jobList }: Props) {
+export default function InvoiceInfo({
+  payableId,
+  isUpdatable,
+  data,
+  updateMutation,
+  jobList,
+}: Props) {
+  const queryClient = useQueryClient()
+
   const { openModal, closeModal } = useModal()
-
-  const { user } = useContext(AuthContext)
-  const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
-
-  const isUpdatable = ability.can('update', User)
 
   const [editInfo, setEditInfo] = useState(false)
   const [selectedJobs, setSelectedJobs] = useState<Array<number>>([])
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
-  //TODO: deleteJob이 아닌 다른 api사용해야 하므로 함수 교체하기
-  function deleteJobs() {
-    const promises = selectedJobs.map(jobId => deleteJob(jobId))
-    Promise.all(promises)
-      .then(() => console.log('성공'))
-      .catch(() => {
+  const removeJobsMutation = useMutation(
+    () => deleteInvoicePayableJobs(payableId, selectedJobs),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: 'invoice/payable/detail/jobs',
+        })
+      },
+      onError: () => {
         toast.error(
           'Something went wrong while uploading files. Please try again.',
           {
             position: 'bottom-left',
           },
         )
-      })
+      },
+    },
+  )
+
+  function deleteJobs() {
+    if (selectedJobs.length) {
+      removeJobsMutation.mutate()
+    }
   }
 
   function onRemoveJobs() {
@@ -128,7 +134,9 @@ export default function InvoiceInfo({ data, jobList }: Props) {
         <Card>
           <CardContent sx={{ padding: '24px' }}>
             <InvoiceDetailCard
+              isUpdatable={isUpdatable}
               data={data}
+              updatePayable={updateMutation}
               editInfo={editInfo}
               setEditInfo={setEditInfo}
             />

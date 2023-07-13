@@ -15,7 +15,7 @@ import PageHeader from '@src/@core/components/page-header'
 import Icon from 'src/@core/components/icon'
 
 // ** components
-import PageLeaveModal from '../components/modals/page-leave-modal'
+
 import Stepper from '@src/pages/components/stepper'
 import CompanyInfoForm from '../components/forms/company-info-container'
 import AddressesForm from '../components/forms/addresses-container'
@@ -77,6 +77,7 @@ import {
 
 // ** third parties
 import { toast } from 'react-hot-toast'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 type PriceListCopyRowType = Omit<
   StandardPriceListType,
@@ -95,18 +96,19 @@ export default function AddNewClient() {
   const { openModal, closeModal } = useModal()
 
   // ** confirm page leaving
-  router.beforePopState(() => {
-    openModal({
-      type: 'alert-modal',
-      children: (
-        <PageLeaveModal
-          onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/client')}
-        />
-      ),
-    })
-    return false
-  })
+
+  // router.beforePopState(() => {
+  //   openModal({
+  //     type: 'alert-modal',
+  //     children: (
+  //       <PageLeaveModal
+  //         onClose={() => closeModal('alert-modal')}
+  //         onClick={() => router.push('/client')}
+  //       />
+  //     ),
+  //   })
+  //   return false
+  // })
 
   const generalSteps = [
     {
@@ -150,7 +152,11 @@ export default function AddNewClient() {
     setValue: setCompanyInfoValues,
     handleSubmit: submitCompanyInfo,
     watch: companyInfoWatch,
-    formState: { errors: companyInfoErrors, isValid: isCompanyInfoValid },
+    formState: {
+      errors: companyInfoErrors,
+      isValid: isCompanyInfoValid,
+      isDirty,
+    },
   } = useForm<CompanyInfoFormType>({
     mode: 'onChange',
     defaultValues: companyInfoDefaultValue,
@@ -304,7 +310,11 @@ export default function AddNewClient() {
     })
   }
 
-  const onSubmitPrice = (type: string, data?: AddPriceType, selectedData?: StandardPriceListType) => {
+  const onSubmitPrice = (
+    type: string,
+    data?: AddPriceType,
+    selectedData?: StandardPriceListType,
+  ) => {
     if (type === 'Add' || type === 'Discard') {
       if (type === 'Add' && data) {
         const formData: StandardPriceListType = {
@@ -327,7 +337,11 @@ export default function AddNewClient() {
     }
   }
 
-  const onSavePriceClick = (selectedData: StandardPriceListType, data: AddPriceType, modalType: string) => {
+  const onSavePriceClick = (
+    selectedData: StandardPriceListType,
+    data: AddPriceType,
+    modalType: string,
+  ) => {
     openModal({
       type: `${modalType}Price${
         modalType === 'Edit' ? 'Cancel' : 'Discard'
@@ -542,9 +556,16 @@ export default function AddNewClient() {
     })
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/client',
+  })
+
   const [checked, setChecked] = useState(false)
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <PageHeader
         title={
           <Box display='flex' alignItems='center' gap='8px'>

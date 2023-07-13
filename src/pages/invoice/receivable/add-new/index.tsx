@@ -71,11 +71,6 @@ import languageHelper from '@src/shared/helpers/language.helper'
 // ** apis
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetAllClientPriceList } from '@src/queries/price-units.query'
-import {
-  createItemsForOrder,
-  createLangPairForOrder,
-  createOrderInfo,
-} from '@src/apis/order.api'
 
 import {
   getClient,
@@ -108,6 +103,7 @@ import {
 } from '@src/types/invoice/receivable.type'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { createInvoice } from '@src/apis/invoice/receivable.api'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 export type languageType = {
   id: number | string
@@ -194,18 +190,18 @@ export default function AddNewInvoice() {
   ]
 
   // ** confirm page leaving
-  router.beforePopState(() => {
-    openModal({
-      type: 'alert-modal',
-      children: (
-        <PageLeaveModal
-          onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/invoice/receivable')}
-        />
-      ),
-    })
-    return false
-  })
+  // router.beforePopState(() => {
+  //   openModal({
+  //     type: 'alert-modal',
+  //     children: (
+  //       <PageLeaveModal
+  //         onClose={() => closeModal('alert-modal')}
+  //         onClick={() => router.push('/invoice/receivable')}
+  //       />
+  //     ),
+  //   })
+  //   return false
+  // })
 
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
@@ -572,8 +568,15 @@ export default function AddNewInvoice() {
     }
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/invoice/receivable',
+  })
+
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <PageHeader
         title={
           <Box
@@ -721,6 +724,7 @@ export default function AddNewInvoice() {
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='invoiceDetail'
+                  itemTrigger={itemTrigger}
                 />
               </Grid>
 

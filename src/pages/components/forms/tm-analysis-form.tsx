@@ -24,6 +24,10 @@ import { onCopyAnalysisParamType } from './items-form'
 import { MemSourceType, MemoQType } from '@src/types/common/tm-analysis.type'
 import MemsourceModal from '../modals/tm-analysis/memsource-modal'
 
+// ** helpers
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB } from '@src/shared/helpers/file-size.helper'
+
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
@@ -53,7 +57,7 @@ export default function TmAnalysisForm({
     name: itemName,
   })
 
-  const MAXIMUM_FILE_SIZE = 50000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.TM_ANALYSIS
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -87,7 +91,7 @@ export default function TmAnalysisForm({
   })
 
   function onError() {
-    toast.error('Maximum size is 50 MB.', {
+    toast.error(`Maximum size is ${byteToMB(MAXIMUM_FILE_SIZE)}.`, {
       duration: 2000,
     })
   }

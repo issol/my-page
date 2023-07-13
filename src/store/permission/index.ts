@@ -345,6 +345,38 @@ export const getPermission = createAsyncThunk(
             subject: 'invoice_payable',
             can: 'delete',
           },
+          {
+            subject: 'client_request',
+            can: 'read',
+          },
+          {
+            subject: 'client_request',
+            can: 'create',
+          },
+          {
+            subject: 'client_request',
+            can: 'update',
+          },
+          {
+            subject: 'client_request',
+            can: 'delete',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'read',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'create',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'update',
+          },
+          {
+            subject: 'lpm_request',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {

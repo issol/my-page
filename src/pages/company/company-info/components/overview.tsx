@@ -18,7 +18,7 @@ import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import { CompanyInfoFormType, CompanyInfoType } from '@src/types/company/info'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect } from 'react'
 import {
   Control,
   Controller,
@@ -26,6 +26,15 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
+import { IfVoid } from '@reduxjs/toolkit/dist/tsHelpers'
+import { useDropzone } from 'react-dropzone'
+import { TroubleshootRounded } from '@mui/icons-material'
+
+import useModal from '@src/hooks/useModal'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB } from '@src/shared/helpers/file-size.helper'
 
 type Props = {
   companyInfo: CompanyInfoType
@@ -43,11 +52,14 @@ type Props = {
   watch: UseFormWatch<
     Omit<CompanyInfoFormType, 'billingPlan' | 'logo' | 'address'>
   >
-  onClickCancel: () => void
-  onClickSave: () => void
+  onClickCancel: (type: 'info' | 'address') => void
+  onClickSave: (type: 'info' | 'address') => void
   onClickAddCeo: () => void
   onClickDeleteCeo: (id: string) => void
+  onClickUploadLogo: (file: File | null) => void
   isValid: boolean
+  isUpdatable: boolean
+  companyLogoURL: string
 }
 
 const CompanyInfoOverview = ({
@@ -61,9 +73,98 @@ const CompanyInfoOverview = ({
   onClickSave,
   onClickAddCeo,
   onClickDeleteCeo,
+  onClickUploadLogo,
   isValid,
+  isUpdatable,
+  companyLogoURL,
 }: Props) => {
+  const { openModal, closeModal } = useModal()
+
   const country = getTypeList('CountryCode')
+
+  const setCompanyImage = (file: File) => {
+    const reader = new FileReader()
+    reader.onload = () => {
+      const fileData = reader.result
+        if (fileData !== null && typeof fileData === 'string') {
+        const imgElement = document.getElementById('company-logo') as HTMLImageElement
+        if (imgElement) {
+          imgElement.src = fileData
+        }
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
+  const onDrop = (selectedFile: File[]) => {
+    const uniqueFile = selectedFile[0]
+    if (uniqueFile) {
+      if (!uniqueFile.type.startsWith('image/')) {
+        openModal({
+          type: 'FileTypeErrorModal',
+          children: (
+            <SimpleAlertModal
+              message='You can only upload image files.'
+              onClose={() => {
+                handleDeleteLogo()
+                closeModal('FileTypeErrorModal')
+              }}
+            />
+          ),
+        })
+      }
+      else if (uniqueFile.size > FILE_SIZE.COMPANY_LOGO) {
+        openModal({
+          type: 'FileSizeErrorModal',
+          children: (
+            <SimpleAlertModal
+              message={`The maximum file size you can upload is ${byteToMB(FILE_SIZE.COMPANY_LOGO)}.`}
+              onClose={() => {
+                handleDeleteLogo()
+                closeModal('FileSizeErrorModal')
+              }}
+            />
+          ),
+        })
+      }
+      else {
+        setCompanyImage(uniqueFile)
+        onClickUploadLogo(uniqueFile)
+      }
+    }
+  }
+  const { getRootProps, getInputProps } = useDropzone({
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg'],
+    },
+    multiple: false,
+    onDrop,
+  })
+
+  const onClickDeleteLogo = () => {
+    openModal({
+      type: 'LogoDeleteModal',
+      children: (
+        <SimpleAlertModal
+          message={`Are you sure you want to delete
+            current logo file?`}
+          onClose={() => {
+            handleDeleteLogo()
+            closeModal('LogoDeleteModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  const handleDeleteLogo = () => {
+    const imgElement = document.getElementById('company-logo') as HTMLImageElement
+    if (imgElement) {
+      imgElement.src = '/images/company/default-company-logo.svg'
+      onClickUploadLogo(null)
+    }
+  }
+
   return (
     <Card sx={{ padding: '24px' }}>
       {edit ? (
@@ -84,17 +185,20 @@ const CompanyInfoOverview = ({
                   width: '100px',
                   height: '86.85px',
                   padding: '10px',
+                  display: 'flex',
+                  justifyContent: 'center',
+                  alignItems: 'center',
                 }}
               >
                 <img
+                  id='company-logo'
                   src={
-                    companyInfo?.logo ??
-                    '/images/company/default-company-logo.svg'
+                    companyLogoURL
                   }
                   alt=''
                   style={{
                     width: '80px',
-                    height: '66.85px',
+                    // height: '66.85px',
                   }}
                 />
               </Box>
@@ -118,10 +222,21 @@ const CompanyInfoOverview = ({
                   width: '100%',
                 }}
               >
-                <Button variant='contained' sx={{ width: '173px' }}>
-                  Upload new photo
+                <div {...getRootProps()}>
+                  <Button
+                    variant='contained'
+                    sx={{ width: '173px' }}
+                  >
+                    <input {...getInputProps()} />
+                    Upload new photo
+                  </Button>
+                </div>
+                <Button
+                  variant='outlined'
+                  onClick={onClickDeleteLogo}
+                >
+                  Delete
                 </Button>
-                <Button variant='outlined'>Delete</Button>
               </Box>
               <Typography variant='body2'>
                 Allowed PNG or JPEG. Max size of 800K.
@@ -131,7 +246,7 @@ const CompanyInfoOverview = ({
           <Divider />
           <Box sx={{ width: '100%' }}>
             <Controller
-              name='companyName'
+              name='name'
               control={control}
               render={({ field: { value, onChange } }) => (
                 <TextField
@@ -237,7 +352,7 @@ const CompanyInfoOverview = ({
                         autoHighlight
                         fullWidth
                         options={country}
-                        onChange={(e, v) => onChange(v.value)}
+                        onChange={(e, v) => onChange(v)}
                         disableClearable
                         value={
                           !value
@@ -330,7 +445,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -363,7 +478,7 @@ const CompanyInfoOverview = ({
                         fullWidth
                         value={value || ''}
                         placeholder={
-                          !watch('timezone').phone
+                          !watch('timezone')?.phone
                             ? `+ 1) 012 345 6789`
                             : `012 345 6789`
                         }
@@ -373,7 +488,7 @@ const CompanyInfoOverview = ({
                         }}
                         InputProps={{
                           startAdornment: watch('timezone') &&
-                            watch('timezone').phone && (
+                            watch('timezone')?.phone && (
                               <InputAdornment position='start'>
                                 {'+' + watch('timezone').phone}
                               </InputAdornment>
@@ -398,12 +513,12 @@ const CompanyInfoOverview = ({
                 mt: '24px',
               }}
             >
-              <Button variant='outlined' onClick={onClickCancel}>
+              <Button variant='outlined' onClick={() => onClickCancel('info')}>
                 Cancel
               </Button>
               <Button
                 variant='contained'
-                onClick={onClickSave}
+                onClick={() => onClickSave('info')}
                 disabled={!isValid}
               >
                 Save
@@ -422,12 +537,14 @@ const CompanyInfoOverview = ({
           >
             <Typography variant='h6'>Company information</Typography>
 
-            <IconButton
-              onClick={() => setEdit(true)}
-              // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-            >
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isUpdatable && (
+              <IconButton
+                onClick={() => setEdit(true)}
+                // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+              >
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
           <Box
             sx={{ display: 'flex', flexDirection: 'column', gap: '16px' }}
@@ -504,7 +621,7 @@ const CompanyInfoOverview = ({
                   Time zone:
                 </Typography>
                 <Typography variant='subtitle2' fontSize={16} fontWeight={400}>
-                  {getGmtTimeEng(companyInfo.timezone.code)}
+                  {getGmtTimeEng(companyInfo.timezone?.code)}
                 </Typography>
               </Box>
             </Box>

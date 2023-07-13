@@ -62,6 +62,8 @@ import FallbackSpinner from '@src/@core/components/spinner'
 import logger from '@src/@core/utils/logger'
 import { client_guideline } from '@src/shared/const/permission-class'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 type CellType = {
   row: {
@@ -109,6 +111,7 @@ const ClientGuidelineDetail = () => {
   const { user } = useContext(AuthContext)
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
 
   useEffect(() => {
     if (!Number.isNaN(id)) {
@@ -148,7 +151,7 @@ const ClientGuidelineDetail = () => {
   )
   const deleteMutation = useMutation((id: number) => deleteGuideline(id), {
     onSuccess: () => {
-      router.push('/onboarding/client-guideline')
+      router.push('/client/client-guideline')
     },
     onError: () => {
       toast.error('Something went wrong. Please try again.', {
@@ -210,37 +213,36 @@ const ClientGuidelineDetail = () => {
       fileName,
     )
 
-    getDownloadUrlforCommon(S3FileType.CLIENT_GUIDELINE, path)
-    .then(res => {
+    getDownloadUrlforCommon(S3FileType.CLIENT_GUIDELINE, path).then(res => {
       fetch(res.url, { method: 'GET' })
-      .then(res => {
-        return res.blob()
-      })
-      .then(blob => {
-        const url = window.URL.createObjectURL(blob)
-        const a = document.createElement('a')
-        a.href = url
-        a.download = `${fileName}`
-        document.body.appendChild(a)
-        a.click()
-        setTimeout((_: any) => {
-          window.URL.revokeObjectURL(url)
-        }, 60000)
-        a.remove()
-      })
-      .catch(err =>
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
-          },
-        ),
-      )
+        .then(res => {
+          return res.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${fileName}`
+          document.body.appendChild(a)
+          a.click()
+          setTimeout((_: any) => {
+            window.URL.revokeObjectURL(url)
+          }, 60000)
+          a.remove()
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
     })
   }
 
-  function downloadOneFile(name: string) {
-    fetchFile(name)
+  function downloadOneFile(file: FileType) {
+    fetchFile(file.name)
   }
 
   function downloadAllFiles(files: Array<FileType> | [] | undefined) {
@@ -304,7 +306,7 @@ const ClientGuidelineDetail = () => {
   }
 
   function onEdit() {
-    router.push(`/onboarding/client-guideline/form/${id}`)
+    router.push(`/client/client-guideline/form/${id}`)
   }
 
   function onRestore() {
@@ -390,6 +392,10 @@ const ClientGuidelineDetail = () => {
     }
   }
 
+  function onClickBack() {
+    router.push('/client/client-guideline/')
+  }
+
   return (
     <>
       {!data ? (
@@ -409,7 +415,7 @@ const ClientGuidelineDetail = () => {
                     <Icon
                       icon='mdi:chevron-left'
                       cursor='pointer'
-                      onClick={() => router.back()}
+                      onClick={() => onClickBack()}
                     />
                     {currentVersion?.title}
                   </Typography>
@@ -525,20 +531,8 @@ const ClientGuidelineDetail = () => {
                       Attached file
                     </Typography>
                     <Typography variant='body2'>
-                      {Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10 >
-                      1000
-                        ? `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10000
-                          ).toFixed(1)} mb`
-                        : `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10
-                          ).toFixed(1)} kb`}
-                      /50mb
+                      {formatFileSize(getFileSize(currentVersion?.files))}
+                      / {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
                   <Button
@@ -556,41 +550,41 @@ const ClientGuidelineDetail = () => {
                 </Box>
               </Card>
               <Card style={{ marginTop: '24px' }}>
-                {
-                  isAuthor('delete', currentVersion?.userId!) 
-                  || isAuthor('update', currentVersion?.userId!) 
-                  ? (<Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isAuthor('delete', currentVersion?.userId!) ? (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  ) : (
-                    ''
-                  )}
-                  {isAuthor('update', currentVersion?.userId!) ? (
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  ) : (
-                    ''
-                  )}
-                </Box>) : null}
+                {isAuthor('update', currentVersion?.userId!) ||
+                isAuthor('delete', currentVersion?.userId!) ? (
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isAuthor('delete', currentVersion?.userId!) ? (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    ) : (
+                      ''
+                    )}
+                    {isAuthor('update', currentVersion?.userId!) ? (
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : (
+                      ''
+                    )}
+                  </Box>
+                ) : null}
               </Card>
             </Grid>
           </Grid>
@@ -716,20 +710,8 @@ const ClientGuidelineDetail = () => {
                             Attached file
                           </Typography>
                           <Typography variant='body2'>
-                            {Math.round(getFileSize(currentRow?.files) / 100) /
-                              10 >
-                            1000
-                              ? `${(
-                                  Math.round(
-                                    getFileSize(currentRow?.files) / 100,
-                                  ) / 10000
-                                ).toFixed(1)} mb`
-                              : `${(
-                                  Math.round(
-                                    getFileSize(currentRow?.files) / 100,
-                                  ) / 10
-                                ).toFixed(1)} kb`}
-                            /50mb
+                            {formatFileSize(getFileSize(currentRow?.files))}
+                            / {byteToMB(MAXIMUM_FILE_SIZE)}
                           </Typography>
                         </Box>
                         <Button

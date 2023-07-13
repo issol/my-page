@@ -16,7 +16,6 @@ import {
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
@@ -31,26 +30,35 @@ import useModal from '@src/hooks/useModal'
 import InvoiceInfo from './components/detail/invoice-info'
 import DownloadQuotesModal from '@src/pages/quotes/detail/components/pdf-download/download-qoutes-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import PayableHistory from './components/detail/version-history'
 
 // ** store
 import { setInvoicePayableIsReady } from '@src/store/invoice-payable'
-import { InvoicePayableDownloadData } from '@src/types/invoice/payable.type'
+import {
+  InvoicePayableDownloadData,
+  PayableFormType,
+} from '@src/types/invoice/payable.type'
 import { setInvoicePayable } from '@src/store/invoice-payable'
 import { setInvoicePayableLang } from '@src/store/invoice-payable'
 
-// ** permission class
-import { invoice_payable } from '@src/shared/const/permission-class'
-import PrintInvoicePayablePreview from './components/detail/components/pdf-download/invoice-payable-preview'
+// ** apis
 import {
+  useCheckInvoicePayableEditable,
   useGetPayableDetail,
   useGetPayableJobList,
 } from '@src/queries/invoice/payable.query'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  deleteInvoicePayable,
+  updateInvoicePayable,
+} from '@src/apis/invoice/payable.api'
+
+import { toast } from 'react-hot-toast'
 
 type MenuType = 'info' | 'history'
 
-/* TODO:
-1. pdf기능 완성
-*/
 export default function PayableDetail() {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
@@ -58,10 +66,10 @@ export default function PayableDetail() {
 
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
 
-  const isUpdatable = ability.can('update', User)
-  const isDeletable = ability.can('delete', User)
+  const queryClient = useQueryClient()
+
+  const { data: isUpdatable } = useCheckInvoicePayableEditable(Number(id))
   const isAccountManager = ability.can('read', 'account_manage')
 
   // ** store
@@ -85,6 +93,41 @@ export default function PayableDetail() {
     router.replace(`/invoice/payable/${id}?menu=${menu}`)
   }, [menu, id])
 
+  const updateMutation = useMutation(
+    (form: PayableFormType) => updateInvoicePayable(Number(id), form),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
+      },
+      onError: () => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      },
+    },
+  )
+
+  function onConfirmInvoice() {
+    openModal({
+      type: 'confirm',
+      children: (
+        <CustomModal
+          vary='successful'
+          title='Are you sure you want to confirm the invoice? It will be notified to Pro as well.'
+          rightButtonText='Confirm'
+          onClose={() => closeModal('confirm')}
+          onClick={() => {
+            updateMutation.mutate({
+              invoiceConfirmedAt: Date(),
+              invoiceConfirmTimezone: user?.timezone!,
+            })
+            closeModal('confirm')
+          }}
+        />
+      ),
+    })
+  }
+
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
     makePdfData(lang)
@@ -96,15 +139,26 @@ export default function PayableDetail() {
     router.push('/invoice/payable/print')
   }
 
+  const deleteMutation = useMutation((id: number) => deleteInvoicePayable(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: 'invoice/payable/list' })
+      router.push('/invoice/payable/')
+    },
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
+
   function onClickDelete() {
-    //TODO: mutation 붙이기
     openModal({
       type: 'deleteInvoice',
       children: (
         <DeleteConfirmModal
           message='Are you sure you want to delete this invoice?'
           onClose={() => closeModal('deleteInvoice')}
-          onDelete={() => console.log()}
+          onDelete={() => deleteMutation.mutate(Number(id))}
         />
       ),
     })
@@ -178,33 +232,33 @@ export default function PayableDetail() {
     })
   }
 
-  //TODO: pdf다운 시, 다운받을 데이터를 서버에서 받을지, 아니면
-  //추가로 필요한 데이터들을 모두 payable detail api로 리턴받을지 리샤에게 문의하기
   function makePdfData(lang: 'EN' | 'KO') {
-    // if (data) {
-    //   const res: InvoicePayableDownloadData = {
-    //     invoiceId: data.id,
-    //     adminCompanyName: 'GloZ',
-    //     companyAddress:
-    //       lang === 'EN'
-    //         ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-    //         : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
-    //     corporationId: data.corporationId,
-    //     invoicedAt: data.invoicedAt,
-    //     payDueAt: data.payDueAt,
-    //     payDueTimezone: data.payDueTimezone,
-    //     paidAt: data.paidAt,
-    //     paidDateTimezone: data.paidDateTimezone,
-    //     pro: {
-    //       email: data.pro.email,
-    //       name: data.pro.name,
-    //     },
-    //   }
-    //   dispatch(setInvoicePayable(res))
-    //   dispatch(setInvoicePayableLang(lang))
-    // }
-    dispatch(setInvoicePayableLang(lang))
-    dispatch(setInvoicePayableIsReady(true))
+    if (data) {
+      const res: InvoicePayableDownloadData = {
+        invoiceId: data.id,
+        adminCompanyName: 'GloZ',
+        companyAddress:
+          lang === 'EN'
+            ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
+            : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)',
+        corporationId: data.corporationId,
+        invoicedAt: data.invoicedAt,
+        payDueAt: data.payDueAt,
+        payDueTimezone: data.payDueTimezone,
+        paidAt: data.paidAt,
+        paidDateTimezone: data.paidDateTimezone,
+        pro: { ...data.pro },
+        jobList: jobList?.data || [],
+        subTotal: data.subtotal,
+        tax: data.tax,
+        totalPrice: data.totalPrice,
+        taxRate: data.taxRate,
+        currency: data.currency,
+      }
+      dispatch(setInvoicePayable(res))
+      dispatch(setInvoicePayableLang(lang))
+      // dispatch(setInvoicePayableIsReady(true))
+    }
   }
 
   return (
@@ -236,8 +290,10 @@ export default function PayableDetail() {
             >
               Download invoice
             </Button>
-            {isUpdatable ? (
-              <Button variant='contained'>Confirm invoice</Button>
+            {isUpdatable && data?.invoiceConfirmedAt === null ? (
+              <Button variant='contained' onClick={onConfirmInvoice}>
+                Confirm invoice
+              </Button>
             ) : null}
           </Box>
         </Box>
@@ -268,6 +324,9 @@ export default function PayableDetail() {
           <TabPanel value='info' sx={{ pt: '24px' }}>
             <Suspense>
               <InvoiceInfo
+                payableId={Number(id)}
+                isUpdatable={isUpdatable!}
+                updateMutation={updateMutation}
                 data={data}
                 jobList={jobList || { count: 0, totalCount: 0, data: [] }}
               />
@@ -276,12 +335,18 @@ export default function PayableDetail() {
           {/* Version history */}
           <TabPanel value='history' sx={{ pt: '24px' }}>
             <Card>
-              <CardContent sx={{ padding: '24px' }}></CardContent>
+              <Suspense>
+                <PayableHistory
+                  isUpdatable={isUpdatable || false}
+                  invoiceId={Number(id)}
+                  invoiceCorporationId={data?.corporationId!}
+                />
+              </Suspense>
             </Card>
           </TabPanel>
         </TabContext>
       </Grid>
-      {!isDeletable ? null : (
+      {!isUpdatable ? null : (
         <Grid item xs={4}>
           <Card sx={{ marginLeft: '12px' }}>
             <CardContent>

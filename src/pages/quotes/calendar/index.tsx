@@ -23,6 +23,12 @@ import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import { QuotesListType } from '@src/types/common/quotes.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
+import {
+  ClientQuoteCalendarStatus,
+  ClientQuoteStatus,
+} from '@src/shared/const/status/statuses'
 
 const CalendarContainer = () => {
   // ** States
@@ -36,6 +42,8 @@ const CalendarContainer = () => {
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
+  const currentRole = getCurrentRole()
+
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
   const [seeMyQuotes, setSeeMyQuotes] = useState<0 | 1>(0)
@@ -44,7 +52,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetQuotesCalendarData(year, month, {
+  const { data, isLoading } = useGetQuotesCalendarData(year, month + 1, {
     seeMyQuotes,
     hideCompletedQuotes,
     ...filters,
@@ -53,7 +61,7 @@ const CalendarContainer = () => {
     [],
   )
 
-  const [currentListId, setCurrentListId] = useState<null | string>(null)
+  const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<QuotesListType>>
   >([])
@@ -93,7 +101,13 @@ const CalendarContainer = () => {
           },
         }}
       >
-        <CalendarSideBar
+        <CalendarStatusSideBar
+          alertIconStatus='Canceled'
+          status={ClientQuoteCalendarStatus}
+          mdAbove={mdAbove}
+          leftSidebarWidth={leftSidebarWidth}
+        />
+        {/* <CalendarSideBar
           title='Quote status'
           alertIconStatus='Canceled'
           event={event}
@@ -103,7 +117,7 @@ const CalendarContainer = () => {
           leftSidebarOpen={leftSidebarOpen}
           handleLeftSidebarToggle={handleLeftSidebarToggle}
           setCurrentListId={n => setCurrentListId(n.toString())}
-        />
+        /> */}
         <Box
           sx={{
             px: 5,
@@ -163,6 +177,7 @@ const CalendarContainer = () => {
             }
             filter={filters}
             setFilter={setFilters}
+            role={currentRole!}
           />
         </Box>
       )}

@@ -53,7 +53,7 @@ export default function InvoiceAmount({ data }: Props) {
                 Total
               </Typography>
               <Typography color='#ffffff' fontSize={34} fontWeight={600}>
-                {`${currency} ${data?.totalPrice.toLocaleString()}`}
+                {`${currency} ${data?.totalPrice?.toLocaleString()}`}
               </Typography>
             </Box>
           </CardContent>

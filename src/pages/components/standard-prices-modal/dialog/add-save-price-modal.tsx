@@ -131,6 +131,8 @@ const AddSavePriceModal = ({
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
+  const [category, setCategory] = useState<{label: String, value: String} | null>(null)
+
   const resetData = () => {
     reset({
       priceName: '',
@@ -368,13 +370,14 @@ const AddSavePriceModal = ({
                     }}
                     onChange={(event, item) => {
                       onChange(item)
+                      if (category !== item) reset({...getValues(), serviceType: undefined})
                       if (item) {
                         // @ts-ignore
                         const res = ServiceTypePair[item.value]
-                        console.log(res)
                         trigger('serviceType')
                         setServiceTypeList(res)
                       }
+                      setCategory(item)
                     }}
                     value={value || { label: '', value: '' }}
                     options={CategoryList}

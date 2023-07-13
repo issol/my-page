@@ -6,6 +6,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
   PriceUnitDataType,
+  PriceUnitType,
 } from '@src/types/common/standard-price'
 import { useCallback, useEffect, useState } from 'react'
 
@@ -52,6 +53,7 @@ import {
 } from '@src/apis/company/company-price.api'
 import toast from 'react-hot-toast'
 import { useGetStandardPrices } from '@src/queries/company/standard-price'
+import { useRouter } from 'next/router'
 
 type Props = {
   clientId?: number
@@ -62,6 +64,7 @@ type Props = {
 }
 
 const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
+  const router = useRouter()
   const queryClient = useQueryClient()
   const { data: priceUnit, refetch: priceUnitRefetch } = useGetPriceUnitList({
     skip: 0,
@@ -253,7 +256,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
 
   const onClickAddNewPrice = () => {
     setSelectedModalType('Add')
-    if (priceUnit) {
+    if (priceUnit?.totalCount !== 0) {
       openModal({
         type: 'AddPriceModal',
         children: (
@@ -274,7 +277,10 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
         children: (
           <NoPriceUnitModal
             open={true}
-            onClose={() => closeModal('NoPriceUnitModal')}
+            onClose={() => {
+              closeModal('NoPriceUnitModal')
+              router.push({pathname: '/company/price/', query: {tab: 3}})
+            }}
           />
         ),
       })
@@ -393,6 +399,11 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
 
     return sortedWithNestedPriceUnits
   }
+
+  const sortPriceUnitListByTitle = (priceUnitData: PriceUnitType[]) => {
+    return priceUnitData.sort((a, b) => a.title.localeCompare(b.title));
+  }
+
   const onClickSetPriceUnit = () => {
     openModal({
       type: 'setPriceUnitModal',
@@ -400,7 +411,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
         <SetPriceUnitModal
           onClose={() => closeModal('setPriceUnitModal')}
           currency={selectedPriceData?.currency!}
-          priceUnit={filterPriceUnitList(priceUnit!)}
+          priceUnit={sortPriceUnitListByTitle(filterPriceUnitList(priceUnit!))}
           price={selectedPriceData!}
           priceUnitPair={sortPriceUnitList(selectedPriceData?.priceUnit!)}
           setIsEditingCatInterface={setIsEditingCatInterface}

@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Divider,
   FormHelperText,
   Grid,
@@ -28,6 +29,7 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -55,15 +57,22 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import { AuthContext } from '@src/context/AuthContext'
+import { ClientFormType } from '@src/types/schema/client.schema'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
-  control: Control<QuotesProjectInfoFormType, any>
-  setValue: UseFormSetValue<QuotesProjectInfoFormType>
-  watch: UseFormWatch<QuotesProjectInfoFormType>
-  errors: FieldErrors<QuotesProjectInfoFormType>
+  control: Control<QuotesProjectInfoAddNewType, any>
+  setValue: UseFormSetValue<QuotesProjectInfoAddNewType>
+  watch: UseFormWatch<QuotesProjectInfoAddNewType>
+  errors: FieldErrors<QuotesProjectInfoAddNewType>
   clientTimezone?: CountryType | undefined
+  getClientValue: UseFormGetValues<ClientFormType>
+  getValues: UseFormGetValues<QuotesProjectInfoAddNewType>
 }
 export default function ProjectInfoForm({
   control,
@@ -71,6 +80,8 @@ export default function ProjectInfoForm({
   watch,
   errors,
   clientTimezone,
+  getClientValue,
+  getValues,
 }: Props) {
   const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
@@ -80,6 +91,25 @@ export default function ProjectInfoForm({
   )
   const { user } = useContext(AuthContext)
   const [newWorkName, setNewWorkName] = useState('')
+
+  const formattedNow = (now: Date) => {
+    const minutes = now.getMinutes()
+    console.log(minutes % 30)
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+    console.log(formattedMinutes)
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+    const formattedTime = `${formattedHours}:${formattedMinutes
+      .toString()
+      .padStart(2, '0')}`
+    const formattedDate = new Date()
+    formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+    formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+    return formattedDate
+  }
 
   const defaultValue = { value: '', label: '' }
 
@@ -110,6 +140,16 @@ export default function ProjectInfoForm({
   useEffect(() => {
     onWorkNameInputChange(newWorkName)
   }, [newWorkName])
+
+  useEffect(() => {
+    if (getClientValue() && !getValues('quoteDate.timezone')) {
+      setValue(
+        'quoteDate.timezone',
+        getClientValue('contacts.timezone')!,
+        setValueOptions,
+      )
+    }
+  }, [getClientValue, getValues])
 
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)
@@ -153,20 +193,54 @@ export default function ProjectInfoForm({
     <Fragment>
       <Grid item xs={6}>
         <Controller
-          name='quoteDate'
+          name='quoteDate.date'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={!value ? null : new Date(value)}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
-              customInput={<CustomInput label='Quote date*' />}
+              customInput={<CustomInput label='Quote date*' icon='calendar' />}
             />
           )}
         />
         {renderErrorMsg('quoteDate')}
       </Grid>
       <Grid item xs={6}>
+        <Controller
+          name='quoteDate.timezone'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Time zone*'
+                  error={Boolean(errors?.quoteDate?.timezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+      </Grid>
+      {/* <Grid item xs={6}>
         <Controller
           name='status'
           control={control}
@@ -195,7 +269,7 @@ export default function ProjectInfoForm({
           )}
         />
         {renderErrorMsg('status')}
-      </Grid>
+      </Grid> */}
       <Grid item xs={6}>
         <Controller
           name='workName'
@@ -439,7 +513,9 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
-              customInput={<CustomInput label='Quote deadline' />}
+              customInput={
+                <CustomInput label='Quote deadline' icon='calendar' />
+              }
             />
           )}
         />
@@ -459,9 +535,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -488,7 +565,9 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
-              customInput={<CustomInput label='Quote expiry date' />}
+              customInput={
+                <CustomInput label='Quote expiry date' icon='calendar' />
+              }
             />
           )}
         />
@@ -508,9 +587,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -537,7 +617,9 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
-              customInput={<CustomInput label='Estimated delivery date' />}
+              customInput={
+                <CustomInput label='Estimated delivery date' icon='calendar' />
+              }
             />
           )}
         />
@@ -557,9 +639,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -586,7 +669,9 @@ export default function ProjectInfoForm({
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
-              customInput={<CustomInput label='Project due date' />}
+              customInput={
+                <CustomInput label='Project due date' icon='calendar' />
+              }
             />
           )}
         />
@@ -606,9 +691,10 @@ export default function ProjectInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -629,9 +715,36 @@ export default function ProjectInfoForm({
         <Divider />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant='h6' mb='24px'>
-          Project description
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: '20px',
+          }}
+        >
+          <Typography variant='h6'>Project description</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Controller
+              name='isShowDescription'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <Checkbox
+                  value={value}
+                  onChange={e => {
+                    onChange(e.target.checked)
+                  }}
+                  checked={value}
+                />
+              )}
+            />
+
+            <Typography variant='body2'>
+              Show project description to client
+            </Typography>
+          </Box>
+        </Box>
+
         <Controller
           name='projectDescription'
           control={control}

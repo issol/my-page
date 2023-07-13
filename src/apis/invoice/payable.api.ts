@@ -1,4 +1,3 @@
-import { CurrencyType } from '@src/types/common/standard-price'
 import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import {
   InvoicePayableDetailType,
@@ -6,6 +5,7 @@ import {
   InvoicePayableJobType,
   InvoicePayableListType,
   PayableFormType,
+  PayableHistoryType,
 } from '@src/types/invoice/payable.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -18,76 +18,6 @@ export const getPayableList = async (
       `/api/enough/u/invoice/payable/list?${makeQuery(filter)}`,
     )
     return data
-    // return {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       corporationId: '12sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Invoice created',
-    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-    //       invoicedAt: Date(),
-    //       payDueAt: Date(),
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: null,
-    //       paidDateTimezone: null,
-    //       totalPrice: 123,
-    //       currency: 'USD',
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //     {
-    //       id: 2,
-    //       corporationId: '11sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Paid',
-    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-    //       invoicedAt: Date(),
-    //       payDueAt: Date(),
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: Date(),
-    //       paidDateTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       totalPrice: 123,
-    //       currency: 'USD',
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //     {
-    //       id: 3,
-    //       corporationId: '11sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Invoice created',
-    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-    //       invoicedAt: Date(),
-    //       payDueAt: Date(),
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: Date(),
-    //       paidDateTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       totalPrice: 123000000,
-    //       currency: 'USD',
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //   ],
-    //   totalCount: 1,
-    // }
   } catch (e: any) {
     return {
       data: [],
@@ -121,80 +51,7 @@ export const getInvoicePayableCalendarData = async (
         filter,
       )}`,
     )
-    // const data = {
-    //   data: [
-    //     {
-    //       id: 1,
-    //       corporationId: '11sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-    //       invoicedAt: '2023-06-18T18:58:01.727Z',
-    //       payDueAt: '2023-06-20T18:58:01.727Z',
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: '2023-06-20T18:58:01.727Z',
-    //       paidDateTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       totalPrice: 123,
-    //       currency: 'USD' as CurrencyType,
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //     {
-    //       id: 2,
-    //       corporationId: '11sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Paid' as InvoicePayableStatusType,
-    //       pro: { name: 'bonKim', email: 'bon@glozinc.com' },
-    //       invoicedAt: '2023-05-18T18:58:01.727Z',
-    //       payDueAt: '2023-05-20T18:58:01.727Z',
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: '2023-05-20T18:58:01.727Z',
-    //       paidDateTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       totalPrice: 123,
-    //       currency: 'USD' as CurrencyType,
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //     {
-    //       id: 3,
-    //       corporationId: '11sdlfk',
-    //       adminCompanyName: 'Gloz',
-    //       invoiceStatus: 'Invoice created' as InvoicePayableStatusType,
-    //       pro: { name: 'bongbong', email: 'bon@glozinc.com' },
-    //       invoicedAt: '2023-06-14T18:58:01.727Z',
-    //       payDueAt: '2023-06-20T18:58:01.727Z',
-    //       payDueTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       paidAt: '2023-06-20T18:58:01.727Z',
-    //       paidDateTimezone: {
-    //         code: 'KR',
-    //         label: 'Korea, Republic of',
-    //         phone: '82',
-    //       },
-    //       totalPrice: 123,
-    //       currency: 'USD' as CurrencyType,
-    //       statusUpdatedAt: '2023-06-20T18:58:01.727Z',
-    //     },
-    //   ],
-    //   totalCount: 0,
-    // }
+
     return {
       data: data.data?.map((item: InvoicePayableListType) => {
         return {
@@ -219,39 +76,8 @@ export const getInvoicePayableCalendarData = async (
 export const getInvoicePayableDetail = async (
   id: number,
 ): Promise<InvoicePayableDetailType> => {
-  try {
-    // const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-    // return data
-    return {
-      id: 1,
-      corporationId: 'sdf-1122',
-      invoicedAt: Date(),
-      invoicedAtTimezone: {
-        code: 'KR',
-        label: 'Korea, Republic of',
-        phone: '82',
-      },
-      invoiceStatus: 'Invoice created',
-      pro: { name: 'bon kim', email: 'bon@gloz.com' },
-      taxInfo: 'Korea resident',
-      taxRate: 10,
-      payDueAt: Date(),
-      payDueTimezone: {
-        code: 'KR',
-        label: 'Korea, Republic of',
-        phone: '82',
-      },
-      paidAt: null,
-      paidDateTimezone: null,
-      description: '',
-      currency: 'KRW',
-      subtotal: 100,
-      totalPrice: 1000,
-      tax: 10,
-    }
-  } catch (e: any) {
-    throw Error(e)
-  }
+  const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
+  return data
 }
 
 export const getInvoicePayableJobList = async (
@@ -262,33 +88,33 @@ export const getInvoicePayableJobList = async (
   data: InvoicePayableJobType[]
 }> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
-    // )
-    // return data
-    return {
-      totalCount: 1,
-      count: 1,
-      data: [
-        {
-          id: 1,
-          corporationId: 'KR-100',
-          serviceType: 'Editing',
-          name: 'bon',
-          totalPrice: 100000,
-          contactPerson: 'Bon',
-          deletedAt: null,
-          priceUnits: [
-            {
-              title: 'Price',
-              unitPrice: 1000,
-              quantity: 3,
-              prices: 100000,
-            },
-          ],
-        },
-      ],
-    }
+    const { data } = await axios.get(
+      `/api/enough/u/job/payable?${makeQuery({ payableId })}`,
+    )
+    return data
+    // return {
+    //   totalCount: 1,
+    //   count: 1,
+    //   data: [
+    //     {
+    //       id: 1,
+    //       corporationId: 'KR-100',
+    //       serviceType: 'Editing',
+    //       name: 'bon',
+    //       totalPrice: 100000,
+    //       contactPerson: 'Bon',
+    //       deletedAt: null,
+    //       priceUnits: [
+    //         {
+    //           title: 'Price',
+    //           unitPrice: 1000,
+    //           quantity: 3,
+    //           prices: 100000,
+    //         },
+    //       ],
+    //     },
+    //   ],
+    // }
   } catch (e) {
     return {
       totalCount: 0,
@@ -297,11 +123,94 @@ export const getInvoicePayableJobList = async (
     }
   }
 }
-export const updateInvoicePayable = async (form: PayableFormType) => {
+export const updateInvoicePayable = async (
+  payableId: number,
+  form: PayableFormType,
+) => {
   try {
-    // const { data } = await axios.get(`/api/enough/u/invoice/payable/${id}`)
-    // return data
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/payable/${payableId}`,
+      form,
+    )
+    return data
   } catch (e: any) {
     throw Error(e)
+  }
+}
+
+export const deleteInvoicePayable = async (id: number) => {
+  try {
+    const { data } = await axios.delete(`/api/enough/u/invoice/payable/${id}`)
+    return data
+  } catch (e: any) {
+    throw Error(e)
+  }
+}
+
+export const deleteInvoicePayableJobs = async (
+  payableId: number,
+  jobIds: number[],
+) => {
+  try {
+    const { data } = await axios.delete(
+      `/api/enough/u/invoice/payable/${payableId}/remove-job`,
+      { data: { jobIds } },
+    )
+    return data
+  } catch (e: any) {
+    throw Error(e)
+  }
+}
+
+export const getPayableHistoryList = async (
+  invoiceId: number,
+  invoiceCorporationId: string,
+): Promise<PayableHistoryType[]> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/history/list?invoiceId=${invoiceId}&invoiceCorporationId=${invoiceCorporationId}`,
+    )
+    // return data.map((history: any) => ({
+    //   ...history,
+    //   jobs: {
+    //     ...history.jobs,
+    //     data: history.jobs.data.map((job: any) => ({
+    //       ...job,
+    //       priceUnits: job.prices.map((i: any) => ({
+    //         title: job.name,
+    //         unitPrice: Number(job.unitPrice),
+    //         quantity: Number(job.quantity),
+    //         prices: Number(job.prices),
+    //       })),
+    //     })),
+    //   },
+    // }))
+    return data
+  } catch (e: any) {
+    return []
+  }
+}
+
+export const checkPayableEditable = async (id: number): Promise<boolean> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/payable/${id}/editable`,
+    )
+    return data
+  } catch (e: any) {
+    return false
+  }
+}
+
+export const restoreInvoicePayable = async (
+  historyId: number,
+): Promise<void> => {
+  try {
+    const { data } = await axios.put(
+      `/api/enough/u/invoice/payable/restore/${historyId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

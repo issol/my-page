@@ -108,9 +108,9 @@ const navigation = (): HorizontalNavItemsType => {
         {
           title: 'Members',
           path: `/company/members`,
-          action: 'update',
+          action: 'read',
           icon: 'material-symbols:person',
-          subject: 'permission_request',
+          subject: 'members',
         },
         {
           title: 'Standard Prices',
@@ -138,9 +138,31 @@ const navigation = (): HorizontalNavItemsType => {
     {
       title: 'Quotes',
       icon: 'material-symbols:request-quote-outline',
-      path: '/quotes',
       action: 'read',
       subject: 'quote',
+      children: [
+        {
+          title: 'Request List',
+          path: `/quotes/requests`,
+          action: 'read',
+          icon: 'ic:outline-send',
+          subject: 'client_request',
+        },
+        {
+          title: 'Request List',
+          path: `/quotes/lpm/requests`,
+          action: 'read',
+          icon: 'ic:outline-send',
+          subject: 'lpm_request',
+        },
+        {
+          title: 'Quote List',
+          path: `/quotes`,
+          action: 'read',
+          icon: 'material-symbols:request-quote-outline',
+          subject: 'quote',
+        },
+      ],
     },
     {
       title: 'Orders',

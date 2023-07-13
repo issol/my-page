@@ -1,8 +1,9 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 import { useRouter } from 'next/router'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** mui
 import {
@@ -31,7 +32,10 @@ import {
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
@@ -43,7 +47,6 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '../components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -59,6 +62,7 @@ import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
+import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
 import { AuthContext } from '@src/context/AuthContext'
@@ -70,7 +74,13 @@ import {
   createItemsForQuotes,
   createLangPairForQuotes,
   createQuotesInfo,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
+import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
+import { getUserDataFromBrowser } from '@src/shared/auth/storage'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 export type languageType = {
   id: number | string
@@ -101,7 +111,12 @@ export default function AddNewQuotes() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
+  const requestId = router.query?.requestId
+  const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+
   const { openModal, closeModal } = useModal()
+
+  const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -131,27 +146,13 @@ export default function AddNewQuotes() {
     },
   ]
 
-  // ** confirm page leaving
-  router.beforePopState(() => {
-    openModal({
-      type: 'alert-modal',
-      children: (
-        <PageLeaveModal
-          onClose={() => closeModal('alert-modal')}
-          onClick={() => router.push('/quotes')}
-        />
-      ),
-    })
-    return false
-  })
-
   // ** step1
   const [tax, setTax] = useState<null | number>(null)
   const {
     control: teamControl,
     getValues: getTeamValues,
     setValue: setTeamValues,
-    handleSubmit: submitTeam,
+    reset: resetTeam,
     watch: teamWatch,
     formState: { errors: teamErrors, isValid: isTeamValid },
   } = useForm<ProjectTeamType>({
@@ -210,9 +211,17 @@ export default function AddNewQuotes() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      ...quotesProjectInfoDefaultValue,
+      quoteDate: {
+        date: Date(),
+        timezone: getClientValue().contacts?.timezone,
+        // JSON.parse(getUserDataFromBrowser()!).timezone,
+      },
+      status: 20000,
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
@@ -220,11 +229,13 @@ export default function AddNewQuotes() {
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
+
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
     setValue: setItem,
+    watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
@@ -243,6 +254,66 @@ export default function AddNewQuotes() {
     control: itemControl,
     name: 'items',
   })
+
+  useEffect(() => {
+    if (!router.isReady) return
+    if (requestId) {
+      initializeFormWithRequest()
+    }
+  }, [requestId])
+
+  useEffect(() => {
+    console.log(languagePairs)
+    if (languagePairs && prices) {
+      const priceInfo =
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+      setPriceInfo(priceInfo)
+    }
+  }, [prices, languagePairs])
+
+  //TODO: 잘 되는지 테스트 필요
+  function initializeFormWithRequest() {
+    if (requestId && requestData) {
+      const { client } = requestData || undefined
+      clientReset({
+        clientId: client.clientId,
+        contactPersonId: requestData.contactPerson.id,
+        contacts: {
+          timezone: client?.timezone,
+          phone: client?.phone ?? '',
+          mobile: client?.mobile ?? '',
+          fax: client?.fax ?? '',
+          email: client?.email ?? '',
+          addresses:
+            client?.addresses?.filter(
+              item => item.addressType !== 'additional',
+            ) || [],
+        },
+      })
+
+      const { items } = requestData || []
+      const desiredDueDates = items?.map(i => i.desiredDueDate)
+      const isCategoryNotSame = items.some(
+        i => i.category !== items[0]?.category,
+      )
+      projectInfoReset({
+        projectDueDate: {
+          date: findEarliestDate(desiredDueDates),
+        },
+        category: isCategoryNotSame ? '' : items[0].category,
+        serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
+        projectDescription: requestData?.notes ?? '',
+      })
+      const itemLangPairs =
+        items?.map(i => ({
+          id: i.id,
+          source: i.sourceLanguage,
+          target: i.targetLanguage,
+          price: null,
+        })) || []
+      setLanguagePairs(itemLangPairs)
+    }
+  }
 
   function onDeleteLanguagePair(row: languageType) {
     const isDeletable = !getItem()?.items?.length
@@ -287,6 +358,14 @@ export default function AddNewQuotes() {
     }
   }
 
+  console.log(getItem())
+
+  console.log(
+    getItem().items.reduce((acc, cur) => {
+      return acc + cur.totalPrice
+    }, 0),
+  )
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -321,6 +400,7 @@ export default function AddNewQuotes() {
       priceId: null,
       detail: [],
       totalPrice: 0,
+      isShowItemDescription: false,
     })
   }
 
@@ -334,14 +414,20 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
+    const subTotal = getItem().items.reduce(
+      (acc, item) => acc + item.totalPrice,
+      0,
+    )
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.taxable ? null : tax,
+      subtotal: subTotal,
     }
     const items = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
+
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -355,7 +441,17 @@ export default function AddNewQuotes() {
         target: item.target,
       }
     })
-    const stepOneData = { ...teams, ...clients, ...projectInfo }
+    const stepOneData = {
+      ...teams,
+      ...clients,
+      ...projectInfo,
+      quoteDate: {
+        date: new Date(projectInfo.quoteDate.date),
+        timezone: projectInfo.quoteDate.timezone,
+      },
+      requestId: requestId ?? null,
+    }
+
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -404,8 +500,15 @@ export default function AddNewQuotes() {
     return result
   }
 
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
+    shouldWarn: true,
+    toUrl: '/quotes',
+  })
+
   return (
     <Grid container spacing={6}>
+      <ConfirmLeaveModal />
       <PageHeader
         title={
           <Box display='flex' alignItems='center' gap='8px'>
@@ -458,7 +561,7 @@ export default function AddNewQuotes() {
                 watch={clientWatch}
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
-                type='quotes'
+                type={requestId ? 'request' : 'quotes'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -489,6 +592,8 @@ export default function AddNewQuotes() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  getClientValue={getClientValue}
+                  getValues={getProjectInfoValues}
                 />
                 <Grid
                   item
@@ -540,6 +645,7 @@ export default function AddNewQuotes() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
+                  itemTrigger={itemTrigger}
                   type='create'
                 />
               </Grid>
@@ -556,6 +662,48 @@ export default function AddNewQuotes() {
                     Add new item
                   </Typography>
                 </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        textAlign: 'right',
+                      }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                    >
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          getItem().items.reduce((acc, cur) => {
+                            return acc + cur.totalPrice
+                          }, 0),
+                          priceInfo?.decimalPlace!,
+                          priceInfo?.roundingProcedure!,
+                          priceInfo?.currency ?? 'USD',
+                        ),
+                        priceInfo?.currency ?? 'USD',
+                      )}
+                    </Typography>
+                  </Box>
+                </Box>
               </Grid>
               <Grid
                 item

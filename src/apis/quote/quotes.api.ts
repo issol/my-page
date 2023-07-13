@@ -23,6 +23,7 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export type MemberListType = Pick<
   UserDataType,
@@ -55,9 +56,9 @@ function getColor(status: QuoteStatusType) {
     ? '#666CFF'
     : status === 'In preparation'
     ? `#F572D8`
-    : status === 'Review before submission'
+    : status === 'Internal review'
     ? `#20B6E5`
-    : status === 'Pending'
+    : status === 'Client review'
     ? `#FDB528`
     : status === 'Expired'
     ? '#FF4D49'
@@ -69,6 +70,14 @@ function getColor(status: QuoteStatusType) {
     ? '#1A6BBA'
     : status === 'Canceled'
     ? '#FF4D49'
+    : status === 'Under review'
+    ? '#FDB528'
+    : status === 'Revised'
+    ? '#AD7028'
+    : status === 'Revision requested'
+    ? '#A81988'
+    : status === 'Under revision'
+    ? '26C6F9'
     : null
 }
 
@@ -104,7 +113,7 @@ export const getQuotesCalendarData = async (
 
 export type CreateQuotesFormType = ProjectTeamFormType &
   ClientFormType &
-  QuotesProjectInfoFormType
+  QuotesProjectInfoFormType & { requestId?: number }
 
 // ** step 1-3
 export const createQuotesInfo = async (
@@ -250,9 +259,11 @@ export const patchQuoteProjectInfo = async (
     | QuotesProjectInfoFormType
     | ProjectTeamFormType
     | ClientFormType
-    | { status: QuoteStatusType }
+    | { status: number }
     | { tax: null | number; taxable: boolean }
-    | { downloadedAt: string },
+    | { status: number; canceledReason: CancelReasonType }
+    | { downloadedAt: string }
+    | { isConfirmed: boolean },
 ) => {
   await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
 }

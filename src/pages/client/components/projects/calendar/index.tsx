@@ -47,7 +47,7 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch } = useGetClientProjectsCalendar(id, `${year}-${month}`)
+  const { data, refetch } = useGetClientProjectsCalendar(id, year, month)
   const [event, setEvent] = useState<Array<ClientProjectCalendarEventType>>([])
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
@@ -70,6 +70,8 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
   const isSelected = (index: number) => {
     return index === selected
   }
+
+  console.log(data)
 
   useEffect(() => {
     if (currentListId && data?.data) {

@@ -28,7 +28,7 @@ export type FilterType = {
   category: Array<{ value: string; label: string }>
   serviceType: Array<{ value: string; label: string }>
   status: Array<{ value: string; label: string }>
-  dueDate: Date[]
+  dueAt: Array<Date | null>
   search: string
 }
 
@@ -37,7 +37,7 @@ const defaultValues: FilterType = {
   category: [],
   serviceType: [],
   status: [],
-  dueDate: [],
+  dueAt: [null, null],
   search: '',
 }
 
@@ -64,15 +64,18 @@ export default function ClientProjects({ id, user }: Props) {
     category: [],
     serviceType: [],
     status: [],
-    dueDate: [],
+    dueDateFrom: null,
+    dueDateTo: null,
     search: '',
     take: clientProjectListPageSize,
     skip: clientProjectListPageSize * clientProjectListPage,
     sort: 'DESC',
   })
 
-  const { data: clientProjectList, isLoading } =
-    useGetClientProjectList(id, filters)
+  const { data: clientProjectList, isLoading } = useGetClientProjectList(
+    id,
+    filters,
+  )
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -85,7 +88,7 @@ export default function ClientProjects({ id, user }: Props) {
       category: [],
       serviceType: [],
       status: [],
-      dueDate: [],
+      dueAt: [],
       search: '',
     })
 
@@ -94,7 +97,8 @@ export default function ClientProjects({ id, user }: Props) {
       category: [],
       serviceType: [],
       status: [],
-      dueDate: [],
+      dueDateFrom: null,
+      dueDateTo: null,
       search: '',
       skip: 0,
       take: 10,
@@ -127,20 +131,23 @@ export default function ClientProjects({ id, user }: Props) {
   }
 
   const onSubmit = (data: FilterType) => {
-    const { projectType, category, serviceType, status, dueDate, search } = data
+    const { projectType, category, serviceType, status, dueAt, search } = data
 
     const filter = {
       projectType: projectType.map(value => value.value),
       category: category.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       status: status.map(value => value.value),
-      dueDate: dueDate.map(value => value),
+      dueDateTo: dueAt[1],
+      dueDateFrom: dueAt[0],
 
       search: search,
       take: clientProjectListPageSize,
       skip: clientProjectListPageSize * clientProjectListPage,
       sort: 'DESC',
     }
+
+    console.log(filter)
 
     setFilters(filter)
   }
@@ -225,7 +232,7 @@ export default function ClientProjects({ id, user }: Props) {
 
             <ClientProjectList
               list={clientProjectList?.data!}
-              listCount={clientProjectList?.totalCount!}
+              listCount={clientProjectList?.count!}
               isLoading={isLoading}
               listPage={clientProjectListPage}
               listPageSize={clientProjectListPageSize}

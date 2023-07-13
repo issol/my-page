@@ -33,14 +33,16 @@ import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import ItemPriceUnitTable from './price-unit-table'
 import TmAnalysisTable from './tm-analysis-table'
+import { UserRoleType } from '@src/context/types'
 
 type Props = {
   item: ItemType
   priceList: StandardPriceListType[]
   idx?: number
+  role: UserRoleType
 }
 
-export default function ItemDetail({ item, priceList, idx }: Props) {
+export default function ItemDetail({ item, priceList, idx, role }: Props) {
   return (
     <Grid item xs={12}>
       <Grid container spacing={6}>
@@ -146,9 +148,11 @@ export default function ItemDetail({ item, priceList, idx }: Props) {
           <Divider />
         </Grid>
         {/* TM analysis */}
-        <Grid item xs={12}>
-          <TmAnalysisTable data={item.analysis || []} />
-        </Grid>
+        {role.name === 'CLIENT' ? null : (
+          <Grid item xs={12}>
+            <TmAnalysisTable data={item.analysis || []} />
+          </Grid>
+        )}
       </Grid>
     </Grid>
   )

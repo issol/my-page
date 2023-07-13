@@ -41,7 +41,7 @@ type Props = {
   clientList: Array<{ value: number; label: string }>
   setTax: (n: number) => void
   setTaxable: (n: boolean) => void
-  type: string
+  type: 'order' | 'invoice' | 'quotes' | 'request'
 }
 
 export default function RegisterClientForm({
@@ -105,9 +105,9 @@ export default function RegisterClientForm({
       contracts.mobile = clientDetail?.mobile
       contracts.fax = clientDetail?.fax
       contracts.email = clientDetail?.email
-      if (clientDetail?.taxable && clientDetail?.tax) {
+      if (clientDetail?.isTaxable && clientDetail?.tax) {
         setTax(clientDetail.tax)
-        setTaxable(clientDetail.taxable)
+        setTaxable(clientDetail.isTaxable)
       }
     } else {
       contracts.timezone = contactPerson?.timezone
@@ -203,7 +203,7 @@ export default function RegisterClientForm({
                   onChange(v ? v.value : '')
                 }}
                 disableClearable
-                disabled={type === 'invoice'}
+                disabled={type === 'invoice' || type === 'request'}
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField
@@ -242,6 +242,7 @@ export default function RegisterClientForm({
                   setContactPerson(res.length ? res[0] : v)
                 }}
                 disableClearable
+                disabled={type === 'request'}
                 value={selectedPerson || { value: '', label: '' }}
                 renderInput={params => (
                   <TextField

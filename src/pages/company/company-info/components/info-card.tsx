@@ -4,9 +4,10 @@ import { CompanyInfoType } from '@src/types/company/info'
 
 type Props = {
   companyInfo: CompanyInfoType
+  companyLogoURL: string
 }
 
-const CompanyInfoCard = ({ companyInfo }: Props) => {
+const CompanyInfoCard = ({ companyInfo, companyLogoURL }: Props) => {
   return (
     <DesignedCard>
       <Card sx={{ padding: '24px' }}>
@@ -26,17 +27,19 @@ const CompanyInfoCard = ({ companyInfo }: Props) => {
                 width: '100px',
                 height: '86.85px',
                 padding: '10px',
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
               }}
             >
               <img
                 src={
-                  companyInfo?.logo ??
-                  '/images/company/default-company-logo.svg'
+                  companyLogoURL
                 }
                 alt=''
                 style={{
                   width: '80px',
-                  height: '66.85px',
+                  // height: '66.85px',
                 }}
               />
             </Box>
@@ -60,14 +63,16 @@ const CompanyInfoCard = ({ companyInfo }: Props) => {
               }}
             >
               <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-                <Typography variant='h5'>{companyInfo?.companyName}</Typography>
+                <Typography variant='h5'>{companyInfo?.name}</Typography>
 
-                {companyInfo?.billingPlan && (
+                {companyInfo?.billingPlan ? (
                   <Chip
                     color='primary'
                     skin='light'
                     label={companyInfo?.billingPlan?.name}
                   />
+                ) : (
+                  <Chip color='primary' skin='light' label={'Premium'} />
                 )}
               </Box>
 

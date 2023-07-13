@@ -1,5 +1,4 @@
 import { Fragment, useContext, useEffect } from 'react'
-import { useRouter } from 'next/router'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -17,7 +16,6 @@ import styled from 'styled-components'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** components
@@ -38,17 +36,14 @@ import { InvoicePayableStatusType } from '@src/types/invoice/common.type'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-// ** permission
-import { invoice_payable } from '@src/shared/const/permission-class'
-
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-modals/confirm-save-all-chages'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
 // ** helpers
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -56,53 +51,26 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 // ** values
 import { InvoicePayableStatus } from '@src/shared/const/status/statuses'
 
-// ** apis
-import { updateInvoicePayable } from '@src/apis/invoice/payable.api'
-
-// ** third parties
-import { toast } from 'react-hot-toast'
-
 type Props = {
+  isUpdatable: boolean
+  updatePayable?: UseMutationResult<any, unknown, PayableFormType, unknown>
   data: InvoicePayableDetailType | undefined
   editInfo: boolean
   setEditInfo: (n: boolean) => void
 }
 
-/* TODO:
-version history
-*/
 export default function InvoiceDetailCard({
+  isUpdatable,
+  updatePayable,
   data,
   editInfo,
   setEditInfo,
 }: Props) {
-  const router = useRouter()
-  const queryClient = useQueryClient()
-
   const { openModal, closeModal } = useModal()
 
-  const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
-  const User = new invoice_payable(user?.id!)
 
-  const isUpdatable = ability.can('update', User)
-  const isAccountManager = ability.can('read', 'account_manage')
-
-  // ** confirm page leaving
-  router.beforePopState(() => {
-    if (editInfo) {
-      openModal({
-        type: 'alert-modal',
-        children: (
-          <PageLeaveModal
-            onClose={() => closeModal('alert-modal')}
-            onClick={() => router.push('/invoice/payable/')}
-          />
-        ),
-      })
-    }
-    return false
-  })
+  const isAccountManager = ability?.can('read', 'account_manage')
 
   const {
     control,
@@ -130,20 +98,6 @@ export default function InvoiceDetailCard({
     }
   }, [data])
 
-  const updateMutation = useMutation(
-    (form: PayableFormType) => updateInvoicePayable(form),
-    {
-      onSuccess: () => {
-        queryClient.invalidateQueries({ queryKey: 'invoice/payable/detail' })
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
-      },
-    },
-  )
-
   function onInvoiceSave() {
     openModal({
       type: 'save',
@@ -151,7 +105,8 @@ export default function InvoiceDetailCard({
         <ConfirmSaveAllChanges
           onClose={() => closeModal('save')}
           onSave={() => {
-            updateMutation.mutate(getValues())
+            if (!updatePayable) return
+            updatePayable.mutate(getValues())
             setEditInfo(false)
             closeModal('save')
           }}
@@ -161,12 +116,19 @@ export default function InvoiceDetailCard({
   }
 
   function onInvoiceStatusChange(invoiceStatus: InvoicePayableStatusType) {
-    updateMutation.mutate({ invoiceStatus })
+    if (!updatePayable) return
+    updatePayable.mutate({ invoiceStatus })
   }
+
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    shouldWarn: editInfo,
+    toUrl: '/invoice/payable/',
+  })
 
   return (
     <DatePickerWrapper>
       <Grid container spacing={6}>
+        <ConfirmLeaveModal />
         {editInfo ? null : (
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Typography variant='h6'>Invoice detail</Typography>

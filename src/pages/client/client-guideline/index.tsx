@@ -56,7 +56,11 @@ export default function ClientGuidLines() {
   const { data: list, isLoading } = useGetGuideLines(activeFilter)
 
   function onSearch() {
-    setActiveFilter({ ...filter })
+    setActiveFilter({
+      ...filter,
+      skip: skip * activeFilter.take,
+      take: activeFilter.take,
+    })
   }
 
   function onReset() {
@@ -126,6 +130,7 @@ export default function ClientGuidLines() {
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
         user={user!}
+        page={'client'}
       />
     </Grid>
   )

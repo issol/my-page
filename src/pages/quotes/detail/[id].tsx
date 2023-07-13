@@ -2,6 +2,7 @@ import {
   Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useContext,
   useEffect,
   useState,
@@ -21,6 +22,11 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
+  Switch,
   Tab,
   Typography,
 } from '@mui/material'
@@ -76,6 +82,7 @@ import {
 import {
   QuoteDownloadData,
   QuoteStatusType,
+  QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -105,7 +112,7 @@ import {
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   restoreVersion,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
@@ -119,19 +126,58 @@ import { toast } from 'react-hot-toast'
 
 // ** permission class
 import { quotes } from '@src/shared/const/permission-class'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import ClientQuote from './components/client-quote'
+import SelectReasonModal from '../components/modal/select-reason-modal'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { update } from 'lodash'
+import { useGetStatusList } from '@src/queries/common.query'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
+import Link from 'next/link'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 
-type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
+type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
+
+export type updateProjectInfoType =
+  | QuotesProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientPostType
+  | { tax: null | number; taxable: boolean }
+  | { status: number }
+  | { status: number; canceledReason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
 
 export default function QuotesDetail() {
   const router = useRouter()
+  const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
   const { id } = router.query
 
   const { openModal, closeModal } = useModal()
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
   const menuQuery = router.query.menu as MenuType
-  const [menu, setMenu] = useState<MenuType>('project')
+  const [menu, setMenu] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
+  )
+  const [downloadData, setDownloadData] = useState<QuoteDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const User = new quotes(user?.id!)
 
@@ -152,6 +198,7 @@ export default function QuotesDetail() {
   }, [menuQuery])
 
   useEffect(() => {
+    if (!router.isReady) return
     router.replace(`/quotes/detail/${id}?menu=${menu}`)
   }, [menu, id])
 
@@ -170,28 +217,41 @@ export default function QuotesDetail() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      status: 20000,
+      projectName: '',
+      isShowDescription: false,
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
   useEffect(() => {
-    if (!isProjectLoading && project) {
+    if (!isProjectLoading && project && statusList) {
+      console.log(project.quoteDateTimezone)
+
       const defaultTimezone = {
         code: '',
         phone: '',
         label: '',
       }
       projectInfoReset({
-        status: project.status,
+        status:
+          statusList?.find(value => value.label === project.status)?.value ??
+          20000,
         workName: project.workName,
         projectName: project.projectName,
         projectDescription: project.projectDescription,
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        quoteDate: project.quoteDate,
+        isShowDescription: false,
+
+        quoteDate: {
+          date: project.quoteDate,
+          timezone: project.quoteDateTimezone ?? defaultTimezone,
+        },
         projectDueDate: {
           date: project.projectDueAt,
           timezone: project.projectDueTimezone ?? defaultTimezone,
@@ -212,8 +272,14 @@ export default function QuotesDetail() {
 
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
+      setProjectInfo('quoteDate', {
+        date: project.quoteDate,
+        timezone: project.quoteDateTimezone ?? defaultTimezone,
+      })
     }
-  }, [isProjectLoading])
+  }, [isProjectLoading, statusList, project])
+
+  console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -463,32 +529,34 @@ export default function QuotesDetail() {
           <DialogContent sx={{ padding: '50px 60px', minHeight: '900px' }}>
             <Grid container spacing={6}>
               <VersionHistoryModal id={Number(id)} history={history} />
-              <Grid
-                item
-                xs={12}
-                display='flex'
-                gap='12px'
-                alignItems='center'
-                justifyContent='center'
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  sx={{ width: '226px' }}
-                  onClick={() => closeModal('VersionHistoryModal')}
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <Grid
+                  item
+                  xs={12}
+                  display='flex'
+                  gap='12px'
+                  alignItems='center'
+                  justifyContent='center'
                 >
-                  Close
-                </Button>
-                {isUpdatable ? (
                   <Button
-                    variant='contained'
+                    variant='outlined'
+                    color='secondary'
                     sx={{ width: '226px' }}
-                    onClick={onClickRestoreVersion}
+                    onClick={() => closeModal('VersionHistoryModal')}
                   >
-                    Restore this version
+                    Close
                   </Button>
-                ) : null}
-              </Grid>
+                  {isUpdatable ? (
+                    <Button
+                      variant='contained'
+                      sx={{ width: '226px' }}
+                      onClick={onClickRestoreVersion}
+                    >
+                      Restore this version
+                    </Button>
+                  ) : null}
+                </Grid>
+              )}
             </Grid>
           </DialogContent>
         </Dialog>
@@ -512,13 +580,6 @@ export default function QuotesDetail() {
     })
   }
 
-  type updateProjectInfoType =
-    | QuotesProjectInfoFormType
-    | ProjectTeamFormType
-    | ClientPostType
-    | { tax: null | number; taxable: boolean }
-    | { status: QuoteStatusType }
-
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
@@ -529,6 +590,7 @@ export default function QuotesDetail() {
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
+        queryClient.invalidateQueries(['quotesList'])
       },
       onError: () => onMutationError(),
     },
@@ -536,6 +598,8 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
+    console.log(projectInfo)
+
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -645,6 +709,33 @@ export default function QuotesDetail() {
     onError: () => onMutationError(),
   })
 
+  const onClickCancel = () => {
+    openModal({
+      type: 'CancelQuoteModal',
+      children: (
+        <SelectReasonModal
+          onClose={() => closeModal('CancelQuoteModal')}
+          onClick={(status: number, cancelReason: CancelReasonType) =>
+            updateProject.mutate(
+              { status: status, canceledReason: cancelReason },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to cancel this quote?'
+          vary='error'
+          rightButtonText='Cancel'
+          action='Canceled'
+          from='lsp'
+          statusList={statusList!}
+        />
+      ),
+    })
+  }
+
   const onClickDelete = () => {
     openModal({
       type: 'DeleteQuoteModal',
@@ -667,7 +758,9 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
-    makePdfData(lang)
+    makePdfData()
+    dispatch(setQuoteLang(lang))
+    dispatch(setQuote(downloadData))
     patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
       onMutationError(),
     )
@@ -677,6 +770,30 @@ export default function QuotesDetail() {
   function handlePrint() {
     closeModal('DownloadQuotesModal')
     router.push('/quotes/print')
+  }
+
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    if (editProject || editItems || editClient || editTeam) {
+      openModal({
+        type: 'EditAlertModal',
+        children: (
+          <EditAlertModal
+            onClose={() => closeModal('EditAlertModal')}
+            onClick={() => {
+              closeModal('EditAlertModal')
+              setMenu(newValue)
+              setEditProject(false)
+              setEditItems(false)
+              setEditClient(false)
+              setEditTeam(false)
+            }}
+          />
+        ),
+      })
+      return
+    }
+
+    setMenu(newValue)
   }
 
   useEffect(() => {
@@ -742,12 +859,41 @@ export default function QuotesDetail() {
             dispatch(setIsReady(false))
           }}
           onClick={onClickPreview}
+          clientQuoteLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
         />
       ),
     })
   }
 
-  function makePdfData(lang: 'EN' | 'KO') {
+  const onClickConfirmQuote = () => {
+    openModal({
+      type: 'ConfirmQuoteModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmQuoteModal')}
+          onClick={() =>
+            updateProject.mutate(
+              { isConfirmed: true, status: 20003 },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to confirm this quote? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
+
+  function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
     const res: QuoteDownloadData = {
@@ -755,7 +901,10 @@ export default function QuotesDetail() {
       adminCompanyName: 'GloZ Inc.',
       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
       corporationId: project?.corporationId ?? '',
-      quoteDate: project?.quoteDate ?? '',
+      quoteDate: {
+        date: project?.quoteDate ?? '',
+        timezone: project?.quoteDateTimezone,
+      },
       projectDueDate: {
         date: project?.projectDueAt ?? '',
         timezone: project?.projectDueTimezone,
@@ -785,8 +934,33 @@ export default function QuotesDetail() {
       clientAddress: client?.clientAddress ?? [],
       langItem: itemsWithLang,
     }
-    dispatch(setQuoteLang(lang))
-    dispatch(setQuote(res))
+
+    setDownloadData(res)
+  }
+
+  useEffect(() => {
+    makePdfData()
+  }, [project, client])
+
+  const deleteButtonDisabled = () => {
+    if (client?.contactPerson?.userId === null) {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status !== 'Expired')
+      )
+    } else {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status === 'Expired' &&
+          project?.isConfirmed)
+      )
+    }
   }
 
   return (
@@ -826,38 +1000,137 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
+              {currentRole &&
+              currentRole.name === 'CLIENT' &&
+              (project?.linkedOrder || project?.linkedRequest) ? (
+                <Box>
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    onClick={handleClick}
+                  >
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={anchorEl}
+                    id='customized-menu'
+                    onClose={handleClose}
+                    open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                  >
+                    {project?.linkedRequest ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked requests :
+                        <Link
+                          href={
+                            currentRole && currentRole.name === 'CLIENT'
+                              ? `/quotes/requests/${project?.linkedRequest.id}`
+                              : `/quotes/lpm/requests/${project?.linkedRequest.id}`
+                          }
+                        >
+                          {project?.linkedRequest.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                    {project.linkedOrder ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked order :
+                        <Link
+                          href={`/orders/order-list/detail/${project.linkedOrder.id}`}
+                        >
+                          {project?.linkedOrder.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                  </Menu>
+                </Box>
+              ) : null}
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <QuoteStatusChip
+                  size='small'
+                  label={project?.status ?? '-'}
+                  status={project?.status!}
+                />
+              ) : null}
             </Box>
           </Box>
-          <Box display='flex' alignItems='center' gap='14px'>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadQuotes}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download quote
-            </Button>
-            <Button
-              variant='outlined'
-              onClick={() =>
-                router.push({
-                  pathname: `/orders/add-new`,
-                  query: { orderId: id },
-                })
-              }
-            >
-              Create order
-            </Button>
-          </Box>
+          {currentRole && currentRole.name === 'CLIENT' ? null : (
+            <Box display='flex' alignItems='center' gap='14px'>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickDownloadQuotes}
+              >
+                <Icon icon='material-symbols:request-quote' />
+                Download quote
+              </Button>
+              <Button
+                variant='outlined'
+                onClick={() =>
+                  router.push({
+                    pathname: `/orders/add-new`,
+                    query: { orderId: id },
+                  })
+                }
+              >
+                Create order
+              </Button>
+              <Button
+                variant='contained'
+                onClick={onClickConfirmQuote}
+                disabled={
+                  project?.status !== 'New' &&
+                  project?.status !== 'In preparation' &&
+                  project?.status !== 'Internal review' &&
+                  project?.status !== 'Under revision'
+                }
+              >
+                Confirm quote
+              </Button>
+            </Box>
+          )}
         </Box>
       </Grid>
       <Grid item xs={12}>
         <TabContext value={menu}>
           <TabList
-            onChange={(e, v) => setMenu(v)}
+            onChange={handleChange}
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
+            {currentRole && currentRole.name === 'CLIENT' ? (
+              <CustomTap
+                value='quote'
+                label='Quote'
+                iconPosition='start'
+                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            ) : null}
+
             <CustomTap
               value='project'
               label='Project info'
@@ -872,13 +1145,18 @@ export default function QuotesDetail() {
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTap
-              value='client'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='client'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
               value='team'
               label='Project team'
@@ -896,6 +1174,24 @@ export default function QuotesDetail() {
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           </TabList>
+
+          <TabPanel value='quote' sx={{ pt: '24px' }}>
+            <Suspense>
+              {downloadData ? (
+                <ClientQuote
+                  downloadData={downloadData!}
+                  user={user!}
+                  downloadLanguage={downloadLanguage}
+                  setDownloadLanguage={setDownloadLanguage}
+                  onClickDownloadQuotes={onClickDownloadQuotes}
+                  type='detail'
+                  updateProject={updateProject}
+                  statusList={statusList!}
+                  project={project!}
+                />
+              ) : null}
+            </Suspense>
+          </TabPanel>
           {/* Project info */}
           <TabPanel value='project' sx={{ pt: '24px' }}>
             <Suspense>
@@ -909,6 +1205,8 @@ export default function QuotesDetail() {
                         watch={projectInfoWatch}
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
+                        getClientValue={getClientValue}
+                        getValues={getProjectInfoValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -925,28 +1223,57 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
-                      isUpdatable={isUpdatable}
-                      updateStatus={(status: QuoteStatusType) =>
+                      isUpdatable={
+                        isUpdatable &&
+                        currentRole! &&
+                        currentRole.name !== 'CLIENT'
+                      }
+                      updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
+                      role={currentRole!}
+                      client={client}
+                      type='detail'
+                      updateProject={updateProject}
+                      statusList={statusList!}
                     />
                   </Card>
-                  <Grid container sx={{ mt: '24px' }}>
-                    <Grid item xs={4}>
-                      <Card sx={{ padding: '20px', width: '100%' }}>
-                        <Button
-                          variant='outlined'
-                          fullWidth
-                          color='error'
-                          size='large'
-                          disabled={!isDeletable}
-                          onClick={onClickDelete}
-                        >
-                          Delete this quote
-                        </Button>
-                      </Card>
+                  {currentRole && currentRole.name === 'CLIENT' ? null : (
+                    <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={
+                              !isUpdatable ||
+                              project?.status === 'Changed into order' ||
+                              project?.status === 'Canceled'
+                            }
+                            onClick={onClickCancel}
+                          >
+                            Cancel this quote
+                          </Button>
+                        </Card>
+                      </Grid>
+                      <Grid item xs={4}>
+                        <Card sx={{ padding: '20px', width: '100%' }}>
+                          <Button
+                            variant='outlined'
+                            fullWidth
+                            color='error'
+                            size='large'
+                            disabled={deleteButtonDisabled()}
+                            onClick={onClickDelete}
+                          >
+                            Delete this quote
+                          </Button>
+                        </Card>
+                      </Grid>
                     </Grid>
-                  </Grid>
+                  )}
                 </Fragment>
               )}
             </Suspense>
@@ -976,7 +1303,11 @@ export default function QuotesDetail() {
                   setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={
+                    isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
+                  }
+                  role={currentRole!}
+                  itemTrigger={itemTrigger}
                 />
                 {editItems
                   ? renderSubmitButton({
@@ -1057,8 +1388,12 @@ export default function QuotesDetail() {
                       padding: '15px 20px',
                     }}
                   >
-                    <Typography variant='h6'>Project team</Typography>
-                    {isUpdatable ? (
+                    <Typography variant='h6'>
+                      Project team ({team?.length})
+                    </Typography>
+                    {isUpdatable &&
+                    currentRole &&
+                    currentRole.name !== 'CLIENT' ? (
                       <IconButton onClick={() => setEditTeam(!editTeam)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>
@@ -1074,7 +1409,9 @@ export default function QuotesDetail() {
                     <DataGrid
                       autoHeight
                       getRowId={row => row.userId}
-                      columns={getProjectTeamColumns()}
+                      columns={getProjectTeamColumns(
+                        (currentRole && currentRole.name) ?? '',
+                      )}
                       rows={team ?? []}
                       rowCount={team?.length ?? 0}
                       rowsPerPageOptions={[10, 25, 50]}

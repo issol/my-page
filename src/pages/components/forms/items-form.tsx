@@ -5,6 +5,7 @@ import { Dispatch, SetStateAction, useEffect, useState } from 'react'
 import {
   Autocomplete,
   Box,
+  Checkbox,
   Divider,
   Grid,
   IconButton,
@@ -67,6 +68,7 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import Link from 'next/link'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -85,6 +87,9 @@ type Props = {
   priceUnitsList: Array<PriceUnitListType>
   type: string
   orderId?: number
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+  }>
 }
 
 export type DetailNewDataType = {
@@ -113,8 +118,10 @@ export default function ItemForm({
   priceUnitsList,
   type,
   orderId,
+  itemTrigger,
 }: Props) {
   const { openModal, closeModal } = useModal()
+  const currentRole = getCurrentRole()
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
@@ -280,6 +287,7 @@ export default function ItemForm({
           ),
         })
       }
+      itemTrigger('items')
       getTotalPrice()
     }
 
@@ -572,12 +580,6 @@ export default function ItemForm({
                         getValues(`items.${idx}.source`),
                         getValues(`items.${idx}.target`),
                       )
-                      const matchingPrice = options.find(
-                        item => item.groupName === 'Matching price',
-                      )
-                      if (matchingPrice) {
-                        onChange(matchingPrice.id)
-                      }
                       return (
                         <Autocomplete
                           autoHighlight
@@ -645,9 +647,38 @@ export default function ItemForm({
               />
               {/* price unit end */}
               <Grid item xs={12}>
-                <Typography variant='subtitle1' mb='24px' fontWeight={600}>
-                  Item description
-                </Typography>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    justifyContent: 'space-between',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Typography variant='subtitle1' mb='24px' fontWeight={600}>
+                    Item description
+                  </Typography>
+                  {type === 'detail' || type === 'invoiceDetail' ? null : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Controller
+                        name={`items.${idx}.isShowItemDescription`}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <Checkbox
+                            value={value}
+                            onChange={e => {
+                              onChange(e.target.checked)
+                            }}
+                            checked={value}
+                          />
+                        )}
+                      />
+
+                      <Typography variant='body2'>
+                        Show item description to client
+                      </Typography>
+                    </Box>
+                  )}
+                </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
                     {getValues(`items.${idx}.description`)}
@@ -685,7 +716,8 @@ export default function ItemForm({
                 <Divider />
               </Grid>
               {/* TM analysis */}
-              {type === 'invoiceDetail' ? null : (
+              {type === 'invoiceDetail' ||
+              (currentRole && currentRole.name === 'CLIENT') ? null : (
                 <Grid item xs={12}>
                   <TmAnalysisForm
                     control={control}

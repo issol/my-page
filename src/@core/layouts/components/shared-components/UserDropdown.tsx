@@ -28,10 +28,7 @@ import { RoleType, UserRoleType } from 'src/context/types'
 import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
 // import { setCurrentRole } from '@src/store/permission'
-import {
-  setCurrentRole,
-  getCurrentRole
-} from 'src/shared/auth/storage'
+import { setCurrentRole, getCurrentRole } from 'src/shared/auth/storage'
 import { current } from '@reduxjs/toolkit'
 
 interface Props {
@@ -79,11 +76,11 @@ const UserDropdown = (props: Props) => {
     setAnchorEl(null)
   }
 
-  useEffect(() =>{
-    if(role && hasTadAndLpm(role)) {
+  useEffect(() => {
+    if (role && hasTadAndLpm(role)) {
       const currentRole = getCurrentRole()
-      if(currentRole.name === 'TAD') setChecked(false)
-      else if (currentRole.name === 'LPM') setChecked(true)
+      if (currentRole?.name === 'TAD') setChecked(false)
+      else if (currentRole?.name === 'LPM') setChecked(true)
       else setChecked(false)
     }
   }, [role])
@@ -94,8 +91,8 @@ const UserDropdown = (props: Props) => {
     if (hasTadAndLpm(role)) {
       setCurrentRole(
         event.target.checked
-        ? role.find(item => item.name === 'LPM')
-        : role.find(item => item.name === 'TAD')
+          ? role.find(item => item.name === 'LPM')
+          : role.find(item => item.name === 'TAD'),
       )
     }
     router.push('/home')

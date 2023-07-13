@@ -87,15 +87,17 @@ export function removeRedirectPath() {
 }
 
 // Role Switch
-export function getCurrentRole() {
+export function getCurrentRole(): UserRoleType | null {
   if (typeof window === 'object') {
     const value = window.sessionStorage.getItem(authConfig.currentRole)
     try {
-      return (value !== undefined && value !== null) ? JSON.parse(value) : null;
+      return value !== undefined && value !== null ? JSON.parse(value) : null
     } catch {
       return null
     }
     // return JSON.parse(window.localStorage.getItem(authConfig.currentRole))
+  } else {
+    return null
   }
 }
 

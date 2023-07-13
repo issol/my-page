@@ -130,6 +130,7 @@ export default function ClientGuidLines() {
         list={list || { data: [], count: 0 }}
         isLoading={isLoading}
         user={user!}
+        page={'onboarding'}
       />
     </Grid>
   )

@@ -79,7 +79,7 @@ export class quotes {
   constructor(authorId: number) {
     this.authorId = authorId
     Object.defineProperty(quotes.prototype.constructor, 'name', {
-      value: 'quotes',
+      value: 'quote',
     })
   }
 }
@@ -99,6 +99,26 @@ export class invoice_receivable {
     this.authorId = authorId
     Object.defineProperty(invoice_receivable.prototype.constructor, 'name', {
       value: 'invoice_receivable',
+    })
+  }
+}
+
+export class client_request {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_request.prototype.constructor, 'name', {
+      value: 'client_request',
+    })
+  }
+}
+
+export class lpm_request {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(lpm_request.prototype.constructor, 'name', {
+      value: 'lpm_request',
     })
   }
 }

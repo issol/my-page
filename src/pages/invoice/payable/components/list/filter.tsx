@@ -41,7 +41,7 @@ type Props = {
 export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
-  //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에)
+  //TODO: 프로 전체 list를 필터에 표시하는건 pro가 많아질 수록 좋지 않음. 이런식의 필터는 일괄 변경하는 방향으로 기획에 문의하기 (추후에) [bon]
   const { data: proList } = useGetProList({ take: 100, skip: 0 })
   const { data: statusList, isLoading } = useGetInvoicePayableStatus()
   const commonOptions = {
@@ -125,14 +125,14 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         !proList
                           ? []
                           : proList.data?.filter(pro =>
-                              filter.pro?.includes(Number(pro.id)),
+                              filter.pro?.includes(pro.userId),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          pro: v.map(i => Number(i.id)),
+                          pro: v.map(i => i.userId),
                         })
                       }
                       renderInput={params => (

@@ -2,15 +2,16 @@ import Icon from 'src/@core/components/icon'
 import { IconButton, Typography } from '@mui/material'
 import styled from 'styled-components'
 import { FileType } from 'src/types/common/file.type'
+import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 type Props = {
   file: FileType
-  onClick?: (name: string) => void
+  onClick?: (file: FileType) => void
   onClear?: (file: FileType) => void
 }
 export default function FileItem({ file, onClick, onClear }: Props) {
   return (
-    <FileList key={file.name} onClick={() => onClick && onClick(file.name)}>
+    <FileList key={file.name} onClick={() => onClick && onClick(file)}>
       <div className='file-details'>
         <div className='file-preview'>
           <Icon
@@ -21,9 +22,7 @@ export default function FileItem({ file, onClick, onClear }: Props) {
         <div>
           <Typography className='file-name'>{file.name}</Typography>
           <Typography className='file-size' variant='body2'>
-            {Math.round(file.size / 100) / 10 > 1000
-              ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-              : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+            {formatFileSize(file.size)}
           </Typography>
         </div>
       </div>

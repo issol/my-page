@@ -12,6 +12,7 @@ export const useGetClientList = (filter: FilterType) => {
     {
       suspense: true,
       staleTime: 60 * 1000,
+
       keepPreviousData: true,
       onError: () => {
         toast.error('Something went wrong. Please try again.', {
