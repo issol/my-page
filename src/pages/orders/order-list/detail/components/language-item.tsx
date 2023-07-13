@@ -312,6 +312,7 @@ const LanguageAndItem = ({
           getPriceOptions={getPriceOptions}
           priceUnitsList={priceUnitsList || []}
           type={langItemsEdit ? 'edit' : 'detail'}
+          itemTrigger={itemTrigger}
         />
       </Grid>
       {langItemsEdit ? (
