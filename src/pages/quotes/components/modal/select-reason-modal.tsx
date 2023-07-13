@@ -25,6 +25,7 @@ type Props = {
   rightButtonText: string
   action: string
   from: 'lsp' | 'client'
+  statusList: { value: number; label: string }[]
 }
 
 const SelectReasonModal = ({
@@ -37,6 +38,7 @@ const SelectReasonModal = ({
   rightButtonText,
   action,
   from,
+  statusList,
 }: Props) => {
   const [reason, setReason] = useState<string>('')
   const [messageToLsp, setMessageToLsp] = useState<string>('')
@@ -48,7 +50,7 @@ const SelectReasonModal = ({
   const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
     setReason((event.target as HTMLInputElement).value)
 
-    setMessageToLsp((event.target as HTMLInputElement).value)
+    // setMessageToLsp((event.target as HTMLInputElement).value)
   }
   return (
     <Box
@@ -190,7 +192,7 @@ const SelectReasonModal = ({
           <Button
             variant='contained'
             onClick={() =>
-              onClick(action, {
+              onClick(statusList.find(value => value.label === action)?.value, {
                 from: from,
                 reason: reason,
                 message: messageToLsp,

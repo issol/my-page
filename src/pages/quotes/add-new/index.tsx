@@ -32,7 +32,10 @@ import {
   ProjectTeamType,
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
@@ -71,9 +74,13 @@ import {
   createItemsForQuotes,
   createLangPairForQuotes,
   createQuotesInfo,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { getUserDataFromBrowser } from '@src/shared/auth/storage'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 export type languageType = {
   id: number | string
@@ -108,6 +115,8 @@ export default function AddNewQuotes() {
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
 
   const { openModal, closeModal } = useModal()
+
+  const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -202,29 +211,31 @@ export default function AddNewQuotes() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
     defaultValues: {
       ...quotesProjectInfoDefaultValue,
       quoteDate: {
         date: Date(),
-        timezone: JSON.parse(getUserDataFromBrowser()!).timezone,
+        timezone: getClientValue().contacts?.timezone,
+        // JSON.parse(getUserDataFromBrowser()!).timezone,
       },
+      status: 20000,
     },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
-
-  console.log(JSON.parse(getUserDataFromBrowser()!).timezone)
 
   // ** step4
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: getClientValue('clientId'),
   })
+
   const { data: priceUnitsList } = useGetAllClientPriceList()
   const {
     control: itemControl,
     getValues: getItem,
     setValue: setItem,
+    watch: itemWatch,
     trigger: itemTrigger,
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
@@ -250,6 +261,15 @@ export default function AddNewQuotes() {
       initializeFormWithRequest()
     }
   }, [requestId])
+
+  useEffect(() => {
+    console.log(languagePairs)
+    if (languagePairs && prices) {
+      const priceInfo =
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+      setPriceInfo(priceInfo)
+    }
+  }, [prices, languagePairs])
 
   //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
@@ -338,6 +358,14 @@ export default function AddNewQuotes() {
     }
   }
 
+  console.log(getItem())
+
+  console.log(
+    getItem().items.reduce((acc, cur) => {
+      return acc + cur.totalPrice
+    }, 0),
+  )
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -372,6 +400,7 @@ export default function AddNewQuotes() {
       priceId: null,
       detail: [],
       totalPrice: 0,
+      isShowItemDescription: false,
     })
   }
 
@@ -385,19 +414,20 @@ export default function AddNewQuotes() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
+    const subTotal = getItem().items.reduce(
+      (acc, item) => acc + item.totalPrice,
+      0,
+    )
     const projectInfo = {
       ...rawProjectInfo,
       tax: !rawProjectInfo.taxable ? null : tax,
+      subtotal: subTotal,
     }
     const items = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
     }))
 
-    const subTotal = getItem().items.reduce(
-      (acc, item) => acc + item.totalPrice,
-      0,
-    )
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
         return {
@@ -415,8 +445,13 @@ export default function AddNewQuotes() {
       ...teams,
       ...clients,
       ...projectInfo,
+      quoteDate: {
+        date: new Date(projectInfo.quoteDate.date),
+        timezone: projectInfo.quoteDate.timezone,
+      },
       requestId: requestId ?? null,
     }
+
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -558,6 +593,7 @@ export default function AddNewQuotes() {
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
                   getClientValue={getClientValue}
+                  getValues={getProjectInfoValues}
                 />
                 <Grid
                   item
@@ -609,6 +645,7 @@ export default function AddNewQuotes() {
                   languagePairs={languagePairs}
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
+                  itemTrigger={itemTrigger}
                   type='create'
                 />
               </Grid>
@@ -625,6 +662,48 @@ export default function AddNewQuotes() {
                     Add new item
                   </Typography>
                 </Button>
+              </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        textAlign: 'right',
+                      }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                    >
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          getItem().items.reduce((acc, cur) => {
+                            return acc + cur.totalPrice
+                          }, 0),
+                          priceInfo?.decimalPlace!,
+                          priceInfo?.roundingProcedure!,
+                          priceInfo?.currency ?? 'USD',
+                        ),
+                        priceInfo?.currency ?? 'USD',
+                      )}
+                    </Typography>
+                  </Box>
+                </Box>
               </Grid>
               <Grid
                 item

@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
+import { splitRoleName } from '@src/shared/helpers/role.helper'
 type Props = {
   user: {
     id: number
@@ -33,7 +34,6 @@ const RenderChips = ({
   editRow,
 }: Props) => {
   const chips = user.role
-    .filter(value => value === 'LPM' || value === 'TAD')
     .map((value: string, index: number) => {
       return (
         <>
@@ -43,10 +43,12 @@ const RenderChips = ({
             size='small'
             onDelete={
               editRow && user.role.length > 1
-                ? () => handleDeleteRole(value, user)
+                ? () => {
+                  handleDeleteRole(value, user)
+                }
                 : undefined
             }
-            label={value}
+            label={splitRoleName(value)}
             color={
               value.includes('TAD')
                 ? 'error'

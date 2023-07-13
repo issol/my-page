@@ -11,6 +11,5 @@ export function getFilePath(name: string[], fileName: string) {
 }
 
 export function getResumeFilePath(userId: number, fileName: string) {
-
-  return userId + '/resume/' + fileName
+  return 'user/' + userId + '/resume/' + fileName
 }

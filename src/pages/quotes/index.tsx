@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { Suspense, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -29,6 +29,7 @@ import { CategoryList } from '@src/shared/const/category/categories'
 import { useGetQuotesList } from '@src/queries/quotes.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -38,7 +39,7 @@ export type FilterType = {
   projectDueDate?: Date[]
   lsp?: Array<{ label: string; value: string }>
 
-  status: Array<{ label: string; value: string }>
+  status: Array<{ label: string; value: number }>
   client?: Array<{ label: string; value: string }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
@@ -80,6 +81,8 @@ type Props = { id: number; user: UserDataType }
 type MenuType = 'list' | 'calendar'
 
 export default function Quotes({ id, user }: Props) {
+  const { data: statusList } = useGetStatusList('Quote')
+
   const [menu, setMenu] = useState<MenuType>('list')
 
   const [quoteListPage, setClientInvoiceListPage] = useState<number>(0)
@@ -180,8 +183,6 @@ export default function Quotes({ id, user }: Props) {
     setFilters(filter)
   }
 
-  console.log(currentRole)
-
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -212,20 +213,24 @@ export default function Quotes({ id, user }: Props) {
       <Box>
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <QuotesFilters
-              filter={filters}
-              control={control}
-              setFilter={setFilters}
-              onReset={onClickResetButton}
-              handleSubmit={handleSubmit}
-              onSubmit={onSubmit}
-              trigger={trigger}
-              serviceTypeList={serviceTypeList}
-              setServiceTypeList={setServiceTypeList}
-              categoryList={categoryList}
-              setCategoryList={setCategoryList}
-              role={currentRole!}
-            />
+            <Suspense>
+              <QuotesFilters
+                filter={filters}
+                control={control}
+                setFilter={setFilters}
+                onReset={onClickResetButton}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                trigger={trigger}
+                serviceTypeList={serviceTypeList}
+                setServiceTypeList={setServiceTypeList}
+                categoryList={categoryList}
+                setCategoryList={setCategoryList}
+                role={currentRole!}
+                quoteStatusList={statusList!}
+              />
+            </Suspense>
+
             <Box
               sx={{
                 display: 'flex',

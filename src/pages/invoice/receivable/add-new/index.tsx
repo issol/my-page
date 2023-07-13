@@ -724,6 +724,7 @@ export default function AddNewInvoice() {
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='invoiceDetail'
+                  itemTrigger={itemTrigger}
                 />
               </Grid>
 

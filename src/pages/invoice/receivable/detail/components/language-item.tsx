@@ -87,7 +87,9 @@ type Props = {
   >[]
   removeItems: UseFieldArrayRemove
   getTeamValues: UseFormGetValues<ProjectTeamType>
-
+  itemTrigger: UseFormTrigger<{
+    items: ItemType[]
+  }>
   invoiceInfo: InvoiceReceivableDetailType
 }
 
@@ -106,6 +108,7 @@ const InvoiceLanguageAndItem = ({
   items,
   removeItems,
   getTeamValues,
+  itemTrigger,
 
   invoiceInfo,
 }: Props) => {
@@ -210,6 +213,7 @@ const InvoiceLanguageAndItem = ({
           priceUnitsList={priceUnitsList || []}
           type={'invoiceDetail'}
           orderId={invoiceInfo.orderId}
+          itemTrigger={itemTrigger}
         />
       </Grid>
       <Grid item xs={12}>

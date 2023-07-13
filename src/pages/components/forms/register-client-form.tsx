@@ -105,9 +105,9 @@ export default function RegisterClientForm({
       contracts.mobile = clientDetail?.mobile
       contracts.fax = clientDetail?.fax
       contracts.email = clientDetail?.email
-      if (clientDetail?.taxable && clientDetail?.tax) {
+      if (clientDetail?.isTaxable && clientDetail?.tax) {
         setTax(clientDetail.tax)
-        setTaxable(clientDetail.taxable)
+        setTaxable(clientDetail.isTaxable)
       }
     } else {
       contracts.timezone = contactPerson?.timezone

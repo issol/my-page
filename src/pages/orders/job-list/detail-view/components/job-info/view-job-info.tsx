@@ -21,6 +21,7 @@ import { S3FileType } from '@src/shared/const/signedURLFileType'
 
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { FileType } from '@src/types/common/file.type'
@@ -40,6 +41,7 @@ import {
   useQueryClient,
 } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 type Props = {
   row: JobType
@@ -83,6 +85,7 @@ const ViewJobInfo = ({
   const [jobStatus, setJobStatus] = useState<JobStatusType>(row.status)
   const [jobFeedback, setJobFeedback] = useState<string>(row.feedback ?? '')
   const queryClient = useQueryClient()
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
 
   const saveJobInfoMutation = useMutation(
     (data: { jobId: number; data: SaveJobInfoParamsType }) =>
@@ -430,19 +433,12 @@ const ViewJobInfo = ({
 
         <Box>
           <Typography variant='subtitle2'>
-            {row.files
-              ? getFileSize(row?.files, 'SAMPLE') === 0
-                ? 0
-                : Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10 >
-                  1000
-                ? `${(
-                    Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10000
-                  ).toFixed(1)} mb`
-                : `${(
-                    Math.round(getFileSize(row?.files, 'SAMPLE') / 100) / 10
-                  ).toFixed(1)} kb`
-              : 0}
-            /2gb
+            {formatFileSize(
+              row.files
+                ? getFileSize(row?.files, 'SAMPLE')
+                : 0
+            )}
+            / {byteToGB(MAXIMUM_FILE_SIZE)}
           </Typography>
         </Box>
       </Box>

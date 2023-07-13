@@ -2,6 +2,7 @@ import {
   Fragment,
   MouseEvent,
   Suspense,
+  SyntheticEvent,
   useContext,
   useEffect,
   useState,
@@ -21,6 +22,10 @@ import {
   DialogContent,
   Grid,
   IconButton,
+  ListItemIcon,
+  ListItemText,
+  Menu,
+  MenuItem,
   Switch,
   Tab,
   Typography,
@@ -77,6 +82,7 @@ import {
 import {
   QuoteDownloadData,
   QuoteStatusType,
+  QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
   VersionHistoryType,
 } from '@src/types/common/quotes.type'
@@ -106,7 +112,7 @@ import {
   patchQuoteLanguagePairs,
   patchQuoteProjectInfo,
   restoreVersion,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
@@ -125,6 +131,11 @@ import ClientQuote from './components/client-quote'
 import SelectReasonModal from '../components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { update } from 'lodash'
+import { useGetStatusList } from '@src/queries/common.query'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
+import Link from 'next/link'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { QuoteStatusChip } from '@src/@core/components/chips/chips'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -133,17 +144,30 @@ export type updateProjectInfoType =
   | ProjectTeamFormType
   | ClientPostType
   | { tax: null | number; taxable: boolean }
-  | { status: QuoteStatusType }
-  | { status: QuoteStatusType; cancelReason: CancelReasonType }
+  | { status: number }
+  | { status: number; canceledReason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
 
 export default function QuotesDetail() {
   const router = useRouter()
+  const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
   const currentRole = getCurrentRole()
   const { id } = router.query
 
   const { openModal, closeModal } = useModal()
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   const menuQuery = router.query.menu as MenuType
   const [menu, setMenu] = useState<MenuType>(
@@ -193,27 +217,37 @@ export default function QuotesDetail() {
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<QuotesProjectInfoFormType>({
+  } = useForm<QuotesProjectInfoAddNewType>({
     mode: 'onChange',
-    defaultValues: quotesProjectInfoDefaultValue,
+    defaultValues: {
+      status: 20000,
+      projectName: '',
+      isShowDescription: false,
+    },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
   useEffect(() => {
-    if (!isProjectLoading && project) {
+    if (!isProjectLoading && project && statusList) {
+      console.log(project.quoteDateTimezone)
+
       const defaultTimezone = {
         code: '',
         phone: '',
         label: '',
       }
       projectInfoReset({
-        status: project.status,
+        status:
+          statusList?.find(value => value.label === project.status)?.value ??
+          20000,
         workName: project.workName,
         projectName: project.projectName,
         projectDescription: project.projectDescription,
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
+        isShowDescription: false,
+
         quoteDate: {
           date: project.quoteDate,
           timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -238,8 +272,14 @@ export default function QuotesDetail() {
 
       setTax(project.tax ?? null)
       setTaxable(project.taxable)
+      setProjectInfo('quoteDate', {
+        date: project.quoteDate,
+        timezone: project.quoteDateTimezone ?? defaultTimezone,
+      })
     }
-  }, [isProjectLoading])
+  }, [isProjectLoading, statusList, project])
+
+  console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -550,6 +590,7 @@ export default function QuotesDetail() {
         queryClient.invalidateQueries({
           queryKey: ['quotesDetail'],
         })
+        queryClient.invalidateQueries(['quotesList'])
       },
       onError: () => onMutationError(),
     },
@@ -557,6 +598,8 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
+    console.log(projectInfo)
+
     onSave(() => updateProject.mutate(projectInfo))
   }
 
@@ -672,14 +715,22 @@ export default function QuotesDetail() {
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
-          onClick={(status: QuoteStatusType, cancelReason: CancelReasonType) =>
-            updateProject.mutate({ status: status, cancelReason: cancelReason })
+          onClick={(status: number, cancelReason: CancelReasonType) =>
+            updateProject.mutate(
+              { status: status, canceledReason: cancelReason },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
           }
           title='Are you sure you want to cancel this quote?'
           vary='error'
           rightButtonText='Cancel'
           action='Canceled'
           from='lsp'
+          statusList={statusList!}
         />
       ),
     })
@@ -719,6 +770,30 @@ export default function QuotesDetail() {
   function handlePrint() {
     closeModal('DownloadQuotesModal')
     router.push('/quotes/print')
+  }
+
+  const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
+    if (editProject || editItems || editClient || editTeam) {
+      openModal({
+        type: 'EditAlertModal',
+        children: (
+          <EditAlertModal
+            onClose={() => closeModal('EditAlertModal')}
+            onClick={() => {
+              closeModal('EditAlertModal')
+              setMenu(newValue)
+              setEditProject(false)
+              setEditItems(false)
+              setEditClient(false)
+              setEditTeam(false)
+            }}
+          />
+        ),
+      })
+      return
+    }
+
+    setMenu(newValue)
   }
 
   useEffect(() => {
@@ -794,6 +869,30 @@ export default function QuotesDetail() {
     })
   }
 
+  const onClickConfirmQuote = () => {
+    openModal({
+      type: 'ConfirmQuoteModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmQuoteModal')}
+          onClick={() =>
+            updateProject.mutate(
+              { isConfirmed: true, status: 20003 },
+              {
+                onSuccess: () => {
+                  closeModal('CancelQuoteModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to confirm this quote? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
+
   function makePdfData() {
     const pm = team?.find(value => value.position === 'projectManager')
 
@@ -802,7 +901,10 @@ export default function QuotesDetail() {
       adminCompanyName: 'GloZ Inc.',
       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
       corporationId: project?.corporationId ?? '',
-      quoteDate: project?.quoteDate ?? '',
+      quoteDate: {
+        date: project?.quoteDate ?? '',
+        timezone: project?.quoteDateTimezone,
+      },
       projectDueDate: {
         date: project?.projectDueAt ?? '',
         timezone: project?.projectDueTimezone,
@@ -839,6 +941,27 @@ export default function QuotesDetail() {
   useEffect(() => {
     makePdfData()
   }, [project, client])
+
+  const deleteButtonDisabled = () => {
+    if (client?.contactPerson?.userId === null) {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status !== 'Expired')
+      )
+    } else {
+      return (
+        !isDeletable ||
+        (project?.status !== 'New' &&
+          project?.status !== 'In preparation' &&
+          project?.status !== 'Internal review' &&
+          project?.status === 'Expired' &&
+          project?.isConfirmed)
+      )
+    }
+  }
 
   return (
     <Grid container spacing={6}>
@@ -877,6 +1000,81 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
+              {currentRole &&
+              currentRole.name === 'CLIENT' &&
+              (project?.linkedOrder || project?.linkedRequest) ? (
+                <Box>
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    onClick={handleClick}
+                  >
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={anchorEl}
+                    id='customized-menu'
+                    onClose={handleClose}
+                    open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                  >
+                    {project?.linkedRequest ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked requests :
+                        <Link
+                          href={
+                            currentRole && currentRole.name === 'CLIENT'
+                              ? `/quotes/requests/${project?.linkedRequest.id}`
+                              : `/quotes/lpm/requests/${project?.linkedRequest.id}`
+                          }
+                        >
+                          {project?.linkedRequest.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                    {project.linkedOrder ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked order :
+                        <Link
+                          href={`/orders/order-list/detail/${project.linkedOrder.id}`}
+                        >
+                          {project?.linkedOrder.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                  </Menu>
+                </Box>
+              ) : null}
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <QuoteStatusChip
+                  size='small'
+                  label={project?.status ?? '-'}
+                  status={project?.status!}
+                />
+              ) : null}
             </Box>
           </Box>
           {currentRole && currentRole.name === 'CLIENT' ? null : (
@@ -902,6 +1100,7 @@ export default function QuotesDetail() {
               </Button>
               <Button
                 variant='contained'
+                onClick={onClickConfirmQuote}
                 disabled={
                   project?.status !== 'New' &&
                   project?.status !== 'In preparation' &&
@@ -918,7 +1117,7 @@ export default function QuotesDetail() {
       <Grid item xs={12}>
         <TabContext value={menu}>
           <TabList
-            onChange={(e, v) => setMenu(v)}
+            onChange={handleChange}
             aria-label='Quote detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
@@ -987,6 +1186,8 @@ export default function QuotesDetail() {
                   onClickDownloadQuotes={onClickDownloadQuotes}
                   type='detail'
                   updateProject={updateProject}
+                  statusList={statusList!}
+                  project={project!}
                 />
               ) : null}
             </Suspense>
@@ -1005,6 +1206,7 @@ export default function QuotesDetail() {
                         errors={projectInfoErrors}
                         clientTimezone={getClientValue('contacts.timezone')}
                         getClientValue={getClientValue}
+                        getValues={getProjectInfoValues}
                       />
                       {renderSubmitButton({
                         onCancel: () =>
@@ -1026,13 +1228,14 @@ export default function QuotesDetail() {
                         currentRole! &&
                         currentRole.name !== 'CLIENT'
                       }
-                      updateStatus={(status: QuoteStatusType) =>
+                      updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
                       role={currentRole!}
                       client={client}
                       type='detail'
                       updateProject={updateProject}
+                      statusList={statusList!}
                     />
                   </Card>
                   {currentRole && currentRole.name === 'CLIENT' ? null : (
@@ -1044,7 +1247,11 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isUpdatable}
+                            disabled={
+                              !isUpdatable ||
+                              project?.status === 'Changed into order' ||
+                              project?.status === 'Canceled'
+                            }
                             onClick={onClickCancel}
                           >
                             Cancel this quote
@@ -1058,7 +1265,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={!isDeletable}
+                            disabled={deleteButtonDisabled()}
                             onClick={onClickDelete}
                           >
                             Delete this quote
@@ -1100,6 +1307,7 @@ export default function QuotesDetail() {
                     isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
                   }
                   role={currentRole!}
+                  itemTrigger={itemTrigger}
                 />
                 {editItems
                   ? renderSubmitButton({

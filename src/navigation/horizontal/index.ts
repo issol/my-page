@@ -124,9 +124,9 @@ const navigation = (): HorizontalNavItemsType => {
         {
           title: 'Members',
           path: `/company/members`,
-          action: 'update',
+          action: 'read',
           icon: 'material-symbols:person',
-          subject: 'permission_request',
+          subject: 'members',
         },
         {
           title: 'Standard Prices',

@@ -61,7 +61,7 @@ const CalendarContainer = () => {
     [],
   )
 
-  const [currentListId, setCurrentListId] = useState<null | string>(null)
+  const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<QuotesListType>>
   >([])

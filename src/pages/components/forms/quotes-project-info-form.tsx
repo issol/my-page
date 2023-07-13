@@ -57,18 +57,22 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { QuotesProjectInfoFormType } from '@src/types/common/quotes.type'
+import {
+  QuotesProjectInfoAddNewType,
+  QuotesProjectInfoFormType,
+} from '@src/types/common/quotes.type'
 import { AuthContext } from '@src/context/AuthContext'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
-  control: Control<QuotesProjectInfoFormType, any>
-  setValue: UseFormSetValue<QuotesProjectInfoFormType>
-  watch: UseFormWatch<QuotesProjectInfoFormType>
-  errors: FieldErrors<QuotesProjectInfoFormType>
+  control: Control<QuotesProjectInfoAddNewType, any>
+  setValue: UseFormSetValue<QuotesProjectInfoAddNewType>
+  watch: UseFormWatch<QuotesProjectInfoAddNewType>
+  errors: FieldErrors<QuotesProjectInfoAddNewType>
   clientTimezone?: CountryType | undefined
   getClientValue: UseFormGetValues<ClientFormType>
+  getValues: UseFormGetValues<QuotesProjectInfoAddNewType>
 }
 export default function ProjectInfoForm({
   control,
@@ -77,6 +81,7 @@ export default function ProjectInfoForm({
   errors,
   clientTimezone,
   getClientValue,
+  getValues,
 }: Props) {
   const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
@@ -89,8 +94,13 @@ export default function ProjectInfoForm({
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    const formattedMinutes = minutes >= 30 ? 0 : 30
-    const formattedHours = minutes >= 30 ? now.getHours() + 1 : now.getHours()
+    console.log(minutes % 30)
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+    console.log(formattedMinutes)
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes
       .toString()
       .padStart(2, '0')}`
@@ -130,6 +140,16 @@ export default function ProjectInfoForm({
   useEffect(() => {
     onWorkNameInputChange(newWorkName)
   }, [newWorkName])
+
+  useEffect(() => {
+    if (getClientValue() && !getValues('quoteDate.timezone')) {
+      setValue(
+        'quoteDate.timezone',
+        getClientValue('contacts.timezone')!,
+        setValueOptions,
+      )
+    }
+  }, [getClientValue, getValues])
 
   function onWorkNameInputChange(name: string) {
     setWorkNameError(workName?.some(item => item.value === name) || false)

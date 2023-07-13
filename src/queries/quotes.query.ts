@@ -8,7 +8,7 @@ import {
   getQuotesCalendarData,
   getQuotesList,
   getVersionHistory,
-} from '@src/apis/quotes.api'
+} from '@src/apis/quote/quotes.api'
 import { FilterType } from '@src/pages/quotes'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { QuotesFilterType } from '@src/types/quotes/quote'

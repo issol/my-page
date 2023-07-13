@@ -45,6 +45,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   id?: number
@@ -52,7 +53,11 @@ type Props = {
 }
 
 const VersionHistoryModal = ({ id, history }: Props) => {
-  const [value, setValue] = useState<string>('quote')
+  const currentRole = getCurrentRole()
+  const [value, setValue] = useState<string>(
+    currentRole && currentRole.name === 'CLIENT' ? 'quote' : 'project',
+  )
+  const { data: statusList } = useGetStatusList('Quote')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
@@ -69,7 +74,6 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
-  const currentRole = getCurrentRole()
   const { user } = useContext(AuthContext)
 
   useEffect(() => {
@@ -84,7 +88,10 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: projectInfo?.corporationId ?? '',
-        quoteDate: projectInfo?.quoteDate ?? '',
+        quoteDate: {
+          date: projectInfo?.quoteDate ?? '',
+          timezone: projectInfo?.quoteDateTimezone,
+        },
         projectDueDate: {
           date: projectInfo?.projectDueAt ?? '',
           timezone: projectInfo?.projectDueTimezone,
@@ -203,6 +210,8 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 downloadLanguage={downloadLanguage}
                 setDownloadLanguage={setDownloadLanguage}
                 type='history'
+                statusList={statusList!}
+                project={history.projectInfo}
                 // onClickDownloadQuotes={onClickDownloadQuotes}
               />
             ) : null}

@@ -42,6 +42,7 @@ import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
+import { splitPermissionName } from '@src/shared/helpers/role.helper'
 
 interface CellType {
   row: MembersType
@@ -98,13 +99,16 @@ const MemberList = ({
     }
   }
 
-  const handleClose = () => {
+  const handleClose = (e?: any) => {
     setAnchorEl(null)
+    // Menu 밖을 클릭해서 Menu가 닫힌 경우 처리, 로직에 의해서 Menu를 닫은 경우는 제외
+    if (e) setSelectedMember(null)
   }
 
   const handleEditCancel = () => {
     setSelectedMember(null)
     setEditRow(false)
+    setMembers(memberList)
   }
 
   const handleDeleteMember = () => {
@@ -138,11 +142,13 @@ const MemberList = ({
         {
           onSuccess: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
           },
           onError: () => {
             setEditRow(false)
+            setSelectedMember(null)
             setMembers(memberList)
             closeModal('EditSaveMemberModal')
             toast.error('Something went wrong. Please try again.', {
@@ -153,7 +159,7 @@ const MemberList = ({
       )
     }
 
-    // setSelectedMember(null)
+    setSelectedMember(null)
   }
 
   const onClickEditSave = () => {
@@ -264,10 +270,15 @@ const MemberList = ({
       role: string[]
     },
   ) => {
+    const addRole = () => {
+      if (role.includes('LPM')) return [role, 'TAD-General']
+      else if (role.includes('TAD')) return ['LPM-General', role]
+      else return [role]
+    }
     setMembers(prevState =>
       prevState.map(value => ({
         ...value,
-        role: value.id === user.id ? ['LPM', 'TAD'] : value.role,
+        role: value.id === user.id ? addRole() : value.role,
       })),
     )
   }
@@ -376,13 +387,14 @@ const MemberList = ({
       sortable: false,
       disableColumnMenu: true,
       renderCell: ({ row }: CellType) => {
+        const splitPermission = row.role.map(item => splitPermissionName(item))
         return (
 
           <Typography noWrap variant='body2'>
             {
-              row.permission.every(val => val === row.permission[0])
-              ? row.permission[0]
-              : row.permission.join(' / ')
+              splitPermission.every(val => val === splitPermission[0])
+              ? splitPermission[0]
+              : splitPermission.join(' / ')
             }
           </Typography>
         )
@@ -447,7 +459,7 @@ const MemberList = ({
           elevation={8}
           anchorEl={anchorEl}
           id='customized-menu'
-          onClose={handleClose}
+          onClose={(e) => handleClose(e)}
           open={Boolean(anchorEl)}
           anchorOrigin={{
             vertical: 'bottom',
