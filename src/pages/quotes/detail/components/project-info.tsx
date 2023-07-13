@@ -237,7 +237,7 @@ export default function QuotesProjectInfoDetail({
                           project.status === 'Revision requested'
                             ? 'Requested'
                             : project.status,
-                          project.canceledReason,
+                          project.reason,
                         )
                       }
                     >

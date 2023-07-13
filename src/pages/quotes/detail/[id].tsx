@@ -145,7 +145,7 @@ export type updateProjectInfoType =
   | ClientPostType
   | { tax: null | number; taxable: boolean }
   | { status: number }
-  | { status: number; canceledReason: CancelReasonType }
+  | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
 
 export default function QuotesDetail() {
@@ -715,9 +715,9 @@ export default function QuotesDetail() {
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
-          onClick={(status: number, cancelReason: CancelReasonType) =>
+          onClick={(status: number, reason: CancelReasonType) =>
             updateProject.mutate(
-              { status: status, canceledReason: cancelReason },
+              { status: status, reason: reason },
               {
                 onSuccess: () => {
                   closeModal('CancelQuoteModal')

@@ -261,7 +261,7 @@ export const patchQuoteProjectInfo = async (
     | ClientFormType
     | { status: number }
     | { tax: null | number; taxable: boolean }
-    | { status: number; canceledReason: CancelReasonType }
+    | { status: number; reason: CancelReasonType }
     | { downloadedAt: string }
     | { isConfirmed: boolean },
 ) => {

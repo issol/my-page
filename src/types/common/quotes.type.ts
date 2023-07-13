@@ -110,7 +110,7 @@ export type ProjectInfoType = {
   tax: number | null
   taxable: boolean
   isConfirmed: boolean
-  canceledReason: CancelReasonType | null
+  reason: CancelReasonType | null
   linkedOrder: {
     id: number
     corporationId: string

@@ -56,14 +56,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRequestRevision = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, canceledReason: cancelReason },
+        { status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -72,14 +69,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRejectQuote = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  const handleRejectQuote = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, canceledReason: cancelReason },
+        { status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
