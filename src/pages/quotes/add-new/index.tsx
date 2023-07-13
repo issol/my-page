@@ -81,6 +81,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export type languageType = {
   id: number | string
@@ -113,6 +114,7 @@ export default function AddNewQuotes() {
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+  const [isWarn, setIsWarn] = useState(true)
 
   const { openModal, closeModal } = useModal()
 
@@ -404,7 +406,23 @@ export default function AddNewQuotes() {
     })
   }
 
+  const onClickSaveQuote = () => {
+    openModal({
+      type: 'SaveQuoteModal',
+      children: (
+        <CustomModal
+          onClick={onSubmit}
+          onClose={() => closeModal('SaveQuoteModal')}
+          title='Are you sure you want to create this quote?'
+          vary='successful'
+          rightButtonText='Save'
+        />
+      ),
+    })
+  }
+
   function onSubmit() {
+    setIsWarn(false)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -502,7 +520,7 @@ export default function AddNewQuotes() {
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/quotes',
   })
 
@@ -759,7 +777,7 @@ export default function AddNewQuotes() {
                   disabled={
                     !isItemValid && getProjectInfoValues('taxable') && !tax
                   }
-                  onClick={onSubmit}
+                  onClick={onClickSaveQuote}
                 >
                   Save
                 </Button>
