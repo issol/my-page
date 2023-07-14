@@ -25,3 +25,10 @@ export type SortType =
   | 'quoteRegisteredDate'
   | 'quoteDeadline'
   | 'expiryDate'
+
+export type ReasonType = {
+  from: 'client' | 'lsp'
+  reason: string
+  message: string
+  type: 'canceled' | 'rejected' | 'revision-request'
+}

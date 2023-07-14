@@ -3,6 +3,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '../orders/order-detail'
+import { ReasonType } from '../quotes/quote'
 import { CancelReasonType } from '../requests/detail.type'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
@@ -110,7 +111,7 @@ export type ProjectInfoType = {
   tax: number | null
   taxable: boolean
   isConfirmed: boolean
-  reason: CancelReasonType | null
+  reason: ReasonType | null
   linkedOrder: {
     id: number
     corporationId: string

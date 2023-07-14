@@ -38,6 +38,7 @@ import { updateProjectInfoType } from '../[id]'
 import { update } from 'lodash'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -83,16 +84,13 @@ export default function QuotesProjectInfoDetail({
     >
   >([])
 
-  const onClickReason = (
-    status: string,
-    canceledReason: CancelReasonType | null,
-  ) => {
+  const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
       children: (
         <ReasonModal
           onClose={() => closeModal(`${status}ReasonModal`)}
-          canceledReason={canceledReason}
+          reason={reason}
           type={status}
           vary='info'
         />
@@ -232,14 +230,17 @@ export default function QuotesProjectInfoDetail({
                     project.status === 'Rejected' ||
                     project.status === 'Canceled') && (
                     <IconButton
-                      onClick={() =>
-                        onClickReason(
-                          project.status === 'Revision requested'
-                            ? 'Requested'
-                            : project.status,
-                          project.reason,
-                        )
-                      }
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
                     >
                       <img
                         src='/images/icons/onboarding-icons/more-reason.svg'

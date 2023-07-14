@@ -18,19 +18,20 @@ import Icon from 'src/@core/components/icon'
 import AlertIcon from '../alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ca } from 'date-fns/locale'
+import { ReasonType } from '@src/types/quotes/quote'
 type Props = {
   onClose: any
 
   type: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
-  canceledReason: CancelReasonType | null
+  reason: ReasonType | null
 }
 export default function ReasonModal({
   onClose,
 
   type,
   vary,
-  canceledReason,
+  reason,
 }: Props) {
   return (
     <Box
@@ -76,7 +77,7 @@ export default function ReasonModal({
                 {type}&nbsp; reason
               </Typography>
               <Typography variant='body1'>
-                {canceledReason ? canceledReason?.reason : '-'}
+                {reason ? reason?.reason : '-'}
               </Typography>
             </Box>
             <Box
@@ -88,14 +89,14 @@ export default function ReasonModal({
               }}
             >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message {canceledReason?.from === 'lsp' ? 'from' : 'to'} LSP
+                Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP
               </Typography>
               <Typography
                 variant='body2'
                 fontSize={16}
                 sx={{ whiteSpace: 'pre-line !important' }}
               >
-                {canceledReason ? canceledReason?.message : '-'}
+                {reason ? reason?.message : '-'}
               </Typography>
             </Box>
           </Box>
