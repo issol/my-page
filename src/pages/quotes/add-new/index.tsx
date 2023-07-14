@@ -472,20 +472,20 @@ export default function AddNewQuotes() {
 
     console.log(stepOneData)
 
-    // createQuotesInfo(stepOneData)
-    //   .then(res => {
-    //     if (res.id) {
-    //       Promise.all([
-    //         createLangPairForQuotes(res.id, langs),
-    //         createItemsForQuotes(res.id, items),
-    //       ])
-    //         .then(() => {
-    //           router.push(`/quotes/detail/${res.id}`)
-    //         })
-    //         .catch(e => onRequestError())
-    //     }
-    //   })
-    //   .catch(e => onRequestError())
+    createQuotesInfo(stepOneData)
+      .then(res => {
+        if (res.id) {
+          Promise.all([
+            createLangPairForQuotes(res.id, langs),
+            createItemsForQuotes(res.id, items),
+          ])
+            .then(() => {
+              router.push(`/quotes/detail/${res.id}`)
+            })
+            .catch(e => onRequestError())
+        }
+      })
+      .catch(e => onRequestError())
   }
 
   function onRequestError() {
