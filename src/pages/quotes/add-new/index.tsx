@@ -470,20 +470,22 @@ export default function AddNewQuotes() {
       requestId: requestId ?? null,
     }
 
-    createQuotesInfo(stepOneData)
-      .then(res => {
-        if (res.id) {
-          Promise.all([
-            createLangPairForQuotes(res.id, langs),
-            createItemsForQuotes(res.id, items),
-          ])
-            .then(() => {
-              router.push(`/quotes/detail/${res.id}`)
-            })
-            .catch(e => onRequestError())
-        }
-      })
-      .catch(e => onRequestError())
+    console.log(stepOneData)
+
+    // createQuotesInfo(stepOneData)
+    //   .then(res => {
+    //     if (res.id) {
+    //       Promise.all([
+    //         createLangPairForQuotes(res.id, langs),
+    //         createItemsForQuotes(res.id, items),
+    //       ])
+    //         .then(() => {
+    //           router.push(`/quotes/detail/${res.id}`)
+    //         })
+    //         .catch(e => onRequestError())
+    //     }
+    //   })
+    //   .catch(e => onRequestError())
   }
 
   function onRequestError() {
@@ -497,6 +499,7 @@ export default function AddNewQuotes() {
       supervisorId: undefined,
       member: [],
     }
+    console.log(data.teams)
 
     data.teams.forEach(item => {
       if (item.type === 'supervisorId') {
@@ -509,7 +512,7 @@ export default function AddNewQuotes() {
         if (!item.id) {
           result.member = []
         } else {
-          result?.member?.push(item.id!)
+          result?.member?.push(Number(item.id!))
         }
       }
     })
