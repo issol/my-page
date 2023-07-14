@@ -44,16 +44,15 @@ import {
 } from '@src/queries/payment/client-payment.query'
 import {
   deleteClientPaymentFile,
-  updateClientBillingAddress,
   uploadClientPaymentFile,
 } from '@src/apis/payment/client-payment.api'
-import { useGetCompanyInfo } from '@src/queries/company/company-info.query'
 
 // ** context
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
 
 import { client } from '@src/shared/const/permission-class'
+import { updateClientAddress } from '@src/apis/client.api'
 
 type Props = {
   clientId: number
@@ -76,7 +75,6 @@ export default function PaymentInfo({ clientId }: Props) {
 
   const { data: fileList } = useGetClientPaymentFile(clientId)
   const { data: billingAddress } = useGetClientBillingAddress(clientId)
-  const { data: companyInfo, refetch } = useGetCompanyInfo(user?.company!)
 
   const {
     control,
@@ -166,8 +164,7 @@ export default function PaymentInfo({ clientId }: Props) {
   }
 
   const updateBillingaddress = useMutation(
-    (form: ClientAddressType) =>
-      updateClientBillingAddress(companyInfo?.id!, form),
+    (form: ClientAddressType) => updateClientAddress({ data: [form] }),
     {
       onSuccess: () => {
         toast.success('Success', {
@@ -182,7 +179,7 @@ export default function PaymentInfo({ clientId }: Props) {
   function onSaveBillingAddress() {
     const data = getValues()
     setEditAddress(false)
-    updateBillingaddress.mutate(data)
+    updateBillingaddress.mutate({ ...data, id: billingAddress?.id! })
   }
 
   function resetBillingAddressForm() {

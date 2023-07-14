@@ -57,21 +57,6 @@ export const deleteClientPaymentInfo = async (
   }
 }
 
-export const updateClientBillingAddress = async (
-  clientId: string,
-  form: ClientAddressType,
-): Promise<ClientAddressType | undefined> => {
-  try {
-    const { data } = await axios.put(
-      `/api/enough/u/company/address?companyId=${clientId}`,
-      { data: [form] },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 export const getClientBillingAddress = async (
   clientId: number,
 ): Promise<ClientAddressType | undefined> => {
