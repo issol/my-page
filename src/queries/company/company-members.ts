@@ -9,7 +9,7 @@ import {
   ResponseRequestsType,
   SignUpRequestsType,
 } from 'src/types/company/members'
-import { filterRole, sortRole } from '@src/shared/helpers/role-helper'
+import { filterRole, sortRole } from '@src/shared/helpers/role.helper'
 export const useGetSignUpRequests = (ability: boolean) => {
   return useQuery(
     'signup-requests',

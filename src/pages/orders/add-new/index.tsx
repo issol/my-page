@@ -763,6 +763,7 @@ export default function AddNewOrder() {
                   getPriceOptions={getPriceOptions}
                   priceUnitsList={priceUnitsList || []}
                   type='create'
+                  itemTrigger={itemTrigger}
                 />
               </Grid>
               <Grid item xs={12}>

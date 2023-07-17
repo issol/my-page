@@ -42,7 +42,7 @@ import toast from 'react-hot-toast'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
-import { splitPermissionName } from '@src/shared/helpers/role-helper'
+import { splitPermissionName } from '@src/shared/helpers/role.helper'
 
 interface CellType {
   row: MembersType
@@ -99,8 +99,10 @@ const MemberList = ({
     }
   }
 
-  const handleClose = () => {
+  const handleClose = (e?: any) => {
     setAnchorEl(null)
+    // Menu 밖을 클릭해서 Menu가 닫힌 경우 처리, 로직에 의해서 Menu를 닫은 경우는 제외
+    if (e) setSelectedMember(null)
   }
 
   const handleEditCancel = () => {
@@ -457,7 +459,7 @@ const MemberList = ({
           elevation={8}
           anchorEl={anchorEl}
           id='customized-menu'
-          onClose={handleClose}
+          onClose={(e) => handleClose(e)}
           open={Boolean(anchorEl)}
           anchorOrigin={{
             vertical: 'bottom',

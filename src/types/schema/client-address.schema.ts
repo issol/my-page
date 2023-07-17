@@ -11,6 +11,7 @@ export type ClientAddressFormType = {
 
 export type AddressType = 'billing' | 'shipping' | 'additional'
 export type ClientAddressType = {
+  id?: number
   addressType?: AddressType
   name?: string | null
   baseAddress?: string | null //street1

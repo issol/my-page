@@ -37,6 +37,8 @@ import { UseMutationResult } from 'react-query'
 import { updateProjectInfoType } from '../[id]'
 import { update } from 'lodash'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -82,14 +84,13 @@ export default function QuotesProjectInfoDetail({
     >
   >([])
 
-  const onClickReason = (status: string) => {
+  const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
       children: (
         <ReasonModal
           onClose={() => closeModal(`${status}ReasonModal`)}
-          messageToUser=''
-          reason=''
+          reason={reason}
           type={status}
           vary='info'
         />
@@ -173,7 +174,7 @@ export default function QuotesProjectInfoDetail({
           </Grid>
 
           <Grid item xs={6}>
-            <LabelContainer>
+            <LabelContainer style={{ height: '40px' }}>
               <CustomTypo fontWeight={600}>Quote date</CustomTypo>
               <CustomTypo variant='body2'>
                 {FullDateHelper(project.quoteDate)}
@@ -184,7 +185,17 @@ export default function QuotesProjectInfoDetail({
           <Grid item xs={6}>
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
-              {isUpdatable ? (
+              {isUpdatable &&
+              project.status !== 'Quote sent' &&
+              project.status !== 'Client review' &&
+              project.status !== 'Revision requested' &&
+              project.status !== 'Under revision' &&
+              project.status !== 'Revised' &&
+              project.status !== 'Accepted' &&
+              project.status !== 'Changed into order' &&
+              project.status !== 'Expired' &&
+              project.status !== 'Rejected' &&
+              project.status !== 'Canceled' ? (
                 <Autocomplete
                   autoHighlight
                   fullWidth
@@ -215,25 +226,28 @@ export default function QuotesProjectInfoDetail({
                     label={project.status}
                     status={project.status}
                   />
-                  {role.name === 'CLIENT' &&
-                    (project.status === 'Revision requested' ||
-                      project.status === 'Rejected' ||
-                      project.status === 'Canceled') && (
-                      <IconButton
-                        onClick={() =>
+                  {(project.status === 'Revision requested' ||
+                    project.status === 'Rejected' ||
+                    project.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        project.reason &&
                           onClickReason(
-                            project.status === 'Revision requested'
+                            project.reason.type === 'revision-request'
                               ? 'Requested'
-                              : project.status,
+                              : project.reason.type.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
                           )
-                        }
-                      >
-                        <img
-                          src='/images/icons/onboarding-icons/more-reason.svg'
-                          alt='more'
-                        />
-                      </IconButton>
-                    )}
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
+                  )}
                 </Box>
               )}
             </LabelContainer>

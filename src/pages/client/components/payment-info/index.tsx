@@ -44,7 +44,6 @@ import {
 } from '@src/queries/payment/client-payment.query'
 import {
   deleteClientPaymentFile,
-  updateClientBillingAddress,
   uploadClientPaymentFile,
 } from '@src/apis/payment/client-payment.api'
 
@@ -53,6 +52,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
 
 import { client } from '@src/shared/const/permission-class'
+import { updateClientAddress } from '@src/apis/client.api'
 
 type Props = {
   clientId: number
@@ -75,47 +75,6 @@ export default function PaymentInfo({ clientId }: Props) {
 
   const { data: fileList } = useGetClientPaymentFile(clientId)
   const { data: billingAddress } = useGetClientBillingAddress(clientId)
-
-  // const fileList: FileItemType[] = [
-  //   {
-  //     filePath: '7686/resume/pro-task디테일.png',
-  //     fileName: 'pro-task디테일',
-  //     fileExtension: 'png',
-  //     fileSize: 200,
-  //     url: 'https://enough-upload-dev.gloground.com/7686/resume/pro-task%E1%84%83%E1%85%B5%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?Expires=1687169890&Key-Pair-Id=K3KY6G7GJ7W3IB&Signature=Et3zazpLpZtRRSmn4YBzhuL~Fx2Hwo7SuXaeFUeydpGxVkwHUAM~wZ3-dD7Z09g2syNWNvSNnL2IiVFBGOGV9jifUeScvK3sjkgQw48AKR9UCYKP9L7q3MTkWSSs-a97XNeLFaF~yXH6sZlpJw0y9vOmHJ10cmu~Uq7R9bY91qKd45GhDmdIOirH-cYI~BkjRrqSyy8kXDMhI03Gdyt6NoX4gaXwgZhUAbwA8YGfJiQjyXiHWtrFHM-ROWOTzJFrutIqGrnBbQaTNFORazK~eHKtFbVqumTgUvV~0LovacDbyLHjLvxynC3OZw7tcR4MGcguHdw0xk84ZJCtsbrdfw__',
-  //   },
-  //   {
-  //     url: '',
-  //     filePath: 'sdfsdf',
-  //     fileName: 'test2',
-  //     fileSize: 400,
-  //     fileExtension: 'pdf',
-  //   },
-  //   {
-  //     url: '',
-  //     filePath: 'wrer',
-  //     fileName: 'test2',
-  //     fileExtension: 'pdf',
-  //   },
-  //   {
-  //     url: '',
-  //     filePath: 'vsdf',
-  //     fileName: 'test2',
-  //     fileExtension: 'pdf',
-  //   },
-  //   {
-  //     url: '',
-  //     filePath: 'vvdsdf',
-  //     fileName: 'test2',
-  //     fileExtension: 'pdf',
-  //   },
-  //   {
-  //     url: '',
-  //     filePath: 'sfdfd',
-  //     fileName: 'test2',
-  //     fileExtension: 'pdf',
-  //   },
-  // ]
 
   const {
     control,
@@ -205,7 +164,7 @@ export default function PaymentInfo({ clientId }: Props) {
   }
 
   const updateBillingaddress = useMutation(
-    (form: ClientAddressType) => updateClientBillingAddress(clientId, form),
+    (form: ClientAddressType) => updateClientAddress({ data: [form] }),
     {
       onSuccess: () => {
         toast.success('Success', {
@@ -219,12 +178,14 @@ export default function PaymentInfo({ clientId }: Props) {
 
   function onSaveBillingAddress() {
     const data = getValues()
-    updateBillingaddress.mutate(data)
+    setEditAddress(false)
+    updateBillingaddress.mutate({ ...data, id: billingAddress?.id! })
   }
 
   function resetBillingAddressForm() {
     if (billingAddress) {
       reset({
+        addressType: 'billing',
         baseAddress: billingAddress?.baseAddress ?? '',
         detailAddress: billingAddress?.detailAddress ?? '',
         city: billingAddress?.city ?? '',

@@ -280,13 +280,18 @@ export default function QuotesList({
         rowCount={list.totalCount ?? 0}
         loading={isLoading}
         onCellClick={params => {
-          if (params.row.status === 'Under revision') return
+          if (role.name === 'CLIENT' && params.row.status === 'Under revision')
+            return
           router.push(`/quotes/detail/${params.row.id}`)
         }}
         getRowClassName={params =>
-          params.row.status === 'Under revision' ? 'disabled' : 'normal'
+          role.name === 'CLIENT' && params.row.status === 'Under revision'
+            ? 'disabled'
+            : 'normal'
         }
-        isRowSelectable={params => params.row.status !== 'Accepted'}
+        isRowSelectable={params =>
+          role.name === 'CLIENT' && params.row.status !== 'Under revision'
+        }
         rowsPerPageOptions={[10, 25, 50]}
         pagination
         page={skip}

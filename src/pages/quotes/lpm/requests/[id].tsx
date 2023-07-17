@@ -50,6 +50,8 @@ import { AuthContext } from '@src/context/AuthContext'
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { FileType } from '@src/types/common/file.type'
 import { RequestStatusType } from '@src/types/requests/common.type'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -69,6 +71,7 @@ export default function RequestDetail() {
   const isCreatable = ability.can('create', User)
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.QUOTE_SAMPLE_FILE
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     setAnchorEl(event.currentTarget)
@@ -419,10 +422,8 @@ export default function RequestDetail() {
                     Sample files
                   </Typography>
                   <Typography variant='body2'>
-                    {Math.round(fileSize / 100) / 10 > 1000
-                      ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                      : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                    /2 gb
+                    {formatFileSize(fileSize)}
+                    / {byteToGB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 {!data?.sampleFiles?.length ? (

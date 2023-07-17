@@ -57,22 +57,6 @@ export const deleteClientPaymentInfo = async (
   }
 }
 
-/* TODO: endpoint, method변경될 수 있음 */
-export const updateClientBillingAddress = async (
-  clientId: number,
-  form: ClientAddressType,
-): Promise<ClientAddressType | undefined> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/u/client/${clientId}/address?type=billing`,
-      form,
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 export const getClientBillingAddress = async (
   clientId: number,
 ): Promise<ClientAddressType | undefined> => {
@@ -129,7 +113,7 @@ export const uploadClientPaymentFile = async (
 ): Promise<void> => {
   try {
     const { data } = await axios.post(
-      `/api/enough/u/client/payment-info/${clientId}/upload-file`,
+      `/api/enough/u/client/payment-info/upload-file?clientId=${clientId}`,
       file,
     )
     return data

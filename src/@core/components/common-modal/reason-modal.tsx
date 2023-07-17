@@ -16,19 +16,22 @@ import { AddRoleType } from 'src/types/onboarding/list'
 import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 import AlertIcon from '../alert-icon'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ca } from 'date-fns/locale'
+import { ReasonType } from '@src/types/quotes/quote'
 type Props = {
   onClose: any
-  messageToUser: string
-  reason: string
+
   type: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  reason: ReasonType | null
 }
 export default function ReasonModal({
   onClose,
-  messageToUser,
-  reason,
+
   type,
   vary,
+  reason,
 }: Props) {
   return (
     <Box
@@ -61,7 +64,7 @@ export default function ReasonModal({
             justifyContent: 'center',
             flexDirection: 'column',
             alignItems: 'center',
-            gap: '8px',
+            mb: '8px',
           }}
         >
           <AlertIcon type={vary} />
@@ -74,18 +77,26 @@ export default function ReasonModal({
                 {type}&nbsp; reason
               </Typography>
               <Typography variant='body1'>
-                {reason === '' || !reason ? '-' : reason}
+                {reason ? reason?.reason : '-'}
               </Typography>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '5px',
+                minHeight: '96px',
+              }}
+            >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message to Pro
+                Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP
               </Typography>
               <Typography
-                variant='body1'
+                variant='body2'
+                fontSize={16}
                 sx={{ whiteSpace: 'pre-line !important' }}
               >
-                {messageToUser === '' || !messageToUser ? '-' : messageToUser}
+                {reason ? reason?.message : '-'}
               </Typography>
             </Box>
           </Box>

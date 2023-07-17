@@ -1,6 +1,9 @@
 import { Box, Button, Card, Grid, Switch, Typography } from '@mui/material'
 import PrintQuotePage from './pdf-download/quote-preview'
-import { QuoteDownloadData } from '@src/types/common/quotes.type'
+import {
+  ProjectInfoType,
+  QuoteDownloadData,
+} from '@src/types/common/quotes.type'
 import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
@@ -24,6 +27,7 @@ type Props = {
     unknown
   >
   statusList: { value: number; label: string }[]
+  project: ProjectInfoType
 }
 
 const ClientQuote = ({
@@ -35,6 +39,7 @@ const ClientQuote = ({
   type,
   updateProject,
   statusList,
+  project,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -51,14 +56,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRequestRevision = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, cancelReason: cancelReason },
+        { status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -67,14 +69,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRejectQuote = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  const handleRejectQuote = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, cancelReason: cancelReason },
+        { status: status, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
@@ -209,6 +208,12 @@ const ClientQuote = ({
               <Button
                 variant='contained'
                 fullWidth
+                disabled={
+                  project.status !== 'New' &&
+                  project.status !== 'Under review' &&
+                  project.status !== 'Rejected' &&
+                  project.status !== 'Expired'
+                }
                 onClick={onClickAcceptQuote}
               >
                 Accept this quote
@@ -216,6 +221,13 @@ const ClientQuote = ({
               <Button
                 variant='outlined'
                 fullWidth
+                color='secondary'
+                disabled={
+                  project.status !== 'New' &&
+                  project.status !== 'Under review' &&
+                  project.status !== 'Rejected' &&
+                  project.status !== 'Expired'
+                }
                 onClick={() => onClickAction('Request revision')}
               >
                 Request revision
@@ -223,6 +235,7 @@ const ClientQuote = ({
               <Button
                 variant='outlined'
                 fullWidth
+                color='secondary'
                 onClick={onClickDownloadQuotes}
               >
                 Download quote
@@ -231,6 +244,12 @@ const ClientQuote = ({
                 variant='outlined'
                 color='error'
                 fullWidth
+                disabled={
+                  project.status !== 'New' &&
+                  project.status !== 'Under review' &&
+                  project.status !== 'Rejected' &&
+                  project.status !== 'Expired'
+                }
                 onClick={() => onClickAction('Rejected')}
               >
                 Reject this quote

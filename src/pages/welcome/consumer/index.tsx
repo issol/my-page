@@ -81,7 +81,11 @@ import {
   postFiles,
   uploadFileToS3,
 } from 'src/apis/common.api'
+
+// ** helpers
 import logger from '@src/@core/utils/logger'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -133,7 +137,7 @@ const PersonalInfoPro = () => {
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
-  const MAXIMUM_FILE_SIZE = 50000000
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.PRO_RESUME
 
   const languageList = getGloLanguage()
 
@@ -1207,12 +1211,7 @@ const PersonalInfoPro = () => {
                     ) : null}
 
                     <Typography variant='body2'>
-                      {Math.round(fileSize / 100) / 10 > 1000
-                        ? `${(Math.round(fileSize / 100) / 10000).toFixed(
-                            1,
-                          )} mb`
-                        : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                      /50mb
+                      {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
 
                     <Divider />

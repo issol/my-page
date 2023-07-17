@@ -88,7 +88,10 @@ const VersionHistoryModal = ({ id, history }: Props) => {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: projectInfo?.corporationId ?? '',
-        quoteDate: projectInfo?.quoteDate ?? '',
+        quoteDate: {
+          date: projectInfo?.quoteDate ?? '',
+          timezone: projectInfo?.quoteDateTimezone,
+        },
         projectDueDate: {
           date: projectInfo?.projectDueAt ?? '',
           timezone: projectInfo?.projectDueTimezone,
@@ -208,6 +211,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
                 setDownloadLanguage={setDownloadLanguage}
                 type='history'
                 statusList={statusList!}
+                project={history.projectInfo}
                 // onClickDownloadQuotes={onClickDownloadQuotes}
               />
             ) : null}
