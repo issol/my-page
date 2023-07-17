@@ -4,6 +4,7 @@ export const TADMenu = [
   'Certification Test',
   'Pros',
   'Company',
+  'My page',
 ]
 
 export const LPMMenu = [

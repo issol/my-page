@@ -29,7 +29,6 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
 // import { setCurrentRole } from '@src/store/permission'
 import { setCurrentRole, getCurrentRole } from 'src/shared/auth/storage'
-import { current } from '@reduxjs/toolkit'
 
 interface Props {
   settings: Settings

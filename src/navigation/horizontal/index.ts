@@ -18,6 +18,22 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/mypage/pro`,
     },
     {
+      title:'My page',
+      icon: 'mdi:account-circle',
+      action: 'read',
+      subject: 'my_page',
+
+      children: [
+        {
+          title: 'Notification Center',
+          path: '/my-page/notification-center',
+          action: 'read',
+          subject: 'my_page',
+          icon: 'mdi:account-circle',
+        },
+      ],
+    }
+    {
       title: 'Pros',
       icon: 'ic:baseline-people-outline',
       action: 'read',
