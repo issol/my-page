@@ -19,6 +19,7 @@ import Header from '../components/header'
 import FallbackSpinner from '@src/@core/components/spinner'
 import MyAccount from './components/my-account'
 import MyPageOverview from './components/overview'
+import ProPaymentInfo from './components/payment-info'
 
 // ** apis
 import { useGetMyOverview } from '@src/queries/pro/pro-details.query'
@@ -87,7 +88,11 @@ export default function ProMyPage() {
               <MyPageOverview userInfo={userInfo!} user={user!} />
             </Suspense>
           </TabPanel>
-          <TabPanel value='paymentInfo'>payment info</TabPanel>
+          <TabPanel value='paymentInfo'>
+            <Suspense fallback={<FallbackSpinner />}>
+              <ProPaymentInfo userInfo={userInfo!} user={user!} />
+            </Suspense>
+          </TabPanel>
           <TabPanel value='myAccount'>
             <Suspense fallback={<FallbackSpinner />}>
               <MyAccount user={user!} />

@@ -38,7 +38,7 @@ import {
 import {
   clientPaymentInitialData,
   getPaymentMethodSchema,
-} from '@src/types/schema/payment-method'
+} from '@src/types/schema/payment-method/client'
 
 // ** third parties
 import { yupResolver } from '@hookform/resolvers/yup'

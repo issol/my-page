@@ -10,8 +10,10 @@ export type ClientAddressFormType = {
 }
 
 export type AddressType = 'billing' | 'shipping' | 'additional'
-export type ClientAddressType = {
-  id?: number
+
+//** 서버에서 받아오는 데이터는 T=number, form에서는 T=string으로 사용하기 */
+export type ClientAddressType<T extends string | number = string> = {
+  id?: T
   addressType?: AddressType
   name?: string | null
   baseAddress?: string | null //street1

@@ -87,7 +87,7 @@ type Props = {
 /* TODO
 1. file upload
 2. file delete
-3. off day post, delete, update
+3. off delete, update
 4. userInfo update : profile, experience, notes, specialties
 */
 export default function MyPageOverview({ user, userInfo }: Props) {
@@ -437,6 +437,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       <Grid container spacing={6}>
         <Grid
           item
+          xs={12}
           md={12}
           lg={3}
           display='flex'
@@ -581,7 +582,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
         <Grid item xs={12} md={12} lg={9}>
           <Grid container spacing={6}>
             {/* Resume */}
-            <Grid item md={6} lg={6}>
+            <Grid item xs={6} md={6} lg={6}>
               <Card sx={{ padding: '24px', paddingBottom: '2px' }}>
                 <FileInfo
                   title='Resume'
@@ -606,7 +607,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               </Card>
             </Grid>
             {/* Years of experience */}
-            <Grid item md={6} lg={6}>
+            <Grid item md={6} lg={6} xs={6}>
               <Card sx={{ padding: '24px' }}>
                 <CardHeader
                   title={
