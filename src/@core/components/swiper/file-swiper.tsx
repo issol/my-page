@@ -78,22 +78,17 @@ const FileSwiper = ({
                 </IconButton>
               )}
 
-              <Box
-                display='flex'
-                flexDirection='column'
-                alignItems='center'
-                className=''
-              >
+              <Box display='flex' flexDirection='column' alignItems='center'>
                 <img
                   src={`/images/icons/file-icons/${value?.fileExtension}-file.svg`}
                   alt='file'
-                  width={60}
+                  width={40}
                 />
                 <FileName
                   onClick={() => onFileClick(value)}
-                  title='download file'
+                  title={value?.fileName}
                 >
-                  {value?.fileName}
+                  <Title>{value?.fileName}</Title>
                 </FileName>
               </Box>
             </FileContainer>
@@ -156,15 +151,12 @@ const FileContainer = styled(Box)`
 
 const FileName = styled(Button)`
   width: 100%;
-  cursor: pointer;
-  font-family: Inter;
+  display: block;
+`
+const Title = styled(Typography)`
   font-style: normal;
   font-weight: 400;
   font-size: 12px;
-  // line-height: 14px;
-
-  text-align: center;
-  letter-spacing: 0.4px;
 
   color: rgba(76, 78, 100, 0.6);
 
