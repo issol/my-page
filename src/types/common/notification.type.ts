@@ -25,13 +25,24 @@ export type NotificationType = {
     | 'Request'
   connectedLink?: string
   isRead: boolean
+  entityCorporationId: string
   userName: string
   after: {
-    corporationId: string
-    id: number
+    corporationId?: string
+    status?: string
+    id?: number
+    firstName?: string
+    lastName?: string
+    middleName?: string
+    version?: number
   } | null
   before: {
-    corporationId: string
-    id: number
+    corporationId?: string
+    status?: string
+    id?: number
+    firstName?: string
+    lastName?: string
+    middleName?: string
+    version?: number
   } | null
 }

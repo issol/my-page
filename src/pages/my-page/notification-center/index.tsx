@@ -6,28 +6,60 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetNotificationList } from '@src/queries/notification.query'
 import NotificationList from './components/list'
 import { AuthContext } from '@src/context/AuthContext'
+import { useMutation, useQueryClient } from 'react-query'
+import { markAllAsRead, markAsRead } from '@src/apis/notification.api'
+import { useRouter } from 'next/router'
 
 const initialFilter: NotificationCenterFilterType = {
   category: [],
   search: '',
   duration: '',
-  isShowUnread: 0,
+  isRead: 0,
   take: 10,
   skip: 0,
 }
 
 const NotificationCenter = () => {
+  const router = useRouter()
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] =
     useState<NotificationCenterFilterType>(initialFilter)
   const [activeFilter, setActiveFilter] =
     useState<NotificationCenterFilterType>(initialFilter)
 
+  const queryClient = useQueryClient()
+
   const {
     data: notifications,
     refetch,
     isLoading,
-  } = useGetNotificationList(filter)
+  } = useGetNotificationList(activeFilter)
+
+  const markAsReadMutation = useMutation((ids: number[]) => markAsRead(ids), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['page-gnb'])
+      refetch()
+    },
+  })
+
+  const markAllAsReadMutation = useMutation(() => markAllAsRead(), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['page-gnb'])
+      refetch()
+    },
+  })
+  const onClickMarkAllAsRead = () => {
+    markAllAsReadMutation.mutate()
+  }
+
+  const onClickNotification = (id: number, url: string, isRead: boolean) => {
+    console.log(isRead)
+
+    !isRead && markAsReadMutation.mutate([id])
+    if (url !== '') {
+      router.push(`/${url}`)
+    }
+  }
 
   const { user } = useContext(AuthContext)
 
@@ -77,11 +109,11 @@ const NotificationCenter = () => {
         <Box display='flex' alignItems='center' gap='4px'>
           <Typography>See only unread</Typography>
           <Switch
-            checked={activeFilter.isShowUnread === 1}
+            checked={activeFilter.isRead === 1}
             onChange={e =>
               setActiveFilter({
                 ...activeFilter,
-                isShowUnread: e.target.checked ? 1 : 0,
+                isRead: e.target.checked ? 1 : 0,
               })
             }
           />
@@ -91,7 +123,7 @@ const NotificationCenter = () => {
         <Suspense>
           <NotificationList
             list={notifications?.data ?? []}
-            count={notifications?.count ?? 0}
+            count={notifications?.totalCount ?? 0}
             isLoading={isLoading}
             user={user!}
             pageSize={activeFilter.take}
@@ -106,6 +138,8 @@ const NotificationCenter = () => {
             setPageSize={(n: number) =>
               setActiveFilter({ ...activeFilter, take: n })
             }
+            onClickMarkAllAsRead={onClickMarkAllAsRead}
+            onClickNotification={onClickNotification}
           />
         </Suspense>
       </Grid>

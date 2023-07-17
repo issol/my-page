@@ -26,7 +26,7 @@ export const getNotificationList = async (
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/notification?${makeQuery(filter)}`,
+      `/api/enough/u/notification/unread?${makeQuery(filter)}`,
     )
 
     const isLast =
@@ -43,11 +43,36 @@ export const getNotificationList = async (
   }
 }
 
+export const getNotificationCenterList = async (
+  filter: NotificationCenterFilterType,
+): Promise<{ data: Array<NotificationType>; totalCount: number }> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/notification?${makeQuery(filter)}`,
+    )
+
+    return data
+  } catch (e: any) {
+    return {
+      data: [],
+      totalCount: 0,
+    }
+  }
+}
+
 export const markAsRead = async (id: number[]) => {
   try {
     await axios.patch(`/api/enough/u/notification`, {
       notificationId: id,
     })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const markAllAsRead = async () => {
+  try {
+    await axios.patch(`/api/enough/u/notification/setAllRead`)
   } catch (e: any) {
     throw new Error(e)
   }

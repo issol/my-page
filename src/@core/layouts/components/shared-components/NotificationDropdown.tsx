@@ -51,10 +51,17 @@ import {
   useMutation,
   UseMutationResult,
 } from 'react-query'
-import { getNotificationList, markAsRead } from '@src/apis/notification.api'
+import {
+  getNotificationList,
+  markAllAsRead,
+  markAsRead,
+} from '@src/apis/notification.api'
 
 import { useInView } from 'react-intersection-observer'
 import { CircularProgress } from '@mui/material'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import useInterval from '@src/hooks/useInterval'
+import { transformMessage } from '@src/shared/transformer/notification-message'
 
 interface Props {
   settings: Settings
@@ -119,17 +126,20 @@ const Avatar = styled(CustomAvatar)<CustomAvatarProps>({
 // ** Styled component for the title in MenuItems
 const MenuItemTitle = styled(Typography)<TypographyProps>(({ theme }) => ({
   fontWeight: 600,
+  width: '100%',
   flex: '1 1 100%',
   overflow: 'hidden',
   fontSize: '0.875rem',
-  whiteSpace: 'nowrap',
-  textOverflow: 'ellipsis',
+  wordWrap: 'break-word',
+  whiteSpace: 'pre-line',
+  lineHeight: '20px',
+
   marginBottom: theme.spacing(0.75),
 }))
 
 // ** Styled component for the subtitle in MenuItems
 const MenuItemSubtitle = styled(Typography)<TypographyProps>({
-  flex: '1 1 100%',
+  // flex: '1 1 100%',
   overflow: 'hidden',
   whiteSpace: 'nowrap',
   textOverflow: 'ellipsis',
@@ -168,6 +178,8 @@ const NotificationDropdown = (props: Props) => {
 
   // ** Hook
   const hidden = useMediaQuery((theme: Theme) => theme.breakpoints.down('lg'))
+
+  const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
   const { user } = useContext(AuthContext)
 
@@ -182,34 +194,36 @@ const NotificationDropdown = (props: Props) => {
     isError,
     refetch,
   } = useInfiniteQuery(
-    ['page'],
+    ['page-gnb'],
     ({ pageParam = 0 }) =>
       getNotificationList(pageParam, {
         skip: pageParam * 6,
         take: 6,
-        isShowUnread: 0,
+        isRead: 1,
       }),
     {
       suspense: true,
+      refetchInterval: 600000,
+      refetchIntervalInBackground: true,
+      refetchOnMount: 'always',
+      refetchOnWindowFocus: 'always',
       getNextPageParam: (lastPage, allPosts) => {
         if (!lastPage.isLast) return lastPage.page + 1
-
-        // return lastPage.data.length !== allPosts[0].totalCount
-        //   ? lastPage.page + 1
-        //   : undefined
       },
       retry: false,
     },
   )
 
-  const markAllAsReadMutation = useMutation(
-    (ids: number[]) => markAsRead(ids),
-    {
-      onSuccess: () => {
-        refetch()
-      },
+  const markAsReadMutation = useMutation((ids: number[]) => markAsRead(ids), {
+    onSuccess: () => {
+      refetch()
     },
-  )
+  })
+  const markAllAsReadMutation = useMutation(() => markAllAsRead(), {
+    onSuccess: () => {
+      refetch()
+    },
+  })
 
   // ** Vars
   const { direction } = settings
@@ -224,12 +238,13 @@ const NotificationDropdown = (props: Props) => {
 
   const onClickNotification = (id: number, url: string) => {
     // TODO id로 해당 notification read로 만들어주기
-    router.push(url)
+    handleDropdownClose()
+    markAsReadMutation.mutate([id])
+    router.push(`/${url}`)
   }
 
   const onClickMarkAllAsRead = () => {
-    // const ids = notifications.data.map(item => item.id)
-    // markAllAsReadMutation.mutate(ids)
+    markAllAsReadMutation.mutate()
   }
 
   const onClickGotoNotificationCenter = () => {
@@ -237,29 +252,11 @@ const NotificationDropdown = (props: Props) => {
     router.push('/my-page/notification-center')
   }
 
-  console.log(notifications)
-
   useEffect(() => {
     if (inView) {
       fetchNextPage()
     }
   }, [inView])
-
-  // if (isLoading) return <div>Loading...</div>
-  // if (isError) return <div>Error...</div>
-
-  const transformMessage = (notification: NotificationType) => {
-    const { type, action, before, after } = notification
-    switch (type) {
-      case 'Quote': {
-        switch (action) {
-          case 'deleted': {
-            return `${before?.corporationId} quote has been deleted`
-          }
-        }
-      }
-    }
-  }
 
   return (
     <>
@@ -348,8 +345,13 @@ const NotificationDropdown = (props: Props) => {
               </Box>
             </MenuItem>
 
-            <Box sx={{ maxHeight: 344, overflow: 'scroll' }}>
-              {notifications.pages &&
+            <Box
+              sx={{
+                maxHeight: 344,
+                overflow: 'auto',
+              }}
+            >
+              {notifications.pages && notifications.pages[0].data.length ? (
                 notifications?.pages.map(
                   (page: { data: NotificationType[] }) => {
                     return page.data.map(
@@ -357,6 +359,7 @@ const NotificationDropdown = (props: Props) => {
                         return (
                           <MenuItem
                             key={index}
+                            sx={{ padding: '0 !important' }}
                             onClick={() =>
                               onClickNotification(
                                 item.id,
@@ -369,12 +372,14 @@ const NotificationDropdown = (props: Props) => {
                                 width: '100%',
                                 display: 'flex',
                                 alignItems: 'center',
+                                gap: '10px',
                               }}
                             >
                               <Box
                                 sx={{
                                   display: 'flex',
-                                  alignItems: 'center',
+
+                                  padding: '15px 0 15px 20px',
                                 }}
                               >
                                 <img
@@ -386,17 +391,18 @@ const NotificationDropdown = (props: Props) => {
                               </Box>
                               <Box
                                 sx={{
-                                  mx: 4,
-                                  flex: '1 1',
+                                  // // flex: '1 1',
+                                  maxWidth: 282,
                                   display: 'flex',
-                                  overflow: 'hidden',
+                                  // overflow: 'hidden',
                                   flexDirection: 'column',
+                                  // border: '1px solid',
                                 }}
                               >
                                 <MenuItemTitle>
                                   {transformMessage(item) ?? '-'}
                                 </MenuItemTitle>
-                                <MenuItemSubtitle variant='body2'>
+                                <MenuItemSubtitle variant='body2' fontSize={12}>
                                   {FullDateTimezoneHelper(
                                     item.createdAt,
                                     user?.timezone,
@@ -409,7 +415,21 @@ const NotificationDropdown = (props: Props) => {
                       },
                     )
                   },
-                )}
+                )
+              ) : (
+                <Box
+                  sx={{
+                    width: '100%',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    padding: '15px 20px',
+                  }}
+                >
+                  <Typography variant='body2'>
+                    No unread notifications.
+                  </Typography>
+                </Box>
+              )}
               {isFetchingNextPage ? (
                 <Box
                   sx={{

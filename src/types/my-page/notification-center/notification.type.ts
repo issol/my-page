@@ -4,5 +4,5 @@ export type NotificationCenterFilterType = {
   search?: string
   take: number
   skip: number
-  isShowUnread?: 0 | 1
+  isRead?: 0 | 1
 }

@@ -142,7 +142,7 @@ const NotificationCenterFilter = ({
                     renderInput={params => (
                       <TextField
                         {...params}
-                        label='Status'
+                        label='Category'
                         // placeholder='Status'
                       />
                     )}
