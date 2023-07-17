@@ -66,7 +66,11 @@ import {
   getUploadUrlforCommon,
   uploadFileToS3,
 } from '@src/apis/common.api'
-import { deleteResume } from '@src/apis/pro/pro-details.api'
+import {
+  deleteResume,
+  updateMyOffDays,
+  updateWeekends,
+} from '@src/apis/pro/pro-details.api'
 import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
 
 // ** value
@@ -206,6 +210,14 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     resolver: yupResolver(offDaySchema),
   })
 
+  const updateOffDay = useMutation(
+    (data: { start: string; end: string; reason?: string }) =>
+      updateMyOffDays(user?.userId!, data.start, data.end, data.reason),
+    {
+      onSuccess: () => invalidateOffDay(),
+      onError: () => onError(),
+    },
+  )
   function onOffDaySave() {
     //TODO: mutation붙이기 + confirm modal
     setEditOffDay(false)
@@ -214,6 +226,19 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       data = { ...data, reason: data.otherReason }
     }
     console.log('data', data)
+    updateOffDay.mutate(data)
+  }
+
+  const updateWeekendsMutation = useMutation(
+    (offOnWeekends: 0 | 1) => updateWeekends(user?.userId!, offOnWeekends),
+    {
+      onSuccess: () => invalidateOffDay(),
+      onError: () => onError(),
+    },
+  )
+
+  function onOffOnWeekendsClick(offOnWeekends: 0 | 1) {
+    updateWeekendsMutation.mutate(offOnWeekends)
   }
 
   function deleteOffDay(id: number) {
@@ -477,6 +502,10 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 {/* TODO: off on weekends값도 서버에 저장하기, 유저 정보에 따라 checked처리 해주기. 나중에 off day받아올 때 쿼리 파라미터로 보내야 함 */}
                 <FormControlLabel
                   label='Off on weekends'
+                  onChange={e => {
+                    //@ts-ignore
+                    onOffOnWeekendsClick(e.target?.checked ? 1 : 0)
+                  }}
                   control={<Checkbox name='Off on weekends' />}
                 />
 
