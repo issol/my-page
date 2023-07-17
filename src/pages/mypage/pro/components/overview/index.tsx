@@ -77,6 +77,7 @@ import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
 import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   userInfo: DetailUserType
@@ -215,17 +216,28 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       updateMyOffDays(user?.userId!, data.start, data.end, data.reason),
     {
       onSuccess: () => invalidateOffDay(),
-      onError: () => onError(),
+      onError: e => {
+        //TODO: 에러코드별 분기처리해주기. 중복인 경우 & 서버에러인 경우
+        openModal({
+          type: 'duplicateOffDay',
+          children: (
+            <SimpleAlertModal
+              message='There is already an unavailable day selected on the chosen date.
+          Please deselect the already chosen date and proceed again.'
+              onClose={() => closeModal('duplicateOffDay')}
+            />
+          ),
+        })
+        // onError()
+      },
     },
   )
   function onOffDaySave() {
-    //TODO: mutation붙이기 + confirm modal
     setEditOffDay(false)
     let data = getOffDayValues()
     if (data?.otherReason) {
       data = { ...data, reason: data.otherReason }
     }
-    console.log('data', data)
     updateOffDay.mutate(data)
   }
 
@@ -238,7 +250,22 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   )
 
   function onOffOnWeekendsClick(offOnWeekends: 0 | 1) {
-    updateWeekendsMutation.mutate(offOnWeekends)
+    openModal({
+      type: 'updateWeekends',
+      children: (
+        <CustomModal
+          vary='error'
+          onClose={() => closeModal('updateWeekends')}
+          onClick={() => updateWeekendsMutation.mutate(offOnWeekends)}
+          rightButtonText='Save'
+          title={
+            offOnWeekends
+              ? 'Are you sure you want to mark yourself as unavailable on weekends?'
+              : 'Are you sure you want to mark yourself as available on weekends?'
+          }
+        />
+      ),
+    })
   }
 
   function deleteOffDay(id: number) {

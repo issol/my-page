@@ -47,32 +47,6 @@ export const getMyOffDays = async (
       `/api/enough/u/pro/${userId}/work-days?year=${year}&month=${month}`,
     )
     return data
-    // return [
-    //   {
-    //     id: 74,
-    //     reason: '내맴',
-    //     start: '2023-07-24',
-    //     end: '2023-07-28',
-    //   },
-    //   {
-    //     //   id: 2,
-    //     reason: '일하기 싫어서',
-    //     start: '2023-07-04',
-    //     end: '2023-07-07',
-    //   },
-    //   {
-    //     id: 75,
-    //     reason: '일하기 싫어서',
-    //     start: '2023-08-01',
-    //     end: '2023-08-03',
-    //   },
-    //   {
-    //     id: 76,
-    //     reason: '일하기 싫어서',
-    //     start: '2023-06-01',
-    //     end: '2023-06-03',
-    //   },
-    // ]
   } catch (e: any) {
     return []
   }
@@ -85,6 +59,7 @@ export const updateMyOffDays = async (
   reason?: string,
 ): Promise<Array<OffDayEventType>> => {
   try {
+    throw new Error({ message: '403' })
     const { data } = await axios.post(
       `/api/enough/u/pro/${userId}/unavailable-day`,
       {
