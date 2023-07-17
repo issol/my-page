@@ -279,7 +279,7 @@ export default function CompanyInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='taxable'
+          name='isTaxable'
           control={control}
           render={({ field: { value, onChange } }) => {
             const findValue = TaxTypeList.find(item => item.value === value)
@@ -301,7 +301,7 @@ export default function CompanyInfoForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    error={Boolean(errors.taxable)}
+                    error={Boolean(errors.isTaxable)}
                     label='Tax type*'
                     placeholder='Tax type*'
                   />
@@ -310,7 +310,7 @@ export default function CompanyInfoForm({
             )
           }}
         />
-        {renderErrorMsg('taxable')}
+        {renderErrorMsg('isTaxable')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -324,9 +324,9 @@ export default function CompanyInfoForm({
                 error={Boolean(errors.tax)}
                 onChange={onChange}
                 label='Tax rate*'
-                disabled={!watch('taxable')}
+                disabled={!watch('isTaxable')}
                 endAdornment={
-                  !watch('taxable') ? null : (
+                  !watch('isTaxable') ? null : (
                     <InputAdornment position='end'>%</InputAdornment>
                   )
                 }
@@ -334,7 +334,7 @@ export default function CompanyInfoForm({
             </FormControl>
           )}
         />
-        {renderErrorMsg('taxable')}
+        {renderErrorMsg('isTaxable')}
       </Grid>
 
       {mode === 'create' ? (

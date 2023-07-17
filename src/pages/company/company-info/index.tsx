@@ -5,6 +5,7 @@ import TabPanel from '@mui/lab/TabPanel'
 import { Box, Card, Tab, Typography, styled } from '@mui/material'
 import Chip from '@src/@core/components/mui/chip'
 import { RoleType } from '@src/context/types'
+import { FileType } from '@src/types/common/file.type'
 import { useGetCompanyInfo } from '@src/queries/company/company-info.query'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import {
@@ -44,6 +45,18 @@ import {
   patchCompanyInfo,
 } from '@src/apis/company/company-info.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import {
+  getUploadUrlforCommon,
+  getDownloadUrlforCommon,
+  uploadFileToS3,
+} from 'src/apis/common.api'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
+
+interface FileProp {
+  name: string
+  type: string
+  size: number
+}
 
 const CompanyInfo = () => {
   const { openModal, closeModal } = useModal()
@@ -56,6 +69,8 @@ const CompanyInfo = () => {
 
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
+  const [file, setFile] = useState<File | null>()
+  const [logoURL, setlogoURL] = useState<string>('/images/company/default-company-logo.svg')
 
   const currentRole = getCurrentRole()
 
@@ -212,9 +227,13 @@ const CompanyInfo = () => {
     if (companyInfo) {
       if (type === 'info') {
         const data = getValues()
+        if(file) {
+          uploadCompanyLogo(file)
+        }
         const res = {
           ...data,
           headquarter: data.headquarter?.value,
+          logo: file ? makeCompanyLogoPath(file.name) : '',
           ceo:
             data.ceo &&
             data.ceo.filter(
@@ -290,6 +309,35 @@ const CompanyInfo = () => {
     idx !== -1 && removeAddress(idx)
   }
 
+  const onClickUploadLogo = (file: File | null) => {
+    if (file) setFile(file)
+    else setFile(null)
+  }
+
+  const uploadCompanyLogo = (file: File) => {
+    const filePath = makeCompanyLogoPath(file.name)
+    getUploadUrlforCommon(S3FileType.COMPANY_LOGO, filePath)
+    .then(res => {
+      uploadFileToS3(res.url, file)
+    })
+  }
+
+  const makeCompanyLogoPath = (fileName: string, company?: string) => {
+    const comp = company ? company : 'GloZ'
+    return `company/${comp}/logo/${fileName}`
+  }
+
+  useEffect(() => {
+    if (companyInfo?.logo) {
+      getDownloadUrlforCommon(S3FileType.COMPANY_LOGO, companyInfo?.logo)
+      .then(res => {
+        setlogoURL(res.url)
+      })
+    } else {
+      setlogoURL('/images/company/default-company-logo.svg')
+    }
+  }, [companyInfo])
+
   useEffect(() => {
     if (companyInfo) {
       reset({
@@ -340,7 +388,10 @@ const CompanyInfo = () => {
   return (
     <Suspense>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <CompanyInfoCard companyInfo={companyInfo!} />
+        <CompanyInfoCard
+          companyInfo={companyInfo!}
+          companyLogoURL={logoURL}
+        />
         <TabContext value={tab}>
           <TabList
             onChange={handleChange}
@@ -376,6 +427,8 @@ const CompanyInfo = () => {
                 onClickSave={onClickSave}
                 onClickAddCeo={onClickAddCeo}
                 onClickDeleteCeo={onClickDeleteCeo}
+                onClickUploadLogo={onClickUploadLogo}
+                companyLogoURL={logoURL}
                 isValid={isValid}
                 isUpdatable={isUpdatable!}
               />

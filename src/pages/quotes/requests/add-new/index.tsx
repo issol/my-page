@@ -60,6 +60,8 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 // ** helpers
 import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
@@ -71,7 +73,7 @@ export default function AddNewRequest() {
   const { openModal, closeModal } = useModal()
 
   // ** file values
-  const MAXIMUM_FILE_SIZE = 2147483648
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.QUOTE_SAMPLE_FILE
 
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
@@ -115,8 +117,8 @@ export default function AddNewRequest() {
       children: (
         <SimpleAlertModal
           message={`The maximum file size you can upload is ${
-            Math.round(MAXIMUM_FILE_SIZE / 100) / 10000
-          }mb.`}
+            byteToGB(MAXIMUM_FILE_SIZE)
+          }.`}
           onClose={() => closeModal('dropReject')}
         />
       ),
@@ -463,10 +465,8 @@ export default function AddNewRequest() {
                 Sample files
               </Typography>
               <Typography variant='body2'>
-                {Math.round(fileSize / 100) / 10 > 1000
-                  ? `${(Math.round(fileSize / 100) / 10000).toFixed(1)} mb`
-                  : `${(Math.round(fileSize / 100) / 10).toFixed(1)} kb`}
-                /2 gb
+                {formatFileSize(fileSize)}
+                / {byteToGB(MAXIMUM_FILE_SIZE)}
               </Typography>
             </Box>
             <div {...getRootProps({ className: 'dropzone' })}>

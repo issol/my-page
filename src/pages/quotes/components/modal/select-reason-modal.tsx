@@ -50,7 +50,7 @@ const SelectReasonModal = ({
   const handleChangeReason = (event: ChangeEvent<HTMLInputElement>) => {
     setReason((event.target as HTMLInputElement).value)
 
-    setMessageToLsp((event.target as HTMLInputElement).value)
+    // setMessageToLsp((event.target as HTMLInputElement).value)
   }
   return (
     <Box

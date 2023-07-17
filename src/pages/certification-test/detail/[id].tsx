@@ -48,6 +48,8 @@ import certification_test from '@src/shared/const/permission-class/certification
 
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 
 type CellType = {
   row: CurrentTestType
@@ -105,6 +107,7 @@ const CertificationTestDetail = () => {
   const permission = new certification_test(data?.currentVersion.userId!)
 
   const versionHistory = data?.versionHistory || []
+  const MAXIMUM_FILE_SIZE = FILE_SIZE.CERTIFICATION_TEST
 
   const deleteMutation = useMutation((id: number) => deleteTest(id), {
     onSuccess: () => {
@@ -228,9 +231,7 @@ const CertificationTestDetail = () => {
               {file.name}
             </Box>
             <Typography variant='body2'>
-              {Math.round(file.size / 100) / 10 > 1000
-                ? `${(Math.round(file.size / 100) / 10000).toFixed(1)} mb`
-                : `${(Math.round(file.size / 100) / 10).toFixed(1)} kb`}
+              {formatFileSize(file.size)}
             </Typography>
           </Grid>
           {/* <Grid item xs={2}>
@@ -567,20 +568,8 @@ const CertificationTestDetail = () => {
                         Test guideline file
                       </Typography>
                       <Typography variant='body2'>
-                        {Math.round(getFileSize(currentVersion?.files) / 100) /
-                          10 >
-                        1000
-                          ? `${(
-                              Math.round(
-                                getFileSize(currentVersion?.files) / 100,
-                              ) / 10000
-                            ).toFixed(1)} mb`
-                          : `${(
-                              Math.round(
-                                getFileSize(currentVersion?.files) / 100,
-                              ) / 10
-                            ).toFixed(1)} kb`}
-                        /50mb
+                        {formatFileSize(getFileSize(currentVersion?.files))}
+                        / {byteToMB(MAXIMUM_FILE_SIZE)}
                       </Typography>
                     </Box>
 
@@ -904,20 +893,8 @@ const CertificationTestDetail = () => {
                       Test guideline file
                     </Typography>
                     <Typography variant='body2'>
-                      {Math.round(getFileSize(currentVersion?.files) / 100) /
-                        10 >
-                      1000
-                        ? `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10000
-                          ).toFixed(1)} mb`
-                        : `${(
-                            Math.round(
-                              getFileSize(currentVersion?.files) / 100,
-                            ) / 10
-                          ).toFixed(1)} kb`}
-                      /50mb
+                      {formatFileSize(getFileSize(currentVersion?.files))}
+                      / {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
 

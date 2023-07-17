@@ -176,6 +176,7 @@ export default function ContactPersons({
       lastName: '',
       timezone: { code: '', label: '', phone: '' },
       email: '',
+      userId: null,
     })
   }
 
@@ -337,7 +338,11 @@ export default function ContactPersons({
         <DialogContent style={{ padding: '50px 60px' }}>
           <Grid container spacing={6}>
             <Grid item xs={12} display='flex' justifyContent='flex-start'>
-              {formMode === 'create' ? <Typography variant='h5'>Add contact person</Typography> : ''}
+              {formMode === 'create' ? (
+                <Typography variant='h5'>Add contact person</Typography>
+              ) : (
+                ''
+              )}
             </Grid>
             <AddContactPersonForm
               fields={fields.length ? [fields[0]] : []}

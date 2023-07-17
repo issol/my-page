@@ -98,7 +98,7 @@ export default function ClientInfo({
       mobile: clientInfo.mobile ?? '',
       fax: clientInfo.fax ?? '',
       websiteLink: clientInfo.websiteLink ?? '',
-      taxable: clientInfo.taxable,
+      isTaxable: clientInfo.isTaxable,
       tax: clientInfo.tax,
     })
   }, [clientInfo])
@@ -262,7 +262,7 @@ export default function ClientInfo({
               Tax type:
             </Typography>
             <TitleTypography variant='body2'>
-              {clientInfo.taxable ? 'Taxable' : 'Non-taxable'}
+              {clientInfo.isTaxable ? 'Taxable' : 'Non-taxable'}
             </TitleTypography>
           </InfoBox>
           <InfoBox>

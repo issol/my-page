@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -21,18 +21,25 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import { QuotesListType } from '@src/types/common/quotes.type'
+import { QuoteStatusType, QuotesListType } from '@src/types/common/quotes.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import {
   ClientQuoteCalendarStatus,
   ClientQuoteStatus,
+  QuotesStatus,
 } from '@src/shared/const/status/statuses'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const CalendarContainer = () => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
+  const { data: statusList } = useGetStatusList('Quote')
+
+  const [statuses, setStatuses] = useState<
+    Array<{ color: string; value: number; label: string }>
+  >([])
 
   // ** Hooks
   const { settings } = useSettings()
@@ -61,10 +68,42 @@ const CalendarContainer = () => {
     [],
   )
 
-  const [currentListId, setCurrentListId] = useState<null | string>(null)
+  const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<QuotesListType>>
   >([])
+
+  function getColor(status: QuoteStatusType) {
+    return status === 'New'
+      ? '#666CFF'
+      : status === 'In preparation'
+      ? `#F572D8`
+      : status === 'Internal review'
+      ? `#20B6E5`
+      : status === 'Client review'
+      ? `#FDB528`
+      : status === 'Expired'
+      ? '#FF4D49'
+      : status === 'Rejected'
+      ? '#FF4D49'
+      : status === 'Accepted'
+      ? '#64C623'
+      : status === 'Changed into order'
+      ? '#1A6BBA'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Under review'
+      ? '#FDB528'
+      : status === 'Revised'
+      ? '#AD7028'
+      : status === 'Revision requested'
+      ? '#A81988'
+      : status === 'Under revision'
+      ? '#26C6F9'
+      : status === 'Quote sent'
+      ? '#2B6603'
+      : ''
+  }
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -79,6 +118,16 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
+
+  useEffect(() => {
+    if (statusList) {
+      const res = statusList.map(value => ({
+        ...value,
+        color: getColor(value.label as QuoteStatusType),
+      }))
+      setStatuses(res)
+    }
+  }, [statusList])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
@@ -101,12 +150,15 @@ const CalendarContainer = () => {
           },
         }}
       >
-        <CalendarStatusSideBar
-          alertIconStatus='Canceled'
-          status={ClientQuoteCalendarStatus}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-        />
+        <Suspense>
+          <CalendarStatusSideBar
+            alertIconStatus='Canceled'
+            status={statuses!}
+            mdAbove={mdAbove}
+            leftSidebarWidth={leftSidebarWidth}
+          />
+        </Suspense>
+
         {/* <CalendarSideBar
           title='Quote status'
           alertIconStatus='Canceled'

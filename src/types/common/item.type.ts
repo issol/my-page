@@ -27,6 +27,7 @@ export type PostItemType = {
   priceId: number | null
   detail?: Array<ItemDetailType>
   description?: string | null
+  isShowItemDescription?: boolean
   analysis?: number[] //file id를 보내기
   totalPrice: number
 }

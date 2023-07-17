@@ -306,6 +306,7 @@ const InvoiceVersionHistoryModal = ({
                 removeItems={removeItems}
                 getTeamValues={getTeamValues}
                 invoiceInfo={history.projectInfo}
+                itemTrigger={itemTrigger}
               />
             </Grid>
           </TabPanel>

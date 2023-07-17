@@ -4,7 +4,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 import { hexToRGBA } from 'src/@core/utils/hex-to-rgba'
 
-import { splitRoleName } from '@src/shared/helpers/role-helper'
+import { splitRoleName } from '@src/shared/helpers/role.helper'
 type Props = {
   user: {
     id: number

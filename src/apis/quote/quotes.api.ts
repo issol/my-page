@@ -77,8 +77,10 @@ function getColor(status: QuoteStatusType) {
     : status === 'Revision requested'
     ? '#A81988'
     : status === 'Under revision'
-    ? '26C6F9'
-    : null
+    ? '#26C6F9'
+    : status === 'Quote sent'
+    ? '#2B6603'
+    : ''
 }
 
 export const getQuotesCalendarData = async (
@@ -261,8 +263,9 @@ export const patchQuoteProjectInfo = async (
     | ClientFormType
     | { status: number }
     | { tax: null | number; taxable: boolean }
-    | { status: number; cancelReason: CancelReasonType }
-    | { downloadedAt: string },
+    | { status: number; reason: CancelReasonType }
+    | { downloadedAt: string }
+    | { isConfirmed: boolean },
 ) => {
   await axios.patch(`/api/enough/u/quote/${id}`, { ...form })
 }

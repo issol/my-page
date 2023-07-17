@@ -181,6 +181,7 @@ export default function ClientQuotesFormContainer({
         ? companyInfo.timezone
         : { code: '', label: '', phone: '' },
       email: '',
+      userId: null,
     })
   }
 
