@@ -59,7 +59,6 @@ export const updateMyOffDays = async (
   reason?: string,
 ): Promise<Array<OffDayEventType>> => {
   try {
-    throw new Error({ message: '403' })
     const { data } = await axios.post(
       `/api/enough/u/pro/${userId}/unavailable-day`,
       {
