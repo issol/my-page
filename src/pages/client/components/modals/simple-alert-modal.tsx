@@ -1,15 +1,21 @@
 import { Box, Button, Typography } from '@mui/material'
-import AlertIcon from '@src/@core/components/alert-icon'
+import AlertIcon, { AlertType } from '@src/@core/components/alert-icon'
 import { SmallModalContainer } from '@src/@core/components/modal'
 import Dialog from '@mui/material/Dialog'
 import { TitleTypography } from '@src/@core/styles/typography'
 
 type Props = {
+  vary?: AlertType
   message: string
   title?: string
   onClose: () => void
 }
-export default function SimpleAlertModal({ message, title, onClose }: Props) {
+export default function SimpleAlertModal({
+  vary = 'error',
+  message,
+  title,
+  onClose,
+}: Props) {
   return (
     <Dialog
       onClose={onClose}
@@ -17,7 +23,7 @@ export default function SimpleAlertModal({ message, title, onClose }: Props) {
       open={true}
     >
       <SmallModalContainer>
-        <AlertIcon type='error' />
+        <AlertIcon type={vary} />
         <Typography variant='body1' textAlign='center' mt='10px'>
           {message}
         </Typography>

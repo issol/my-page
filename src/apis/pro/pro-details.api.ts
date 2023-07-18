@@ -36,45 +36,55 @@ export const getMyOverview = async (
 
   return data
 }
-/* TODO: endpoint 수정하기 */
+
 export const getMyOffDays = async (
   userId: number,
   year: number,
   month: number,
 ): Promise<Array<OffDayEventType>> => {
   try {
-    // const { data } = await axios.get(
-    //   `/api/enough/u/pro/${userId}/work-days?year=${year}`,
-    // )
-    // return data
-    return [
-      {
-        id: 74,
-        reason: '내맴',
-        start: '2023-07-24',
-        end: '2023-07-28',
-      },
-      {
-        //   id: 2,
-        reason: '일하기 싫어서',
-        start: '2023-07-04',
-        end: '2023-07-07',
-      },
-      {
-        id: 75,
-        reason: '일하기 싫어서',
-        start: '2023-08-01',
-        end: '2023-08-03',
-      },
-      {
-        id: 76,
-        reason: '일하기 싫어서',
-        start: '2023-06-01',
-        end: '2023-06-03',
-      },
-    ]
+    const { data } = await axios.get(
+      `/api/enough/u/pro/${userId}/work-days?year=${year}&month=${month}`,
+    )
+    return data
   } catch (e: any) {
     return []
+  }
+}
+
+export const updateMyOffDays = async (
+  userId: number,
+  start: string,
+  end: string,
+  reason?: string,
+): Promise<Array<OffDayEventType>> => {
+  try {
+    const { data } = await axios.post(
+      `/api/enough/u/pro/${userId}/unavailable-day`,
+      {
+        start,
+        end,
+        reason,
+      },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateWeekends = async (
+  userId: number,
+  offOnWeekends: 0 | 1,
+): Promise<Array<OffDayEventType>> => {
+  try {
+    const { data } = await axios.put(
+      `/api/enough/u/pro/${userId}/off-weekends`,
+      { offOnWeekends },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }
 

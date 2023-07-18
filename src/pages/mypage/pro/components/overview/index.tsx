@@ -61,13 +61,23 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { toast } from 'react-hot-toast'
 
 // ** api
-import { getDownloadUrlforCommon } from '@src/apis/common.api'
-import { deleteResume } from '@src/apis/pro/pro-details.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
+import {
+  deleteResume,
+  updateMyOffDays,
+  updateWeekends,
+} from '@src/apis/pro/pro-details.api'
 import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
 
 // ** value
 import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
+import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
   userInfo: DetailUserType
@@ -77,7 +87,7 @@ type Props = {
 /* TODO
 1. file upload
 2. file delete
-3. off day post, delete, update
+3. off delete, update
 4. userInfo update : profile, experience, notes, specialties
 */
 export default function MyPageOverview({ user, userInfo }: Props) {
@@ -201,14 +211,61 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     resolver: yupResolver(offDaySchema),
   })
 
+  const updateOffDay = useMutation(
+    (data: { start: string; end: string; reason?: string }) =>
+      updateMyOffDays(user?.userId!, data.start, data.end, data.reason),
+    {
+      onSuccess: () => invalidateOffDay(),
+      onError: e => {
+        //TODO: 에러코드별 분기처리해주기. 중복인 경우 & 서버에러인 경우
+        openModal({
+          type: 'duplicateOffDay',
+          children: (
+            <SimpleAlertModal
+              message='There is already an unavailable day selected on the chosen date.
+          Please deselect the already chosen date and proceed again.'
+              onClose={() => closeModal('duplicateOffDay')}
+            />
+          ),
+        })
+        // onError()
+      },
+    },
+  )
   function onOffDaySave() {
-    //TODO: mutation붙이기 + confirm modal
     setEditOffDay(false)
     let data = getOffDayValues()
     if (data?.otherReason) {
       data = { ...data, reason: data.otherReason }
     }
-    console.log('data', data)
+    updateOffDay.mutate(data)
+  }
+
+  const updateWeekendsMutation = useMutation(
+    (offOnWeekends: 0 | 1) => updateWeekends(user?.userId!, offOnWeekends),
+    {
+      onSuccess: () => invalidateOffDay(),
+      onError: () => onError(),
+    },
+  )
+
+  function onOffOnWeekendsClick(offOnWeekends: 0 | 1) {
+    openModal({
+      type: 'updateWeekends',
+      children: (
+        <CustomModal
+          vary='error'
+          onClose={() => closeModal('updateWeekends')}
+          onClick={() => updateWeekendsMutation.mutate(offOnWeekends)}
+          rightButtonText='Save'
+          title={
+            offOnWeekends
+              ? 'Are you sure you want to mark yourself as unavailable on weekends?'
+              : 'Are you sure you want to mark yourself as available on weekends?'
+          }
+        />
+      ),
+    })
   }
 
   function deleteOffDay(id: number) {
@@ -265,47 +322,28 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   }
 
   function uploadFiles(files: File[]) {
-    // if (files.length) {
-    //   const fileInfo: Array<FilePostType> = []
-    //   const paths: string[] = files?.map(file =>
-    //     //TODO: 보낼 값은 백엔드에 문의하기
-    //     // getFilePath(
-    //     //   [
-    //     //     data.client.value,
-    //     //     data.category.value,
-    //     //     data.serviceType.value,
-    //     //     'V1',
-    //     //   ],
-    //     //   file.name,
-    //     // ),
-    //   )
-    //   const promiseArr = paths.map((url, idx) => {
-    //     return getUploadUrlforCommon(S3FileType.CLIENT_PAYMENT, url).then(
-    //       res => {
-    //         fileInfo.push({
-    //           name: files[idx].name,
-    //           size: files[idx]?.size,
-    //           fileUrl: url,
-    //         })
-    //         return uploadFileToS3(res.url, files[idx])
-    //       },
-    //     )
-    //   })
-    //   Promise.all(promiseArr)
-    //     .then(res => {
-    //       //TODO: mutation함수 추가하기
-    //       // finalValue.files = fileInfo
-    //       // guidelineMutation.mutate(finalValue)
-    //     })
-    //     .catch(err =>
-    //       toast.error(
-    //         'Something went wrong while uploading files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     )
-    // }
+    if (files?.length) {
+      const promiseArr = files.map((file, idx) => {
+        return getUploadUrlforCommon(
+          S3FileType.RESUME,
+          getResumeFilePath(user?.id as number, file.name),
+        ).then(res => {
+          return uploadFileToS3(res.url, file)
+        })
+      })
+      Promise.all(promiseArr)
+        .then(res => {
+          invalidateUserInfo()
+        })
+        .catch(err => {
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
+    }
   }
 
   const deleteResumeMutation = useMutation(
@@ -399,6 +437,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       <Grid container spacing={6}>
         <Grid
           item
+          xs={12}
           md={12}
           lg={3}
           display='flex'
@@ -491,6 +530,10 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 {/* TODO: off on weekends값도 서버에 저장하기, 유저 정보에 따라 checked처리 해주기. 나중에 off day받아올 때 쿼리 파라미터로 보내야 함 */}
                 <FormControlLabel
                   label='Off on weekends'
+                  onChange={e => {
+                    //@ts-ignore
+                    onOffOnWeekendsClick(e.target?.checked ? 1 : 0)
+                  }}
                   control={<Checkbox name='Off on weekends' />}
                 />
 
@@ -536,10 +579,10 @@ export default function MyPageOverview({ user, userInfo }: Props) {
           </Card>
         </Grid>
 
-        <Grid item xs={9}>
+        <Grid item xs={12} md={12} lg={9}>
           <Grid container spacing={6}>
             {/* Resume */}
-            <Grid item md={6} lg={6}>
+            <Grid item xs={6} md={6} lg={6}>
               <Card sx={{ padding: '24px', paddingBottom: '2px' }}>
                 <FileInfo
                   title='Resume'
@@ -564,7 +607,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               </Card>
             </Grid>
             {/* Years of experience */}
-            <Grid item md={6} lg={6}>
+            <Grid item md={6} lg={6} xs={6}>
               <Card sx={{ padding: '24px' }}>
                 <CardHeader
                   title={

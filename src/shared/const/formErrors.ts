@@ -10,6 +10,7 @@ export const FormErrors = {
   checkbox: 'Field must be checked',
   passwordLength: '9-20 characters',
   passwordRegexCase: 'Uppercase and lowercase characters',
+  passwordDoesntMatch: 'Password doesn’t match',
   passwordRegexSpecialChar: 'At least one number and special character',
   invalidNumber: 'Invalid number',
   invalidCardNumber: 'Only numbers and special characters are allowed',

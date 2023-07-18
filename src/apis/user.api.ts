@@ -80,3 +80,27 @@ export const resetPassword = async (params: {
 
   return data
 }
+
+/* TODO: endpoint, method 수정하기 */
+export const changePassword = async (userId: number, password: string) => {
+  try {
+    const { data } = await axios.put('/api/enough/u/pw/reset/save')
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* TODO: endpoint, method 수정하기 */
+export const deleteAccount = async (userId: number) => {
+  // try {
+  //   const { data } = await axios.put('/api/enough/u/pw/reset/save')
+  // } catch (e: any) {
+  //   throw new Error(e)
+  // }
+  const errorData = {
+    jobIds: ['jobId1', 'jobId2', 'jobId2', 'jobId2'],
+    totalPrice: 100,
+    currency: 'USD',
+  }
+  throw new Error(JSON.stringify(errorData))
+}

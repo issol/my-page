@@ -56,7 +56,7 @@ const FileSwiper = ({
       setLoaded(true)
     },
   })
-
+  console.log('files', files)
   return (
     <>
       <Box className='navigation-wrapper'>

@@ -26,11 +26,20 @@ type Props = {
   setMonth: Dispatch<SetStateAction<number>>
   onEventClick?: (type: 'edit' | 'delete', info: OffDayEventType) => void
   showToolbar: boolean
+  showReason?: boolean
 }
 
 const WorkDaysCalendar = (props: Props) => {
   // ** Props
-  const { event, year, month, setYear, setMonth, showToolbar } = props
+  const {
+    event,
+    year,
+    month,
+    setYear,
+    setMonth,
+    showToolbar,
+    showReason = false,
+  } = props
   const cYear = new Date().getFullYear()
   const cMonth = new Date().getMonth() + 1
   const isEditDisabled = (cYear === year && cMonth > month) || cYear > year
@@ -39,12 +48,8 @@ const WorkDaysCalendar = (props: Props) => {
     return {
       ...item,
       overlap: false,
-      //   display: 'inverse-background',
       display: 'background',
-      //   title: item.reason,
       end: addOneDay(item.end),
-      //   color:
-      //     'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)),#72E128',
       color: '#777777',
     }
   })
@@ -100,7 +105,7 @@ const WorkDaysCalendar = (props: Props) => {
       const eventEl = info.el
       const reason = info?.event?._def?.extendedProps?.reason
 
-      if (!reason) return
+      if (!reason || !showReason) return
       // 툴팁 엘리먼트 생성 및 위치 설정
       const tooltip = document.createElement('div')
       tooltip.className = 'tooltip'
