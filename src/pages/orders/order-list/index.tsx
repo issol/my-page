@@ -1,4 +1,4 @@
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 import styled from 'styled-components'
 
@@ -23,16 +23,21 @@ import OrdersList from './list/list'
 import { AuthContext } from '@src/context/AuthContext'
 import { useRouter } from 'next/router'
 import OrderListCalendar from './calendar'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetClientList } from '@src/queries/client.query'
 
 export type FilterType = {
   orderDate: Date[]
   projectDueDate: Date[]
   revenueFrom?: Array<{ label: string; value: string }>
 
-  status: Array<{ label: string; value: string }>
-  client: Array<{ label: string; value: string }>
+  status: Array<{ label: string; value: number }>
+  client: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
+
+  lsp?: Array<{ label: string; value: number }>
 
   search: string
 }
@@ -40,7 +45,6 @@ export type FilterType = {
 const defaultValues: FilterType = {
   orderDate: [],
   projectDueDate: [],
-  revenueFrom: [],
   status: [],
   client: [],
   category: [],
@@ -60,12 +64,12 @@ const defaultFilters: OrderListFilterType = {
   orderDateTo: '',
   projectDueDateFrom: '',
   projectDueDateTo: '',
-  revenueFrom: [],
 }
 
 type MenuType = 'list' | 'calendar'
 
 export default function OrderList() {
+  const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
   const { user } = useContext(AuthContext)
@@ -78,8 +82,20 @@ export default function OrderList() {
   const [filters, setFilters] = useState<OrderListFilterType>(defaultFilters)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
+  const [clientList, setClientList] = useState<
+    {
+      label: string
+      value: number
+    }[]
+  >([])
 
   const { data: orderList, isLoading } = useGetOrderList(filters)
+  const { data: clients, isLoading: clientListLoading } = useGetClientList({
+    take: 1000,
+    skip: 0,
+  })
+
+  const currentRole = getCurrentRole()
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,
@@ -102,7 +118,7 @@ export default function OrderList() {
     setHideCompletedOrders(event.target.checked)
     setFilters(prevState => ({
       ...prevState,
-      hideCompletedOrders: event.target.checked ? '1' : '0',
+      hideCompletedOrders: event.target.checked ? 1 : 0,
     }))
   }
 
@@ -111,7 +127,7 @@ export default function OrderList() {
 
     setFilters(prevState => ({
       ...prevState,
-      mine: event.target.checked ? '1' : '0',
+      mine: event.target.checked ? 1 : 0,
     }))
   }
 
@@ -125,19 +141,20 @@ export default function OrderList() {
       serviceType,
       category,
       search,
+      lsp,
     } = data
 
     const filter: OrderListFilterType = {
       revenueFrom: revenueFrom?.map(value => value.value) ?? [],
       status: status.map(value => value.value),
-      client: client.map(value => value.value),
+      client: client.map(value => value.label),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       orderDateFrom: orderDate[0]?.toISOString() ?? '',
       orderDateTo: orderDate[1]?.toISOString() ?? '',
       projectDueDateFrom: projectDueDate[0]?.toISOString() ?? '',
       projectDueDateTo: projectDueDate[1]?.toISOString() ?? '',
-
+      lsp: lsp?.map(value => value.label),
       search: search,
       take: orderListRowsPerPage,
       skip: orderListRowsPerPage * orderListPage,
@@ -147,6 +164,16 @@ export default function OrderList() {
 
     setFilters(filter)
   }
+
+  useEffect(() => {
+    if (clients && !clientListLoading) {
+      const res = clients.data.map(client => ({
+        label: client.name,
+        value: client.clientId,
+      }))
+      setClientList(res)
+    }
+  }, [clients, clientListLoading])
 
   return (
     <Box display='flex' flexDirection='column' sx={{ pb: '64px' }}>
@@ -190,6 +217,9 @@ export default function OrderList() {
               setServiceTypeList={setServiceTypeList}
               categoryList={categoryList}
               setCategoryList={setCategoryList}
+              clientList={clientList}
+              statusList={statusList!}
+              role={currentRole!}
             />
             <Box
               sx={{
@@ -222,10 +252,11 @@ export default function OrderList() {
               setFilters={setFilters}
               isCardHeader={true}
               handleRowClick={handleRowClick}
+              role={currentRole!}
             />
           </Box>
         ) : (
-          <OrderListCalendar user={user!} />
+          <OrderListCalendar />
         )}
       </Box>
     </Box>

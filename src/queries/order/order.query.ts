@@ -28,11 +28,15 @@ export const useGetOrderListInJob = (filter: OrderListFilterType) => {
   })
 }
 
-export const useGetOrderListCalendar = (year: number, month: number) => {
+export const useGetOrderListCalendar = (
+  year: number,
+  month: number,
+  filter: OrderListFilterType,
+) => {
   return useQuery(
     ['get-client-invoices-calendar', year, month],
     () => {
-      return getOrderListCalendar(year, month)
+      return getOrderListCalendar(year, month, filter)
     },
     {
       suspense: true,
