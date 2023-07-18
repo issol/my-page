@@ -1,3 +1,6 @@
+import { Fragment, useState } from 'react'
+
+// ** style components
 import {
   Box,
   Button,
@@ -6,32 +9,23 @@ import {
   FormControlLabel,
   Grid,
   Radio,
-  RadioGroup,
+  Switch,
   Typography,
 } from '@mui/material'
 import styled from 'styled-components'
+
+// ** types & schemas
 import {
   BankInfo,
   BillingMethodUnionType,
   CorrespondentBankInfo,
+  KoreaDomesticTransferSoloType,
+  KoreaDomesticTransferType,
   PayPalType,
   ProPaymentType,
   TransferWiseFormType,
   proPaymentMethodPairs,
 } from '@src/types/payment-info/pro/billing-method.type'
-import { Fragment } from 'react'
-import TransferWiseForm from './transfer-wise-form'
-import PaypalForm from './paypal-form'
-import {
-  Control,
-  Controller,
-  FieldErrors,
-  UseFormGetValues,
-  UseFormSetValue,
-  UseFormWatch,
-  useForm,
-} from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 import {
   billingMethodInitialData,
   getBillingMethodSchema,
@@ -42,11 +36,33 @@ import {
   corrBankInfoDefaultValue,
   corrBankInfoSchema,
 } from '@src/types/schema/payment-method/pro/bank-info.schema'
+
+// ** components
+import TransferWiseForm from './transfer-wise-form'
+import PaypalForm from './paypal-form'
 import CorresPondentBankInfoForm from './correspondent-bank-info-form'
 import BankInfoForm from './bank-info-form'
-import useModal from '@src/hooks/useModal'
 import SaveModal from '@src/pages/company/components/price/price-units/modal/save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+
+// ** react hook form
+import {
+  Control,
+  Controller,
+  FieldErrors,
+  UseFormGetValues,
+  UseFormSetValue,
+  UseFormWatch,
+  useForm,
+} from 'react-hook-form'
+
+// ** third parties
+import { yupResolver } from '@hookform/resolvers/yup'
+
+// ** hooks
+import useModal from '@src/hooks/useModal'
+import KoreaDomesticForm from './korea-domestic-form'
+import KoreaDomesticSoloForm from './korea-domestic-solo-form'
 
 type Props = {
   billingMethod: ProPaymentType | null
@@ -62,6 +78,8 @@ export default function BillingMethod({
 }: Props) {
   const { openModal, closeModal } = useModal()
 
+  const [isSolo, setIsSolo] = useState(false)
+
   function renderLabel(label: string) {
     const regex = /^(.+?)(\(.+?\))$/
     const match = label.match(regex)
@@ -69,10 +87,22 @@ export default function BillingMethod({
     if (match) {
       const title = match[1].trim()
       const subtitle = match[2].trim().slice(1, -1)
+
       return (
         <Box display='flex' flexDirection='column'>
           <Typography>{title}</Typography>
           <Typography variant='body2'>({subtitle})</Typography>
+          {label.includes('국내계좌이체') ? (
+            <FormControlLabel
+              control={
+                <Switch
+                  checked={isSolo}
+                  onChange={e => setIsSolo(e.target.checked)}
+                />
+              }
+              label='I’m a Solo proprietor'
+            />
+          ) : null}
         </Box>
       )
     } else {
@@ -89,10 +119,10 @@ export default function BillingMethod({
   } = useForm<BillingMethodUnionType>({
     mode: 'onChange',
     defaultValues: {
-      ...billingMethodInitialData(billingMethod),
+      ...billingMethodInitialData(billingMethod, isSolo),
       billingMethod,
     },
-    resolver: yupResolver(getBillingMethodSchema(billingMethod)),
+    resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
   })
 
   const {
@@ -265,6 +295,114 @@ export default function BillingMethod({
               <Button
                 variant='contained'
                 disabled={!isValid}
+                onClick={() => onBillingMethodSaveClick()}
+              >
+                Save
+              </Button>
+            </Grid>
+          </Grid>
+        )
+      case 'koreaDomesticTransfer':
+        if (isSolo)
+          return (
+            <Grid container spacing={6} mt='4px'>
+              <KoreaDomesticSoloForm
+                control={control as Control<KoreaDomesticTransferSoloType, any>}
+                getValues={
+                  getValues as UseFormGetValues<KoreaDomesticTransferSoloType>
+                }
+                setValue={
+                  setValue as UseFormSetValue<KoreaDomesticTransferSoloType>
+                }
+                errors={errors as FieldErrors<KoreaDomesticTransferSoloType>}
+              />
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              {/* Bank info */}
+              <Grid item xs={12}>
+                <Typography fontWeight={600}>Bank info.</Typography>
+              </Grid>
+              <BankInfoForm control={bankInfoControl} errors={bankInfoErrors} />
+
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
+              <Grid item xs={12}>
+                <Typography fontWeight={600}>
+                  Correspondent bank info.
+                </Typography>
+              </Grid>
+
+              <CorresPondentBankInfoForm
+                control={corrBankInfoControl}
+                errors={corrBankInfoErrors}
+              />
+              <Grid
+                item
+                xs={12}
+                display='flex'
+                justifyContent='center'
+                gap='16px'
+              >
+                <Button variant='outlined' color='secondary' onClick={onCancel}>
+                  Cancel
+                </Button>
+                <Button
+                  variant='contained'
+                  disabled={
+                    !isValid || !isBankInfoValid || !isCorrBankInfoValid
+                  }
+                  onClick={() => onBillingMethodSaveClick()}
+                >
+                  Save
+                </Button>
+              </Grid>
+            </Grid>
+          )
+        return (
+          <Grid container spacing={6} mt='4px'>
+            <KoreaDomesticForm
+              control={control as Control<KoreaDomesticTransferType, any>}
+              getValues={
+                getValues as UseFormGetValues<KoreaDomesticTransferType>
+              }
+              setValue={setValue as UseFormSetValue<KoreaDomesticTransferType>}
+              errors={errors as FieldErrors<KoreaDomesticTransferType>}
+            />
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            {/* Bank info */}
+            <Grid item xs={12}>
+              <Typography fontWeight={600}>Bank info.</Typography>
+            </Grid>
+            <BankInfoForm control={bankInfoControl} errors={bankInfoErrors} />
+
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Typography fontWeight={600}>Correspondent bank info.</Typography>
+            </Grid>
+
+            <CorresPondentBankInfoForm
+              control={corrBankInfoControl}
+              errors={corrBankInfoErrors}
+            />
+            <Grid
+              item
+              xs={12}
+              display='flex'
+              justifyContent='center'
+              gap='16px'
+            >
+              <Button variant='outlined' color='secondary' onClick={onCancel}>
+                Cancel
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!isValid || !isBankInfoValid || !isCorrBankInfoValid}
                 onClick={() => onBillingMethodSaveClick()}
               >
                 Save
