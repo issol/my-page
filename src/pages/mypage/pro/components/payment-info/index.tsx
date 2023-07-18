@@ -50,18 +50,6 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
                     setBillingMethod={setBillingMethod}
                   />
                 </Grid>
-                <Grid
-                  item
-                  xs={12}
-                  display='flex'
-                  justifyContent='center'
-                  gap='16px'
-                >
-                  <Button variant='outlined' color='secondary'>
-                    Cancel
-                  </Button>
-                  <Button variant='contained'>Save</Button>
-                </Grid>
               </Fragment>
             ) : (
               'detail'

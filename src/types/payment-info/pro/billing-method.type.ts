@@ -24,9 +24,9 @@ export type TransferWiseFormType = {
   billingMethod: ProPaymentType
   copyOfId: File
   personalId: string
-  bankInfo: BankInfo
+  // bankInfo: BankInfo
   haveCorrespondentBank: boolean
-  correspondentBankInfo?: CorrespondentBankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 // ** 국내계좌송금 - 일반
@@ -35,8 +35,8 @@ export type KoreaDomesticTransferType = {
   rrn: number //Resident registration number
   copyOfRrCard: File //Copy of Resident Registration Card
   copyOfBankStatement: File //Copy of bank statement
-  bankInfo: BankInfo
-  correspondentBankInfo?: CorrespondentBankInfo
+  // bankInfo: BankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 // ** 국내계좌송금 - 개인사업자
@@ -45,8 +45,8 @@ export type KoreaDomesticTransferSoloType = {
   businessName: string
   businessNumber: number //Business Registration Number*
   copyOfRrCard: File //Copy of Resident Registration Card
-  bankInfo: BankInfo
-  correspondentBankInfo?: CorrespondentBankInfo
+  // bankInfo: BankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 export type PayPalType = {
