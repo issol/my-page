@@ -2,7 +2,7 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 
 export const transferWiseDefaultValue = {
-  billingMethod: '',
+  // billingMethod: '',
   personalId: '',
   haveCorrespondentBank: false,
 }

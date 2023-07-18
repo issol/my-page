@@ -1,4 +1,4 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useMemo, useState } from 'react'
 
 // ** style components
 import {
@@ -115,15 +115,19 @@ export default function BillingMethod({
     getValues,
     setValue,
     watch,
+    reset,
     formState: { errors, isValid, isDirty },
   } = useForm<BillingMethodUnionType>({
     mode: 'onChange',
-    defaultValues: {
-      ...billingMethodInitialData(billingMethod, isSolo),
-      billingMethod,
-    },
     resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
   })
+
+  useEffect(() => {
+    reset({
+      ...billingMethodInitialData(billingMethod, isSolo),
+      billingMethod,
+    })
+  }, [billingMethod, isSolo])
 
   const {
     control: bankInfoControl,
