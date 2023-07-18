@@ -65,12 +65,14 @@ import KoreaDomesticForm from './korea-domestic-form'
 import KoreaDomesticSoloForm from './korea-domestic-solo-form'
 
 type Props = {
+  billingMethodData: any
   billingMethod: ProPaymentType | null
   setBillingMethod: (v: ProPaymentType | null) => void
   setEdit: (v: boolean) => void
   onBillingMethodSave: (n: any) => void
 }
 export default function BillingMethod({
+  billingMethodData,
   billingMethod,
   setBillingMethod,
   setEdit,
@@ -119,14 +121,22 @@ export default function BillingMethod({
     formState: { errors, isValid, isDirty },
   } = useForm<BillingMethodUnionType>({
     mode: 'onChange',
+    defaultValues: {
+      ...billingMethodInitialData(billingMethod, isSolo),
+      type: billingMethod,
+    },
     resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
   })
 
   useEffect(() => {
-    reset({
-      ...billingMethodInitialData(billingMethod, isSolo),
-      type: billingMethod,
-    })
+    if (billingMethod === getValues('type') && !!billingMethodData) {
+      reset({ ...billingMethodData })
+    } else {
+      reset({
+        ...billingMethodInitialData(billingMethod, isSolo),
+        type: billingMethod,
+      })
+    }
   }, [billingMethod, isSolo])
 
   const {

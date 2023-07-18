@@ -184,6 +184,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               <Fragment>
                 <Grid item xs={12}>
                   <BillingMethod
+                    billingMethodData={billingMethodData}
                     billingMethod={billingMethod}
                     setBillingMethod={setBillingMethod}
                     setEdit={setEditMethod}
