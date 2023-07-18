@@ -103,6 +103,7 @@ type Props = {
   >
   role: UserRoleType
   quoteStatusList: Array<{ value: number; label: string }>
+  clientList: Array<{ value: number; label: string }>
 }
 
 export default function QuotesFilters({
@@ -119,6 +120,7 @@ export default function QuotesFilters({
   setCategoryList,
   role,
   quoteStatusList,
+  clientList,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -196,7 +198,7 @@ export default function QuotesFilters({
                   <Grid item xs={3}>
                     <Controller
                       control={control}
-                      name='client'
+                      name={role.name === 'CLIENT' ? 'lsp' : 'client'}
                       render={({ field: { onChange, value } }) => (
                         <Autocomplete
                           multiple
@@ -210,11 +212,14 @@ export default function QuotesFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={WorkStatus}
+                          options={clientList}
                           id='client'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Client' />
+                            <TextField
+                              {...params}
+                              label={role.name === 'CLIENT' ? 'LSP' : 'Client'}
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>

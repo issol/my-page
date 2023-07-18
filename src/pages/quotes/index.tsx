@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -37,10 +37,10 @@ export type FilterType = {
   quoteExpiryDate?: Date[]
   estimatedDeliveryDate?: Date[]
   projectDueDate?: Date[]
-  lsp?: Array<{ label: string; value: string }>
+  lsp?: Array<{ label: string; value: number }>
 
   status: Array<{ label: string; value: number }>
-  client?: Array<{ label: string; value: string }>
+  client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -94,6 +94,12 @@ export default function Quotes({ id, user }: Props) {
   const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
+  const [clientList, setClientList] = useState<
+    {
+      label: string
+      value: number
+    }[]
+  >([])
 
   const currentRole = getCurrentRole()
 
@@ -103,7 +109,7 @@ export default function Quotes({ id, user }: Props) {
     take: quoteListPageSize,
   })
 
-  const { data: clientList, isLoading: clientListLoading } = useGetClientList({
+  const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
   })
@@ -169,12 +175,12 @@ export default function Quotes({ id, user }: Props) {
       quoteDeadline: quoteDeadline?.map(value => value),
       quoteExpiryDate: quoteExpiryDate?.map(value => value),
       status: status.map(value => value.value),
-      client: client?.map(value => value.value),
+      client: client?.map(value => value.label),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
       projectDueDate: projectDueDate?.map(value => value),
-      lsp: lsp?.map(value => value.value),
+      lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
@@ -182,6 +188,15 @@ export default function Quotes({ id, user }: Props) {
 
     setFilters(filter)
   }
+  useEffect(() => {
+    if (clients && !clientListLoading) {
+      const res = clients.data.map(client => ({
+        label: client.name,
+        value: client.clientId,
+      }))
+      setClientList(res)
+    }
+  }, [clients, clientListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -228,6 +243,7 @@ export default function Quotes({ id, user }: Props) {
                 setCategoryList={setCategoryList}
                 role={currentRole!}
                 quoteStatusList={statusList!}
+                clientList={clientList}
               />
             </Suspense>
 
