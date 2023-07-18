@@ -19,7 +19,6 @@ export const koreaDomesticSoloDefaultValue = {
   },
 }
 
-// ** Transferwise, US ACH, International wire 용 schema
 export const koreaDomesticSoloSchema = yup.object().shape({
   billingMethod: yup.string().required(FormErrors.required),
   businessName: yup.string().required(FormErrors.required),

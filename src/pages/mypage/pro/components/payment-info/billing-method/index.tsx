@@ -1,5 +1,6 @@
 import {
   Box,
+  Divider,
   FormControlLabel,
   Grid,
   Radio,
@@ -12,6 +13,7 @@ import {
   proPaymentMethodPairs,
 } from '@src/types/payment-info/pro/billing-method.type'
 import { Fragment } from 'react'
+import TransferWiseForm from './transfer-wise-form'
 
 type Props = {
   billingMethod: ProPaymentType | null
@@ -39,9 +41,20 @@ export default function BillingMethod({
     }
   }
 
+  function renderForm() {
+    switch (billingMethod) {
+      case 'internationalWire':
+      case 'wise':
+      case 'us_ach':
+        return <TransferWiseForm billingMethod={billingMethod} />
+      default:
+        return null
+    }
+  }
+
   return (
     <Fragment>
-      <Box display='flex' gap='20px'>
+      <Box display='flex' gap='20px' mb={6}>
         {proPaymentMethodPairs.map(method => (
           <CustomRadio key={method.value}>
             <Radio
@@ -53,6 +66,8 @@ export default function BillingMethod({
           </CustomRadio>
         ))}
       </Box>
+      <Divider />
+      {renderForm()}
     </Fragment>
   )
 }

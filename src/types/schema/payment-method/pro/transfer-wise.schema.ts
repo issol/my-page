@@ -17,7 +17,6 @@ export const transferWiseDefaultValue = {
     swiftCode: '',
     iban: '',
   },
-  copyOfId: File,
 }
 
 // ** Transferwise, US ACH, International wire 용 schema
