@@ -27,7 +27,7 @@ export type BillingMethodUnionType =
 
 // ** Transferwise, US ACH, International wire 용 form
 export type TransferWiseFormType = {
-  billingMethod: ProPaymentType | null
+  type: ProPaymentType | null
   copyOfId: File
   personalId: string
   // bankInfo: BankInfo
@@ -37,7 +37,7 @@ export type TransferWiseFormType = {
 
 // ** 국내계좌송금 - 일반
 export type KoreaDomesticTransferType = {
-  billingMethod: ProPaymentType | null
+  type: ProPaymentType | null
   rrn: number //Resident registration number
   copyOfRrCard: File //Copy of Resident Registration Card
   copyOfBankStatement: File //Copy of bank statement
@@ -47,7 +47,7 @@ export type KoreaDomesticTransferType = {
 
 // ** 국내계좌송금 - 개인사업자
 export type KoreaDomesticTransferSoloType = {
-  billingMethod: ProPaymentType | null
+  type: ProPaymentType | null
   businessName: string
   businessNumber: number //Business Registration Number*
   copyOfRrCard: File //Copy of Resident Registration Card
@@ -56,7 +56,7 @@ export type KoreaDomesticTransferSoloType = {
 }
 
 export type PayPalType = {
-  billingMethod: ProPaymentType | null
+  type: ProPaymentType | null
   email: string
   personalId: string
   copyOfId: File
@@ -65,13 +65,13 @@ export type PayPalType = {
 export type BankInfo = {
   bankName: string
   accountNumber: string
-  bankRoutingNumber?: string
+  routingNumber?: string
   swiftCode?: string
-  iban?: string
+  ibnNumber?: string
 }
 
 export type CorrespondentBankInfo = {
-  bankRoutingNumber?: string
+  routingNumber?: string
   swiftCode?: string
-  iban?: string
+  ibnNumber?: string
 }

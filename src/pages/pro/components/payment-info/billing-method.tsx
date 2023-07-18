@@ -44,7 +44,7 @@ export default function BillingMethod({
       />
       {!info?.type ? (
         <div></div>
-      ) : info?.type === 'PayPal' ? (
+      ) : info?.type === 'paypal' ? (
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography variant='h6'>PayPal</Typography>

@@ -4,27 +4,27 @@ import { FormErrors } from 'src/shared/const/formErrors'
 export const bankInfoDefaultValue = {
   bankName: '',
   accountNumber: '',
-  bankRoutingNumber: '',
+  routingNumber: '',
   swiftCode: '',
-  iban: '',
+  ibnNumber: '',
 }
 
 export const corrBankInfoDefaultValue = {
-  bankRoutingNumber: '',
+  routingNumber: '',
   swiftCode: '',
-  iban: '',
+  ibnNumber: '',
 }
 
 export const bankInfoSchema = yup.object().shape({
   bankName: yup.string().required(FormErrors.required),
   accountNumber: yup.string().required(FormErrors.required),
-  bankRoutingNumber: yup.string().nullable(),
+  routingNumber: yup.string().nullable(),
   swiftCode: yup.string().nullable(),
-  iban: yup.string().nullable(),
+  ibnNumber: yup.string().nullable(),
 })
 
 export const corrBankInfoSchema = yup.object().shape({
-  bankRoutingNumber: yup.string().nullable(),
+  routingNumber: yup.string().nullable(),
   swiftCode: yup.string().nullable(),
-  iban: yup.string().nullable(),
+  ibnNumber: yup.string().nullable(),
 })

@@ -2,6 +2,7 @@ import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import axios from '@src/configs/axios'
 import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
 
 export type TaxInfoType =
   | 'Korea resident'
@@ -18,13 +19,14 @@ export type UserInfo = {
 }
 export type UserPaymentInfoType = {
   userInfo: UserInfo
-  type:
-    | 'Transfer wise'
-    | 'US ACH'
-    | 'Korea domestic transfer'
-    | 'International Wire'
-    | 'PayPal'
-    | ''
+  type: ProPaymentType | null
+  // type:
+  //   | 'Transfer wise'
+  //   | 'US ACH'
+  //   | 'Korea domestic transfer'
+  //   | 'International Wire'
+  //   | 'PayPal'
+  //   | ''
   bankInfo: {
     email?: string
     accountName: string
@@ -80,7 +82,7 @@ export const getUserPaymentInfo = async (
         identificationUploaded: false,
         businessLicenseUploaded: false,
       },
-      type: '',
+      type: null,
       bankInfo: {
         accountName: '',
         email: '',
@@ -165,7 +167,7 @@ export const getUserPaymentInfoForManager = async (
         identificationUploaded: false,
         businessLicenseUploaded: false,
       },
-      type: '',
+      type: null,
       bankInfo: {
         accountName: '',
         email: '',
