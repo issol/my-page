@@ -22,6 +22,13 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     null,
   )
 
+  //TODO: 최종 submit 시 보낼 데이터
+  const [billingMethodData, setBillingMethodData] = useState<any>()
+
+  function onBillingMethodSave(data: any) {
+    setBillingMethodData(data)
+  }
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12}>
@@ -48,6 +55,8 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
                   <BillingMethod
                     billingMethod={billingMethod}
                     setBillingMethod={setBillingMethod}
+                    setEdit={setEditMethod}
+                    onBillingMethodSave={onBillingMethodSave}
                   />
                 </Grid>
               </Fragment>

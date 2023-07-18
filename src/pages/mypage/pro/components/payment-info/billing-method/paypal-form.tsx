@@ -1,9 +1,13 @@
 import { useState } from 'react'
 
+// ** third parties
+import { yupResolver } from '@hookform/resolvers/yup'
+
 // ** style components
 import {
   Box,
   Button,
+  Divider,
   Grid,
   IconButton,
   TextField,
@@ -14,9 +18,18 @@ import { Icon } from '@iconify/react'
 // ** components
 import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import SaveModal from '@src/pages/company/components/price/price-units/modal/save-modal'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 
-// ** type & schema
-import { TransferWiseFormType } from '@src/types/payment-info/pro/billing-method.type'
+// ** type & schemas
+import {
+  PayPalType,
+  ProPaymentType,
+} from '@src/types/payment-info/pro/billing-method.type'
+import {
+  payPalDefaultValue,
+  payPalSchema,
+} from '@src/types/schema/payment-method/pro/paypal.schema'
 
 // ** react hook form
 import {
@@ -38,19 +51,17 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 type Props = {
-  control: Control<TransferWiseFormType, any>
-  getValues: UseFormGetValues<TransferWiseFormType>
-  setValue: UseFormSetValue<TransferWiseFormType>
-  errors: FieldErrors<TransferWiseFormType>
-  watch: UseFormWatch<TransferWiseFormType>
+  control: Control<PayPalType, any>
+  getValues: UseFormGetValues<PayPalType>
+  setValue: UseFormSetValue<PayPalType>
+  errors: FieldErrors<PayPalType>
 }
 
-export default function TransferWiseForm({
+export default function PaypalForm({
   control,
   getValues,
   setValue,
   errors,
-  watch,
 }: Props) {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DEFAULT
   const { openModal, closeModal } = useModal()
@@ -92,6 +103,34 @@ export default function TransferWiseForm({
 
   return (
     <>
+      <Grid item xs={12}>
+        <Typography fontWeight={600}>PayPal email address</Typography>
+      </Grid>
+      <Grid item xs={12}>
+        <Controller
+          name='email'
+          control={control}
+          rules={{ required: true }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <>
+              <TextField
+                fullWidth
+                autoFocus
+                value={value}
+                onBlur={onBlur}
+                onChange={onChange}
+                inputProps={{ maxLength: 50 }}
+                error={Boolean(errors.email)}
+                label='Email address*'
+              />
+            </>
+          )}
+        />
+        {renderErrorMsg(errors.email)}
+      </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
       <Grid item xs={12}>
         <Typography fontWeight={600}>Personal ID</Typography>
       </Grid>

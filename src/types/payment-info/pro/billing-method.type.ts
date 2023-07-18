@@ -19,9 +19,15 @@ export const proPaymentMethodPairs: Array<{
   { value: 'internationalWire', label: 'International wire' },
 ]
 
+export type BillingMethodUnionType =
+  | TransferWiseFormType
+  | KoreaDomesticTransferType
+  | KoreaDomesticTransferSoloType
+  | PayPalType
+
 // ** Transferwise, US ACH, International wire 용 form
 export type TransferWiseFormType = {
-  billingMethod: ProPaymentType
+  billingMethod: ProPaymentType | null
   copyOfId: File
   personalId: string
   // bankInfo: BankInfo
@@ -31,7 +37,7 @@ export type TransferWiseFormType = {
 
 // ** 국내계좌송금 - 일반
 export type KoreaDomesticTransferType = {
-  billingMethod: ProPaymentType
+  billingMethod: ProPaymentType | null
   rrn: number //Resident registration number
   copyOfRrCard: File //Copy of Resident Registration Card
   copyOfBankStatement: File //Copy of bank statement
@@ -41,7 +47,7 @@ export type KoreaDomesticTransferType = {
 
 // ** 국내계좌송금 - 개인사업자
 export type KoreaDomesticTransferSoloType = {
-  billingMethod: ProPaymentType
+  billingMethod: ProPaymentType | null
   businessName: string
   businessNumber: number //Business Registration Number*
   copyOfRrCard: File //Copy of Resident Registration Card
@@ -50,6 +56,7 @@ export type KoreaDomesticTransferSoloType = {
 }
 
 export type PayPalType = {
+  billingMethod: ProPaymentType | null
   email: string
   personalId: string
   copyOfId: File
