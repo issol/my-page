@@ -105,7 +105,7 @@ export default function KoreaDomesticForm({
     })
 
   const copyOfRrCard = getValues('copyOfRrCard')
-  const copyOfBankStatement = getValues('copyOfRrCard')
+  const copyOfBankStatement = getValues('copyOfBankStatement')
 
   return (
     <>

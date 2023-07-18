@@ -22,6 +22,8 @@ import {
   taxInfoSchema,
 } from '@src/types/schema/payment-method/pro/tax-info.schema'
 import { Icon } from '@iconify/react'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import BillingMethodDetail from './billing-method-details'
 
 type Props = {
   userInfo: DetailUserType
@@ -88,7 +90,6 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
   })
 
   function onSaveEachForm() {
-    const data = getValues()
     openModal({
       type: 'save',
       children: (
@@ -122,6 +123,27 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     })
   }
 
+  function onRegister() {
+    const billingMethod = billingMethodData
+    const billingAddress = getValues()
+    const taxInfo = getTaxInfo()
+    openModal({
+      type: 'register',
+      children: (
+        <CustomModal
+          title='Are you sure you want to register your payment information?
+
+    You cannot modify Tax info. of Tax information after the registration.'
+          vary='successful'
+          //TODO: mutation붙이기
+          onClick={() => console.log('')}
+          onClose={() => closeModal('register')}
+          rightButtonText='Register'
+        />
+      ),
+    })
+  }
+
   return (
     <Grid container spacing={6}>
       {/* TODO: 이 버튼은 paymentMethod가 없는 경우에만 노출하기 */}
@@ -131,6 +153,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
             variant='contained'
             disabled={!billingMethodData || !isValid || !isTaxInfoValid}
             startIcon={<Icon icon='material-symbols:check' />}
+            onClick={onRegister}
           >
             Register
           </Button>
@@ -170,7 +193,12 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               </Fragment>
             ) : (
               <Grid item xs={12}>
-                Detail
+                <BillingMethodDetail
+                  billingMethod={billingMethod}
+                  info={billingMethodData}
+                  bankInfo={billingMethodData?.bankInfo}
+                  corrBankInfo={billingMethodData?.corrBankInfo}
+                />
               </Grid>
             )}
           </Grid>

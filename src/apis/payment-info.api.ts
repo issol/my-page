@@ -29,7 +29,7 @@ export type UserPaymentInfoType = {
   //   | ''
   bankInfo: {
     email?: string
-    accountName: string
+    bankName: string
     accountNumber: string
     routingNumber: string
     swiftCode: string
@@ -84,7 +84,7 @@ export const getUserPaymentInfo = async (
       },
       type: null,
       bankInfo: {
-        accountName: '',
+        bankName: '',
         email: '',
         accountNumber: '',
         routingNumber: '',
@@ -169,7 +169,7 @@ export const getUserPaymentInfoForManager = async (
       },
       type: null,
       bankInfo: {
-        accountName: '',
+        bankName: '',
         email: '',
         accountNumber: '',
         routingNumber: '',

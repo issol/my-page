@@ -1,165 +1,293 @@
 import { Button, Card, CardHeader, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
-import logger from '@src/@core/utils/logger'
-import { UserPaymentInfoType } from '@src/apis/payment-info.api'
-import Icon from 'src/@core/components/icon'
-import CustomChip from 'src/@core/components/mui/chip'
+import {
+  BankInfo,
+  BillingMethodUnionType,
+  CorrespondentBankInfo,
+  KoreaDomesticTransferSoloType,
+  KoreaDomesticTransferType,
+  PayPalType,
+  ProPaymentType,
+  TransferWiseFormType,
+  proPaymentMethodPairs,
+} from '@src/types/payment-info/pro/billing-method.type'
+
+// ** Custom Components Imports
+import CustomChip from '@src/@core/components/mui/chip'
 
 import styled from 'styled-components'
+import { Icon } from '@iconify/react'
+import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 
 type Props = {
-  info: UserPaymentInfoType
-  isAccountManager: boolean
-  replaceDots: (value: string) => string
-  getDetail: () => void
+  billingMethod: ProPaymentType | null
+  info: BillingMethodUnionType
+  bankInfo: BankInfo | undefined
+  corrBankInfo: CorrespondentBankInfo | undefined
 }
 
-export default function BillingMethod({
+export default function BillingMethodDetail({
+  billingMethod,
   info,
-  isAccountManager,
-  replaceDots,
-  getDetail,
+  bankInfo,
+  corrBankInfo,
 }: Props) {
-  return (
-    <Card>
-      <CardHeader
-        title={
-          <Box
-            display='flex'
-            justifyContent='space-between'
-            alignItems='center'
-          >
-            <Typography variant='h6'>Billing Method (Account)</Typography>
-            <Button
-              variant='outlined'
-              color='secondary'
-              disabled={!isAccountManager || !info?.type}
-              onClick={getDetail}
-            >
-              Detail
-            </Button>
-          </Box>
+  function renderDetails() {
+    switch (billingMethod) {
+      case 'internationalWire':
+      case 'wise':
+      case 'us_ach':
+      case 'paypal':
+        const transferData = info as TransferWiseFormType
+        return (
+          <BorderBox>
+            <Box display='flex' flexDirection='column' gap='10px'>
+              <Typography fontWeight={600}>
+                Personal (Social security) ID
+              </Typography>
+              <Typography variant='body2'>{transferData.personalId}</Typography>
+              <Box
+                display='flex'
+                justifyContent='space-between'
+                alignItems='center'
+              >
+                <Typography fontWeight={600}>Copy of ID</Typography>
+                <Button
+                  size='small'
+                  variant='outlined'
+                  startIcon={<Icon icon='ic:baseline-download' />}
+                  onClick={() => downloadStateFile(transferData.copyOfId)}
+                >
+                  Download
+                </Button>
+              </Box>
+            </Box>
+          </BorderBox>
+        )
+      case 'koreaDomesticTransfer':
+        //@ts-ignore
+        const isSolo = !info?.copyOfBankStatement
+        if (isSolo) {
+          const koreanSoloData = info as KoreaDomesticTransferSoloType
+          return (
+            <>
+              <BorderBox>
+                <Box display='flex' flexDirection='column' gap='10px'>
+                  <Typography fontWeight={600}>
+                    Business Registration Number
+                  </Typography>
+                  <Typography variant='body2'>
+                    {koreanSoloData?.businessNumber}
+                  </Typography>
+                  <Typography fontWeight={600}>Business Name</Typography>
+                  <Typography variant='body2'>
+                    {koreanSoloData?.businessName}
+                  </Typography>
+
+                  <Typography fontWeight={600}>
+                    Copy of Business Registration Certificate
+                  </Typography>
+                  <Button
+                    sx={{ width: '116px' }}
+                    size='small'
+                    variant='outlined'
+                    startIcon={<Icon icon='ic:baseline-download' />}
+                    onClick={() =>
+                      downloadStateFile(koreanSoloData.copyOfRrCard)
+                    }
+                  >
+                    Download
+                  </Button>
+                </Box>
+              </BorderBox>
+            </>
+          )
         }
-      />
-      {!info?.type ? (
-        <div></div>
-      ) : info?.type === 'paypal' ? (
-        <BankBox>
-          <Box display='flex' alignItems='center' gap='8px'>
-            <Typography variant='h6'>PayPal</Typography>
-            <img src='/images/misc/icon_paypal.png' alt='PayPal' />
-          </Box>
-          <Grid item xs={6}>
-            <ContentGrid>
-              <Typography sx={{ fontWeight: 'bold' }}>Email address</Typography>
-              <Typography variant='body2'>
-                {replaceDots(info.bankInfo?.email ?? '')}
-              </Typography>
-            </ContentGrid>
-          </Grid>
-        </BankBox>
-      ) : (
-        <BankBox>
-          <Box display='flex' alignItems='center' gap='8px'>
-            <Typography sx={{ fontWeight: 'bold' }}>
-              {info.bankInfo?.accountName}
-            </Typography>
-            <CustomChip
-              rounded
-              label={info?.type}
-              skin='light'
-              color='info'
-              size='small'
-            />
-          </Box>
+        const koreanData = info as KoreaDomesticTransferType
+        return (
+          <>
+            <BorderBox>
+              <Box display='flex' flexDirection='column' gap='10px'>
+                <Typography fontWeight={600}>
+                  Resident registration number
+                </Typography>
+                <Typography variant='body2'>{koreanData?.rrn}</Typography>
+                <Typography fontWeight={600}>
+                  Copy of Resident Registration Card
+                </Typography>
+                <Button
+                  sx={{ width: '116px' }}
+                  size='small'
+                  variant='outlined'
+                  startIcon={<Icon icon='ic:baseline-download' />}
+                  onClick={() => downloadStateFile(koreanData.copyOfRrCard)}
+                >
+                  Download
+                </Button>
+              </Box>
+            </BorderBox>
+            <BorderBox mt={6}>
+              <Box display='flex' flexDirection='column' gap='10px'>
+                <Typography fontWeight={600}>Copy of bank statement</Typography>
+                <Button
+                  sx={{ width: '116px' }}
+                  size='small'
+                  variant='outlined'
+                  startIcon={<Icon icon='ic:baseline-download' />}
+                  onClick={() =>
+                    downloadStateFile(koreanData.copyOfBankStatement)
+                  }
+                >
+                  Download
+                </Button>
+              </Box>
+            </BorderBox>
+          </>
+        )
+      default:
+        return null
+    }
+  }
 
-          <Grid container mt={6}>
-            <Grid
-              item
-              xs={6}
-              sx={{ borderRight: '1px solid rgba(76, 78, 100, 0.12)' }}
-            >
-              <Typography variant='body2' color='primary'>
-                Bank info.
-              </Typography>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  Account number
+  return (
+    <Grid container spacing={6} className='match-height'>
+      <Grid item xs={8}>
+        <BorderBox>
+          {!info?.type ? null : info?.type === 'paypal' ? (
+            <>
+              <Box display='flex' alignItems='center' gap='8px'>
+                <Typography fontWeight={600}>PayPal</Typography>
+                <img src='/images/misc/icon_paypal.png' alt='PayPal' />
+              </Box>
+              <Grid item xs={6}>
+                <ContentGrid>
+                  <Typography sx={{ fontWeight: 600 }}>
+                    Email address
+                  </Typography>
+                  {/* @ts-ignore */}
+                  <Typography variant='body2'>{info?.email}</Typography>
+                </ContentGrid>
+              </Grid>
+            </>
+          ) : (
+            <>
+              <Box display='flex' alignItems='center' gap='8px'>
+                <Typography sx={{ fontWeight: 600 }}>
+                  {bankInfo?.bankName}
                 </Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.accountNumber ?? '')}
-                </Typography>
-              </ContentGrid>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  Routing number
-                </Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.routingNumber ?? '')}
-                </Typography>
-              </ContentGrid>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>SWIFT code</Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.swiftCode ?? '')}
-                </Typography>
-              </ContentGrid>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>IBN number</Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.ibnNumber ?? '')}
-                </Typography>
-              </ContentGrid>
-            </Grid>
+                <CustomChip
+                  rounded
+                  label={
+                    proPaymentMethodPairs.find(i => i.value === info?.type)
+                      ?.label || ''
+                  }
+                  skin='light'
+                  color='info'
+                  size='small'
+                />
+              </Box>
+              <Grid container mt={6}>
+                <Grid
+                  item
+                  xs={6}
+                  sx={{ borderRight: '1px solid rgba(76, 78, 100, 0.12)' }}
+                >
+                  <Typography variant='body2' color='primary'>
+                    Bank info.
+                  </Typography>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      Account number
+                    </Typography>
+                    <Typography variant='body2'>
+                      {bankInfo?.accountNumber ? bankInfo?.accountNumber : '-'}
+                    </Typography>
+                  </ContentGrid>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      Routing number
+                    </Typography>
+                    <Typography variant='body2'>
+                      {bankInfo?.routingNumber ? bankInfo?.routingNumber : '-'}
+                    </Typography>
+                  </ContentGrid>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>SWIFT code</Typography>
+                    <Typography variant='body2'>
+                      {bankInfo?.swiftCode ? bankInfo?.swiftCode : '-'}
+                    </Typography>
+                  </ContentGrid>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>IBN number</Typography>
+                    <Typography variant='body2'>
+                      {bankInfo?.ibnNumber ? bankInfo?.ibnNumber : '-'}
+                    </Typography>
+                  </ContentGrid>
+                </Grid>
 
-            <Grid item xs={6} sx={{ paddingLeft: '24px' }}>
-              <Typography variant='body2' color='primary'>
-                Corespondent bank info
-              </Typography>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  Account number
-                </Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.correspondentBankInfo?.accountNumber ?? '')}
-                </Typography>
-              </ContentGrid>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>
-                  SWIFT code / BIC
-                </Typography>
-                <Typography variant='body2'>
-                  {replaceDots(
-                    info.correspondentBankInfo?.bankIdentifierCode ?? '',
-                  )}
-                </Typography>
-              </ContentGrid>
-              <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>Others</Typography>
-                <Typography variant='body2'>
-                  {replaceDots(info.correspondentBankInfo?.others ?? '')}
-                </Typography>
-              </ContentGrid>
-            </Grid>
-          </Grid>
-        </BankBox>
-      )}
-    </Card>
+                <Grid item xs={6} sx={{ paddingLeft: '24px' }}>
+                  <Typography variant='body2' color='primary'>
+                    Corespondent bank info
+                  </Typography>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      Routing number
+                    </Typography>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.routingNumber
+                        ? corrBankInfo?.routingNumber
+                        : '-'}
+                    </Typography>
+                  </ContentGrid>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>
+                      SWIFT code / BIC
+                    </Typography>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.swiftCode ? corrBankInfo?.swiftCode : '-'}
+                    </Typography>
+                  </ContentGrid>
+                  <ContentGrid>
+                    <Typography sx={{ fontWeight: 600 }}>IBN number</Typography>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.ibnNumber ? corrBankInfo?.ibnNumber : '-'}
+                    </Typography>
+                  </ContentGrid>
+                </Grid>
+              </Grid>
+            </>
+          )}
+        </BorderBox>
+      </Grid>
+      <Grid item xs={4}>
+        {renderDetails()}
+      </Grid>
+    </Grid>
   )
 }
 
-const BankBox = styled(Box)`
-  margin: 0 18px 16px;
-  padding: 24px;
-  display: flex;
-  flex-direction: column;
-  gap: 5px;
-  border: 1px solid rgba(76, 78, 100, 0.12);
-  border-radius: 10px;
-`
+// const BankBox = styled(Box)`
+//   margin: 0 18px 16px;
+//   padding: 24px;
+//   display: flex;
+//   flex-direction: column;
+//   gap: 5px;
+//   border: 1px solid rgba(76, 78, 100, 0.12);
+//   border-radius: 10px;
+// `
 const ContentGrid = styled.div`
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
+`
+const LabelContainer = styled.div`
+  width: 100%;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+`
+const BorderBox = styled(Box)`
+  padding: 20px;
+  border-radius: 10px;
+  border: 1px solid rgba(76, 78, 100, 0.12);
 `

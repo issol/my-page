@@ -63,7 +63,7 @@ export default function BillingMethod({
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography sx={{ fontWeight: 'bold' }}>
-              {info.bankInfo?.accountName}
+              {info.bankInfo?.bankName}
             </Typography>
             <CustomChip
               rounded
