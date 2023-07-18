@@ -1,3 +1,5 @@
+import { TaxInfoType } from '@src/apis/payment-info.api'
+
 export const TaxInfo = [
   {
     value: 'Japan resident',
@@ -20,3 +22,27 @@ export const TaxInfo = [
     label: 'US resident',
   },
 ]
+
+export const TextRatePair: Array<{ label: TaxInfoType; value: number | null }> =
+  [
+    {
+      value: null,
+      label: 'Japan resident',
+    },
+    {
+      value: -3.3,
+      label: 'Korea resident',
+    },
+    {
+      value: 10,
+      label: 'Korea resident (Sole proprietorship)',
+    },
+    {
+      value: null,
+      label: 'Singapore resident',
+    },
+    {
+      value: null,
+      label: 'US resident',
+    },
+  ]

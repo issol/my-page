@@ -125,7 +125,7 @@ export default function BillingMethod({
   useEffect(() => {
     reset({
       ...billingMethodInitialData(billingMethod, isSolo),
-      billingMethod,
+      type: billingMethod,
     })
   }, [billingMethod, isSolo])
 

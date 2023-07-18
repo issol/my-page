@@ -62,7 +62,7 @@ export default function BankInfoForm({ control, errors }: Props) {
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='bankRoutingNumber'
+          name='routingNumber'
           control={control}
           rules={{ required: true }}
           render={({ field: { value, onChange, onBlur } }) => (
@@ -78,7 +78,7 @@ export default function BankInfoForm({ control, errors }: Props) {
                   onChange(e)
                 }}
                 inputProps={{ maxLength: 50 }}
-                error={Boolean(errors.bankRoutingNumber)}
+                error={Boolean(errors.routingNumber)}
                 label='Bank routing number'
               />
             </>
@@ -112,7 +112,7 @@ export default function BankInfoForm({ control, errors }: Props) {
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='iban'
+          name='ibnNumber'
           control={control}
           rules={{ required: true }}
           render={({ field: { value, onChange, onBlur } }) => (
@@ -128,8 +128,8 @@ export default function BankInfoForm({ control, errors }: Props) {
                   onChange(e)
                 }}
                 inputProps={{ maxLength: 50 }}
-                error={Boolean(errors.iban)}
-                label='IBAN'
+                error={Boolean(errors.ibnNumber)}
+                label='IBN'
               />
             </>
           )}
