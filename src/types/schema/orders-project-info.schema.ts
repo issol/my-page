@@ -3,12 +3,15 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { OrderStatusType } from '../common/orders.type'
 
 export const orderProjectInfoDefaultValue = {
-  status: 'In preparation' as OrderStatusType,
+  // status: 'In preparation' as OrderStatusType,
+
   projectName: '',
-  orderDate: Date(),
+  showProjectDescription: false,
+  orderedAt: Date(),
 }
 export const orderProjectInfoSchema = yup.object().shape({
-  status: yup.string().required(FormErrors.required),
+  // status: yup.string().required(FormErrors.required),
+  status: yup.number().required(FormErrors.required),
   workName: yup.string().nullable(),
   projectName: yup.string().required(FormErrors.required),
   projectDescription: yup.string().nullable(),
@@ -20,14 +23,19 @@ export const orderProjectInfoSchema = yup.object().shape({
     .string()
     .oneOf(['United States', 'Korea', 'Singapore', 'Japan'])
     .required(FormErrors.required),
-  orderDate: yup.date().required(FormErrors.required),
-  projectDueDate: yup.object().shape({
-    date: yup.date().nullable(),
-    timezone: yup.object().shape({
-      code: yup.string().required(FormErrors.required),
-      label: yup.string().required(FormErrors.required),
-      phone: yup.string().required(FormErrors.required),
-    }),
+  orderedAt: yup.date().required(FormErrors.required),
+  orderTimezone: yup.object().shape({
+    code: yup.string().required(FormErrors.required),
+    label: yup.string().required(FormErrors.required),
+    phone: yup.string().required(FormErrors.required),
   }),
+  projectDueAt: yup.date().nullable(),
+  projectDueTimezone: yup.object().shape({
+    code: yup.string().required(FormErrors.required),
+    label: yup.string().required(FormErrors.required),
+    phone: yup.string().required(FormErrors.required),
+  }),
+  showProjectDescription: yup.boolean().required(),
+
   taxable: yup.boolean().nullable(),
 })

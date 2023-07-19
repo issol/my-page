@@ -5,6 +5,7 @@ import {
   Button,
   Card,
   CardContent,
+  Checkbox,
   Divider,
   FormHelperText,
   Grid,
@@ -29,6 +30,7 @@ import {
   Control,
   Controller,
   FieldErrors,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -58,6 +60,8 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { AuthContext } from '@src/context/AuthContext'
+import { ClientFormType } from '@src/types/schema/client.schema'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   control: Control<OrderProjectInfoFormType, any>
@@ -65,6 +69,8 @@ type Props = {
   watch: UseFormWatch<OrderProjectInfoFormType>
   errors: FieldErrors<OrderProjectInfoFormType>
   clientTimezone?: CountryType | undefined
+  getClientValue: UseFormGetValues<ClientFormType>
+  getValues: UseFormGetValues<OrderProjectInfoFormType>
 }
 export default function ProjectInfoForm({
   control,
@@ -72,6 +78,8 @@ export default function ProjectInfoForm({
   watch,
   errors,
   clientTimezone,
+  getClientValue,
+  getValues,
 }: Props) {
   const [openPopper, setOpenPopper] = useState(false)
   const [isAddMode, setIsAddMode] = useState(false)
@@ -82,6 +90,25 @@ export default function ProjectInfoForm({
   const { user } = useContext(AuthContext)
   const [newWorkName, setNewWorkName] = useState('')
 
+  const formattedNow = (now: Date) => {
+    const minutes = now.getMinutes()
+    console.log(minutes % 30)
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+    console.log(formattedMinutes)
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+    const formattedTime = `${formattedHours}:${formattedMinutes
+      .toString()
+      .padStart(2, '0')}`
+    const formattedDate = new Date()
+    formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+    formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+    return formattedDate
+  }
+
   const defaultValue = { value: '', label: '' }
 
   const { openModal, closeModal } = useModal()
@@ -91,9 +118,19 @@ export default function ProjectInfoForm({
 
   useEffect(() => {
     if (clientTimezone) {
-      setValue('projectDueDate.timezone', clientTimezone, setValueOptions)
+      setValue('projectDueTimezone', clientTimezone, setValueOptions)
     }
   }, [clientTimezone])
+
+  useEffect(() => {
+    if (getClientValue() && !getValues('orderTimezone')) {
+      setValue(
+        'orderTimezone',
+        getClientValue('contacts.timezone')!,
+        setValueOptions,
+      )
+    }
+  }, [getClientValue, getValues])
 
   useEffect(() => {
     if (isSuccess) {
@@ -147,49 +184,54 @@ export default function ProjectInfoForm({
     <Fragment>
       <Grid item xs={6}>
         <Controller
-          name='orderDate'
+          name='orderedAt'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
-              selected={new Date(value)}
+              selected={!value ? null : formattedNow(new Date(value))}
               onChange={onChange}
-              customInput={<CustomInput label='Order date*' />}
+              customInput={<CustomInput label='Order date*' icon='calendar' />}
             />
           )}
         />
-        {renderErrorMsg('orderDate')}
+        {renderErrorMsg('orderedAt')}
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='status'
+          name='orderTimezone'
           control={control}
-          render={({ field: { value, onChange } }) => (
+          render={({ field }) => (
             <Autocomplete
               autoHighlight
               fullWidth
-              options={OrderStatus}
-              onChange={(e, v) => {
-                onChange(v?.value ?? '')
-              }}
+              {...field}
               value={
-                !value
-                  ? defaultValue
-                  : OrderStatus.find(item => item.value === value)
+                !field.value ? { code: '', phone: '', label: '' } : field.value
               }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
               renderInput={params => (
                 <TextField
                   {...params}
-                  error={Boolean(errors.status)}
-                  label='Status*'
-                  placeholder='Status*'
+                  label='Time zone*'
+                  error={Boolean(errors?.orderTimezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
                 />
               )}
             />
           )}
         />
-        {renderErrorMsg('status')}
       </Grid>
+
       <Grid item xs={6}>
         <Controller
           name='workName'
@@ -453,23 +495,28 @@ export default function ProjectInfoForm({
         />
         {renderErrorMsg('revenueFrom')}
       </Grid>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
       <Grid item xs={6}>
         <Controller
-          name='projectDueDate.date'
+          name='projectDueAt'
           control={control}
           render={({ field: { value, onChange } }) => (
             <FullWidthDatePicker
               {...DateTimePickerDefaultOptions}
               selected={!value ? null : new Date(value)}
               onChange={onChange}
-              customInput={<CustomInput label='Project due date' />}
+              customInput={
+                <CustomInput label='Project due date' icon='calendar' />
+              }
             />
           )}
         />
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='projectDueDate.timezone'
+          name='projectDueTimezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -481,17 +528,17 @@ export default function ProjectInfoForm({
               }
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
-              disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
                 <TextField
                   {...params}
                   label='Time zone*'
-                  error={Boolean(errors?.projectDueDate?.timezone)}
+                  error={Boolean(errors?.projectDueTimezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -505,9 +552,36 @@ export default function ProjectInfoForm({
         <Divider />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant='h6' mb='24px'>
-          Project description
-        </Typography>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            mb: '20px',
+          }}
+        >
+          <Typography variant='h6'>Project description</Typography>
+          <Box sx={{ display: 'flex', alignItems: 'center' }}>
+            <Controller
+              name='showProjectDescription'
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <Checkbox
+                  value={value}
+                  onChange={e => {
+                    onChange(e.target.checked)
+                  }}
+                  checked={value}
+                />
+              )}
+            />
+
+            <Typography variant='body2'>
+              Show project description to client
+            </Typography>
+          </Box>
+        </Box>
+
         <Controller
           name='projectDescription'
           control={control}

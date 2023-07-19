@@ -9,7 +9,8 @@ export type OrderStatusType =
 
 export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
 export type OrderProjectInfoFormType = {
-  status: OrderStatusType
+  // status: OrderStatusType
+  status: number
   workName?: string
   projectName: string
   projectDescription?: string
@@ -17,13 +18,14 @@ export type OrderProjectInfoFormType = {
   serviceType?: Array<string>
   expertise?: Array<string>
   revenueFrom: RevenueFormType
-  orderDate: string
-  projectDueDate: { date: string; timezone: CountryType }
+  orderedAt: string
+  orderTimezone: CountryType
   projectDueAt: string
   projectDueTimezone: CountryType
 
   tax: number | null
   taxable: boolean
+  showProjectDescription: boolean
 }
 
 export type CreateOrderInfoRes = {

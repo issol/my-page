@@ -444,6 +444,9 @@ export default function ItemForm({
                         autoHighlight
                         fullWidth
                         options={contactPersonList}
+                        isOptionEqualToValue={(option, newValue) => {
+                          return option.value === newValue.value
+                        }}
                         onChange={(e, v) => {
                           onChange(v?.value ?? '')
                         }}
@@ -586,6 +589,9 @@ export default function ItemForm({
                           fullWidth
                           options={options}
                           groupBy={option => option?.groupName}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.priceName === newValue.priceName
+                          }}
                           getOptionLabel={option => option.priceName}
                           onChange={(e, v) => {
                             onChange(v?.id)
