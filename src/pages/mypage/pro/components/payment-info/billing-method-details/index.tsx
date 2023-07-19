@@ -234,8 +234,8 @@ export default function BillingMethodDetail({
                       Routing number
                     </Typography>
                     <Typography variant='body2'>
-                      {corrBankInfo?.routingNumber
-                        ? corrBankInfo?.routingNumber
+                      {corrBankInfo?.accountNumber
+                        ? corrBankInfo?.accountNumber
                         : '-'}
                     </Typography>
                   </ContentGrid>

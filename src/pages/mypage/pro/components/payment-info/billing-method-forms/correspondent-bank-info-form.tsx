@@ -13,7 +13,7 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
     <>
       <Grid item xs={4}>
         <Controller
-          name='routingNumber'
+          name='accountNumber'
           control={control}
           rules={{ required: true }}
           render={({ field: { value, onChange, onBlur } }) => (
@@ -29,7 +29,7 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
                   onChange(e)
                 }}
                 inputProps={{ maxLength: 50 }}
-                error={Boolean(errors.routingNumber)}
+                error={Boolean(errors.accountNumber)}
                 label='Bank routing number'
               />
             </>

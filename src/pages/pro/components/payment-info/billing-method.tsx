@@ -130,15 +130,13 @@ export default function BillingMethod({
                   SWIFT code / BIC
                 </Typography>
                 <Typography variant='body2'>
-                  {replaceDots(
-                    info.correspondentBankInfo?.bankIdentifierCode ?? '',
-                  )}
+                  {replaceDots(info.correspondentBankInfo?.swiftCode ?? '')}
                 </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>Others</Typography>
                 <Typography variant='body2'>
-                  {replaceDots(info.correspondentBankInfo?.others ?? '')}
+                  {replaceDots(info.correspondentBankInfo?.iban ?? '')}
                 </Typography>
               </ContentGrid>
             </Grid>

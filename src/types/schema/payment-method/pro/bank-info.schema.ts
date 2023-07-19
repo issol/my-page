@@ -10,7 +10,7 @@ export const bankInfoDefaultValue = {
 }
 
 export const corrBankInfoDefaultValue = {
-  routingNumber: '',
+  accountNumber: '',
   swiftCode: '',
   iban: '',
 }
@@ -24,7 +24,7 @@ export const bankInfoSchema = yup.object().shape({
 })
 
 export const corrBankInfoSchema = yup.object().shape({
-  routingNumber: yup.string().nullable(),
+  accountNumber: yup.string().nullable(),
   swiftCode: yup.string().nullable(),
   iban: yup.string().nullable(),
 })

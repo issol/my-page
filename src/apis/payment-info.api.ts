@@ -2,7 +2,10 @@ import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import axios from '@src/configs/axios'
 import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
+import {
+  CorrespondentBankInfo,
+  ProPaymentType,
+} from '@src/types/payment-info/pro/billing-method.type'
 
 export type TaxInfoType =
   | 'Korea resident'
@@ -35,12 +38,7 @@ export type UserPaymentInfoType = {
     swiftCode: string
     iban: string
   }
-  correspondentBankInfo: {
-    accountNumber: string
-    bankIdentifierCode: string //SWIFT, BIC
-    others: string
-  }
-
+  correspondentBankInfo: CorrespondentBankInfo
   billingAddress: {
     street1?: string
     street2?: string
@@ -52,7 +50,7 @@ export type UserPaymentInfoType = {
 
   tax: {
     taxInfo: TaxInfoType
-    taxRate: number
+    tax: number
   }
 
   files: Array<FileItemType>
@@ -93,8 +91,8 @@ export const getUserPaymentInfo = async (
       },
       correspondentBankInfo: {
         accountNumber: '',
-        bankIdentifierCode: '',
-        others: '',
+        swiftCode: '',
+        iban: '',
       },
 
       billingAddress: {
@@ -105,7 +103,7 @@ export const getUserPaymentInfo = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        taxRate: 0.03,
+        tax: 0.03,
       },
       files: [
         {
@@ -178,8 +176,8 @@ export const getUserPaymentInfoForManager = async (
       },
       correspondentBankInfo: {
         accountNumber: '',
-        bankIdentifierCode: '',
-        others: '',
+        swiftCode: '',
+        iban: '',
       },
 
       billingAddress: {
@@ -190,7 +188,7 @@ export const getUserPaymentInfoForManager = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        taxRate: 0.03,
+        tax: 0.03,
       },
       files: [
         {
