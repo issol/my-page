@@ -27,6 +27,7 @@ import BillingMethodDetail from './billing-method-details'
 import FileInfo from '@src/@core/components/files'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import TaxInfoDetail from './tax-info-details'
 
 type Props = {
   userInfo: DetailUserType
@@ -346,15 +347,9 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               </Fragment>
             ) : (
               <Grid item xs={12}>
-                <BillingAddress
-                  billingAddress={{
-                    addressType: 'billing',
-                    baseAddress: '알라깔라',
-                    detailAddress: '똑깔라비',
-                    city: 'Seoul',
-                    country: 'Korea',
-                    zipCode: '12313',
-                  }}
+                <TaxInfoDetail
+                  billingMethod={billingMethod}
+                  info={getTaxInfo()}
                 />
               </Grid>
             )}

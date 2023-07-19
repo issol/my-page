@@ -70,11 +70,6 @@ export type BankInfo = {
   iban?: string
 }
 
-// export type CorrespondentBankInfo = {
-//   routingNumber?: string
-//   swiftCode?: string
-//   iban?: string
-// }
 export type CorrespondentBankInfo = {
   accountNumber?: string
   swiftCode?: string //SWIFT, BIC

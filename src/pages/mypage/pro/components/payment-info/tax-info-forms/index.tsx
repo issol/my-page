@@ -53,6 +53,7 @@ export default function TaxInfoForm({
     billingMethod === 'koreaDomesticTransfer'
       ? TextRatePair.filter(i => i.label.includes('Korea'))
       : TextRatePair
+
   const options = [
     {
       label: 'W8 BEN - non-US person',

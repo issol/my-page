@@ -6,7 +6,6 @@ import {
   CorrespondentBankInfo,
   KoreaDomesticTransferSoloType,
   KoreaDomesticTransferType,
-  PayPalType,
   ProPaymentType,
   TransferWiseFormType,
   proPaymentMethodPairs,
@@ -266,26 +265,13 @@ export default function BillingMethodDetail({
   )
 }
 
-// const BankBox = styled(Box)`
-//   margin: 0 18px 16px;
-//   padding: 24px;
-//   display: flex;
-//   flex-direction: column;
-//   gap: 5px;
-//   border: 1px solid rgba(76, 78, 100, 0.12);
-//   border-radius: 10px;
-// `
 const ContentGrid = styled.div`
   margin-top: 12px;
   display: grid;
   grid-template-columns: repeat(2, 1fr);
   gap: 2rem;
 `
-const LabelContainer = styled.div`
-  width: 100%;
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-`
+
 const BorderBox = styled(Box)`
   padding: 20px;
   border-radius: 10px;
