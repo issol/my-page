@@ -16,6 +16,7 @@ import {
 import Icon from '@src/@core/components/icon'
 import {
   ChangeEvent,
+  Fragment,
   MouseEvent,
   Suspense,
   SyntheticEvent,
@@ -53,7 +54,7 @@ import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
+import { deleteOrder, patchOrderProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -73,10 +74,27 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import {
   LanguagePairsPostType,
   LanguagePairsType,
+  ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
+import { useGetStatusList } from '@src/queries/common.query'
+import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import { CancelOrderReason } from '@src/shared/const/reason/reason'
+
 interface Detail {
   id: number
   quantity: number
@@ -94,6 +112,22 @@ export interface Row {
   detail: Detail[]
 }
 
+export type updateOrderType =
+  | OrderProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientFormType
+  | { status: number }
+  | { tax: null | number; taxable: boolean }
+  | { downloadedAt: string }
+  | { status: number; reason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
+
+type RenderSubmitButtonProps = {
+  onCancel: () => void
+  onSave: () => void
+  isValid: boolean
+}
+
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 const OrderDetail = () => {
   const router = useRouter()
@@ -102,7 +136,9 @@ const OrderDetail = () => {
   const { user } = useContext(AuthContext)
 
   const [value, setValue] = useState<MenuType>('project')
+  const { data: statusList } = useGetStatusList('Order')
   const dispatch = useAppDispatch()
+  const currentRole = getCurrentRole()
 
   useEffect(() => {
     if (
@@ -112,10 +148,6 @@ const OrderDetail = () => {
       setValue(menuQuery)
     }
   }, [menuQuery])
-
-  // useEffect(() => {
-  //   router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
-  // }, [value])
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -131,6 +163,36 @@ const OrderDetail = () => {
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
+
+  const {
+    control: projectInfoControl,
+    getValues: getProjectInfo,
+    setValue: setProjectInfo,
+    watch: projectInfoWatch,
+    reset: projectInfoReset,
+    formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
+  } = useForm<OrderProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: orderProjectInfoDefaultValue,
+    resolver: yupResolver(orderProjectInfoSchema),
+  })
+
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    reset: clientReset,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
 
   const {
     control: itemControl,
@@ -232,6 +294,64 @@ const OrderDetail = () => {
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
+  function renderSubmitButton({
+    onCancel,
+    onSave,
+    isValid,
+  }: RenderSubmitButtonProps) {
+    return (
+      <Grid item xs={12}>
+        <Box display='flex' gap='16px' justifyContent='center'>
+          <Button variant='outlined' color='secondary' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant='contained' disabled={!isValid} onClick={onSave}>
+            Save
+          </Button>
+        </Box>
+      </Grid>
+    )
+  }
+
+  function onSave(callBack: () => void) {
+    openModal({
+      type: 'EditSaveModal',
+      children: (
+        <EditSaveModal
+          onClose={() => closeModal('EditSaveModal')}
+          onClick={() => {
+            closeModal('EditSaveModal')
+            callBack()
+          }}
+        />
+      ),
+    })
+  }
+
+  function onDiscard({ callback }: { callback: () => void }) {
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <DiscardModal
+          onClose={() => {
+            callback()
+            closeModal('DiscardModal')
+          }}
+          onClick={() => {
+            callback()
+            closeModal('DiscardModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  function onProjectInfoSave() {
+    const projectInfo = getProjectInfo()
+
+    onSave(() => updateProject.mutate(projectInfo))
+  }
+
   const initializeData = () => {
     setLanguagePairs(
       langItem?.languagePairs?.map(item => ({
@@ -309,13 +429,6 @@ const OrderDetail = () => {
 
     setValue(newValue)
   }
-
-  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries('orderList')
-      router.push('/orders/order-list')
-    },
-  })
 
   const handleRestoreVersion = () => {
     // TODO API 연결
@@ -565,27 +678,49 @@ const OrderDetail = () => {
       },
     )
 
-    // @ts-ignore
-    patchProjectInfoMutation.mutate({ id: Number(id), form: { taxable, tax } })
+    updateProject.mutate({ taxable, tax })
   }
 
-  const patchProjectInfoMutation = useMutation(
-    (data: { id: number; form: OrderProjectInfoFormType }) =>
-      patchProjectInfo(data.id, data.form),
+  // const patchProjectInfoMutation = useMutation(
+  //   (data: { id: number; form: OrderProjectInfoFormType }) =>
+  //     patchProjectInfo(data.id, data.form),
+  //   {
+  //     onSuccess: () => {
+  //       setProjectInfoEdit(false)
+  //       queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
+  //       closeModal('EditSaveModal')
+  //     },
+  //     onError: () => {
+  //       toast.error('Something went wrong. Please try again.', {
+  //         position: 'bottom-left',
+  //       })
+  //       closeModal('EditSaveModal')
+  //     },
+  //   },
+  // )
+
+  const updateProject = useMutation(
+    (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
       onSuccess: () => {
         setProjectInfoEdit(false)
-        queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
+        setClientEdit(false)
+        setProjectTeamEdit(false)
+        setLangItemsEdit(false)
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
         })
-        closeModal('EditSaveModal')
+        queryClient.invalidateQueries(['orderList'])
       },
+      onError: () => onMutationError(),
     },
   )
+
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -684,14 +819,49 @@ const OrderDetail = () => {
             </TabList>
             <TabPanel value='project' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectInfo
-                  type={'detail'}
-                  projectInfo={projectInfo!}
-                  edit={projectInfoEdit}
-                  setEdit={setProjectInfoEdit}
-                  orderId={Number(id!)}
-                  onSave={patchProjectInfoMutation.mutate}
-                />
+                {projectInfoEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <DatePickerWrapper>
+                      <Grid container spacing={6}>
+                        <ProjectInfoForm
+                          control={projectInfoControl}
+                          setValue={setProjectInfo}
+                          watch={projectInfoWatch}
+                          errors={projectInfoErrors}
+                          clientTimezone={getClientValue('contacts.timezone')}
+                          getClientValue={getClientValue}
+                          getValues={getProjectInfo}
+                        />
+                        {renderSubmitButton({
+                          onCancel: () =>
+                            onDiscard({
+                              callback: () => setProjectInfoEdit(false),
+                            }),
+                          onSave: () => onProjectInfoSave(),
+                          isValid: isProjectInfoValid,
+                        })}
+                      </Grid>
+                    </DatePickerWrapper>
+                  </Card>
+                ) : (
+                  <Fragment>
+                    <ProjectInfo
+                      type={'detail'}
+                      project={projectInfo!}
+                      setEditMode={setProjectInfoEdit}
+                      isUpdatable={
+                        currentRole! && currentRole.name !== 'CLIENT'
+                      }
+                      updateStatus={(status: number) =>
+                        updateProject.mutate({ status: status })
+                      }
+                      updateProject={updateProject}
+                      client={client}
+                      statusList={statusList!}
+                      role={currentRole!}
+                    />
+                  </Fragment>
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}>

@@ -12,6 +12,10 @@ import SelectReasonModal from '../../components/modal/select-reason-modal'
 import { UseMutationResult } from 'react-query'
 import { updateProjectInfoType } from '../[id]'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import {
+  CancelQuoteReason,
+  RequestRevisionReason,
+} from '@src/shared/const/reason/reason'
 
 type Props = {
   downloadData: QuoteDownloadData
@@ -128,6 +132,11 @@ const ClientQuote = ({
           action={action}
           from={'client'}
           statusList={statusList}
+          reasonList={
+            action === 'Request revision'
+              ? RequestRevisionReason
+              : CancelQuoteReason
+          }
         />
       ),
     })

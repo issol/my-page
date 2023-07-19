@@ -136,6 +136,7 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
+import { CancelQuoteReason } from '@src/shared/const/reason/reason'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -496,7 +497,7 @@ export default function QuotesDetail() {
 
   const restoreMutation = useMutation((id: number) => restoreVersion(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(`quotesHistory`)
+      queryClient.invalidateQueries(['quotesDetail'])
     },
     onError: () => onMutationError(),
   })
@@ -598,7 +599,6 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
-    console.log(projectInfo)
 
     onSave(() => updateProject.mutate(projectInfo))
   }
@@ -731,6 +731,7 @@ export default function QuotesDetail() {
           action='Canceled'
           from='lsp'
           statusList={statusList!}
+          reasonList={CancelQuoteReason}
         />
       ),
     })

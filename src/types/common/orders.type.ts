@@ -8,6 +8,7 @@ export type OrderStatusType =
   | 'Canceled'
 
 export type RevenueFormType = 'United States' | 'Korea' | 'Singapore' | 'Japan'
+
 export type OrderProjectInfoFormType = {
   // status: OrderStatusType
   status: number
@@ -26,6 +27,24 @@ export type OrderProjectInfoFormType = {
   tax: number | null
   taxable: boolean
   showProjectDescription: boolean
+}
+
+export type QuotesProjectInfoType = {
+  status: OrderStatusType
+  workName?: string
+  projectName: string
+  projectDescription?: string
+  category: string
+  serviceType: Array<string>
+  expertise?: Array<string>
+  quoteDate: { date: string; timezone: CountryType }
+  projectDueDate: { date: string; timezone: CountryType }
+  quoteDeadline: { date: string; timezone: CountryType }
+  quoteExpiryDate: { date: string; timezone: CountryType }
+  estimatedDeliveryDate: { date: string; timezone: CountryType }
+  isShowDescription: boolean
+  tax: number | null
+  taxable: boolean
 }
 
 export type CreateOrderInfoRes = {

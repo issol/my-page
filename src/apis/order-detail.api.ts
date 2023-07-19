@@ -207,37 +207,16 @@ export const getVersionHistory = async (
   // return res
 }
 
-export const patchProjectInfo = async (
+export const patchOrderProjectInfo = async (
   id: number,
-  form: OrderProjectInfoFormType | { downloadedAt: string },
+  form:
+    | OrderProjectInfoFormType
+    | ProjectTeamFormType
+    | ClientFormType
+    | { status: number }
+    | { tax: null | number; taxable: boolean }
+    | { downloadedAt: string }
+    | { isConfirmed: boolean },
 ) => {
   await axios.patch(`/api/enough/u/order/${id}`, { ...form })
-}
-
-export const patchClientForOrder = async (
-  orderId: number,
-  form: ClientFormType,
-) => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/order/${orderId}`, {
-      ...form,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-export const patchTeamForOrder = async (
-  orderId: number,
-  form: ProjectTeamFormType,
-) => {
-  try {
-    const { data } = await axios.patch(`/api/enough/u/order/${orderId}`, {
-      ...form,
-    })
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
 }

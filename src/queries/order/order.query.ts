@@ -16,7 +16,11 @@ import { useQuery } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 export const useGetOrderList = (filter: OrderListFilterType) => {
-  return useQuery(['orderList', filter], () => getOrderList(filter), {})
+  return useQuery(
+    ['quotesList', { type: 'list' }, filter],
+    () => getOrderList(filter),
+    {},
+  )
 }
 
 export const useGetOrderListInJob = (filter: OrderListFilterType) => {
@@ -34,7 +38,7 @@ export const useGetOrderListCalendar = (
   filter: OrderListFilterType,
 ) => {
   return useQuery(
-    ['get-client-invoices-calendar', year, month],
+    ['quotesList', { type: 'calendar' }, filter],
     () => {
       return getOrderListCalendar(year, month, filter)
     },
@@ -50,46 +54,66 @@ export const useGetOrderListCalendar = (
 }
 
 export const useGetProjectInfo = (id: number) => {
-  return useQuery([`projectInfo-${id}`, id], () => getProjectInfo(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`orderDetail`, { type: 'project' }, id],
+    () => getProjectInfo(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-    enabled: !!id && !isNaN(id),
-  })
+      suspense: true,
+      enabled: !!id && !isNaN(id),
+    },
+  )
 }
 
 export const useGetProjectTeam = (id: number) => {
-  return useQuery([`projectTeam-${id}`, id], () => getProjectTeam(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`orderDetail`, { type: 'team' }, id],
+    () => getProjectTeam(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: false,
-    enabled: !!id,
-    // select: data => {
-    //   return data.map(value => ({ ...value, id: uuidv4() }))
-    // },
-  })
+      suspense: false,
+      enabled: !!id,
+      // select: data => {
+      //   return data.map(value => ({ ...value, id: uuidv4() }))
+      // },
+    },
+  )
 }
 
 export const useGetClient = (id: number) => {
-  return useQuery([`Client-${id}`, id], () => getClient(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`orderDetail`, { type: 'client' }, id],
+    () => getClient(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-  })
+      suspense: true,
+    },
+  )
 }
 
 export const useGetLangItem = (id: number) => {
-  return useQuery([`LangItem-${id}`, id], () => getLangItems(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`orderDetail`, { type: 'items' }, id],
+    () => getLangItems(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: false,
-  })
+      suspense: false,
+    },
+  )
 }
 
 export const useGetVersionHistory = (id: number) => {
-  return useQuery([`VersionHistory-${id}`, id], () => getVersionHistory(id), {
-    staleTime: 60 * 1000, // 1
+  return useQuery(
+    [`orderDetail`, { type: 'history' }, id],
+    () => getVersionHistory(id),
+    {
+      staleTime: 60 * 1000, // 1
 
-    suspense: true,
-  })
+      suspense: true,
+    },
+  )
 }
