@@ -35,6 +35,7 @@ import {
 } from 'react-hook-form'
 
 type Props = {
+  isRegister: boolean
   billingMethod: ProPaymentType | null
   control: Control<TaxInfoType, any>
   getValues: UseFormGetValues<TaxInfoType>
@@ -43,6 +44,7 @@ type Props = {
 }
 
 export default function TaxInfoForm({
+  isRegister,
   billingMethod,
   control,
   getValues,
@@ -135,6 +137,7 @@ export default function TaxInfoForm({
           render={({ field: { onChange, value } }) => (
             <Autocomplete
               fullWidth
+              disabled={!isRegister}
               onChange={(_, item) => {
                 onChange(item?.label ?? '')
                 setValue('tax', item?.value ?? null, { shouldValidate: true })
@@ -169,7 +172,7 @@ export default function TaxInfoForm({
         />
       </Grid>
 
-      {billingMethod === 'koreaDomesticTransfer' ? null : (
+      {!billingMethod || billingMethod === 'koreaDomesticTransfer' ? null : (
         <Grid item xs={12}>
           <Box
             display='flex'

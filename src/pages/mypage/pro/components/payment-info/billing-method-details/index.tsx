@@ -32,6 +32,7 @@ export default function BillingMethodDetail({
   corrBankInfo,
 }: Props) {
   function renderDetails() {
+    if (!info) return null
     switch (billingMethod) {
       case 'internationalWire':
       case 'wise':
@@ -44,7 +45,9 @@ export default function BillingMethodDetail({
               <Typography fontWeight={600}>
                 Personal (Social security) ID
               </Typography>
-              <Typography variant='body2'>{transferData.personalId}</Typography>
+              <Typography variant='body2'>
+                {transferData?.personalId}
+              </Typography>
               <Box
                 display='flex'
                 justifyContent='space-between'
@@ -55,7 +58,7 @@ export default function BillingMethodDetail({
                   size='small'
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
-                  onClick={() => downloadStateFile(transferData.copyOfId)}
+                  onClick={() => downloadStateFile(transferData?.copyOfId)}
                 >
                   Download
                 </Button>

@@ -65,17 +65,25 @@ import KoreaDomesticForm from './korea-domestic-form'
 import KoreaDomesticSoloForm from './korea-domestic-solo-form'
 
 type Props = {
+  isRegister: boolean
+  changeBillingMethod: boolean
+  checkBillingMethodChange: (v: ProPaymentType) => void
   billingMethodData: any
   billingMethod: ProPaymentType | null
   setBillingMethod: (v: ProPaymentType | null) => void
   setEdit: (v: boolean) => void
+  setChangeBillingMethod: (v: boolean) => void
   onBillingMethodSave: (n: any) => void
 }
 export default function BillingMethod({
+  isRegister,
+  changeBillingMethod,
+  checkBillingMethodChange,
   billingMethodData,
   billingMethod,
   setBillingMethod,
   setEdit,
+  setChangeBillingMethod,
   onBillingMethodSave,
 }: Props) {
   const { openModal, closeModal } = useModal()
@@ -206,6 +214,7 @@ export default function BillingMethod({
           onClick={() => {
             closeModal('discard')
             setEdit(false)
+            setChangeBillingMethod(false)
           }}
         />
       ),
@@ -435,8 +444,15 @@ export default function BillingMethod({
         {proPaymentMethodPairs.map(method => (
           <CustomRadio key={method.value}>
             <Radio
+              disabled={!isRegister && !changeBillingMethod}
               value={method.value}
-              onChange={e => setBillingMethod(e.target.value as ProPaymentType)}
+              onChange={e => {
+                if (!changeBillingMethod) {
+                  setBillingMethod(e.target.value as ProPaymentType)
+                } else {
+                  checkBillingMethodChange(e.target.value as ProPaymentType)
+                }
+              }}
               checked={method.value === billingMethod}
             />
             {renderLabel(method.label)}

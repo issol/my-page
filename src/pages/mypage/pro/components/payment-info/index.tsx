@@ -28,6 +28,7 @@ import FileInfo from '@src/@core/components/files'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import TaxInfoDetail from './tax-info-details'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 type Props = {
   userInfo: DetailUserType
@@ -46,6 +47,8 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
 
   // ** TODO: 데이터 받았을 때 billing method의 type이 없을 경우 false 아니면 true로 세팅하기
   const [isRegister, setIsRegister] = useState(false)
+
+  const [changeBillingMethod, setChangeBillingMethod] = useState(false)
 
   const [editMethod, setEditMethod] = useState(false)
   const [editBillingAddress, setEditBillingAddress] = useState(false)
@@ -118,7 +121,11 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       ),
     })
   }
-
+  console.log(
+    'isRegister && changeBillingMethod',
+    isRegister,
+    changeBillingMethod,
+  )
   function onCancel() {
     openModal({
       type: 'discard',
@@ -130,6 +137,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
             closeModal('discard')
             setEditBillingAddress(false)
             setEditTaxInfo(false)
+            setBillingMethod(null)
           }}
         />
       ),
@@ -169,6 +177,69 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     //TODO: 함수 완성하기
   }
 
+  function onChangeBillingMethod() {
+    openModal({
+      type: 'changeBillingMethod',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('changeBillingMethod')}
+          onClick={() => {
+            setChangeBillingMethod(true)
+            closeModal('changeBillingMethod')
+          }}
+          title='Are you sure you want to change the billing method?
+Some information will reset..'
+          vary='error'
+          rightButtonText='Understood'
+        />
+      ),
+    })
+  }
+  console.log('billing', billingMethodData)
+  function checkBillingMethodChange(newMethod: ProPaymentType) {
+    const taxInfo = getTaxInfo() //TODO: 이 값은 서버에서 받은 사용자 값으로 교체해야 함
+    const billingMethodInfo = billingMethodData //TODO: 이 값도 서버에서 받은 사용자 값으로 교체하기
+
+    const isNewMethodKorea = newMethod.includes('koreaDomesticTransfer')
+    const isCurrMethodKorea = billingMethodInfo?.type?.includes(
+      'koreaDomesticTransfer',
+    )
+    const isNotChangeable =
+      !taxInfo.taxInfo?.includes('Korea') &&
+      isNewMethodKorea &&
+      !isCurrMethodKorea
+
+    if (isNotChangeable) {
+      openModal({
+        type: 'cannotChange',
+        children: (
+          <SimpleAlertModal
+            message='Payment method cannot be changed due to conflicting tax info.Please contact the accounting team to update the tax info.'
+            onClose={() => closeModal('cannotChange')}
+          />
+        ),
+      })
+    } else if (isCurrMethodKorea && !isNewMethodKorea) {
+      openModal({
+        type: 'changeBillingMethod',
+        children: (
+          <CustomModal
+            onClose={() => closeModal('changeBillingMethod')}
+            onClick={() => {
+              setBillingMethod(newMethod)
+              closeModal('changeBillingMethod')
+            }}
+            title='Tax information - W8 form is mandatory for this billing method change. Failure to submit will cause payment delays.'
+            vary='error'
+            rightButtonText='Understood'
+          />
+        ),
+      })
+    } else {
+      setBillingMethod(newMethod)
+    }
+  }
+  console.log('billing', billingMethod)
   return (
     <Grid container spacing={6}>
       {/* TODO: 이 버튼은 billing method의 type이 없는 경우에만 노출하기 */}
@@ -195,7 +266,18 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               alignItems='center'
               justifyContent='space-between'
             >
-              <Typography variant='h6'>Billing Method </Typography>
+              <Box display='flex' alignItems='center' gap='20px'>
+                <Typography variant='h6'>Billing Method </Typography>
+                {editMethod && !isRegister ? (
+                  <Button
+                    variant='outlined'
+                    size='small'
+                    onClick={onChangeBillingMethod}
+                  >
+                    Change billing method
+                  </Button>
+                ) : null}
+              </Box>
               {editMethod ? null : (
                 <Button
                   variant='contained'
@@ -209,6 +291,10 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               <Fragment>
                 <Grid item xs={12}>
                   <BillingMethod
+                    isRegister={isRegister}
+                    changeBillingMethod={changeBillingMethod}
+                    setChangeBillingMethod={setChangeBillingMethod}
+                    checkBillingMethodChange={checkBillingMethodChange}
                     billingMethodData={billingMethodData}
                     billingMethod={billingMethod}
                     setBillingMethod={setBillingMethod}
@@ -278,6 +364,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
               </Fragment>
             ) : (
               <Grid item xs={12}>
+                {/* TODO: 실 데이터로 교체하기 */}
                 <BillingAddress
                   billingAddress={{
                     addressType: 'billing',
@@ -320,6 +407,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
             {editTaxInfo ? (
               <Fragment>
                 <TaxInfoForm
+                  isRegister={isRegister}
                   billingMethod={billingMethod}
                   control={taxInfoControl}
                   getValues={getTaxInfo}
