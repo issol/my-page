@@ -218,9 +218,9 @@ export default function BillingMethodDetail({
                     </Typography>
                   </ContentGrid>
                   <ContentGrid>
-                    <Typography sx={{ fontWeight: 600 }}>IBN number</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>IBAN</Typography>
                     <Typography variant='body2'>
-                      {bankInfo?.ibnNumber ? bankInfo?.ibnNumber : '-'}
+                      {bankInfo?.iban ? bankInfo?.iban : '-'}
                     </Typography>
                   </ContentGrid>
                 </Grid>
@@ -248,9 +248,9 @@ export default function BillingMethodDetail({
                     </Typography>
                   </ContentGrid>
                   <ContentGrid>
-                    <Typography sx={{ fontWeight: 600 }}>IBN number</Typography>
+                    <Typography sx={{ fontWeight: 600 }}>IBAN</Typography>
                     <Typography variant='body2'>
-                      {corrBankInfo?.ibnNumber ? corrBankInfo?.ibnNumber : '-'}
+                      {corrBankInfo?.iban ? corrBankInfo?.iban : '-'}
                     </Typography>
                   </ContentGrid>
                 </Grid>

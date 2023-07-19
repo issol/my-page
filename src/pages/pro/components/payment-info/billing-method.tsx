@@ -106,9 +106,9 @@ export default function BillingMethod({
                 </Typography>
               </ContentGrid>
               <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>IBN number</Typography>
+                <Typography sx={{ fontWeight: 'bold' }}>IBAN</Typography>
                 <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.ibnNumber ?? '')}
+                  {replaceDots(info.bankInfo?.iban ?? '')}
                 </Typography>
               </ContentGrid>
             </Grid>

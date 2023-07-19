@@ -67,11 +67,11 @@ export type BankInfo = {
   accountNumber: string
   routingNumber?: string
   swiftCode?: string
-  ibnNumber?: string
+  iban?: string
 }
 
 export type CorrespondentBankInfo = {
   routingNumber?: string
   swiftCode?: string
-  ibnNumber?: string
+  iban?: string
 }

@@ -33,7 +33,7 @@ export type UserPaymentInfoType = {
     accountNumber: string
     routingNumber: string
     swiftCode: string
-    ibnNumber: string
+    iban: string
   }
   correspondentBankInfo: {
     accountNumber: string
@@ -89,7 +89,7 @@ export const getUserPaymentInfo = async (
         accountNumber: '',
         routingNumber: '',
         swiftCode: '',
-        ibnNumber: '',
+        iban: '',
       },
       correspondentBankInfo: {
         accountNumber: '',
@@ -174,7 +174,7 @@ export const getUserPaymentInfoForManager = async (
         accountNumber: '',
         routingNumber: '',
         swiftCode: '',
-        ibnNumber: '',
+        iban: '',
       },
       correspondentBankInfo: {
         accountNumber: '',

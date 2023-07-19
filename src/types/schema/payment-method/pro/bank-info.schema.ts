@@ -6,13 +6,13 @@ export const bankInfoDefaultValue = {
   accountNumber: '',
   routingNumber: '',
   swiftCode: '',
-  ibnNumber: '',
+  iban: '',
 }
 
 export const corrBankInfoDefaultValue = {
   routingNumber: '',
   swiftCode: '',
-  ibnNumber: '',
+  iban: '',
 }
 
 export const bankInfoSchema = yup.object().shape({
@@ -20,11 +20,11 @@ export const bankInfoSchema = yup.object().shape({
   accountNumber: yup.string().required(FormErrors.required),
   routingNumber: yup.string().nullable(),
   swiftCode: yup.string().nullable(),
-  ibnNumber: yup.string().nullable(),
+  iban: yup.string().nullable(),
 })
 
 export const corrBankInfoSchema = yup.object().shape({
   routingNumber: yup.string().nullable(),
   swiftCode: yup.string().nullable(),
-  ibnNumber: yup.string().nullable(),
+  iban: yup.string().nullable(),
 })

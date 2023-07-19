@@ -24,6 +24,9 @@ import {
 import { Icon } from '@iconify/react'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import BillingMethodDetail from './billing-method-details'
+import FileInfo from '@src/@core/components/files'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 
 type Props = {
   userInfo: DetailUserType
@@ -31,14 +34,17 @@ type Props = {
 }
 
 /* TODO:
-1. 데이터를 받아왔을 때 paymentMethod가 없을 경우 register버튼 노출
+1. 데이터를 받아왔을 때 billing method의 type이 없을 경우 register버튼 노출 => isRegister값으로 구분하기
 2. 데이터를 받아왔을 때 저장된게 있는 경우 모든 form reset해주기
     1. Save버튼 클릭 시 바로 fetch되게 하기
     2. cancel시 기존 데이터로 reset해주기
-
+3. 각 detail에 보낼 값들은 isRegister이 true면 저장된 데이터를, 아닌 경우면 form데이터를 getValues해서 넣어주기
 */
 export default function ProPaymentInfo({ userInfo, user }: Props) {
   const { openModal, closeModal } = useModal()
+
+  // ** TODO: 데이터 받았을 때 billing method의 type이 없을 경우 false 아니면 true로 세팅하기
+  const [isRegister, setIsRegister] = useState(false)
 
   const [editMethod, setEditMethod] = useState(false)
   const [editBillingAddress, setEditBillingAddress] = useState(false)
@@ -53,6 +59,9 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
   const [billingMethodData, setBillingMethodData] = useState<any>(null)
 
   function onBillingMethodSave(data: any) {
+    if (!isRegister) {
+      //TODO: update mutation붙이기
+    }
     setBillingMethodData(data)
   }
 
@@ -89,7 +98,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     resolver: yupResolver(taxInfoSchema(billingMethod)),
   })
 
-  function onSaveEachForm() {
+  function onSaveEachForm(type: 'billingAddress' | 'taxInfo') {
     openModal({
       type: 'save',
       children: (
@@ -99,6 +108,9 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
             closeModal('save')
             setEditBillingAddress(false)
             setEditTaxInfo(false)
+            if (!isRegister) {
+              //TODO: type에 따른 update mutation붙이기
+            }
           }}
           onClose={() => closeModal('save')}
         />
@@ -144,10 +156,22 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     })
   }
 
+  function downloadAllFile() {
+    //TODO: 함수 완성하기
+  }
+
+  function uploadFiles(files: File[]) {
+    //TODO: 함수 완성하기
+  }
+
+  function onDeleteFile(file: FileItemType) {
+    //TODO: 함수 완성하기
+  }
+
   return (
     <Grid container spacing={6}>
-      {/* TODO: 이 버튼은 paymentMethod가 없는 경우에만 노출하기 */}
-      {editMethod || editBillingAddress || editTaxInfo ? null : (
+      {/* TODO: 이 버튼은 billing method의 type이 없는 경우에만 노출하기 */}
+      {editMethod || editBillingAddress || editTaxInfo || !isRegister ? null : (
         <Grid item xs={12} display='flex' justifyContent='end'>
           <Button
             variant='contained'
@@ -245,7 +269,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
                   <Button
                     variant='contained'
                     disabled={!isValid}
-                    onClick={onSaveEachForm}
+                    onClick={() => onSaveEachForm('billingAddress')}
                   >
                     Save
                   </Button>
@@ -270,7 +294,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       </Grid>
 
       {/* Tax information */}
-      <Grid item xs={12}>
+      <Grid item xs={isRegister ? 12 : 8}>
         <Card sx={{ padding: '24px' }}>
           <Grid container spacing={6}>
             <Grid
@@ -314,7 +338,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
                   <Button
                     variant='contained'
                     disabled={!isValid}
-                    onClick={onSaveEachForm}
+                    onClick={() => onSaveEachForm('taxInfo')}
                   >
                     Save
                   </Button>
@@ -337,6 +361,35 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
           </Grid>
         </Card>
       </Grid>
+
+      {/* Additional files TODO: payment info파일은 다운로드 방식이 다르므로
+      백엔드와 논의 후 FileInfo컴포넌트 새로 만들기. file data 스키마 정의, 다운로드 방식 정하기 */}
+      {!isRegister ? (
+        <Grid item xs={4}>
+          <Card sx={{ padding: '24px' }}>
+            <FileInfo
+              title='Additional files'
+              fileList={[]}
+              accept={{
+                'image/*': ['.png', '.jpg', '.jpeg'],
+                'text/csv': ['.cvs'],
+                'application/pdf': ['.pdf'],
+                'text/plain': ['.txt'],
+                'application/vnd.ms-powerpoint': ['.ppt'],
+                'application/msword': ['.doc'],
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                  ['.docx'],
+              }}
+              fileType={''}
+              onDownloadAll={downloadAllFile}
+              onFileDrop={uploadFiles}
+              onDeleteFile={onDeleteFile}
+              isUpdatable={true}
+              isDeletable={true}
+            />
+          </Card>
+        </Grid>
+      ) : null}
     </Grid>
   )
 }
