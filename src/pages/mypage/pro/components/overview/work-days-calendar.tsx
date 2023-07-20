@@ -160,32 +160,13 @@ const WorkDaysCalendar = (props: Props) => {
       eventEl.parentElement.parentElement.parentElement.parentElement
         .parentElement.parentElement
 
-    const parentEl2 =
-      eventEl.parentElement.parentElement.parentElement.parentElement
-        .parentElement.parentElement.parentElement.parentElement.parentElement
-        .parentElement.parentElement.parentElement.parentElement.parentElement
-        .parentElement.parentElement.parentElement.parentElement
-
-    console.log('parentEl', parentEl)
-    console.log('parentEl2', parentEl2)
     const rect = eventEl.getBoundingClientRect()
-    // console.log('rect', rect)
-    menu.style.position = 'absolute'
-    adjustPosition(menu, rect)
-    // parentEl.appendChild(menu)
-    parentEl2.appendChild(menu)
-  }
 
-  function adjustPosition(menu: HTMLDivElement, rect: DOMRect) {
-    if (rect.x > 330) {
-      menu.style.left = Number(Number(rect.left) / 1.6).toString() + 'px'
-    } else {
-      menu.style.left = Number(Number(rect.left)).toString() + 'px'
-    }
-    if (rect.y > 400) {
-      menu.style.top = Number(Number(rect.top) / 1).toString() + 'px'
-    }
-    menu.style.top = Number(Number(rect.top) / 10).toString() + 'px'
+    menu.style.position = 'fixed'
+
+    menu.style.top = rect.top - 85 + 'px'
+    menu.style.left = rect.left - 40 + 'px'
+    parentEl.appendChild(menu)
   }
 
   function removeMenu() {

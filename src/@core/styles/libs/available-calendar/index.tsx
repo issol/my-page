@@ -46,8 +46,6 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
       /* table */
       'table, tbody, td, thead, th, tr, .fc-scrollgrid.fc-scrollgrid-liquid': {
         border: 'none',
-
-        position: 'relative', //TODO: test code
       },
 
       /* day table header */
@@ -95,9 +93,6 @@ const AvailableCalendarWrapper = styled(Box)<BoxProps>(({ theme }) => {
     '.offdays-menu': {
       zIndex: 100,
       cursor: 'pointer',
-      // position: 'absolute',
-      // top: '28px',
-      // left: '20px',
       width: '82px',
       background: '#ffffff',
       borderRadius: '8px',
