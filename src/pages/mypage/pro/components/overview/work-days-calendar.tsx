@@ -11,6 +11,7 @@ import {
 } from '@src/types/common/calendar.type'
 import { addOneDay } from '@src/shared/helpers/date.helper'
 import { Card, Dialog, Tooltip } from '@mui/material'
+import styled from 'styled-components'
 
 /**
  * event : 달력에 보여줄 off day 데이터
@@ -74,7 +75,13 @@ const WorkDaysCalendar = (props: Props) => {
     eventClick(info: any) {
       let eventEl = info.el
 
-      if (!props?.onEventClick || isEditDisabled) return
+      if (
+        !props?.onEventClick ||
+        isEditDisabled ||
+        !info?.event?._def?.publicId
+      )
+        return
+
       makeMenuElement(eventEl)
       if (
         props?.onEventClick !== undefined &&
@@ -153,11 +160,20 @@ const WorkDaysCalendar = (props: Props) => {
       eventEl.parentElement.parentElement.parentElement.parentElement
         .parentElement.parentElement
 
+    const parentEl2 =
+      eventEl.parentElement.parentElement.parentElement.parentElement
+        .parentElement.parentElement.parentElement.parentElement.parentElement
+        .parentElement.parentElement.parentElement.parentElement.parentElement
+        .parentElement.parentElement.parentElement.parentElement
+
+    console.log('parentEl', parentEl)
+    console.log('parentEl2', parentEl2)
     const rect = eventEl.getBoundingClientRect()
     // console.log('rect', rect)
     menu.style.position = 'absolute'
     adjustPosition(menu, rect)
-    parentEl.appendChild(menu)
+    // parentEl.appendChild(menu)
+    parentEl2.appendChild(menu)
   }
 
   function adjustPosition(menu: HTMLDivElement, rect: DOMRect) {

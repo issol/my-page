@@ -1,34 +1,39 @@
+// ** style components
 import { Grid, TextField, Typography } from '@mui/material'
-import DatePicker, { ReactDatePickerProps } from 'react-datepicker'
+import DatePicker from 'react-datepicker'
 import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import { Fragment, useState } from 'react'
+import { Fragment } from 'react'
 import Radio from '@mui/material/Radio'
 import RadioGroup from '@mui/material/RadioGroup'
 import FormControl from '@mui/material/FormControl'
 import FormControlLabel from '@mui/material/FormControlLabel'
+
+// ** react hook form
 import {
   Control,
   Controller,
+  UseFormGetValues,
   UseFormSetValue,
-  UseFormWatch,
 } from 'react-hook-form'
+
+// ** types
 import { OffDayEventType } from '@src/types/common/calendar.type'
 
 type Props = {
   options: string[]
   control: Control<OffDayEventType & { otherReason?: string }, any>
   setValue: UseFormSetValue<OffDayEventType & { otherReason?: string }>
-  watch: UseFormWatch<OffDayEventType & { otherReason?: string }>
+  getValues: UseFormGetValues<OffDayEventType & { otherReason?: string }>
 }
 export default function OffDayForm({
   options,
   control,
   setValue,
-  watch,
+  getValues,
 }: Props) {
-  const end = watch('end')
-  const reason = watch('reason')
+  const end = getValues('end')
+  const reason = getValues('reason')
 
   return (
     <Fragment>

@@ -209,6 +209,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     reset: resetOffDay,
     formState: { dirtyFields: offDayDirtyFields, isValid: isOffDayValid },
   } = useForm<OffDayEventType & { otherReason?: string }>({
+    // mode: 'onChange',
     mode: 'onChange',
     resolver: yupResolver(offDaySchema),
   })
@@ -219,7 +220,6 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     {
       onSuccess: () => invalidateOffDay(),
       onError: (e: any) => {
-        console.log('error', e.message)
         if (e.message === '406') {
           openModal({
             type: 'duplicateOffDay',
@@ -265,15 +265,20 @@ export default function MyPageOverview({ user, userInfo }: Props) {
 
     if (offDayId !== null) {
       updateOffDays.mutate({ ...data, offDayId })
+      setOffDayId(null)
     } else {
       createOffDay.mutate(data)
     }
+    resetOffDay({})
   }
 
   const updateWeekendsMutation = useMutation(
     (offOnWeekends: 0 | 1) => updateWeekends(user?.userId!, offOnWeekends),
     {
-      onSuccess: () => invalidateOffDay(),
+      onSuccess: () => {
+        invalidateOffDay()
+        invalidateUserInfo()
+      },
       onError: () => onError(),
     },
   )
@@ -285,7 +290,10 @@ export default function MyPageOverview({ user, userInfo }: Props) {
         <CustomModal
           vary='error'
           onClose={() => closeModal('updateWeekends')}
-          onClick={() => updateWeekendsMutation.mutate(offOnWeekends)}
+          onClick={() => {
+            updateWeekendsMutation.mutate(offOnWeekends)
+            closeModal('updateWeekends')
+          }}
           rightButtonText='Save'
           title={
             offOnWeekends
@@ -574,14 +582,18 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 gap='10px'
                 mt='11px'
               >
-                {/* TODO: off on weekends값도 서버에 저장하기, 유저 정보에 따라 checked처리 해주기. 나중에 off day받아올 때 쿼리 파라미터로 보내야 함 */}
                 <FormControlLabel
                   label='Off on weekends'
                   onChange={e => {
                     //@ts-ignore
                     onOffOnWeekendsClick(e.target?.checked ? 1 : 0)
                   }}
-                  control={<Checkbox name='Off on weekends' />}
+                  control={
+                    <Checkbox
+                      checked={userInfo.isOffOnWeekends}
+                      name='Off on weekends'
+                    />
+                  }
                 />
 
                 <Box display='flex' alignItems='center' gap='8px'>
@@ -831,7 +843,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               options={offDayOptions}
               control={offDayControl}
               setValue={setOffDayValues}
-              watch={watchOffDays}
+              getValues={getOffDayValues}
             />
             <Grid
               item
@@ -844,7 +856,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               <Button
                 variant='outlined'
                 onClick={() => {
-                  resetOffDay()
+                  resetOffDay({})
                   setEditOffDay(false)
                 }}
               >
