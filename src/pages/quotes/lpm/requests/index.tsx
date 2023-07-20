@@ -116,7 +116,7 @@ export default function LpmRequests() {
   }
 
   function onRowClick(id: number) {
-    router.push(`/quotes/requests/${id}`)
+    router.push(`/quotes/lpm/requests/${id}`)
   }
 
   return (

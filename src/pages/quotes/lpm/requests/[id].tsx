@@ -502,6 +502,6 @@ const ItemBox = styled(Box)`
 `
 
 RequestDetail.acl = {
-  subject: 'client_request',
+  subject: 'lpm_request',
   action: 'read',
 }
