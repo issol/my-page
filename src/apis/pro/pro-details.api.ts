@@ -52,7 +52,7 @@ export const getMyOffDays = async (
   }
 }
 
-export const updateMyOffDays = async (
+export const createMyOffDays = async (
   userId: number,
   start: string,
   end: string,
@@ -61,6 +61,27 @@ export const updateMyOffDays = async (
   try {
     const { data } = await axios.post(
       `/api/enough/u/pro/${userId}/unavailable-day`,
+      {
+        start,
+        end,
+        reason,
+      },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e.response.status)
+  }
+}
+
+export const updateMyOffDays = async (
+  offDayId: number,
+  start: string,
+  end: string,
+  reason?: string,
+): Promise<OffDayEventType> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/pro/unavailable-day/${offDayId}`,
       {
         start,
         end,
@@ -81,6 +102,19 @@ export const updateWeekends = async (
     const { data } = await axios.put(
       `/api/enough/u/pro/${userId}/off-weekends`,
       { offOnWeekends },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteOffDays = async (
+  offDayId: number,
+): Promise<Array<OffDayEventType>> => {
+  try {
+    const { data } = await axios.delete(
+      `/api/enough/u/pro/unavailable-day/${offDayId}`,
     )
     return data
   } catch (e: any) {

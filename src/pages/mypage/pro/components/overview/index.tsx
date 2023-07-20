@@ -67,9 +67,11 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import {
+  deleteOffDays,
   deleteResume,
-  updateMyOffDays,
+  createMyOffDays,
   updateWeekends,
+  updateMyOffDays,
 } from '@src/apis/pro/pro-details.api'
 import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
 
@@ -87,7 +89,6 @@ type Props = {
 /* TODO
 1. file upload
 2. file delete
-3. off delete, update
 4. userInfo update : profile, experience, notes, specialties
 */
 export default function MyPageOverview({ user, userInfo }: Props) {
@@ -108,6 +109,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   const [editOffDay, setEditOffDay] = useState(false)
   const [editExperience, setEditExperience] = useState(false)
   const [editSpecialties, setEditSpecialties] = useState(false)
+  const [offDayId, setOffDayId] = useState<number | null>(null)
 
   //forms
   const [note, setNote] = useState(userInfo.notesFromUser)
@@ -211,34 +213,61 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     resolver: yupResolver(offDaySchema),
   })
 
-  const updateOffDay = useMutation(
+  const createOffDay = useMutation(
     (data: { start: string; end: string; reason?: string }) =>
-      updateMyOffDays(user?.userId!, data.start, data.end, data.reason),
+      createMyOffDays(user?.userId!, data.start, data.end, data.reason),
     {
       onSuccess: () => invalidateOffDay(),
-      onError: e => {
-        //TODO: 에러코드별 분기처리해주기. 중복인 경우 & 서버에러인 경우
-        openModal({
-          type: 'duplicateOffDay',
-          children: (
-            <SimpleAlertModal
-              message='There is already an unavailable day selected on the chosen date.
-          Please deselect the already chosen date and proceed again.'
-              onClose={() => closeModal('duplicateOffDay')}
-            />
-          ),
-        })
-        // onError()
+      onError: (e: any) => {
+        console.log('error', e.message)
+        if (e.message === '406') {
+          openModal({
+            type: 'duplicateOffDay',
+            children: (
+              <SimpleAlertModal
+                message='There is already an unavailable day selected on the chosen date.
+            Please deselect the already chosen date and proceed again.'
+                onClose={() => closeModal('duplicateOffDay')}
+              />
+            ),
+          })
+        } else {
+          onError()
+        }
       },
     },
   )
+
+  const updateOffDays = useMutation(
+    ({
+      offDayId,
+      start,
+      end,
+      reason,
+    }: {
+      offDayId: number
+      start: string
+      end: string
+      reason?: string
+    }) => updateMyOffDays(offDayId, start, end, reason),
+    {
+      onSuccess: () => invalidateOffDay(),
+      onError: () => onError(),
+    },
+  )
+
   function onOffDaySave() {
     setEditOffDay(false)
     let data = getOffDayValues()
     if (data?.otherReason) {
       data = { ...data, reason: data.otherReason }
     }
-    updateOffDay.mutate(data)
+
+    if (offDayId !== null) {
+      updateOffDays.mutate({ ...data, offDayId })
+    } else {
+      createOffDay.mutate(data)
+    }
   }
 
   const updateWeekendsMutation = useMutation(
@@ -268,8 +297,27 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     })
   }
 
+  const deleteOffMutation = useMutation((id: number) => deleteOffDays(id), {
+    onSuccess: () => invalidateOffDay(),
+    onError: () => onError(),
+  })
+
   function deleteOffDay(id: number) {
-    //TODO: mutation붙이기 + confirm modal
+    openModal({
+      type: 'deleteOffDay',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('deleteOffDay')}
+          onClick={() => {
+            deleteOffMutation.mutate(id)
+            closeModal('deleteOffDay')
+          }}
+          title='Are you sure to delete the off day?'
+          vary='error'
+          rightButtonText='Delete'
+        />
+      ),
+    })
   }
 
   const offDayOptions = [
@@ -504,8 +552,6 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                   type: 'edit' | 'delete',
                   info: OffDayEventType,
                 ) => {
-                  //TODO: type에 따라 edit, delete처리 해주기
-                  console.log(type, 'info', info)
                   if (type === 'edit') {
                     const isEtc =
                       offDayOptions.find(opt => opt === info.reason) ===
@@ -515,6 +561,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                       reason: isEtc ? 'etc.' : info.reason,
                       otherReason: isEtc ? info.reason : '',
                     })
+                    setOffDayId(info.id!)
                     setEditOffDay(true)
                   } else {
                     deleteOffDay(info.id!)
