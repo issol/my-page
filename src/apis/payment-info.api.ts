@@ -2,6 +2,10 @@ import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import axios from '@src/configs/axios'
 import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
+import {
+  CorrespondentBankInfo,
+  ProPaymentType,
+} from '@src/types/payment-info/pro/billing-method.type'
 
 export type TaxInfoType =
   | 'Korea resident'
@@ -18,27 +22,23 @@ export type UserInfo = {
 }
 export type UserPaymentInfoType = {
   userInfo: UserInfo
-  type:
-    | 'Transfer wise'
-    | 'US ACH'
-    | 'Korea domestic transfer'
-    | 'International Wire'
-    | 'PayPal'
-    | ''
+  type: ProPaymentType | null
+  // type:
+  //   | 'Transfer wise'
+  //   | 'US ACH'
+  //   | 'Korea domestic transfer'
+  //   | 'International Wire'
+  //   | 'PayPal'
+  //   | ''
   bankInfo: {
     email?: string
-    accountName: string
+    bankName: string
     accountNumber: string
     routingNumber: string
     swiftCode: string
-    ibnNumber: string
+    iban: string
   }
-  correspondentBankInfo: {
-    accountNumber: string
-    bankIdentifierCode: string //SWIFT, BIC
-    others: string
-  }
-
+  correspondentBankInfo: CorrespondentBankInfo
   billingAddress: {
     street1?: string
     street2?: string
@@ -50,7 +50,7 @@ export type UserPaymentInfoType = {
 
   tax: {
     taxInfo: TaxInfoType
-    taxRate: number
+    tax: number
   }
 
   files: Array<FileItemType>
@@ -80,19 +80,19 @@ export const getUserPaymentInfo = async (
         identificationUploaded: false,
         businessLicenseUploaded: false,
       },
-      type: '',
+      type: null,
       bankInfo: {
-        accountName: '',
+        bankName: '',
         email: '',
         accountNumber: '',
         routingNumber: '',
         swiftCode: '',
-        ibnNumber: '',
+        iban: '',
       },
       correspondentBankInfo: {
         accountNumber: '',
-        bankIdentifierCode: '',
-        others: '',
+        swiftCode: '',
+        iban: '',
       },
 
       billingAddress: {
@@ -103,7 +103,7 @@ export const getUserPaymentInfo = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        taxRate: 0.03,
+        tax: 0.03,
       },
       files: [
         {
@@ -165,19 +165,19 @@ export const getUserPaymentInfoForManager = async (
         identificationUploaded: false,
         businessLicenseUploaded: false,
       },
-      type: '',
+      type: null,
       bankInfo: {
-        accountName: '',
+        bankName: '',
         email: '',
         accountNumber: '',
         routingNumber: '',
         swiftCode: '',
-        ibnNumber: '',
+        iban: '',
       },
       correspondentBankInfo: {
         accountNumber: '',
-        bankIdentifierCode: '',
-        others: '',
+        swiftCode: '',
+        iban: '',
       },
 
       billingAddress: {
@@ -188,7 +188,7 @@ export const getUserPaymentInfoForManager = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        taxRate: 0.03,
+        tax: 0.03,
       },
       files: [
         {

@@ -19,37 +19,44 @@ export const proPaymentMethodPairs: Array<{
   { value: 'internationalWire', label: 'International wire' },
 ]
 
+export type BillingMethodUnionType =
+  | TransferWiseFormType
+  | KoreaDomesticTransferType
+  | KoreaDomesticTransferSoloType
+  | PayPalType
+
 // ** Transferwise, US ACH, International wire 용 form
 export type TransferWiseFormType = {
-  billingMethod: ProPaymentType
+  type: ProPaymentType | null
   copyOfId: File
   personalId: string
-  bankInfo: BankInfo
+  // bankInfo: BankInfo
   haveCorrespondentBank: boolean
-  correspondentBankInfo?: CorrespondentBankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 // ** 국내계좌송금 - 일반
 export type KoreaDomesticTransferType = {
-  billingMethod: ProPaymentType
+  type: ProPaymentType | null
   rrn: number //Resident registration number
   copyOfRrCard: File //Copy of Resident Registration Card
   copyOfBankStatement: File //Copy of bank statement
-  bankInfo: BankInfo
-  correspondentBankInfo?: CorrespondentBankInfo
+  // bankInfo: BankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 // ** 국내계좌송금 - 개인사업자
 export type KoreaDomesticTransferSoloType = {
-  billingMethod: ProPaymentType
+  type: ProPaymentType | null
   businessName: string
   businessNumber: number //Business Registration Number*
   copyOfRrCard: File //Copy of Resident Registration Card
-  bankInfo: BankInfo
-  correspondentBankInfo?: CorrespondentBankInfo
+  // bankInfo: BankInfo
+  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 export type PayPalType = {
+  type: ProPaymentType | null
   email: string
   personalId: string
   copyOfId: File
@@ -58,13 +65,13 @@ export type PayPalType = {
 export type BankInfo = {
   bankName: string
   accountNumber: string
-  bankRoutingNumber?: string
+  routingNumber?: string
   swiftCode?: string
   iban?: string
 }
 
 export type CorrespondentBankInfo = {
-  bankRoutingNumber?: string
-  swiftCode?: string
+  accountNumber?: string
+  swiftCode?: string //SWIFT, BIC
   iban?: string
 }

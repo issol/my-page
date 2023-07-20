@@ -44,7 +44,7 @@ export default function BillingMethod({
       />
       {!info?.type ? (
         <div></div>
-      ) : info?.type === 'PayPal' ? (
+      ) : info?.type === 'paypal' ? (
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography variant='h6'>PayPal</Typography>
@@ -63,7 +63,7 @@ export default function BillingMethod({
         <BankBox>
           <Box display='flex' alignItems='center' gap='8px'>
             <Typography sx={{ fontWeight: 'bold' }}>
-              {info.bankInfo?.accountName}
+              {info.bankInfo?.bankName}
             </Typography>
             <CustomChip
               rounded
@@ -106,9 +106,9 @@ export default function BillingMethod({
                 </Typography>
               </ContentGrid>
               <ContentGrid>
-                <Typography sx={{ fontWeight: 'bold' }}>IBN number</Typography>
+                <Typography sx={{ fontWeight: 'bold' }}>IBAN</Typography>
                 <Typography variant='body2'>
-                  {replaceDots(info.bankInfo?.ibnNumber ?? '')}
+                  {replaceDots(info.bankInfo?.iban ?? '')}
                 </Typography>
               </ContentGrid>
             </Grid>
@@ -130,15 +130,13 @@ export default function BillingMethod({
                   SWIFT code / BIC
                 </Typography>
                 <Typography variant='body2'>
-                  {replaceDots(
-                    info.correspondentBankInfo?.bankIdentifierCode ?? '',
-                  )}
+                  {replaceDots(info.correspondentBankInfo?.swiftCode ?? '')}
                 </Typography>
               </ContentGrid>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 'bold' }}>Others</Typography>
                 <Typography variant='body2'>
-                  {replaceDots(info.correspondentBankInfo?.others ?? '')}
+                  {replaceDots(info.correspondentBankInfo?.iban ?? '')}
                 </Typography>
               </ContentGrid>
             </Grid>
