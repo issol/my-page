@@ -5,8 +5,12 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { CurrencyType } from './standard-price'
 import { MemSourceType, MemoQType } from './tm-analysis.type'
 
-export type ItemType = Omit<PostItemType, 'analysis'> & {
+export type ItemType = Omit<
+  PostItemType,
+  'analysis' | 'showItemDescription'
+> & {
   analysis?: Array<AnalysisFileType>
+  showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
 }
@@ -27,7 +31,7 @@ export type PostItemType = {
   priceId: number | null
   detail?: Array<ItemDetailType>
   description?: string | null
-  isShowItemDescription?: boolean
+  showItemDescription?: '1' | '0'
   analysis?: number[] //file id를 보내기
   totalPrice: number
 }

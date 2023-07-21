@@ -11,7 +11,7 @@ import {
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import IconifyIcon from '@src/@core/components/icon'
-import { getClient, patchClientForOrder } from '@src/apis/order-detail.api'
+import { getClient } from '@src/apis/order-detail.api'
 
 import useModal from '@src/hooks/useModal'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'

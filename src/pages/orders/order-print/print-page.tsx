@@ -1,5 +1,5 @@
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import MakeTable, { Row } from '../order-list/detail/components/rows'
+import MakeTable from '../order-list/detail/components/rows'
 import { useEffect } from 'react'
 import {
   LanguageAndItemType,
@@ -8,10 +8,8 @@ import {
 import { useRouter } from 'next/router'
 import {
   Box,
-  Button,
   Divider,
   Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -26,8 +24,8 @@ import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { patchProjectInfo } from '@src/apis/order-detail.api'
+
+import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
 
 type Props = {
   data: OrderDownloadData
@@ -42,7 +40,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
 
   const patchProjectInfoMutation = useMutation(
     (data: { id: number; form: { downloadedAt: string } }) =>
-      patchProjectInfo(data.id, data.form),
+      patchOrderProjectInfo(data.id, data.form),
     {},
   )
   useEffect(() => {

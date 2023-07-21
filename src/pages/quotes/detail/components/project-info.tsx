@@ -185,7 +185,8 @@ export default function QuotesProjectInfoDetail({
           <Grid item xs={6}>
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
-              {isUpdatable &&
+              {type === 'detail' &&
+              isUpdatable &&
               project.status !== 'Quote sent' &&
               project.status !== 'Client review' &&
               project.status !== 'Revision requested' &&

@@ -1,10 +1,11 @@
 import axios from '@src/configs/axios'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { OrderStatusType } from '@src/types/common/orders.type'
+
 import {
   OrderListFilterType,
   OrderListForJobType,
   OrderListType,
+  OrderStatusType,
 } from '@src/types/orders/order-list'
 
 export type OrderListCalendarEventType = OrderListType & {
@@ -14,11 +15,12 @@ export type OrderListCalendarEventType = OrderListType & {
 
 export const getOrderList = async (
   filter: OrderListFilterType,
-): Promise<{ data: OrderListType[]; count: number }> => {
+): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
   try {
     const { data } = await axios.get<{
       data: OrderListType[]
       count: number
+      totalCount: number
     }>(`/api/enough/u/order/list?${makeQuery(filter)}`)
 
     return data
@@ -26,6 +28,7 @@ export const getOrderList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -64,32 +67,52 @@ export const getOrderListInJob = async (
 }
 
 function getColor(status: OrderStatusType) {
-  return status === 'In preparation'
-    ? `#F572D8`
+  return status === 'New'
+    ? '#666CFF'
+    : status === 'In preparation'
+    ? '#F572D8'
     : status === 'In progress'
-    ? `#FDB528`
-    : status === 'Completed'
-    ? `#72E128`
+    ? '#FDB528'
+    : status === 'Internal review'
+    ? '#D8AF1D'
+    : status === 'Order sent'
+    ? '#B06646'
+    : status === 'Under revision'
+    ? '#26C6F9'
+    : status === 'Partially delivered'
+    ? '#BA971A'
+    : status === 'Delivery completed'
+    ? '#1A6BBA'
+    : status === 'Redelivery requested'
+    ? '#A81988'
+    : status === 'Delivery confirmed'
+    ? '#64C623'
     : status === 'Invoiced'
-    ? `#9B6CD8`
+    ? '#9B6CD8'
+    : status === 'Paid'
+    ? '#1B8332'
     : status === 'Canceled'
     ? '#FF4D49'
-    : null
+    : ''
 }
 
 export const getOrderListCalendar = async (
   year: number,
   month: number,
+  filter: OrderListFilterType,
 ): Promise<{ data: OrderListCalendarEventType[]; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/order/list?year=${year}&month=${month}`,
+      `/api/enough/u/order/calendar?year=${year}&month=${month}${makeQuery(
+        filter,
+      )}`,
     )
 
     // return data
+    console.log(data)
 
     return {
-      data: data.data?.map((item: OrderListType, idx: number) => {
+      data: data?.map((item: OrderListType, idx: number) => {
         return {
           ...item,
           extendedProps: {
@@ -98,7 +121,7 @@ export const getOrderListCalendar = async (
           allDay: true,
         }
       }),
-      totalCount: data?.totalCount ?? 0,
+      totalCount: data?.length ?? 0,
     }
 
     // const data: OrderListType[] = [

@@ -18,6 +18,20 @@ export const PauseReason = {
   Others: '',
 }
 
+export const CancelQuoteReason = [
+  'The task/language is currently unavailable.',
+  'The due date needs to be adjusted.',
+  `The quote has been canceled upon the client's request.`,
+  'Others',
+]
+
+export const CancelOrderReason = [
+  'The task/language is currently unavailable.',
+  'The due date needs to be adjusted.',
+  `The quote has been canceled upon the client's request.`,
+  'Others',
+]
+
 export const RequestRevisionReason = [
   'The price quoted is higher than what I had anticipated.',
   'The due date falls outside my preferred timeline.',

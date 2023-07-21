@@ -34,4 +34,5 @@ export type CancelReasonType = {
   from: 'client' | 'lsp'
   reason: string
   message: string
+  type?: string
 }

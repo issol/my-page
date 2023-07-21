@@ -1,14 +1,4 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  Grid,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import Icon from '@src/@core/components/icon'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
@@ -19,23 +9,22 @@ import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-f
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
-import { useGetLangItem } from '@src/queries/order/order.query'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   LanguagePairsPostType,
   LanguagePairsType,
 } from '@src/types/common/orders-and-quotes.type'
+import { PriceUnitListType } from '@src/types/common/standard-price'
 import {
-  PriceUnitListType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
-import { LanguageAndItemType } from '@src/types/orders/order-detail'
-import { itemSchema } from '@src/types/schema/item.schema'
+  LanguageAndItemType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
+
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
-import { useRouter } from 'next/router'
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
+
+import { Dispatch, SetStateAction } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -45,9 +34,9 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  useForm,
 } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
+import { updateOrderType } from '../[id]'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -93,6 +82,16 @@ type Props = {
   orderId: number
   setLangItemsEdit: Dispatch<SetStateAction<boolean>>
   langItemsEdit: boolean
+  project?: ProjectInfoType
+  updateItems?: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      items: PostItemType[]
+    },
+    unknown
+  >
 }
 
 const LanguageAndItem = ({
@@ -115,6 +114,8 @@ const LanguageAndItem = ({
   orderId,
   setLangItemsEdit,
   langItemsEdit,
+  project,
+  updateItems,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -140,6 +141,7 @@ const LanguageAndItem = ({
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -222,6 +224,7 @@ const LanguageAndItem = ({
       priceId: null,
       detail: [],
       totalPrice: 0,
+      showItemDescription: false,
     })
   }
 
@@ -281,13 +284,23 @@ const LanguageAndItem = ({
         <Button
           variant='outlined'
           sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+          disabled={
+            items.length < 1 ||
+            project?.status === 'Paid' ||
+            project?.status === 'Canceled'
+          }
         >
           <Icon icon='ic:baseline-splitscreen' />
-          Split Order
+          Split order
         </Button>
-        <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
+        {project &&
+        project.status !== 'Invoiced' &&
+        project.status !== 'Paid' &&
+        project.status !== 'Canceled' ? (
+          <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        ) : null}
       </Box>
       <Grid item xs={12}>
         <AddLanguagePairForm
@@ -313,6 +326,8 @@ const LanguageAndItem = ({
           priceUnitsList={priceUnitsList || []}
           type={langItemsEdit ? 'edit' : 'detail'}
           itemTrigger={itemTrigger}
+          project={project}
+          updateItems={updateItems}
         />
       </Grid>
       {langItemsEdit ? (

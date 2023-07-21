@@ -16,6 +16,7 @@ import {
 import Icon from '@src/@core/components/icon'
 import {
   ChangeEvent,
+  Fragment,
   MouseEvent,
   Suspense,
   SyntheticEvent,
@@ -47,13 +48,14 @@ import {
   useGetProjectTeam,
   useGetVersionHistory,
 } from '@src/queries/order/order.query'
+
 import DownloadOrderModal from './components/modal/download-order-modal'
 import OrderPreview from './components/order-preview'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
+import { deleteOrder, patchOrderProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -73,10 +75,30 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import {
   LanguagePairsPostType,
   LanguagePairsType,
+  ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
+import { useGetStatusList } from '@src/queries/common.query'
+import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import { CancelOrderReason } from '@src/shared/const/reason/reason'
+import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+
 interface Detail {
   id: number
   quantity: number
@@ -94,6 +116,23 @@ export interface Row {
   detail: Detail[]
 }
 
+export type updateOrderType =
+  | OrderProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientFormType
+  | { status: number }
+  | { tax: null | number; isTaxable: '1' | '0' }
+  | { downloadedAt: string }
+  | { status: number; reason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
+  | { showDescription: boolean }
+
+type RenderSubmitButtonProps = {
+  onCancel: () => void
+  onSave: () => void
+  isValid: boolean
+}
+
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
 const OrderDetail = () => {
   const router = useRouter()
@@ -102,7 +141,9 @@ const OrderDetail = () => {
   const { user } = useContext(AuthContext)
 
   const [value, setValue] = useState<MenuType>('project')
+  const { data: statusList } = useGetStatusList('Order')
   const dispatch = useAppDispatch()
+  const currentRole = getCurrentRole()
 
   useEffect(() => {
     if (
@@ -112,10 +153,6 @@ const OrderDetail = () => {
       setValue(menuQuery)
     }
   }, [menuQuery])
-
-  // useEffect(() => {
-  //   router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
-  // }, [value])
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -129,8 +166,38 @@ const OrderDetail = () => {
     Number(id!),
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable)
   const { data: priceUnitsList } = useGetAllClientPriceList()
+
+  const {
+    control: projectInfoControl,
+    getValues: getProjectInfo,
+    setValue: setProjectInfo,
+    watch: projectInfoWatch,
+    reset: projectInfoReset,
+    formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
+  } = useForm<OrderProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: orderProjectInfoDefaultValue,
+    resolver: yupResolver(orderProjectInfoSchema),
+  })
+
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    reset: clientReset,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
 
   const {
     control: itemControl,
@@ -232,6 +299,66 @@ const OrderDetail = () => {
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
 
+  function renderSubmitButton({
+    onCancel,
+    onSave,
+    isValid,
+  }: RenderSubmitButtonProps) {
+    return (
+      <Grid item xs={12}>
+        <Box display='flex' gap='16px' justifyContent='center'>
+          <Button variant='outlined' color='secondary' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant='contained' disabled={!isValid} onClick={onSave}>
+            Save
+          </Button>
+        </Box>
+      </Grid>
+    )
+  }
+
+  function onSave(callBack: () => void) {
+    openModal({
+      type: 'EditSaveModal',
+      children: (
+        <EditSaveModal
+          onClose={() => closeModal('EditSaveModal')}
+          onClick={() => {
+            closeModal('EditSaveModal')
+            callBack()
+          }}
+        />
+      ),
+    })
+  }
+
+  function onDiscard({ callback }: { callback: () => void }) {
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <DiscardModal
+          onClose={() => {
+            // callback()
+            closeModal('DiscardModal')
+          }}
+          onClick={() => {
+            callback()
+            closeModal('DiscardModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  function onProjectInfoSave() {
+    const projectInfo = getProjectInfo()
+
+    onSave(() => updateProject.mutate(projectInfo))
+  }
+
+  console.log(getItem())
+
   const initializeData = () => {
     setLanguagePairs(
       langItem?.languagePairs?.map(item => ({
@@ -258,6 +385,7 @@ const OrderDetail = () => {
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
+        showItemDescription: item.showItemDescription,
       }
     })
     itemReset({ items: result })
@@ -309,13 +437,6 @@ const OrderDetail = () => {
 
     setValue(newValue)
   }
-
-  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries('orderList')
-      router.push('/orders/order-list')
-    },
-  })
 
   const handleRestoreVersion = () => {
     // TODO API 연결
@@ -513,7 +634,25 @@ const OrderDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem, projectTeam])
+    if (projectInfo) {
+      const res = {
+        ...projectInfo,
+        status:
+          statusList?.find(item => item.label === projectInfo.status)?.value ??
+          100,
+      }
+      projectInfoReset(res)
+    }
+
+    if (client) {
+      clientReset({
+        clientId: client.client.clientId,
+        contactPersonId: client.contactPerson?.id,
+        addressType: client.clientAddress.find(value => value.isSelected)
+          ?.addressType!,
+      })
+    }
+  }, [langItem, projectTeam, projectInfo, client])
 
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
@@ -530,6 +669,7 @@ const OrderDetail = () => {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -565,27 +705,70 @@ const OrderDetail = () => {
       },
     )
 
-    // @ts-ignore
-    patchProjectInfoMutation.mutate({ id: Number(id), form: { taxable, tax } })
+    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax })
   }
 
-  const patchProjectInfoMutation = useMutation(
-    (data: { id: number; form: OrderProjectInfoFormType }) =>
-      patchProjectInfo(data.id, data.form),
+  const updateProject = useMutation(
+    (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
       onSuccess: () => {
         setProjectInfoEdit(false)
-        queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
+        setClientEdit(false)
+        setProjectTeamEdit(false)
+        setLangItemsEdit(false)
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
         })
-        closeModal('EditSaveModal')
+        queryClient.invalidateQueries(['orderList'])
       },
+      onError: () => onMutationError(),
     },
   )
+
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  function onProjectTeamSave() {
+    const teams = transformTeamData(getTeamValues())
+    onSave(() => updateProject.mutate(teams))
+  }
+
+  function onClientSave() {
+    const form = getClientValue()
+    const clientInfo: ClientFormType = {
+      addressType: form.addressType,
+      clientId: form.clientId!,
+      contactPersonId: form.contactPersonId,
+    }
+    onSave(() => updateProject.mutate(clientInfo))
+  }
+
+  const onClickConfirmOrder = () => {
+    openModal({
+      type: 'ConfirmOrderModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmOrderModal')}
+          onClick={() =>
+            updateProject.mutate(
+              { isConfirmed: true, status: 103 },
+              {
+                onSuccess: () => {
+                  closeModal('ConfirmOrderModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to confirm this order? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -624,16 +807,47 @@ const OrderDetail = () => {
               <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
             </Box>
           </Box>
-          <Box>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadOrder}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download order
-            </Button>
-          </Box>
+          {projectInfoEdit ||
+          projectTeamEdit ||
+          clientEdit ||
+          langItemsEdit ? null : (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickDownloadOrder}
+                disabled={
+                  projectInfo?.status === 'New' ||
+                  projectInfo?.status === 'In preparation' ||
+                  projectInfo?.status === 'Internal review' ||
+                  projectInfo?.status === 'Under revision'
+                }
+              >
+                <Icon icon='material-symbols:request-quote' />
+                Download order
+              </Button>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                // onClick={onClickDownloadOrder}
+                disabled={projectInfo?.status !== 'Delivery confirmed'}
+              >
+                Create invoice
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickConfirmOrder}
+                disabled={
+                  projectInfo?.status !== 'New' &&
+                  projectInfo?.status !== 'In preparation' &&
+                  projectInfo?.status !== 'Under revision'
+                }
+              >
+                Confirm order
+              </Button>
+            </Box>
+          )}
         </Box>
         <Box>
           <TabContext value={value}>
@@ -684,14 +898,49 @@ const OrderDetail = () => {
             </TabList>
             <TabPanel value='project' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectInfo
-                  type={'detail'}
-                  projectInfo={projectInfo!}
-                  edit={projectInfoEdit}
-                  setEdit={setProjectInfoEdit}
-                  orderId={Number(id!)}
-                  onSave={patchProjectInfoMutation.mutate}
-                />
+                {projectInfoEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <DatePickerWrapper>
+                      <Grid container spacing={6}>
+                        <ProjectInfoForm
+                          control={projectInfoControl}
+                          setValue={setProjectInfo}
+                          watch={projectInfoWatch}
+                          errors={projectInfoErrors}
+                          clientTimezone={getClientValue('contacts.timezone')}
+                          getClientValue={getClientValue}
+                          getValues={getProjectInfo}
+                        />
+                        {renderSubmitButton({
+                          onCancel: () =>
+                            onDiscard({
+                              callback: () => setProjectInfoEdit(false),
+                            }),
+                          onSave: () => onProjectInfoSave(),
+                          isValid: isProjectInfoValid,
+                        })}
+                      </Grid>
+                    </DatePickerWrapper>
+                  </Card>
+                ) : (
+                  <Fragment>
+                    <ProjectInfo
+                      type={'detail'}
+                      project={projectInfo!}
+                      setEditMode={setProjectInfoEdit}
+                      isUpdatable={
+                        currentRole! && currentRole.name !== 'CLIENT'
+                      }
+                      updateStatus={(status: number) =>
+                        updateProject.mutate({ status: status })
+                      }
+                      updateProject={updateProject}
+                      client={client}
+                      statusList={statusList!}
+                      role={currentRole!}
+                    />
+                  </Fragment>
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}>
@@ -717,6 +966,8 @@ const OrderDetail = () => {
                     orderId={Number(id!)}
                     langItemsEdit={langItemsEdit}
                     setLangItemsEdit={setLangItemsEdit}
+                    project={projectInfo!}
+                    updateItems={patchItems}
                   />
                   <Grid
                     item
@@ -806,41 +1057,72 @@ const OrderDetail = () => {
               </Card>
             </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
-              <OrderDetailClient
-                type={'detail'}
-                client={client!}
-                edit={clientEdit}
-                setEdit={setClientEdit}
-                orderId={Number(id!)}
-                setTax={setTax}
-                setTaxable={setTaxable}
-              />
+              <Suspense>
+                {clientEdit ? (
+                  <Grid container spacing={6}>
+                    <ClientQuotesFormContainer
+                      control={clientControl}
+                      setValue={setClientValue}
+                      watch={clientWatch}
+                      setTax={setTax}
+                      setTaxable={setTaxable}
+                      type='order'
+                    />
+                    {renderSubmitButton({
+                      onCancel: () =>
+                        onDiscard({ callback: () => setClientEdit(false) }),
+                      onSave: () => onClientSave(),
+                      isValid: isClientValid,
+                    })}
+                  </Grid>
+                ) : (
+                  <OrderDetailClient
+                    type={'detail'}
+                    client={client!}
+                    setEdit={setClientEdit}
+                  />
+                )}
+              </Suspense>
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectTeam
-                  type='detail'
-                  list={projectTeam!}
-                  listCount={projectTeam?.length!}
-                  columns={getProjectTeamColumns()}
-                  page={projectTeamListPage}
-                  setPage={setProjectTeamListPage}
-                  pageSize={projectTeamListPageSize}
-                  setPageSize={setProjectTeamListPageSize}
-                  edit={projectTeamEdit}
-                  setEdit={setProjectTeamEdit}
-                  teamControl={teamControl}
-                  members={members}
-                  appendMember={appendMember}
-                  removeMember={removeMember}
-                  updateMember={updateMember}
-                  getTeamValues={getTeamValues}
-                  setTeamValues={setTeamValues}
-                  teamErrors={teamErrors}
-                  isTeamValid={isTeamValid}
-                  teamWatch={teamWatch}
-                  orderId={Number(id!)}
-                />
+                {projectTeamEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <Grid container spacing={6}>
+                      <ProjectTeamFormContainer
+                        control={teamControl}
+                        field={members}
+                        append={appendMember}
+                        remove={removeMember}
+                        update={updateMember}
+                        setValue={setTeamValues}
+                        errors={teamErrors}
+                        isValid={isTeamValid}
+                        watch={teamWatch}
+                      />
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({
+                            callback: () => setProjectTeamEdit(false),
+                          }),
+                        onSave: () => onProjectTeamSave(),
+                        isValid: isTeamValid,
+                      })}
+                    </Grid>
+                  </Card>
+                ) : (
+                  <ProjectTeam
+                    type='detail'
+                    list={projectTeam!}
+                    listCount={projectTeam?.length!}
+                    columns={getProjectTeamColumns()}
+                    page={projectTeamListPage}
+                    setPage={setProjectTeamListPage}
+                    pageSize={projectTeamListPageSize}
+                    setPageSize={setProjectTeamListPageSize}
+                    setEdit={setProjectTeamEdit}
+                  />
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>

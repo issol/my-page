@@ -726,7 +726,7 @@ export default function ProjectInfoForm({
           <Typography variant='h6'>Project description</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Controller
-              name='isShowDescription'
+              name='showDescription'
               control={control}
               render={({ field: { value, onChange } }) => (
                 <Checkbox

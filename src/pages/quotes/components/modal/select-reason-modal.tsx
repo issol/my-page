@@ -26,6 +26,8 @@ type Props = {
   action: string
   from: 'lsp' | 'client'
   statusList: { value: number; label: string }[]
+  reasonList: string[]
+  type: 'canceled' | 'rejected' | 'requested_revision' | 'redelivery_request'
 }
 
 const SelectReasonModal = ({
@@ -39,6 +41,8 @@ const SelectReasonModal = ({
   action,
   from,
   statusList,
+  reasonList,
+  type,
 }: Props) => {
   const [reason, setReason] = useState<string>('')
   const [messageToLsp, setMessageToLsp] = useState<string>('')
@@ -112,10 +116,7 @@ const SelectReasonModal = ({
             <Box
               sx={{ display: 'flex', flexDirection: 'column', gap: 1, pl: 2.2 }}
             >
-              {(rightButtonText === 'Reject'
-                ? RejectQuoteReason
-                : RequestRevisionReason
-              ).map(value => {
+              {reasonList.map(value => {
                 return (
                   <FormControlLabel
                     key={uuidv4()}
@@ -196,6 +197,7 @@ const SelectReasonModal = ({
                 from: from,
                 reason: reason,
                 message: messageToLsp,
+                type: type,
               })
             }
             disabled={reason === '' || messageToLsp === ''}

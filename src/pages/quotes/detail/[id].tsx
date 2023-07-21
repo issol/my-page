@@ -136,6 +136,7 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
+import { CancelOrderReason } from '@src/shared/const/reason/reason'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -143,7 +144,7 @@ export type updateProjectInfoType =
   | QuotesProjectInfoFormType
   | ProjectTeamFormType
   | ClientPostType
-  | { tax: null | number; taxable: boolean }
+  | { tax: null | number; isTaxable: boolean }
   | { status: number }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
@@ -222,7 +223,7 @@ export default function QuotesDetail() {
     defaultValues: {
       status: 20000,
       projectName: '',
-      isShowDescription: false,
+      showDescription: false,
     },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
@@ -246,7 +247,7 @@ export default function QuotesDetail() {
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        isShowDescription: false,
+        showDescription: false,
 
         quoteDate: {
           date: project.quoteDate,
@@ -271,7 +272,7 @@ export default function QuotesDetail() {
       })
 
       setTax(project.tax ?? null)
-      setTaxable(project.taxable)
+      setTaxable(project.isTaxable)
       setProjectInfo('quoteDate', {
         date: project.quoteDate,
         timezone: project.quoteDateTimezone ?? defaultTimezone,
@@ -447,7 +448,7 @@ export default function QuotesDetail() {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [tax, setTax] = useState<number | null>(project!.tax)
-  const [taxable, setTaxable] = useState(project?.taxable || false)
+  const [taxable, setTaxable] = useState(project?.isTaxable || false)
 
   // ** Version history
   const [historyPageSize, setHistoryPageSize] = useState(10)
@@ -496,7 +497,7 @@ export default function QuotesDetail() {
 
   const restoreMutation = useMutation((id: number) => restoreVersion(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(`quotesHistory`)
+      queryClient.invalidateQueries(['quotesDetail'])
     },
     onError: () => onMutationError(),
   })
@@ -598,7 +599,6 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
-    console.log(projectInfo)
 
     onSave(() => updateProject.mutate(projectInfo))
   }
@@ -607,6 +607,7 @@ export default function QuotesDetail() {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -629,7 +630,7 @@ export default function QuotesDetail() {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, taxable })
+        updateProject.mutate({ tax, isTaxable: taxable })
         setEditItems(false)
         queryClient.invalidateQueries({
           queryKey: ['quotesDetailItems'],
@@ -731,6 +732,8 @@ export default function QuotesDetail() {
           action='Canceled'
           from='lsp'
           statusList={statusList!}
+          type='canceled'
+          reasonList={CancelOrderReason}
         />
       ),
     })
@@ -880,7 +883,7 @@ export default function QuotesDetail() {
               { isConfirmed: true, status: 20003 },
               {
                 onSuccess: () => {
-                  closeModal('CancelQuoteModal')
+                  closeModal('ConfirmQuoteModal')
                 },
               },
             )

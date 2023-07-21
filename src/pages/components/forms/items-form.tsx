@@ -29,7 +29,11 @@ import {
 } from 'react-hook-form'
 
 // ** types
-import { ItemDetailType, ItemType } from '@src/types/common/item.type'
+import {
+  ItemDetailType,
+  ItemType,
+  PostItemType,
+} from '@src/types/common/item.type'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -69,6 +73,8 @@ import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import Link from 'next/link'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
+import { UseMutationResult } from 'react-query'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -90,6 +96,16 @@ type Props = {
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
   }>
+  updateItems?: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      items: PostItemType[]
+    },
+    unknown
+  >
+  project?: ProjectInfoType
 }
 
 export type DetailNewDataType = {
@@ -119,12 +135,19 @@ export default function ItemForm({
   type,
   orderId,
   itemTrigger,
+  updateItems,
+  project,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
+
+  const [showItemDescription, setShowItemDescription] = useState(
+    fields.map(value => value.showItemDescription),
+  )
+
   const [showMinimum, setShowMinimum] = useState({
     checked: false,
     show: false,
@@ -272,7 +295,7 @@ export default function ItemForm({
       const isNotMinimum =
         !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
 
-      if (!isMinimumPriceConfirmed && !isNotMinimum) {
+      if (!isMinimumPriceConfirmed && !isNotMinimum && type === 'edit') {
         setShowMinimum({ ...showMinimum, show: true })
         openModal({
           type: 'info-minimum',
@@ -444,6 +467,9 @@ export default function ItemForm({
                         autoHighlight
                         fullWidth
                         options={contactPersonList}
+                        isOptionEqualToValue={(option, newValue) => {
+                          return option.value === newValue.value
+                        }}
                         onChange={(e, v) => {
                           onChange(v?.value ?? '')
                         }}
@@ -586,6 +612,9 @@ export default function ItemForm({
                           fullWidth
                           options={options}
                           groupBy={option => option?.groupName}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.priceName === newValue.priceName
+                          }}
                           getOptionLabel={option => option.priceName}
                           onChange={(e, v) => {
                             onChange(v?.id)
@@ -660,13 +689,19 @@ export default function ItemForm({
                   {type === 'detail' || type === 'invoiceDetail' ? null : (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Controller
-                        name={`items.${idx}.isShowItemDescription`}
+                        name={`items.${idx}.showItemDescription`}
                         control={control}
                         render={({ field: { value, onChange } }) => (
                           <Checkbox
                             value={value}
                             onChange={e => {
                               onChange(e.target.checked)
+                              if (
+                                type === 'detail' ||
+                                type === 'invoiceDetail'
+                              ) {
+                                console.log(fields)
+                              }
                             }}
                             checked={value}
                           />
