@@ -50,7 +50,7 @@ export type UserPaymentInfoType = {
 
   tax: {
     taxInfo: TaxInfoType
-    tax: number
+    taxRate: number
   }
 
   files: Array<FileItemType>
@@ -103,7 +103,7 @@ export const getUserPaymentInfo = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        tax: 0.03,
+        taxRate: 0.03,
       },
       files: [
         {
@@ -188,7 +188,7 @@ export const getUserPaymentInfoForManager = async (
       },
       tax: {
         taxInfo: 'Korea resident',
-        tax: 0.03,
+        taxRate: 0.03,
       },
       files: [
         {
