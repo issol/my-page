@@ -273,35 +273,38 @@ const LanguageAndItem = ({
 
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        <Button
-          variant='outlined'
-          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
-          disabled={
-            items.length < 1 ||
-            project?.status === 'Paid' ||
-            project?.status === 'Canceled'
-          }
+      {!langItemsEdit ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}
         >
-          <Icon icon='ic:baseline-splitscreen' />
-          Split order
-        </Button>
-        {project &&
-        project.status !== 'Invoiced' &&
-        project.status !== 'Paid' &&
-        project.status !== 'Canceled' ? (
-          <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-            <Icon icon='mdi:pencil-outline' />
-          </IconButton>
-        ) : null}
-      </Box>
+          <Button
+            variant='outlined'
+            sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+            disabled={
+              items.length < 1 ||
+              project?.status === 'Paid' ||
+              project?.status === 'Canceled'
+            }
+          >
+            <Icon icon='ic:baseline-splitscreen' />
+            Split order
+          </Button>
+          {project &&
+          project.status !== 'Invoiced' &&
+          project.status !== 'Paid' &&
+          project.status !== 'Canceled' ? (
+            <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
+              <Icon icon='mdi:pencil-outline' />
+            </IconButton>
+          ) : null}
+        </Box>
+      ) : null}
+
       <Grid item xs={12}>
         <AddLanguagePairForm
           languagePairs={languagePairs}
@@ -328,6 +331,7 @@ const LanguageAndItem = ({
           itemTrigger={itemTrigger}
           project={project}
           updateItems={updateItems}
+          orderId={orderId}
         />
       </Grid>
       {langItemsEdit ? (

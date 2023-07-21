@@ -144,10 +144,19 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
-            <JobTypeChip type={row.category} label={row.category} />
+            {row.category ? (
+              <JobTypeChip type={row.category} label={row.category} />
+            ) : (
+              '-'
+            )}
 
-            <ServiceTypeChip label={row.serviceType[0]} />
-            {row.serviceType.length > 1 ? (
+            {row.serviceType ? (
+              <ServiceTypeChip label={row.serviceType[0]} />
+            ) : (
+              '-'
+            )}
+
+            {row.serviceType && row.serviceType.length > 1 ? (
               <ExtraNumberChip label={row.serviceType.slice(1).length} />
             ) : null}
           </Box>

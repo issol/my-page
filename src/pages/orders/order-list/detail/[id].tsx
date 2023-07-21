@@ -28,8 +28,6 @@ import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import {
   OrderDownloadData,
-  ProjectTeamCellType,
-  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -55,7 +53,7 @@ import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder, patchOrderProjectInfo } from '@src/apis/order-detail.api'
+import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -92,9 +90,7 @@ import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { CancelReasonType } from '@src/types/requests/detail.type'
-import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
-import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
-import { CancelOrderReason } from '@src/shared/const/reason/reason'
+
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
@@ -166,7 +162,7 @@ const OrderDetail = () => {
     Number(id!),
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.isTaxable)
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const {
@@ -1015,44 +1011,16 @@ const OrderDetail = () => {
                       )}
                     </Box>
                   </Grid>
-                  {langItemsEdit ? (
-                    <Grid item xs={12}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '16px',
-                          justifyContent: 'center',
-                        }}
-                      >
-                        <Button
-                          variant='outlined'
-                          color='secondary'
-                          onClick={() => setLangItemsEdit(false)}
-                        >
-                          Cancel
-                        </Button>
-                        <Button
-                          variant='contained'
-                          disabled={!isItemValid || (taxable && !(tax! > 0))}
-                          onClick={() => {
-                            openModal({
-                              type: 'LanguageAndItemEditModal',
-                              children: (
-                                <EditSaveModal
-                                  onClose={() =>
-                                    closeModal('LanguageAndItemEditModal')
-                                  }
-                                  onClick={onSubmitItems}
-                                />
-                              ),
-                            })
-                          }}
-                        >
-                          Save
-                        </Button>
-                      </Box>
-                    </Grid>
-                  ) : null}
+                  {langItemsEdit
+                    ? renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({
+                            callback: () => setLangItemsEdit(false),
+                          }),
+                        onSave: () => onSubmitItems(),
+                        isValid: isItemValid || (taxable && tax! > 0),
+                      })
+                    : null}
                 </Grid>
               </Card>
             </TabPanel>

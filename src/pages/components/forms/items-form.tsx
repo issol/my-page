@@ -424,7 +424,9 @@ export default function ItemForm({
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
                         onChange={onChange}
-                        customInput={<CustomInput label='Item due date*' />}
+                        customInput={
+                          <CustomInput label='Item due date*' icon='calendar' />
+                        }
                       />
                     )}
                   />
@@ -773,6 +775,8 @@ export default function ItemForm({
     )
   }
 
+  console.log(type, orderId)
+
   return (
     <DatePickerWrapper>
       <Grid
@@ -785,7 +789,9 @@ export default function ItemForm({
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
-        {type === 'invoiceDetail' && orderId && (
+        {(type === 'invoiceDetail' || type === 'detail') &&
+        orderId &&
+        fields.length ? (
           <Link
             href={`/orders/job-list/details/?orderId=${orderId}`}
             style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -793,7 +799,7 @@ export default function ItemForm({
             Jobs
             <Icon icon='ic:outline-arrow-forward' color='#666CFF' />
           </Link>
-        )}
+        ) : null}
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />

@@ -1,30 +1,14 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Box,
-  Button,
-  Card,
-  Divider,
-  Grid,
-  IconButton,
-  Typography,
-} from '@mui/material'
-import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import { Box, Card, Divider, IconButton, Typography } from '@mui/material'
+
 import IconifyIcon from '@src/@core/components/icon'
 
-import useModal from '@src/hooks/useModal'
-import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ClientType } from '@src/types/orders/order-detail'
-import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { Dispatch, SetStateAction, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
+
+import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   type: string
@@ -39,8 +23,6 @@ const OrderDetailClient = ({
 
   setEdit,
 }: Props) => {
-  const { openModal, closeModal } = useModal()
-
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
