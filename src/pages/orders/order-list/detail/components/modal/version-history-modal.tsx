@@ -10,6 +10,7 @@ import OrderDetailClient from '../client'
 import ProjectTeam from '../project-team'
 import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   history: VersionHistoryType
@@ -25,6 +26,8 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
 
   const [pageSize, setPageSize] = useState<number>(10)
   const [page, setPage] = useState<number>(0)
+
+  const currentRole = getCurrentRole()
 
   return (
     <Box
@@ -100,9 +103,9 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
           >
             <ProjectInfo
               type='history'
-              projectInfo={history.projectInfo}
-              edit={false}
-              orderId={history.id}
+              project={history.projectInfo}
+              isUpdatable={false}
+              role={currentRole!}
             />
           </TabPanel>
           <TabPanel
@@ -135,9 +138,6 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               pageSize={pageSize}
               setPage={setPage}
               setPageSize={setPageSize}
-              edit={false}
-              setEdit={() => console.log('no')}
-              orderId={history.id}
             />
           </TabPanel>
         </TabContext>

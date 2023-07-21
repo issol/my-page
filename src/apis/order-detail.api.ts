@@ -1,4 +1,5 @@
 import axios from '@src/configs/axios'
+import { updateOrderType } from '@src/pages/orders/order-list/detail/[id]'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import {
   ItemResType,
@@ -209,14 +210,7 @@ export const getVersionHistory = async (
 
 export const patchOrderProjectInfo = async (
   id: number,
-  form:
-    | OrderProjectInfoFormType
-    | ProjectTeamFormType
-    | ClientFormType
-    | { status: number }
-    | { tax: null | number; taxable: boolean }
-    | { downloadedAt: string }
-    | { isConfirmed: boolean },
+  form: updateOrderType,
 ) => {
   await axios.patch(`/api/enough/u/order/${id}`, { ...form })
 }

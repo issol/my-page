@@ -94,6 +94,8 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
+import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 interface Detail {
   id: number
@@ -117,10 +119,11 @@ export type updateOrderType =
   | ProjectTeamFormType
   | ClientFormType
   | { status: number }
-  | { tax: null | number; taxable: boolean }
+  | { tax: null | number; isTaxable: '1' | '0' }
   | { downloadedAt: string }
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
+  | { showDescription: boolean }
 
 type RenderSubmitButtonProps = {
   onCancel: () => void
@@ -161,7 +164,7 @@ const OrderDetail = () => {
     Number(id!),
   )
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable)
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const {
@@ -334,7 +337,7 @@ const OrderDetail = () => {
       children: (
         <DiscardModal
           onClose={() => {
-            callback()
+            // callback()
             closeModal('DiscardModal')
           }}
           onClick={() => {
@@ -351,6 +354,8 @@ const OrderDetail = () => {
 
     onSave(() => updateProject.mutate(projectInfo))
   }
+
+  console.log(getItem())
 
   const initializeData = () => {
     setLanguagePairs(
@@ -378,6 +383,7 @@ const OrderDetail = () => {
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
+        showItemDescription: item.showItemDescription,
       }
     })
     itemReset({ items: result })
@@ -626,7 +632,16 @@ const OrderDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem, projectTeam])
+    if (projectInfo) {
+      const res = {
+        ...projectInfo,
+        status:
+          statusList?.find(item => item.label === projectInfo.status)?.value ??
+          100,
+      }
+      projectInfoReset(res)
+    }
+  }, [langItem, projectTeam, projectInfo])
 
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
@@ -643,6 +658,7 @@ const OrderDetail = () => {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -678,26 +694,8 @@ const OrderDetail = () => {
       },
     )
 
-    updateProject.mutate({ taxable, tax })
+    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax })
   }
-
-  // const patchProjectInfoMutation = useMutation(
-  //   (data: { id: number; form: OrderProjectInfoFormType }) =>
-  //     patchProjectInfo(data.id, data.form),
-  //   {
-  //     onSuccess: () => {
-  //       setProjectInfoEdit(false)
-  //       queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
-  //       closeModal('EditSaveModal')
-  //     },
-  //     onError: () => {
-  //       toast.error('Something went wrong. Please try again.', {
-  //         position: 'bottom-left',
-  //       })
-  //       closeModal('EditSaveModal')
-  //     },
-  //   },
-  // )
 
   const updateProject = useMutation(
     (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
@@ -719,6 +717,35 @@ const OrderDetail = () => {
   function onMutationError() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
+    })
+  }
+
+  function onProjectTeamSave() {
+    const teams = transformTeamData(getTeamValues())
+    onSave(() => updateProject.mutate(teams))
+  }
+
+  const onClickConfirmOrder = () => {
+    openModal({
+      type: 'ConfirmOrderModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmOrderModal')}
+          onClick={() =>
+            updateProject.mutate(
+              { isConfirmed: true, status: 103 },
+              {
+                onSuccess: () => {
+                  closeModal('ConfirmOrderModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to confirm this order? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
     })
   }
 
@@ -759,16 +786,47 @@ const OrderDetail = () => {
               <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
             </Box>
           </Box>
-          <Box>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadOrder}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download order
-            </Button>
-          </Box>
+          {projectInfoEdit ||
+          projectTeamEdit ||
+          clientEdit ||
+          langItemsEdit ? null : (
+            <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickDownloadOrder}
+                disabled={
+                  projectInfo?.status === 'New' ||
+                  projectInfo?.status === 'In preparation' ||
+                  projectInfo?.status === 'Internal review' ||
+                  projectInfo?.status === 'Under revision'
+                }
+              >
+                <Icon icon='material-symbols:request-quote' />
+                Download order
+              </Button>
+              <Button
+                variant='outlined'
+                sx={{ display: 'flex', gap: '8px' }}
+                // onClick={onClickDownloadOrder}
+                disabled={projectInfo?.status !== 'Delivery confirmed'}
+              >
+                Create invoice
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ display: 'flex', gap: '8px' }}
+                onClick={onClickConfirmOrder}
+                disabled={
+                  projectInfo?.status !== 'New' &&
+                  projectInfo?.status !== 'In preparation' &&
+                  projectInfo?.status !== 'Under revision'
+                }
+              >
+                Confirm order
+              </Button>
+            </Box>
+          )}
         </Box>
         <Box>
           <TabContext value={value}>
@@ -887,6 +945,8 @@ const OrderDetail = () => {
                     orderId={Number(id!)}
                     langItemsEdit={langItemsEdit}
                     setLangItemsEdit={setLangItemsEdit}
+                    project={projectInfo!}
+                    updateItems={patchItems}
                   />
                   <Grid
                     item
@@ -988,29 +1048,43 @@ const OrderDetail = () => {
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectTeam
-                  type='detail'
-                  list={projectTeam!}
-                  listCount={projectTeam?.length!}
-                  columns={getProjectTeamColumns()}
-                  page={projectTeamListPage}
-                  setPage={setProjectTeamListPage}
-                  pageSize={projectTeamListPageSize}
-                  setPageSize={setProjectTeamListPageSize}
-                  edit={projectTeamEdit}
-                  setEdit={setProjectTeamEdit}
-                  teamControl={teamControl}
-                  members={members}
-                  appendMember={appendMember}
-                  removeMember={removeMember}
-                  updateMember={updateMember}
-                  getTeamValues={getTeamValues}
-                  setTeamValues={setTeamValues}
-                  teamErrors={teamErrors}
-                  isTeamValid={isTeamValid}
-                  teamWatch={teamWatch}
-                  orderId={Number(id!)}
-                />
+                {projectTeamEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <Grid container spacing={6}>
+                      <ProjectTeamFormContainer
+                        control={teamControl}
+                        field={members}
+                        append={appendMember}
+                        remove={removeMember}
+                        update={updateMember}
+                        setValue={setTeamValues}
+                        errors={teamErrors}
+                        isValid={isTeamValid}
+                        watch={teamWatch}
+                      />
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({
+                            callback: () => setProjectTeamEdit(false),
+                          }),
+                        onSave: () => onProjectTeamSave(),
+                        isValid: isTeamValid,
+                      })}
+                    </Grid>
+                  </Card>
+                ) : (
+                  <ProjectTeam
+                    type='detail'
+                    list={projectTeam!}
+                    listCount={projectTeam?.length!}
+                    columns={getProjectTeamColumns()}
+                    page={projectTeamListPage}
+                    setPage={setProjectTeamListPage}
+                    pageSize={projectTeamListPageSize}
+                    setPageSize={setProjectTeamListPageSize}
+                    setEdit={setProjectTeamEdit}
+                  />
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>

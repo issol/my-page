@@ -40,9 +40,9 @@ export type QuotesProjectInfoFormType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  isShowDescription: boolean
+  showDescription: boolean
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type QuotesProjectInfoAddNewType = {
@@ -58,9 +58,9 @@ export type QuotesProjectInfoAddNewType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  isShowDescription: boolean
+  showDescription: boolean
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type QuotesListType = {
@@ -109,7 +109,7 @@ export type ProjectInfoType = {
   estimatedDeliveryDate: string
   estimatedDeliveryDateTimezone: CountryType
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
   isConfirmed: boolean
   reason: ReasonType | null
   linkedOrder: {

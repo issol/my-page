@@ -13,7 +13,6 @@ import {
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
-import { v4 as uuidv4 } from 'uuid'
 
 export const useGetOrderList = (filter: OrderListFilterType) => {
   return useQuery(

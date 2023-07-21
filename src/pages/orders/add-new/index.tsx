@@ -364,7 +364,7 @@ export default function AddNewOrder() {
       priceId: null,
       detail: [],
       totalPrice: 0,
-      isShowItemDescription: false,
+      showItemDescription: false,
     })
   }
 
@@ -385,11 +385,10 @@ export default function AddNewOrder() {
     )
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.taxable ? null : tax,
+      // isTaxable : taxable,
+      tax: !rawProjectInfo.isTaxable ? null : tax,
       subtotal: subTotal,
     }
-
-    console.log(projectInfo)
 
     const items = getItem().items.map(item => ({
       ...item,
@@ -570,7 +569,7 @@ export default function AddNewOrder() {
               code: '',
             },
 
-            taxable: res.isTaxable,
+            isTaxable: res.isTaxable,
           })
           setTax(res?.tax ?? null)
         })
@@ -706,7 +705,7 @@ export default function AddNewOrder() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTax={setTax}
-                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
@@ -864,10 +863,10 @@ export default function AddNewOrder() {
               >
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Checkbox
-                    checked={getProjectInfoValues().taxable}
+                    checked={getProjectInfoValues().isTaxable}
                     onChange={e => {
                       if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
+                      setProjectInfo('isTaxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
                       })
@@ -880,8 +879,8 @@ export default function AddNewOrder() {
                   <TextField
                     size='small'
                     type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
+                    value={getProjectInfoValues().isTaxable ? '-' : tax}
+                    disabled={getProjectInfoValues().isTaxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -904,7 +903,7 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
                   onClick={onSubmit}
                 >

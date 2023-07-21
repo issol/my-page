@@ -7,6 +7,7 @@ import { Row } from '@src/pages/orders/order-list/detail/components/rows'
 import { RevenueFormType } from '../common/orders.type'
 import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
+import { ReasonType } from '../quotes/quote'
 
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
@@ -38,8 +39,29 @@ export type ProjectInfoType = {
   projectDueAt: string
   projectDueTimezone: CountryType
   projectDescription: string
+  showDescription: boolean
   tax: number
   isTaxable: boolean
+
+  linkedInvoiceReceivable: {
+    id: number
+    corporationId: string
+  } | null
+  linkedJobs: {
+    id: number
+    corporationId: string
+  }[]
+
+  linkedQuote: {
+    id: number
+    corporationId: string
+  } | null
+  linkedRequest: {
+    id: number
+    corporationId: string
+  } | null
+
+  reason: ReasonType | null
 }
 
 export type ClientType = {

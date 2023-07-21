@@ -6,7 +6,7 @@ export const orderProjectInfoDefaultValue = {
   // status: 'In preparation' as OrderStatusType,
 
   projectName: '',
-  showProjectDescription: false,
+  showDescription: false,
   orderedAt: Date(),
 }
 export const orderProjectInfoSchema = yup.object().shape({
@@ -35,7 +35,7 @@ export const orderProjectInfoSchema = yup.object().shape({
     label: yup.string().required(FormErrors.required),
     phone: yup.string().required(FormErrors.required),
   }),
-  showProjectDescription: yup.boolean().required(),
+  showDescription: yup.boolean().required(),
 
   taxable: yup.boolean().nullable(),
 })

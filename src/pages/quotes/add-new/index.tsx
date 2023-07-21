@@ -402,7 +402,7 @@ export default function AddNewQuotes() {
       priceId: null,
       detail: [],
       totalPrice: 0,
-      isShowItemDescription: false,
+      showItemDescription: false,
     })
   }
 
@@ -438,7 +438,7 @@ export default function AddNewQuotes() {
     )
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.taxable ? null : tax,
+      tax: !rawProjectInfo.isTaxable ? null : tax,
       subtotal: subTotal,
     }
     const items = getItem().items.map(item => ({
@@ -481,6 +481,7 @@ export default function AddNewQuotes() {
           ])
             .then(() => {
               router.push(`/quotes/detail/${res.id}`)
+              closeModal('SaveQuoteModal')
             })
             .catch(e => onRequestError())
         }
@@ -581,7 +582,7 @@ export default function AddNewQuotes() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTax={setTax}
-                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
@@ -739,10 +740,10 @@ export default function AddNewQuotes() {
               >
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Checkbox
-                    checked={getProjectInfoValues().taxable}
+                    checked={getProjectInfoValues().isTaxable}
                     onChange={e => {
                       if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
+                      setProjectInfo('isTaxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
                       })
@@ -754,8 +755,8 @@ export default function AddNewQuotes() {
                   <TextField
                     size='small'
                     type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
+                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().isTaxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -778,7 +779,7 @@ export default function AddNewQuotes() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
                   onClick={onClickSaveQuote}
                 >

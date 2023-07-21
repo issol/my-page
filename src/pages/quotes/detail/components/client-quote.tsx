@@ -132,6 +132,9 @@ const ClientQuote = ({
           action={action}
           from={'client'}
           statusList={statusList}
+          type={
+            action === 'Request revision' ? 'requested_revision' : 'rejected'
+          }
           reasonList={
             action === 'Request revision'
               ? RequestRevisionReason

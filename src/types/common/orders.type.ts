@@ -25,8 +25,8 @@ export type OrderProjectInfoFormType = {
   projectDueTimezone: CountryType
 
   tax: number | null
-  taxable: boolean
-  showProjectDescription: boolean
+  isTaxable: boolean
+  showDescription: boolean
 }
 
 export type QuotesProjectInfoType = {
@@ -42,7 +42,7 @@ export type QuotesProjectInfoType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  isShowDescription: boolean
+  showDescription: boolean
   tax: number | null
   taxable: boolean
 }

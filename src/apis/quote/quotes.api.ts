@@ -262,7 +262,7 @@ export const patchQuoteProjectInfo = async (
     | ProjectTeamFormType
     | ClientFormType
     | { status: number }
-    | { tax: null | number; taxable: boolean }
+    | { tax: null | number; isTaxable: boolean }
     | { status: number; reason: CancelReasonType }
     | { downloadedAt: string }
     | { isConfirmed: boolean },

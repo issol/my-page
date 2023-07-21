@@ -3,12 +3,10 @@ import {
   Box,
   Button,
   Card,
+  Checkbox,
   Divider,
   Grid,
   IconButton,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material'
@@ -23,41 +21,32 @@ import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
+
 import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
-import { useForm } from 'react-hook-form'
+
 import { v4 as uuidv4 } from 'uuid'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+
+import { useState } from 'react'
+
 import useModal from '@src/hooks/useModal'
-import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
+
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { deleteOrder } from '@src/apis/order-detail.api'
-import toast from 'react-hot-toast'
-import { Router, useRouter } from 'next/router'
-import dayjs from 'dayjs'
-import { useGetStatusList } from '@src/queries/common.query'
+
+import { useRouter } from 'next/router'
+
 import { UserRoleType } from '@src/context/types'
 import { updateOrderType } from '../[id]'
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
+import AlertModal from '@src/@core/components/common-modal/ alert-modal'
+import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 
 type Props = {
   project: ProjectInfoType
-  setEditMode: (v: boolean) => void
+  setEditMode?: (v: boolean) => void
   isUpdatable: boolean
   updateStatus?: (status: number) => void
   role: UserRoleType
@@ -80,7 +69,10 @@ const ProjectInfo = ({
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [value, setValue] = useState<string>(project.status)
+
+  const [showDescription, setShowDescription] = useState<boolean>(
+    project.showDescription,
+  )
 
   const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
     onSuccess: () => {
@@ -90,17 +82,45 @@ const ProjectInfo = ({
   })
 
   const onClickDelete = () => {
-    openModal({
-      type: 'DeleteOrderModal',
-      children: (
-        <DeleteConfirmModal
-          onClose={() => closeModal('DeleteOrderModal')}
-          onDelete={() => deleteOrderMutation.mutate(project.id)}
-          message='Are you sure you want to delete this order?'
-          title={`[${project?.corporationId}] ${project?.projectName}`}
-        />
-      ),
-    })
+    if (!project.linkedInvoiceReceivable && !project.linkedJobs.length) {
+      openModal({
+        type: 'DeleteOrderModal',
+        children: (
+          <DeleteConfirmModal
+            onClose={() => closeModal('DeleteOrderModal')}
+            onDelete={() => deleteOrderMutation.mutate(project.id)}
+            message='Are you sure you want to delete this order?'
+            title={`[${project?.corporationId}] ${project?.projectName}`}
+          />
+        ),
+      })
+    } else if (!project.linkedInvoiceReceivable) {
+      openModal({
+        type: 'DisableDeleteOrderModal',
+        children: (
+          <AlertModal
+            onClick={() => closeModal('DisableDeleteOrderModal')}
+            title='This order cannot be deleted because invoice have already been created.'
+            subtitle={`[${project?.corporationId}] ${project?.projectName}`}
+            vary='error'
+            buttonText='Okay'
+          />
+        ),
+      })
+    } else if (!project.linkedJobs.length) {
+      openModal({
+        type: 'DisableDeleteOrderModal',
+        children: (
+          <AlertModal
+            onClick={() => closeModal('DisableDeleteOrderModal')}
+            title='This order cannot be deleted because jobs has already been created.'
+            subtitle={`[${project?.corporationId}] ${project?.projectName}`}
+            vary='error'
+            buttonText='Okay'
+          />
+        ),
+      })
+    }
   }
 
   const onClickCancel = () => {
@@ -126,10 +146,51 @@ const ProjectInfo = ({
           action='Canceled'
           from='lsp'
           statusList={statusList!}
+          type='canceled'
           reasonList={CancelOrderReason}
         />
       ),
     })
+  }
+
+  const onClickReason = () => {
+    openModal({
+      type: `${project.status}ReasonModal`,
+      children: (
+        <ReasonModal
+          onClose={() => closeModal(`${project.status}ReasonModal`)}
+          reason={project.reason}
+          type={
+            project.status === 'Redelivery requested'
+              ? 'Requested'
+              : project.status
+          }
+          vary='info'
+        />
+      ),
+    })
+  }
+
+  const filterStatusList = () => {
+    if (client && statusList) {
+      if (client.contactPerson && client.contactPerson?.userId) {
+        return statusList?.filter(
+          value =>
+            value.label !== 'Invoiced' &&
+            value.label !== 'Paid' &&
+            value.label !== 'Canceled',
+        )
+      } else {
+        return statusList?.filter(
+          value =>
+            value.label === 'New' ||
+            value.label === 'In preparation' ||
+            value.label === 'Internal review',
+        )
+      }
+    } else {
+      return statusList!
+    }
   }
 
   return (
@@ -222,28 +283,23 @@ const ProjectInfo = ({
                   isUpdatable &&
                   (project.status === 'New' ||
                     project.status === 'In preparation' ||
-                    project.status === 'Internal review' ||
-                    project.status === 'Order sent' ||
-                    project.status === 'In progress' ||
-                    project.status === 'Under revision' ||
-                    project.status === 'Partially delivered' ||
-                    project.status === 'Delivery completed' ||
-                    project.status === 'Redelivery requested') ? (
+                    project.status === 'Internal review') ? (
                     <Autocomplete
                       autoHighlight
                       fullWidth
-                      options={statusList ?? []}
+                      disableClearable={true}
+                      options={filterStatusList() ?? []}
                       onChange={(e, v) => {
                         if (updateStatus && v?.value) {
                           updateStatus(v.value as number)
                         }
                       }}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
                       value={
-                        (statusList &&
-                          statusList.find(
-                            item => item.label === project.status,
-                          )) ||
-                        null
+                        statusList &&
+                        statusList.find(item => item.label === project.status)
                       }
                       renderInput={params => (
                         <TextField
@@ -255,10 +311,27 @@ const ProjectInfo = ({
                       )}
                     />
                   ) : (
-                    <OrderStatusChip
-                      status={project.status}
-                      label={project.status}
-                    />
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <OrderStatusChip
+                        status={project.status}
+                        label={project.status}
+                      />
+                      {(project.status === 'Redelivery requested' ||
+                        project.status === 'Canceled') && (
+                        <IconButton
+                          onClick={() => {
+                            project.reason && onClickReason()
+                          }}
+                        >
+                          <img
+                            src='/images/icons/onboarding-icons/more-reason.svg'
+                            alt='more'
+                          />
+                        </IconButton>
+                      )}
+                    </Box>
                   )}
                 </Box>
               </Box>
@@ -300,7 +373,7 @@ const ProjectInfo = ({
                         width: '100%',
                       }}
                     >
-                      {project.workName}
+                      {project.workName ?? '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -332,10 +405,14 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    <JobTypeChip
-                      label={project.category}
-                      type={project.category}
-                    />
+                    {project.category ? (
+                      <JobTypeChip
+                        label={project.category}
+                        type={project.category}
+                      />
+                    ) : (
+                      '-'
+                    )}
                   </Box>
                 </Box>
               </Box>
@@ -369,9 +446,13 @@ const ProjectInfo = ({
                       flexWrap: 'wrap',
                     }}
                   >
-                    {project.serviceType.map(value => {
-                      return <ServiceTypeChip label={value} key={uuidv4()} />
-                    })}
+                    {project.serviceType
+                      ? project.serviceType.map(value => {
+                          return (
+                            <ServiceTypeChip label={value} key={uuidv4()} />
+                          )
+                        })
+                      : '-'}
                   </Box>
                 </Box>
                 <Box sx={{ display: 'flex', flex: 1 }}>
@@ -402,15 +483,17 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {project.expertise.map((value, idx) => {
-                      return (
-                        <Typography key={uuidv4()} variant='subtitle2'>
-                          {project.expertise.length === idx + 1
-                            ? value
-                            : `${value}, `}
-                        </Typography>
-                      )
-                    })}
+                    {project.expertise
+                      ? project.expertise.map((value, idx) => {
+                          return (
+                            <Typography key={uuidv4()} variant='subtitle2'>
+                              {project.expertise.length === idx + 1
+                                ? value
+                                : `${value}, `}
+                            </Typography>
+                          )
+                        })
+                      : '-'}
                   </Box>
                 </Box>
               </Box>
@@ -498,47 +581,85 @@ const ProjectInfo = ({
               </Box>
             </Box>
             <Divider />
-            <Box sx={{ width: '100%' }}>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
 
-                    gap: '8px',
-                    alignItems: 'center',
-                    width: '25.21%',
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Typography
+                  variant='subtitle1'
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    width: '100%',
                   }}
                 >
-                  <Typography
-                    variant='subtitle1'
-                    sx={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      width: '100%',
-                    }}
-                  >
-                    Project description
-                  </Typography>
-                </Box>
+                  Project description
+                </Typography>
                 <Box
                   sx={{
                     display: 'flex',
-                    gap: '8px',
                     alignItems: 'center',
-                    width: '73.45%',
+                    opacity:
+                      project?.status === 'Delivery confirmed' ||
+                      project.status === 'Paid' ||
+                      project.status === 'Invoiced' ||
+                      project.status === 'Canceled'
+                        ? 0.5
+                        : 1,
                   }}
                 >
-                  <Typography
-                    variant='subtitle2'
-                    sx={{
-                      width: '100%',
+                  <Checkbox
+                    value={showDescription}
+                    onChange={e => {
+                      updateProject &&
+                        updateProject.mutate({
+                          showDescription: e.target.checked,
+                        })
+                      setShowDescription(e.target.checked)
                     }}
+                    checked={showDescription}
+                    disabled={
+                      project?.status === 'Delivery confirmed' ||
+                      project.status === 'Paid' ||
+                      project.status === 'Invoiced' ||
+                      project.status === 'Canceled'
+                    }
+                  />
+
+                  <Typography
+                    variant='body1'
+                    fontSize={14}
+                    fontWeight={400}
+                    lineHeight='21px'
+                    letterSpacing='0.15px'
+                    sx={{ minWidth: 230 }}
                   >
-                    {project.projectDescription}
+                    Show project description to client
                   </Typography>
                 </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center',
+                  width: '73.45%',
+                }}
+              >
+                <Typography
+                  variant='subtitle2'
+                  sx={{
+                    width: '100%',
+                  }}
+                >
+                  {project.projectDescription ?? '-'}
+                </Typography>
               </Box>
             </Box>
           </Box>
@@ -572,9 +693,9 @@ const ProjectInfo = ({
                 color='error'
                 size='large'
                 disabled={
-                  project?.status === 'New' ||
-                  project?.status === 'In preparation' ||
-                  project?.status === 'Internal review'
+                  project?.status !== 'New' &&
+                  project?.status !== 'In preparation' &&
+                  project?.status !== 'Internal review'
                 }
                 onClick={onClickDelete}
               >

@@ -102,7 +102,7 @@ const OrderListCalendar = () => {
       : status === 'Internal review'
       ? '#D8AF1D'
       : status === 'Order sent'
-      ? 'B06646'
+      ? '#B06646'
       : status === 'Under revision'
       ? '#26C6F9'
       : status === 'Partially delivered'

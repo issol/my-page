@@ -27,6 +27,7 @@ type Props = {
   from: 'lsp' | 'client'
   statusList: { value: number; label: string }[]
   reasonList: string[]
+  type: 'canceled' | 'rejected' | 'requested_revision' | 'redelivery_request'
 }
 
 const SelectReasonModal = ({
@@ -41,6 +42,7 @@ const SelectReasonModal = ({
   from,
   statusList,
   reasonList,
+  type,
 }: Props) => {
   const [reason, setReason] = useState<string>('')
   const [messageToLsp, setMessageToLsp] = useState<string>('')
@@ -195,6 +197,7 @@ const SelectReasonModal = ({
                 from: from,
                 reason: reason,
                 message: messageToLsp,
+                type: type,
               })
             }
             disabled={reason === '' || messageToLsp === ''}

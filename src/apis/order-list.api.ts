@@ -15,11 +15,12 @@ export type OrderListCalendarEventType = OrderListType & {
 
 export const getOrderList = async (
   filter: OrderListFilterType,
-): Promise<{ data: OrderListType[]; count: number }> => {
+): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
   try {
     const { data } = await axios.get<{
       data: OrderListType[]
       count: number
+      totalCount: number
     }>(`/api/enough/u/order/list?${makeQuery(filter)}`)
 
     return data
@@ -27,6 +28,7 @@ export const getOrderList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -74,7 +76,7 @@ function getColor(status: OrderStatusType) {
     : status === 'Internal review'
     ? '#D8AF1D'
     : status === 'Order sent'
-    ? 'B06646'
+    ? '#B06646'
     : status === 'Under revision'
     ? '#26C6F9'
     : status === 'Partially delivered'

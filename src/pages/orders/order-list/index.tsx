@@ -247,7 +247,7 @@ export default function OrderList() {
               setRowsPerPage={setOrderListRowsPerPage}
               user={user!}
               list={orderList?.data!}
-              listCount={orderList?.count!}
+              listCount={orderList?.totalCount!}
               isLoading={isLoading}
               setFilters={setFilters}
               isCardHeader={true}
