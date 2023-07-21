@@ -37,7 +37,7 @@ import {
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import {
   OrderProjectInfoFormType,
   OrderStatusType,
@@ -390,9 +390,10 @@ export default function AddNewOrder() {
       subtotal: subTotal,
     }
 
-    const items = getItem().items.map(item => ({
+    const items: Array<PostItemType> = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {

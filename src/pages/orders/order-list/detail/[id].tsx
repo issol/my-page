@@ -48,6 +48,7 @@ import {
   useGetProjectTeam,
   useGetVersionHistory,
 } from '@src/queries/order/order.query'
+
 import DownloadOrderModal from './components/modal/download-order-modal'
 import OrderPreview from './components/order-preview'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
@@ -96,6 +97,7 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 
 interface Detail {
   id: number
@@ -641,7 +643,16 @@ const OrderDetail = () => {
       }
       projectInfoReset(res)
     }
-  }, [langItem, projectTeam, projectInfo])
+
+    if (client) {
+      clientReset({
+        clientId: client.client.clientId,
+        contactPersonId: client.contactPerson?.id,
+        addressType: client.clientAddress.find(value => value.isSelected)
+          ?.addressType!,
+      })
+    }
+  }, [langItem, projectTeam, projectInfo, client])
 
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
@@ -723,6 +734,16 @@ const OrderDetail = () => {
   function onProjectTeamSave() {
     const teams = transformTeamData(getTeamValues())
     onSave(() => updateProject.mutate(teams))
+  }
+
+  function onClientSave() {
+    const form = getClientValue()
+    const clientInfo: ClientFormType = {
+      addressType: form.addressType,
+      clientId: form.clientId!,
+      contactPersonId: form.contactPersonId,
+    }
+    onSave(() => updateProject.mutate(clientInfo))
   }
 
   const onClickConfirmOrder = () => {
@@ -1036,15 +1057,32 @@ const OrderDetail = () => {
               </Card>
             </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
-              <OrderDetailClient
-                type={'detail'}
-                client={client!}
-                edit={clientEdit}
-                setEdit={setClientEdit}
-                orderId={Number(id!)}
-                setTax={setTax}
-                setTaxable={setTaxable}
-              />
+              <Suspense>
+                {clientEdit ? (
+                  <Grid container spacing={6}>
+                    <ClientQuotesFormContainer
+                      control={clientControl}
+                      setValue={setClientValue}
+                      watch={clientWatch}
+                      setTax={setTax}
+                      setTaxable={setTaxable}
+                      type='order'
+                    />
+                    {renderSubmitButton({
+                      onCancel: () =>
+                        onDiscard({ callback: () => setClientEdit(false) }),
+                      onSave: () => onClientSave(),
+                      isValid: isClientValid,
+                    })}
+                  </Grid>
+                ) : (
+                  <OrderDetailClient
+                    type={'detail'}
+                    client={client!}
+                    setEdit={setClientEdit}
+                  />
+                )}
+              </Suspense>
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>

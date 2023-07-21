@@ -1,17 +1,10 @@
-import { formatCurrency } from '@src/shared/helpers/price.helper'
-
 import { useEffect } from 'react'
-import {
-  LanguageAndItemType,
-  OrderDownloadData,
-} from '@src/types/orders/order-detail'
+
 import { useRouter } from 'next/router'
 import {
   Box,
-  Button,
   Divider,
   Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -26,8 +19,7 @@ import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { patchProjectInfo } from '@src/apis/order-detail.api'
+
 import MakeTable from '@src/pages/orders/order-list/detail/components/rows'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'

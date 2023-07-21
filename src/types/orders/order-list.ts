@@ -18,8 +18,8 @@ export type OrderListFilterType = {
   projectDueDateFrom?: string
   projectDueDateTo?: string
   revenueFrom?: string[]
-  mine?: 0 | 1
-  hideCompleted?: 0 | 1
+  mine?: '0' | '1'
+  hideCompleted?: '0' | '1'
   ordersWithoutJobs?: number
   lsp?: string[]
 }

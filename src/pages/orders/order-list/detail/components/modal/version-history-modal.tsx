@@ -116,14 +116,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
             value='3'
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
-            <OrderDetailClient
-              type='history'
-              client={history.client}
-              edit={false}
-              orderId={history.id}
-              setTax={() => null}
-              setTaxable={() => null}
-            />
+            <OrderDetailClient type='history' client={history.client} />
           </TabPanel>
           <TabPanel
             value='4'

@@ -127,7 +127,7 @@ export default function OrderList() {
 
     setFilters(prevState => ({
       ...prevState,
-      mine: event.target.checked ? 1 : 0,
+      mine: event.target.checked ? '1' : '0',
     }))
   }
 

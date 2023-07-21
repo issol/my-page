@@ -10,7 +10,7 @@ export type ItemType = Omit<
   'analysis' | 'showItemDescription'
 > & {
   analysis?: Array<AnalysisFileType>
-  showItemDescription: boolean
+  showItemDescription?: boolean
 } & {
   contactPerson?: ContactPersonType | null
 }

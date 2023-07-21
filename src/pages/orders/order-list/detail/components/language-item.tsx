@@ -141,6 +141,7 @@ const LanguageAndItem = ({
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {

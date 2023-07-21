@@ -40,7 +40,7 @@ import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -441,9 +441,10 @@ export default function AddNewQuotes() {
       tax: !rawProjectInfo.isTaxable ? null : tax,
       subtotal: subTotal,
     }
-    const items = getItem().items.map(item => ({
+    const items: Array<PostItemType> = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
 
     const langs = languagePairs.map(item => {

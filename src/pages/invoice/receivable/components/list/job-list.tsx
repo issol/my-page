@@ -38,7 +38,7 @@ import {
   OrderListType,
 } from '@src/types/orders/order-list'
 
-const initialFilter = {
+const initialFilter: OrderListFilterType = {
   search: '',
   hideCompleted: '1',
   mine: '0',
@@ -70,7 +70,7 @@ export default function OrderList({ onClose }: Props) {
   function onSearch() {
     setActiveFilter({
       ...filter,
-      skip: skip * activeFilter.take,
+      skip: skip * activeFilter.take!,
       take: activeFilter.take,
     })
   }
@@ -276,7 +276,7 @@ export default function OrderList({ onClose }: Props) {
             onPageChange={(newPage: number) => {
               setActiveFilter((prevState: OrderListFilterType) => ({
                 ...prevState,
-                skip: newPage * prevState.take,
+                skip: newPage * prevState.take!,
               }))
               setSkip(newPage)
             }}

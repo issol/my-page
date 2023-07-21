@@ -51,8 +51,8 @@ const OrderListCalendar = () => {
   const { user } = useContext(AuthContext)
   const currentRole = getCurrentRole()
   const { data: statusList } = useGetStatusList('Order')
-  const [mine, setMine] = useState<0 | 1>(0)
-  const [hideCompleted, setHideCompletedQuotes] = useState<0 | 1>(0)
+  const [mine, setMine] = useState<'0' | '1'>('0')
+  const [hideCompleted, setHideCompletedQuotes] = useState<'0' | '1'>('0')
   const [filters, setFilters] = useState<OrderListFilterType>({})
 
   // ** Hooks
