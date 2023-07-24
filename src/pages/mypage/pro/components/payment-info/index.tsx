@@ -24,7 +24,7 @@ import {
 import { Icon } from '@iconify/react'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import BillingMethodDetail from './billing-method-details'
-import FileInfoFromS3 from '@src/@core/components/files'
+import FileInfoFromS3 from '@src/@core/components/file-info-s3'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper'
 import TaxInfoDetail from './tax-info-details'

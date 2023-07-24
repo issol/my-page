@@ -19,7 +19,7 @@ import { Icon } from '@iconify/react'
 import OfficeDetails from './office-details'
 import BillingAddress from './billing-address'
 import ClientBillingAddressesForm from '../forms/client-billing-address'
-import FileInfoFromS3 from '@src/@core/components/files'
+import FileInfoFromS3 from '@src/@core/components/file-info-s3'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
