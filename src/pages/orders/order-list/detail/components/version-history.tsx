@@ -1,6 +1,7 @@
 import { Box, Button, Card, CardHeader, Typography } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import {
+  ProjectInfoType,
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
@@ -27,6 +28,23 @@ const VersionHistory = ({
   setPage,
   onClickRow,
 }: Props) => {
+  function NoList() {
+    return (
+      <Box
+        sx={{
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
+        }}
+      >
+        <Typography variant='subtitle1'>
+          There are no version history.
+        </Typography>
+      </Box>
+    )
+  }
   return (
     <Card>
       <CardHeader
@@ -48,10 +66,10 @@ const VersionHistory = ({
       >
         <DataGrid
           autoHeight
-          // components={{
-          //   NoRowsOverlay: () => NoList(),
-          //   NoResultsOverlay: () => NoList(),
-          // }}
+          components={{
+            NoRowsOverlay: () => NoList(),
+            NoResultsOverlay: () => NoList(),
+          }}
           sx={{ overflowX: 'scroll', cursor: 'pointer' }}
           columns={columns}
           rows={list ?? []}

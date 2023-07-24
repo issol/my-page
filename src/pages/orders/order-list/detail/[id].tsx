@@ -8,6 +8,8 @@ import {
   Checkbox,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Tab,
   TextField,
   Typography,
@@ -94,6 +96,8 @@ import { CancelReasonType } from '@src/types/requests/detail.type'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import Link from 'next/link'
+import DeliveriesFeedback from './components/deliveries-feedback'
 
 interface Detail {
   id: number
@@ -129,7 +133,13 @@ type RenderSubmitButtonProps = {
   isValid: boolean
 }
 
-type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
+type MenuType =
+  | 'project'
+  | 'history'
+  | 'team'
+  | 'client'
+  | 'item'
+  | 'deliveries-feedback'
 const OrderDetail = () => {
   const router = useRouter()
   const menuQuery = router.query.menu as MenuType
@@ -141,10 +151,28 @@ const OrderDetail = () => {
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()
 
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
+
   useEffect(() => {
     if (
       menuQuery &&
-      ['project', 'history', 'team', 'client', 'item'].includes(menuQuery)
+      [
+        'project',
+        'history',
+        'team',
+        'client',
+        'item',
+        'deliveries-feedback',
+      ].includes(menuQuery)
     ) {
       setValue(menuQuery)
     }
@@ -480,6 +508,7 @@ const OrderDetail = () => {
       children: (
         <VersionHistoryModal
           history={history}
+          project={projectInfo!}
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
         />
@@ -508,6 +537,24 @@ const OrderDetail = () => {
         <DownloadOrderModal
           onClose={() => closeModal('DownloadOrderModal')}
           onClick={onClickPreview}
+        />
+      ),
+    })
+  }
+
+  const onClickCreateInvoice = () => {
+    openModal({
+      type: 'CreateInvoiceModal',
+      children: (
+        <CustomModal
+          onClick={() =>
+            router.push(`/invoices/receivable/add-new?orderId=${id}`)
+          }
+          onClose={() => closeModal('CreateInvoiceModal')}
+          title='Are you sure you want to create an invoice with this order?'
+          subtitle={`[${projectInfo?.corporationId}] ${projectInfo?.projectName}`}
+          vary='successful'
+          rightButtonText='Create'
         />
       ),
     })
@@ -824,9 +871,42 @@ const OrderDetail = () => {
     })
   }
 
-  useEffect(() => {
-    console.log(selectedIds)
-  }, [selectedIds])
+  const onClickDeliverToClient = () => {
+    openModal({
+      type: 'DeliverToClientModal',
+      children: (
+        <CustomModal
+          onClick={() => console.log('deliver')}
+          onClose={() => closeModal('DeliverToClientModal')}
+          title={
+            <>
+              Are you sure you want to deliver the uploaded files?
+              <Typography variant='body1' fontWeight={600}>
+                You cannot delete the files after delivering them to the client.
+              </Typography>
+            </>
+          }
+          vary='successful'
+          rightButtonText='Deliver'
+        />
+      ),
+    })
+  }
+
+  const onClickCancelDeliver = () => {
+    openModal({
+      type: 'CancelDeliverModal',
+      children: (
+        <CustomModal
+          onClick={() => console.log('cancel')}
+          onClose={() => closeModal('CancelDeliverModal')}
+          title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
+          vary='error'
+          rightButtonText='Cancel'
+        />
+      ),
+    })
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -863,6 +943,93 @@ const OrderDetail = () => {
             <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
               <img src='/images/icons/order-icons/book.svg' alt='' />
               <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
+              {projectInfo?.linkedRequest ||
+              projectInfo?.linkedQuote ||
+              projectInfo?.linkedInvoiceReceivable ? (
+                <Box>
+                  <IconButton
+                    sx={{ width: '24px', height: '24px', padding: 0 }}
+                    onClick={handleClick}
+                  >
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    elevation={8}
+                    anchorEl={anchorEl}
+                    id='customized-menu'
+                    onClose={handleClose}
+                    open={Boolean(anchorEl)}
+                    anchorOrigin={{
+                      vertical: 'bottom',
+                      horizontal: 'left',
+                    }}
+                    transformOrigin={{
+                      vertical: 'top',
+                      horizontal: 'left',
+                    }}
+                  >
+                    {projectInfo?.linkedRequest ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked requests :
+                        <Link
+                          href={
+                            currentRole && currentRole.name === 'CLIENT'
+                              ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
+                              : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
+                          }
+                        >
+                          {projectInfo?.linkedRequest.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                    {projectInfo.linkedQuote ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked quote :
+                        <Link
+                          href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
+                        >
+                          {projectInfo?.linkedQuote.corporationId ?? '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                    {projectInfo.linkedInvoiceReceivable ? (
+                      <MenuItem
+                        sx={{
+                          gap: 2,
+                          '&:hover': {
+                            background: 'inherit',
+                            cursor: 'default',
+                          },
+                        }}
+                      >
+                        Linked invoice :
+                        <Link
+                          href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                        >
+                          {projectInfo?.linkedInvoiceReceivable.corporationId ??
+                            '-'}
+                        </Link>
+                      </MenuItem>
+                    ) : null}
+                  </Menu>
+                </Box>
+              ) : null}
             </Box>
           </Box>
           {projectInfoEdit ||
@@ -887,7 +1054,7 @@ const OrderDetail = () => {
               <Button
                 variant='outlined'
                 sx={{ display: 'flex', gap: '8px' }}
-                // onClick={onClickDownloadOrder}
+                onClick={onClickCreateInvoice}
                 disabled={projectInfo?.status !== 'Delivery confirmed'}
               >
                 Create invoice
@@ -951,6 +1118,13 @@ const OrderDetail = () => {
                 label='Version history'
                 iconPosition='start'
                 icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+              <CustomTap
+                value='deliveries-feedback'
+                label='Deliveries & Feedback'
+                iconPosition='start'
+                icon={<Icon icon='ic:outline-send' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
             </TabList>
@@ -1142,6 +1316,11 @@ const OrderDetail = () => {
                     type={'detail'}
                     client={client!}
                     setEdit={setClientEdit}
+                    isUpdatable={
+                      projectInfo?.status !== 'Paid' &&
+                      projectInfo?.status !== 'Canceled' &&
+                      client?.contactPerson?.userId !== null
+                    }
                   />
                 )}
               </Suspense>
@@ -1183,6 +1362,10 @@ const OrderDetail = () => {
                     pageSize={projectTeamListPageSize}
                     setPageSize={setProjectTeamListPageSize}
                     setEdit={setProjectTeamEdit}
+                    isUpdatable={
+                      projectInfo?.status !== 'Paid' &&
+                      projectInfo?.status !== 'Canceled'
+                    }
                   />
                 )}
               </Suspense>
@@ -1198,6 +1381,16 @@ const OrderDetail = () => {
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}
               />
+            </TabPanel>
+            <TabPanel value='deliveries-feedback' sx={{ pt: '24px' }}>
+              <Suspense>
+                <DeliveriesFeedback
+                  onClickDeliverToClient={onClickDeliverToClient}
+                  onClickCancelDeliver={onClickCancelDeliver}
+                  project={projectInfo!}
+                  isSubmittable={true}
+                />
+              </Suspense>
             </TabPanel>
           </TabContext>
         </Box>

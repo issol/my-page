@@ -5,7 +5,7 @@ import AlertIcon from '../alert-icon'
 type Props = {
   onClose: any
   onClick: any
-  title: string
+  title: string | JSX.Element
   subtitle?: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   leftButtonText?: string

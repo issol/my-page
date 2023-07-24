@@ -8,4 +8,5 @@ export const FILE_SIZE = {
   JOB_SAMPLE_FILE: 20 * 1024 * 1024,
   QUOTE_SAMPLE_FILE: 2 * 1024 * 1024 * 1024,
   PRO_RESUME: 50 * 1024 * 1024,
+  DELIVERY_FILE: 50 * 1024 * 1024,
 } as const

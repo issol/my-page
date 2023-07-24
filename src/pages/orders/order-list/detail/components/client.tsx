@@ -6,23 +6,18 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
-import { ClientType } from '@src/types/orders/order-detail'
+import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
 
 import { Dispatch, SetStateAction } from 'react'
 
 type Props = {
   type: string
   client: ClientType
-
+  isUpdatable: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
 }
 
-const OrderDetailClient = ({
-  type,
-  client,
-
-  setEdit,
-}: Props) => {
+const OrderDetailClient = ({ type, client, isUpdatable, setEdit }: Props) => {
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
@@ -33,7 +28,7 @@ const OrderDetailClient = ({
           gap: '30px',
         }}
       >
-        {type === 'detail' ? (
+        {type === 'detail' && isUpdatable ? (
           <IconButton
             sx={{ position: 'absolute', top: 0, right: 0 }}
             onClick={() => setEdit!(true)}

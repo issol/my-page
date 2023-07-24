@@ -12,19 +12,7 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { Dispatch, SetStateAction } from 'react'
 import Icon from '@src/@core/components/icon'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
-import {
-  Control,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormSetValue,
-  UseFormWatch,
-  useFieldArray,
-  useForm,
-} from 'react-hook-form'
+
 import { yupResolver } from '@hookform/resolvers/yup'
 import { projectTeamSchema } from '@src/types/schema/project-team.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -48,6 +36,7 @@ type Props = {
   type: string
 
   setEdit?: Dispatch<SetStateAction<boolean>>
+  isUpdatable: boolean
 }
 
 const ProjectTeam = ({
@@ -61,6 +50,7 @@ const ProjectTeam = ({
   type,
 
   setEdit,
+  isUpdatable,
 }: Props) => {
   return (
     <>
@@ -74,7 +64,7 @@ const ProjectTeam = ({
           }}
         >
           <Typography variant='h6'>Project team</Typography>
-          {type === 'detail' ? (
+          {type === 'detail' && isUpdatable ? (
             <IconButton onClick={() => setEdit && setEdit(true)}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>

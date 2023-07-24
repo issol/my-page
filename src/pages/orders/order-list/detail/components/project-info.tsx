@@ -658,7 +658,10 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription ?? '-'}
+                  {project.projectDescription &&
+                  project.projectDescription === ''
+                    ? project.projectDescription
+                    : '-'}
                 </Typography>
               </Box>
             </Box>
