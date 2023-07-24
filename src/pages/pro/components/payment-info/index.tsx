@@ -228,7 +228,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
             <Tax
               info={{
                 taxInfo: data?.tax?.taxInfo!,
-                taxRate: data?.tax?.tax!,
+                taxRate: data?.tax?.taxRate!,
               }}
               edit={taxEdit}
               setEdit={setTaxEdit}
