@@ -31,7 +31,7 @@ type Props = {
   isDeletable?: boolean
 }
 
-const FileSwiper = ({
+const FileSwiperFromS3 = ({
   files,
   direction,
   onDelete,
@@ -124,7 +124,7 @@ const FileSwiper = ({
   )
 }
 
-export default FileSwiper
+export default FileSwiperFromS3
 
 const FileContainer = styled(Box)`
   /* position: relative; */

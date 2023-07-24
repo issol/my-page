@@ -6,7 +6,7 @@ import KeenSliderWrapper from '@src/@core/styles/libs/keen-slider'
 // ** components
 import FileSwiper, {
   FileItemType,
-} from '@src/@core/components/swiper/file-swiper'
+} from '@src/@core/components/swiper/file-swiper-s3'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
@@ -28,19 +28,21 @@ type Props = {
   accept: { [key: string]: string[] }
   maximumFileSize?: number
   onFileDrop: (files: File[]) => void //file upload
+  onFileClick?: (file: FileItemType) => void
   onDeleteFile: (file: FileItemType) => void
   onDownloadAll: (files: FileItemType[] | null) => void
-  fileType: string //one of S3FileType
+  fileType?: string //one of S3FileType
   isUpdatable: boolean
   isDeletable: boolean
 }
 
-export default function FileInfoFromS3({
+export default function FileInfo({
   title,
   fileList,
   accept,
   maximumFileSize = FILE_SIZE.DEFAULT,
   onFileDrop,
+  onFileClick,
   onDeleteFile,
   onDownloadAll,
   fileType,
@@ -85,20 +87,24 @@ export default function FileInfoFromS3({
     onDropRejected: () => onReject(),
   })
 
-  const onFileClick = (file: FileItemType) => {
-    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
-      file.url = res.url
-      openModal({
-        type: 'filePreview',
-        children: (
-          <FilePreviewDownloadModal
-            open={true}
-            onClose={() => closeModal('filePreview')}
-            docs={[file]}
-          />
-        ),
+  const onFileClickForPreview = (file: FileItemType) => {
+    if (fileType) {
+      getDownloadUrlforCommon(fileType, file.filePath).then(res => {
+        file.url = res.url
+        openModal({
+          type: 'filePreview',
+          children: (
+            <FilePreviewDownloadModal
+              open={true}
+              onClose={() => closeModal('filePreview')}
+              docs={[file]}
+            />
+          ),
+        })
       })
-    })
+    } else {
+      alert('Please provide fileType props to FileInfo component.')
+    }
   }
 
   return (
@@ -137,7 +143,13 @@ export default function FileInfoFromS3({
             <FileSwiper
               direction='ltr'
               files={fileList}
-              onFileClick={onFileClick}
+              onFileClick={file => {
+                if (onFileClick !== undefined) {
+                  onFileClick(file)
+                } else {
+                  onFileClickForPreview(file)
+                }
+              }}
               onDelete={onDeleteFile}
               isDeletable={isDeletable}
             />

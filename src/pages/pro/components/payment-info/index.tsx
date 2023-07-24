@@ -26,8 +26,8 @@ import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useEffect } from 'react'
 import Tax from './tax'
-import FileInfo from '@src/@core/components/file-info-s3'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import FileInfo from '@src/@core/components/file-info'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 
@@ -225,14 +225,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
             replaceDots={replaceDots}
           />
           {userRole === 'LPM' ? (
-            <Tax
-              info={{
-                taxInfo: data?.tax?.taxInfo!,
-                taxRate: data?.tax?.taxRate!,
-              }}
-              edit={taxEdit}
-              setEdit={setTaxEdit}
-            />
+            <Tax info={data?.tax!} edit={taxEdit} setEdit={setTaxEdit} />
           ) : null}
         </Grid>
       </Grid>

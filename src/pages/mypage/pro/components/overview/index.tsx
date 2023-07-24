@@ -33,7 +33,7 @@ import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import OffDayForm from './off-day-form'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
-import FileInfoFromS3 from '@src/@core/components/file-info-s3'
+import FileInfo from '@src/@core/components/file-info'
 import MyRoles from './my-roles'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
@@ -53,7 +53,7 @@ import { OffDayEventType } from '@src/types/common/calendar.type'
 import { offDaySchema } from '@src/types/schema/off-day.schema'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { DetailUserType } from '@src/types/common/detail-user.type'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 // ** third parties
 import _ from 'lodash'
@@ -643,7 +643,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
             {/* Resume */}
             <Grid item xs={6} md={6} lg={6}>
               <Card sx={{ padding: '24px', paddingBottom: '2px' }}>
-                <FileInfoFromS3
+                <FileInfo
                   title='Resume'
                   fileList={userInfo.resume ?? []}
                   accept={{

@@ -1,4 +1,4 @@
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import axios from '@src/configs/axios'
 import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'

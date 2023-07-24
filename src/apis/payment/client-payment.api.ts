@@ -4,7 +4,7 @@ import {
   ClientPaymentInfoDetail,
   OfficeType,
 } from '@src/types/payment-info/client/index.type'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export const getClientOfficeList = async (
@@ -94,6 +94,7 @@ export const getClientPaymentFile = async (
 
     return (
       data?.map(i => ({
+        ...i,
         id: i.id,
         url: '',
         filePath: '',
@@ -129,6 +130,20 @@ export const deleteClientPaymentFile = async (
   try {
     const { data } = await axios.delete(
       `/api/enough/u/client/payment-info/delete-file/${fileId}?clientId=${clientId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getClientPaymentFileFromServer = async (
+  fileId: number,
+): Promise<any> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/payment-info/file/${fileId}`,
+      { responseType: 'blob' },
     )
     return data
   } catch (e: any) {

@@ -24,9 +24,9 @@ import {
 import { Icon } from '@iconify/react'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import BillingMethodDetail from './billing-method-details'
-import FileInfoFromS3 from '@src/@core/components/file-info-s3'
+import FileInfo from '@src/@core/components/file-info'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
@@ -450,7 +450,7 @@ Some information will reset..'
       {!isRegister ? (
         <Grid item xs={4}>
           <Card sx={{ padding: '24px' }}>
-            <FileInfoFromS3
+            <FileInfo
               title='Additional files'
               fileList={[]}
               accept={{

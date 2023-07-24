@@ -19,7 +19,7 @@ import { Icon } from '@iconify/react'
 import OfficeDetails from './office-details'
 import BillingAddress from './billing-address'
 import ClientBillingAddressesForm from '../forms/client-billing-address'
-import FileInfoFromS3 from '@src/@core/components/file-info-s3'
+import FileInfo from '@src/@core/components/file-info'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -30,29 +30,28 @@ import { useMutation, useQueryClient } from 'react-query'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
 
 // ** apis
-import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import {
   useGetClientBillingAddress,
   useGetClientPaymentFile,
 } from '@src/queries/payment/client-payment.query'
 import {
   deleteClientPaymentFile,
+  getClientPaymentFileFromServer,
   uploadClientPaymentFile,
 } from '@src/apis/payment/client-payment.api'
+import { updateClientAddress } from '@src/apis/client.api'
 
 // ** context
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
 
 import { client } from '@src/shared/const/permission-class'
-import { updateClientAddress } from '@src/apis/client.api'
 
 type Props = {
   clientId: number
@@ -103,36 +102,26 @@ export default function PaymentInfo({ clientId }: Props) {
     }
   }, [billingAddress])
 
-  const downloadAllFile = (file: FileItemType[] | null) => {
-    if (file) {
-      file.map(value => {
-        getDownloadUrlforCommon(S3FileType.CLIENT_PAYMENT, value.filePath).then(
-          res => {
-            const previewFile = {
-              url: res.url,
-              fileName: value.fileName,
-              fileExtension: value.fileExtension,
-            }
-            fetch(previewFile.url, { method: 'GET' })
-              .then(res => {
-                return res.blob()
-              })
-              .then(blob => {
-                const url = window.URL.createObjectURL(blob)
-                const a = document.createElement('a')
-                a.href = url
-                a.download = `${value.fileName}.${value.fileExtension}`
-                document.body.appendChild(a)
-                a.click()
-                setTimeout((_: any) => {
-                  window.URL.revokeObjectURL(url)
-                }, 60000)
-                a.remove()
-                // onClose()
-              })
-              .catch(error => onError())
-          },
-        )
+  function onFileClick(file: FileItemType) {
+    if (!file?.id) return
+    getClientPaymentFileFromServer(file.id).then(res => {
+      const url = window.URL.createObjectURL(res)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.fileName
+      document.body.appendChild(a)
+      a.click()
+      setTimeout((_: any) => {
+        window.URL.revokeObjectURL(url)
+      }, 60000)
+      a.remove()
+    })
+  }
+
+  const downloadAllFile = (files: FileItemType[] | null) => {
+    if (files?.length) {
+      files.forEach(item => {
+        onFileClick(item)
       })
     }
   }
@@ -239,7 +228,7 @@ export default function PaymentInfo({ clientId }: Props) {
       <Grid item xs={12} md={4}>
         <Card>
           <CardContent>
-            <FileInfoFromS3
+            <FileInfo
               fileList={fileList || []}
               accept={{
                 'image/*': ['.png', '.jpg', '.jpeg'],
@@ -251,7 +240,7 @@ export default function PaymentInfo({ clientId }: Props) {
                 'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                   ['.docx'],
               }}
-              fileType={S3FileType.CLIENT_PAYMENT}
+              onFileClick={onFileClick}
               onDownloadAll={downloadAllFile}
               onFileDrop={uploadFiles}
               onDeleteFile={onDeleteFile}
