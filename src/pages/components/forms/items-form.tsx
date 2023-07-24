@@ -9,6 +9,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  Radio,
   TextField,
   Typography,
 } from '@mui/material'
@@ -27,6 +28,9 @@ import {
   UseFormTrigger,
   useFieldArray,
 } from 'react-hook-form'
+
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 // ** types
 import {
@@ -110,7 +114,15 @@ type Props = {
 
   onClickCancelSplitOrder?: () => void
   onClickSplitOrderConfirm?: () => void
-  setSplitIds?: Dispatch<SetStateAction<number[]>>
+  selectedIds?: { id: number; selected: boolean }[]
+  setSelectedIds?: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        selected: boolean
+      }[]
+    >
+  >
   splitReady?: boolean
 }
 
@@ -145,7 +157,8 @@ export default function ItemForm({
   project,
   onClickCancelSplitOrder,
   onClickSplitOrderConfirm,
-  setSplitIds,
+  selectedIds,
+  setSelectedIds,
   splitReady,
 }: Props) {
   const { openModal, closeModal } = useModal()
@@ -153,10 +166,6 @@ export default function ItemForm({
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-
-  const [selectedIds, setSelectedIds] = useState<
-    { id: number; selected: boolean }[]
-  >([])
 
   const [showMinimum, setShowMinimum] = useState({
     checked: false,
@@ -361,8 +370,24 @@ export default function ItemForm({
               justifyContent='space-between'
             >
               <Box display='flex' alignItems='center' gap='8px'>
+                {splitReady && selectedIds ? (
+                  <Checkbox
+                    checked={selectedIds[idx].selected}
+                    onChange={e => {
+                      setSelectedIds &&
+                        setSelectedIds(prev => {
+                          const copy = [...prev]
+                          copy[idx].selected = e.target.checked
+                          return copy
+                        })
+                    }}
+                    sx={{ padding: 0 }}
+                    // sx={{ border: '1px solid', padding: 0 }}
+                    // icon={<RadioButtonUncheckedIcon />}
+                    // checkedIcon={<CheckCircleIcon />}
+                  />
+                ) : null}
                 <IconButton onClick={() => setCardOpen(!cardOpen)}>
-                  {splitReady ? <CheckBox /> : null}
                   <Icon
                     icon={`${
                       cardOpen

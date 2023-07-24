@@ -260,7 +260,9 @@ const OrderDetail = () => {
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const [langItemsEdit, setLangItemsEdit] = useState(false)
   const [splitReady, setSplitReady] = useState<boolean>(false)
-  const [splitIds, setSplitIds] = useState<Array<number>>([])
+  const [selectedIds, setSelectedIds] = useState<
+    { id: number; selected: boolean }[]
+  >(getItem('items').map(value => ({ id: value.id!, selected: false })))
 
   const order = useAppSelector(state => state.order)
 
@@ -623,6 +625,9 @@ const OrderDetail = () => {
         }
       })
       itemReset({ items: result })
+      setSelectedIds(
+        langItem.items.map(value => ({ id: value.id ?? 0, selected: false })),
+      )
     }
     if (projectTeam) {
       const teams: Array<{
@@ -783,8 +788,13 @@ const OrderDetail = () => {
 
   const handleSplitOrder = () => {
     console.log('split')
-    console.log(splitIds)
 
+    const res = selectedIds.map(value => value.id)
+
+    setSplitReady(false)
+    setSelectedIds(prevSelectedIds =>
+      prevSelectedIds.map(id => ({ ...id, selected: false })),
+    )
     // TODO API 연결
   }
 
@@ -794,10 +804,12 @@ const OrderDetail = () => {
 
   const onClickCancelSplitOrder = () => {
     setSplitReady(false)
+    setSelectedIds(prevSelectedIds =>
+      prevSelectedIds.map(id => ({ ...id, selected: false })),
+    )
   }
 
   const onClickSplitOrderConfirm = () => {
-    setSplitReady(false)
     openModal({
       type: 'SplitOrderModal',
       children: (
@@ -811,6 +823,10 @@ const OrderDetail = () => {
       ),
     })
   }
+
+  useEffect(() => {
+    console.log(selectedIds)
+  }, [selectedIds])
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -1013,7 +1029,8 @@ const OrderDetail = () => {
                     onClickSplitOrder={onClickSplitOrder}
                     onClickCancelSplitOrder={onClickCancelSplitOrder}
                     onClickSplitOrderConfirm={onClickSplitOrderConfirm}
-                    setSplitIds={setSplitIds}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
                   />
                   <Grid
@@ -1072,6 +1089,30 @@ const OrderDetail = () => {
                         isValid: isItemValid || (taxable && tax! > 0),
                       })
                     : null}
+                  {splitReady && selectedIds ? (
+                    <Grid item xs={12}>
+                      <Box display='flex' gap='16px' justifyContent='center'>
+                        <Button
+                          variant='outlined'
+                          color='secondary'
+                          onClick={onClickCancelSplitOrder}
+                        >
+                          Cancel
+                        </Button>
+                        <Button
+                          variant='contained'
+                          // disabled={!isValid}
+                          disabled={
+                            selectedIds.filter(value => value.selected)
+                              .length === 0
+                          }
+                          onClick={onClickConfirmOrder}
+                        >
+                          Split order
+                        </Button>
+                      </Box>
+                    </Grid>
+                  ) : null}
                 </Grid>
               </Card>
             </TabPanel>

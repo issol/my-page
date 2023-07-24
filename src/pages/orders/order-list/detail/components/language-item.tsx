@@ -93,11 +93,19 @@ type Props = {
     },
     unknown
   >
-  onClickSplitOrder: () => void
-  onClickCancelSplitOrder: () => void
-  onClickSplitOrderConfirm: () => void
-  setSplitIds: Dispatch<SetStateAction<number[]>>
-  splitReady: boolean
+  onClickSplitOrder?: () => void
+  onClickCancelSplitOrder?: () => void
+  onClickSplitOrderConfirm?: () => void
+  selectedIds?: { id: number; selected: boolean }[]
+  setSelectedIds?: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        selected: boolean
+      }[]
+    >
+  >
+  splitReady?: boolean
 }
 
 const LanguageAndItem = ({
@@ -125,7 +133,8 @@ const LanguageAndItem = ({
   onClickSplitOrder,
   onClickCancelSplitOrder,
   onClickSplitOrderConfirm,
-  setSplitIds,
+  selectedIds,
+  setSelectedIds,
   splitReady,
 }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -332,7 +341,8 @@ const LanguageAndItem = ({
           project={project}
           updateItems={updateItems}
           orderId={orderId}
-          setSplitIds={setSplitIds}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
           splitReady={splitReady}
           onClickCancelSplitOrder={onClickCancelSplitOrder}
           onClickSplitOrderConfirm={onClickSplitOrderConfirm}
