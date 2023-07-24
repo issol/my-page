@@ -24,6 +24,7 @@ export type RequestDetailType = {
   canceledReason?: CancelReasonType
   linkedQuote?: LinkedInfoType
   linkedOrder?: LinkedInfoType
+  showDescription?: boolean
 }
 
 export type LinkedInfoType = {

@@ -305,6 +305,8 @@ export default function AddNewQuotes() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        showDescription: requestData?.showDescription ?? false,
+        status: 20000,
       })
       const itemLangPairs =
         items?.map(i => ({
