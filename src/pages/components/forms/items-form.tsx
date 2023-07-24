@@ -75,6 +75,7 @@ import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { UseMutationResult } from 'react-query'
+import { CheckBox } from '@mui/icons-material'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -153,9 +154,9 @@ export default function ItemForm({
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const [showItemDescription, setShowItemDescription] = useState(
-    fields.map(value => value.showItemDescription),
-  )
+  const [selectedIds, setSelectedIds] = useState<
+    { id: number; selected: boolean }[]
+  >([])
 
   const [showMinimum, setShowMinimum] = useState({
     checked: false,
@@ -361,6 +362,7 @@ export default function ItemForm({
             >
               <Box display='flex' alignItems='center' gap='8px'>
                 <IconButton onClick={() => setCardOpen(!cardOpen)}>
+                  {splitReady ? <CheckBox /> : null}
                   <Icon
                     icon={`${
                       cardOpen
