@@ -33,7 +33,7 @@ import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
 import TimelineDot from '@src/@core/components/mui/timeline-dot'
 import OffDayForm from './off-day-form'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
-import FileInfo from '@src/@core/components/files'
+import FileInfoFromS3 from '@src/@core/components/files'
 import MyRoles from './my-roles'
 import FilePreviewDownloadModal from '@src/pages/components/pro-detail-modal/modal/file-preview-download-modal'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
@@ -643,7 +643,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
             {/* Resume */}
             <Grid item xs={6} md={6} lg={6}>
               <Card sx={{ padding: '24px', paddingBottom: '2px' }}>
-                <FileInfo
+                <FileInfoFromS3
                   title='Resume'
                   fileList={userInfo.resume ?? []}
                   accept={{

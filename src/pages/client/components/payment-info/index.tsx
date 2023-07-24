@@ -19,7 +19,7 @@ import { Icon } from '@iconify/react'
 import OfficeDetails from './office-details'
 import BillingAddress from './billing-address'
 import ClientBillingAddressesForm from '../forms/client-billing-address'
-import FileInfo from '@src/@core/components/files'
+import FileInfoFromS3 from '@src/@core/components/files'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -239,7 +239,7 @@ export default function PaymentInfo({ clientId }: Props) {
       <Grid item xs={12} md={4}>
         <Card>
           <CardContent>
-            <FileInfo
+            <FileInfoFromS3
               fileList={fileList || []}
               accept={{
                 'image/*': ['.png', '.jpg', '.jpeg'],

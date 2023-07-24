@@ -35,7 +35,7 @@ type Props = {
   isDeletable: boolean
 }
 
-export default function FileInfo({
+export default function FileInfoFromS3({
   title,
   fileList,
   accept,
@@ -60,9 +60,9 @@ export default function FileInfo({
       type: 'dropReject',
       children: (
         <SimpleAlertModal
-          message={`The maximum file size you can upload is ${
-            byteToMB(MAXIMUM_FILE_SIZE)
-          }.`}
+          message={`The maximum file size you can upload is ${byteToMB(
+            MAXIMUM_FILE_SIZE,
+          )}.`}
           onClose={() => closeModal('dropReject')}
         />
       ),
@@ -108,8 +108,7 @@ export default function FileInfo({
           <Box display='flex' gap='10px' flexDirection='column'>
             <Typography variant='h6'>{title ?? 'Files'}</Typography>
             <Typography variant='body2'>
-              {formatFileSize(fileSize)}
-              / {byteToMB(MAXIMUM_FILE_SIZE)}
+              {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
             </Typography>
           </Box>
           {isUpdatable ? (
