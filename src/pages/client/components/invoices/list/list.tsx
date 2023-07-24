@@ -243,7 +243,7 @@ const ClientInvoiceList = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {list.length ? (
+                    {list?.length ? (
                       list?.map(row => (
                         <ClientInvoicesRows
                           key={uuidv4()}

@@ -173,8 +173,8 @@ export default function ProInvoiceList({
         }}
         sx={{ overflowX: 'scroll', cursor: 'pointer' }}
         columns={columns}
-        rows={list.data}
-        rowCount={list.totalCount}
+        rows={list?.data}
+        rowCount={list?.totalCount}
         loading={isLoading}
         onCellClick={params =>
           router.push(`/invoice/receivable/detail/${params.id}`)
