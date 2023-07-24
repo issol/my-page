@@ -37,6 +37,7 @@ import {
 } from 'react-hook-form'
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { updateOrderType } from '../[id]'
+import { lang } from 'moment-timezone'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -92,6 +93,11 @@ type Props = {
     },
     unknown
   >
+  onClickSplitOrder: () => void
+  onClickCancelSplitOrder: () => void
+  onClickSplitOrderConfirm: () => void
+  setSplitIds: Dispatch<SetStateAction<number[]>>
+  splitReady: boolean
 }
 
 const LanguageAndItem = ({
@@ -116,6 +122,11 @@ const LanguageAndItem = ({
   langItemsEdit,
   project,
   updateItems,
+  onClickSplitOrder,
+  onClickCancelSplitOrder,
+  onClickSplitOrderConfirm,
+  setSplitIds,
+  splitReady,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
@@ -133,62 +144,46 @@ const LanguageAndItem = ({
       patchItemsForOrder(data.id, data.items),
   )
 
-  const handleBack = () => {
-    setLangItemsEdit(false)
-  }
+  // const onSubmit = () => {
+  //   const items: PostItemType[] = getItem().items.map(item => ({
+  //     ...item,
+  //     analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+  //     showItemDescription: item.showItemDescription ? '1' : '0',
+  //   }))
+  //   const langs: LanguagePairsPostType[] = languagePairs.map(item => {
+  //     if (item?.price?.id) {
+  //       return {
+  //         langPairId: Number(item.id),
+  //         source: item.source,
+  //         target: item.target,
+  //         priceId: item.price.id,
+  //       }
+  //     }
+  //     return {
+  //       langPairId: Number(item.id),
+  //       source: item.source,
+  //       target: item.target,
+  //     }
+  //   })
 
-  const onSubmit = () => {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-      showItemDescription: item.showItemDescription ? '1' : '0',
-    }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
-        return {
-          langPairId: Number(item.id),
-          source: item.source,
-          target: item.target,
-          priceId: item.price.id,
-        }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
-
-    patchLanguagePairs.mutate(
-      { id: orderId, langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: orderId, items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${orderId}`)
-                closeModal('LanguageAndItemEditModal')
-              },
-            },
-          )
-        },
-      },
-    )
-  }
-
-  const onClickSave = () => {
-    openModal({
-      type: 'LanguageAndItemEditModal',
-      children: (
-        <EditSaveModal
-          onClose={() => closeModal('LanguageAndItemEditModal')}
-          onClick={onSubmit}
-        />
-      ),
-    })
-  }
+  //   patchLanguagePairs.mutate(
+  //     { id: orderId, langPair: langs },
+  //     {
+  //       onSuccess: () => {
+  //         patchItems.mutate(
+  //           { id: orderId, items: items },
+  //           {
+  //             onSuccess: () => {
+  //               setLangItemsEdit(false)
+  //               queryClient.invalidateQueries(`LangItem-${orderId}`)
+  //               closeModal('LanguageAndItemEditModal')
+  //             },
+  //           },
+  //         )
+  //       },
+  //     },
+  //   )
+  // }
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -201,12 +196,16 @@ const LanguageAndItem = ({
       })
       .map(item => ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+
         ...item,
       }))
+
     return [defaultOption].concat(filteredList)
   }
 
   function isAddItemDisabled(): boolean {
+    console.log(languagePairs)
+
     if (!languagePairs.length) return true
     return languagePairs.some(item => !item?.price)
   }
@@ -290,6 +289,7 @@ const LanguageAndItem = ({
               project?.status === 'Paid' ||
               project?.status === 'Canceled'
             }
+            onClick={onClickSplitOrder}
           >
             <Icon icon='ic:baseline-splitscreen' />
             Split order
@@ -332,6 +332,10 @@ const LanguageAndItem = ({
           project={project}
           updateItems={updateItems}
           orderId={orderId}
+          setSplitIds={setSplitIds}
+          splitReady={splitReady}
+          onClickCancelSplitOrder={onClickCancelSplitOrder}
+          onClickSplitOrderConfirm={onClickSplitOrderConfirm}
         />
       </Grid>
       {langItemsEdit ? (

@@ -89,7 +89,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: string
   orderId?: number
@@ -106,6 +106,11 @@ type Props = {
     unknown
   >
   project?: ProjectInfoType
+
+  onClickCancelSplitOrder?: () => void
+  onClickSplitOrderConfirm?: () => void
+  setSplitIds?: Dispatch<SetStateAction<number[]>>
+  splitReady?: boolean
 }
 
 export type DetailNewDataType = {
@@ -137,6 +142,10 @@ export default function ItemForm({
   itemTrigger,
   updateItems,
   project,
+  onClickCancelSplitOrder,
+  onClickSplitOrderConfirm,
+  setSplitIds,
+  splitReady,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
@@ -613,7 +622,7 @@ export default function ItemForm({
                           autoHighlight
                           fullWidth
                           options={options}
-                          groupBy={option => option?.groupName}
+                          groupBy={option => option?.groupName ?? ''}
                           isOptionEqualToValue={(option, newValue) => {
                             return option.priceName === newValue.priceName
                           }}
@@ -698,12 +707,6 @@ export default function ItemForm({
                             value={value}
                             onChange={e => {
                               onChange(e.target.checked)
-                              if (
-                                type === 'detail' ||
-                                type === 'invoiceDetail'
-                              ) {
-                                console.log(fields)
-                              }
                             }}
                             checked={value}
                           />
@@ -774,8 +777,6 @@ export default function ItemForm({
       </Box>
     )
   }
-
-  console.log(type, orderId)
 
   return (
     <DatePickerWrapper>

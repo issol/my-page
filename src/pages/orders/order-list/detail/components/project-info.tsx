@@ -41,7 +41,7 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
-import AlertModal from '@src/@core/components/common-modal/ alert-modal'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 
 type Props = {

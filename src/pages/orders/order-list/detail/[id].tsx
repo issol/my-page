@@ -259,6 +259,9 @@ const OrderDetail = () => {
   const [clientEdit, setClientEdit] = useState(false)
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const [langItemsEdit, setLangItemsEdit] = useState(false)
+  const [splitReady, setSplitReady] = useState<boolean>(false)
+  const [splitIds, setSplitIds] = useState<Array<number>>([])
+
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -279,6 +282,17 @@ const OrderDetail = () => {
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
+    console.log(prices)
+
+    console.log(
+      prices.filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      }),
+    )
+
     const filteredList = prices
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
@@ -290,6 +304,9 @@ const OrderDetail = () => {
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
+
+    console.log([defaultOption].concat(filteredList))
+
     return [defaultOption].concat(filteredList)
   }
 
@@ -352,8 +369,6 @@ const OrderDetail = () => {
 
     onSave(() => updateProject.mutate(projectInfo))
   }
-
-  console.log(getItem())
 
   const initializeData = () => {
     setLanguagePairs(
@@ -585,11 +600,11 @@ const OrderDetail = () => {
           id: String(item.id),
           source: item.source,
           target: item.target,
-          price: !item?.price
-            ? null
-            : getPriceOptions(item.source, item.target).filter(
+          price: item.price
+            ? getPriceOptions(item.source, item.target).find(
                 price => price.id === item?.price?.id!,
-              )[0],
+              ) ?? null
+            : null,
         }))!,
       )
       const result = langItem?.items?.map(item => {
@@ -761,6 +776,37 @@ const OrderDetail = () => {
           title='Are you sure you want to confirm this order? It will be delivered to the client.'
           vary='successful'
           rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
+
+  const handleSplitOrder = () => {
+    console.log('split')
+    console.log(splitIds)
+
+    // TODO API 연결
+  }
+
+  const onClickSplitOrder = () => {
+    setSplitReady(true)
+  }
+
+  const onClickCancelSplitOrder = () => {
+    setSplitReady(false)
+  }
+
+  const onClickSplitOrderConfirm = () => {
+    setSplitReady(false)
+    openModal({
+      type: 'SplitOrderModal',
+      children: (
+        <CustomModal
+          onClick={handleSplitOrder}
+          onClose={() => closeModal('SplitOrderModal')}
+          title='Are you sure you want to create new order with selected item(s)? The selected item(s) will be removed from the original order.'
+          vary='successful'
+          rightButtonText='Create'
         />
       ),
     })
@@ -964,6 +1010,11 @@ const OrderDetail = () => {
                     setLangItemsEdit={setLangItemsEdit}
                     project={projectInfo!}
                     updateItems={patchItems}
+                    onClickSplitOrder={onClickSplitOrder}
+                    onClickCancelSplitOrder={onClickCancelSplitOrder}
+                    onClickSplitOrderConfirm={onClickSplitOrderConfirm}
+                    setSplitIds={setSplitIds}
+                    splitReady={splitReady}
                   />
                   <Grid
                     item
@@ -1027,22 +1078,24 @@ const OrderDetail = () => {
             <TabPanel value='client' sx={{ pt: '24px' }}>
               <Suspense>
                 {clientEdit ? (
-                  <Grid container spacing={6}>
-                    <ClientQuotesFormContainer
-                      control={clientControl}
-                      setValue={setClientValue}
-                      watch={clientWatch}
-                      setTax={setTax}
-                      setTaxable={setTaxable}
-                      type='order'
-                    />
-                    {renderSubmitButton({
-                      onCancel: () =>
-                        onDiscard({ callback: () => setClientEdit(false) }),
-                      onSave: () => onClientSave(),
-                      isValid: isClientValid,
-                    })}
-                  </Grid>
+                  <Card sx={{ padding: '24px' }}>
+                    <Grid container spacing={6}>
+                      <ClientQuotesFormContainer
+                        control={clientControl}
+                        setValue={setClientValue}
+                        watch={clientWatch}
+                        setTax={setTax}
+                        setTaxable={setTaxable}
+                        type='order'
+                      />
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({ callback: () => setClientEdit(false) }),
+                        onSave: () => onClientSave(),
+                        isValid: isClientValid,
+                      })}
+                    </Grid>
+                  </Card>
                 ) : (
                   <OrderDetailClient
                     type={'detail'}
