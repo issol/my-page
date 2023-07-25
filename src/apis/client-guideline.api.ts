@@ -156,19 +156,3 @@ export const restoreGuideline = async (
     throw new Error(e)
   }
 }
-
-export const getGuidelineDownloadPreSignedUrl = async (
-  path: string[],
-): Promise<Array<string>> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/onboard/guideline/download-file`,
-      {
-        path,
-      },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}

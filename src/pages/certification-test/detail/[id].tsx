@@ -26,10 +26,7 @@ import Icon from 'src/@core/components/icon'
 
 import List from '@mui/material/List'
 import toast from 'react-hot-toast'
-import {
-  deleteTest,
-  getTestDownloadPreSignedUrl,
-} from 'src/apis/certification-test.api'
+import { deleteTest } from 'src/apis/certification-test.api'
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
@@ -230,9 +227,7 @@ const CertificationTestDetail = () => {
             >
               {file.name}
             </Box>
-            <Typography variant='body2'>
-              {formatFileSize(file.size)}
-            </Typography>
+            <Typography variant='body2'>{formatFileSize(file.size)}</Typography>
           </Grid>
           {/* <Grid item xs={2}>
             <IconButton onClick={() => handleRemoveFile(file)}>
@@ -260,9 +255,8 @@ const CertificationTestDetail = () => {
       ],
       fileName,
     )
-      getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path)
-      .then(res => {
-        fetch(res.url, { method: 'GET' })
+    getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path).then(res => {
+      fetch(res.url, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -568,8 +562,8 @@ const CertificationTestDetail = () => {
                         Test guideline file
                       </Typography>
                       <Typography variant='body2'>
-                        {formatFileSize(getFileSize(currentVersion?.files))}
-                        / {byteToMB(MAXIMUM_FILE_SIZE)}
+                        {formatFileSize(getFileSize(currentVersion?.files))}/{' '}
+                        {byteToMB(MAXIMUM_FILE_SIZE)}
                       </Typography>
                     </Box>
 
@@ -893,8 +887,8 @@ const CertificationTestDetail = () => {
                       Test guideline file
                     </Typography>
                     <Typography variant='body2'>
-                      {formatFileSize(getFileSize(currentVersion?.files))}
-                      / {byteToMB(MAXIMUM_FILE_SIZE)}
+                      {formatFileSize(getFileSize(currentVersion?.files))}/{' '}
+                      {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
 

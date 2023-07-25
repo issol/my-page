@@ -63,22 +63,6 @@ export const postTest = async (form: TestFormType): Promise<{ id: number }> => {
   }
 }
 
-export const getTestDownloadPreSignedUrl = async (
-  path: string[],
-): Promise<Array<string>> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/cert/test/paper/download-file`,
-      {
-        path,
-      },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 export const getTestDetail = async (id: number): Promise<TestDetailType> => {
   try {
     const { data } = await axios.get(`/api/enough/cert/test/paper/${id}`)
