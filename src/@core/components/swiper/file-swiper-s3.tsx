@@ -56,7 +56,7 @@ const FileSwiperFromS3 = ({
       setLoaded(true)
     },
   })
-  console.log('files', files)
+  // console.log('files', files)
   return (
     <>
       <Box className='navigation-wrapper'>

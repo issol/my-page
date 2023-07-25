@@ -142,7 +142,7 @@ export default function JobDetail({ id, priceUnitsList, onClose }: Props) {
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
-      console.log(result)
+      // console.log(result)
 
       itemReset({ items: result })
     } else {

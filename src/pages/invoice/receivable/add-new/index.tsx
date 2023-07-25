@@ -156,7 +156,7 @@ export default function AddNewInvoice() {
     (data: InvoiceReceivablePatchParamsType) => createInvoice(data),
     {
       onSuccess: (data: CreateInvoiceReceivableRes) => {
-        console.log(data)
+        // console.log(data)
 
         closeModal('CreateInvoiceModal')
         router.push(`/invoice/receivable/detail/${data.data.id}`)
@@ -504,7 +504,7 @@ export default function AddNewInvoice() {
         })
       getProjectInfo(id)
         .then(res => {
-          console.log(res)
+          // console.log(res)
 
           projectInfoReset({
             status: 'In preparation' as InvoiceReceivableStatusType,

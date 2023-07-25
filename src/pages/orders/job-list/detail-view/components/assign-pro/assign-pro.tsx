@@ -148,7 +148,7 @@ const AssignPro = ({
     })
 
   function isFiltersDifferent(): boolean {
-    console.log(filters.source)
+    // console.log(filters.source)
 
     const res =
       filters.source!.length > 0 ||
@@ -159,7 +159,7 @@ const AssignPro = ({
       // filters.client!.length > 0 &&
       !filters.isOffBoard
 
-    console.log(res)
+    // console.log(res)
 
     // console.log(res)
 
@@ -178,7 +178,7 @@ const AssignPro = ({
     const res = selectionModel.map((value: any) => {
       return Number(value)
     })
-    console.log(res)
+    // console.log(res)
 
     requestJobMutation.mutate({ ids: res, jobId: row.id })
     closeModal('AssignProRequestJobModal')
@@ -229,7 +229,7 @@ const AssignPro = ({
     const serviceTypeToPro = ServiceTypeToProRole[row.serviceType].map(
       (value: any) => value.value,
     )
-    console.log(serviceTypeToPro)
+    // console.log(serviceTypeToPro)
 
     setFilters(prevState => ({
       ...prevState,
@@ -248,7 +248,7 @@ const AssignPro = ({
     setFilters(defaultFilters)
   }
 
-  console.log(AssignProList)
+  // console.log(AssignProList)
 
   const onSubmit = () => {
     const data = getValues()
@@ -332,7 +332,7 @@ const AssignPro = ({
     })
   }
   useEffect(() => {
-    console.log(proListPageSize)
+    // console.log(proListPageSize)
   }, [proListPageSize])
 
   const columns: GridColumns<AssignProListType> = [

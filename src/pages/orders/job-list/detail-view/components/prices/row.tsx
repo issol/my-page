@@ -70,7 +70,7 @@ const Row = ({
     getPriceOptions(itemData.source, itemData.target).find(
       price => price.id === itemData.priceId,
     ) || null
-  console.log(priceData)
+  // console.log(priceData)
 
   const sourceLanguage = itemData.source
   const targetLanguage = itemData.target
@@ -169,7 +169,7 @@ const Row = ({
     getTotalPrice()
   }
 
-  console.log(details)
+  // console.log(details)
 
   return (
     <Box

@@ -55,7 +55,7 @@ export default function CompanyInfoForm({
   watch,
 }: Props) {
   const clientType: Array<ClientType> = ['Company', 'Mr.', 'Ms.']
-  console.log('errors', errors)
+  // console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
     value: ClientType,

@@ -73,7 +73,7 @@ const Pro = () => {
 
   const { currentRole } = useAppSelector(state => state.userAccess)
 
-  console.log(currentRole)
+  // console.log(currentRole)
 
   // const { data: totalStatistics } = useGetStatistic()
   // const { data: onboardingStatistic } = useGetOnboardingStatistic()

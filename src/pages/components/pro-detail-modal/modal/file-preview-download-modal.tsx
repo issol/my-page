@@ -40,7 +40,7 @@ export default function FilePreviewDownloadModal({
     if (!state.currentDocument || state.config?.header?.disableFileName) {
       return null
     }
-    console.log(state)
+    // console.log(state)
 
     return (
       <Box sx={{ border: '1px solid', display: 'flex' }}>
@@ -88,7 +88,7 @@ export default function FilePreviewDownloadModal({
         onClose()
       })
       .catch(error => {
-        console.log(error)
+        // console.log(error)
       })
   }
   return (

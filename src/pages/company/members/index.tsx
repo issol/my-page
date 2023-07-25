@@ -43,7 +43,11 @@ const Members = () => {
   const hasGeneralPermission = () => {
     let flag = false
     userAccess.role.map(item => {
-      if ((item.name === 'LPM' || item.name === 'TAD') && item.type ==='General') flag=true
+      if (
+        (item.name === 'LPM' || item.name === 'TAD') &&
+        item.type === 'General'
+      )
+        flag = true
     })
     return flag
   }
@@ -142,7 +146,7 @@ const Members = () => {
   }
 
   const undoApprove = (user: SignUpRequestsType) => {
-    console.log(user)
+    // console.log(user)
 
     undoRequestActionMutation.mutate(user, {
       onSuccess: () => {

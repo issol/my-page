@@ -97,7 +97,7 @@ const EditPrices = ({
   const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
-  console.log(getItem('items'), 'item')
+  // console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
 
@@ -148,7 +148,7 @@ const EditPrices = ({
 
   useEffect(() => {
     if (jobPrices) {
-      console.log(jobPrices)
+      // console.log(jobPrices)
 
       const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
         value => value.id === jobPrices.priceId,

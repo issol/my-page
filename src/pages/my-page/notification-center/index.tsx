@@ -53,7 +53,7 @@ const NotificationCenter = () => {
   }
 
   const onClickNotification = (id: number, url: string, isRead: boolean) => {
-    console.log(isRead)
+    // console.log(isRead)
 
     !isRead && markAsReadMutation.mutate([id])
     if (url !== '') {

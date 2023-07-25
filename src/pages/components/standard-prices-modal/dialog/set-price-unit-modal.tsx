@@ -277,10 +277,10 @@ const SetPriceUnitModal = ({
   }
 
   const onSubmit = (data: SetPriceUnit) => {
-    console.log(data)
+    // console.log(data)
 
     const formattedData = formatPriceUnitData(data)
-    console.log(formattedData)
+    // console.log(formattedData)
 
     openModal({
       type: 'saveSetPriceUnitModal',
@@ -390,7 +390,7 @@ const SetPriceUnitModal = ({
   }
 
   useEffect(() => {
-    console.log(priceUnit)
+    // console.log(priceUnit)
   }, [priceUnit])
 
   const onClickAddPriceUnit = () => {
@@ -461,7 +461,7 @@ const SetPriceUnitModal = ({
     value: any,
   ) => {
     const filtered = pairFields.filter(f => f.unitId! === idx)[0]
-    console.log(pairFields)
+    // console.log(pairFields)
 
     const index = pairFields.findIndex(f => f.unitId! === idx)
     let newVal = { ...filtered, [type]: value }
@@ -480,7 +480,7 @@ const SetPriceUnitModal = ({
     let subUnits = base.subPriceUnits
     let sub = base.subPriceUnits![subIndex]
 
-    console.log(price)
+    // console.log(price)
 
     let newVal = { ...sub, [type]: value }
     subUnits![subIndex] = newVal
@@ -496,7 +496,7 @@ const SetPriceUnitModal = ({
 
   useEffect(() => {
     setPriceUnitOptions(priceUnit)
-    console.log(priceUnitPair)
+    // console.log(priceUnitPair)
 
     const subUnit = priceUnitPair
       .filter(value => value.parentPriceUnitId !== null)
@@ -789,7 +789,7 @@ const SetPriceUnitModal = ({
                                         const res = data.subPriceUnits?.map(
                                           value => value.unitId,
                                         )
-                                        console.log(res)
+                                        // console.log(res)
 
                                         const subUnitIds = res?.map(value => {
                                           return {
@@ -1166,7 +1166,7 @@ const SetPriceUnitModal = ({
                                               item.parentPriceUnitId,
                                           )?.price
 
-                                          console.log(filteredValue)
+                                          // console.log(filteredValue)
 
                                           if (!isNaN(Number(filteredValue))) {
                                             setValue(
@@ -1273,7 +1273,7 @@ const SetPriceUnitModal = ({
                                               item.parentPriceUnitId,
                                           )?.price
 
-                                          console.log(price)
+                                          // console.log(price)
 
                                           if (!isNaN(Number(e.target.value))) {
                                             setValue(

@@ -265,7 +265,7 @@ export default function AddNewQuotes() {
   }, [requestId])
 
   useEffect(() => {
-    console.log(languagePairs)
+    // console.log(languagePairs)
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
@@ -362,13 +362,13 @@ export default function AddNewQuotes() {
     }
   }
 
-  console.log(getItem())
+  // console.log(getItem())
 
-  console.log(
-    getItem().items.reduce((acc, cur) => {
-      return acc + cur.totalPrice
-    }, 0),
-  )
+  // console.log(
+  //   getItem().items.reduce((acc, cur) => {
+  //     return acc + cur.totalPrice
+  //   }, 0),
+  // )
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -473,7 +473,7 @@ export default function AddNewQuotes() {
       requestId: requestId ?? null,
     }
 
-    console.log(stepOneData)
+    // console.log(stepOneData)
 
     createQuotesInfo(stepOneData)
       .then(res => {
@@ -503,7 +503,7 @@ export default function AddNewQuotes() {
       supervisorId: undefined,
       member: [],
     }
-    console.log(data.teams)
+    // console.log(data.teams)
 
     data.teams.forEach(item => {
       if (item.type === 'supervisorId') {

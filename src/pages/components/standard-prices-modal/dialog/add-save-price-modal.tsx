@@ -36,7 +36,7 @@ import { CatBasisList } from '@src/shared/const/catBasis/cat-basis'
 import {
   RoundingProcedureList,
   RoundingProcedureObjReversed,
-  RoundingProcedureObj
+  RoundingProcedureObj,
 } from '@src/shared/const/rounding-procedure/rounding-procedure'
 import { useForm } from 'react-hook-form'
 
@@ -131,7 +131,10 @@ const AddSavePriceModal = ({
   const [selected, setSelected] = useState<StandardPriceListType | null>(null)
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
-  const [category, setCategory] = useState<{label: String, value: String} | null>(null)
+  const [category, setCategory] = useState<{
+    label: String
+    value: String
+  } | null>(null)
 
   const resetData = () => {
     reset({
@@ -231,7 +234,7 @@ const AddSavePriceModal = ({
         )
         setValue('currency', {
           label:
-          selected.currency === 'USD'
+            selected.currency === 'USD'
               ? '$ USD'
               : selected.currency === 'KRW'
               ? '₩ KRW'
@@ -260,7 +263,6 @@ const AddSavePriceModal = ({
         setValue('memoForPrice', selected.memoForPrice)
       }
     }
-
   }, [type, selected])
 
   function openCopyPriceModal() {
@@ -314,7 +316,7 @@ const AddSavePriceModal = ({
               <Button
                 sx={{
                   position: 'absolute',
-                  right: '75px'
+                  right: '75px',
                 }}
                 variant='outlined'
                 startIcon={<Icon icon='ic:baseline-file-download' />}
@@ -328,9 +330,7 @@ const AddSavePriceModal = ({
         <form
           noValidate
           autoComplete='off'
-          onSubmit={handleSubmit(data =>
-            onSubmit(selected!, data, type),
-          )}
+          onSubmit={handleSubmit(data => onSubmit(selected!, data, type))}
         >
           <Grid container xs={12} spacing={6}>
             <Grid item xs={12}>
@@ -370,7 +370,8 @@ const AddSavePriceModal = ({
                     }}
                     onChange={(event, item) => {
                       onChange(item)
-                      if (category !== item) reset({...getValues(), serviceType: undefined})
+                      if (category !== item)
+                        reset({ ...getValues(), serviceType: undefined })
                       if (item) {
                         // @ts-ignore
                         const res = ServiceTypePair[item.value]
@@ -467,7 +468,7 @@ const AddSavePriceModal = ({
                     onChange={(event, item) => {
                       onChange(item)
                       if (item) {
-                        console.log(item)
+                        // console.log(item)
 
                         if (item.value === 'KRW' || item.value === 'JPY') {
                           setValue('decimalPlace', 1000)

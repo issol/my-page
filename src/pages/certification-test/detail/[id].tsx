@@ -230,9 +230,7 @@ const CertificationTestDetail = () => {
             >
               {file.name}
             </Box>
-            <Typography variant='body2'>
-              {formatFileSize(file.size)}
-            </Typography>
+            <Typography variant='body2'>{formatFileSize(file.size)}</Typography>
           </Grid>
           {/* <Grid item xs={2}>
             <IconButton onClick={() => handleRemoveFile(file)}>
@@ -260,9 +258,8 @@ const CertificationTestDetail = () => {
       ],
       fileName,
     )
-      getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path)
-      .then(res => {
-        fetch(res.url, { method: 'GET' })
+    getDownloadUrlforCommon(S3FileType.TEST_GUIDELINE, path).then(res => {
+      fetch(res.url, { method: 'GET' })
         .then(res => {
           return res.blob()
         })
@@ -568,8 +565,8 @@ const CertificationTestDetail = () => {
                         Test guideline file
                       </Typography>
                       <Typography variant='body2'>
-                        {formatFileSize(getFileSize(currentVersion?.files))}
-                        / {byteToMB(MAXIMUM_FILE_SIZE)}
+                        {formatFileSize(getFileSize(currentVersion?.files))}/{' '}
+                        {byteToMB(MAXIMUM_FILE_SIZE)}
                       </Typography>
                     </Box>
 
@@ -839,11 +836,11 @@ const CertificationTestDetail = () => {
                     onPageSizeChange={setPageSize}
                     rowsPerPageOptions={[5, 15, 30]}
                     onCellClick={params => {
-                      console.log(params.row)
+                      // console.log(params.row)
 
                       setOpenDetail(true)
                       setCurrentRow(params.row)
-                      console.log(params.row)
+                      // console.log(params.row)
 
                       if (params.row?.content) {
                         const content = convertFromRaw(
@@ -893,8 +890,8 @@ const CertificationTestDetail = () => {
                       Test guideline file
                     </Typography>
                     <Typography variant='body2'>
-                      {formatFileSize(getFileSize(currentVersion?.files))}
-                      / {byteToMB(MAXIMUM_FILE_SIZE)}
+                      {formatFileSize(getFileSize(currentVersion?.files))}/{' '}
+                      {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
 

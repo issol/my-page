@@ -63,7 +63,7 @@ const InvoiceVersionHistoryModal = ({
   isUpdatable,
   isDeletable,
 }: Props) => {
-  console.log(history)
+  // console.log(history)
 
   const [value, setValue] = useState<string>('1')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])

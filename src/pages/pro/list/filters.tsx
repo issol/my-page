@@ -238,8 +238,7 @@ export default function ProListFilters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setSourceMultiple(true)
                               else setSourceMultiple(false)
                             }
@@ -288,8 +287,7 @@ export default function ProListFilters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setTargetMultiple(true)
                               else setTargetMultiple(false)
                             }
@@ -345,7 +343,7 @@ export default function ProListFilters({
                               }[] = []
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
-                                console.log(jobTypeValue)
+                                // console.log(jobTypeValue)
 
                                 /* @ts-ignore */
                                 const res = OnboardingListRolePair.filter(
@@ -412,7 +410,7 @@ export default function ProListFilters({
                                 label: string
                                 value: string
                               }[] = []
-                              console.log(item)
+                              // console.log(item)
 
                               item.map((data, idx) => {
                                 data.jobType.map(value => {

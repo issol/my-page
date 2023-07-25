@@ -619,7 +619,7 @@ export default function AddNewOrder() {
     }
   }, [prices, languagePairs])
 
-  console.log(priceInfo)
+  // console.log(priceInfo)
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음

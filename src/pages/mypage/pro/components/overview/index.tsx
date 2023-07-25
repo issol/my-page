@@ -191,7 +191,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   function onProfileSave() {
     setEditProfile(false)
     const data = getValues()
-    console.log('data', data)
+    // console.log('data', data)
     //TODO: mutation붙이기 + confirm modal
   }
 

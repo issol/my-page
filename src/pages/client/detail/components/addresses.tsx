@@ -157,7 +157,7 @@ export default function ClientAddresses({
         return item
       })
       updateClientAddressMutation.mutate({ data: finalForm })
-      console.log(finalForm)
+      // console.log(finalForm)
     }
   }
 
@@ -183,9 +183,7 @@ export default function ClientAddresses({
         {filteredAddress()?.length
           ? filteredAddress()?.map((item, idx) => {
               const chipName =
-                item.addressType === 'shipping'
-                  ? 'Shipping address'
-                  : item.name
+                item.addressType === 'shipping' ? 'Shipping address' : item.name
               return (
                 <Box key={idx}>
                   <Divider style={{ marginBottom: '24px' }} />

@@ -702,7 +702,7 @@ export default function ItemForm({
                                 type === 'detail' ||
                                 type === 'invoiceDetail'
                               ) {
-                                console.log(fields)
+                                // console.log(fields)
                               }
                             }}
                             checked={value}
@@ -775,7 +775,7 @@ export default function ItemForm({
     )
   }
 
-  console.log(type, orderId)
+  // console.log(type, orderId)
 
   return (
     <DatePickerWrapper>

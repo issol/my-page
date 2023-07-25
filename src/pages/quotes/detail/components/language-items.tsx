@@ -132,7 +132,7 @@ export default function QuotesLanguageItemsDetail({
 
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
 
-  console.log(priceInfo)
+  // console.log(priceInfo)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -213,7 +213,7 @@ export default function QuotesLanguageItemsDetail({
       totalPrice: 0,
     })
   }
-  console.log(isEditMode)
+  // console.log(isEditMode)
 
   return (
     <Grid container>

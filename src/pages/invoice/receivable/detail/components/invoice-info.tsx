@@ -235,7 +235,7 @@ const InvoiceInfo = ({
 
   const handleDeleteInvoice = () => {
     deleteInvoiceMutation.mutate(invoiceInfo.id)
-    console.log('delete')
+    // console.log('delete')
   }
 
   useEffect(() => {

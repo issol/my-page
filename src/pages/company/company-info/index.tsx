@@ -70,7 +70,9 @@ const CompanyInfo = () => {
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)
   const [file, setFile] = useState<File | null>()
-  const [logoURL, setlogoURL] = useState<string>('/images/company/default-company-logo.svg')
+  const [logoURL, setlogoURL] = useState<string>(
+    '/images/company/default-company-logo.svg',
+  )
 
   const currentRole = getCurrentRole()
 
@@ -227,7 +229,7 @@ const CompanyInfo = () => {
     if (companyInfo) {
       if (type === 'info') {
         const data = getValues()
-        if(file) {
+        if (file) {
           uploadCompanyLogo(file)
         }
         const res = {
@@ -246,7 +248,7 @@ const CompanyInfo = () => {
         setInfoEdit(false)
       } else {
         const data = addressGetValues()
-        console.log(data)
+        // console.log(data)
 
         const res: Array<CompanyAddressParamsType> = data.address.map(
           value => ({
@@ -316,8 +318,7 @@ const CompanyInfo = () => {
 
   const uploadCompanyLogo = (file: File) => {
     const filePath = makeCompanyLogoPath(file.name)
-    getUploadUrlforCommon(S3FileType.COMPANY_LOGO, filePath)
-    .then(res => {
+    getUploadUrlforCommon(S3FileType.COMPANY_LOGO, filePath).then(res => {
       uploadFileToS3(res.url, file)
     })
   }
@@ -329,10 +330,11 @@ const CompanyInfo = () => {
 
   useEffect(() => {
     if (companyInfo?.logo) {
-      getDownloadUrlforCommon(S3FileType.COMPANY_LOGO, companyInfo?.logo)
-      .then(res => {
-        setlogoURL(res.url)
-      })
+      getDownloadUrlforCommon(S3FileType.COMPANY_LOGO, companyInfo?.logo).then(
+        res => {
+          setlogoURL(res.url)
+        },
+      )
     } else {
       setlogoURL('/images/company/default-company-logo.svg')
     }
@@ -367,7 +369,7 @@ const CompanyInfo = () => {
         })
       }
       if (companyInfo.companyAddresses.length === 0) {
-        console.log('hi')
+        // console.log('hi')
 
         appendAddress({
           name: '',
@@ -388,10 +390,7 @@ const CompanyInfo = () => {
   return (
     <Suspense>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <CompanyInfoCard
-          companyInfo={companyInfo!}
-          companyLogoURL={logoURL}
-        />
+        <CompanyInfoCard companyInfo={companyInfo!} companyLogoURL={logoURL} />
         <TabContext value={tab}>
           <TabList
             onChange={handleChange}

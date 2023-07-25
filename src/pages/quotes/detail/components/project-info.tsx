@@ -151,7 +151,7 @@ export default function QuotesProjectInfoDetail({
     }
   }, [client])
 
-  console.log(contactPersonId)
+  // console.log(contactPersonId)
 
   return (
     <Fragment>

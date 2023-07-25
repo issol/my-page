@@ -353,7 +353,7 @@ const OrderDetail = () => {
     onSave(() => updateProject.mutate(projectInfo))
   }
 
-  console.log(getItem())
+  // console.log(getItem())
 
   const initializeData = () => {
     setLanguagePairs(

@@ -197,7 +197,7 @@ const Contracts = ({
                     value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
-                      console.log(value)
+                      // console.log(value)
 
                       if (!v) onChange(null)
                       else onChange(v)
