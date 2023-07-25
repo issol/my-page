@@ -56,16 +56,11 @@ import {
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
-import {
-  postFiles,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
   FilePostType,
-  getGuidelineUploadPreSignedUrl,
   postGuideline,
 } from 'src/apis/client-guideline.api'
 
@@ -143,10 +138,14 @@ const ClientGuidelineForm = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    alt={`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   />
                   <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    {`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -646,8 +645,7 @@ const ClientGuidelineForm = () => {
                     Attached file
                   </Typography>
                   <Typography variant='body2'>
-                    {formatFileSize(fileSize)}
-                    / {byteToMB(MAXIMUM_FILE_SIZE)}
+                    {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 <div {...getRootProps({ className: 'dropzone' })}>

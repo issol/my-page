@@ -61,11 +61,10 @@ import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
   FilePostType,
-  getGuidelineUploadPreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import { postFiles, getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -217,10 +216,14 @@ const ClientGuidelineEdit = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    alt={`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   />
                   <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    {`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -396,36 +399,37 @@ const ClientGuidelineEdit = () => {
             data.client.value,
             data.category.value,
             data.serviceType.value,
-            `V${currentVersion?.version!+1}`,
+            `V${currentVersion?.version! + 1}`,
           ],
           file.name,
         ),
       )
       const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url)
-        .then(res => {
-          fileInfo.push({
-            name: data.file[idx].name,
-            size: data.file[idx]?.size,
-            fileUrl: url,
-          })
-          return uploadFileToS3(res.url, data.file[idx])
-        })
+        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
+          res => {
+            fileInfo.push({
+              name: data.file[idx].name,
+              size: data.file[idx]?.size,
+              fileUrl: url,
+            })
+            return uploadFileToS3(res.url, data.file[idx])
+          },
+        )
       })
       Promise.all(promiseArr)
-      .then(res => {
-        logger.debug('upload client guideline file success :', res)
-        finalValue.files = fileInfo
-        guidelinePatchMutation.mutate(finalValue)
-      })
-      .catch(err =>
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
-          },
-        ),
-      )
+        .then(res => {
+          logger.debug('upload client guideline file success :', res)
+          finalValue.files = fileInfo
+          guidelinePatchMutation.mutate(finalValue)
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
     } else {
       guidelinePatchMutation.mutate(finalValue)
     }
@@ -668,8 +672,8 @@ const ClientGuidelineEdit = () => {
                           Attached file
                         </Typography>
                         <Typography variant='body2'>
-                          {formatFileSize(fileSize)}
-                          / {byteToMB(MAXIMUM_FILE_SIZE)}
+                          {formatFileSize(fileSize)}/{' '}
+                          {byteToMB(MAXIMUM_FILE_SIZE)}
                         </Typography>
                       </Box>
                       <div {...getRootProps({ className: 'dropzone' })}>

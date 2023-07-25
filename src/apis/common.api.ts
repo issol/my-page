@@ -69,18 +69,6 @@ export const getDownloadUrlforCommon = async (
   }
 }
 
-export const postFiles = async (url: string, formData: FormData) => {
-  return originalAxios.put(url, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization:
-        'Bearer ' + typeof window === 'object'
-          ? getUserTokenFromBrowser()
-          : null,
-    },
-  })
-}
-
 export const uploadFileToS3 = async (url: string, file: any) => {
   return originalAxios.put(url, file, {
     headers: {

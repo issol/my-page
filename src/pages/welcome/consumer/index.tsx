@@ -78,7 +78,6 @@ import {
   FilePathEnum,
   getPresignedUrl,
   getUploadUrlforCommon,
-  postFiles,
   uploadFileToS3,
 } from 'src/apis/common.api'
 

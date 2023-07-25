@@ -157,23 +157,6 @@ export const restoreGuideline = async (
   }
 }
 
-// path : /<clinet>/<category>/<serviceType>/V<version>/<fileName> 형태
-export const getGuidelineUploadPreSignedUrl = async (
-  path: string[],
-): Promise<Array<string>> => {
-  try {
-    const { data } = await axios.post(
-      `/api/enough/onboard/guideline/upload-file`,
-      {
-        path,
-      },
-    )
-    return data
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
 export const getGuidelineDownloadPreSignedUrl = async (
   path: string[],
 ): Promise<Array<string>> => {
