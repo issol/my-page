@@ -23,7 +23,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName?: string }>
   itemControl: Control<
     {
       items: ItemType[]

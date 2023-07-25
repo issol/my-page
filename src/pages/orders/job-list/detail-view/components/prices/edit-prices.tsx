@@ -110,7 +110,7 @@ const EditPrices = ({
 
   const [price, setPrice] = useState<
     | (StandardPriceListType & {
-        groupName: string
+        groupName?: string
       })
     | null
   >(null)
@@ -214,7 +214,7 @@ const EditPrices = ({
               fullWidth
               value={price ?? null}
               options={options}
-              groupBy={option => option?.groupName}
+              groupBy={option => option?.groupName ?? ''}
               onChange={(e, v) => {
                 if (v) {
                   setPrice(v)
