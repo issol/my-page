@@ -17,7 +17,6 @@ import {
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import {
-  ChangeEvent,
   Fragment,
   MouseEvent,
   Suspense,
@@ -50,12 +49,12 @@ import {
 } from '@src/queries/order/order.query'
 
 import DownloadOrderModal from './components/modal/download-order-modal'
-import OrderPreview from './components/order-preview'
+
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setIsReady, setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
+import { patchOrderProjectInfo, splitOrder } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -160,11 +159,12 @@ const OrderDetail = () => {
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const { user } = useContext(AuthContext)
-
-  const [value, setValue] = useState<MenuType>('project')
+  const currentRole = getCurrentRole()
+  const [value, setValue] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
+  )
   const { data: statusList } = useGetStatusList('Order')
   const dispatch = useAppDispatch()
-  const currentRole = getCurrentRole()
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
 
@@ -671,48 +671,6 @@ const OrderDetail = () => {
     router.push('/orders/order-print')
   }
 
-  // useEffect(() => {
-  //   if (
-  //     !projectInfoLoading &&
-  //     !projectTeamLoading &&
-  //     !clientLoading &&
-  //     !langItemLoading
-  //   ) {
-  //     const pm = projectTeam!.find(value => value.position === 'projectManager')
-
-  //     const res: OrderDownloadData = {
-  //       orderId: Number(id!),
-  //       adminCompanyName: 'GloZ Inc.',
-  //       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-  //       corporationId: projectInfo!.corporationId,
-  //       orderedAt: projectInfo!.orderedAt,
-  //       projectDueAt: {
-  //         date: projectInfo!.projectDueAt,
-  //         timezone: projectInfo!.projectDueTimezone,
-  //       },
-  //       pm: {
-  //         firstName: pm?.firstName!,
-  //         lastName: pm?.lastName!,
-  //         email: pm?.email!,
-  //         middleName: pm?.middleName!,
-  //       },
-  //       companyName: client!.client.name,
-  //       projectName: projectInfo!.projectName,
-  //       client: client!,
-  //       contactPerson: client!.contactPerson,
-  //       clientAddress: client!.clientAddress,
-  //       langItem: langItem!,
-  //     }
-  //     dispatch(setOrder(res))
-  //   }
-  // }, [
-  //   dispatch,
-  //   projectInfoLoading,
-  //   projectTeamLoading,
-  //   clientLoading,
-  //   langItemLoading,
-  // ])
-
   useEffect(() => {
     if (projectInfo && client && langItem && projectTeam) makePdfData()
   }, [projectInfo, client, langItem, projectTeam])
@@ -917,6 +875,23 @@ const OrderDetail = () => {
     },
   )
 
+  const splitOrderMutation = useMutation(
+    (items: number[]) => splitOrder(Number(id!), items),
+    {
+      onSuccess: (data: { orderId: number }) => {
+        setSplitReady(false)
+        setSelectedIds(prevSelectedIds =>
+          prevSelectedIds.map(id => ({ ...id, selected: false })),
+        )
+
+        queryClient.invalidateQueries(['orderDetail'])
+        queryClient.invalidateQueries(['orderList'])
+
+        router.push(`/orders/order-list/detail/${data.orderId}`)
+      },
+    },
+  )
+
   function onMutationError() {
     toast.error('Something went wrong. Please try again.', {
       position: 'bottom-left',
@@ -963,14 +938,10 @@ const OrderDetail = () => {
   }
 
   const handleSplitOrder = () => {
-    console.log('split')
-
-    const res = selectedIds.map(value => value.id)
-
-    setSplitReady(false)
-    setSelectedIds(prevSelectedIds =>
-      prevSelectedIds.map(id => ({ ...id, selected: false })),
-    )
+    const res = selectedIds
+      .filter(value => value.selected)
+      .map(value => value.id)
+    splitOrderMutation.mutate(res)
     // TODO API 연결
   }
 
@@ -990,7 +961,7 @@ const OrderDetail = () => {
       type: 'SplitOrderModal',
       children: (
         <CustomModal
-          onClick={handleSplitOrder}
+          onClick={() => handleSplitOrder()}
           onClose={() => closeModal('SplitOrderModal')}
           title='Are you sure you want to create new order with selected item(s)? The selected item(s) will be removed from the original order.'
           vary='successful'
@@ -1221,13 +1192,16 @@ const OrderDetail = () => {
               aria-label='Order detail Tab menu'
               style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
             >
-              <CustomTap
-                value='order'
-                label='Order'
-                iconPosition='start'
-                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-              />
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <CustomTap
+                  value='order'
+                  label='Order'
+                  iconPosition='start'
+                  icon={<Icon icon='ic:outline-list-alt' fontSize={'18px'} />}
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              ) : null}
+
               <CustomTap
                 value='project'
                 label='Project info'
@@ -1373,36 +1347,36 @@ const OrderDetail = () => {
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
                   />
-                  {currentRole && currentRole.name === 'CLIENT' ? (
-                    <Grid item xs={12}>
-                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-                        <Box
+
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '20px',
+                          borderBottom: '2px solid #666CFF',
+                          justifyContent: 'center',
+                          width: '257px',
+                        }}
+                      >
+                        <Typography
+                          fontWeight={600}
+                          variant='subtitle1'
                           sx={{
-                            display: 'flex',
-                            gap: '20px',
-                            borderBottom: '2px solid #666CFF',
-                            justifyContent: 'center',
-                            width: '257px',
+                            padding: '16px 16px 16px 20px',
+                            flex: 1,
+                            textAlign: 'right',
                           }}
                         >
-                          <Typography
-                            fontWeight={600}
-                            variant='subtitle1'
-                            sx={{
-                              padding: '16px 16px 16px 20px',
-                              flex: 1,
-                              textAlign: 'right',
-                            }}
-                          >
-                            Subtotal
-                          </Typography>
-                          <Typography
-                            fontWeight={600}
-                            variant='subtitle1'
-                            sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
-                          >
-                            {projectInfo?.subtotal}
-                            {/* {formatCurrency(
+                          Subtotal
+                        </Typography>
+                        <Typography
+                          fontWeight={600}
+                          variant='subtitle1'
+                          sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                        >
+                          {projectInfo?.subtotal}
+                          {/* {formatCurrency(
                               formatByRoundingProcedure(
                                 items.reduce((acc, cur) => {
                                   return acc + cur.totalPrice
@@ -1413,58 +1387,57 @@ const OrderDetail = () => {
                               ),
                               priceInfo?.currency ?? 'USD',
                             )} */}
-                          </Typography>
-                        </Box>
+                        </Typography>
                       </Box>
-                    </Grid>
-                  ) : (
-                    <Grid
-                      item
-                      xs={12}
-                      display='flex'
-                      padding='24px'
-                      alignItems='center'
-                      justifyContent='space-between'
-                      mt={6}
-                      mb={6}
-                      sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-                    >
-                      <Box display='flex' alignItems='center' gap='4px'>
-                        <Checkbox
-                          disabled={!langItemsEdit}
-                          checked={taxable}
-                          onChange={e => {
-                            if (!e.target.checked) {
-                              setTax(null)
-                            }
-                            setTaxable(e.target.checked)
-                          }}
-                        />
-                        <Typography>Tax</Typography>
-                      </Box>
-                      <Box display='flex' alignItems='center' gap='4px'>
-                        {langItemsEdit ? (
-                          <>
-                            <TextField
-                              size='small'
-                              type='number'
-                              value={!tax ? '-' : tax}
-                              disabled={!taxable}
-                              sx={{ maxWidth: '120px', padding: 0 }}
-                              inputProps={{ inputMode: 'decimal' }}
-                              onChange={e => {
-                                if (e.target.value.length > 10) return
-                                setTax(Number(e.target.value))
-                              }}
-                            />
-                            %
-                          </>
-                        ) : (
-                          <Box>{tax ? `${tax} %` : null} </Box>
-                        )}
-                      </Box>
-                    </Grid>
-                  )}
+                    </Box>
+                  </Grid>
+
+                  <Grid
+                    item
+                    xs={12}
+                    display='flex'
+                    padding='24px'
+                    alignItems='center'
+                    justifyContent='space-between'
+                    mt={6}
+                    mb={6}
+                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                  >
+                    <Box display='flex' alignItems='center' gap='4px'>
+                      <Checkbox
+                        disabled={!langItemsEdit}
+                        checked={taxable}
+                        onChange={e => {
+                          if (!e.target.checked) {
+                            setTax(null)
+                          }
+                          setTaxable(e.target.checked)
+                        }}
+                      />
+                      <Typography>Tax</Typography>
+                    </Box>
+                    <Box display='flex' alignItems='center' gap='4px'>
+                      {langItemsEdit ? (
+                        <>
+                          <TextField
+                            size='small'
+                            type='number'
+                            value={!tax ? '-' : tax}
+                            disabled={!taxable}
+                            sx={{ maxWidth: '120px', padding: 0 }}
+                            inputProps={{ inputMode: 'decimal' }}
+                            onChange={e => {
+                              if (e.target.value.length > 10) return
+                              setTax(Number(e.target.value))
+                            }}
+                          />
+                          %
+                        </>
+                      ) : (
+                        <Box>{tax ? `${tax} %` : null} </Box>
+                      )}
+                    </Box>
+                  </Grid>
 
                   {langItemsEdit
                     ? renderSubmitButton({
@@ -1493,7 +1466,7 @@ const OrderDetail = () => {
                             selectedIds.filter(value => value.selected)
                               .length === 0
                           }
-                          onClick={onClickConfirmOrder}
+                          onClick={onClickSplitOrderConfirm}
                         >
                           Split order
                         </Button>
