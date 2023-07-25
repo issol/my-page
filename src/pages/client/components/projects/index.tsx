@@ -147,7 +147,7 @@ export default function ClientProjects({ id, user }: Props) {
       sort: 'DESC',
     }
 
-    console.log(filter)
+    // console.log(filter)
 
     setFilters(filter)
   }

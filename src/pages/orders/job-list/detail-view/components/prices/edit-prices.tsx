@@ -97,7 +97,7 @@ const EditPrices = ({
   const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
-  console.log(getItem('items'), 'item')
+  // console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
 
@@ -110,7 +110,7 @@ const EditPrices = ({
 
   const [price, setPrice] = useState<
     | (StandardPriceListType & {
-        groupName: string
+        groupName?: string
       })
     | null
   >(null)
@@ -148,7 +148,7 @@ const EditPrices = ({
 
   useEffect(() => {
     if (jobPrices) {
-      console.log(jobPrices)
+      // console.log(jobPrices)
 
       const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
         value => value.id === jobPrices.priceId,
@@ -214,7 +214,7 @@ const EditPrices = ({
               fullWidth
               value={price ?? null}
               options={options}
-              groupBy={option => option?.groupName}
+              groupBy={option => option?.groupName ?? ''}
               onChange={(e, v) => {
                 if (v) {
                   setPrice(v)

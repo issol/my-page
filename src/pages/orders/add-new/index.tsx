@@ -102,12 +102,12 @@ export type languageType = {
 }
 
 export const defaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',
@@ -120,12 +120,12 @@ export const defaultOption: StandardPriceListType & {
 }
 
 export const proDefaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',
@@ -619,7 +619,7 @@ export default function AddNewOrder() {
     }
   }, [prices, languagePairs])
 
-  console.log(priceInfo)
+  // console.log(priceInfo)
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음

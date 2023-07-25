@@ -355,7 +355,7 @@ export default function ProListFilters({
                               }[] = []
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
-                                console.log(jobTypeValue)
+                                // console.log(jobTypeValue)
 
                                 /* @ts-ignore */
                                 const res = OnboardingListRolePair.filter(
@@ -422,7 +422,7 @@ export default function ProListFilters({
                                 label: string
                                 value: string
                               }[] = []
-                              console.log(item)
+                              // console.log(item)
 
                               item.map((data, idx) => {
                                 data.jobType.map(value => {

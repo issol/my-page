@@ -66,7 +66,7 @@ export const getStatistic = async () => {
 export const getAppliedRole = async (id: number) => {
   const data = await axios.get(`/api/enough/cert/request/role?userId=${id}`)
 
-  console.log(data)
+  // console.log(data)
 
   return data.data
 }

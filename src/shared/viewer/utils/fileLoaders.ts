@@ -29,7 +29,7 @@ const _fileLoader: BaseFileLoaderFunction = ({
     .then(async res => {
       const blob = await res.blob()
 
-      console.log(blob)
+      // console.log(blob)
 
       const fileReader = new FileReader()
       fileReader.addEventListener('loadend', () =>

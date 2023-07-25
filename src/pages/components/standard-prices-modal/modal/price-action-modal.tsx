@@ -41,7 +41,7 @@ export default function PriceActionModal({
   priceName,
 }: Props) {
   useEffect(() => {
-    console.log(selectedPriceData)
+    // console.log(selectedPriceData)
   }, [selectedPriceData])
 
   return (

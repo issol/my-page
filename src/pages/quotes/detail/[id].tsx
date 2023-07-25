@@ -230,7 +230,7 @@ export default function QuotesDetail() {
 
   useEffect(() => {
     if (!isProjectLoading && project && statusList) {
-      console.log(project.quoteDateTimezone)
+      // console.log(project.quoteDateTimezone)
 
       const defaultTimezone = {
         code: '',
@@ -280,7 +280,7 @@ export default function QuotesDetail() {
     }
   }, [isProjectLoading, statusList, project])
 
-  console.log(getProjectInfoValues())
+  // console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -1289,7 +1289,7 @@ export default function QuotesDetail() {
                 <QuotesLanguageItemsDetail
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
-                  clientId={getClientValue('clientId')}
+                  clientId={getClientValue('clientId') ?? null}
                   priceUnitsList={priceUnitsList || []}
                   itemControl={itemControl}
                   items={items}

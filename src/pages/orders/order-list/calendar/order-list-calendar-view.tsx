@@ -21,7 +21,7 @@ type Props = {
 const Calendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
-  console.log(event)
+  // console.log(event)
 
   const finalEvent = event.map(item => {
     return {
@@ -57,7 +57,7 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      console.log(event.id)
+      // console.log(event.id)
 
       setCurrentListId(Number(event?.id))
     },

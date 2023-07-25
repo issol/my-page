@@ -36,7 +36,7 @@ export default function ClientInvoiceCalendarSideBar({
   handleLeftSidebarToggle,
   setCurrentListId,
 }: Props) {
-  console.log(event)
+  // console.log(event)
 
   const bgColors = UseBgColor()
 

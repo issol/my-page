@@ -63,7 +63,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
     downloadPersonalInfoFile(id, fileName)
       .then()
       .catch(err => {
-        console.log(err)
+        // console.log(err)
         toast.error(
           'Something went wrong while uploading files. Please try again.',
           {

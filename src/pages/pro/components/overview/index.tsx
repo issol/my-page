@@ -581,7 +581,7 @@ function ProDetailOverview() {
   }
 
   const onClickAssignTest = (data: AddRoleType) => {
-    console.log(data)
+    // console.log(data)
     setAssignTestJobInfo(data)
     setAssignTestModalOpen(true)
   }
@@ -614,7 +614,7 @@ function ProDetailOverview() {
   }
 
   const handelAssignRole = (jobInfo: AddRoleType) => {
-    console.log(jobInfo)
+    // console.log(jobInfo)
   }
 
   const onCloseModal = (type: string) => {
@@ -868,7 +868,7 @@ function ProDetailOverview() {
         open={cancelRoleModalOpen}
         onClose={() => setCancelRoleModalOpen(false)}
         onCloseAssignRoleModal={() => {
-          console.log('close')
+          // console.log('close')
 
           onCloseModal('role')
         }}

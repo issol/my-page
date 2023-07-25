@@ -195,7 +195,7 @@ Some information will reset..'
       ),
     })
   }
-  console.log('billing', billingMethodData)
+  // console.log('billing', billingMethodData)
   function checkBillingMethodChange(newMethod: ProPaymentType) {
     const taxInfo = getTaxInfo() //TODO: 이 값은 서버에서 받은 사용자 값으로 교체해야 함
     const billingMethodInfo = billingMethodData //TODO: 이 값도 서버에서 받은 사용자 값으로 교체하기
@@ -239,7 +239,7 @@ Some information will reset..'
       setBillingMethod(newMethod)
     }
   }
-  console.log('billing', billingMethod)
+  // console.log('billing', billingMethod)
   return (
     <Grid container spacing={6}>
       {/* TODO: 이 버튼은 billing method의 type이 없는 경우에만 노출하기 */}

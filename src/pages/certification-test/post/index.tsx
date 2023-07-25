@@ -585,7 +585,7 @@ const TestMaterialPost = () => {
   )
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      console.log(value)
+      // console.log(value)
 
       if (value.testType === 'Basic test') {
         if (value.target && value.target.value !== '') {
@@ -1118,7 +1118,7 @@ const TestMaterialPost = () => {
                         editorState={content}
                         placeholder={`Write down a test guideline or attach it as a file. \n This guideline will be delivered to Pros when they take the test.`}
                         onEditorStateChange={data => {
-                          console.log(data)
+                          // console.log(data)
 
                           setShowError(true)
                           setContent(data)

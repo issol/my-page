@@ -117,14 +117,14 @@ const LanguagePair = ({
         />
       ),
     })
-    console.log('delete')
+    // console.log('delete')
   }
 
   const handleCellKeyDown = useCallback<GridEventListener<'cellKeyDown'>>(
     (params, event) => {
       if (event.key === 'Enter') {
         event.defaultMuiPrevented = true
-        console.log(params)
+        // console.log(params)
       }
     },
     [],

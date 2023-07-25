@@ -58,7 +58,7 @@ const AssignProList = ({
   onClickRequestJob,
   type,
 }: Props) => {
-  console.log(page, pageSize, listCount)
+  // console.log(page, pageSize, listCount)
 
   function NoList() {
     return (

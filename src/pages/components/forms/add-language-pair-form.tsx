@@ -50,7 +50,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName?: string }>
   type: string
   onDeleteLanguagePair: (row: languageType) => void
 }
@@ -203,6 +203,7 @@ export default function AddLanguagePairForm({
                   ?.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage)
                   .map((row, idx) => {
                     const options = getPriceOptions(row.source, row.target)
+
                     const matchingPrice = options.filter(
                       item => item.groupName === 'Matching price',
                     )
@@ -249,7 +250,7 @@ export default function AddLanguagePairForm({
                               size='small'
                               sx={{ width: 300 }}
                               options={options}
-                              groupBy={option => option?.groupName}
+                              groupBy={option => option?.groupName ?? ''}
                               onChange={(e, v) => {
                                 const copyPairs = [...languagePairs]
                                 copyPairs[idx].price = v

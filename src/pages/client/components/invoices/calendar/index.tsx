@@ -74,7 +74,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   useEffect(() => {
     if (currentListId && data?.data) {
-      console.log(currentListId)
+      // console.log(currentListId)
 
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }

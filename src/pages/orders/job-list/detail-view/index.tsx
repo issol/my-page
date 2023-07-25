@@ -110,8 +110,8 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     resolver: yupResolver(jobItemSchema),
   })
 
-  console.log(isItemValid)
-  console.log(getItem())
+  // console.log(isItemValid)
+  // console.log(getItem())
 
   const {
     fields: items,
@@ -125,7 +125,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
 
   useEffect(() => {
     if (jobPrices) {
-      console.log(jobPrices)
+      // console.log(jobPrices)
 
       const result = [
         {
@@ -139,7 +139,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
           totalPrice: Number(jobPrices?.totalPrice!),
         },
       ]
-      console.log(result)
+      // console.log(result)
 
       itemReset({ items: result })
     } else {
@@ -186,7 +186,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     const data = getItem(`items.${0}`)
 
     // toast('Job info added successfully')
-    console.log('items', data)
+    // console.log('items', data)
 
     const saveJobPricesMutation = useMutation(
       (data: { jobId: number; prices: SaveJobPricesParamsType }) =>
@@ -208,7 +208,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
     }
     saveJobPricesMutation.mutate({ jobId: row.id, prices: res })
   }
-  console.log(jobPrices)
+  // console.log(jobPrices)
 
   return (
     <>

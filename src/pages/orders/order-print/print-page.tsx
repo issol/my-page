@@ -10,6 +10,7 @@ import {
   Box,
   Divider,
   Table,
+  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -381,29 +382,47 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             </TableHead>
 
             <MakeTable rows={data.langItem.items} />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '50px',
-                paddingRight: '10%',
-                mt: '10px',
-              }}
-              className='total-price'
-            >
-              <Typography
-                variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
-              >
-                Total:
-              </Typography>
-              <Typography
-                variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
-              >
-                {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')}
-              </Typography>
-            </Box>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={4} align='right' style={{ border: 'none' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      gap: '50px',
+                      mt: '10px',
+                    }}
+                    className='total-price'
+                  >
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontWeight: 600,
+                        color: '#666CFF',
+                        fontSize: '14px',
+                      }}
+                    >
+                      Subtotal:
+                    </Typography>
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontWeight: 600,
+                        color: '#666CFF',
+                        fontSize: '14px',
+                      }}
+                    >
+                      {!data.langItem
+                        ? 0
+                        : formatCurrency(
+                            calculateTotalPriceRows(data.langItem),
+                            'USD',
+                          )}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            </TableBody>
           </Table>
         </TableContainer>
       </Box>

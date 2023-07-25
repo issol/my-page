@@ -30,6 +30,7 @@ import { useGetQuotesList } from '@src/queries/quotes.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -37,7 +38,7 @@ export type FilterType = {
   quoteExpiryDate?: Date[]
   estimatedDeliveryDate?: Date[]
   projectDueDate?: Date[]
-  lsp?: Array<{ label: string; value: number }>
+  lsp?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: number }>
   client?: Array<{ label: string; value: number }>
@@ -100,6 +101,12 @@ export default function Quotes({ id, user }: Props) {
       value: number
     }[]
   >([])
+  const [companiesList, setCompaniesList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
 
   const currentRole = getCurrentRole()
 
@@ -113,6 +120,10 @@ export default function Quotes({ id, user }: Props) {
     take: 1000,
     skip: 0,
   })
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -198,6 +209,16 @@ export default function Quotes({ id, user }: Props) {
     }
   }, [clients, clientListLoading])
 
+  useEffect(() => {
+    if (companies && !companiesListLoading) {
+      const res = companies.map(company => ({
+        label: company.name,
+        value: company.id,
+      }))
+      setCompaniesList(res)
+    }
+  }, [companies, companiesListLoading])
+
   return (
     <Box display='flex' flexDirection='column'>
       <Box
@@ -244,6 +265,7 @@ export default function Quotes({ id, user }: Props) {
                 role={currentRole!}
                 quoteStatusList={statusList!}
                 clientList={clientList}
+                companiesList={companiesList}
               />
             </Suspense>
 

@@ -36,7 +36,7 @@ export const getJobDetails = async (
 }> => {
   try {
     const { data } = await axios.get(`/api/enough/u/job/detail?orderId=${id}`)
-    console.log(data)
+    // console.log(data)
 
     return data
   } catch (e: any) {
@@ -56,7 +56,7 @@ export const getJobInfo = async (
     const { data } = isHistory
       ? await axios.get(`/api/enough/u/job/history/${id}`)
       : await axios.get(`/api/enough/u/job/${id}/info`)
-    console.log(data)
+    // console.log(data)
 
     return data
   } catch (e: any) {
@@ -102,7 +102,7 @@ export const getJobPrices = async (
     const { data } = isHistory
       ? await axios.get(`/api/enough/u/job/history/${id}/price`)
       : await axios.get(`/api/enough/u/job/${id}/price`)
-    console.log(data)
+    // console.log(data)
 
     return {
       ...data,

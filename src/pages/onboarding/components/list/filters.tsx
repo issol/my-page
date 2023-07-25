@@ -175,7 +175,7 @@ export default function Filters({
                               }[] = []
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
-                                console.log(jobTypeValue)
+                                // console.log(jobTypeValue)
 
                                 /* @ts-ignore */
                                 const res = OnboardingListRolePair.filter(
@@ -242,7 +242,7 @@ export default function Filters({
                                 label: string
                                 value: string
                               }[] = []
-                              console.log(item)
+                              // console.log(item)
 
                               item.map((data, idx) => {
                                 data.jobType.map(value => {
@@ -298,8 +298,7 @@ export default function Filters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setSourceMultiple(true)
                               else setSourceMultiple(false)
                             }
@@ -348,8 +347,7 @@ export default function Filters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setTargetMultiple(true)
                               else setTargetMultiple(false)
                             }

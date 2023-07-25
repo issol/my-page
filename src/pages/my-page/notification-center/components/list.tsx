@@ -165,7 +165,7 @@ const NotificationList = ({
               params.row.action === 'deleted' &&
               params.row.isRead === false
             ) {
-              console.log('hi')
+              // console.log('hi')
 
               onClickNotification(
                 params.row.id,

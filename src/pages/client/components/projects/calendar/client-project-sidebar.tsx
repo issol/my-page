@@ -33,7 +33,7 @@ export default function ClientProjectCalendarSideBar({
   handleLeftSidebarToggle,
   setCurrentListId,
 }: Props) {
-  console.log(event)
+  // console.log(event)
 
   const bgColors = UseBgColor()
 
@@ -65,7 +65,7 @@ export default function ClientProjectCalendarSideBar({
     setCurrEvent(event.slice(0, 10))
   }, [event])
 
-  console.log(currEvent)
+  // console.log(currEvent)
 
   function onMoreClick() {
     setCurrEvent([...event])

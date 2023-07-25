@@ -9,6 +9,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  Radio,
   TextField,
   Typography,
 } from '@mui/material'
@@ -27,6 +28,9 @@ import {
   UseFormTrigger,
   useFieldArray,
 } from 'react-hook-form'
+
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
 
 // ** types
 import {
@@ -75,6 +79,7 @@ import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { UseMutationResult } from 'react-query'
+import { CheckBox } from '@mui/icons-material'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -89,7 +94,7 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
   type: string
   orderId?: number
@@ -106,6 +111,19 @@ type Props = {
     unknown
   >
   project?: ProjectInfoType
+
+  onClickCancelSplitOrder?: () => void
+  onClickSplitOrderConfirm?: () => void
+  selectedIds?: { id: number; selected: boolean }[]
+  setSelectedIds?: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        selected: boolean
+      }[]
+    >
+  >
+  splitReady?: boolean
 }
 
 export type DetailNewDataType = {
@@ -137,16 +155,17 @@ export default function ItemForm({
   itemTrigger,
   updateItems,
   project,
+  onClickCancelSplitOrder,
+  onClickSplitOrderConfirm,
+  selectedIds,
+  setSelectedIds,
+  splitReady,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-
-  const [showItemDescription, setShowItemDescription] = useState(
-    fields.map(value => value.showItemDescription),
-  )
 
   const [showMinimum, setShowMinimum] = useState({
     checked: false,
@@ -351,6 +370,23 @@ export default function ItemForm({
               justifyContent='space-between'
             >
               <Box display='flex' alignItems='center' gap='8px'>
+                {splitReady && selectedIds ? (
+                  <Checkbox
+                    checked={selectedIds[idx].selected}
+                    onChange={e => {
+                      setSelectedIds &&
+                        setSelectedIds(prev => {
+                          const copy = [...prev]
+                          copy[idx].selected = e.target.checked
+                          return copy
+                        })
+                    }}
+                    sx={{ padding: 0 }}
+                    // sx={{ border: '1px solid', padding: 0 }}
+                    // icon={<RadioButtonUncheckedIcon />}
+                    // checkedIcon={<CheckCircleIcon />}
+                  />
+                ) : null}
                 <IconButton onClick={() => setCardOpen(!cardOpen)}>
                   <Icon
                     icon={`${
@@ -613,7 +649,7 @@ export default function ItemForm({
                           autoHighlight
                           fullWidth
                           options={options}
-                          groupBy={option => option?.groupName}
+                          groupBy={option => option?.groupName ?? ''}
                           isOptionEqualToValue={(option, newValue) => {
                             return option.priceName === newValue.priceName
                           }}
@@ -698,12 +734,6 @@ export default function ItemForm({
                             value={value}
                             onChange={e => {
                               onChange(e.target.checked)
-                              if (
-                                type === 'detail' ||
-                                type === 'invoiceDetail'
-                              ) {
-                                console.log(fields)
-                              }
                             }}
                             checked={value}
                           />
@@ -774,8 +804,6 @@ export default function ItemForm({
       </Box>
     )
   }
-
-  console.log(type, orderId)
 
   return (
     <DatePickerWrapper>

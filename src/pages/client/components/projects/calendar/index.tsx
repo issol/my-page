@@ -71,11 +71,11 @@ const ClientProjectCalendarContainer = ({ id, user }: Props) => {
     return index === selected
   }
 
-  console.log(data)
+  // console.log(data)
 
   useEffect(() => {
     if (currentListId && data?.data) {
-      console.log(currentListId)
+      // console.log(currentListId)
 
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }

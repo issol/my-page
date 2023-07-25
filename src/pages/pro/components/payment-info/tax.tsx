@@ -67,7 +67,7 @@ const Tax = ({ info, edit, setEdit }: Props) => {
   const handleChangeTaxRate = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.value !== '') {
       const newTaxRate = Number(event.target.value)
-      console.log(newTaxRate)
+      // console.log(newTaxRate)
 
       setTaxRate(newTaxRate)
     } else {

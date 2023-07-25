@@ -105,7 +105,7 @@ export default function TaxInfoForm({
       'application/pdf': ['.pdf'],
     },
     onDrop: (file: File[]) => {
-      console.log('acc', file)
+      // console.log('acc', file)
       if (file?.length) {
         setFileSize(file[0].size)
         setValue('businessLicense', file[0], {

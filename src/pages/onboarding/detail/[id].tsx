@@ -593,7 +593,7 @@ function OnboardingDetail() {
       target: value.target,
     }))
 
-    console.log(res)
+    // console.log(res)
 
     //** TODO : Assign 연결 */
 
@@ -791,25 +791,26 @@ function OnboardingDetail() {
     setAppliedRoleList(appliedRole!)
     if (actionId > 0) {
       const res = appliedRole?.find(value => value.id === actionId)
-      console.log(res)
+      // console.log(res)
 
       handleClickRoleCard(res!)
     }
   }, [appliedRole])
 
-  const onClickFile = (file: {
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }, fileType: string
+  const onClickFile = (
+    file: {
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
   ) => {
-    getDownloadUrlforCommon(fileType, file.filePath)
-    .then(res => {
+    getDownloadUrlforCommon(fileType, file.filePath).then(res => {
       const previewFile = {
         url: res.url,
         fileName: file.fileName,
-        fileExtension: file.fileExtension
+        fileExtension: file.fileExtension,
       }
       setModal(
         <FilePreviewDownloadModal
@@ -881,7 +882,7 @@ function OnboardingDetail() {
         open={cancelRoleModalOpen}
         onClose={() => setCancelRoleModalOpen(false)}
         onCloseAssignRoleModal={() => {
-          console.log('close')
+          // console.log('close')
 
           onCloseModal('role')
         }}

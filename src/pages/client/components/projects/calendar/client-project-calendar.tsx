@@ -30,7 +30,7 @@ const ClientProjectCalendar = (props: Props) => {
     }
   })
 
-  console.log(finalEvent)
+  // console.log(finalEvent)
 
   // ** Refs
   const calendarRef = useRef()

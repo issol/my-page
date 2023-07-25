@@ -82,7 +82,7 @@ export const getStatusList = async (
 ): Promise<Array<{ value: number; label: string }>> => {
   try {
     const { data } = await axios.get(`/api/enough/u/status/list?type=${type}`)
-    console.log(data)
+    // console.log(data)
 
     const res = data.map((item: any) => ({
       label: item.status,

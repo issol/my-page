@@ -92,11 +92,11 @@ export default function ProjectInfoForm({
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    console.log(minutes % 30)
+    // console.log(minutes % 30)
 
     const formattedMinutes =
       minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
-    console.log(formattedMinutes)
+    // console.log(formattedMinutes)
 
     const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes

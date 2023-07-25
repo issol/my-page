@@ -66,7 +66,7 @@ export default function TransferWiseForm({
       'application/pdf': ['.pdf'],
     },
     onDrop: (file: File[]) => {
-      console.log('acc', file)
+      // console.log('acc', file)
       if (file?.length) {
         setFileSize(file[0].size)
         setValue('copyOfId', file[0], {

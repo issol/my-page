@@ -104,6 +104,7 @@ type Props = {
   role: UserRoleType
   quoteStatusList: Array<{ value: number; label: string }>
   clientList: Array<{ value: number; label: string }>
+  companiesList?: Array<{ value: string; label: string }>
 }
 
 export default function QuotesFilters({
@@ -121,6 +122,7 @@ export default function QuotesFilters({
   role,
   quoteStatusList,
   clientList,
+  companiesList,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -195,42 +197,76 @@ export default function QuotesFilters({
                       )}
                     />
                   </Grid>
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name={role.name === 'CLIENT' ? 'lsp' : 'client'}
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={clientList}
-                          id='client'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField
-                              {...params}
-                              label={role.name === 'CLIENT' ? 'LSP' : 'Client'}
-                            />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
+                  {role.name !== 'CLIENT' ? (
+                    <Grid item xs={3}>
+                      <Controller
+                        control={control}
+                        name='client'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={clientList}
+                            id='client'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField {...params} label='Client' />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  ) : (
+                    <Grid item xs={3}>
+                      <Controller
+                        control={control}
+                        name='lsp'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={companiesList || []}
+                            id='lsp'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField {...params} label='LSP' />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
+
                   <Grid item xs={3}>
                     <Controller
                       control={control}

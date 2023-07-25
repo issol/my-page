@@ -445,7 +445,7 @@ export const permissionSlice: Slice<{
       state.role = []
     },
     setCurrentRole: (state, action) => {
-      console.log(action)
+      // console.log(action)
 
       state.currentRole = action.payload
     },

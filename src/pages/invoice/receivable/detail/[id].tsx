@@ -148,7 +148,7 @@ const ReceivableInvoiceDetail = () => {
       patchInvoiceInfo(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
-        console.log('success')
+        // console.log('success')
 
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)

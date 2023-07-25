@@ -209,8 +209,7 @@ export default function TestDetailsModal({
   )
 
   const cancelReviewerMutation = useMutation(
-    (value: { testId: number }) =>
-      cancelReviewer(value.testId),
+    (value: { testId: number }) => cancelReviewer(value.testId),
     {
       onSuccess: (data, variables) => {
         queryClient.invalidateQueries(`test-reviewer-${variables.testId}`)
@@ -240,7 +239,7 @@ export default function TestDetailsModal({
     reviewer: AssignReviewerType | null,
     status: string,
   ) => {
-    console.log(reviewer?.userId, skillTest.testId, status)
+    // console.log(reviewer?.userId, skillTest.testId, status)
     requestReviewerMutation.mutate({
       reviewerId: reviewer?.userId!,
       testId: skillTest.testId,
@@ -249,7 +248,7 @@ export default function TestDetailsModal({
 
   const onClickReassignReviewer = () => {
     cancelReviewerMutation.mutate({
-      testId: skillTest.testId
+      testId: skillTest.testId,
     })
   }
 
@@ -290,7 +289,7 @@ export default function TestDetailsModal({
   useEffect(() => {
     if (reviewer.data) {
       const accepted = reviewer.data.find(value => value.status === 'Accepted')
-      console.log(accepted)
+      // console.log(accepted)
 
       const acceptedId = reviewer.data.findIndex(
         (value: any) => value.status === 'Accepted',
