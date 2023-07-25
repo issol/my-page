@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -49,10 +49,6 @@ import {
 
 import { CategoryList } from 'src/shared/const/category/categories'
 
-import {
-  ClientList,
-  ClientListIncludeGloz,
-} from 'src/shared/const/client/clients'
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
@@ -77,6 +73,7 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { useGetClientList } from '@src/queries/client.query'
 
 const defaultValues = {
   title: '',
@@ -97,6 +94,12 @@ const ClientGuidelineForm = () => {
   const [content, setContent] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
   const [isDuplicated, setIsDuplicated] = useState(false) //check if the guideline is already exist
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** file values
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE
@@ -495,8 +498,7 @@ const ClientGuidelineForm = () => {
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={ClientListIncludeGloz}
-                        // filterSelectedOptions
+                        options={clientList}
                         onChange={(e, v) => {
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)

@@ -74,7 +74,6 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import _ from 'lodash'
 import {
   checkBasicTestExistence,
-  getTestUploadPreSignedUrl,
   patchTest,
   postTest,
   PatchFormType,

@@ -1,5 +1,5 @@
 // ** React imports
-import { useEffect, useState } from 'react'
+import { useMemo, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -17,8 +17,6 @@ import {
   IconButton,
 } from '@mui/material'
 
-import styled from 'styled-components'
-
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
@@ -26,10 +24,10 @@ import Icon from 'src/@core/components/icon'
 import { RoleList } from 'src/shared/const/role/roles'
 import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import { ProStatus, WorkStatus } from '@src/shared/const/status/statuses'
-import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 
 // ** types
 import { FilterType } from '../index'
+import { useGetClientList } from '@src/queries/client.query'
 
 type Props = {
   workName: Array<{ value: string; label: string }> | []
@@ -48,6 +46,12 @@ export default function Filters({
 }: Props) {
   const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   const commonOptions = {
     autoHighlight: true,
@@ -250,7 +254,7 @@ export default function Filters({
                     {...commonOptions}
                     multiple
                     disableCloseOnSelect
-                    options={ClientListIncludeGloz}
+                    options={clientList}
                     value={filter.client}
                     limitTags={1}
                     onChange={(e, v) =>

@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Suspense, useContext, useEffect, useState } from 'react'
+import { Suspense, useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -50,10 +50,7 @@ import {
 } from 'src/types/schema/client-guideline.schema'
 
 import { CategoryList } from 'src/shared/const/category/categories'
-import {
-  ClientList,
-  ClientListIncludeGloz,
-} from 'src/shared/const/client/clients'
+
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
@@ -65,6 +62,7 @@ import {
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { useGetClientList } from '@src/queries/client.query'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -94,6 +92,12 @@ const ClientGuidelineEdit = () => {
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -158,9 +162,7 @@ const ClientGuidelineEdit = () => {
 
       initializeValue(
         'client',
-        ClientListIncludeGloz.filter(
-          item => item.value === currentVersion.client,
-        )[0],
+        clientList.filter(item => item.value === currentVersion.client)[0],
       )
       initializeValue(
         'category',
@@ -530,7 +532,7 @@ const ClientGuidelineEdit = () => {
                               autoHighlight
                               fullWidth
                               disabled
-                              options={ClientListIncludeGloz}
+                              options={clientList}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })

@@ -19,13 +19,13 @@ import {
   OutlinedInput,
 } from '@mui/material'
 import { AutoCompleteComponent } from '@src/pages/pro/list/filters'
+import { useGetClientList } from '@src/queries/client.query'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import {
   CategoryList,
   CategoryListPair,
 } from '@src/shared/const/category/categories'
 import { Category } from '@src/shared/const/category/category.enum'
-import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
 import {
   ServiceTypeList,
@@ -37,7 +37,7 @@ import {
   AssignProFilterPostType,
 } from '@src/types/orders/job-detail'
 import _ from 'lodash'
-import { Dispatch, SetStateAction, useState } from 'react'
+import { Dispatch, SetStateAction, useMemo, useState } from 'react'
 import {
   Control,
   Controller,
@@ -99,6 +99,12 @@ const AssignProFilters = ({
 }: Props) => {
   const [collapsed, setCollapsed] = useState<boolean>(true)
   const [inputStyle, setInputStyle] = useState<boolean>(true)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   return (
     <Card>
@@ -426,7 +432,7 @@ const AssignProFilters = ({
                       isOptionEqualToValue={(option, newValue) => {
                         return option.value === newValue.value
                       }}
-                      options={ClientListIncludeGloz}
+                      options={clientList}
                       sx={{
                         '& .MuiInputBase-root': {
                           position: 'relative',
