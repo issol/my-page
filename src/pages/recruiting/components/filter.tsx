@@ -1,5 +1,5 @@
 // ** React imports
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 // ** MUI Imports
 import FormControl from '@mui/material/FormControl'
@@ -20,9 +20,6 @@ import {
 // ** Icon Imports
 import Icon from 'src/@core/components/icon'
 
-// **values
-import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
-
 import { JobList } from 'src/shared/const/job/jobs'
 import { RoleList } from 'src/shared/const/role/roles'
 
@@ -30,6 +27,7 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 
 // ** types
 import { FilterType } from '..'
+import { useGetClientList } from '@src/queries/client.query'
 
 type Filter = { value: string; label: string }
 type Props = {
@@ -51,6 +49,12 @@ export default function Filters({
 }: Props) {
   const languageList = getGloLanguage()
   const [collapsed, setCollapsed] = useState<boolean>(true)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   function filterValue(option: any, keyName: keyof FilterType) {
     return !filter[keyName]
@@ -88,14 +92,14 @@ export default function Filters({
                   <Autocomplete
                     autoHighlight
                     fullWidth
-                    value={filterValue(ClientListIncludeGloz, 'client')}
+                    value={filterValue(clientList, 'client')}
                     onChange={(e, v) =>
                       setFilter({
                         ...filter,
                         client: v?.value ?? '',
                       })
                     }
-                    options={ClientListIncludeGloz}
+                    options={clientList}
                     // filterSelectedOptions
                     id='client'
                     getOptionLabel={option => option.label}

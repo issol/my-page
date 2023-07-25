@@ -26,10 +26,7 @@ import Icon from 'src/@core/components/icon'
 
 import List from '@mui/material/List'
 import toast from 'react-hot-toast'
-import {
-  deleteTest,
-  getTestDownloadPreSignedUrl,
-} from 'src/apis/certification-test.api'
+import { deleteTest } from 'src/apis/certification-test.api'
 import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import axios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'

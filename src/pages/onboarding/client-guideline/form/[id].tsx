@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Suspense, useContext, useEffect, useState } from 'react'
+import { Suspense, useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -50,10 +50,7 @@ import {
 } from 'src/types/schema/client-guideline.schema'
 
 import { CategoryList } from 'src/shared/const/category/categories'
-import {
-  ClientList,
-  ClientListIncludeGloz,
-} from 'src/shared/const/client/clients'
+
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
@@ -61,11 +58,11 @@ import { useMutation } from 'react-query'
 import {
   deleteGuidelineFile,
   FilePostType,
-  getGuidelineUploadPreSignedUrl,
   updateGuideline,
 } from 'src/apis/client-guideline.api'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
-import { postFiles, getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
+import { useGetClientList } from '@src/queries/client.query'
 
 // ** types
 import { FormType } from 'src/apis/client-guideline.api'
@@ -95,6 +92,12 @@ const ClientGuidelineEdit = () => {
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -159,9 +162,7 @@ const ClientGuidelineEdit = () => {
 
       initializeValue(
         'client',
-        ClientListIncludeGloz.filter(
-          item => item.value === currentVersion.client,
-        )[0],
+        clientList.filter(item => item.value === currentVersion.client)[0],
       )
       initializeValue(
         'category',
@@ -217,10 +218,14 @@ const ClientGuidelineEdit = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    alt={`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   />
                   <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    {`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -396,36 +401,37 @@ const ClientGuidelineEdit = () => {
             data.client.value,
             data.category.value,
             data.serviceType.value,
-            `V${currentVersion?.version!+1}`,
+            `V${currentVersion?.version! + 1}`,
           ],
           file.name,
         ),
       )
       const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url)
-        .then(res => {
-          fileInfo.push({
-            name: data.file[idx].name,
-            size: data.file[idx]?.size,
-            fileUrl: url,
-          })
-          return uploadFileToS3(res.url, data.file[idx])
-        })
+        return getUploadUrlforCommon(S3FileType.CLIENT_GUIDELINE, url).then(
+          res => {
+            fileInfo.push({
+              name: data.file[idx].name,
+              size: data.file[idx]?.size,
+              fileUrl: url,
+            })
+            return uploadFileToS3(res.url, data.file[idx])
+          },
+        )
       })
       Promise.all(promiseArr)
-      .then(res => {
-        logger.debug('upload client guideline file success :', res)
-        finalValue.files = fileInfo
-        guidelinePatchMutation.mutate(finalValue)
-      })
-      .catch(err =>
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
-          },
-        ),
-      )
+        .then(res => {
+          logger.debug('upload client guideline file success :', res)
+          finalValue.files = fileInfo
+          guidelinePatchMutation.mutate(finalValue)
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
     } else {
       guidelinePatchMutation.mutate(finalValue)
     }
@@ -526,7 +532,7 @@ const ClientGuidelineEdit = () => {
                               autoHighlight
                               fullWidth
                               disabled
-                              options={ClientListIncludeGloz}
+                              options={clientList}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
@@ -668,8 +674,8 @@ const ClientGuidelineEdit = () => {
                           Attached file
                         </Typography>
                         <Typography variant='body2'>
-                          {formatFileSize(fileSize)}
-                          / {byteToMB(MAXIMUM_FILE_SIZE)}
+                          {formatFileSize(fileSize)}/{' '}
+                          {byteToMB(MAXIMUM_FILE_SIZE)}
                         </Typography>
                       </Box>
                       <div {...getRootProps({ className: 'dropzone' })}>

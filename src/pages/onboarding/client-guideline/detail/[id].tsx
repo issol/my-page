@@ -46,7 +46,6 @@ import axios from 'axios'
 import { useGetGuideLineDetail } from 'src/queries/client-guideline.query'
 import {
   deleteGuideline,
-  getGuidelineDownloadPreSignedUrl,
   restoreGuideline,
 } from 'src/apis/client-guideline.api'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
@@ -531,8 +530,8 @@ const ClientGuidelineDetail = () => {
                       Attached file
                     </Typography>
                     <Typography variant='body2'>
-                      {formatFileSize(getFileSize(currentVersion?.files))}
-                      / {byteToMB(MAXIMUM_FILE_SIZE)}
+                      {formatFileSize(getFileSize(currentVersion?.files))}/{' '}
+                      {byteToMB(MAXIMUM_FILE_SIZE)}
                     </Typography>
                   </Box>
                   <Button
@@ -710,8 +709,8 @@ const ClientGuidelineDetail = () => {
                             Attached file
                           </Typography>
                           <Typography variant='body2'>
-                            {formatFileSize(getFileSize(currentRow?.files))}
-                            / {byteToMB(MAXIMUM_FILE_SIZE)}
+                            {formatFileSize(getFileSize(currentRow?.files))}/{' '}
+                            {byteToMB(MAXIMUM_FILE_SIZE)}
                           </Typography>
                         </Box>
                         <Button

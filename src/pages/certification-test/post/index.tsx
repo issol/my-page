@@ -55,11 +55,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 
 // ** fetches
-import {
-  postFiles,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
@@ -78,7 +74,6 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import _ from 'lodash'
 import {
   checkBasicTestExistence,
-  getTestUploadPreSignedUrl,
   patchTest,
   postTest,
   PatchFormType,

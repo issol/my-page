@@ -23,7 +23,7 @@ import { AbilityContext } from 'src/layouts/components/acl/Can'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -54,7 +54,6 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 
 // ** fetches
 import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
@@ -63,6 +62,7 @@ import {
   StatusType,
   updateRecruiting,
 } from '@src/apis/recruiting.api'
+import { useGetClientList } from '@src/queries/client.query'
 
 // ** types
 import {
@@ -103,6 +103,12 @@ export default function RecruitingEdit() {
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -146,7 +152,7 @@ export default function RecruitingEdit() {
   function initializeValues(data: any) {
     const values: Array<{ name: any; list?: Array<any> }> = [
       { name: 'status', list: RecruitingStatus },
-      { name: 'client', list: ClientListIncludeGloz },
+      { name: 'client', list: clientList },
       { name: 'role', list: RoleList },
       { name: 'jobType', list: JobList },
       { name: 'sourceLanguage', list: languageList },
@@ -450,7 +456,7 @@ export default function RecruitingEdit() {
                               autoHighlight
                               fullWidth
                               disabled={!isWriter}
-                              options={ClientListIncludeGloz}
+                              options={clientList}
                               // filterSelectedOptions
                               onChange={(e, v) => {
                                 if (!v) onChange({ value: '', label: '' })
