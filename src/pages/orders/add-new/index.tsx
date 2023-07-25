@@ -102,12 +102,12 @@ export type languageType = {
 }
 
 export const defaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',
@@ -120,12 +120,12 @@ export const defaultOption: StandardPriceListType & {
 }
 
 export const proDefaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',

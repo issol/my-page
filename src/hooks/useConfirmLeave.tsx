@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 import { useEffect, useState } from 'react'
 
 import { Box, Button, Dialog, Typography } from '@mui/material'
-import { SmallModalContainer } from '@src/@core/components/modal'
+
 import AlertIcon from '@src/@core/components/alert-icon'
 
 export const useConfirmLeave = ({
@@ -43,8 +43,6 @@ export const useConfirmLeave = ({
 
   useEffect(() => {
     const onRouteChangeStart = (route: string) => {
-      // if (!shouldWarn || hasConfirmed) return
-
       if (
         decodeURI(router.asPath).split('?')[0] !==
           decodeURI(route).split('?')[0] &&

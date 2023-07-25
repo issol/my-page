@@ -12,19 +12,7 @@ import { DataGrid, GridColumns } from '@mui/x-data-grid'
 import { Dispatch, SetStateAction } from 'react'
 import Icon from '@src/@core/components/icon'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
-import {
-  Control,
-  FieldArrayWithId,
-  FieldErrors,
-  UseFieldArrayAppend,
-  UseFieldArrayRemove,
-  UseFieldArrayUpdate,
-  UseFormGetValues,
-  UseFormSetValue,
-  UseFormWatch,
-  useFieldArray,
-  useForm,
-} from 'react-hook-form'
+
 import { yupResolver } from '@hookform/resolvers/yup'
 import { projectTeamSchema } from '@src/types/schema/project-team.schema'
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
@@ -36,6 +24,8 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 
 type Props = {
   list: Array<ProjectTeamListType>
@@ -48,6 +38,7 @@ type Props = {
   type: string
 
   setEdit?: Dispatch<SetStateAction<boolean>>
+  isUpdatable: boolean
 }
 
 const ProjectTeam = ({
@@ -61,7 +52,9 @@ const ProjectTeam = ({
   type,
 
   setEdit,
+  isUpdatable,
 }: Props) => {
+  const currentRole = getCurrentRole()
   return (
     <>
       <Card>
@@ -74,7 +67,10 @@ const ProjectTeam = ({
           }}
         >
           <Typography variant='h6'>Project team</Typography>
-          {type === 'detail' ? (
+          {type === 'detail' &&
+          isUpdatable &&
+          currentRole &&
+          currentRole.name !== 'CLIENT' ? (
             <IconButton onClick={() => setEdit && setEdit(true)}>
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
@@ -95,7 +91,9 @@ const ProjectTeam = ({
             // }}
             sx={{ overflowX: 'scroll', cursor: 'pointer' }}
             getRowId={row => row.userId}
-            columns={columns}
+            columns={getProjectTeamColumns(
+              (currentRole && currentRole.name) ?? '',
+            )}
             rows={list ?? []}
             rowCount={listCount ?? 0}
             // loading={isLoading}

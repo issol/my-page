@@ -1289,7 +1289,7 @@ export default function QuotesDetail() {
                 <QuotesLanguageItemsDetail
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
-                  clientId={getClientValue('clientId')}
+                  clientId={getClientValue('clientId') ?? null}
                   priceUnitsList={priceUnitsList || []}
                   itemControl={itemControl}
                   items={items}

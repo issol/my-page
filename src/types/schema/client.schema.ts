@@ -4,9 +4,9 @@ import { CountryType } from '../sign/personalInfoTypes'
 import { AddressType, ClientAddressType } from './client-address.schema'
 
 export type ClientFormType = {
-  clientId: number | null
-  contactPersonId: number | null
-  addressType: AddressType
+  clientId?: number | null
+  contactPersonId?: number | null
+  addressType?: AddressType
   /* contacts값은 서버에는 보내지 않고 보여주기용 데이터 */
   contacts?: {
     timezone?: CountryType

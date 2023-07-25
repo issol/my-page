@@ -8,17 +8,22 @@ import { MouseEvent, SyntheticEvent, useState } from 'react'
 import ProjectInfo from '../project-info'
 import OrderDetailClient from '../client'
 import ProjectTeam from '../project-team'
-import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
+import {
+  HistoryType,
+  ProjectInfoType,
+  VersionHistoryType,
+} from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   history: VersionHistoryType
+  project: ProjectInfoType
   onClose: any
   onClick: any
 }
 
-const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
+const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
   const [value, setValue] = useState<string>('1')
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
@@ -80,13 +85,18 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTap
-              value='3'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='3'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
               value='4'
               label='Project team'
@@ -116,7 +126,11 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
             value='3'
             sx={{ height: '100%', maxHeight: '552px', minHeight: '552px' }}
           >
-            <OrderDetailClient type='history' client={history.client} />
+            <OrderDetailClient
+              type='history'
+              client={history.client}
+              isUpdatable={false}
+            />
           </TabPanel>
           <TabPanel
             value='4'
@@ -131,6 +145,7 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
               pageSize={pageSize}
               setPage={setPage}
               setPageSize={setPageSize}
+              isUpdatable={false}
             />
           </TabPanel>
         </TabContext>
@@ -150,9 +165,20 @@ const VersionHistoryModal = ({ history, onClose, onClick }: Props) => {
           >
             Close
           </Button>
-          <Button variant='contained' sx={{ width: '226px' }} onClick={onClick}>
-            Restore this version
-          </Button>
+          {project.status === 'Order sent' ||
+          project.status === 'In progress' ||
+          project.status === 'Under revision' ||
+          project.status === 'Partially delivered' ||
+          project.status === 'Delivery completed' ||
+          project.status === 'Redelivery requested' ? (
+            <Button
+              variant='contained'
+              sx={{ width: '226px' }}
+              onClick={onClick}
+            >
+              Restore this version
+            </Button>
+          ) : null}
         </Box>
       </Box>
     </Box>

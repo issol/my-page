@@ -25,6 +25,15 @@ export type ProjectTeamCellType = {
   row: ProjectTeamListType
 }
 
+export type DeliveryFileType = {
+  id: number
+  createdAt: string
+  filePath: string
+  fileName: string
+  fileExtension: string
+  fileSize: number
+}
+
 export type ProjectInfoType = {
   id: number
   corporationId: string
@@ -62,6 +71,9 @@ export type ProjectInfoType = {
   } | null
 
   reason: ReasonType | null
+  deliveries: DeliveryFileType[]
+  feedback: string | null
+  subtotal: string
 }
 
 export type ClientType = {

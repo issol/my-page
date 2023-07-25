@@ -26,7 +26,7 @@ import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
 
 import { v4 as uuidv4 } from 'uuid'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import useModal from '@src/hooks/useModal'
 
@@ -41,8 +41,11 @@ import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confi
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { CancelOrderReason } from '@src/shared/const/reason/reason'
-import AlertModal from '@src/@core/components/common-modal/ alert-modal'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { getClientDetail } from '@src/apis/client.api'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
   project: ProjectInfoType
@@ -69,6 +72,17 @@ const ProjectInfo = ({
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
+
+  const [contactPersonEdit, setContactPersonEdit] = useState(false)
+  const [contactPersonId, setContactPersonId] = useState<number | null>(null)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<
+      ContactPersonType<number> & {
+        value: number
+        label: string
+      }
+    >
+  >([])
 
   const [showDescription, setShowDescription] = useState<boolean>(
     project.showDescription,
@@ -193,6 +207,57 @@ const ProjectInfo = ({
     }
   }
 
+  const onClickEditSaveContactPerson = () => {
+    // TODO api
+    updateProject &&
+      updateProject.mutate(
+        { contactPersonId: contactPersonId },
+        {
+          onSuccess: () => {
+            setContactPersonEdit(false)
+          },
+        },
+      )
+  }
+
+  useEffect(() => {
+    if (client) {
+      setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
+
+      getClientDetail(client.client.clientId)
+        .then(res => {
+          if (res?.contactPersons?.length) {
+            const result: Array<
+              ContactPersonType<number> & {
+                value: number
+                label: string
+              }
+            > = res.contactPersons.map(item => ({
+              ...item,
+              value: item.id!,
+              label: !item?.jobTitle
+                ? getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })
+                : `${getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })} / ${item.jobTitle}`,
+            }))
+            setContactPersonList(result)
+          } else {
+            setContactPersonList([])
+          }
+        })
+        .catch(e => {
+          setContactPersonList([])
+        })
+    }
+  }, [client])
+
   return (
     <>
       <Card sx={{ padding: '24px' }}>
@@ -205,7 +270,7 @@ const ProjectInfo = ({
             }}
           >
             <Typography variant='h6'>{project.projectName}</Typography>
-            {type === 'detail' ? (
+            {type === 'detail' && isUpdatable ? (
               <IconButton onClick={() => setEditMode!(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
@@ -336,6 +401,131 @@ const ProjectInfo = ({
                 </Box>
               </Box>
             </Box>
+            {role.name === 'CLIENT' ? (
+              <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', width: '50%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+
+                      width: '25.21%',
+                    }}
+                  >
+                    <Typography fontSize={14} fontWeight={600}>
+                      Contact person
+                    </Typography>
+                  </Box>
+                  {contactPersonEdit ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '300px',
+                      }}
+                    >
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        options={contactPersonList
+                          .filter(item => item.id !== contactPersonId)
+                          .map(value => ({
+                            value: value.value,
+                            label: value.label,
+                          }))}
+                        onChange={(e, v) => {
+                          // onChange(v.value)
+                          const res = contactPersonList.filter(
+                            item => item.id === Number(v.value),
+                          )
+                          setContactPersonId(
+                            res.length ? res[0].id! : Number(v.value)!,
+                          )
+                        }}
+                        disableClearable
+                        // disabled={type === 'request'}
+                        value={
+                          contactPersonList
+                            .filter(value => value.id === contactPersonId)
+                            .map(value => ({
+                              value: value.value,
+                              label: value.label,
+                            }))[0] || { value: '', label: '' }
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            size='small'
+                            // label='Contact person*'
+                            inputProps={{
+                              ...params.inputProps,
+                            }}
+                          />
+                        )}
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '5px',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Button
+                          variant='outlined'
+                          sx={{
+                            width: '26px !important',
+                            height: '26px',
+                            minWidth: '26px !important',
+                            padding: '0 !important',
+                            border: 'none',
+                            color: 'rgba(76, 78, 100, 0.6)',
+                          }}
+                          onClick={() => setContactPersonEdit(false)}
+                        >
+                          <Icon icon='ic:outline-close' fontSize={20} />
+                        </Button>
+                        <Button
+                          variant='contained'
+                          sx={{
+                            width: '26px !important',
+                            height: '26px',
+                            minWidth: '26px !important',
+                            padding: '0 !important',
+                          }}
+                          onClick={onClickEditSaveContactPerson}
+                        >
+                          <Icon icon='mdi:check' fontSize={20} />
+                        </Button>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      {getLegalName({
+                        firstName: client?.contactPerson?.firstName,
+                        middleName: client?.contactPerson?.middleName,
+                        lastName: client?.contactPerson?.lastName,
+                      })}
+                      {client?.contactPerson?.jobTitle
+                        ? ` / ${client?.contactPerson?.jobTitle}`
+                        : ''}
+                      {type === 'history' ? null : (
+                        <IconButton onClick={() => setContactPersonEdit(true)}>
+                          <Icon icon='mdi:pencil-outline' />
+                        </IconButton>
+                      )}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : null}
             <Divider />
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <Box sx={{ display: 'flex' }}>
@@ -500,45 +690,54 @@ const ProjectInfo = ({
             </Box>
             <Divider />
             <Box sx={{ display: 'flex' }}>
-              <Box sx={{ display: 'flex', flex: 1 }}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: '8px',
-                    alignItems: 'center',
-                    width: '25.21%',
-                  }}
-                >
-                  <Typography
-                    variant='subtitle1'
+              {role.name === 'CLIENT' ? null : (
+                <Box sx={{ display: 'flex', flex: 1 }}>
+                  <Box
                     sx={{
-                      fontSize: '14px',
-                      fontWeight: 600,
-                      width: '100%',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                      width: '25.21%',
                     }}
                   >
-                    Revenue from
-                  </Typography>
-                </Box>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    gap: '8px',
-                    alignItems: 'center',
-                    width: '73.45%',
-                  }}
-                >
-                  <Typography
-                    variant='subtitle2'
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        width: '100%',
+                      }}
+                    >
+                      Revenue from
+                    </Typography>
+                  </Box>
+
+                  <Box
                     sx={{
-                      width: '100%',
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                      width: '73.45%',
                     }}
                   >
-                    {project.revenueFrom}
-                  </Typography>
+                    <Typography
+                      variant='subtitle2'
+                      sx={{
+                        width: '100%',
+                      }}
+                    >
+                      {project.revenueFrom}
+                    </Typography>
+                  </Box>
                 </Box>
-              </Box>
-              <Box sx={{ display: 'flex', flex: 1 }}>
+              )}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: role.name === 'CLIENT' ? 0.5 : 1,
+                }}
+              >
                 <Box
                   sx={{
                     display: 'flex',
@@ -601,48 +800,50 @@ const ProjectInfo = ({
                 >
                   Project description
                 </Typography>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    opacity:
-                      project?.status === 'Delivery confirmed' ||
-                      project.status === 'Paid' ||
-                      project.status === 'Invoiced' ||
-                      project.status === 'Canceled'
-                        ? 0.5
-                        : 1,
-                  }}
-                >
-                  <Checkbox
-                    value={showDescription}
-                    onChange={e => {
-                      updateProject &&
-                        updateProject.mutate({
-                          showDescription: e.target.checked,
-                        })
-                      setShowDescription(e.target.checked)
+                {role.name === 'CLIENT' ? null : (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity:
+                        project?.status === 'Delivery confirmed' ||
+                        project.status === 'Paid' ||
+                        project.status === 'Invoiced' ||
+                        project.status === 'Canceled'
+                          ? 0.5
+                          : 1,
                     }}
-                    checked={showDescription}
-                    disabled={
-                      project?.status === 'Delivery confirmed' ||
-                      project.status === 'Paid' ||
-                      project.status === 'Invoiced' ||
-                      project.status === 'Canceled'
-                    }
-                  />
-
-                  <Typography
-                    variant='body1'
-                    fontSize={14}
-                    fontWeight={400}
-                    lineHeight='21px'
-                    letterSpacing='0.15px'
-                    sx={{ minWidth: 230 }}
                   >
-                    Show project description to client
-                  </Typography>
-                </Box>
+                    <Checkbox
+                      value={showDescription}
+                      onChange={e => {
+                        updateProject &&
+                          updateProject.mutate({
+                            showDescription: e.target.checked,
+                          })
+                        setShowDescription(e.target.checked)
+                      }}
+                      checked={showDescription}
+                      disabled={
+                        project?.status === 'Delivery confirmed' ||
+                        project.status === 'Paid' ||
+                        project.status === 'Invoiced' ||
+                        project.status === 'Canceled'
+                      }
+                    />
+
+                    <Typography
+                      variant='body1'
+                      fontSize={14}
+                      fontWeight={400}
+                      lineHeight='21px'
+                      letterSpacing='0.15px'
+                      sx={{ minWidth: 230 }}
+                    >
+                      Show project description to client
+                    </Typography>
+                  </Box>
+                )}
               </Box>
               <Box
                 sx={{
@@ -658,7 +859,10 @@ const ProjectInfo = ({
                     width: '100%',
                   }}
                 >
-                  {project.projectDescription ?? '-'}
+                  {project.projectDescription &&
+                  project.projectDescription === ''
+                    ? project.projectDescription
+                    : '-'}
                 </Typography>
               </Box>
             </Box>
