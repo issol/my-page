@@ -85,13 +85,18 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
-            <CustomTap
-              value='3'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='3'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
               value='4'
               label='Project team'

@@ -52,7 +52,7 @@ import {
 import DownloadOrderModal from './components/modal/download-order-modal'
 import OrderPreview from './components/order-preview'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
-import { setOrder, setOrderLang } from '@src/store/order'
+import { setIsReady, setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
@@ -98,6 +98,10 @@ import { transformTeamData } from '@src/shared/transformer/team.transformer'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import Link from 'next/link'
 import DeliveriesFeedback from './components/deliveries-feedback'
+import { OrderStatusChip } from '@src/@core/components/chips/chips'
+import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import ClientOrder from './components/client-order'
+import PrintOrderPage from '../../order-print/print-page'
 
 interface Detail {
   id: number
@@ -126,6 +130,16 @@ export type updateOrderType =
   | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
   | { showDescription: boolean }
+  | {
+      deliveries: {
+        filePath: string
+        fileName: string
+        fileExtension: string
+        fileSize?: number
+      }[]
+    }
+  | { feedback: string; status: number }
+  | { feedback: string }
 
 type RenderSubmitButtonProps = {
   onCancel: () => void
@@ -134,6 +148,7 @@ type RenderSubmitButtonProps = {
 }
 
 type MenuType =
+  | 'order'
   | 'project'
   | 'history'
   | 'team'
@@ -152,6 +167,12 @@ const OrderDetail = () => {
   const currentRole = getCurrentRole()
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const handleClick = (event: MouseEvent<HTMLElement>) => {
     event.stopPropagation()
@@ -516,18 +537,26 @@ const OrderDetail = () => {
     })
   }
 
+  // const onClickPreview = (lang: 'EN' | 'KO') => {
+  //   dispatch(setOrderLang(lang))
+  //   openModal({
+  //     type: 'PreviewModal',
+  //     children: (
+  //       <OrderPreview
+  //         onClose={() => closeModal('PreviewModal')}
+  //         data={order.orderTotalData!}
+  //         lang={lang}
+  //       />
+  //     ),
+  //   })
+  // }
+
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    makePdfData()
     dispatch(setOrderLang(lang))
-    openModal({
-      type: 'PreviewModal',
-      children: (
-        <OrderPreview
-          onClose={() => closeModal('PreviewModal')}
-          data={order.orderTotalData!}
-          lang={lang}
-        />
-      ),
-    })
+    dispatch(setOrder(downloadData))
+
+    closeModal('PreviewModal')
   }
 
   const onClickDownloadOrder = () => {
@@ -535,8 +564,16 @@ const OrderDetail = () => {
       type: 'DownloadOrderModal',
       children: (
         <DownloadOrderModal
-          onClose={() => closeModal('DownloadOrderModal')}
+          onClose={() => {
+            closeModal('DownloadOrderModal')
+            dispatch(setIsReady(false))
+          }}
           onClick={onClickPreview}
+          clientOrderLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
         />
       ),
     })
@@ -563,8 +600,8 @@ const OrderDetail = () => {
   const versionHistoryColumns: GridColumns<VersionHistoryType> = [
     {
       field: 'position',
-      flex: 0.3,
-      minWidth: 419,
+      flex: 0.3355,
+
       headerName: 'Position',
       disableColumnMenu: true,
       renderHeader: () => <Box>Version</Box>,
@@ -573,7 +610,7 @@ const OrderDetail = () => {
       },
     },
     {
-      minWidth: 420,
+      flex: 0.3363,
       field: 'member',
       headerName: 'Member',
       hideSortIcons: true,
@@ -585,7 +622,7 @@ const OrderDetail = () => {
       },
     },
     {
-      minWidth: 410,
+      flex: 0.3283,
       field: 'jobTitle',
       headerName: 'Job title',
       hideSortIcons: true,
@@ -599,48 +636,140 @@ const OrderDetail = () => {
       },
     },
   ]
+  function makePdfData() {
+    const pm = projectTeam?.find(value => value.position === 'projectManager')
+
+    const res: OrderDownloadData = {
+      orderId: Number(id!),
+      adminCompanyName: 'GloZ Inc.',
+      companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+      corporationId: projectInfo!.corporationId,
+      orderedAt: projectInfo!.orderedAt,
+      projectDueAt: {
+        date: projectInfo!.projectDueAt,
+        timezone: projectInfo!.projectDueTimezone,
+      },
+      pm: {
+        firstName: pm?.firstName!,
+        lastName: pm?.lastName!,
+        email: pm?.email!,
+        middleName: pm?.middleName!,
+      },
+      companyName: client!.client.name,
+      projectName: projectInfo!.projectName,
+      client: client!,
+      contactPerson: client!.contactPerson,
+      clientAddress: client!.clientAddress,
+      langItem: langItem!,
+    }
+
+    setDownloadData(res)
+  }
+
+  function handlePrint() {
+    closeModal('DownloadOrderModal')
+    router.push('/orders/order-print')
+  }
+
+  // useEffect(() => {
+  //   if (
+  //     !projectInfoLoading &&
+  //     !projectTeamLoading &&
+  //     !clientLoading &&
+  //     !langItemLoading
+  //   ) {
+  //     const pm = projectTeam!.find(value => value.position === 'projectManager')
+
+  //     const res: OrderDownloadData = {
+  //       orderId: Number(id!),
+  //       adminCompanyName: 'GloZ Inc.',
+  //       companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+  //       corporationId: projectInfo!.corporationId,
+  //       orderedAt: projectInfo!.orderedAt,
+  //       projectDueAt: {
+  //         date: projectInfo!.projectDueAt,
+  //         timezone: projectInfo!.projectDueTimezone,
+  //       },
+  //       pm: {
+  //         firstName: pm?.firstName!,
+  //         lastName: pm?.lastName!,
+  //         email: pm?.email!,
+  //         middleName: pm?.middleName!,
+  //       },
+  //       companyName: client!.client.name,
+  //       projectName: projectInfo!.projectName,
+  //       client: client!,
+  //       contactPerson: client!.contactPerson,
+  //       clientAddress: client!.clientAddress,
+  //       langItem: langItem!,
+  //     }
+  //     dispatch(setOrder(res))
+  //   }
+  // }, [
+  //   dispatch,
+  //   projectInfoLoading,
+  //   projectTeamLoading,
+  //   clientLoading,
+  //   langItemLoading,
+  // ])
 
   useEffect(() => {
-    if (
-      !projectInfoLoading &&
-      !projectTeamLoading &&
-      !clientLoading &&
-      !langItemLoading
-    ) {
-      const pm = projectTeam!.find(value => value.position === 'projectManager')
+    if (projectInfo && client && langItem && projectTeam) makePdfData()
+  }, [projectInfo, client, langItem, projectTeam])
 
-      const res: OrderDownloadData = {
-        orderId: Number(id!),
-        adminCompanyName: 'GloZ Inc.',
-        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: projectInfo!.corporationId,
-        orderedAt: projectInfo!.orderedAt,
-        projectDueAt: {
-          date: projectInfo!.projectDueAt,
-          timezone: projectInfo!.projectDueTimezone,
-        },
-        pm: {
-          firstName: pm?.firstName!,
-          lastName: pm?.lastName!,
-          email: pm?.email!,
-          middleName: pm?.middleName!,
-        },
-        companyName: client!.client.name,
-        projectName: projectInfo!.projectName,
-        client: client!,
-        contactPerson: client!.contactPerson,
-        clientAddress: client!.clientAddress,
-        langItem: langItem!,
-      }
-      dispatch(setOrder(res))
+  useEffect(() => {
+    if (order.isReady && order.orderTotalData) {
+      console.log(order)
+      openModal({
+        type: 'PreviewModal',
+        isCloseable: false,
+        children: (
+          <Box
+            sx={{
+              width: '789px',
+              height: '95vh',
+              overflow: 'scroll',
+              background: '#ffffff',
+              boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+              paddingBottom: '24px',
+            }}
+          >
+            <div className='page'>
+              <PrintOrderPage
+                data={order.orderTotalData}
+                type='preview'
+                user={user!}
+                lang={order.lang}
+              />
+            </div>
+
+            <Box display='flex' justifyContent='center' gap='10px'>
+              <Button
+                variant='outlined'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setIsReady(false))
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  handlePrint()
+                  closeModal('PreviewModal')
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          </Box>
+        ),
+      })
     }
-  }, [
-    dispatch,
-    projectInfoLoading,
-    projectTeamLoading,
-    clientLoading,
-    langItemLoading,
-  ])
+  }, [order.isReady])
 
   useEffect(() => {
     if (langItem) {
@@ -871,41 +1000,24 @@ const OrderDetail = () => {
     })
   }
 
-  const onClickDeliverToClient = () => {
-    openModal({
-      type: 'DeliverToClientModal',
-      children: (
-        <CustomModal
-          onClick={() => console.log('deliver')}
-          onClose={() => closeModal('DeliverToClientModal')}
-          title={
-            <>
-              Are you sure you want to deliver the uploaded files?
-              <Typography variant='body1' fontWeight={600}>
-                You cannot delete the files after delivering them to the client.
-              </Typography>
-            </>
-          }
-          vary='successful'
-          rightButtonText='Deliver'
-        />
-      ),
-    })
-  }
-
-  const onClickCancelDeliver = () => {
-    openModal({
-      type: 'CancelDeliverModal',
-      children: (
-        <CustomModal
-          onClick={() => console.log('cancel')}
-          onClose={() => closeModal('CancelDeliverModal')}
-          title='Are you sure you want to cancel the file upload? The files you uploaded will not be saved.'
-          vary='error'
-          rightButtonText='Cancel'
-        />
-      ),
-    })
+  const onClickReason = () => {
+    if (projectInfo) {
+      openModal({
+        type: `${projectInfo.status}ReasonModal`,
+        children: (
+          <ReasonModal
+            onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
+            reason={projectInfo.reason}
+            type={
+              projectInfo.status === 'Redelivery requested'
+                ? 'Requested'
+                : projectInfo.status
+            }
+            vary='info'
+          />
+        ),
+      })
+    }
   }
 
   return (
@@ -921,157 +1033,185 @@ const OrderDetail = () => {
             padding: '20px',
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            {projectInfoEdit ||
-            projectTeamEdit ||
-            clientEdit ||
-            langItemsEdit ? null : (
-              <IconButton
-                sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/orders/order-list')}
+          {projectInfo && (
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
               >
-                <Icon icon='mdi:chevron-left' width={24} height={24} />
-              </IconButton>
-            )}
-
-            <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <img src='/images/icons/order-icons/book.svg' alt='' />
-              <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
-              {projectInfo?.linkedRequest ||
-              projectInfo?.linkedQuote ||
-              projectInfo?.linkedInvoiceReceivable ? (
-                <Box>
+                {projectInfoEdit ||
+                projectTeamEdit ||
+                clientEdit ||
+                langItemsEdit ? null : (
                   <IconButton
-                    sx={{ width: '24px', height: '24px', padding: 0 }}
-                    onClick={handleClick}
+                    sx={{ padding: '0 !important', height: '24px' }}
+                    onClick={() => router.push('/orders/order-list')}
                   >
-                    <Icon icon='mdi:dots-vertical' />
+                    <Icon icon='mdi:chevron-left' width={24} height={24} />
                   </IconButton>
-                  <Menu
-                    elevation={8}
-                    anchorEl={anchorEl}
-                    id='customized-menu'
-                    onClose={handleClose}
-                    open={Boolean(anchorEl)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left',
-                    }}
-                  >
-                    {projectInfo?.linkedRequest ? (
-                      <MenuItem
-                        sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
+                )}
+
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <img src='/images/icons/order-icons/book.svg' alt='' />
+                  <Typography variant='h5'>
+                    {projectInfo?.corporationId}
+                  </Typography>
+                  {projectInfo?.linkedRequest ||
+                  projectInfo?.linkedQuote ||
+                  projectInfo?.linkedInvoiceReceivable ? (
+                    <Box>
+                      <IconButton
+                        sx={{ width: '24px', height: '24px', padding: 0 }}
+                        onClick={handleClick}
+                      >
+                        <Icon icon='mdi:dots-vertical' />
+                      </IconButton>
+                      <Menu
+                        elevation={8}
+                        anchorEl={anchorEl}
+                        id='customized-menu'
+                        onClose={handleClose}
+                        open={Boolean(anchorEl)}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left',
                         }}
                       >
-                        Linked requests :
-                        <Link
-                          href={
-                            currentRole && currentRole.name === 'CLIENT'
-                              ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
-                              : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
-                          }
-                        >
-                          {projectInfo?.linkedRequest.corporationId ?? '-'}
-                        </Link>
-                      </MenuItem>
-                    ) : null}
-                    {projectInfo.linkedQuote ? (
-                      <MenuItem
-                        sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
-                        }}
-                      >
-                        Linked quote :
-                        <Link
-                          href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
-                        >
-                          {projectInfo?.linkedQuote.corporationId ?? '-'}
-                        </Link>
-                      </MenuItem>
-                    ) : null}
-                    {projectInfo.linkedInvoiceReceivable ? (
-                      <MenuItem
-                        sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
-                        }}
-                      >
-                        Linked invoice :
-                        <Link
-                          href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
-                        >
-                          {projectInfo?.linkedInvoiceReceivable.corporationId ??
-                            '-'}
-                        </Link>
-                      </MenuItem>
-                    ) : null}
-                  </Menu>
+                        {projectInfo?.linkedRequest ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked requests :
+                            <Link
+                              href={
+                                currentRole && currentRole.name === 'CLIENT'
+                                  ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
+                                  : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
+                              }
+                            >
+                              {projectInfo?.linkedRequest.corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                        {projectInfo.linkedQuote ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked quote :
+                            <Link
+                              href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
+                            >
+                              {projectInfo?.linkedQuote.corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                        {projectInfo.linkedInvoiceReceivable ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked invoice :
+                            <Link
+                              href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                            >
+                              {projectInfo?.linkedInvoiceReceivable
+                                .corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                      </Menu>
+                    </Box>
+                  ) : null}
                 </Box>
-              ) : null}
-            </Box>
-          </Box>
-          {projectInfoEdit ||
-          projectTeamEdit ||
-          clientEdit ||
-          langItemsEdit ? null : (
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
-              <Button
-                variant='outlined'
-                sx={{ display: 'flex', gap: '8px' }}
-                onClick={onClickDownloadOrder}
-                disabled={
-                  projectInfo?.status === 'New' ||
-                  projectInfo?.status === 'In preparation' ||
-                  projectInfo?.status === 'Internal review' ||
-                  projectInfo?.status === 'Under revision'
-                }
-              >
-                <Icon icon='material-symbols:request-quote' />
-                Download order
-              </Button>
-              <Button
-                variant='outlined'
-                sx={{ display: 'flex', gap: '8px' }}
-                onClick={onClickCreateInvoice}
-                disabled={projectInfo?.status !== 'Delivery confirmed'}
-              >
-                Create invoice
-              </Button>
-              <Button
-                variant='contained'
-                sx={{ display: 'flex', gap: '8px' }}
-                onClick={onClickConfirmOrder}
-                disabled={
-                  projectInfo?.status !== 'New' &&
-                  projectInfo?.status !== 'In preparation' &&
-                  projectInfo?.status !== 'Under revision'
-                }
-              >
-                Confirm order
-              </Button>
-            </Box>
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <OrderStatusChip
+                    status={projectInfo?.status ?? ''}
+                    label={projectInfo?.status}
+                  />
+                  {(projectInfo?.status === 'Redelivery requested' ||
+                    projectInfo?.status === 'Canceled') && (
+                    <IconButton
+                      onClick={() => {
+                        projectInfo?.reason && onClickReason()
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+              {projectInfoEdit ||
+              projectTeamEdit ||
+              clientEdit ||
+              langItemsEdit ||
+              (currentRole && currentRole.name === 'CLIENT') ? null : (
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}
+                >
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickDownloadOrder}
+                    disabled={
+                      projectInfo?.status === 'New' ||
+                      projectInfo?.status === 'In preparation' ||
+                      projectInfo?.status === 'Internal review' ||
+                      projectInfo?.status === 'Under revision'
+                    }
+                  >
+                    <Icon icon='material-symbols:request-quote' />
+                    Download order
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickCreateInvoice}
+                    disabled={projectInfo?.status !== 'Delivery confirmed'}
+                  >
+                    Create invoice
+                  </Button>
+                  <Button
+                    variant='contained'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickConfirmOrder}
+                    disabled={
+                      projectInfo?.status !== 'New' &&
+                      projectInfo?.status !== 'In preparation' &&
+                      projectInfo?.status !== 'Under revision'
+                    }
+                  >
+                    Confirm order
+                  </Button>
+                </Box>
+              )}
+            </>
           )}
         </Box>
         <Box>
@@ -1081,6 +1221,13 @@ const OrderDetail = () => {
               aria-label='Order detail Tab menu'
               style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
             >
+              <CustomTap
+                value='order'
+                label='Order'
+                iconPosition='start'
+                icon={<Icon icon='iconoir:large-suitcase' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
               <CustomTap
                 value='project'
                 label='Project info'
@@ -1095,15 +1242,17 @@ const OrderDetail = () => {
                 icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
-              <CustomTap
-                value='client'
-                label='Client'
-                iconPosition='start'
-                icon={
-                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
-                }
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-              />
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <CustomTap
+                  value='client'
+                  label='Client'
+                  iconPosition='start'
+                  icon={
+                    <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                  }
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              )}
               <CustomTap
                 value='team'
                 label='Project team'
@@ -1128,6 +1277,23 @@ const OrderDetail = () => {
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
             </TabList>
+            <TabPanel value='order' sx={{ pt: '24px' }}>
+              <Suspense>
+                {downloadData ? (
+                  <ClientOrder
+                    downloadData={downloadData!}
+                    user={user!}
+                    downloadLanguage={downloadLanguage}
+                    setDownloadLanguage={setDownloadLanguage}
+                    onClickDownloadOrder={onClickDownloadOrder}
+                    type='detail'
+                    updateProject={updateProject}
+                    statusList={statusList!}
+                    project={projectInfo!}
+                  />
+                ) : null}
+              </Suspense>
+            </TabPanel>
             <TabPanel value='project' sx={{ pt: '24px' }}>
               <Suspense>
                 {projectInfoEdit ? (
@@ -1207,52 +1373,99 @@ const OrderDetail = () => {
                     setSelectedIds={setSelectedIds}
                     splitReady={splitReady}
                   />
-                  <Grid
-                    item
-                    xs={12}
-                    display='flex'
-                    padding='24px'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    mt={6}
-                    mb={6}
-                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-                  >
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      <Checkbox
-                        disabled={!langItemsEdit}
-                        checked={taxable}
-                        onChange={e => {
-                          if (!e.target.checked) {
-                            setTax(null)
-                          }
-                          setTaxable(e.target.checked)
-                        }}
-                      />
-                      <Typography>Tax</Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      {langItemsEdit ? (
-                        <>
-                          <TextField
-                            size='small'
-                            type='number'
-                            value={!tax ? '-' : tax}
-                            disabled={!taxable}
-                            sx={{ maxWidth: '120px', padding: 0 }}
-                            inputProps={{ inputMode: 'decimal' }}
-                            onChange={e => {
-                              if (e.target.value.length > 10) return
-                              setTax(Number(e.target.value))
+                  {currentRole && currentRole.name === 'CLIENT' ? (
+                    <Grid item xs={12}>
+                      <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '20px',
+                            borderBottom: '2px solid #666CFF',
+                            justifyContent: 'center',
+                            width: '257px',
+                          }}
+                        >
+                          <Typography
+                            fontWeight={600}
+                            variant='subtitle1'
+                            sx={{
+                              padding: '16px 16px 16px 20px',
+                              flex: 1,
+                              textAlign: 'right',
                             }}
-                          />
-                          %
-                        </>
-                      ) : (
-                        <Box>{tax ? `${tax} %` : null} </Box>
-                      )}
-                    </Box>
-                  </Grid>
+                          >
+                            Subtotal
+                          </Typography>
+                          <Typography
+                            fontWeight={600}
+                            variant='subtitle1'
+                            sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                          >
+                            {projectInfo?.subtotal}
+                            {/* {formatCurrency(
+                              formatByRoundingProcedure(
+                                items.reduce((acc, cur) => {
+                                  return acc + cur.totalPrice
+                                }, 0),
+                                priceInfo?.decimalPlace!,
+                                priceInfo?.roundingProcedure!,
+                                priceInfo?.currency ?? 'USD',
+                              ),
+                              priceInfo?.currency ?? 'USD',
+                            )} */}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Grid>
+                  ) : (
+                    <Grid
+                      item
+                      xs={12}
+                      display='flex'
+                      padding='24px'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      mt={6}
+                      mb={6}
+                      sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                    >
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        <Checkbox
+                          disabled={!langItemsEdit}
+                          checked={taxable}
+                          onChange={e => {
+                            if (!e.target.checked) {
+                              setTax(null)
+                            }
+                            setTaxable(e.target.checked)
+                          }}
+                        />
+                        <Typography>Tax</Typography>
+                      </Box>
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        {langItemsEdit ? (
+                          <>
+                            <TextField
+                              size='small'
+                              type='number'
+                              value={!tax ? '-' : tax}
+                              disabled={!taxable}
+                              sx={{ maxWidth: '120px', padding: 0 }}
+                              inputProps={{ inputMode: 'decimal' }}
+                              onChange={e => {
+                                if (e.target.value.length > 10) return
+                                setTax(Number(e.target.value))
+                              }}
+                            />
+                            %
+                          </>
+                        ) : (
+                          <Box>{tax ? `${tax} %` : null} </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
+
                   {langItemsEdit
                     ? renderSubmitButton({
                         onCancel: () =>
@@ -1385,10 +1598,10 @@ const OrderDetail = () => {
             <TabPanel value='deliveries-feedback' sx={{ pt: '24px' }}>
               <Suspense>
                 <DeliveriesFeedback
-                  onClickDeliverToClient={onClickDeliverToClient}
-                  onClickCancelDeliver={onClickCancelDeliver}
                   project={projectInfo!}
                   isSubmittable={true}
+                  updateProject={updateProject}
+                  statusList={statusList!}
                 />
               </Suspense>
             </TabPanel>

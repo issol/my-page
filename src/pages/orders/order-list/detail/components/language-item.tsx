@@ -9,13 +9,11 @@ import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-f
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import {
-  LanguagePairsPostType,
-  LanguagePairsType,
-} from '@src/types/common/orders-and-quotes.type'
+
 import { PriceUnitListType } from '@src/types/common/standard-price'
 import {
   LanguageAndItemType,
@@ -35,9 +33,7 @@ import {
   UseFormSetValue,
   UseFormTrigger,
 } from 'react-hook-form'
-import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
-import { updateOrderType } from '../[id]'
-import { lang } from 'moment-timezone'
+import { UseMutationResult } from 'react-query'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -138,61 +134,12 @@ const LanguageAndItem = ({
   splitReady,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const queryClient = useQueryClient()
+
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
 
-  const patchLanguagePairs = useMutation(
-    (data: { id: number; langPair: LanguagePairsType[] }) =>
-      patchLangPairForOrder(data.id, data.langPair),
-  )
-
-  const patchItems = useMutation(
-    (data: { id: number; items: PostItemType[] }) =>
-      patchItemsForOrder(data.id, data.items),
-  )
-
-  // const onSubmit = () => {
-  //   const items: PostItemType[] = getItem().items.map(item => ({
-  //     ...item,
-  //     analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-  //     showItemDescription: item.showItemDescription ? '1' : '0',
-  //   }))
-  //   const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-  //     if (item?.price?.id) {
-  //       return {
-  //         langPairId: Number(item.id),
-  //         source: item.source,
-  //         target: item.target,
-  //         priceId: item.price.id,
-  //       }
-  //     }
-  //     return {
-  //       langPairId: Number(item.id),
-  //       source: item.source,
-  //       target: item.target,
-  //     }
-  //   })
-
-  //   patchLanguagePairs.mutate(
-  //     { id: orderId, langPair: langs },
-  //     {
-  //       onSuccess: () => {
-  //         patchItems.mutate(
-  //           { id: orderId, items: items },
-  //           {
-  //             onSuccess: () => {
-  //               setLangItemsEdit(false)
-  //               queryClient.invalidateQueries(`LangItem-${orderId}`)
-  //               closeModal('LanguageAndItemEditModal')
-  //             },
-  //           },
-  //         )
-  //       },
-  //     },
-  //   )
-  // }
+  const currentRole = getCurrentRole()
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -281,7 +228,7 @@ const LanguageAndItem = ({
 
   return (
     <>
-      {!langItemsEdit ? (
+      {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
         <Box
           sx={{
             display: 'flex',
@@ -313,16 +260,18 @@ const LanguageAndItem = ({
           ) : null}
         </Box>
       ) : null}
+      {currentRole && currentRole.name === 'CLIENT' ? null : (
+        <Grid item xs={12}>
+          <AddLanguagePairForm
+            languagePairs={languagePairs}
+            setLanguagePairs={setLanguagePairs}
+            getPriceOptions={getPriceOptions}
+            type={langItemsEdit ? 'edit' : 'detail'}
+            onDeleteLanguagePair={onDeleteLanguagePair}
+          />
+        </Grid>
+      )}
 
-      <Grid item xs={12}>
-        <AddLanguagePairForm
-          languagePairs={languagePairs}
-          setLanguagePairs={setLanguagePairs}
-          getPriceOptions={getPriceOptions}
-          type={langItemsEdit ? 'edit' : 'detail'}
-          onDeleteLanguagePair={onDeleteLanguagePair}
-        />
-      </Grid>
       <Grid item xs={12} mt={6} mb={6}>
         <ItemForm
           control={itemControl}

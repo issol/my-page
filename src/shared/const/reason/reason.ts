@@ -47,3 +47,14 @@ export const RejectQuoteReason = [
   'There is a discrepancy between the information provided in the request and the quoted details.',
   'Others',
 ]
+
+export const RequestRedeliveryReason = [
+  'Mistranslation',
+  'Too liberal/literal translation',
+  'Grammar/punctuation error',
+  'Did not follow the guidelines/glossary',
+  'Typo',
+  'Missing translation or subtitle TC',
+  'Timecode sync error (video translation)',
+  'Others',
+]

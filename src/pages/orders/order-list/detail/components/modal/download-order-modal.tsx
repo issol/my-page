@@ -13,10 +13,13 @@ import { ChangeEvent, useState } from 'react'
 type Props = {
   onClose: any
   onClick: (lang: 'EN' | 'KO') => void
+  clientOrderLang?: 'EN' | 'KO'
 }
 
-const DownloadOrderModal = ({ onClose, onClick }: Props) => {
-  const [lang, setLang] = useState<string | null>(null)
+const DownloadOrderModal = ({ onClose, onClick, clientOrderLang }: Props) => {
+  const [lang, setLang] = useState<string | null>(
+    clientOrderLang ? (clientOrderLang === 'EN' ? 'English' : 'Korean') : null,
+  )
 
   const handleLangChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLang(event.target.value)
