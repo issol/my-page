@@ -5,35 +5,49 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { Grid } from '@mui/material'
+import { Divider, Grid } from '@mui/material'
 
 export default {
   title: 'Forms/Forms/BillingAddress',
-
+  component: ClientBillingAddressesForm,
   argTypes: {
     name: {
       description: 'Address form',
     },
   },
+
   decorators: [
     Story => (
-      <div>
-        <p style={{ marginBottom: '30px' }}>
-          <code>
-            {`import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'`}
-          </code>
-          <br />
-          <code>
-            {`import { ClientAddressType } from '@src/types/schema/client-address.schema'`}
-          </code>
-          <br />
-          <code>
-            {`import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'`}
-          </code>
-        </p>
+      <Grid container spacing={6}>
+        <Grid item xs={12}>
+          <p
+            style={{
+              padding: '20px',
+              borderRadius: '10px',
+              background: '#eeeeee',
+            }}
+          >
+            <code>
+              {`import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'`}
+            </code>
+            <br />
+            <code>
+              {`import { ClientAddressType } from '@src/types/schema/client-address.schema'`}
+            </code>
+            <br />
+            <code>
+              {`import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'`}
+            </code>
+          </p>
+        </Grid>
 
-        <Story />
-      </div>
+        <Grid item xs={12}>
+          <Divider />
+        </Grid>
+        <Grid item xs={12}>
+          <Story />
+        </Grid>
+      </Grid>
     ),
   ],
 } as ComponentMeta<typeof ClientBillingAddressesForm>
