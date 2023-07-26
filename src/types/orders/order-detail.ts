@@ -26,8 +26,9 @@ export type ProjectTeamCellType = {
 }
 
 export type DeliveryFileType = {
-  id: number
-  createdAt: string
+  id?: number
+  createdAt?: string
+  type?: 'imported' | 'uploaded'
   filePath: string
   fileName: string
   fileExtension: string
