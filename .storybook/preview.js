@@ -26,8 +26,6 @@ const theme = {
 
 export const withMuiTheme = Story => (
   <StorybookTheme settings={theme}>
-    {/* <ThemeProvider theme={darkTheme}> */}
-    {/* <CssBaseline /> */}
     <ModalProvider selector='modal'>
       <div id='modal'></div>
       <Story />
@@ -38,7 +36,6 @@ export const withMuiTheme = Story => (
         toastOptions={{ className: 'react-hot-toast' }}
       />
     </ReactHotToast>
-    {/* </ThemeProvider> */}
   </StorybookTheme>
 )
 
