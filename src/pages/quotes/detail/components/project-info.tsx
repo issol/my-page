@@ -111,6 +111,20 @@ export default function QuotesProjectInfoDetail({
       )
   }
 
+  const filterStatusList = () => {
+    if (client && statusList) {
+      if (client.contactPerson && client.contactPerson?.userId) {
+        return statusList?.filter(
+          value =>
+            value.label === 'New' ||
+            value.label === 'In preparation' ||
+            value.label === 'Internal Review',
+        )
+      }
+    }
+    return statusList!
+  }
+
   useEffect(() => {
     if (client) {
       setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
@@ -200,7 +214,7 @@ export default function QuotesProjectInfoDetail({
                 <Autocomplete
                   autoHighlight
                   fullWidth
-                  options={statusList ?? []}
+                  options={filterStatusList() ?? []}
                   onChange={(e, v) => {
                     if (updateStatus && v?.value) {
                       updateStatus(v.value as number)

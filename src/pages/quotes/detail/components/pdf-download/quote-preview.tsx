@@ -65,7 +65,6 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {},
   )
-  console.log("data",data)
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
