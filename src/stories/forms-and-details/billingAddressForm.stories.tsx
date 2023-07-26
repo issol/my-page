@@ -1,20 +1,41 @@
 import React from 'react'
 import { ComponentMeta } from '@storybook/react'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
-import { useForm } from 'react-hook-form'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
-import { yupResolver } from '@hookform/resolvers/yup'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
 import { Grid } from '@mui/material'
 
 export default {
-  title: 'Forms/BillingAddressForm',
+  title: 'Forms/Forms/BillingAddress',
 
   argTypes: {
     name: {
-      description: 'list view와 calendar view를 선택하는 버튼 컴포넌트',
+      description: 'Address form',
     },
   },
+  decorators: [
+    Story => (
+      <div>
+        <p style={{ marginBottom: '30px' }}>
+          <code>
+            {`import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'`}
+          </code>
+          <br />
+          <code>
+            {`import { ClientAddressType } from '@src/types/schema/client-address.schema'`}
+          </code>
+          <br />
+          <code>
+            {`import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'`}
+          </code>
+        </p>
+
+        <Story />
+      </div>
+    ),
+  ],
 } as ComponentMeta<typeof ClientBillingAddressesForm>
 
 export const Default = () => {
