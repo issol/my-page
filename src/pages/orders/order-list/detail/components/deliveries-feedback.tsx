@@ -6,6 +6,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import AlertModal from '@src/@core/components/common-modal/alert-modal'
@@ -42,6 +43,10 @@ import {
   CancelOrderReason,
   RequestRedeliveryReason,
 } from '@src/shared/const/reason/reason'
+import { useGetJobDetails } from '@src/queries/order/job.query'
+import ImportFromJob from './modal/import-from-job'
+import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
+import { set } from 'lodash'
 
 type Props = {
   project: ProjectInfoType
@@ -61,9 +66,12 @@ const DeliveriesFeedback = ({
   const currentRole = getCurrentRole()
   const { user } = useContext(AuthContext)
 
+  const { data: jobDetails, refetch } = useGetJobDetails(project.id)
+
   const [fileSize, setFileSize] = useState(0)
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
+  const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -157,6 +165,33 @@ const DeliveriesFeedback = ({
     setFiles([...filtered])
   }
 
+  const handleRemoveImportedFile = (file: DeliveryFileType) => {
+    const uploadedFiles = importedFiles
+    const filtered = uploadedFiles.filter(
+      (i: DeliveryFileType) => i.fileName !== file.fileName,
+    )
+    setImportedFiles([...filtered])
+  }
+
+  const onClickUploadJobFile = (selected: DeliveryFileType[]) => {
+    console.log(selected)
+    closeModal('ImportFromJobModal')
+    setImportedFiles(selected)
+  }
+
+  const onClickImportJob = () => {
+    if (jobDetails)
+      openModal({
+        type: 'ImportFromJobModal',
+        children: (
+          <ImportFromJob
+            items={jobDetails?.items}
+            onClickUpload={onClickUploadJobFile}
+          />
+        ),
+      })
+  }
+
   const fileList = files.map((file: FileType) => (
     <Box
       key={uuidv4()}
@@ -180,22 +215,24 @@ const DeliveriesFeedback = ({
           />
         </Box>
         <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-          <Typography
-            variant='body1'
-            fontSize={14}
-            fontWeight={600}
-            lineHeight={'20px'}
-            sx={{
-              overflow: 'hidden',
-              wordBreak: 'break-all',
-              textOverflow: 'ellipsis',
-              display: '-webkit-box',
-              WebkitLineClamp: 2,
-              WebkitBoxOrient: 'vertical',
-            }}
-          >
-            {file.name}
-          </Typography>
+          <Tooltip title={file.name}>
+            <Typography
+              variant='body1'
+              fontSize={14}
+              fontWeight={600}
+              lineHeight={'20px'}
+              sx={{
+                overflow: 'hidden',
+                wordBreak: 'break-all',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {file.name}
+            </Typography>
+          </Tooltip>
           <Typography variant='caption' lineHeight={'14px'}>
             {formatFileSize(file.size)}
           </Typography>
@@ -206,6 +243,62 @@ const DeliveriesFeedback = ({
           icon='mdi:close'
           fontSize={24}
           onClick={() => handleRemoveFile(file)}
+        />
+      </IconButton>
+    </Box>
+  ))
+
+  const importedFileList = importedFiles.map((file: DeliveryFileType) => (
+    <Box
+      key={uuidv4()}
+      sx={{
+        display: 'flex',
+        marginBottom: '8px',
+        width: '100%',
+        justifyContent: 'space-between',
+        borderRadius: '8px',
+        padding: '10px 12px',
+        border: '1px solid rgba(76, 78, 100, 0.22)',
+        background: '#f9f8f9',
+      }}
+    >
+      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+        <Box sx={{ marginRight: '8px', display: 'flex' }}>
+          <Icon
+            icon='material-symbols:file-present-outline'
+            style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+            fontSize={24}
+          />
+        </Box>
+        <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+          <Tooltip title={file.fileName}>
+            <Typography
+              variant='body1'
+              fontSize={14}
+              fontWeight={600}
+              lineHeight={'20px'}
+              sx={{
+                overflow: 'hidden',
+                wordBreak: 'break-all',
+                textOverflow: 'ellipsis',
+                display: '-webkit-box',
+                WebkitLineClamp: 1,
+                WebkitBoxOrient: 'vertical',
+              }}
+            >
+              {file.fileName}
+            </Typography>
+          </Tooltip>
+          <Typography variant='caption' lineHeight={'14px'}>
+            {formatFileSize(file.fileSize)}
+          </Typography>
+        </Box>
+      </Box>
+      <IconButton>
+        <Icon
+          icon='mdi:close'
+          fontSize={24}
+          onClick={() => handleRemoveImportedFile(file)}
         />
       </IconButton>
     </Box>
@@ -242,22 +335,25 @@ const DeliveriesFeedback = ({
             />
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-            <Typography
-              variant='body1'
-              fontSize={14}
-              fontWeight={600}
-              lineHeight={'20px'}
-              sx={{
-                overflow: 'hidden',
-                wordBreak: 'break-all',
-                textOverflow: 'ellipsis',
-                display: '-webkit-box',
-                WebkitLineClamp: 2,
-                WebkitBoxOrient: 'vertical',
-              }}
-            >
-              {file.fileName}
-            </Typography>
+            <Tooltip title={file.fileName}>
+              <Typography
+                variant='body1'
+                fontSize={14}
+                fontWeight={600}
+                lineHeight={'20px'}
+                sx={{
+                  overflow: 'hidden',
+                  wordBreak: 'break-all',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {file.fileName}
+              </Typography>
+            </Tooltip>
+
             <Typography variant='caption' lineHeight={'14px'}>
               {formatFileSize(file.fileSize)}
             </Typography>
@@ -274,13 +370,11 @@ const DeliveriesFeedback = ({
 
   const onSubmit = () => {
     closeModal('DeliverToClientModal')
-    if (files.length) {
-      const fileInfo: Array<{
-        filePath: string
-        fileName: string
-        fileExtension: string
-        fileSize?: number
-      }> = []
+    if (files.length || importedFiles.length) {
+      const fileInfo: Array<DeliveryFileType> = [
+        ...savedFiles,
+        ...importedFiles,
+      ]
       const paths: string[] = files.map(file =>
         getFilePath(['delivery', project.id.toString()], file.name),
       )
@@ -292,6 +386,7 @@ const DeliveriesFeedback = ({
               fileSize: files[idx]?.size,
               filePath: url,
               fileExtension: files[idx].name.split('.')[1],
+              type: 'imported',
             })
             return uploadFileToS3(res.url, files[idx])
           },
@@ -302,6 +397,8 @@ const DeliveriesFeedback = ({
           logger.debug('upload client guideline file success :', res)
 
           updateProject.mutate({ deliveries: fileInfo })
+          setFiles([])
+          setImportedFiles([])
         })
         .catch(err =>
           toast.error(
@@ -512,6 +609,7 @@ const DeliveriesFeedback = ({
                       project.status !== 'Partially delivered' &&
                       project.status !== 'Redelivery requested'
                     }
+                    onClick={onClickImportJob}
                   >
                     <Icon icon='mdi:import' fontSize={18} />
                     &nbsp;Import from job
@@ -559,7 +657,7 @@ const DeliveriesFeedback = ({
             ) : (
               '-'
             )}
-            {files.length ? (
+            {files.length || importedFiles.length ? (
               <>
                 <Divider />
                 <Box
@@ -570,6 +668,7 @@ const DeliveriesFeedback = ({
                   }}
                 >
                   {fileList}
+                  {importedFileList}
                 </Box>
               </>
             ) : null}
@@ -630,7 +729,7 @@ const DeliveriesFeedback = ({
             </>
           ) : (
             <>
-              {files.length ? (
+              {files.length || importedFiles.length ? (
                 <Box
                   sx={{ display: 'flex', flexDirection: 'column', gap: '12px' }}
                 >
