@@ -65,7 +65,6 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
       patchQuoteProjectInfo(data.id, data.form),
     {},
   )
-
   useEffect(() => {
     if (type === 'download') {
       setTimeout(() => {
@@ -145,7 +144,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                   {columnName.quoteDate}:
                 </Typography>
                 <Typography variant='subtitle1' fontSize={14}>
-                  {FullDateTimezoneHelper(data?.quoteDate, user?.timezone)}
+                  {FullDateTimezoneHelper(data?.quoteDate.date, user?.timezone)}
                 </Typography>
               </Box>
               <Box

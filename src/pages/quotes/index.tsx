@@ -210,14 +210,16 @@ export default function Quotes({ id, user }: Props) {
   }, [clients, clientListLoading])
 
   useEffect(() => {
-    if (companies && !companiesListLoading) {
-      const res = companies.map(company => ({
-        label: company.name,
-        value: company.id,
-      }))
-      setCompaniesList(res)
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !clientListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompaniesList(res)
+      }
     }
-  }, [companies, companiesListLoading])
+  }, [companies, clientListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>

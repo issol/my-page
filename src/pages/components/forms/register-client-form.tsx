@@ -203,8 +203,8 @@ export default function RegisterClientForm({
                   onChange(v ? v.value : '')
                 }}
                 disableClearable
-                // disabled={type === 'invoice' || type === 'request'}
-                disabled
+                disabled={type === 'request' || type === 'order' || type === 'invoice'}
+                // disabled
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField
