@@ -28,7 +28,7 @@ export const getReceivableList = async (
 ): Promise<{ data: InvoiceReceivableListType[]; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/invoice/list?${makeQuery(filter)}`,
+      `/api/enough/u/invoice/receivable/list?${makeQuery(filter)}`,
     )
     return data
   } catch (e: any) {
@@ -69,7 +69,7 @@ export const getInvoiceReceivableCalendarData = async (
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/invoice/calendar?year=${year}&month=${
+      `/api/enough/u/invoice/receivable/calendar?year=${year}&month=${
         month + 1
       }&${makeQuery(filter)}`,
     )
@@ -286,14 +286,14 @@ export const getInvoiceReceivableCalendarData = async (
 export const createInvoice = async (
   data: InvoiceReceivablePatchParamsType,
 ): Promise<CreateInvoiceReceivableRes> => {
-  return await axios.post('/api/enough/u/invoice', data)
+  return await axios.post('/api/enough/u/invoice/receivable', data)
 }
 
 export const getInvoiceDetail = async (
   id: number,
 ): Promise<InvoiceReceivableDetailType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}`)
+    const { data } = await axios.get(`/api/enough/u/invoice/receivable/${id}`)
     return data
   } catch (e: any) {
     throw new Error(e)
@@ -304,7 +304,9 @@ export const getInvoiceLanguageItems = async (
   id: number,
 ): Promise<LanguageAndItemType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}/items`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/receivable/${id}/items`,
+    )
 
     // return {
     //   id: 8,
@@ -456,7 +458,9 @@ export const getInvoiceLanguageItems = async (
 
 export const getInvoiceClient = async (id: number): Promise<ClientType> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}/client`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/receivable/${id}/client`,
+    )
     return data
     // return {
     //   addressType: 'billing',
@@ -536,7 +540,9 @@ export const getInvoiceProjectTeam = async (
   id: number,
 ): Promise<ProjectTeamListType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}/team`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/receivable/${id}/team`,
+    )
     return data.members
     // return [
     //   {
@@ -573,7 +579,9 @@ export const getInvoiceVersionHistory = async (
   id: number,
 ): Promise<InvoiceVersionHistoryType[]> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}/history`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/receivable/${id}/history`,
+    )
     // const res: InvoiceVersionHistoryType[] = [
     //   {
     //     id: 1,
@@ -889,9 +897,12 @@ export const patchInvoiceInfo = async (
   form: InvoiceReceivablePatchParamsType,
 ): Promise<{ id: number }> => {
   try {
-    const { data } = await axios.patch(`/api/enough/u/invoice/${id}`, {
-      ...form,
-    })
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${id}`,
+      {
+        ...form,
+      },
+    )
     // console.log(data)
 
     return data
@@ -901,12 +912,14 @@ export const patchInvoiceInfo = async (
 }
 
 export const deleteInvoice = async (id: number) => {
-  await axios.delete(`/api/enough/u/invoice/${id}`)
+  await axios.delete(`/api/enough/u/invoice/receivable/${id}`)
 }
 
 export const checkEditable = async (id: number): Promise<boolean> => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/${id}/editable`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice/receivable/${id}/editable`,
+    )
     return data
   } catch (e: any) {
     return false
