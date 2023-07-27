@@ -90,3 +90,25 @@ export const splitOrder = async (
 
   return data
 }
+
+export const deliverySendToClient = async (
+  id: number,
+  deliveries: {
+    filePath: string
+    fileName: string
+    fileExtension: string
+    fileSize?: number
+  }[],
+) => {
+  await axios.patch(`/api/enough/u/order/${id}/deliveries/send`, {
+    deliveries: deliveries,
+  })
+}
+
+export const completeDelivery = async (id: number) => {
+  await axios.patch(`/api/enough/u/order/${id}/deliveries/complete`)
+}
+
+export const confirmDelivery = async (id: number, feedback?: string) => {
+  await axios.patch(`/api/enough/u/order/${id}/confirm`, { feedback: feedback })
+}

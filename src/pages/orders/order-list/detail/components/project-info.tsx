@@ -271,7 +271,12 @@ const ProjectInfo = ({
           >
             <Typography variant='h6'>{project.projectName}</Typography>
             {type === 'detail' && isUpdatable ? (
-              <IconButton onClick={() => setEditMode!(true)}>
+              <IconButton
+                onClick={() => {
+                  updateProject && updateProject.mutate({ status: 105 })
+                  setEditMode!(true)
+                }}
+              >
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             ) : null}

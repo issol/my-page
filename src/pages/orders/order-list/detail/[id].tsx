@@ -502,6 +502,7 @@ const OrderDetail = () => {
 
   const handleRestoreVersion = () => {
     // TODO API 연결
+    updateProject && updateProject.mutate({ status: 105 })
   }
 
   const onClickRestoreVersion = () => {
@@ -585,7 +586,10 @@ const OrderDetail = () => {
       children: (
         <CustomModal
           onClick={() =>
-            router.push(`/invoices/receivable/add-new?orderId=${id}`)
+            router.push({
+              pathname: '/invoice/receivable/add-new',
+              query: { orderId: id },
+            })
           }
           onClose={() => closeModal('CreateInvoiceModal')}
           title='Are you sure you want to create an invoice with this order?'
@@ -919,16 +923,22 @@ const OrderDetail = () => {
       children: (
         <CustomModal
           onClose={() => closeModal('ConfirmOrderModal')}
-          onClick={() =>
+          onClick={() => {
             updateProject.mutate(
-              { isConfirmed: true, status: 103 },
+              {
+                isConfirmed: true,
+                status:
+                  projectInfo?.status === 'Under revision'
+                    ? projectInfo.previousStatus
+                    : 103,
+              },
               {
                 onSuccess: () => {
                   closeModal('ConfirmOrderModal')
                 },
               },
             )
-          }
+          }}
           title='Are you sure you want to confirm this order? It will be delivered to the client.'
           vary='successful'
           rightButtonText='Confirm'
@@ -942,7 +952,6 @@ const OrderDetail = () => {
       .filter(value => value.selected)
       .map(value => value.id)
     splitOrderMutation.mutate(res)
-    // TODO API 연결
   }
 
   const onClickSplitOrder = () => {
@@ -1376,17 +1385,6 @@ const OrderDetail = () => {
                           sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
                         >
                           {projectInfo?.subtotal}
-                          {/* {formatCurrency(
-                              formatByRoundingProcedure(
-                                items.reduce((acc, cur) => {
-                                  return acc + cur.totalPrice
-                                }, 0),
-                                priceInfo?.decimalPlace!,
-                                priceInfo?.roundingProcedure!,
-                                priceInfo?.currency ?? 'USD',
-                              ),
-                              priceInfo?.currency ?? 'USD',
-                            )} */}
                         </Typography>
                       </Box>
                     </Box>
@@ -1548,6 +1546,7 @@ const OrderDetail = () => {
                     pageSize={projectTeamListPageSize}
                     setPageSize={setProjectTeamListPageSize}
                     setEdit={setProjectTeamEdit}
+                    updateProject={updateProject}
                     isUpdatable={
                       projectInfo?.status !== 'Paid' &&
                       projectInfo?.status !== 'Canceled'

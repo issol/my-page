@@ -9,15 +9,24 @@ import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
 import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
 
 import { Dispatch, SetStateAction } from 'react'
+import { UseMutationResult } from 'react-query'
+import { updateOrderType } from '../[id]'
 
 type Props = {
   type: string
   client: ClientType
   isUpdatable: boolean
   setEdit?: Dispatch<SetStateAction<boolean>>
+  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
 }
 
-const OrderDetailClient = ({ type, client, isUpdatable, setEdit }: Props) => {
+const OrderDetailClient = ({
+  type,
+  client,
+  isUpdatable,
+  setEdit,
+  updateProject,
+}: Props) => {
   return (
     <Card sx={{ padding: '24px' }}>
       <Box
@@ -31,7 +40,10 @@ const OrderDetailClient = ({ type, client, isUpdatable, setEdit }: Props) => {
         {type === 'detail' && isUpdatable ? (
           <IconButton
             sx={{ position: 'absolute', top: 0, right: 0 }}
-            onClick={() => setEdit!(true)}
+            onClick={() => {
+              updateProject && updateProject.mutate({ status: 105 })
+              setEdit!(true)
+            }}
           >
             <IconifyIcon icon='mdi:pencil-outline' width={24} height={24} />
           </IconButton>

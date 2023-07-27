@@ -21,11 +21,12 @@ import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
+import { updateOrderType } from '../[id]'
 
 type Props = {
   list: Array<ProjectTeamListType>
@@ -39,6 +40,7 @@ type Props = {
 
   setEdit?: Dispatch<SetStateAction<boolean>>
   isUpdatable: boolean
+  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
 }
 
 const ProjectTeam = ({
@@ -53,6 +55,7 @@ const ProjectTeam = ({
 
   setEdit,
   isUpdatable,
+  updateProject,
 }: Props) => {
   const currentRole = getCurrentRole()
   return (
@@ -71,7 +74,12 @@ const ProjectTeam = ({
           isUpdatable &&
           currentRole &&
           currentRole.name !== 'CLIENT' ? (
-            <IconButton onClick={() => setEdit && setEdit(true)}>
+            <IconButton
+              onClick={() => {
+                updateProject && updateProject.mutate({ status: 105 })
+                setEdit && setEdit(true)
+              }}
+            >
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
           ) : null}

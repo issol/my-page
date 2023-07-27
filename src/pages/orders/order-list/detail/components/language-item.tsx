@@ -34,6 +34,7 @@ import {
   UseFormTrigger,
 } from 'react-hook-form'
 import { UseMutationResult } from 'react-query'
+import { updateOrderType } from '../[id]'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -102,6 +103,7 @@ type Props = {
     >
   >
   splitReady?: boolean
+  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
 }
 
 const LanguageAndItem = ({
@@ -132,6 +134,7 @@ const LanguageAndItem = ({
   selectedIds,
   setSelectedIds,
   splitReady,
+  updateProject,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -254,7 +257,12 @@ const LanguageAndItem = ({
           project.status !== 'Invoiced' &&
           project.status !== 'Paid' &&
           project.status !== 'Canceled' ? (
-            <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
+            <IconButton
+              onClick={() => {
+                updateProject && updateProject.mutate({ status: 105 })
+                setLangItemsEdit(!langItemsEdit)
+              }}
+            >
               <Icon icon='mdi:pencil-outline' />
             </IconButton>
           ) : null}

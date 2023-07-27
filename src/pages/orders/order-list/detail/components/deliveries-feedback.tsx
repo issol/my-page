@@ -30,7 +30,7 @@ import {
 import { useContext, useEffect, useState } from 'react'
 import { useDropzone } from 'react-dropzone'
 import toast from 'react-hot-toast'
-import { UseMutationResult } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 import { updateOrderType } from '../[id]'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
@@ -47,6 +47,11 @@ import { useGetJobDetails } from '@src/queries/order/job.query'
 import ImportFromJob from './modal/import-from-job'
 import { GridCallbackDetails, GridSelectionModel } from '@mui/x-data-grid'
 import { set } from 'lodash'
+import {
+  completeDelivery,
+  confirmDelivery,
+  deliverySendToClient,
+} from '@src/apis/order-detail.api'
 
 type Props = {
   project: ProjectInfoType
@@ -72,6 +77,52 @@ const DeliveriesFeedback = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
   const [importedFiles, setImportedFiles] = useState<DeliveryFileType[]>([])
+  const queryClient = useQueryClient()
+
+  const updateDeliveries = useMutation(
+    (
+      deliveries: {
+        filePath: string
+        fileName: string
+        fileExtension: string
+        fileSize?: number
+      }[],
+    ) => deliverySendToClient(project.id, deliveries),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
+      },
+    },
+  )
+
+  const completeDeliveryMutation = useMutation(
+    () => completeDelivery(project.id),
+    {
+      onSuccess: () => {
+        closeModal('CompleteDeliveryModal')
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
+      },
+    },
+  )
+
+  const confirmDeliveryMutation = useMutation(
+    (feedback?: string) => confirmDelivery(project.id, feedback),
+    {
+      onSuccess: () => {
+        closeModal('ConfirmDeliveriesModal')
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
+        })
+        queryClient.invalidateQueries(['orderList'])
+      },
+    },
+  )
 
   const { getRootProps, getInputProps } = useDropzone({
     accept: {
@@ -368,13 +419,26 @@ const DeliveriesFeedback = ({
     </Box>
   ))
 
+  const splitFileNameAndExtension = (fileName: string): [string, string] => {
+    const splitIndex = fileName.lastIndexOf('.')
+    if (splitIndex === -1) {
+      return [fileName, '']
+    }
+    const name = fileName.slice(0, splitIndex)
+    const extension = fileName.slice(splitIndex + 1)
+    return [name, extension]
+  }
+
   const onSubmit = () => {
     closeModal('DeliverToClientModal')
     if (files.length || importedFiles.length) {
-      const fileInfo: Array<DeliveryFileType> = [
-        ...savedFiles,
-        ...importedFiles,
-      ]
+      const fileInfo: Array<{
+        filePath: string
+        fileSize: number
+        fileName: string
+        fileExtension: string
+        type?: 'imported' | 'uploaded'
+      }> = [...savedFiles, ...importedFiles]
       const paths: string[] = files.map(file =>
         getFilePath(['delivery', project.id.toString()], file.name),
       )
@@ -385,7 +449,7 @@ const DeliveriesFeedback = ({
               fileName: files[idx].name,
               fileSize: files[idx]?.size,
               filePath: url,
-              fileExtension: files[idx].name.split('.')[1],
+              fileExtension: splitFileNameAndExtension(files[idx].name)[1],
               type: 'imported',
             })
             return uploadFileToS3(res.url, files[idx])
@@ -396,7 +460,8 @@ const DeliveriesFeedback = ({
         .then(res => {
           logger.debug('upload client guideline file success :', res)
 
-          updateProject.mutate({ deliveries: fileInfo })
+          // updateProject.mutate({ deliveries: fileInfo })
+          updateDeliveries.mutate(fileInfo)
           setFiles([])
           setImportedFiles([])
         })
@@ -412,15 +477,15 @@ const DeliveriesFeedback = ({
   }
 
   const handleCompleteDelivery = () => {
-    closeModal('CompleteDeliveryModal')
     // updateProject.mutate
+    completeDeliveryMutation.mutate()
   }
 
   const handleConfirmDelivery = (feedback: string) => {
-    closeModal('ConfirmDeliveriesModal')
-    updateProject.mutate(
-      feedback !== '' ? { status: 109, feedback: feedback } : { status: 109 },
-    )
+    confirmDeliveryMutation.mutate(feedback)
+    // updateProject.mutate(
+    //   feedback !== '' ? { status: 109, feedback: feedback } : { status: 109 },
+    // )
   }
 
   const onClickDeliverToClient = () => {

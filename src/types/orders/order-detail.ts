@@ -40,6 +40,7 @@ export type ProjectInfoType = {
   corporationId: string
   orderedAt: string
   status: OrderStatusType
+  previousStatus: number
   workName: string
   category: string
   serviceType: string[]
