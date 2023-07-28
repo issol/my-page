@@ -1,8 +1,7 @@
 import {
-  getMyOffDays,
+  getProWorkDays,
   getMyOverview,
   getProOverview,
-  getProWorkDays,
 } from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
@@ -36,17 +35,17 @@ export const useGetProOverview = (userId: number) => {
   )
 }
 
-export const useGetProWorkDays = (userId: number, year: number) => {
-  return useQuery(
-    [`${userId}-workDays`, year],
-    () => getProWorkDays(userId, year),
-    {
-      staleTime: 60 * 1000, // 1
-      suspense: true,
-      useErrorBoundary: (error: any) => error.response?.status >= 400,
-    },
-  )
-}
+// export const useGetProWorkDays = (userId: number, year: number) => {
+//   return useQuery(
+//     [`${userId}-workDays`, year],
+//     () => getProWorkDays(userId, year),
+//     {
+//       staleTime: 60 * 1000, // 1
+//       suspense: true,
+//       useErrorBoundary: (error: any) => error.response?.status >= 400,
+//     },
+//   )
+// }
 
 export const useGetProInvoiceList = (
   id: number,
@@ -90,14 +89,14 @@ export const useGetMyOverview = (userId: number) => {
   })
 }
 
-export const useGetMyOffDays = (
+export const useGetProWorkDays = (
   userId: number,
   year: number,
   month: number,
 ) => {
   return useQuery(
     [`myOffDays:${userId}`, year, month],
-    () => getMyOffDays(userId, year, month),
+    () => getProWorkDays(userId, year, month),
     {
       staleTime: 60 * 1000, // 1
       suspense: true,
