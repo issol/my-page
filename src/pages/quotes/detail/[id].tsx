@@ -967,7 +967,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
+          project?.status !== 'Internal Review' &&
           project?.status !== 'Expired')
       )
     } else {
@@ -975,7 +975,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
+          project?.status !== 'Internal Review' &&
           project?.status === 'Expired' &&
           project?.isConfirmed)
       )
@@ -1123,7 +1123,7 @@ export default function QuotesDetail() {
                 disabled={
                   project?.status !== 'New' &&
                   project?.status !== 'In preparation' &&
-                  project?.status !== 'Internal review' &&
+                  project?.status !== 'Internal Review' &&
                   project?.status !== 'Under revision'
                 }
               >
