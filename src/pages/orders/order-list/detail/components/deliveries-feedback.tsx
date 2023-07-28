@@ -159,7 +159,19 @@ const DeliveriesFeedback = ({
             return acc
           } else {
             const found = acc.find(f => f.name === file.name)
-            if (!found) acc.push(file)
+            if (found) {
+              let index = 1
+              let newFileName = file.name.replace(
+                /(\.[^/.]+)$/,
+                ` (${index})$1`,
+              )
+              while (acc.find(f => f.name === newFileName)) {
+                index++
+                newFileName = file.name.replace(/(\.[^/.]+)$/, ` (${index})$1`)
+              }
+              file = new File([file], newFileName)
+            }
+            acc.push(file)
             return acc
           }
         }, [])
