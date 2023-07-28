@@ -103,7 +103,7 @@ export const getOrderListCalendar = async (
 ): Promise<{ data: OrderListCalendarEventType[]; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/order/calendar?year=${year}&month=${month}${makeQuery(
+      `/api/enough/u/order/calendar?year=${year}&month=${month}?${makeQuery(
         filter,
       )}`,
     )
