@@ -20,7 +20,7 @@ type Props = {
   onDelete: () => void
 }
 export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
-  const [step, setStep] = useState(3)
+  const [step, setStep] = useState(1)
   const [currentPw, setCurrentPw] = useState('')
   const [error, setError] = useState(true)
 

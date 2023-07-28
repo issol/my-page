@@ -6,7 +6,7 @@ import styled from 'styled-components'
 type Props = {
   onClose: () => void
   reason: {
-    jobIds: string[]
+    corporationIds: string[]
     totalPrice: number
     currency: CurrencyType
   }
@@ -20,7 +20,7 @@ export default function AccountDeleteFailedModal({ onClose, reason }: Props) {
         <ul>
           <li>
             <Typography variant='body2'>
-              Unfinished job: {reason.jobIds.join(',')}
+              Unfinished job: {reason.corporationIds.join(',')}
             </Typography>
           </li>
           <li>

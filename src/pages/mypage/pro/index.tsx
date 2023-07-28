@@ -35,14 +35,6 @@ export default function ProMyPage() {
     isFetched,
   } = useGetMyOverview(Number(user?.userId!))
 
-  // const userInfo = {
-  //   legalNamePronunciation: user?.legalNamePronunciation,
-  //   firstName: user?.firstName!,
-  //   lastName: user?.lastName!,
-  //   role: 'PRO' as RoleType,
-  //   email: user?.email!,
-  // }
-
   const [value, setValue] = useState<MenuType>('overview')
 
   const handleChange = (_: any, value: MenuType) => {

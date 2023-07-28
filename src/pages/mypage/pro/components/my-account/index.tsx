@@ -6,7 +6,11 @@ import ChangePasswordForm from './change-password-form'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import { useMutation } from 'react-query'
-import { changePassword, deleteAccount } from '@src/apis/user.api'
+import {
+  changePassword,
+  deleteAccount,
+  getIsDeletableAccount,
+} from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import DeleteAccount from './delete-account'
@@ -24,7 +28,8 @@ export default function MyAccount({ user }: Props) {
   const [deleteAc, setDeleteAc] = useState(false)
 
   const updatePw = useMutation(
-    (password: string) => changePassword(user.userId!, password),
+    ({ currPw, newPw }: { currPw: string; newPw: string }) =>
+      changePassword(currPw, newPw),
     {
       onSuccess: () => {
         openModal({
@@ -60,17 +65,8 @@ export default function MyAccount({ user }: Props) {
     })
   }
 
-  function onPasswordReset(pw: string) {
-    openModal({
-      type: 'discardPw',
-      children: (
-        <DiscardModal
-          title='Are you sure to discard all changes?'
-          onClose={() => closeModal('discardPw')}
-          onClick={() => updatePw.mutate(pw)}
-        />
-      ),
-    })
+  function onPasswordReset(currPw: string, newPw: string) {
+    updatePw.mutate({ currPw, newPw })
   }
 
   const deleteAccountMutation = useMutation(() => deleteAccount(user.userId!), {
@@ -93,6 +89,19 @@ export default function MyAccount({ user }: Props) {
 
   function onDeleteAccount() {
     deleteAccountMutation.mutate()
+  }
+
+  function cannotDeleteAccount(e: { message: string }) {
+    const errorData = JSON.parse(e.message)
+    openModal({
+      type: 'deleteFailed',
+      children: (
+        <AccountDeleteFailedModal
+          onClose={() => closeModal('deleteFailed')}
+          reason={errorData}
+        />
+      ),
+    })
   }
 
   function onError() {
@@ -138,30 +147,23 @@ export default function MyAccount({ user }: Props) {
                 </LabelContainer>
                 <LabelContainer>
                   <Typography fontWeight={600}>Password</Typography>
-                  {/* TODO:linkedIn일 때 */}
-                  {/* <img
-                src='/images/logos/linkedin.png'
-                alt='linked in'
-                width='24px'
-                height='24px'
-              /> */}
-                  {/* TODO:google일 때 */}
-                  {/* <img
-                src='/images/logos/google.png'
-                alt='linked in'
-                width='24px'
-                height='24px'
-              /> */}
-
-                  {/* TODO:email일 때 */}
-                  <Button
-                    variant='outlined'
-                    size='small'
-                    sx={{ width: '160px' }}
-                    onClick={() => setChangePw(true)}
-                  >
-                    Change password
-                  </Button>
+                  {user?.fromSNS !== null ? (
+                    <img
+                      src={`/images/logos/${user?.fromSNS?.toLowerCase()}.png`}
+                      alt='linked in'
+                      width='24px'
+                      height='24px'
+                    />
+                  ) : (
+                    <Button
+                      variant='outlined'
+                      size='small'
+                      sx={{ width: '160px' }}
+                      onClick={() => setChangePw(true)}
+                    >
+                      Change password
+                    </Button>
+                  )}
                 </LabelContainer>
               </BorderBox>
             </Grid>
@@ -169,7 +171,15 @@ export default function MyAccount({ user }: Props) {
               <Button
                 sx={{ padding: 0, textDecoration: 'underline' }}
                 color='secondary'
-                onClick={() => setDeleteAc(true)}
+                onClick={() =>
+                  getIsDeletableAccount()
+                    .then(() => {
+                      setDeleteAc(true)
+                    })
+                    .catch(e => {
+                      cannotDeleteAccount(e)
+                    })
+                }
               >
                 Delete account
               </Button>

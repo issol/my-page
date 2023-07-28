@@ -6,6 +6,7 @@ import {
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
+import { CurrencyType } from '@src/types/common/standard-price'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -81,12 +82,40 @@ export const resetPassword = async (params: {
   return data
 }
 
-/* TODO: endpoint, method 수정하기 */
-export const changePassword = async (userId: number, password: string) => {
+export const validatePassword = async (pw: string): Promise<boolean> => {
   try {
-    const { data } = await axios.put('/api/enough/u/pw/reset/save')
+    const { data } = await axios.post('/api/enough/u/pu/v-check', { pw })
+    return data
   } catch (e: any) {
     throw new Error(e)
+  }
+}
+
+export const changePassword = async (
+  pw: string,
+  newPW: string,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.put('/api/enough/u/pw/password', {
+      pw,
+      newPW,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getIsDeletableAccount = async (): Promise<boolean> => {
+  try {
+    const { data } = await axios.get('/api/enough/u/pu/delete-account')
+    if (!data?.corporationIds) {
+      return true
+    } else {
+      throw new Error(JSON.stringify(data))
+    }
+  } catch (e: any) {
+    throw new Error(e.message)
   }
 }
 
