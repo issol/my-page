@@ -119,17 +119,27 @@ export const getIsDeletableAccount = async (): Promise<boolean> => {
   }
 }
 
-/* TODO: endpoint, method 수정하기 */
-export const deleteAccount = async (userId: number) => {
-  // try {
-  //   const { data } = await axios.put('/api/enough/u/pw/reset/save')
-  // } catch (e: any) {
-  //   throw new Error(e)
-  // }
-  const errorData = {
-    jobIds: ['jobId1', 'jobId2', 'jobId2', 'jobId2'],
-    totalPrice: 100,
-    currency: 'USD',
+export const deleteAccount = async (reasonCode: number, text: string) => {
+  try {
+    return await axios.delete('/api/enough/u/pw/reset/save', {
+      data: { reasonCode, text },
+    })
+  } catch (e: any) {
+    throw new Error(e)
   }
-  throw new Error(JSON.stringify(errorData))
+}
+
+export const getDeleteAccountReasonList = async (): Promise<
+  Array<{
+    id: number
+    reason: string
+    statusCode: number
+  }>
+> => {
+  try {
+    const { data } = await axios.get('api/enough/u/delete-reason')
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }

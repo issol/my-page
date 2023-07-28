@@ -69,26 +69,19 @@ export default function MyAccount({ user }: Props) {
     updatePw.mutate({ currPw, newPw })
   }
 
-  const deleteAccountMutation = useMutation(() => deleteAccount(user.userId!), {
-    onSuccess: () => {
-      router.push('/finish/delete-account')
+  const deleteAccountMutation = useMutation(
+    ({ reasonCode, text }: { reasonCode: number; text: string }) =>
+      deleteAccount(reasonCode, text),
+    {
+      onSuccess: () => {
+        router.push('/finish/delete-account')
+      },
+      onError: () => onError(),
     },
-    onError: (e: { message: string }) => {
-      const errorData = JSON.parse(e?.message)
-      openModal({
-        type: 'deleteFailed',
-        children: (
-          <AccountDeleteFailedModal
-            onClose={() => closeModal('deleteFailed')}
-            reason={errorData}
-          />
-        ),
-      })
-    },
-  })
+  )
 
-  function onDeleteAccount() {
-    deleteAccountMutation.mutate()
+  function onDeleteAccount(reasonCode: number, text: string) {
+    deleteAccountMutation.mutate({ reasonCode, text })
   }
 
   function cannotDeleteAccount(e: { message: string }) {
@@ -127,7 +120,6 @@ export default function MyAccount({ user }: Props) {
         ) : deleteAc ? (
           <Grid item xs={12}>
             <DeleteAccount
-              user={user!}
               onCancel={() => setDeleteAc(false)}
               onDelete={onDeleteAccount}
             />
