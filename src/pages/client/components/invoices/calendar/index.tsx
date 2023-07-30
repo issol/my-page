@@ -47,7 +47,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
   const { data } = useGetClientInvoicesCalendar(id, year, month)
   const [event, setEvent] = useState<Array<ClientInvoiceCalendarEventType>>([])
 

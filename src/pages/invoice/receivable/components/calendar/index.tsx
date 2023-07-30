@@ -60,6 +60,7 @@ const CalendarContainer = () => {
     month,
     filter,
   )
+
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
@@ -68,10 +69,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {

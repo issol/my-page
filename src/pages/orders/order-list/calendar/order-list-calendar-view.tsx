@@ -49,6 +49,7 @@ const Calendar = (props: Props) => {
     ref: calendarRef,
     direction,
     eventContent: (arg: any) => {
+      console.log('exProp', arg.event?._def?.extendedProps.calendar)
       return (
         <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
           {arg.event?._def?.title}

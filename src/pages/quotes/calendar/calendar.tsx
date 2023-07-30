@@ -56,8 +56,6 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      // console.log(event.id)
-
       setCurrentListId(Number(event?.id))
     },
   }
