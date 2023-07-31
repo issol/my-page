@@ -21,6 +21,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 // ** contexts
 import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
+import { UserRoleType } from '@src/context/types'
 
 type CellType = {
   row: InvoiceReceivableListType
@@ -36,6 +37,7 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  role: UserRoleType
 }
 
 export default function ReceivableList({
@@ -45,6 +47,7 @@ export default function ReceivableList({
   setPageSize,
   list,
   isLoading,
+  role,
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
@@ -68,7 +71,7 @@ export default function ReceivableList({
   const columns: GridColumns<InvoiceReceivableListType> = [
     {
       field: 'corporationId',
-      minWidth: 182,
+      minWidth: 130,
       headerName: 'No.',
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
@@ -84,7 +87,7 @@ export default function ReceivableList({
     },
     {
       field: 'Status',
-      minWidth: 182,
+      minWidth: 240,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -93,9 +96,12 @@ export default function ReceivableList({
     },
     {
       field: 'Client / Email',
-      minWidth: 182,
+      minWidth: 260,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Box>{role.name === 'CLIENT' ? 'LSP / Email' : 'Client / Email'}</Box>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
@@ -111,7 +117,7 @@ export default function ReceivableList({
     },
     {
       field: 'Project name',
-      minWidth: 182,
+      minWidth: 290,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -126,12 +132,12 @@ export default function ReceivableList({
     },
     {
       field: 'Category / Service type',
-      minWidth: 182,
+      minWidth: 420,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
         return (
-          <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+          <Box sx={{ display: 'flex', gap: '8px' }}>
             {row.order?.category ? (
               <JobTypeChip
                 size='small'
@@ -164,7 +170,7 @@ export default function ReceivableList({
     },
     {
       field: 'invoicedAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
@@ -178,7 +184,7 @@ export default function ReceivableList({
     },
     {
       field: 'payDueAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
@@ -195,8 +201,9 @@ export default function ReceivableList({
     },
     {
       field: 'paidAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
+      hide: role.name === 'CLIENT',
       renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
@@ -212,7 +219,7 @@ export default function ReceivableList({
     },
     {
       field: 'totalPrice',
-      minWidth: 182,
+      minWidth: 130,
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {

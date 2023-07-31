@@ -17,7 +17,8 @@ import { ItemResType } from '../common/orders-and-quotes.type'
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: string[]
-  clientId?: string[]
+  clientId?: number[]
+  lsp?: string[]
   category?: string[]
   serviceType?: string[]
   revenueFrom?: string[]

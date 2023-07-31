@@ -31,6 +31,9 @@ import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
 
 // ** apis
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 const CalendarContainer = () => {
   // ** States
@@ -39,10 +42,16 @@ const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
 
+  const currentRole = getCurrentRole()
+
   // ** calendar values
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  const [statuses, setStatuses] = useState<
+    Array<{ color: string; value: number; label: string }>
+  >([])
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -60,6 +69,9 @@ const CalendarContainer = () => {
     month,
     filter,
   )
+
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetInvoiceStatus()
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
@@ -68,6 +80,26 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
+
+  function getColor(status: InvoiceReceivableStatusType) {
+    return status === 'In preparation'
+      ? '#F572D8'
+      : status === 'Checking in progress'
+      ? '#FDB528'
+      : status === 'Accepted by client'
+      ? '#64C623'
+      : status === 'Tax invoice issued'
+      ? '#46A4C2'
+      : status === 'Paid'
+      ? '#267838'
+      : status === 'Overdue'
+      ? '#FF4D49'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Overdue (Reminder sent)'
+      ? '#FF4D49'
+      : ''
+  }
 
   useEffect(() => {
     refetch()
@@ -86,6 +118,17 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
+
+  useEffect(() => {
+    if (statusList) {
+      const res = statusList.map(value => ({
+        value: value.id,
+        label: value.statusName,
+        color: getColor(value.statusName as InvoiceReceivableStatusType),
+      }))
+      setStatuses(res)
+    }
+  }, [statusList])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
@@ -175,6 +218,7 @@ const CalendarContainer = () => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            role={currentRole!}
           />
         </Box>
       )}
