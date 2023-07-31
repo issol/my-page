@@ -1,4 +1,10 @@
-import { Card, Grid, SelectChangeEvent, Typography } from '@mui/material'
+import {
+  Card,
+  CardHeader,
+  Grid,
+  SelectChangeEvent,
+  Typography,
+} from '@mui/material'
 
 import { useRouter } from 'next/router'
 
@@ -77,7 +83,6 @@ import Resume from '@src/pages/components/pro-detail-component/resume'
 import Specialties from '@src/pages/components/pro-detail-component/specialities'
 import Contracts from '@src/pages/components/pro-detail-component/contracts'
 import CertificationTest from '@src/pages/components/pro-detail-component/certification-test'
-import WorkDays from '@src/pages/components/pro-detail-component/work-days'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import {
   useGetProOverview,
@@ -85,6 +90,9 @@ import {
 } from '@src/queries/pro/pro-details.query'
 import { changeProStatus } from '@src/apis/pro/pro-details.api'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
+import AvailableCalendarWrapper from '@src/@core/styles/libs/available-calendar'
+import WorkDaysCalendar from '@src/pages/mypage/pro/components/overview/work-days-calendar'
+import TimelineDot from '@src/@core/components/mui/timeline-dot'
 
 const defaultValues: AddRoleType = {
   jobInfo: [{ jobType: '', role: '', source: '', target: '' }],
@@ -101,10 +109,11 @@ function ProDetailOverview() {
   const { id } = router.query
   const [validUser, setValidUser] = useState(false)
   const [year, setYear] = useState(new Date().getFullYear())
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
 
   const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
 
-  const { data: workday } = useGetProWorkDays(Number(id!), year)
+  const { data: offDays } = useGetProWorkDays(Number(id!), year, month)
 
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   // const { data: appliedRole } = useGetAppliedRole(userId!)
@@ -904,12 +913,53 @@ function ProDetailOverview() {
               />
             </Grid>
             <Grid item xs={12}>
-              <WorkDays
-                timezone={userInfo?.timezone!}
-                available={workday?.availableDate!}
-                off={workday?.offDate!}
-                setYear={setYear}
-              />
+              {/* Available work days */}
+              <AvailableCalendarWrapper>
+                <Card sx={{ padding: '20px' }}>
+                  <CardHeader
+                    title={
+                      <Box
+                        display='flex'
+                        alignItems='center'
+                        justifyContent='space-between'
+                      >
+                        <Typography variant='h6'>
+                          Available work days
+                        </Typography>
+                      </Box>
+                    }
+                    sx={{ mb: '24px', padding: 0 }}
+                  />
+                  <WorkDaysCalendar
+                    event={offDays ?? []}
+                    year={year}
+                    month={month}
+                    setMonth={setMonth}
+                    setYear={setYear}
+                    showToolbar={true}
+                    showReason={true}
+                  />
+                  <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    gap='10px'
+                    mt='11px'
+                  >
+                    <Box display='flex' alignItems='center' gap='8px'>
+                      <TimelineDot color='grey' />
+                      <Typography
+                        variant='caption'
+                        sx={{
+                          lineHeight: '14px',
+                          color: 'rgba(76, 78, 100, 0.87)',
+                        }}
+                      >
+                        Unavailable
+                      </Typography>
+                    </Box>
+                  </Box>
+                </Card>
+              </AvailableCalendarWrapper>
               {/* <CertifiedRole userInfo={certifiedRole!} /> */}
             </Grid>
             <Grid item xs={12}>

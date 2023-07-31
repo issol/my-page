@@ -10,6 +10,7 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { Control, Controller, FieldErrors } from 'react-hook-form'
 
 import { getTypeList } from '@src/shared/transformer/type.transformer'
+import { renderErrorMsg } from '@src/@core/components/error/form-error-renderer'
 
 type Props = {
   control: Control<ClientAddressType, any>
@@ -17,7 +18,7 @@ type Props = {
 }
 export default function ClientBillingAddressesForm({ control, errors }: Props) {
   const country = getTypeList('CountryCode')
-
+  console.log('client billing', errors)
   function renderForm(
     key:
       | 'baseAddress'
@@ -63,16 +64,72 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
   return (
     <Fragment>
       <Grid item xs={6}>
-        {renderForm('baseAddress', 'Street 1*', 200)}
+        <Controller
+          name={'baseAddress'}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.baseAddress)}
+              label='Street 1*'
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength: 200 }}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.baseAddress)}
       </Grid>
       <Grid item xs={6}>
-        {renderForm('detailAddress', 'Street 2', 200)}
+        <Controller
+          name={'detailAddress'}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.detailAddress)}
+              label='Street 2'
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength: 200 }}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.detailAddress)}
       </Grid>
       <Grid item xs={6}>
-        {renderForm('city', 'City*', 100)}
+        <Controller
+          name={'city'}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.city)}
+              label='City*'
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength: 100 }}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.city)}
       </Grid>
       <Grid item xs={6}>
-        {renderForm('state', 'State', 100)}
+        <Controller
+          name={'state'}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.state)}
+              label='State'
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength: 100 }}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.state)}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -94,6 +151,7 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
               renderInput={params => (
                 <TextField
                   {...params}
+                  error={Boolean(errors.country)}
                   label='Country*'
                   inputProps={{
                     ...params.inputProps,
@@ -103,9 +161,24 @@ export default function ClientBillingAddressesForm({ control, errors }: Props) {
             />
           )}
         />
+        {renderErrorMsg(errors.country)}
       </Grid>
       <Grid item xs={6}>
-        {renderForm('zipCode', 'ZIP code*', 20)}
+        <Controller
+          name={'zipCode'}
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.zipCode)}
+              label='ZIP code*'
+              value={value ?? ''}
+              onChange={onChange}
+              inputProps={{ maxLength: 20 }}
+            />
+          )}
+        />
+        {renderErrorMsg(errors.zipCode)}
       </Grid>
     </Fragment>
   )

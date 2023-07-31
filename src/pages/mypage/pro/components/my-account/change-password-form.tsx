@@ -29,16 +29,16 @@ import {
 
 // ** react hook form
 import { Controller, useForm } from 'react-hook-form'
+import { useMutation } from 'react-query'
+import { validatePassword } from '@src/apis/user.api'
+import { FormErrors } from '@src/shared/const/formErrors'
 
 type Props = {
   user: UserDataType
   onCancel: () => void
-  onReset: (password: string) => void
+  onReset: (currPw: string, newPw: string) => void
 }
-/* TODO:
-    Current Password field에 onBlur로 현재 password가 일치하는지 아닌지 체크하고
-    아니라면 setError해주기
-*/
+
 export default function ChangePasswordForm({ user, onCancel, onReset }: Props) {
   const {
     control,
@@ -71,6 +71,19 @@ export default function ChangePasswordForm({ user, onCancel, onReset }: Props) {
   const step3Pass =
     /[0-9]/g.test(newPassword) && /[$@$!%*#?&]/g.test(newPassword)
 
+  const validatePw = useMutation((pw: string) => validatePassword(pw), {
+    onSuccess: res => {
+      if (!res) {
+        setError('currentPassword', { message: FormErrors.passwordDoesntMatch })
+      } else {
+        clearErrors('currentPassword')
+      }
+    },
+    onError: () => {
+      setError('currentPassword', { message: FormErrors.passwordDoesntMatch })
+    },
+  })
+
   return (
     <StyledBox>
       <InnerBox sx={{ mb: '20px' }}>
@@ -89,6 +102,7 @@ export default function ChangePasswordForm({ user, onCancel, onReset }: Props) {
                 label='Current password*'
                 value={value}
                 onChange={onChange}
+                onBlur={() => validatePw.mutate(value)}
                 error={Boolean(errors.currentPassword)}
                 type={showPw.currentPassword ? 'text' : 'password'}
                 inputProps={{ maxLength: 20 }}
@@ -269,8 +283,9 @@ export default function ChangePasswordForm({ user, onCancel, onReset }: Props) {
           variant='contained'
           disabled={!isValid}
           onClick={() => {
-            const pw = getValues('newPassword')
-            onReset(pw)
+            const currPw = getValues('currentPassword')
+            const newPw = getValues('newPassword')
+            onReset(currPw, newPw)
           }}
         >
           Reset

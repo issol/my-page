@@ -3,40 +3,50 @@ import {
   Box,
   Button,
   Divider,
-  FormControl,
   FormControlLabel,
   Radio,
   RadioGroup,
   TextField,
   Typography,
 } from '@mui/material'
+import { validatePassword } from '@src/apis/user.api'
 import { UserDataType } from '@src/context/types'
+import { useGetDeleteAccountReasonList } from '@src/queries/userInfo/userInfo-query'
+
 import { Fragment, useState } from 'react'
+import { useMutation } from 'react-query'
 import styled from 'styled-components'
 
 type Props = {
-  user: UserDataType
   onCancel: () => void
-  onDelete: () => void
+  onDelete: (reasonCode: number, text: string) => void
 }
-export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
-  const [step, setStep] = useState(3)
+export default function DeleteAccount({ onCancel, onDelete }: Props) {
+  const [step, setStep] = useState(1)
   const [currentPw, setCurrentPw] = useState('')
   const [error, setError] = useState(true)
 
-  const [reason, setReason] = useState('')
+  const [reason, setReason] = useState<number | null>(null)
   const [etc, setEtc] = useState('')
 
-  const options = [
-    'I don’t work with the LSP anymore.',
-    'My LSP no longer uses E’nuff.',
-    "I'm experiencing a lot of bugs on the website",
-    'I’m receiving too much notifications.',
-    'etc.',
-  ]
+  const { data: deleteReasonList } = useGetDeleteAccountReasonList()
+  console.log('deleteReasonList', deleteReasonList)
 
-  function validatePassword(pw: string) {
-    //TODO: validate current password 해주기 (catch에서 setError)
+  const validatePwMutation = useMutation((pw: string) => validatePassword(pw), {
+    onSuccess: res => {
+      if (!res) {
+        setError(true)
+      } else {
+        setError(false)
+      }
+    },
+    onError: () => {
+      setError(true)
+    },
+  })
+
+  function validatePw(pw: string) {
+    validatePwMutation.mutate(pw)
     setCurrentPw(pw)
   }
 
@@ -49,7 +59,7 @@ export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
       case 1:
         return error
       case 2:
-        return reason === 'etc.' ? !etc.length : !reason.length
+        return reason === 904 ? !etc.length : !reason
       default:
         return false
     }
@@ -73,7 +83,7 @@ export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
                 sx={{ width: '420px' }}
                 label='Current password*'
                 value={currentPw}
-                onChange={e => validatePassword(e.target.value)}
+                onChange={e => validatePw(e.target.value)}
                 inputProps={{ maxLength: 20 }}
                 type='password'
               />
@@ -91,18 +101,18 @@ export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
                 sx={{ display: 'flex', flexDirection: 'column' }}
                 value={reason}
                 name='simple-radio'
-                onChange={e => setReason(e.target.value)}
+                onChange={e => setReason(Number(e.target.value))}
               >
-                {options.map((opt, idx) => (
+                {deleteReasonList?.map((opt, idx) => (
                   <FormControlLabel
                     key={idx}
-                    value={opt}
+                    value={opt.statusCode}
                     control={<Radio />}
-                    label={opt}
+                    label={opt.reason}
                   />
                 ))}
               </RadioGroup>
-              {reason === 'etc.' && (
+              {reason === 904 && (
                 <Box>
                   <Divider style={{ margin: '24px 0' }} />
                   <TextField
@@ -210,7 +220,13 @@ export default function DeleteAccount({ user, onCancel, onDelete }: Props) {
         </Box>
       ) : (
         <Box mt='40px'>
-          <Button variant='contained' color='secondary' onClick={onDelete}>
+          <Button
+            variant='contained'
+            color='secondary'
+            onClick={() => {
+              if (reason) onDelete(reason, etc)
+            }}
+          >
             Delete account
           </Button>
         </Box>

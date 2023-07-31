@@ -6,6 +6,7 @@ import {
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
+import { CurrencyType } from '@src/types/common/standard-price'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -81,26 +82,64 @@ export const resetPassword = async (params: {
   return data
 }
 
-/* TODO: endpoint, method 수정하기 */
-export const changePassword = async (userId: number, password: string) => {
+export const validatePassword = async (pw: string): Promise<boolean> => {
   try {
-    const { data } = await axios.put('/api/enough/u/pw/reset/save')
+    const { data } = await axios.post('/api/enough/u/pu/v-check', { pw })
+    return data
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-/* TODO: endpoint, method 수정하기 */
-export const deleteAccount = async (userId: number) => {
-  // try {
-  //   const { data } = await axios.put('/api/enough/u/pw/reset/save')
-  // } catch (e: any) {
-  //   throw new Error(e)
-  // }
-  const errorData = {
-    jobIds: ['jobId1', 'jobId2', 'jobId2', 'jobId2'],
-    totalPrice: 100,
-    currency: 'USD',
+export const changePassword = async (
+  pw: string,
+  newPW: string,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.put('/api/enough/u/pw/password', {
+      pw,
+      newPW,
+    })
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
-  throw new Error(JSON.stringify(errorData))
+}
+
+export const getIsDeletableAccount = async (): Promise<boolean> => {
+  try {
+    const { data } = await axios.get('/api/enough/u/pu/delete-account')
+    if (!data?.corporationIds) {
+      return true
+    } else {
+      throw new Error(JSON.stringify(data))
+    }
+  } catch (e: any) {
+    throw new Error(e.message)
+  }
+}
+
+export const deleteAccount = async (reasonCode: number, text: string) => {
+  try {
+    return await axios.delete('/api/enough/u/pw/reset/save', {
+      data: { reasonCode, text },
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getDeleteAccountReasonList = async (): Promise<
+  Array<{
+    id: number
+    reason: string
+    statusCode: number
+  }>
+> => {
+  try {
+    const { data } = await axios.get('api/enough/u/delete-reason')
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
 }
