@@ -1486,6 +1486,7 @@ const OrderDetail = () => {
                         setTax={setTax}
                         setTaxable={setTaxable}
                         type='order'
+                        formType='edit'
                       />
                       {renderSubmitButton({
                         onCancel: () =>

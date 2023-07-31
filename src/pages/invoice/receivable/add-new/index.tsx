@@ -641,6 +641,7 @@ export default function AddNewInvoice() {
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type='invoice'
+                formType='create'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

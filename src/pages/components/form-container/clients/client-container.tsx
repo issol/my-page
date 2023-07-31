@@ -66,6 +66,7 @@ type Props = {
   setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
+  formType: 'edit' | 'create'
 }
 export default function ClientQuotesFormContainer({
   control,
@@ -74,6 +75,7 @@ export default function ClientQuotesFormContainer({
   setTax,
   setTaxable,
   type,
+  formType,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -290,6 +292,7 @@ export default function ClientQuotesFormContainer({
           setTax={setTax}
           setTaxable={setTaxable}
           type={type}
+          formType={formType}
         />
       </Grid>
 

@@ -95,6 +95,7 @@ export const Default = ({
       clientList={clientList}
       setTaxable={setTaxable}
       type={type}
+      formType='create'
     />
   )
 }

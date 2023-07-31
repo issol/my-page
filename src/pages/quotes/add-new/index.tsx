@@ -587,6 +587,7 @@ export default function AddNewQuotes() {
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
+                formType='create'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
