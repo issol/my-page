@@ -11,7 +11,6 @@ import { Typography } from '@mui/material'
 // ** components
 import Calendar from './calendar'
 import QuotesList from '../list/list'
-import CalendarSideBar from '@src/pages/components/sidebar'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -25,11 +24,6 @@ import { QuoteStatusType, QuotesListType } from '@src/types/common/quotes.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
-import {
-  ClientQuoteCalendarStatus,
-  ClientQuoteStatus,
-  QuotesStatus,
-} from '@src/shared/const/status/statuses'
 import { useGetStatusList } from '@src/queries/common.query'
 
 const CalendarContainer = () => {
@@ -58,8 +52,9 @@ const CalendarContainer = () => {
   const [filters, setFilters] = useState<QuotesFilterType>({})
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetQuotesCalendarData(year, month + 1, {
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+
+  const { data, isLoading } = useGetQuotesCalendarData(year, month, {
     seeMyQuotes,
     hideCompletedQuotes,
     ...filters,
@@ -159,17 +154,6 @@ const CalendarContainer = () => {
           />
         </Suspense>
 
-        {/* <CalendarSideBar
-          title='Quote status'
-          alertIconStatus='Canceled'
-          event={event}
-          month={month}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={n => setCurrentListId(n.toString())}
-        /> */}
         <Box
           sx={{
             px: 5,

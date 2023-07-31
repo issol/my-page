@@ -367,14 +367,12 @@ export const getClientInvoicesCalendarData = async (
   id: number,
   year: number,
   month: number,
-  // filter: ClientInvoiceFilterType,
 ): Promise<ClientInvoiceCalendarData> => {
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
   const color_overdue = '#FF4D49'
 
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month + 1}`,
+      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month}`,
     )
 
     return {

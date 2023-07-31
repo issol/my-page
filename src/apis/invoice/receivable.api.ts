@@ -69,9 +69,9 @@ export const getInvoiceReceivableCalendarData = async (
 }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/invoice/receivable/calendar?year=${year}&month=${
-        month + 1
-      }&${makeQuery(filter)}`,
+      `/api/enough/u/invoice/receivable/calendar?year=${year}&month=${month}&${makeQuery(
+        filter,
+      )}`,
     )
     // const data = {
     //   data: [

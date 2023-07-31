@@ -102,10 +102,6 @@ const CalendarContainer = () => {
   }
 
   useEffect(() => {
-    refetch()
-  }, [year, month])
-
-  useEffect(() => {
     if (currentListId && data?.data) {
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }

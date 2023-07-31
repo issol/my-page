@@ -25,21 +25,20 @@ const theme = {
 }
 
 export const withMuiTheme = Story => (
-  <StorybookTheme settings={theme}>
-    {/* <ThemeProvider theme={darkTheme}> */}
-    {/* <CssBaseline /> */}
-    <ModalProvider selector='modal'>
-      <div id='modal'></div>
-      <Story />
-    </ModalProvider>
-    <ReactHotToast>
-      <Toaster
-        position={theme.toastPosition}
-        toastOptions={{ className: 'react-hot-toast' }}
-      />
-    </ReactHotToast>
-    {/* </ThemeProvider> */}
-  </StorybookTheme>
+  <div style={{ background: '#ffffff', padding: '20px' }}>
+    <StorybookTheme settings={theme}>
+      <ModalProvider selector='modal'>
+        <div id='modal'></div>
+        <Story />
+      </ModalProvider>
+      <ReactHotToast>
+        <Toaster
+          position={theme.toastPosition}
+          toastOptions={{ className: 'react-hot-toast' }}
+        />
+      </ReactHotToast>
+    </StorybookTheme>
+  </div>
 )
 
 export const decorators = [withMuiTheme]

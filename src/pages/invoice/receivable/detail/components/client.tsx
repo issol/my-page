@@ -119,6 +119,7 @@ const InvoiceClient = ({
             setTax={setTax!}
             setTaxable={setTaxable!}
             type='order'
+            formType='edit'
           />
           <Grid item xs={12}>
             <Box

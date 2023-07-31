@@ -59,6 +59,7 @@ export type UserDataType = {
   department?: string
   residence?: string
   dateOfBirth?: string
+  fromSNS?: null | 'GOOGLE'
 }
 
 export type LoginSuccessResponse = {

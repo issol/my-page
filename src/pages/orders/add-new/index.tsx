@@ -93,6 +93,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type languageType = {
   id: number | string
@@ -145,6 +146,8 @@ export default function AddNewOrder() {
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)
+
+  const { data: statusList } = useGetStatusList('Order')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
@@ -558,6 +561,8 @@ export default function AddNewOrder() {
             orderedAt: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
+            showDescription: false,
+            status: statusList!.find(item => item.label === res?.status)?.value,
             projectDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
@@ -708,6 +713,7 @@ export default function AddNewOrder() {
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
+                formType={'create'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button

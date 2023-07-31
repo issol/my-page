@@ -73,7 +73,7 @@ import {
   updateWeekends,
   updateMyOffDays,
 } from '@src/apis/pro/pro-details.api'
-import { useGetMyOffDays } from '@src/queries/pro/pro-details.query'
+import { useGetProWorkDays } from '@src/queries/pro/pro-details.query'
 
 // ** value
 import { ExperiencedYears } from '@src/shared/const/experienced-years'
@@ -134,7 +134,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     setRolePage(changedPage)
   }
 
-  const { data: offDays } = useGetMyOffDays(user.userId!, year, month)
+  const { data: offDays } = useGetProWorkDays(user.userId!, year, month)
   const {
     control,
     getValues,

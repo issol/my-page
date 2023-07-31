@@ -207,9 +207,11 @@ export default function QuotesDetail() {
 
   // ** 1. Project info
   const [editProject, setEditProject] = useState(false)
-  const { data: project, isLoading: isProjectLoading, refetch } = useGetProjectInfo(
-    Number(id),
-  )
+  const {
+    data: project,
+    isLoading: isProjectLoading,
+    refetch,
+  } = useGetProjectInfo(Number(id))
 
   const {
     control: projectInfoControl,
@@ -583,16 +585,14 @@ export default function QuotesDetail() {
 
   // ** Client가 Status가 New(20003)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20004)로 바꾸고 데이터를 리패치한다.
   useEffect(() => {
-    if(currentRole && currentRole.name === 'CLIENT') {
-      if(project && project.status === 'New') {
+    if (currentRole && currentRole.name === 'CLIENT') {
+      if (project && project.status === 'New') {
         //update
         patchQuoteProjectInfo(Number(id), { status: 20004 })
-        .then(res => {
-          refetch()
-        })
-        .catch(e =>
-          onMutationError(),
-        )
+          .then(res => {
+            refetch()
+          })
+          .catch(e => onMutationError())
       }
     }
   }, [])
@@ -1352,6 +1352,7 @@ export default function QuotesDetail() {
                     setTax={setTax}
                     setTaxable={setTaxable}
                     type='quotes'
+                    formType='edit'
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({

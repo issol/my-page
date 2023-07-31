@@ -16,25 +16,12 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
 
-import { ClientProjectCalendarEventType } from '@src/apis/client.api'
-import ClientProjectCalendar from './order-list-calendar-view'
-import { useGetClientProjectsCalendar } from '@src/queries/client/client-detail'
-import ClientProjectList from '../list/list'
-import { UserDataType } from '@src/context/types'
-import { ClientProjectListType } from '@src/types/client/client-projects.type'
 import { OrderListCalendarEventType } from '@src/apis/order-list.api'
-import {
-  OrderListFilterType,
-  OrderListType,
-  OrderStatusType,
-} from '@src/types/orders/order-list'
+import { OrderListType, OrderStatusType } from '@src/types/orders/order-list'
 import { useGetOrderListCalendar } from '@src/queries/order/order.query'
-import OrderListCalendarView from './order-list-calendar-view'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
-import CalendarSideBar from '@src/pages/components/sidebar'
 import { AuthContext } from '@src/context/AuthContext'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -51,9 +38,6 @@ const OrderListCalendar = () => {
   const { user } = useContext(AuthContext)
   const currentRole = getCurrentRole()
   const { data: statusList } = useGetStatusList('Order')
-  const [mine, setMine] = useState<'0' | '1'>('0')
-  const [hideCompleted, setHideCompletedQuotes] = useState<'0' | '1'>('0')
-  const [filters, setFilters] = useState<OrderListFilterType>({})
 
   // ** Hooks
   const { settings } = useSettings()
@@ -64,12 +48,8 @@ const OrderListCalendar = () => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetOrderListCalendar(year, month + 1, {
-    mine,
-    hideCompleted,
-    ...filters,
-  })
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const { data, isLoading } = useGetOrderListCalendar(year, month, {})
   const [event, setEvent] = useState<Array<CalendarEventType<OrderListType>>>(
     [],
   )
@@ -79,17 +59,12 @@ const OrderListCalendar = () => {
     Array<OrderListCalendarEventType>
   >([])
 
-  const [selected, setSelected] = useState<number | null>(null)
   const [statuses, setStatuses] = useState<
     Array<{ color: string; value: number; label: string }>
   >([])
 
   const handleRowClick = (row: OrderListType) => {
     router.push(`/orders/order-list/detail/${row.id}`)
-  }
-
-  const isSelected = (index: number) => {
-    return index === selected
   }
 
   function getColor(status: OrderStatusType) {
@@ -186,6 +161,14 @@ const OrderListCalendar = () => {
           ...(skin === 'bordered' && {
             border: theme => `1px solid ${theme.palette.divider}`,
           }),
+          '& .fc-daygrid-event-harness': {
+            '& .fc-event': {
+              padding: '0 !important',
+            },
+            '.fc-h-event': {
+              border: 'none',
+            },
+          },
         }}
       >
         <Suspense>

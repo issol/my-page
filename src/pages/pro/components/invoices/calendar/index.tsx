@@ -61,11 +61,7 @@ const CalendarContainer = () => {
 
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetProInvoiceListCalendar(
-    year,
-    month,
-    filter,
-  )
+  const { data, isLoading } = useGetProInvoiceListCalendar(year, month, filter)
   const [event, setEvent] = useState<
     Array<CalendarEventType<ProInvoiceListType>>
   >([])
@@ -74,10 +70,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<ProInvoiceListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {

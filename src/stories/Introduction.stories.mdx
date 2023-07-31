@@ -121,9 +121,18 @@ import StackAlt from './assets/stackalt.svg'
 ### 스타일 전역 설정
 
 스토리북 전역에 공통으로 적용되어야 할 view용 설정은 <code>.storybook/preview.js</code>에서 합니다.<br/>
-현재는 이 템플릿에서 mui컴포넌트를 overriding하고 있는 provider, gloabl.css, ModalPrivodier, ReactHotToast가 추가되었습니다.
-그리고 next/image 옵티마이징 기능을 해제해두었습니다. (스토리북에서는 이 기능이 불필요하기 때문.)<br/>
-스토리북의 control패널에 대한 설정 (parameters)도 추가된 상태입니다.
+view용 설정이란, <code>npm run storybook</code>을 실행하고 브라우저에서 보게 되는 story 화면들에 적용되는
+설정들을 말합니다.<br/>
+현재는 이 템플릿에서 mui컴포넌트를 overriding하고 있는 <br/>
+
+`global.css`, `ModalProvider`, `ReactHotToast`
+가 Story컴포넌트를 감싸도록 설정했습니다. <br />
+그리고 next/image 옵티마이징 기능을 해제해두었습니다. (스토리북에서는 이 기능이
+불필요하기 때문.)
+
+<br />
+
+스토리북의 control패널에 대한 설정 (`parameters`)도 추가된 상태입니다.
 
 ### 스토리북 모듈 설정
 
