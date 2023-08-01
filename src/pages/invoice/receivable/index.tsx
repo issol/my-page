@@ -141,7 +141,10 @@ export default function Receivable() {
           maxWidth='lg'
         >
           <DialogContent sx={{ padding: '50px' }}>
-            <OrderList onClose={() => closeModal('order-list')} />
+            <OrderList
+              onClose={() => closeModal('order-list')}
+              type='invoice'
+            />
           </DialogContent>
         </Dialog>
       ),
