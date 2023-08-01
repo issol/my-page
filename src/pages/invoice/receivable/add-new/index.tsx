@@ -38,24 +38,15 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
+
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
@@ -82,15 +73,11 @@ import {
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import {
-  InvoiceProjectInfoFormType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -104,6 +91,7 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { createInvoice } from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type languageType = {
   id: number | string
@@ -133,7 +121,7 @@ export const defaultOption: StandardPriceListType & {
 export default function AddNewInvoice() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
   const queryClient = useQueryClient()
 
@@ -507,7 +495,7 @@ export default function AddNewInvoice() {
           // console.log(res)
 
           projectInfoReset({
-            status: 'In preparation' as InvoiceReceivableStatusType,
+            status: 30100,
             invoiceDate: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',

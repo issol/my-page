@@ -3,7 +3,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 import { InvoiceReceivableStatusType } from '../invoice/common.type'
 
 export const invoiceProjectInfoDefaultValue = {
-  status: 'In preparation' as InvoiceReceivableStatusType,
+  status: 30100 as InvoiceReceivableStatusType,
 
   invoiceDate: Date(),
 }

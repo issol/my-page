@@ -45,8 +45,8 @@ type Props = {
   onClose: any
   onClick: any
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
   isUpdatable: boolean
   isDeletable: boolean

@@ -14,24 +14,14 @@ import {
 import {
   InvoiceReceivableChip,
   JobTypeChip,
-  OrderStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import Icon from '@src/@core/components/icon'
-import { OrderStatus } from '@src/shared/const/status/statuses'
 import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
+
 import {
   Control,
   UseFormGetValues,
@@ -58,28 +48,19 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { deleteOrder } from '@src/apis/order-detail.api'
-import toast from 'react-hot-toast'
-import { Router, useRouter } from 'next/router'
-import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 import {
   InvoiceProjectInfoFormType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
-import {
-  invoiceProjectInfoDefaultValue,
-  invoiceProjectInfoSchema,
-} from '@src/types/schema/invoice-project-info.schema'
+
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import {
   InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
-import { InvoiceStatus } from '@glocalize-inc/glodex'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
-import { set } from 'nprogress'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { deleteInvoice } from '@src/apis/invoice/receivable.api'
 
@@ -104,8 +85,8 @@ type Props = {
   invoiceInfoErrors?: FieldErrors<InvoiceProjectInfoFormType>
   isInvoiceInfoValid?: boolean
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
   isUpdatable: boolean
   isDeletable: boolean
@@ -134,19 +115,23 @@ const InvoiceInfo = ({
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [status, setStatus] = useState<string>(invoiceInfo.invoiceStatus)
+  const [status, setStatus] = useState<number>(invoiceInfo.invoiceStatus)
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
+  const statusLabel =
+    statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
+
   const handleChangeStatus = (event: SelectChangeEvent) => {
-    setStatus(event.target.value as string)
+    const value = Number(event.target.value)
+    setStatus(value)
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
       onSave({
         id: invoiceInfo.id,
         form: {
           ...data,
-          invoiceStatus: event.target.value as InvoiceReceivableStatusType,
+          invoiceStatus: value as InvoiceReceivableStatusType,
         },
       })
     }
@@ -321,7 +306,7 @@ const InvoiceInfo = ({
                 watch={invoiceInfoWatch!}
                 errors={invoiceInfoErrors!}
                 clientTimezone={clientTimezone}
-                statusList={statusList!}
+                statusList={statusList || []}
               />
               <Grid item xs={12}>
                 <Box
@@ -443,7 +428,7 @@ const InvoiceInfo = ({
                 {type === 'detail' && isUpdatable ? (
                   <IconButton
                     onClick={() => setEdit!(true)}
-                    disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                    disabled={invoiceInfo.invoiceStatus === 30900}
                   >
                     <Icon icon='mdi:pencil-outline' />
                   </IconButton>
@@ -520,21 +505,21 @@ const InvoiceInfo = ({
                       }}
                     >
                       {type === 'history' ? (
-                        InvoiceReceivableChip(invoiceInfo.invoiceStatus)
+                        InvoiceReceivableChip(
+                          statusLabel,
+                          invoiceInfo.invoiceStatus,
+                        )
                       ) : (
                         <Select
-                          value={status}
+                          value={status.toString()}
                           onChange={handleChangeStatus}
                           size='small'
                           sx={{ width: '253px' }}
                         >
                           {statusList.map(status => {
                             return (
-                              <MenuItem
-                                key={uuidv4()}
-                                value={status.statusName}
-                              >
-                                {status.statusName}
+                              <MenuItem key={uuidv4()} value={status.value}>
+                                {status.label}
                               </MenuItem>
                             )
                           })}
@@ -965,7 +950,7 @@ const InvoiceInfo = ({
                         value={isReminder}
                         onChange={handleChangeIsReminder}
                         checked={isReminder}
-                        disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                        disabled={invoiceInfo.invoiceStatus === 30900}
                       />
 
                       <Typography variant='body2'>

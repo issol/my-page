@@ -27,15 +27,13 @@ import {
   InvoiceReceivableListType,
 } from '@src/types/invoice/receivable.type'
 
-import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
-
 // ** apis
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 const CalendarContainer = () => {
-  // ** States
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-
   // ** Hooks
   const { settings } = useSettings()
 
@@ -43,6 +41,14 @@ const CalendarContainer = () => {
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+
+  const statuses = statusList?.map(i => ({
+    value: i.value,
+    label: i.label,
+    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+  }))
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -84,8 +90,6 @@ const CalendarContainer = () => {
     }
   }, [data])
 
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
-
   return (
     <Box>
       <CalendarWrapper
@@ -107,7 +111,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={InvoiceCalenderStatus}
+          status={statuses || []}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />

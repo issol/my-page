@@ -18,7 +18,6 @@ import ToggleViewButton, {
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
 
 // ** types
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
@@ -28,8 +27,6 @@ import { ConstType } from '@src/pages/onboarding/client-guideline'
 import Filter from './components/list/filter'
 import ReceivableList from './components/list/list'
 import CalendarContainer from './components/calendar'
-
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 
 // ** apis
 import { useGetReceivableList } from '@src/queries/invoice/receivable.query'

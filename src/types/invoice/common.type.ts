@@ -9,14 +9,19 @@ export type InvoicePayableStatusType =
   | 'Canceled'
 
 export type InvoiceReceivableStatusType =
-  | 'In preparation'
-  | 'Checking in progress'
-  | 'Accepted by client'
-  | 'Tax invoice issued'
-  | 'Paid'
-  | 'Overdue'
-  | 'Overdue (Reminder sent)'
-  | 'Canceled'
+  | 30000 //New
+  | 30100 //In preparation
+  | 30200 //Internal review
+  | 30300 //Invoice sent
+  | 30400 //Client review
+  | 30500 //Under revision
+  | 30600 //Revised
+  | 30700 // Invoice confirmed
+  | 30800 //Tax invoice issued
+  | 30900 //Paid
+  | 301000 //Overdue
+  | 301100 //Overdue (Reminder sent)
+  | 301200 //Canceled
 
 export type InvoiceProjectInfoFormType = {
   status: InvoiceReceivableStatusType
@@ -57,7 +62,7 @@ export type ProInvoiceListType = {
 }
 
 export type ProInvoiceListFilterType = {
-  status?: string[]
+  status?: number[]
   invoicedDateFrom?: string
   invoicedDateTo?: string
   payDueDateFrom?: string

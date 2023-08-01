@@ -66,8 +66,8 @@ type Props = {
   errors: FieldErrors<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
 }
 export default function InvoiceProjectInfoForm({
@@ -184,15 +184,10 @@ export default function InvoiceProjectInfoForm({
               fullWidth
               options={statusList}
               onChange={(e, v) => {
-                onChange(v?.statusName ?? '')
+                onChange(v?.value ?? '')
               }}
-              value={
-                statusList.find(item => item.statusName === value) ?? {
-                  id: 0,
-                  statusName: '',
-                }
-              }
-              getOptionLabel={option => option.statusName}
+              value={statusList.find(item => item.value === value) ?? null}
+              getOptionLabel={option => option.label}
               renderInput={params => (
                 <TextField
                   {...params}

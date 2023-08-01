@@ -77,9 +77,9 @@ import {
 import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { invoice_receivable } from '@src/shared/const/permission-class'
+import { useGetStatusList } from '@src/queries/common.query'
 type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
@@ -138,7 +138,7 @@ const ReceivableInvoiceDetail = () => {
     clientId: client?.client.clientId,
   })
   const { data: statusList, isLoading: statusListLoading } =
-    useGetInvoiceStatus()
+    useGetStatusList('InvoiceReceivable')
 
   const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
   const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
@@ -239,7 +239,7 @@ const ReceivableInvoiceDetail = () => {
           user={user!}
           prices={prices!}
           pricesSuccess={isSuccess}
-          statusList={statusList!}
+          statusList={statusList || []}
           isUpdatable={isUpdatable}
           isDeletable={isDeletable}
         />
@@ -720,7 +720,7 @@ const ReceivableInvoiceDetail = () => {
                   clientTimezone={
                     getClientValue('contacts.timezone') ?? user?.timezone!
                   }
-                  statusList={statusList!}
+                  statusList={statusList || []}
                   isUpdatable={isUpdatable}
                   isDeletable={isDeletable}
                 />

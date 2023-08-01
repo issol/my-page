@@ -1,35 +1,20 @@
 import TableCell from '@mui/material/TableCell'
 import TableRow from '@mui/material/TableRow'
 
-import { useState, MouseEvent, SetStateAction, Dispatch } from 'react'
+import { useState } from 'react'
 import KeyboardArrowDownIcon from '@mui/icons-material/KeyboardArrowDown'
 import KeyboardArrowUpIcon from '@mui/icons-material/KeyboardArrowUp'
 import Box from '@mui/material/Box'
-import {
-  ClientStatusChip,
-  ExtraNumberChip,
-  InvoicePayableChip,
-  InvoiceReceivableChip,
-  JobTypeChip,
-  ServiceTypeChip,
-} from '@src/@core/components/chips/chips'
-import IconButton from '@mui/material/IconButton'
-import Icon from 'src/@core/components/icon'
-import MuiMenu, { MenuProps } from '@mui/material/Menu'
-import MuiMenuItem, { MenuItemProps } from '@mui/material/MenuItem'
-import ListItemIcon from '@mui/material/ListItemIcon'
-import ListItemText from '@mui/material/ListItemText'
+import { InvoiceReceivableChip } from '@src/@core/components/chips/chips'
 import Collapse from '@mui/material/Collapse'
 import Grid from '@mui/material/Grid'
 import { styled } from '@mui/material/styles'
 import Typography from '@mui/material/Typography'
-import {
-  ClientInvoiceListType,
-  ClientProjectListType,
-} from '@src/types/client/client-projects.type'
+import { ClientInvoiceListType } from '@src/types/client/client-projects.type'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export default function ClientInvoicesRows(props: {
   row: ClientInvoiceListType
@@ -39,7 +24,10 @@ export default function ClientInvoicesRows(props: {
   isSelected: (index: number) => boolean
 }) {
   const { row, user, selected, handleRowClick, isSelected } = props
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+  const statusLabel =
+    statusList?.find(i => i.value === row.invoiceStatus)?.label || ''
 
   const separateLine = () => {
     return (
@@ -200,8 +188,7 @@ export default function ClientInvoicesRows(props: {
           }}
           size='small'
         >
-          {InvoiceReceivableChip(row.invoiceStatus)}
-          {/* <ClientStatusChip label={row.invoiceStatus} status={'Active'} /> */}
+          {InvoiceReceivableChip(statusLabel, row.invoiceStatus)}
         </TableCell>
       </TableRow>
       <TableRow>

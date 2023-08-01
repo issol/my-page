@@ -407,32 +407,41 @@ export function InvoicePayableChip(status: InvoicePayableStatusType) {
   )
 }
 
-export function InvoiceReceivableChip(status: InvoiceReceivableStatusType) {
+export function InvoiceReceivableChip(
+  label: string,
+  status: InvoiceReceivableStatusType,
+) {
   const color =
-    status === 'In preparation'
+    status === 30000
+      ? '#666CFF'
+      : status === 30100
       ? '#F572D8'
-      : status === 'Checking in progress'
+      : status === 30200
+      ? '#D8AF1D'
+      : status === 30300
+      ? '#547ED1'
+      : status === 30400
       ? '#FDB528'
-      : status === 'Accepted by client'
+      : status === 30500
+      ? '#26C6F9'
+      : status === 30600
+      ? '#AD7028'
+      : status === 30700
       ? '#64C623'
-      : status === 'Tax invoice issued'
-      ? '#46A4C2'
-      : status === 'Paid'
+      : status === 30800
+      ? '#323A42'
+      : status === 30900
       ? '#267838'
-      : status === 'Overdue'
-      ? '#FF4D49'
-      : status === 'Canceled'
-      ? '#FF4D49'
-      : status === 'Overdue (Reminder sent)'
+      : status === 301000 || status === 301100 || status === 301200
       ? '#FF4D49'
       : ''
 
   return (
     <CustomChip
       label={
-        status === 'Overdue' || status === 'Overdue (Reminder sent)'
-          ? `🔴 ${status}`
-          : status
+        status === 301000 || status === 301100 || status === 301200
+          ? `🔴 ${label}`
+          : label
       }
       skin='light'
       sx={{

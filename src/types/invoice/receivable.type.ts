@@ -16,7 +16,7 @@ import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ItemResType } from '../common/orders-and-quotes.type'
 
 export type InvoiceReceivableFilterType = {
-  invoiceStatus?: string[]
+  invoiceStatus?: number[]
   clientId?: string[]
   category?: string[]
   serviceType?: string[]
@@ -201,7 +201,7 @@ export type InvoiceReceivablePatchParamsType = {
   members?: number[]
   contactPersonId?: number
   orderId?: number
-  invoiceStatus?: string
+  invoiceStatus?: number
   invoicedAt?: string
   payDueAt?: string
   description?: string
