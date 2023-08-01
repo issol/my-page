@@ -545,6 +545,7 @@ export default function AddNewInvoice() {
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item.dueAt,
               contactPersonId: item.contactPersonId,
+              showItemDescription: item.showItemDescription,
             }
           })
           itemReset({ items: result })
