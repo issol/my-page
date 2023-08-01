@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 
 // ** style components
 import { Box, Tooltip, Typography } from '@mui/material'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import {
   ExtraNumberChip,
@@ -22,6 +22,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 import { useGetStatusList } from '@src/queries/common.query'
+import { UserRoleType } from '@src/context/types'
 
 type CellType = {
   row: InvoiceReceivableListType
@@ -37,6 +38,7 @@ type Props = {
     totalCount: number
   }
   isLoading: boolean
+  role: UserRoleType
 }
 
 export default function ReceivableList({
@@ -46,6 +48,7 @@ export default function ReceivableList({
   setPageSize,
   list,
   isLoading,
+  role,
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
@@ -70,7 +73,7 @@ export default function ReceivableList({
   const columns: GridColumns<InvoiceReceivableListType> = [
     {
       field: 'corporationId',
-      minWidth: 182,
+      minWidth: 130,
       headerName: 'No.',
       disableColumnMenu: true,
       renderHeader: () => <Box>No.</Box>,
@@ -86,7 +89,7 @@ export default function ReceivableList({
     },
     {
       field: 'Status',
-      minWidth: 182,
+      minWidth: 240,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -98,9 +101,12 @@ export default function ReceivableList({
     },
     {
       field: 'Client / Email',
-      minWidth: 182,
+      minWidth: 260,
       disableColumnMenu: true,
       sortable: false,
+      renderHeader: () => (
+        <Box>{role.name === 'CLIENT' ? 'LSP / Email' : 'Client / Email'}</Box>
+      ),
       renderCell: ({ row }: CellType) => {
         return (
           <Box>
@@ -116,7 +122,7 @@ export default function ReceivableList({
     },
     {
       field: 'Project name',
-      minWidth: 182,
+      minWidth: 290,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
@@ -131,12 +137,12 @@ export default function ReceivableList({
     },
     {
       field: 'Category / Service type',
-      minWidth: 182,
+      minWidth: 420,
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
         return (
-          <Box sx={{ display: 'flex', gap: '8px', overflow: 'scroll' }}>
+          <Box sx={{ display: 'flex', gap: '8px' }}>
             {row.order?.category ? (
               <JobTypeChip
                 size='small'
@@ -169,7 +175,7 @@ export default function ReceivableList({
     },
     {
       field: 'invoicedAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
       renderHeader: () => <Box>Invoice date</Box>,
       renderCell: ({ row }: CellType) => {
@@ -183,7 +189,7 @@ export default function ReceivableList({
     },
     {
       field: 'payDueAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
       renderHeader: () => <Box>Payment due</Box>,
       renderCell: ({ row }: CellType) => {
@@ -200,8 +206,9 @@ export default function ReceivableList({
     },
     {
       field: 'paidAt',
-      minWidth: 182,
+      minWidth: 280,
       disableColumnMenu: true,
+      hide: role.name === 'CLIENT',
       renderHeader: () => <Box>Payment date</Box>,
       renderCell: ({ row }: CellType) => {
         const date = FullDateTimezoneHelper(
@@ -217,7 +224,7 @@ export default function ReceivableList({
     },
     {
       field: 'totalPrice',
-      minWidth: 182,
+      minWidth: 130,
       disableColumnMenu: true,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: CellType) => {
@@ -265,7 +272,14 @@ export default function ReceivableList({
           NoRowsOverlay: () => NoList(),
           NoResultsOverlay: () => NoList(),
         }}
-        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        sx={{
+          overflowX: 'scroll',
+          cursor: 'pointer',
+          [`& .${gridClasses.row}.disabled`]: {
+            opacity: 0.5,
+            cursor: 'not-allowed',
+          },
+        }}
         columns={columns}
         rows={list.data}
         rowCount={list.totalCount}
@@ -281,6 +295,14 @@ export default function ReceivableList({
         onPageChange={setSkip}
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+        getRowClassName={params =>
+          role.name === 'CLIENT' && params.row.invoiceStatus === 30500
+            ? 'disabled'
+            : 'normal'
+        }
+        isRowSelectable={params =>
+          role.name === 'CLIENT' && params.row.invoiceStatus !== 30500
+        }
       />
     </Box>
   )

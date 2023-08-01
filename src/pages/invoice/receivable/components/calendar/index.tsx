@@ -31,11 +31,15 @@ import {
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
 import { useGetStatusList } from '@src/queries/common.query'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
+// import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 const CalendarContainer = () => {
   // ** Hooks
   const { settings } = useSettings()
+
+  const currentRole = getCurrentRole()
 
   // ** calendar values
   const leftSidebarWidth = 260
@@ -176,6 +180,7 @@ const CalendarContainer = () => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            role={currentRole!}
           />
         </Box>
       )}

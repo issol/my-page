@@ -820,6 +820,8 @@ export default function ItemForm({
       >
         <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
         {(type === 'invoiceDetail' || type === 'detail') &&
+        currentRole &&
+        currentRole.name !== 'CLIENT' &&
         orderId &&
         fields.length ? (
           <Link

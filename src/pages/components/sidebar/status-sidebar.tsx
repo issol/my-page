@@ -53,10 +53,24 @@ export default function CalendarStatusSideBar({
                 <BoxFeature
                   key={item.value}
                   bg={item.color}
-                  $bgSize={item.label === alertIconStatus ? '5px 5px' : ''}
-                  color={item.label === alertIconStatus ? item.color : ''}
+                  $bgSize={
+                    item.label === alertIconStatus ||
+                    item.label === 'Overdue' ||
+                    item.label === 'Overdue (Reminder sent)'
+                      ? '5px 5px'
+                      : ''
+                  }
+                  color={
+                    item.label === alertIconStatus ||
+                    item.label === 'Overdue' ||
+                    item.label === 'Overdue (Reminder sent)'
+                      ? item.color
+                      : ''
+                  }
                 >
-                  {item.label === alertIconStatus
+                  {item.label === alertIconStatus ||
+                  item.label === 'Overdue' ||
+                  item.label === 'Overdue (Reminder sent)'
                     ? `🔴 ${item.label}`
                     : item.label}
                 </BoxFeature>

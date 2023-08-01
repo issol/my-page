@@ -1,4 +1,5 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
@@ -9,6 +10,8 @@ import {
   MenuItem,
   Select,
   SelectChangeEvent,
+  TextField,
+  Tooltip,
   Typography,
 } from '@mui/material'
 import {
@@ -22,6 +25,19 @@ import {
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 
+import {
+  OrderProjectInfoFormType,
+  OrderStatusType,
+} from '@src/types/common/orders.type'
+import {
+  ClientType,
+  DeliveryFileType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
 import {
   Control,
   UseFormGetValues,
@@ -37,6 +53,7 @@ import {
   ChangeEvent,
   Dispatch,
   SetStateAction,
+  useContext,
   useEffect,
   useState,
 } from 'react'
@@ -62,6 +79,18 @@ import InformationModal from '@src/@core/components/common-modal/information-mod
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { deleteInvoice } from '@src/apis/invoice/receivable.api'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { ReasonType } from '@src/types/quotes/quote'
+import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import invoice from '@src/store/invoice'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
+import { getClientDetail } from '@src/apis/client.api'
+import { formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
   type: string
@@ -89,6 +118,7 @@ type Props = {
   }[]
   isUpdatable: boolean
   isDeletable: boolean
+  client?: ClientType
 }
 const InvoiceInfo = ({
   type,
@@ -110,8 +140,11 @@ const InvoiceInfo = ({
   statusList,
   isUpdatable,
   isDeletable,
+  client,
 }: Props) => {
   const { openModal, closeModal } = useModal()
+
+  const currentRole = getCurrentRole()
   const router = useRouter()
   const queryClient = useQueryClient()
   const [status, setStatus] = useState<number>(invoiceInfo.invoiceStatus)
@@ -120,6 +153,35 @@ const InvoiceInfo = ({
 
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
+  const [fileSize, setFileSize] = useState(0)
+  const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
+
+  const { user } = useContext(AuthContext)
+
+  const [contactPersonEdit, setContactPersonEdit] = useState(false)
+  const [contactPersonId, setContactPersonId] = useState<number | null>(null)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<
+      ContactPersonType<number> & {
+        value: number
+        label: string
+      }
+    >
+  >([])
+
+  const onClickReason = (status: string, reason: ReasonType | null) => {
+    openModal({
+      type: `${status}ReasonModal`,
+      children: (
+        <ReasonModal
+          onClose={() => closeModal(`${status}ReasonModal`)}
+          reason={reason}
+          type={status}
+          vary='info'
+        />
+      ),
+    })
+  }
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
     const value = Number(event.target.value)
@@ -217,9 +279,127 @@ const InvoiceInfo = ({
     }
   }
 
+  const onClickEditSaveContactPerson = () => {
+    // TODO api
+    if (onSave) {
+      onSave({
+        id: invoiceInfo.id,
+        form: { contactPersonId: contactPersonId! },
+      })
+    }
+  }
+
   const handleDeleteInvoice = () => {
     deleteInvoiceMutation.mutate(invoiceInfo.id)
   }
+
+  function fetchFile(fileName: string) {
+    // TODO File path 논의되면 수정하기
+    const path = getFilePath(['delivery', invoiceInfo.id.toString()], fileName)
+
+    getDownloadUrlforCommon(S3FileType.TAX_INVOICE, path).then(res => {
+      fetch(res.url, { method: 'GET' })
+        .then(res => {
+          return res.blob()
+        })
+        .then(blob => {
+          const url = window.URL.createObjectURL(blob)
+          const a = document.createElement('a')
+          a.href = url
+          a.download = `${fileName}`
+          document.body.appendChild(a)
+          a.click()
+          setTimeout((_: any) => {
+            window.URL.revokeObjectURL(url)
+          }, 60000)
+          a.remove()
+        })
+        .catch(err =>
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          ),
+        )
+    })
+  }
+
+  function downloadOneFile(file: DeliveryFileType) {
+    fetchFile(file.fileName)
+  }
+
+  function downloadAllFiles(files: Array<DeliveryFileType> | [] | undefined) {
+    if (!files || !files.length) return
+
+    files.forEach(file => {
+      fetchFile(file.fileName)
+    })
+  }
+
+  const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
+    <Box key={uuidv4()}>
+      <Typography
+        variant='body2'
+        fontSize={14}
+        fontWeight={400}
+        sx={{ mb: '5px' }}
+      >
+        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
+      </Typography>
+      <Box
+        sx={{
+          display: 'flex',
+          marginBottom: '8px',
+          width: '100%',
+          justifyContent: 'space-between',
+          borderRadius: '8px',
+          padding: '10px 12px',
+          border: '1px solid rgba(76, 78, 100, 0.22)',
+          background: '#f9f8f9',
+        }}
+      >
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ marginRight: '8px', display: 'flex' }}>
+            <Icon
+              icon='material-symbols:file-present-outline'
+              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+              fontSize={24}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Tooltip title={file.fileName}>
+              <Typography
+                variant='body1'
+                fontSize={14}
+                fontWeight={600}
+                lineHeight={'20px'}
+                sx={{
+                  overflow: 'hidden',
+                  wordBreak: 'break-all',
+                  textOverflow: 'ellipsis',
+                  display: '-webkit-box',
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: 'vertical',
+                }}
+              >
+                {file.fileName}
+              </Typography>
+            </Tooltip>
+
+            <Typography variant='caption' lineHeight={'14px'}>
+              {formatFileSize(file.fileSize)}
+            </Typography>
+          </Box>
+        </Box>
+        {savedFiles.length ? null : (
+          <IconButton onClick={() => downloadOneFile(file)}>
+            <Icon icon='mdi:download' fontSize={24} />
+          </IconButton>
+        )}
+      </Box>
+    </Box>
+  ))
 
   useEffect(() => {
     if (invoiceInfo && invoiceInfoReset) {
@@ -267,6 +447,59 @@ const InvoiceInfo = ({
       invoiceInfoReset(res)
     }
   }, [invoiceInfo, invoiceInfoReset, clientTimezone])
+
+  useEffect(() => {
+    if (client) {
+      setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
+
+      getClientDetail(client.client.clientId)
+        .then(res => {
+          if (res?.contactPersons?.length) {
+            const result: Array<
+              ContactPersonType<number> & {
+                value: number
+                label: string
+              }
+            > = res.contactPersons.map(item => ({
+              ...item,
+              value: item.id!,
+              label: !item?.jobTitle
+                ? getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })
+                : `${getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })} / ${item.jobTitle}`,
+            }))
+            setContactPersonList(result)
+          } else {
+            setContactPersonList([])
+          }
+        })
+        .catch(e => {
+          setContactPersonList([])
+        })
+    }
+  }, [client])
+
+  useEffect(() => {
+    let result = 0
+
+    savedFiles.forEach(
+      (file: { fileSize: number }) => (result += file.fileSize),
+    )
+    setFileSize(result)
+  }, [savedFiles])
+
+  useEffect(() => {
+    if (invoiceInfo?.taxInvoiceFiles?.length) {
+      setSavedFiles(invoiceInfo.taxInvoiceFiles)
+    }
+  }, [invoiceInfo])
 
   const onClickDelete = () => {
     openModal({
@@ -414,7 +647,10 @@ const InvoiceInfo = ({
                 <Typography variant='h6'>
                   An Unexpected Proposal 1-10
                 </Typography>
-                {type === 'detail' && isUpdatable ? (
+                {type === 'detail' &&
+                isUpdatable &&
+                currentRole &&
+                currentRole.name !== 'CLIENT' ? (
                   <IconButton
                     onClick={() => setEdit!(true)}
                     disabled={invoiceInfo.invoiceStatus === 30900}
@@ -498,6 +734,32 @@ const InvoiceInfo = ({
                           statusLabel,
                           invoiceInfo.invoiceStatus,
                         )
+                      ) : currentRole && currentRole.name === 'CLIENT' ? (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          {InvoiceReceivableChip(
+                            statusLabel,
+                            invoiceInfo.invoiceStatus,
+                          )}
+                          {invoiceInfo.invoiceStatus === 301200 && (
+                            <IconButton
+                              onClick={() => {
+                                invoiceInfo.reason &&
+                                  onClickReason('Canceled', invoiceInfo.reason)
+                              }}
+                            >
+                              <img
+                                src='/images/icons/onboarding-icons/more-reason.svg'
+                                alt='more'
+                              />
+                            </IconButton>
+                          )}
+                        </Box>
                       ) : (
                         <Select
                           value={status.toString()}
@@ -517,6 +779,134 @@ const InvoiceInfo = ({
                     </Box>
                   </Box>
                 </Box>
+                {currentRole && currentRole.name === 'CLIENT' ? (
+                  <Box sx={{ display: 'flex' }}>
+                    <Box sx={{ display: 'flex', width: '50%' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '8px',
+                          alignItems: 'center',
+
+                          width: '25.21%',
+                        }}
+                      >
+                        <Typography fontSize={14} fontWeight={600}>
+                          Contact person
+                        </Typography>
+                      </Box>
+                      {contactPersonEdit ? (
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '10px',
+                            width: '300px',
+                          }}
+                        >
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            options={contactPersonList
+                              .filter(item => item.id !== contactPersonId)
+                              .map(value => ({
+                                value: value.value,
+                                label: value.label,
+                              }))}
+                            onChange={(e, v) => {
+                              // onChange(v.value)
+                              const res = contactPersonList.filter(
+                                item => item.id === Number(v.value),
+                              )
+                              setContactPersonId(
+                                res.length ? res[0].id! : Number(v.value)!,
+                              )
+                            }}
+                            disableClearable
+                            // disabled={type === 'request'}
+                            value={
+                              contactPersonList
+                                .filter(value => value.id === contactPersonId)
+                                .map(value => ({
+                                  value: value.value,
+                                  label: value.label,
+                                }))[0] || { value: '', label: '' }
+                            }
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                size='small'
+                                placeholder='Select a member'
+                                // label='Contact person*'
+                                inputProps={{
+                                  ...params.inputProps,
+                                }}
+                              />
+                            )}
+                          />
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '5px',
+                              alignItems: 'center',
+                            }}
+                          >
+                            <Button
+                              variant='outlined'
+                              sx={{
+                                width: '26px !important',
+                                height: '26px',
+                                minWidth: '26px !important',
+                                padding: '0 !important',
+                                border: 'none',
+                                color: 'rgba(76, 78, 100, 0.6)',
+                              }}
+                              onClick={() => setContactPersonEdit(false)}
+                            >
+                              <Icon icon='ic:outline-close' fontSize={20} />
+                            </Button>
+                            <Button
+                              variant='contained'
+                              sx={{
+                                width: '26px !important',
+                                height: '26px',
+                                minWidth: '26px !important',
+                                padding: '0 !important',
+                              }}
+                              onClick={onClickEditSaveContactPerson}
+                            >
+                              <Icon icon='mdi:check' fontSize={20} />
+                            </Button>
+                          </Box>
+                        </Box>
+                      ) : (
+                        <Typography
+                          variant='body2'
+                          sx={{
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '10px',
+                          }}
+                        >
+                          {getLegalName({
+                            firstName: client?.contactPerson?.firstName,
+                            middleName: client?.contactPerson?.middleName,
+                            lastName: client?.contactPerson?.lastName,
+                          })}
+                          {client?.contactPerson?.jobTitle
+                            ? ` / ${client?.contactPerson?.jobTitle}`
+                            : ''}
+                          {type === 'history' ? null : (
+                            <IconButton
+                              onClick={() => setContactPersonEdit(true)}
+                            >
+                              <Icon icon='mdi:pencil-outline' />
+                            </IconButton>
+                          )}
+                        </Typography>
+                      )}
+                    </Box>
+                  </Box>
+                ) : null}
                 <Divider />
                 <Box
                   sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}
@@ -803,85 +1193,91 @@ const InvoiceInfo = ({
                     </Box>
                   </Box>
                 </Box>
-                <Divider />
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '33.28%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Revenue from
-                      </Typography>
+
+                {currentRole && currentRole.name === 'CLIENT' ? null : (
+                  <>
+                    <Divider />
+                    <Box sx={{ display: 'flex' }}>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '33.28%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Revenue from
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '66.62%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
+                            }}
+                          >
+                            {invoiceInfo.revenueFrom ?? '-'}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '25.21%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Tax type
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '73.45%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
+                            }}
+                          >
+                            {invoiceInfo.isTaxable ? 'Taxable' : 'Non-taxable'}
+                          </Typography>
+                        </Box>
+                      </Box>
                     </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '66.62%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {invoiceInfo.revenueFrom ?? '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Tax type
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {invoiceInfo.isTaxable ? 'Taxable' : 'Non-taxable'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
+                  </>
+                )}
+
                 <Divider />
                 <Box sx={{ width: '100%' }}>
                   <Box
@@ -925,13 +1321,17 @@ const InvoiceInfo = ({
                           width: '100%',
                         }}
                       >
-                        {invoiceInfo.description}
+                        {invoiceInfo.description ||
+                        invoiceInfo.description !== ''
+                          ? invoiceInfo.description
+                          : '-'}
                       </Typography>
                     </Box>
                   </Box>
                 </Box>
 
-                {type === 'history' ? null : (
+                {type === 'history' ||
+                (currentRole && currentRole.name === 'CLIENT') ? null : (
                   <>
                     <Divider />
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -970,7 +1370,8 @@ const InvoiceInfo = ({
               </Box>
             </Box>
           </Card>
-          {type === 'history' ? null : (
+          {type === 'history' ||
+          (currentRole && currentRole.name === 'CLIENT') ? null : (
             <Card sx={{ padding: '24px' }}>
               <Box
                 sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
@@ -1222,10 +1623,60 @@ const InvoiceInfo = ({
               </Box>
             </Card>
           )}
+          {currentRole &&
+          currentRole.name === 'CLIENT' &&
+          type !== 'history' ? (
+            <Card sx={{ padding: '24px' }}>
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
+              >
+                <Box
+                  sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Typography variant='body1' fontWeight={600}>
+                      Tax invoice
+                    </Typography>
+                    <Typography variant='caption'>
+                      {formatFileSize(fileSize).toLowerCase()}/2 gb
+                    </Typography>
+                  </Box>
+                  <Box sx={{ display: 'flex', gap: '16px' }}>
+                    <Button
+                      variant='outlined'
+                      disabled={savedFiles.length < 1}
+                      sx={{
+                        height: '34px',
+                      }}
+                      onClick={() => downloadAllFiles(savedFiles)}
+                    >
+                      <Icon icon='mdi:download' fontSize={18} />
+                      &nbsp;Download all
+                    </Button>
+                  </Box>
+                </Box>
+                {savedFiles.length ? (
+                  <Box
+                    sx={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(3,1fr)',
+                      gridGap: '16px',
+                    }}
+                  >
+                    {savedFileList}
+                  </Box>
+                ) : (
+                  '-'
+                )}
+              </Box>
+            </Card>
+          ) : null}
         </Box>
       )}
 
-      {edit || type === 'history' ? null : (
+      {edit ||
+      type === 'history' ||
+      (currentRole && currentRole.name === 'CLIENT') ? null : (
         <Grid xs={12} container>
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>

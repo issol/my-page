@@ -20,6 +20,7 @@ import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import { useGetLangItem } from '@src/queries/order/order.query'
+import { getCurrentRole } from '@src/shared/auth/storage'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import languageHelper from '@src/shared/helpers/language.helper'
 import {
@@ -120,6 +121,8 @@ const InvoiceLanguageAndItem = ({
 
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
 
+  const currentRole = getCurrentRole()
+
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
     const filteredList = prices
@@ -189,15 +192,18 @@ const InvoiceLanguageAndItem = ({
           width: '100%',
         }}
       ></Box>
-      <Grid item xs={12}>
-        <AddLanguagePairForm
-          languagePairs={languagePairs}
-          setLanguagePairs={setLanguagePairs}
-          getPriceOptions={getPriceOptions}
-          type={'detail'}
-          onDeleteLanguagePair={onDeleteLanguagePair}
-        />
-      </Grid>
+      {currentRole && currentRole.name === 'CLIENT' ? null : (
+        <Grid item xs={12}>
+          <AddLanguagePairForm
+            languagePairs={languagePairs}
+            setLanguagePairs={setLanguagePairs}
+            getPriceOptions={getPriceOptions}
+            type={'detail'}
+            onDeleteLanguagePair={onDeleteLanguagePair}
+          />
+        </Grid>
+      )}
+
       <Grid item xs={12} mt={6} mb={6}>
         <ItemForm
           control={itemControl}

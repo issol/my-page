@@ -25,6 +25,7 @@ import {
   SyntheticEvent,
   useContext,
   useEffect,
+  Suspense,
 } from 'react'
 import TabPanel from '@mui/lab/TabPanel'
 import { Icon } from '@iconify/react'
@@ -72,7 +73,7 @@ import {
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
-import { setInvoice, setInvoiceLang } from '@src/store/invoice'
+import { setInvoice, setInvoiceLang, setIsReady } from '@src/store/invoice'
 import SelectTemplateLanguageModal from '@src/@core/components/common-modal/select-template-language-modal'
 import InvoicePreview from './components/invoice-preview'
 import {
@@ -86,13 +87,28 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { invoice_receivable } from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StyledNextLink } from '@src/@core/components/customLink'
-type MenuType = 'invoiceInfo' | 'history' | 'team' | 'client' | 'item'
+
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { InvoiceReceivableChip } from '@src/@core/components/chips/chips'
+import ClientInvoice from './components/client-invoice'
+import { StandardPriceListType } from '@src/types/common/standard-price'
+import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import PrintInvoicePage from './invoice-print/print-page'
+
+type MenuType =
+  | 'invoice'
+  | 'invoiceInfo'
+  | 'history'
+  | 'team'
+  | 'client'
+  | 'item'
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
   const { user } = useContext(AuthContext)
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
+  const currentRole = getCurrentRole()
 
   const queryClient = useQueryClient()
 
@@ -101,6 +117,12 @@ const ReceivableInvoiceDetail = () => {
   const [langItemsEdit, setLangItemsEdit] = useState(false)
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const invoice = useAppSelector(state => state.invoice)
+
+  const [downloadData, setDownloadData] = useState<InvoiceDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
   const [projectTeamListPageSize, setProjectTeamListPageSize] =
@@ -113,7 +135,7 @@ const ReceivableInvoiceDetail = () => {
 
   const [clientEdit, setClientEdit] = useState(false)
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-  const [value, setValue] = useState<MenuType>('invoiceInfo')
+  const [value, setValue] = useState<MenuType>('invoice')
   const { openModal, closeModal } = useModal()
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -162,10 +184,15 @@ const ReceivableInvoiceDetail = () => {
   const { data: statusList, isLoading: statusListLoading } =
     useGetStatusList('InvoiceReceivable')
 
+  const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
   const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
 
   const invoiceStatus = invoiceInfo?.invoiceStatus
+  const statusLabel = statusList?.find(
+    i => i.value === invoiceInfo?.invoiceStatus,
+  )?.label
+
   const isDownloadBtnVisible =
     invoiceStatus !== 30500 &&
     invoiceStatus !== 30000 &&
@@ -433,29 +460,26 @@ const ReceivableInvoiceDetail = () => {
       }))
     return [defaultOption].concat(filteredList)
   }
-
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    makePdfData()
     dispatch(setInvoiceLang(lang))
-    openModal({
-      type: 'PreviewModal',
-      children: (
-        <InvoicePreview
-          onClose={() => closeModal('PreviewModal')}
-          data={invoice.invoiceTotalData!}
-          lang={lang}
-        />
-      ),
-    })
-  }
+    dispatch(setInvoice(downloadData))
 
+    closeModal('PreviewModal')
+  }
   const onClickDownloadInvoice = () => {
     openModal({
-      type: 'DownloadOrderModal',
+      type: 'DownloadInvoiceModal',
       children: (
         <SelectTemplateLanguageModal
-          onClose={() => closeModal('DownloadOrderModal')}
+          onClose={() => closeModal('DownloadInvoiceModal')}
           onClick={onClickPreview}
           page={'invoice'}
+          clientInvoiceLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
         />
       ),
     })
@@ -499,18 +523,21 @@ const ReceivableInvoiceDetail = () => {
   }, [client, clientReset])
 
   useEffect(() => {
-    if (langItem) {
+    if (langItem && prices) {
+      console.log(langItem)
+      console.log(prices)
+
       setLanguagePairs(
-        langItem?.languagePairs?.map(item => ({
-          id: String(item.id),
-          source: item.source,
-          target: item.target,
-          price: !item?.price
-            ? null
-            : getPriceOptions(item.source, item.target).filter(
-                price => price.id === item?.price?.id!,
-              )[0],
-        }))!,
+        langItem?.languagePairs?.map(item => {
+          return {
+            id: String(item.id),
+            source: item.source,
+            target: item.target,
+            price: !item.price
+              ? null
+              : prices?.find(price => price.id === item?.price?.id) || null,
+          }
+        }),
       )
       const result = langItem?.items?.map(item => {
         return {
@@ -550,28 +577,26 @@ const ReceivableInvoiceDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem, projectTeam])
+  }, [langItem, projectTeam, prices])
 
-  useEffect(() => {
-    if (
-      !invoiceInfoIsLoading &&
-      !projectTeamLoading &&
-      !clientLoading &&
-      !langItemLoading &&
-      langItem &&
-      prices
-    ) {
+  function makePdfData() {
+    if (langItem) {
       const pm = projectTeam!.find(value => value.position === 'projectManager')
-      const priceInfo = prices?.find(
-        value => value.id === langItem.items[0].priceId,
-      )
+
+      const subtotal = langItem.items.reduce((acc, cur) => {
+        return acc + cur.totalPrice
+      }, 0)
+
+      const tax = subtotal * (invoiceInfo!.tax! / 100)
+
+      console.log(tax)
 
       const res: InvoiceDownloadData = {
         invoiceId: Number(id!),
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo!.orderCorporationId,
+        orderCorporationId: invoiceInfo!.linkedOrder?.corporationId,
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
@@ -589,71 +614,131 @@ const ReceivableInvoiceDetail = () => {
         contactPerson: client!.contactPerson,
         clientAddress: client!.clientAddress,
         langItem: langItem!,
-        subtotal: formatCurrency(
-          formatByRoundingProcedure(
-            langItem.items.reduce((acc, cur) => {
-              return acc + cur.totalPrice
-            }, 0),
-            priceInfo?.decimalPlace!,
-            priceInfo?.roundingProcedure!,
-            priceInfo?.currency!,
-          ),
-          priceInfo?.currency!,
-        ),
+        subtotal: priceInfo
+          ? formatCurrency(
+              formatByRoundingProcedure(
+                subtotal,
+                priceInfo?.decimalPlace!,
+                priceInfo?.roundingProcedure!,
+                priceInfo?.currency!,
+              ),
+              priceInfo?.currency!,
+            )
+          : '',
         taxPercent: invoiceInfo!.tax,
-        tax: invoiceInfo!.isTaxable
-          ? formatCurrency(
-              formatByRoundingProcedure(
-                langItem.items.reduce((acc, cur) => {
-                  return acc + cur.totalPrice
-                }, 0) *
-                  (getInvoiceInfo().tax! / 100),
-                priceInfo?.decimalPlace!,
-                priceInfo?.roundingProcedure!,
+        tax:
+          invoiceInfo!.isTaxable && priceInfo
+            ? formatCurrency(
+                formatByRoundingProcedure(
+                  tax,
+                  priceInfo?.decimalPlace!,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency!,
+                ),
                 priceInfo?.currency!,
+              )
+            : null,
+        total:
+          invoiceInfo!.isTaxable && priceInfo
+            ? formatCurrency(
+                formatByRoundingProcedure(
+                  subtotal - tax,
+                  priceInfo?.decimalPlace ?? 0,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency ?? 'USD',
+                ),
+                priceInfo?.currency ?? 'USD',
+              )
+            : formatCurrency(
+                formatByRoundingProcedure(
+                  subtotal,
+                  priceInfo?.decimalPlace ?? 0,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency ?? 'USD',
+                ),
+                priceInfo?.currency ?? 'USD',
               ),
-              priceInfo?.currency!,
-            )
-          : null,
-        total: invoiceInfo!.isTaxable
-          ? formatCurrency(
-              formatByRoundingProcedure(
-                langItem.items.reduce((acc, cur) => {
-                  return acc + cur.totalPrice
-                }, 0) *
-                  (getInvoiceInfo().tax! / 100) +
-                  items.reduce((acc, cur) => {
-                    return acc + cur.totalPrice
-                  }, 0),
-                priceInfo?.decimalPlace!,
-                priceInfo?.roundingProcedure!,
-                priceInfo?.currency!,
-              ),
-              priceInfo?.currency!,
-            )
-          : formatCurrency(
-              formatByRoundingProcedure(
-                items.reduce((acc, cur) => {
-                  return acc + cur.totalPrice
-                }, 0),
-                priceInfo?.decimalPlace!,
-                priceInfo?.roundingProcedure!,
-                priceInfo?.currency!,
-              ),
-              priceInfo?.currency!,
-            ),
       }
-      dispatch(setInvoice(res))
+      setDownloadData(res)
     }
-  }, [
-    dispatch,
-    invoiceInfoIsLoading,
-    projectTeamLoading,
-    clientLoading,
-    langItemLoading,
-    langItem,
-    prices,
-  ])
+  }
+
+  console.log(downloadData)
+
+  function handlePrint() {
+    closeModal('DownloadInvoiceModal')
+    router.push('/invoice/receivable/detail/invoice-print')
+  }
+
+  useEffect(() => {
+    if (invoiceInfo && client && langItem && projectTeam && prices)
+      makePdfData()
+  }, [invoiceInfo, client, langItem, projectTeam, prices, priceInfo])
+
+  useEffect(() => {
+    if (languagePairs && prices) {
+      const priceInfo =
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+
+      setPriceInfo(priceInfo)
+    }
+  }, [prices, languagePairs])
+
+  useEffect(() => {
+    if (invoice.isReady && invoice.invoiceTotalData) {
+      openModal({
+        type: 'PreviewModal',
+        isCloseable: false,
+        children: (
+          <Box
+            sx={{
+              width: '789px',
+              height: '95vh',
+              overflow: 'scroll',
+              background: '#ffffff',
+              boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+              paddingBottom: '24px',
+            }}
+          >
+            <div className='page'>
+              <PrintInvoicePage
+                data={invoice.invoiceTotalData}
+                type='preview'
+                user={user!}
+                lang={invoice.lang}
+              />
+            </div>
+
+            <Box display='flex' justifyContent='center' gap='10px'>
+              <Button
+                variant='outlined'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setIsReady(false))
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  handlePrint()
+                  closeModal('PreviewModal')
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          </Box>
+        ),
+      })
+    }
+  }, [invoice.isReady])
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {
@@ -664,111 +749,141 @@ const ReceivableInvoiceDetail = () => {
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-        <Box
-          sx={{
-            width: '100%',
-            display: 'flex',
-            background: '#ffffff',
-            alignItems: 'center',
-            justifyContent: 'space-between',
-            padding: '20px',
-          }}
-        >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            {invoiceInfoEdit ? null : (
-              <IconButton
-                sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/invoice/receivable')}
-              >
-                <Icon icon='mdi:chevron-left' width={24} height={24} />
-              </IconButton>
-            )}
+        {invoiceInfo && !invoiceInfoIsLoading ? (
+          <>
+            <Box
+              sx={{
+                width: '100%',
+                display: 'flex',
+                background: '#ffffff',
+                alignItems: 'center',
+                justifyContent: 'space-between',
+                padding: '20px',
+              }}
+            >
+              {isEditing ? null : (
+                <IconButton
+                  sx={{ padding: '0 !important', height: '24px' }}
+                  onClick={() => router.push('/invoice/receivable')}
+                >
+                  <Icon icon='mdi:chevron-left' width={24} height={24} />
+                </IconButton>
+              )}
 
-            <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-              <Typography variant='h5'>{invoiceInfo?.corporationId}</Typography>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
+                <Typography variant='h5'>
+                  {invoiceInfo?.corporationId}
+                </Typography>
+              </Box>
+
+              {isEditing ? null : (
+                <div>
+                  <IconButton
+                    aria-label='more'
+                    aria-haspopup='true'
+                    onClick={handleMenuClick}
+                  >
+                    <Icon icon='mdi:dots-vertical' />
+                  </IconButton>
+                  <Menu
+                    keepMounted
+                    id='link menu'
+                    anchorEl={anchorEl}
+                    onClose={handleMenuClose}
+                    open={Boolean(anchorEl)}
+                    PaperProps={{
+                      style: {
+                        maxHeight: 48 * 4.5,
+                      },
+                    }}
+                  >
+                    <MenuItem onClick={handleMenuClose}>
+                      <StyledNextLink
+                        href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                        color='black'
+                      >
+                        Linked order : {invoiceInfo?.orderCorporationId}
+                      </StyledNextLink>
+                    </MenuItem>
+                  </Menu>
+                </div>
+              )}
             </Box>
+            {isEditing ||
+            (currentRole && currentRole.name === 'CLIENT') ? null : (
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                }}
+              >
+                <Button
+                  variant='outlined'
+                  sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  disabled={!isDownloadBtnVisible}
+                  onClick={onClickDownloadInvoice}
+                >
+                  <Icon icon='mdi:download' fontSize={20} />
+                  Download invoice
+                </Button>
+              </Box>
+            )}
 
             {isEditing ? null : (
-              <div>
-                <IconButton
-                  aria-label='more'
-                  aria-haspopup='true'
-                  onClick={handleMenuClick}
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                }}
+              >
+                <Button
+                  variant='outlined'
+                  sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                  disabled={!isConfirmBtnVisible}
+                  onClick={onClickConfirmInvoice}
                 >
-                  <Icon icon='mdi:dots-vertical' />
-                </IconButton>
-                <Menu
-                  keepMounted
-                  id='link menu'
-                  anchorEl={anchorEl}
-                  onClose={handleMenuClose}
-                  open={Boolean(anchorEl)}
-                  PaperProps={{
-                    style: {
-                      maxHeight: 48 * 4.5,
-                    },
-                  }}
-                >
-                  <MenuItem onClick={handleMenuClose}>
-                    <StyledNextLink
-                      href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
-                      color='black'
-                    >
-                      Linked order : {invoiceInfo?.orderCorporationId}
-                    </StyledNextLink>
-                  </MenuItem>
-                </Menu>
-              </div>
+                  <Icon icon='mdi:download' fontSize={20} />
+                  Confirm invoice
+                </Button>
+              </Box>
             )}
-          </Box>
 
-          {isEditing ? null : (
             <Box
               sx={{
                 display: 'flex',
-                gap: '16px',
                 alignItems: 'center',
+                gap: '8px',
               }}
             >
-              <Button
-                variant='outlined'
-                sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                disabled={!isDownloadBtnVisible}
-                onClick={onClickDownloadInvoice}
-              >
-                <Icon icon='mdi:download' fontSize={20} />
-                Download invoice
-              </Button>
-            </Box>
-          )}
+              {isEditing ? null : (
+                <IconButton
+                  sx={{ padding: '0 !important', height: '24px' }}
+                  onClick={() => router.push('/invoice/receivable')}
+                >
+                  <Icon icon='mdi:chevron-left' width={24} height={24} />
+                </IconButton>
+              )}
 
-          {isEditing ? null : (
-            <Box
-              sx={{
-                display: 'flex',
-                gap: '16px',
-                alignItems: 'center',
-              }}
-            >
-              <Button
-                variant='outlined'
-                sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                disabled={!isConfirmBtnVisible}
-                onClick={onClickConfirmInvoice}
-              >
-                <Icon icon='mdi:download' fontSize={20} />
-                Confirm invoice
-              </Button>
+              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
+                <Typography variant='h5'>
+                  {invoiceInfo?.corporationId}
+                </Typography>
+              </Box>
+
+              {currentRole && currentRole.name === 'CLIENT'
+                ? InvoiceReceivableChip(
+                    statusLabel ?? '',
+                    invoiceInfo!.invoiceStatus,
+                  )
+                : null}
             </Box>
-          )}
-        </Box>
+          </>
+        ) : null}
+
         <Box>
           <TabContext value={value}>
             <TabList
@@ -776,6 +891,21 @@ const ReceivableInvoiceDetail = () => {
               aria-label='Order detail Tab menu'
               style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
             >
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <CustomTap
+                  value='invoice'
+                  label='Invoice'
+                  iconPosition='start'
+                  icon={
+                    <Icon
+                      icon='material-symbols:receipt-long'
+                      fontSize={'18px'}
+                    />
+                  }
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              ) : null}
+
               <CustomTap
                 value='invoiceInfo'
                 label='Invoice info'
@@ -795,15 +925,18 @@ const ReceivableInvoiceDetail = () => {
                 icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
-              <CustomTap
-                value='client'
-                label='Client'
-                iconPosition='start'
-                icon={
-                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
-                }
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-              />
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <CustomTap
+                  value='client'
+                  label='Client'
+                  iconPosition='start'
+                  icon={
+                    <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                  }
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              )}
+
               <CustomTap
                 value='team'
                 label='Project team'
@@ -821,6 +954,21 @@ const ReceivableInvoiceDetail = () => {
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
             </TabList>
+            <TabPanel value='invoice' sx={{ pt: '24px' }}>
+              <Suspense>
+                {downloadData ? (
+                  <ClientInvoice
+                    downloadData={downloadData}
+                    downloadLanguage={downloadLanguage}
+                    setDownloadLanguage={setDownloadLanguage}
+                    type='detail'
+                    user={user!}
+                    onSave={patchInvoiceInfoMutation.mutate}
+                    onClickDownloadInvoice={onClickDownloadInvoice}
+                  />
+                ) : null}
+              </Suspense>
+            </TabPanel>
             <TabPanel value='invoiceInfo' sx={{ pt: '24px' }}>
               {invoiceInfo && !invoiceInfoIsLoading && !statusListLoading ? (
                 <InvoiceInfo
@@ -845,6 +993,7 @@ const ReceivableInvoiceDetail = () => {
                   statusList={statusList || []}
                   isUpdatable={isUpdatable}
                   isDeletable={isDeletable}
+                  client={client}
                 />
               ) : null}
             </TabPanel>

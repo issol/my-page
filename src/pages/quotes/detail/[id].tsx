@@ -583,12 +583,12 @@ export default function QuotesDetail() {
     })
   }
 
-  // ** Client가 Status가 New(20003)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20004)로 바꾸고 데이터를 리패치한다.
+  // ** Client가 Status가 New(20300)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20400)로 바꾸고 데이터를 리패치한다.
   useEffect(() => {
     if (currentRole && currentRole.name === 'CLIENT') {
       if (project && project.status === 'New') {
         //update
-        patchQuoteProjectInfo(Number(id), { status: 20004 })
+        patchQuoteProjectInfo(Number(id), { status: 20400 })
           .then(res => {
             refetch()
           })
@@ -896,7 +896,7 @@ export default function QuotesDetail() {
           onClose={() => closeModal('ConfirmQuoteModal')}
           onClick={() =>
             updateProject.mutate(
-              { isConfirmed: true, status: 20003 },
+              { isConfirmed: true, status: 20300 },
               {
                 onSuccess: () => {
                   closeModal('ConfirmQuoteModal')

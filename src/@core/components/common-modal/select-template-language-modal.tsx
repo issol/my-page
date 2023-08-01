@@ -12,11 +12,23 @@ import { ChangeEvent, useState } from 'react'
 type Props = {
   onClose: any
   onClick: (lang: 'EN' | 'KO') => void
+  clientInvoiceLang?: 'EN' | 'KO'
   page: string
 }
 
-const SelectTemplateLanguageModal = ({ onClose, onClick, page }: Props) => {
-  const [lang, setLang] = useState<string | null>(null)
+const SelectTemplateLanguageModal = ({
+  onClose,
+  onClick,
+  page,
+  clientInvoiceLang,
+}: Props) => {
+  const [lang, setLang] = useState<string | null>(
+    clientInvoiceLang
+      ? clientInvoiceLang === 'EN'
+        ? 'English'
+        : 'Korean'
+      : null,
+  )
 
   const handleLangChange = (event: ChangeEvent<HTMLInputElement>) => {
     setLang(event.target.value)

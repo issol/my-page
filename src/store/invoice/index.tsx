@@ -4,20 +4,24 @@ import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 const initialState: {
   invoiceTotalData: InvoiceDownloadData | null
   lang: 'EN' | 'KO'
+  isReady: boolean
 } = {
   invoiceTotalData: null,
   lang: 'EN',
+  isReady: false,
 }
 
 export const invoiceSlice: Slice<{
   invoiceTotalData: InvoiceDownloadData | null
   lang: 'EN' | 'KO'
+  isReady: boolean
 }> = createSlice({
   name: 'invoice',
   initialState,
   reducers: {
     setInvoice: (state, action) => {
       state.invoiceTotalData = action.payload
+      state.isReady = true
     },
     resetInvoice: state => {
       state.invoiceTotalData = initialState.invoiceTotalData
@@ -30,9 +34,17 @@ export const invoiceSlice: Slice<{
     resetInvoiceLang: state => {
       state.lang = initialState.lang
     },
+    setIsReady(state, action) {
+      state.isReady = action.payload
+    },
   },
 })
 
-export const { setInvoice, resetInvoice, setInvoiceLang, resetInvoiceLang } =
-  invoiceSlice.actions
+export const {
+  setInvoice,
+  resetInvoice,
+  setInvoiceLang,
+  resetInvoiceLang,
+  setIsReady,
+} = invoiceSlice.actions
 export default invoiceSlice.reducer

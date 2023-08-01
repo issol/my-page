@@ -34,6 +34,8 @@ import { SalesCategory } from '@src/shared/const/sales-category'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
 
+import { UserRoleType } from '@src/context/types'
+
 // ** types
 
 type Props = {
@@ -42,16 +44,21 @@ type Props = {
   onReset: () => void
   search: () => void
   serviceType: Array<ConstType>
+  role: UserRoleType
+  clientList: Array<{ label: string; value: number }>
+  companyList: Array<{ label: string; value: string }>
+  clientListLoading: boolean
+  companyListLoading: boolean
+  statusList: {
+    value: number
+    label: string
+  }[]
+  statusListLoading: boolean
 }
 
 type FilterType = Pick<
   InvoiceReceivableFilterType,
-  | 'invoiceStatus'
-  | 'clientId'
-  | 'category'
-  | 'serviceType'
-  | 'revenueFrom'
-  | 'salesCategory'
+  'invoiceStatus' | 'category' | 'serviceType' | 'revenueFrom' | 'salesCategory'
 >
 
 export default function Filter({
@@ -60,15 +67,15 @@ export default function Filter({
   onReset,
   search,
   serviceType,
+  clientList,
+  companyList,
+  clientListLoading,
+  companyListLoading,
+  role,
+  statusListLoading,
+  statusList,
 }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
-
-  const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
-  const { data, isLoading: isClientLoading } = useGetClientList({
-    skip: 0,
-    take: 1000,
-  })
-  const clientList = data?.data || []
 
   const commonOptions = {
     autoHighlight: true,
@@ -113,7 +120,7 @@ export default function Filter({
                     <Autocomplete
                       {...commonOptions}
                       multiple
-                      loading={isLoading}
+                      loading={statusListLoading}
                       options={statusList || []}
                       getOptionLabel={option => option.label}
                       value={
@@ -134,7 +141,7 @@ export default function Filter({
                         <TextField
                           {...params}
                           label='Status'
-                          placeholder='Status'
+                          // placeholder='Status'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -150,40 +157,77 @@ export default function Filter({
                 {/* client */}
                 <Grid item xs={6} sm={6} md={3}>
                   <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      loading={isClientLoading}
-                      options={clientList || []}
-                      getOptionLabel={option => option.name}
-                      value={
-                        !clientList
-                          ? []
-                          : clientList?.filter(item =>
-                              filter.clientId?.includes(item.name),
-                            )
-                      }
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          clientId: v.map(item => item.name),
-                        })
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Client'
-                          placeholder='Client'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.name}
-                        </li>
-                      )}
-                    />
+                    {role.name === 'CLIENT' ? (
+                      <Autocomplete
+                        {...commonOptions}
+                        multiple
+                        loading={companyListLoading}
+                        options={companyList || []}
+                        getOptionLabel={option => option.label}
+                        value={
+                          !companyList
+                            ? []
+                            : companyList?.filter(item =>
+                                filter.lsp?.includes(item.value),
+                              )
+                        }
+                        limitTags={1}
+                        onChange={(e, v) =>
+                          setFilter({
+                            ...filter,
+                            lsp: v.map(item => item.value),
+                          })
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='LSP'
+                            placeholder='Lsp'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )}
+                      />
+                    ) : (
+                      <Autocomplete
+                        {...commonOptions}
+                        multiple
+                        loading={clientListLoading}
+                        options={clientList || []}
+                        getOptionLabel={option => option.label}
+                        value={
+                          !clientList
+                            ? []
+                            : clientList?.filter(item =>
+                                filter.clientId?.includes(item.value),
+                              )
+                        }
+                        limitTags={1}
+                        onChange={(e, v) => {
+                          setFilter({
+                            ...filter,
+                            clientId: v.map(item => item.value),
+                          })
+                        }}
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='Client'
+                            // placeholder='Client'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )}
+                      />
+                    )}
                   </FormControl>
                 </Grid>
 
@@ -205,8 +249,8 @@ export default function Filter({
                       renderInput={params => (
                         <TextField
                           {...params}
-                          label='Status'
-                          placeholder='Status'
+                          label='Category'
+                          // placeholder='Service type'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -318,140 +362,154 @@ export default function Filter({
                 </Grid>
 
                 {/* payment date */}
-                <Grid item xs={6} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <DatePicker
-                      selectsRange
-                      monthsShown={2}
-                      endDate={
-                        filter?.paidDateTo ? new Date(filter.paidDateTo) : null
-                      }
-                      startDate={
-                        filter?.paidDateFrom
-                          ? new Date(filter.paidDateFrom)
-                          : null
-                      }
-                      shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        setFilter({
-                          ...filter,
-                          paidDateFrom: e[0]?.toString(),
-                          paidDateTo: e[1]?.toString(),
-                        })
-                      }}
-                      customInput={
-                        <CustomInput label='Payment date' icon='calendar' />
-                      }
-                    />
-                  </FormControl>
-                </Grid>
+                {role.name === 'CLIENT' ? null : (
+                  <Grid item xs={6} sm={6} md={3}>
+                    <FormControl fullWidth>
+                      <DatePicker
+                        selectsRange
+                        monthsShown={2}
+                        endDate={
+                          filter?.paidDateTo
+                            ? new Date(filter.paidDateTo)
+                            : null
+                        }
+                        startDate={
+                          filter?.paidDateFrom
+                            ? new Date(filter.paidDateFrom)
+                            : null
+                        }
+                        shouldCloseOnSelect={false}
+                        onChange={e => {
+                          if (!e.length) return
+                          setFilter({
+                            ...filter,
+                            paidDateFrom: e[0]?.toString(),
+                            paidDateTo: e[1]?.toString(),
+                          })
+                        }}
+                        customInput={
+                          <CustomInput label='Payment date' icon='calendar' />
+                        }
+                      />
+                    </FormControl>
+                  </Grid>
+                )}
 
                 {/* sales recognition date */}
-                <Grid item xs={6} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <DatePicker
-                      selectsRange
-                      monthsShown={2}
-                      endDate={
-                        filter?.salesCheckedDateTo
-                          ? new Date(filter.salesCheckedDateTo)
-                          : null
-                      }
-                      startDate={
-                        filter?.salesCheckedDateFrom
-                          ? new Date(filter.salesCheckedDateFrom)
-                          : null
-                      }
-                      shouldCloseOnSelect={false}
-                      onChange={e => {
-                        if (!e.length) return
-                        setFilter({
-                          ...filter,
-                          salesCheckedDateFrom: e[0]?.toString(),
-                          salesCheckedDateTo: e[1]?.toString(),
-                        })
-                      }}
-                      customInput={
-                        <CustomInput
-                          label='Sales recognition date'
-                          icon='calendar'
-                        />
-                      }
-                    />
-                  </FormControl>
-                </Grid>
+                {role.name === 'CLIENT' ? null : (
+                  <Grid item xs={6} sm={6} md={3}>
+                    <FormControl fullWidth>
+                      <DatePicker
+                        selectsRange
+                        monthsShown={2}
+                        endDate={
+                          filter?.salesCheckedDateTo
+                            ? new Date(filter.salesCheckedDateTo)
+                            : null
+                        }
+                        startDate={
+                          filter?.salesCheckedDateFrom
+                            ? new Date(filter.salesCheckedDateFrom)
+                            : null
+                        }
+                        shouldCloseOnSelect={false}
+                        onChange={e => {
+                          if (!e.length) return
+                          setFilter({
+                            ...filter,
+                            salesCheckedDateFrom: e[0]?.toString(),
+                            salesCheckedDateTo: e[1]?.toString(),
+                          })
+                        }}
+                        customInput={
+                          <CustomInput
+                            label='Sales recognition date'
+                            icon='calendar'
+                          />
+                        }
+                      />
+                    </FormControl>
+                  </Grid>
+                )}
 
                 {/* revenue from */}
-                <Grid item xs={6} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      options={RevenueFrom}
-                      value={filterValue(RevenueFrom, 'revenueFrom')}
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          revenueFrom: v.map(item => item.value),
-                        })
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Revenue from'
-                          placeholder='Revenue from'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
+                {role.name === 'CLIENT' ? null : (
+                  <Grid item xs={6} sm={6} md={3}>
+                    <FormControl fullWidth>
+                      <Autocomplete
+                        {...commonOptions}
+                        multiple
+                        options={RevenueFrom}
+                        value={filterValue(RevenueFrom, 'revenueFrom')}
+                        limitTags={1}
+                        onChange={(e, v) =>
+                          setFilter({
+                            ...filter,
+                            revenueFrom: v.map(item => item.value),
+                          })
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='Revenue from'
+                            placeholder='Revenue from'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )}
+                      />
+                    </FormControl>
+                  </Grid>
+                )}
 
                 {/* sales category */}
-                <Grid item xs={6} sm={6} md={3}>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      {...commonOptions}
-                      multiple
-                      options={SalesCategory}
-                      value={filterValue(SalesCategory, 'salesCategory')}
-                      limitTags={1}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          salesCategory: v.map(item => item.value),
-                        })
-                      }
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Sales category'
-                          placeholder='Sales category'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
-                </Grid>
+                {role.name === 'CLIENT' ? null : (
+                  <Grid item xs={6} sm={6} md={3}>
+                    <FormControl fullWidth>
+                      <Autocomplete
+                        {...commonOptions}
+                        multiple
+                        options={SalesCategory}
+                        value={filterValue(SalesCategory, 'salesCategory')}
+                        limitTags={1}
+                        onChange={(e, v) =>
+                          setFilter({
+                            ...filter,
+                            salesCategory: v.map(item => item.value),
+                          })
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            label='Sales category'
+                            placeholder='Sales category'
+                          />
+                        )}
+                        renderOption={(props, option, { selected }) => (
+                          <li {...props}>
+                            <Checkbox checked={selected} sx={{ mr: 2 }} />
+                            {option.label}
+                          </li>
+                        )}
+                      />
+                    </FormControl>
+                  </Grid>
+                )}
 
                 {/* search projects */}
                 <Grid item xs={12} sm={12} md={6}>
                   <FormControl fullWidth>
                     <InputLabel>Search Pros</InputLabel>
                     <OutlinedInput
-                      label='Search Pros'
+                      label={
+                        role.name === 'CLIENT'
+                          ? 'Search projects'
+                          : 'Search Pros'
+                      }
                       value={filter.search}
                       onChange={e =>
                         setFilter({ ...filter, search: e.target.value })

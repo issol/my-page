@@ -8,16 +8,21 @@ import { AddressType, ClientAddressType } from '../schema/client-address.schema'
 import { OrderStatusType } from '../orders/order-list'
 import {
   ClientType,
+  DeliveryFileType,
   LanguageAndItemType,
   LanguagePairTypeInItem,
   ProjectTeamListType,
 } from '../orders/order-detail'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ItemResType } from '../common/orders-and-quotes.type'
+import { Cancel } from 'axios'
+import { CancelReasonType } from '../requests/detail.type'
+import { ReasonType } from '../quotes/quote'
 
 export type InvoiceReceivableFilterType = {
   invoiceStatus?: number[]
-  clientId?: string[]
+  clientId?: number[]
+  lsp?: string[]
   category?: string[]
   serviceType?: string[]
   revenueFrom?: string[]
@@ -69,6 +74,7 @@ export type InvoiceReceivableListType = {
   salesCheckedDateTimezone: CountryType | null
   downloadedAt: string | null
   order: InvoiceReceivableOrderType
+  updatedAt: string
 }
 
 export type InvoiceReceivableOrderType = {
@@ -160,7 +166,15 @@ export type InvoiceReceivableDetailType = {
   orderId: number
   tax: number
   taxInvoiceIssued: boolean
-  orderCorporationId: string
+
+  taxInvoiceFiles: DeliveryFileType[]
+
+  reason: ReasonType
+  // orderCorporationId: string
+  linkedOrder: {
+    id: number
+    corporationId: string
+  }
 }
 
 export type InvoiceHistoryType = {

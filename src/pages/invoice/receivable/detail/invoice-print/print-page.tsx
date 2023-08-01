@@ -440,7 +440,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   </Typography>
                 </Box>
               </Box>
-              {!data.tax && (
+              {data.tax !== null && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -483,7 +483,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                      - {data.subtotal}
+                      - {data.tax}
                     </Typography>
                   </Box>
                 </Box>
@@ -532,7 +532,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       flex: 1,
                     }}
                   >
-                    {data.subtotal}
+                    {data.total}
                   </Typography>
                 </Box>
               </Box>
