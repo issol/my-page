@@ -5,7 +5,7 @@ import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
-import { UseMutationResult } from 'react-query'
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import {
@@ -26,6 +26,7 @@ import {
 import PrintInvoicePage from '../invoice-print/print-page'
 import ConfirmInvoiceModal from './modal/confirm-invoice-modal'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
+import { confirmInvoiceFromClient } from '@src/apis/invoice/receivable.api'
 
 type Props = {
   downloadData: InvoiceDownloadData
@@ -56,13 +57,34 @@ const ClientInvoice = ({
 // project,
 Props) => {
   const { openModal, closeModal } = useModal()
+  const queryClient = useQueryClient()
+
+  const confirmInvoiceMutation = useMutation(
+    (data: {
+      clientConfirmedAt: string
+      clientConfirmTimezone: CountryType
+      taxInvoiceDueAt?: string
+      taxInvoiceDueTimezone?: CountryType
+    }) => confirmInvoiceFromClient(downloadData.invoiceId, data),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries('invoiceReceivableDetail')
+        closeModal('ConfirmInvoiceModal')
+      },
+    },
+  )
 
   const handleConfirmInvoice = (data?: {
-    taxInvoiceDueAt: string | null
-    taxInvoiceDueTimezone: CountryType | null
+    taxInvoiceDueAt: string
+    taxInvoiceDueTimezone: CountryType
   }) => {
     //TODO API 연결
-    closeModal('ConfirmInvoiceModal')
+    const res = {
+      ...data,
+      clientConfirmedAt: Date(),
+      clientConfirmTimezone: user.timezone,
+    }
+    confirmInvoiceMutation.mutate({ ...res })
   }
 
   const onClickConfirmInvoice = () => {

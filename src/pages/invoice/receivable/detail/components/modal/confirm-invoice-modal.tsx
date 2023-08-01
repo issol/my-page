@@ -20,8 +20,8 @@ import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 type Props = {
   onClose: any
   onClick: (data?: {
-    taxInvoiceDueAt: string | null
-    taxInvoiceDueTimezone: CountryType | null
+    taxInvoiceDueAt: string
+    taxInvoiceDueTimezone: CountryType
   }) => void
 }
 

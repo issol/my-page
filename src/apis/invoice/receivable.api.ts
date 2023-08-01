@@ -22,6 +22,7 @@ import {
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
@@ -228,4 +229,18 @@ export const checkEditable = async (id: number): Promise<boolean> => {
   } catch (e: any) {
     return false
   }
+}
+
+export const confirmInvoiceFromClient = async (
+  id: number,
+  form: {
+    clientConfirmedAt: string
+    clientConfirmTimezone: CountryType
+    taxInvoiceDueAt?: string
+    taxInvoiceDueTimezone?: CountryType
+  },
+) => {
+  await axios.patch(`/api/enough/u/invoice/receivable/${id}/accept`, {
+    ...form,
+  })
 }
