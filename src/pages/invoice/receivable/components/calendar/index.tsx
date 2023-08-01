@@ -98,6 +98,16 @@ const CalendarContainer = () => {
       ? '#FF4D49'
       : status === 'Overdue (Reminder sent)'
       ? '#FF4D49'
+      : status === 'New'
+      ? '#666CFF'
+      : status === 'Invoice confirmed'
+      ? '#64C623'
+      : status === 'Revised'
+      ? '#AD7028'
+      : status === 'Under review'
+      ? '#FDB528'
+      : status === 'Under revision'
+      ? '#BA971A'
       : ''
   }
 
@@ -149,7 +159,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={InvoiceCalenderStatus}
+          status={statuses}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />

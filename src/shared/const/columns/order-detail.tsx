@@ -10,7 +10,7 @@ export const getProjectTeamColumns = (role?: string) => {
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
-      flex: 0.3355,
+      flex: role ? 0.2002 : 0.3355,
 
       headerName: 'Position',
       disableColumnMenu: true,
@@ -20,7 +20,7 @@ export const getProjectTeamColumns = (role?: string) => {
       },
     },
     {
-      flex: 0.3363,
+      flex: role ? 0.2402 : 0.3363,
       field: 'member',
       headerName: 'Member',
       hideSortIcons: true,
@@ -40,7 +40,7 @@ export const getProjectTeamColumns = (role?: string) => {
       },
     },
     {
-      flex: 0.3283,
+      flex: role ? 0.2794 : 0.3283,
       field: 'jobTitle',
       headerName: 'Job title',
       hideSortIcons: true,
@@ -49,6 +49,20 @@ export const getProjectTeamColumns = (role?: string) => {
       renderHeader: () => <Box>Job title</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
         return <Box>{row.jobTitle}</Box>
+      },
+    },
+
+    {
+      flex: role ? 0.2802 : 0.3283,
+      field: 'email',
+      headerName: 'Email',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      hide: role === 'CLIENT',
+      renderHeader: () => <Box>Email</Box>,
+      renderCell: ({ row }: ProjectTeamCellType) => {
+        return <Box>{row.email}</Box>
       },
     },
   ]

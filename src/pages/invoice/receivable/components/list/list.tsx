@@ -2,7 +2,7 @@ import { useRouter } from 'next/router'
 
 // ** style components
 import { Box, Tooltip, Typography } from '@mui/material'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import { TableTitleTypography } from '@src/@core/styles/typography'
 import {
   ExtraNumberChip,
@@ -267,7 +267,14 @@ export default function ReceivableList({
           NoRowsOverlay: () => NoList(),
           NoResultsOverlay: () => NoList(),
         }}
-        sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+        sx={{
+          overflowX: 'scroll',
+          cursor: 'pointer',
+          [`& .${gridClasses.row}.disabled`]: {
+            opacity: 0.5,
+            cursor: 'not-allowed',
+          },
+        }}
         columns={columns}
         rows={list.data}
         rowCount={list.totalCount}
@@ -283,6 +290,16 @@ export default function ReceivableList({
         onPageChange={setSkip}
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
+        getRowClassName={params =>
+          role.name === 'CLIENT' &&
+          params.row.invoiceStatus === 'Under revision'
+            ? 'disabled'
+            : 'normal'
+        }
+        isRowSelectable={params =>
+          role.name === 'CLIENT' &&
+          params.row.invoiceStatus !== 'Under revision'
+        }
       />
     </Box>
   )
