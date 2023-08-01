@@ -25,30 +25,16 @@ import {
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
 
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
-import {
-  ClientType,
-  DeliveryFileType,
-  ProjectInfoType,
-} from '@src/types/orders/order-detail'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
+import { ClientType, DeliveryFileType } from '@src/types/orders/order-detail'
 import {
   Control,
   UseFormGetValues,
   UseFormReset,
   UseFormSetValue,
   UseFormWatch,
-  useForm,
   FieldErrors,
 } from 'react-hook-form'
 import { v4 as uuidv4 } from 'uuid'
-import { yupResolver } from '@hookform/resolvers/yup'
 import {
   ChangeEvent,
   Dispatch,
@@ -91,6 +77,7 @@ import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { AuthContext } from '@src/context/AuthContext'
+import { toast } from 'react-hot-toast'
 
 type Props = {
   type: string
@@ -118,6 +105,7 @@ type Props = {
   }[]
   isUpdatable: boolean
   isDeletable: boolean
+  isAccountInfoUpdatable: boolean
   client?: ClientType
 }
 const InvoiceInfo = ({
@@ -140,6 +128,7 @@ const InvoiceInfo = ({
   statusList,
   isUpdatable,
   isDeletable,
+  isAccountInfoUpdatable,
   client,
 }: Props) => {
   const { openModal, closeModal } = useModal()
@@ -153,10 +142,20 @@ const InvoiceInfo = ({
 
   const statusLabel =
     statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
+
+  const statusOption = client?.contactPerson?.userId
+    ? statusList.filter(i => [30000, 30100, 30200].includes(i.value))
+    : statusList.filter(
+        i => ![30300, 30900, 301000, 301100, 301200].includes(i.value),
+      )
+
   const [fileSize, setFileSize] = useState(0)
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
   const { user } = useContext(AuthContext)
+
+  const isInvoiceInfoUpdatable =
+    ![30900, 301200].includes(invoiceInfo.invoiceStatus) && isUpdatable
 
   const [contactPersonEdit, setContactPersonEdit] = useState(false)
   const [contactPersonId, setContactPersonId] = useState<number | null>(null)
@@ -207,6 +206,21 @@ const InvoiceInfo = ({
         form: {
           ...data,
           setReminder: event.target.checked,
+        },
+      })
+    }
+  }
+
+  const handelChangeShowDescription = (
+    event: ChangeEvent<HTMLInputElement>,
+  ) => {
+    const data = getInvoiceInfo && getInvoiceInfo()
+    if (onSave && data) {
+      onSave({
+        id: invoiceInfo.id,
+        form: {
+          ...data,
+          showDescription: event.target.checked,
         },
       })
     }
@@ -650,6 +664,7 @@ const InvoiceInfo = ({
                 {type === 'detail' &&
                 isUpdatable &&
                 currentRole &&
+                isInvoiceInfoUpdatable &&
                 currentRole.name !== 'CLIENT' ? (
                   <IconButton
                     onClick={() => setEdit!(true)}
@@ -734,7 +749,10 @@ const InvoiceInfo = ({
                           statusLabel,
                           invoiceInfo.invoiceStatus,
                         )
-                      ) : currentRole && currentRole.name === 'CLIENT' ? (
+                      ) : (currentRole && currentRole.name === 'CLIENT') ||
+                        [30900, 301000, 301100, 301200].includes(
+                          invoiceInfo.invoiceStatus,
+                        ) ? (
                         <Box
                           sx={{
                             display: 'flex',
@@ -767,7 +785,7 @@ const InvoiceInfo = ({
                           size='small'
                           sx={{ width: '253px' }}
                         >
-                          {statusList.map(status => {
+                          {statusOption.map(status => {
                             return (
                               <MenuItem key={uuidv4()} value={status.value}>
                                 {status.label}
@@ -1287,15 +1305,7 @@ const InvoiceInfo = ({
                       gap: '10px',
                     }}
                   >
-                    <Box
-                      sx={{
-                        display: 'flex',
-
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
+                    <Box display='flex' justifyContent='space-between'>
                       <Typography
                         variant='subtitle1'
                         sx={{
@@ -1306,21 +1316,29 @@ const InvoiceInfo = ({
                       >
                         Invoice description
                       </Typography>
+                      <Box display='flex' width={380} alignItems='center'>
+                        <Checkbox
+                          value={invoiceInfo.showDescription}
+                          onChange={handelChangeShowDescription}
+                          checked={invoiceInfo.showDescription}
+                          disabled={[30900, 301200].includes(
+                            invoiceInfo.invoiceStatus,
+                          )}
+                        />
+
+                        <Typography variant='body2' display='block'>
+                          Show invoice description to client
+                        </Typography>
+                      </Box>
                     </Box>
                     <Box
                       sx={{
                         display: 'flex',
                         gap: '8px',
                         alignItems: 'center',
-                        width: '73.45%',
                       }}
                     >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
+                      <Typography variant='subtitle2'>
                         {invoiceInfo.description ||
                         invoiceInfo.description !== ''
                           ? invoiceInfo.description
@@ -1339,7 +1357,9 @@ const InvoiceInfo = ({
                         value={isReminder}
                         onChange={handleChangeIsReminder}
                         checked={isReminder}
-                        disabled={invoiceInfo.invoiceStatus === 30900}
+                        disabled={[30900, 301200].includes(
+                          invoiceInfo.invoiceStatus,
+                        )}
                       />
 
                       <Typography variant='body2'>
@@ -1384,7 +1404,7 @@ const InvoiceInfo = ({
                   }}
                 >
                   <Typography variant='h6'>Accounting info</Typography>
-                  {type === 'detail' && isUpdatable ? (
+                  {type === 'detail' && isAccountInfoUpdatable ? (
                     <IconButton onClick={() => setAccountingEdit!(true)}>
                       <Icon icon='mdi:pencil-outline' />
                     </IconButton>

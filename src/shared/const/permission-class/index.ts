@@ -122,3 +122,13 @@ export class lpm_request {
     })
   }
 }
+
+export class account_manage {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(account_manage.prototype.constructor, 'name', {
+      value: 'account_manage',
+    })
+  }
+}

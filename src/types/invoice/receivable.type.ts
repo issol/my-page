@@ -237,6 +237,7 @@ export type InvoiceReceivablePatchParamsType = {
   setReminder?: boolean
   taxInvoiceIssued?: boolean
   salesCategory?: string
+  showDescription?: boolean
 }
 
 export type InvoiceDownloadData = {

@@ -84,7 +84,10 @@ import InvoiceVersionHistoryModal from './components/modal/version-history-detai
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { invoice_receivable } from '@src/shared/const/permission-class'
+import {
+  account_manage,
+  invoice_receivable,
+} from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StyledNextLink } from '@src/@core/components/customLink'
 
@@ -141,9 +144,11 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(user?.id!)
+  const AccountingTeam = new account_manage(user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -219,7 +224,7 @@ const ReceivableInvoiceDetail = () => {
     {
       onSuccess: (data: { id: number }, variables) => {
         // console.log('success')
-
+        invalidateInvoiceDetail()
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)
         setProjectTeamEdit(false)
@@ -968,6 +973,7 @@ const ReceivableInvoiceDetail = () => {
                   statusList={statusList || []}
                   isUpdatable={isUpdatable}
                   isDeletable={isDeletable}
+                  isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
                 />
               ) : null}
