@@ -170,11 +170,11 @@ export type InvoiceReceivableDetailType = {
   taxInvoiceFiles: DeliveryFileType[]
 
   reason: ReasonType
-  // orderCorporationId: string
-  linkedOrder: {
-    id: number
-    corporationId: string
-  }
+  orderCorporationId: string
+  // linkedOrder: {
+  //   id: number
+  //   corporationId: string
+  // }
 }
 
 export type InvoiceHistoryType = {

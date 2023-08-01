@@ -596,7 +596,7 @@ const ReceivableInvoiceDetail = () => {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo!.linkedOrder?.corporationId,
+        orderCorporationId: invoiceInfo?.corporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
@@ -750,7 +750,7 @@ const ReceivableInvoiceDetail = () => {
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {invoiceInfo && !invoiceInfoIsLoading ? (
-          <>
+          <Box display='flex'>
             <Box
               sx={{
                 width: '100%',
@@ -761,127 +761,102 @@ const ReceivableInvoiceDetail = () => {
                 padding: '20px',
               }}
             >
-              {isEditing ? null : (
-                <IconButton
-                  sx={{ padding: '0 !important', height: '24px' }}
-                  onClick={() => router.push('/invoice/receivable')}
-                >
-                  <Icon icon='mdi:chevron-left' width={24} height={24} />
-                </IconButton>
-              )}
-
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-                <Typography variant='h5'>
-                  {invoiceInfo?.corporationId}
-                </Typography>
-              </Box>
-
-              {isEditing ? null : (
-                <div>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                {isEditing ? null : (
                   <IconButton
-                    aria-label='more'
-                    aria-haspopup='true'
-                    onClick={handleMenuClick}
+                    sx={{ padding: '0 !important', height: '24px' }}
+                    onClick={() => router.push('/invoice/receivable')}
                   >
-                    <Icon icon='mdi:dots-vertical' />
+                    <Icon icon='mdi:chevron-left' width={24} height={24} />
                   </IconButton>
-                  <Menu
-                    keepMounted
-                    id='link menu'
-                    anchorEl={anchorEl}
-                    onClose={handleMenuClose}
-                    open={Boolean(anchorEl)}
-                    PaperProps={{
-                      style: {
-                        maxHeight: 48 * 4.5,
-                      },
-                    }}
+                )}
+
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
+                  <Typography variant='h5'>
+                    {invoiceInfo?.corporationId}
+                  </Typography>
+                </Box>
+
+                {currentRole && currentRole.name === 'CLIENT'
+                  ? InvoiceReceivableChip(
+                      statusLabel ?? '',
+                      invoiceInfo!.invoiceStatus,
+                    )
+                  : null}
+                {isEditing ? null : (
+                  <div>
+                    <IconButton
+                      aria-label='more'
+                      aria-haspopup='true'
+                      onClick={handleMenuClick}
+                    >
+                      <Icon icon='mdi:dots-vertical' />
+                    </IconButton>
+                    <Menu
+                      keepMounted
+                      id='link menu'
+                      anchorEl={anchorEl}
+                      onClose={handleMenuClose}
+                      open={Boolean(anchorEl)}
+                      PaperProps={{
+                        style: {
+                          maxHeight: 48 * 4.5,
+                        },
+                      }}
+                    >
+                      <MenuItem onClick={handleMenuClose}>
+                        <StyledNextLink
+                          href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                          color='black'
+                        >
+                          Linked order : {invoiceInfo?.orderCorporationId}
+                        </StyledNextLink>
+                      </MenuItem>
+                    </Menu>
+                  </div>
+                )}
+              </Box>
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                }}
+              >
+                {isEditing ||
+                (currentRole && currentRole.name === 'CLIENT') ? null : (
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    disabled={!isDownloadBtnVisible}
+                    onClick={onClickDownloadInvoice}
                   >
-                    <MenuItem onClick={handleMenuClose}>
-                      <StyledNextLink
-                        href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
-                        color='black'
-                      >
-                        Linked order : {invoiceInfo?.orderCorporationId}
-                      </StyledNextLink>
-                    </MenuItem>
-                  </Menu>
-                </div>
-              )}
+                    <Icon icon='mdi:download' fontSize={20} />
+                    Download invoice
+                  </Button>
+                )}
+                {isEditing ? null : (
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    disabled={!isConfirmBtnVisible}
+                    onClick={onClickConfirmInvoice}
+                  >
+                    <Icon icon='mdi:download' fontSize={20} />
+                    Confirm invoice
+                  </Button>
+                )}
+              </Box>
             </Box>
-            {isEditing ||
-            (currentRole && currentRole.name === 'CLIENT') ? null : (
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: '16px',
-                  alignItems: 'center',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                  disabled={!isDownloadBtnVisible}
-                  onClick={onClickDownloadInvoice}
-                >
-                  <Icon icon='mdi:download' fontSize={20} />
-                  Download invoice
-                </Button>
-              </Box>
-            )}
-
-            {isEditing ? null : (
-              <Box
-                sx={{
-                  display: 'flex',
-                  gap: '16px',
-                  alignItems: 'center',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                  disabled={!isConfirmBtnVisible}
-                  onClick={onClickConfirmInvoice}
-                >
-                  <Icon icon='mdi:download' fontSize={20} />
-                  Confirm invoice
-                </Button>
-              </Box>
-            )}
-
-            <Box
-              sx={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-              }}
-            >
-              {isEditing ? null : (
-                <IconButton
-                  sx={{ padding: '0 !important', height: '24px' }}
-                  onClick={() => router.push('/invoice/receivable')}
-                >
-                  <Icon icon='mdi:chevron-left' width={24} height={24} />
-                </IconButton>
-              )}
-
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-                <Typography variant='h5'>
-                  {invoiceInfo?.corporationId}
-                </Typography>
-              </Box>
-
-              {currentRole && currentRole.name === 'CLIENT'
-                ? InvoiceReceivableChip(
-                    statusLabel ?? '',
-                    invoiceInfo!.invoiceStatus,
-                  )
-                : null}
-            </Box>
-          </>
+          </Box>
         ) : null}
 
         <Box>
