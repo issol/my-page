@@ -34,11 +34,14 @@ export default function CopyOrdersList({ onClose, onCopy }: Props) {
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 
-  const { data: orderList, isLoading } = useGetOrderList({
-    search: activeSearch,
-    take: pageSize,
-    skip: skip * pageSize,
-  })
+  const { data: orderList, isLoading } = useGetOrderList(
+    {
+      search: activeSearch,
+      take: pageSize,
+      skip: skip * pageSize,
+    },
+    'order',
+  )
   const columns: GridColumns<OrderListType> = [
     {
       flex: 0.01,

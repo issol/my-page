@@ -96,7 +96,7 @@ type Props = {
     target: string,
   ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
-  type: string
+  type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
@@ -724,27 +724,29 @@ export default function ItemForm({
                   <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                     Item description
                   </Typography>
-                  {type === 'detail' || type === 'invoiceDetail' ? null : (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Controller
-                        name={`items.${idx}.showItemDescription`}
-                        control={control}
-                        render={({ field: { value, onChange } }) => (
-                          <Checkbox
-                            value={value}
-                            onChange={e => {
-                              onChange(e.target.checked)
-                            }}
-                            checked={value}
-                          />
-                        )}
-                      />
 
-                      <Typography variant='body2'>
-                        Show item description to client
-                      </Typography>
-                    </Box>
-                  )}
+                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                    <Controller
+                      name={`items.${idx}.showItemDescription`}
+                      control={control}
+                      render={({ field: { value, onChange } }) => (
+                        <Checkbox
+                          disabled={
+                            type === 'detail' || type === 'invoiceDetail'
+                          }
+                          value={value}
+                          onChange={e => {
+                            onChange(e.target.checked)
+                          }}
+                          checked={value}
+                        />
+                      )}
+                    />
+
+                    <Typography variant='body2'>
+                      Show item description to client
+                    </Typography>
+                  </Box>
                 </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>

@@ -21,6 +21,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 // ** contexts
 import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
+import { useGetStatusList } from '@src/queries/common.query'
 import { UserRoleType } from '@src/context/types'
 
 type CellType = {
@@ -51,6 +52,7 @@ export default function ReceivableList({
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
 
   function NoList() {
     return (
@@ -91,7 +93,10 @@ export default function ReceivableList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoiceReceivableChip(row.invoiceStatus)}</>
+        const label = statusList?.find(
+          i => i.value === row.invoiceStatus,
+        )?.label
+        if (label) return <>{InvoiceReceivableChip(label, row.invoiceStatus)}</>
       },
     },
     {
@@ -291,14 +296,12 @@ export default function ReceivableList({
         disableSelectionOnClick
         onPageSizeChange={newPageSize => setPageSize(newPageSize)}
         getRowClassName={params =>
-          role.name === 'CLIENT' &&
-          params.row.invoiceStatus === 'Under revision'
+          role.name === 'CLIENT' && params.row.invoiceStatus === 30500
             ? 'disabled'
             : 'normal'
         }
         isRowSelectable={params =>
-          role.name === 'CLIENT' &&
-          params.row.invoiceStatus !== 'Under revision'
+          role.name === 'CLIENT' && params.row.invoiceStatus !== 30500
         }
       />
     </Box>

@@ -55,8 +55,8 @@ type Props = {
   onClose: any
   onClick: any
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
   isUpdatable: boolean
   isDeletable: boolean
@@ -243,7 +243,7 @@ const InvoiceVersionHistoryModal = ({
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: projectInfo!.corporationId,
-        orderCorporationId: projectInfo!.linkedOrder?.corporationId,
+        orderCorporationId: projectInfo?.corporationId,
         invoicedAt: projectInfo!.invoicedAt,
         paymentDueAt: {
           date: projectInfo!.payDueAt,

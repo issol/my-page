@@ -1,5 +1,5 @@
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import {
-  InvoiceReceivableStatusType,
   ProInvoiceListFilterType,
   ProInvoiceListType,
 } from '@src/types/invoice/common.type'
@@ -7,26 +7,6 @@ import {
 export type ProInvoiceListCalendarEventType = ProInvoiceListType & {
   extendedProps?: { calendar: string }
   allDay?: boolean
-}
-
-function getColor(status: InvoiceReceivableStatusType) {
-  return status === 'In preparation'
-    ? '#F572D8'
-    : status === 'Checking in progress'
-    ? '#FDB528'
-    : status === 'Accepted by client'
-    ? '#64C623'
-    : status === 'Tax invoice issued'
-    ? '#46A4C2'
-    : status === 'Paid'
-    ? '#267838'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : status === 'Overdue (Reminder sent)'
-    ? '#FF4D49'
-    : ''
 }
 
 export const getProInvoiceList = async (
@@ -40,7 +20,7 @@ export const getProInvoiceList = async (
           id: 1,
           corporationId: 'I-000001',
           createdAt: '2021-08-31T07:00:00.000Z',
-          status: 'In preparation',
+          status: 30100,
           invoicedAt: '2021-08-31T07:00:00.000Z',
           payDueAt: '2021-08-31T07:00:00.000Z',
           payDueTimezone: {
@@ -93,7 +73,7 @@ export const getProInvoiceListCalendar = async (
         id: 1,
         corporationId: 'I-000001',
         createdAt: '2023-06-29T07:00:00.000Z',
-        status: 'In preparation',
+        status: 30100,
         invoicedAt: '2023-06-29T07:00:00.000Z',
         payDueAt: '2023-07-01T07:00:00.000Z',
         payDueTimezone: {
@@ -115,7 +95,7 @@ export const getProInvoiceListCalendar = async (
           ...item,
           status: item.status,
           extendedProps: {
-            calendar: getColor(item.status),
+            calendar: getReceivableStatusColor(item.status),
           },
           allDay: true,
         }

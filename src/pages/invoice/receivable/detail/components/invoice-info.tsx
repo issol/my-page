@@ -17,15 +17,14 @@ import {
 import {
   InvoiceReceivableChip,
   JobTypeChip,
-  OrderStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import Icon from '@src/@core/components/icon'
-import { OrderStatus } from '@src/shared/const/status/statuses'
 import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
+
 import {
   OrderProjectInfoFormType,
   OrderStatusType,
@@ -58,7 +57,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
@@ -66,28 +64,19 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import { deleteOrder } from '@src/apis/order-detail.api'
-import toast from 'react-hot-toast'
-import { Router, useRouter } from 'next/router'
-import dayjs from 'dayjs'
+import { useRouter } from 'next/router'
 import {
   InvoiceProjectInfoFormType,
   InvoiceReceivableStatusType,
 } from '@src/types/invoice/common.type'
-import {
-  invoiceProjectInfoDefaultValue,
-  invoiceProjectInfoSchema,
-} from '@src/types/schema/invoice-project-info.schema'
+
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import {
   InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
-import { InvoiceStatus } from '@glocalize-inc/glodex'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
-import { set } from 'nprogress'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { deleteInvoice } from '@src/apis/invoice/receivable.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
@@ -124,8 +113,8 @@ type Props = {
   invoiceInfoErrors?: FieldErrors<InvoiceProjectInfoFormType>
   isInvoiceInfoValid?: boolean
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
   isUpdatable: boolean
   isDeletable: boolean
@@ -158,10 +147,12 @@ const InvoiceInfo = ({
   const currentRole = getCurrentRole()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [status, setStatus] = useState<string>(invoiceInfo.invoiceStatus)
+  const [status, setStatus] = useState<number>(invoiceInfo.invoiceStatus)
   const [isReminder, setIsReminder] = useState(invoiceInfo.setReminder)
   const [issued, setIssued] = useState<boolean>(invoiceInfo.taxInvoiceIssued)
 
+  const statusLabel =
+    statusList?.find(i => i.value === invoiceInfo.invoiceStatus)?.label || ''
   const [fileSize, setFileSize] = useState(0)
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
@@ -193,14 +184,15 @@ const InvoiceInfo = ({
   }
 
   const handleChangeStatus = (event: SelectChangeEvent) => {
-    setStatus(event.target.value as string)
+    const value = Number(event.target.value)
+    setStatus(value)
     const data = getInvoiceInfo && getInvoiceInfo()
     if (onSave && data) {
       onSave({
         id: invoiceInfo.id,
         form: {
           ...data,
-          invoiceStatus: event.target.value as InvoiceReceivableStatusType,
+          invoiceStatus: value as InvoiceReceivableStatusType,
         },
       })
     }
@@ -258,8 +250,8 @@ const InvoiceInfo = ({
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
-              invoiceStatus: data.status,
               invoicedAt: data.invoiceDate,
+              invoicedAtTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
@@ -299,7 +291,6 @@ const InvoiceInfo = ({
 
   const handleDeleteInvoice = () => {
     deleteInvoiceMutation.mutate(invoiceInfo.id)
-    // console.log('delete')
   }
 
   function fetchFile(fileName: string) {
@@ -417,39 +408,32 @@ const InvoiceInfo = ({
       setIssued(invoiceInfo.taxInvoiceIssued)
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
-        status: invoiceInfo.invoiceStatus,
-
         invoiceDescription: invoiceInfo.description,
-
+        invoiceDateTimezone: invoiceInfo.invoicedAtTimezone,
         invoiceDate: invoiceInfo.invoicedAt,
+        showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
           date: invoiceInfo.payDueAt,
-          // timezone: invoiceInfo.payDueTimezone,
           timezone: clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.invoiceConfirmedAt ?? '',
-          // timezone: invoiceInfo.invoiceConfirmTimezone ?? clientTimezone,
+          date: invoiceInfo.invoiceConfirmedAt ?? null,
           timezone: clientTimezone!,
         },
         taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? '',
-          // timezone: invoiceInfo.taxInvoiceDueTimezone ?? clientTimezone!,
+          date: invoiceInfo.taxInvoiceDueAt ?? null,
           timezone: clientTimezone!,
         },
         paymentDate: {
-          date: invoiceInfo.paidAt ?? '',
-          // timezone: invoiceInfo.paidDateTimezone ?? clientTimezone!,
+          date: invoiceInfo.paidAt,
           timezone: clientTimezone!,
         },
         taxInvoiceIssuanceDate: {
           date: invoiceInfo.taxInvoiceIssuedAt ?? '',
-          // timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? clientTimezone!,
           timezone: clientTimezone!,
         },
         salesRecognitionDate: {
           date: invoiceInfo.salesCheckedAt ?? '',
-          // timezone: invoiceInfo.salesCheckedDateTimezone ?? clientTimezone!,
           timezone: clientTimezone!,
         },
 
@@ -460,7 +444,6 @@ const InvoiceInfo = ({
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
       }
-      // projectInfoReset(res)
       invoiceInfoReset(res)
     }
   }, [invoiceInfo, invoiceInfoReset, clientTimezone])
@@ -546,7 +529,6 @@ const InvoiceInfo = ({
                 watch={invoiceInfoWatch!}
                 errors={invoiceInfoErrors!}
                 clientTimezone={clientTimezone}
-                statusList={statusList!}
               />
               <Grid item xs={12}>
                 <Box
@@ -671,7 +653,7 @@ const InvoiceInfo = ({
                 currentRole.name !== 'CLIENT' ? (
                   <IconButton
                     onClick={() => setEdit!(true)}
-                    disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                    disabled={invoiceInfo.invoiceStatus === 30900}
                   >
                     <Icon icon='mdi:pencil-outline' />
                   </IconButton>
@@ -748,7 +730,10 @@ const InvoiceInfo = ({
                       }}
                     >
                       {type === 'history' ? (
-                        InvoiceReceivableChip(invoiceInfo.invoiceStatus)
+                        InvoiceReceivableChip(
+                          statusLabel,
+                          invoiceInfo.invoiceStatus,
+                        )
                       ) : currentRole && currentRole.name === 'CLIENT' ? (
                         <Box
                           sx={{
@@ -757,8 +742,11 @@ const InvoiceInfo = ({
                             alignItems: 'center',
                           }}
                         >
-                          {InvoiceReceivableChip(invoiceInfo.invoiceStatus)}
-                          {invoiceInfo.invoiceStatus === 'Canceled' && (
+                          {InvoiceReceivableChip(
+                            statusLabel,
+                            invoiceInfo.invoiceStatus,
+                          )}
+                          {invoiceInfo.invoiceStatus === 301200 && (
                             <IconButton
                               onClick={() => {
                                 invoiceInfo.reason &&
@@ -774,18 +762,15 @@ const InvoiceInfo = ({
                         </Box>
                       ) : (
                         <Select
-                          value={status}
+                          value={status.toString()}
                           onChange={handleChangeStatus}
                           size='small'
                           sx={{ width: '253px' }}
                         >
                           {statusList.map(status => {
                             return (
-                              <MenuItem
-                                key={uuidv4()}
-                                value={status.statusName}
-                              >
-                                {status.statusName}
+                              <MenuItem key={uuidv4()} value={status.value}>
+                                {status.label}
                               </MenuItem>
                             )
                           })}
@@ -1354,7 +1339,7 @@ const InvoiceInfo = ({
                         value={isReminder}
                         onChange={handleChangeIsReminder}
                         checked={isReminder}
-                        disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                        disabled={invoiceInfo.invoiceStatus === 30900}
                       />
 
                       <Typography variant='body2'>

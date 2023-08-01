@@ -20,7 +20,7 @@ import { CancelReasonType } from '../requests/detail.type'
 import { ReasonType } from '../quotes/quote'
 
 export type InvoiceReceivableFilterType = {
-  invoiceStatus?: string[]
+  invoiceStatus?: number[]
   clientId?: number[]
   lsp?: string[]
   category?: string[]
@@ -134,13 +134,14 @@ export type InvoiceReceivableDetailType = {
   adminCompanyName: string
   invoiceStatus: InvoiceReceivableStatusType
   authorId: number
-
+  showDescription: boolean
   salesCategory: string
   description: string
   notes: string
   setReminder: boolean
   reminderSentAt: string | null
   invoicedAt: string
+  invoicedAtTimezone: CountryType
   payDueAt: string
   payDueTimezone: CountryType
   invoiceConfirmedAt: string | null
@@ -169,11 +170,11 @@ export type InvoiceReceivableDetailType = {
   taxInvoiceFiles: DeliveryFileType[]
 
   reason: ReasonType
-  // orderCorporationId: string
-  linkedOrder: {
-    id: number
-    corporationId: string
-  }
+  orderCorporationId: string
+  // linkedOrder: {
+  //   id: number
+  //   corporationId: string
+  // }
 }
 
 export type InvoiceHistoryType = {
@@ -215,20 +216,21 @@ export type InvoiceReceivablePatchParamsType = {
   members?: number[]
   contactPersonId?: number
   orderId?: number
-  invoiceStatus?: string
+  invoiceStatus?: number
   invoicedAt?: string
+  invoicedAtTimezone?: CountryType
   payDueAt?: string
   description?: string
   payDueTimezone?: CountryType
-  invoiceConfirmedAt?: string
+  invoiceConfirmedAt?: string | null
   invoiceConfirmTimezone?: CountryType
-  taxInvoiceDueAt?: string
+  taxInvoiceDueAt?: string | null
   taxInvoiceDueTimezone?: CountryType
   invoiceDescription?: string
   notes?: string
   taxInvoiceIssuedAt?: string
   taxInvoiceIssuedDateTimezone?: CountryType
-  paidAt?: string
+  paidAt?: string | null
   paidDateTimezone?: CountryType
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType

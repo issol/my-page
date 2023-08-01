@@ -14,9 +14,6 @@ import {
   FormControl,
   Grid,
   IconButton,
-  InputAdornment,
-  InputLabel,
-  OutlinedInput,
   TextField,
 } from '@mui/material'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
@@ -24,15 +21,8 @@ import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInpu
 import DatePicker from 'react-datepicker'
 
 // ** apis
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
-import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
-import { CategoryList } from '@src/shared/const/category/categories'
-import { ConstType } from '@src/pages/onboarding/client-guideline'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
-import { RevenueFrom } from '@src/shared/const/revenue-from'
-import { SalesCategory } from '@src/shared/const/sales-category'
-import { useGetClientList } from '@src/queries/client.query'
 import { ProInvoiceListFilterType } from '@src/types/invoice/common.type'
+import { useGetStatusList } from '@src/queries/common.query'
 
 // ** types
 
@@ -48,20 +38,12 @@ type FilterType = Pick<ProInvoiceListFilterType, 'status'>
 export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
 
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
 
   const commonOptions = {
     autoHighlight: true,
     fullWidth: true,
     disableCloseOnSelect: true,
-  }
-
-  function filterValue(option: any, keyName: keyof FilterType) {
-    return !filter[keyName]
-      ? option[0]
-      : option.filter((item: { value: string; label: string }) =>
-          filter[keyName]?.includes(item.value),
-        )
   }
 
   return (
@@ -95,19 +77,19 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       multiple
                       loading={isLoading}
                       options={statusList || []}
-                      getOptionLabel={option => option.statusName}
+                      getOptionLabel={option => option.label}
                       value={
                         !statusList
                           ? []
                           : statusList?.filter(item =>
-                              filter.status?.includes(item.statusName),
+                              filter.status?.includes(item.value),
                             )
                       }
                       limitTags={1}
                       onChange={(e, v) =>
                         setFilter({
                           ...filter,
-                          status: v.map(item => item.statusName),
+                          status: v.map(item => item.value),
                         })
                       }
                       renderInput={params => (
@@ -120,7 +102,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
                           <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.statusName}
+                          {option.label}
                         </li>
                       )}
                     />

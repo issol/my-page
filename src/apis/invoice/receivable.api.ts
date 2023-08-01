@@ -1,9 +1,5 @@
 import { ItemResType } from '@src/types/common/orders-and-quotes.type'
-import { CurrencyType } from '@src/types/common/standard-price'
-import {
-  InvoiceProjectInfoFormType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
+
 import {
   CreateInvoiceReceivableRes,
   InvoiceReceivableDetailType,
@@ -18,10 +14,9 @@ import { makeQuery } from 'src/shared/transformer/query.transformer'
 import {
   ClientType,
   LanguageAndItemType,
-  ProjectInfoType,
   ProjectTeamListType,
-  VersionHistoryType,
 } from '@src/types/orders/order-detail'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
@@ -39,36 +34,6 @@ export const getReceivableList = async (
   }
 }
 
-function getColor(status: InvoiceReceivableStatusType) {
-  return status === 'In preparation'
-    ? '#F572D8'
-    : status === 'Checking in progress'
-    ? '#FDB528'
-    : status === 'Accepted by client'
-    ? '#64C623'
-    : status === 'Tax invoice issued'
-    ? '#46A4C2'
-    : status === 'Paid'
-    ? '#267838'
-    : status === 'Overdue'
-    ? '#FF4D49'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : status === 'Overdue (Reminder sent)'
-    ? '#FF4D49'
-    : status === 'New'
-    ? '#666CFF'
-    : status === 'Invoice confirmed'
-    ? '#64C623'
-    : status === 'Revised'
-    ? '#AD7028'
-    : status === 'Under review'
-    ? '#FDB528'
-    : status === 'Under revision'
-    ? '#BA971A'
-    : ''
-}
-
 export const getInvoiceReceivableCalendarData = async (
   year: number,
   month: number,
@@ -83,14 +48,13 @@ export const getInvoiceReceivableCalendarData = async (
         filter,
       )}`,
     )
-
     return {
       data: data.data?.map((item: InvoiceReceivableListType) => {
         return {
           ...item,
           status: item.invoiceStatus,
           extendedProps: {
-            calendar: getColor(item.invoiceStatus),
+            calendar: getReceivableStatusColor(item.invoiceStatus),
           },
           allDay: true,
         }
@@ -207,7 +171,6 @@ export const patchInvoiceInfo = async (
         ...form,
       },
     )
-    // console.log(data)
 
     return data
   } catch (e: any) {
@@ -223,6 +186,19 @@ export const checkEditable = async (id: number): Promise<boolean> => {
   try {
     const { data } = await axios.get(
       `/api/enough/u/invoice/receivable/${id}/editable`,
+    )
+    return data
+  } catch (e: any) {
+    return false
+  }
+}
+
+export const confirmInvoiceByLpm = async (
+  invoiceId: number,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/accept`,
     )
     return data
   } catch (e: any) {

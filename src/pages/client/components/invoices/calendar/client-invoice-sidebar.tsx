@@ -13,10 +13,8 @@ import UseBgColor, { UseBgColorType } from '@src/@core/hooks/useBgColor'
 import { Button } from '@mui/material'
 
 import { hexToRGBA } from '@src/@core/utils/hex-to-rgba'
-import {
-  ClientInvoiceCalendarEventType,
-  ClientProjectCalendarEventType,
-} from '@src/apis/client.api'
+import { ClientInvoiceCalendarEventType } from '@src/apis/client.api'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type Props = {
   event: Array<ClientInvoiceCalendarEventType>
@@ -36,8 +34,6 @@ export default function ClientInvoiceCalendarSideBar({
   handleLeftSidebarToggle,
   setCurrentListId,
 }: Props) {
-  // console.log(event)
-
   const bgColors = UseBgColor()
 
   const colors: UseBgColorType = {
@@ -58,9 +54,7 @@ export default function ClientInvoiceCalendarSideBar({
     },
   }
 
-  const monthName = new Intl.DateTimeFormat('en-US', { month: 'long' }).format(
-    new Date(new Date().getFullYear(), month),
-  )
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
 
   const [currEvent, setCurrEvent] = useState<typeof event>([])
 
@@ -113,6 +107,9 @@ export default function ClientInvoiceCalendarSideBar({
 
       {currEvent.length
         ? currEvent?.map((item: ClientInvoiceCalendarEventType) => {
+            const statusLabel = statusList?.find(
+              i => i.value === item.invoiceStatus,
+            )?.label
             return (
               <BoxFeature
                 key={item.id}
@@ -120,17 +117,14 @@ export default function ClientInvoiceCalendarSideBar({
                 bg={hexToRGBA(item?.extendedProps?.calendar!, 0.12)}
                 $bgSize={colors[item?.extendedProps?.calendar!]?.backgroundSize}
                 color={
-                  item.invoiceStatus === 'Overdue' ||
-                  item.invoiceStatus === 'Overdue (Reminder sent)'
+                  item.invoiceStatus === 301000 || item.invoiceStatus === 301100
                     ? '#FF4D49'
                     : ''
                 }
               >
-                {/* {item.title} */}
-                {item.invoiceStatus === 'Overdue' ||
-                item.invoiceStatus === 'Overdue (Reminder sent)'
-                  ? `🔴 ${item.invoiceStatus}`
-                  : item.invoiceStatus}
+                {item.invoiceStatus === 301000 || item.invoiceStatus === 301100
+                  ? `🔴 ${statusLabel}`
+                  : statusLabel}
               </BoxFeature>
             )
           })

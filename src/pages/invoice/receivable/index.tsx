@@ -18,7 +18,6 @@ import ToggleViewButton, {
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
 
 // ** types
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
@@ -28,8 +27,6 @@ import { ConstType } from '@src/pages/onboarding/client-guideline'
 import Filter from './components/list/filter'
 import ReceivableList from './components/list/list'
 import CalendarContainer from './components/calendar'
-
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 
 // ** apis
 import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
@@ -46,7 +43,7 @@ import OrderList from './components/list/job-list'
 import { useGetCompanyOptions } from '@src/queries/options.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const initialFilter: InvoiceReceivableFilterType = {
   invoiceStatus: [],
@@ -103,7 +100,7 @@ export default function Receivable() {
 
   const { data: list, isLoading } = useGetReceivableList(activeFilter)
   const { data: statusList, isLoading: statusListLoading } =
-    useGetInvoiceStatus()
+    useGetStatusList('InvoiceReceivable')
 
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
@@ -195,7 +192,10 @@ export default function Receivable() {
           maxWidth='lg'
         >
           <DialogContent sx={{ padding: '50px' }}>
-            <OrderList onClose={() => closeModal('order-list')} />
+            <OrderList
+              onClose={() => closeModal('order-list')}
+              type='invoice'
+            />
           </DialogContent>
         </Dialog>
       ),
@@ -228,7 +228,7 @@ export default function Receivable() {
               clientListLoading={clientListLoading}
               companyList={companyList}
               companyListLoading={companiesListLoading}
-              statusList={statusList!}
+              statusList={statusList || []}
               statusListLoading={statusListLoading}
             />
           </Grid>
