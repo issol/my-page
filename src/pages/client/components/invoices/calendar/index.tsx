@@ -103,7 +103,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   useEffect(() => {
     if (data?.data.length && hideFilter) {
-      setEvent(data.data.filter(item => item.invoiceStatus !== 'Paid'))
+      setEvent(data.data.filter(item => item.invoiceStatus !== 30900))
     } else if (data?.data.length && !hideFilter) {
       setEvent([...data.data])
     }
