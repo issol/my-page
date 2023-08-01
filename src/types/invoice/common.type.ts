@@ -9,6 +9,7 @@ export type InvoicePayableStatusType =
   | 'Canceled'
 
 export type InvoiceReceivableStatusType =
+  | 'New'
   | 'In preparation'
   | 'Checking in progress'
   | 'Accepted by client'
@@ -17,6 +18,10 @@ export type InvoiceReceivableStatusType =
   | 'Overdue'
   | 'Overdue (Reminder sent)'
   | 'Canceled'
+  | 'Under revision'
+  | 'Under review'
+  | 'Revised'
+  | 'Invoice confirmed'
 
 export type InvoiceProjectInfoFormType = {
   status: InvoiceReceivableStatusType

@@ -30,6 +30,7 @@ import {
   InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
 } from '@src/types/invoice/receivable.type'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   list: Array<ProjectTeamListType>
@@ -91,6 +92,8 @@ const InvoiceProjectTeam = ({
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const queryClient = useQueryClient()
+
+  const currentRole = getCurrentRole()
 
   function transformTeamData(data: ProjectTeamType) {
     let result: ProjectTeamFormType = {
@@ -209,7 +212,10 @@ const InvoiceProjectTeam = ({
             }}
           >
             <Typography variant='h6'>Project team</Typography>
-            {type === 'detail' && isUpdatable ? (
+            {type === 'detail' &&
+            isUpdatable &&
+            currentRole &&
+            currentRole.name !== 'CLIENT' ? (
               <IconButton onClick={() => setEdit(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
