@@ -250,7 +250,7 @@ export default function QuotesProjectInfoDetail({
                           onClickReason(
                             project.reason.type === 'revision-request'
                               ? 'Requested'
-                              : project.reason.type.replace(/^[a-z]/, char =>
+                              : project.reason.type?.replace(/^[a-z]/, char =>
                                   char.toUpperCase(),
                                 ),
                             project.reason,
@@ -358,7 +358,11 @@ export default function QuotesProjectInfoDetail({
                     {client?.contactPerson?.jobTitle
                       ? ` / ${client?.contactPerson?.jobTitle}`
                       : ''}
-                    {type === 'history' ? null : (
+                    {type === 'history' && 
+                      (project.status === 'Changed into order' ||
+                      project.status === 'Rejected' ||
+                      project.status === 'Canceled')
+                    ? null : (
                       <IconButton onClick={() => setContactPersonEdit(true)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>

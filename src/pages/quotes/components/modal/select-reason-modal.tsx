@@ -27,7 +27,7 @@ type Props = {
   from: 'lsp' | 'client'
   statusList: { value: number; label: string }[]
   reasonList: string[]
-  type: 'canceled' | 'rejected' | 'requested_revision' | 'redelivery_request'
+  type: 'canceled' | 'rejected' | 'revision-requested' | 'redelivery-requested'
 }
 
 const SelectReasonModal = ({
