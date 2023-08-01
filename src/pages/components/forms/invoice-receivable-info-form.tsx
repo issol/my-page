@@ -22,7 +22,6 @@ import DatePicker from 'react-datepicker'
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
 // ** types
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { Fragment, ReactNode, useEffect, useState } from 'react'
 
 // ** react hook form
@@ -65,10 +64,6 @@ type Props = {
   watch: UseFormWatch<InvoiceProjectInfoFormType>
   errors: FieldErrors<InvoiceProjectInfoFormType>
   clientTimezone?: CountryType | undefined
-  statusList: {
-    value: number
-    label: string
-  }[]
 }
 export default function InvoiceProjectInfoForm({
   control,
@@ -76,7 +71,6 @@ export default function InvoiceProjectInfoForm({
   watch,
   errors,
   clientTimezone,
-  statusList,
 }: Props) {
   const [workName, setWorkName] = useState<{ value: string; label: string }[]>(
     [],
@@ -93,6 +87,7 @@ export default function InvoiceProjectInfoForm({
       setValue('paymentDueDate.timezone', clientTimezone, setValueOptions)
       setValue('invoiceConfirmDate.timezone', clientTimezone, setValueOptions)
       setValue('taxInvoiceDueDate.timezone', clientTimezone, setValueOptions)
+      setValue('invoiceDateTimezone', clientTimezone, setValueOptions)
     }
   }, [clientTimezone])
 
@@ -162,7 +157,7 @@ export default function InvoiceProjectInfoForm({
             <FullWidthDatePicker
               showTimeSelect
               timeFormat='HH:mm'
-              timeIntervals={15}
+              timeIntervals={30}
               selected={new Date(value)}
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
@@ -176,30 +171,39 @@ export default function InvoiceProjectInfoForm({
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='status'
+          name='invoiceDateTimezone'
           control={control}
-          render={({ field: { value, onChange } }) => (
+          render={({ field }) => (
             <Autocomplete
               autoHighlight
               fullWidth
-              options={statusList}
-              onChange={(e, v) => {
-                onChange(v?.value ?? '')
-              }}
-              value={statusList.find(item => item.value === value) ?? null}
-              getOptionLabel={option => option.label}
+              {...field}
+              value={
+                !field.value ? { code: '', phone: '', label: '' } : field.value
+              }
+              options={countries as CountryType[]}
+              onChange={(e, v) => field.onChange(v)}
+              getOptionLabel={option => getGmtTime(option.code)}
+              renderOption={(props, option) => (
+                <Box component='li' {...props}>
+                  {getGmtTime(option.code)}
+                </Box>
+              )}
               renderInput={params => (
                 <TextField
                   {...params}
-                  error={Boolean(errors.status)}
-                  label='Status*'
-                  placeholder='Status*'
+                  label='Time zone*'
+                  error={Boolean(errors?.invoiceDateTimezone)}
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
                 />
               )}
             />
           )}
         />
-        {renderErrorMsg('status')}
+
+        {renderErrorMsg('invoiceDateTimezone')}
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -564,10 +568,7 @@ export default function InvoiceProjectInfoForm({
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
               customInput={
-                <CustomInput
-                  label='Due date for the tax invoice'
-                  icon='calendar'
-                />
+                <CustomInput label='Tax invoice due date' icon='calendar' />
               }
             />
           )}
@@ -611,9 +612,30 @@ export default function InvoiceProjectInfoForm({
         <Divider />
       </Grid>
       <Grid item xs={12}>
-        <Typography variant='h6' mb='24px'>
-          Invoice description
-        </Typography>
+        <Box display='flex' justifyContent='space-between' alignItems='center'>
+          <Typography variant='h6' mb='24px'>
+            Invoice description
+          </Typography>
+          <Box display='flex' alignItems='center'>
+            <Controller
+              name={'showDescription'}
+              control={control}
+              render={({ field: { value, onChange } }) => (
+                <Checkbox
+                  value={value}
+                  onChange={e => {
+                    onChange(e.target.checked)
+                  }}
+                  checked={value}
+                />
+              )}
+            />
+
+            <Typography variant='body2'>
+              Show invoice description to client
+            </Typography>
+          </Box>
+        </Box>
         <Controller
           name='invoiceDescription'
           control={control}

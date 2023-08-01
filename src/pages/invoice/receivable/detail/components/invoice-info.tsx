@@ -40,7 +40,6 @@ import {
   useEffect,
   useState,
 } from 'react'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 import useModal from '@src/hooks/useModal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
@@ -189,8 +188,8 @@ const InvoiceInfo = ({
       const res: InvoiceReceivablePatchParamsType =
         infoType === 'basic'
           ? {
-              invoiceStatus: data.status,
               invoicedAt: data.invoiceDate,
+              invoicedAtTimezone: data.invoiceDateTimezone,
               payDueAt: data.paymentDueDate.date,
               payDueTimezone: data.paymentDueDate.timezone,
               invoiceDescription: data.invoiceDescription,
@@ -220,7 +219,6 @@ const InvoiceInfo = ({
 
   const handleDeleteInvoice = () => {
     deleteInvoiceMutation.mutate(invoiceInfo.id)
-    // console.log('delete')
   }
 
   useEffect(() => {
@@ -230,39 +228,32 @@ const InvoiceInfo = ({
       setIssued(invoiceInfo.taxInvoiceIssued)
       const res: InvoiceProjectInfoFormType = {
         ...invoiceInfo,
-        status: invoiceInfo.invoiceStatus,
-
         invoiceDescription: invoiceInfo.description,
-
+        invoiceDateTimezone: invoiceInfo.invoicedAtTimezone,
         invoiceDate: invoiceInfo.invoicedAt,
+        showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
           date: invoiceInfo.payDueAt,
-          // timezone: invoiceInfo.payDueTimezone,
           timezone: clientTimezone!,
         },
         invoiceConfirmDate: {
-          date: invoiceInfo.invoiceConfirmedAt ?? '',
-          // timezone: invoiceInfo.invoiceConfirmTimezone ?? clientTimezone,
+          date: invoiceInfo.invoiceConfirmedAt ?? null,
           timezone: clientTimezone!,
         },
         taxInvoiceDueDate: {
-          date: invoiceInfo.taxInvoiceDueAt ?? '',
-          // timezone: invoiceInfo.taxInvoiceDueTimezone ?? clientTimezone!,
+          date: invoiceInfo.taxInvoiceDueAt ?? null,
           timezone: clientTimezone!,
         },
         paymentDate: {
-          date: invoiceInfo.paidAt ?? '',
-          // timezone: invoiceInfo.paidDateTimezone ?? clientTimezone!,
+          date: invoiceInfo.paidAt,
           timezone: clientTimezone!,
         },
         taxInvoiceIssuanceDate: {
           date: invoiceInfo.taxInvoiceIssuedAt ?? '',
-          // timezone: invoiceInfo.taxInvoiceIssuedDateTimezone ?? clientTimezone!,
           timezone: clientTimezone!,
         },
         salesRecognitionDate: {
           date: invoiceInfo.salesCheckedAt ?? '',
-          // timezone: invoiceInfo.salesCheckedDateTimezone ?? clientTimezone!,
           timezone: clientTimezone!,
         },
 
@@ -273,7 +264,6 @@ const InvoiceInfo = ({
         tax: invoiceInfo.tax,
         isTaxable: invoiceInfo.isTaxable ?? true,
       }
-      // projectInfoReset(res)
       invoiceInfoReset(res)
     }
   }, [invoiceInfo, invoiceInfoReset, clientTimezone])
@@ -306,7 +296,6 @@ const InvoiceInfo = ({
                 watch={invoiceInfoWatch!}
                 errors={invoiceInfoErrors!}
                 clientTimezone={clientTimezone}
-                statusList={statusList || []}
               />
               <Grid item xs={12}>
                 <Box
@@ -789,7 +778,7 @@ const InvoiceInfo = ({
                           width: '100%',
                         }}
                       >
-                        Due date for the tax invoice
+                        Tax invoice due date
                       </Typography>
                     </Box>
                     <Box

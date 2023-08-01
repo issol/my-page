@@ -142,7 +142,12 @@ export default function RegisterClientForm({
                   lastName: item.lastName!,
                 })} / ${item.jobTitle}`,
           }))
-          setContactPersonList(defaultFilter.concat(result))
+          console.log('contactPersonData', result)
+          if (!result[0].userId) {
+            setContactPersonList(defaultFilter.concat(result))
+          } else {
+            setContactPersonList(result)
+          }
         } else {
           setContactPersonList(defaultFilter)
         }

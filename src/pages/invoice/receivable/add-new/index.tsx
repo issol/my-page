@@ -375,7 +375,6 @@ export default function AddNewInvoice() {
       members: teams.member,
       contactPersonId: clients.contactPersonId,
       orderId: Number(router.query.orderId),
-      invoiceStatus: projectInfo.status,
       invoicedAt: projectInfo.invoiceDate,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
@@ -495,10 +494,10 @@ export default function AddNewInvoice() {
           // console.log(res)
 
           projectInfoReset({
-            status: 30100,
             invoiceDate: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
+            showDescription: res?.showDescription ?? false,
             invoiceDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
@@ -660,7 +659,6 @@ export default function AddNewInvoice() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
-                  statusList={statusList!}
                 />
                 <Grid
                   item

@@ -1,18 +1,16 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { InvoiceReceivableStatusType } from '../invoice/common.type'
 
 export const invoiceProjectInfoDefaultValue = {
-  status: 30100 as InvoiceReceivableStatusType,
-
+  showDescription: false,
   invoiceDate: Date(),
 }
 
 export const invoiceProjectInfoSchema = yup.object().shape({
   invoiceDate: yup.date().required(FormErrors.required),
-  status: yup.string().required(FormErrors.required),
   workName: yup.string().nullable(),
   projectName: yup.string().required(FormErrors.required),
+  showDescription: yup.boolean().required(FormErrors.required),
 
   category: yup.string().nullable(),
 

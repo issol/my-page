@@ -24,7 +24,8 @@ export type InvoiceReceivableStatusType =
   | 301200 //Canceled
 
 export type InvoiceProjectInfoFormType = {
-  status: InvoiceReceivableStatusType
+  status?: InvoiceReceivableStatusType
+  showDescription: boolean
   workName?: string
   projectName: string
   invoiceDescription?: string
@@ -33,10 +34,11 @@ export type InvoiceProjectInfoFormType = {
   expertise?: Array<string>
   revenueFrom: RevenueFormType
   invoiceDate: string
+  invoiceDateTimezone: CountryType
   paymentDueDate: { date: string; timezone: CountryType }
-  invoiceConfirmDate?: { date: string; timezone: CountryType }
-  taxInvoiceDueDate?: { date: string; timezone: CountryType }
-  paymentDate?: { date: string; timezone: CountryType }
+  invoiceConfirmDate?: { date: string | null; timezone: CountryType }
+  taxInvoiceDueDate?: { date: string | null; timezone: CountryType }
+  paymentDate?: { date: string | null; timezone: CountryType }
   taxInvoiceIssuanceDate?: { date: string; timezone: CountryType }
   salesRecognitionDate?: { date: string; timezone: CountryType }
   salesCategory?: string

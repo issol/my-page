@@ -259,7 +259,10 @@ const ReceivableInvoiceDetail = () => {
     defaultValues: invoiceProjectInfoDefaultValue,
     resolver: yupResolver(invoiceProjectInfoSchema),
   })
-
+  // console.log(
+  //   'invoiceInfoErrors',
+  //   typeof getInvoiceInfo().invoiceConfirmDate.date,
+  // )
   const {
     control: itemControl,
     getValues: getItem,

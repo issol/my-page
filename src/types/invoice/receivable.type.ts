@@ -128,13 +128,14 @@ export type InvoiceReceivableDetailType = {
   adminCompanyName: string
   invoiceStatus: InvoiceReceivableStatusType
   authorId: number
-
+  showDescription: boolean
   salesCategory: string
   description: string
   notes: string
   setReminder: boolean
   reminderSentAt: string | null
   invoicedAt: string
+  invoicedAtTimezone: CountryType
   payDueAt: string
   payDueTimezone: CountryType
   invoiceConfirmedAt: string | null
@@ -203,18 +204,19 @@ export type InvoiceReceivablePatchParamsType = {
   orderId?: number
   invoiceStatus?: number
   invoicedAt?: string
+  invoicedAtTimezone?: CountryType
   payDueAt?: string
   description?: string
   payDueTimezone?: CountryType
-  invoiceConfirmedAt?: string
+  invoiceConfirmedAt?: string | null
   invoiceConfirmTimezone?: CountryType
-  taxInvoiceDueAt?: string
+  taxInvoiceDueAt?: string | null
   taxInvoiceDueTimezone?: CountryType
   invoiceDescription?: string
   notes?: string
   taxInvoiceIssuedAt?: string
   taxInvoiceIssuedDateTimezone?: CountryType
-  paidAt?: string
+  paidAt?: string | null
   paidDateTimezone?: CountryType
   salesCheckedAt?: string
   salesCheckedDateTimezone?: CountryType
