@@ -70,7 +70,7 @@ const CalendarContainer = () => {
 
   useEffect(() => {
     if (currentListId && data?.data) {
-      setCurrentList(data?.data.filter(item => item.id === Number(currentListId)))
+      setCurrentList(data?.data.filter(item => item.id === currentListId))
     }
   }, [currentListId])
 
