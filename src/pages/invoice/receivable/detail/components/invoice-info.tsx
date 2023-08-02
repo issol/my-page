@@ -2086,8 +2086,7 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  /* TODO: 조건수정하기*/
-                  ![30900, 301200].includes(invoiceInfo.invoiceStatus)
+                  [30900, 301200].includes(invoiceInfo.invoiceStatus)
                 }
                 onClick={onCancelClick}
               >
