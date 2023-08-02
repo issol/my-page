@@ -144,8 +144,11 @@ export type InvoiceReceivableDetailType = {
   invoicedAtTimezone: CountryType
   payDueAt: string
   payDueTimezone: CountryType
-  invoiceConfirmedAt: string | null
-  invoiceConfirmTimezone: CountryType | null
+  invoiceConfirmedAt: string | null //TODO:추후 삭제 필요
+  invoiceConfirmTimezone: CountryType | null //TODO:추후 삭제 필요
+  managerConfirmedAt: string | null
+  clientConfirmedAt: string | null
+  clientConfirmTimezone?: CountryType | null
   taxInvoiceDueAt: string | null
   taxInvoiceDueTimezone: CountryType | null
   paidAt: string | null

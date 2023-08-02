@@ -19,6 +19,7 @@ import {
   JobTypeChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
+import styled from 'styled-components'
 import Icon from '@src/@core/components/icon'
 import {
   FullDateHelper,
@@ -64,7 +65,10 @@ import {
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { deleteInvoice } from '@src/apis/invoice/receivable.api'
+import {
+  deleteInvoice,
+  deliverTaxInvoice,
+} from '@src/apis/invoice/receivable.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ReasonType } from '@src/types/quotes/quote'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
@@ -74,10 +78,17 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getClientDetail } from '@src/apis/client.api'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { getFilePath } from '@src/shared/transformer/filePath.transformer'
-import { getDownloadUrlforCommon } from '@src/apis/common.api'
+import {
+  getDownloadUrlforCommon,
+  getUploadUrlforCommon,
+  uploadFileToS3,
+} from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
 import { AuthContext } from '@src/context/AuthContext'
 import { toast } from 'react-hot-toast'
+import { useDropzone } from 'react-dropzone'
+import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 
 type Props = {
   type: string
@@ -107,7 +118,12 @@ type Props = {
   isDeletable: boolean
   isAccountInfoUpdatable: boolean
   client?: ClientType
+  isFileUploading: boolean
+  setIsFileUploading: (n: boolean) => void
 }
+
+type FileProp = { name: string; type: string; size: number }
+
 const InvoiceInfo = ({
   type,
   invoiceInfo,
@@ -130,6 +146,8 @@ const InvoiceInfo = ({
   isDeletable,
   isAccountInfoUpdatable,
   client,
+  isFileUploading,
+  setIsFileUploading,
 }: Props) => {
   const { openModal, closeModal } = useModal()
 
@@ -150,6 +168,7 @@ const InvoiceInfo = ({
       )
 
   const [fileSize, setFileSize] = useState(0)
+  const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
   const { user } = useContext(AuthContext)
@@ -168,6 +187,53 @@ const InvoiceInfo = ({
     >
   >([])
 
+  // ** Hooks
+  const { getRootProps, getInputProps } = useDropzone({
+    multiple: false,
+    disabled: invoiceInfo.clientConfirmedAt === null,
+    maxSize: FILE_SIZE.DEFAULT,
+    accept: {
+      'image/*': ['.png', '.jpg', '.jpeg'],
+      'application/pdf': ['.pdf'],
+      'text/csv': ['.cvs'],
+      'text/plain': ['.txt'],
+      'application/vnd.ms-powerpoint': ['.ppt'],
+      'application/msword': ['.doc'],
+      'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+        ['.docx'],
+    },
+    onDrop: (acceptedFiles: File[]) => {
+      const uniqueFiles = files
+        .concat(acceptedFiles)
+        .reduce((acc: File[], file: File) => {
+          let result = fileSize
+          acc.concat(file).forEach((file: FileProp) => (result += file.size))
+          if (result > FILE_SIZE.DEFAULT) {
+            onFileUploadReject()
+            return acc
+          } else {
+            const found = acc.find(f => f.name === file.name)
+            if (!found) acc.push(file)
+            return acc
+          }
+        }, [])
+      setFiles(uniqueFiles)
+      setIsFileUploading(true)
+    },
+    onDropRejected: () => onFileUploadReject(),
+  })
+
+  function onFileUploadReject() {
+    openModal({
+      type: 'rejectDrop',
+      children: (
+        <SimpleAlertModal
+          message='The maximum file size you can upload is 50mb.'
+          onClose={() => closeModal('rejectDrop')}
+        />
+      ),
+    })
+  }
   const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
@@ -307,11 +373,8 @@ const InvoiceInfo = ({
     deleteInvoiceMutation.mutate(invoiceInfo.id)
   }
 
-  function fetchFile(fileName: string) {
-    // TODO File path 논의되면 수정하기
-    const path = getFilePath(['delivery', invoiceInfo.id.toString()], fileName)
-
-    getDownloadUrlforCommon(S3FileType.TAX_INVOICE, path).then(res => {
+  function fetchFile(file: DeliveryFileType) {
+    getDownloadUrlforCommon(S3FileType.TAX_INVOICE, file.filePath).then(res => {
       fetch(res.url, { method: 'GET' })
         .then(res => {
           return res.blob()
@@ -320,7 +383,7 @@ const InvoiceInfo = ({
           const url = window.URL.createObjectURL(blob)
           const a = document.createElement('a')
           a.href = url
-          a.download = `${fileName}`
+          a.download = `${file.fileName}`
           document.body.appendChild(a)
           a.click()
           setTimeout((_: any) => {
@@ -340,16 +403,179 @@ const InvoiceInfo = ({
   }
 
   function downloadOneFile(file: DeliveryFileType) {
-    fetchFile(file.fileName)
+    fetchFile(file)
   }
 
   function downloadAllFiles(files: Array<DeliveryFileType> | [] | undefined) {
     if (!files || !files.length) return
 
     files.forEach(file => {
-      fetchFile(file.fileName)
+      fetchFile(file)
     })
   }
+
+  function onFileDelete(file: File) {
+    setFiles(files.filter(i => i.name !== file.name))
+  }
+
+  // async function uploadFiles() {
+  //     const fileInfo: DeliveryFileType[] = []
+  //     const paths: string[] = files?.map(file =>
+  //       getFilePath(['invoice', String(invoiceInfo.id), 'tax'], file.name),
+  //     )
+  //     const promiseArr = paths.map((url, idx) => {
+  //       try{
+  //         const res = await getUploadUrlforCommon(S3FileType.TAX_INVOICE, url);
+  //       fileInfo.push({
+  //         type: 'uploaded',
+  //         filePath: url,
+  //         fileName: files[idx].name,
+  //         fileExtension: files[idx].type,
+  //         fileSize: files[idx].size,
+  //       });
+  //       await uploadFileToS3(res.url, files[idx]);
+  //       }catch(error){}
+  //       return getUploadUrlforCommon(S3FileType.TAX_INVOICE, url).then(res => {
+  //         fileInfo.push({
+  //           type: 'uploaded',
+  //           filePath: url,
+  //           fileName: files[idx].name,
+  //           fileExtension: files[idx].type,
+  //           fileSize: files[idx].size,
+  //         })
+  //         return uploadFileToS3(res.url, files[idx])
+  //       })
+
+  //     })
+  //     return [promiseArr, fileInfo]
+  //   }
+  async function uploadFiles(): Promise<[Promise<void>[], DeliveryFileType[]]> {
+    const fileInfo: DeliveryFileType[] = []
+    const paths: string[] = files?.map(file =>
+      getFilePath(['invoice', String(invoiceInfo.id), 'tax'], file.name),
+    )
+
+    const promiseArr: Promise<void>[] = paths.map(async (url, idx) => {
+      try {
+        const res = await getUploadUrlforCommon(S3FileType.TAX_INVOICE, url)
+        fileInfo.push({
+          type: 'uploaded',
+          filePath: url,
+          fileName: files[idx].name,
+          fileExtension: files[idx].type,
+          fileSize: files[idx].size,
+        })
+        await uploadFileToS3(res.url, files[idx])
+      } catch (error) {
+        onError()
+      }
+    })
+
+    await Promise.all(promiseArr)
+
+    return [promiseArr, fileInfo]
+  }
+
+  async function deliverTaxInvoiceMutation() {
+    try {
+      const [promises, fileInfo] = await uploadFiles()
+      await Promise.all(promises)
+      if (fileInfo.length) {
+        deliverTaxInvoice(invoiceInfo.id!, savedFiles.concat(fileInfo)).then(
+          res => {
+            toast.success('Success!', {
+              position: 'bottom-left',
+            })
+            setFiles([])
+            setIsFileUploading(false)
+            queryClient.invalidateQueries({
+              queryKey: 'invoiceReceivableDetail',
+            })
+          },
+        )
+      }
+    } catch (error) {
+      setIsFileUploading(false)
+    }
+  }
+
+  function onError() {
+    toast.error(
+      'Something went wrong while uploading files. Please try again.',
+      {
+        position: 'bottom-left',
+      },
+    )
+  }
+
+  function onDeliverTaxInvoice() {
+    openModal({
+      type: 'uploadFiles',
+      children: (
+        <CustomModal
+          vary='successful'
+          title='Are you sure you want to deliver the uploaded files? You cannot delete the files after delivering them to the client.'
+          onClick={() => {
+            closeModal('uploadFiles')
+            deliverTaxInvoiceMutation()
+          }}
+          onClose={() => closeModal('uploadFiles')}
+          rightButtonText='Deliver'
+        />
+      ),
+    })
+  }
+
+  function onCancelFileUpload() {
+    if (!files.length) {
+      setIsFileUploading(false)
+    } else {
+      openModal({
+        type: 'cancelUpload',
+        children: (
+          <CustomModal
+            vary='error'
+            title='Are you sure you want to deliver the uploaded files? You cannot delete the files after delivering them to the client.'
+            onClick={() => {
+              closeModal('cancelUpload')
+              setIsFileUploading(false)
+            }}
+            onClose={() => closeModal('cancelUpload')}
+            rightButtonText='Cancel'
+            leftButtonText='No'
+          />
+        ),
+      })
+    }
+  }
+
+  const uploadedFileList = files.map((file: File) => (
+    <Box key={uuidv4()}>
+      <FileBox>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ marginRight: '8px', display: 'flex' }}>
+            <Icon
+              icon='material-symbols:file-present-outline'
+              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+              fontSize={24}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Tooltip title={file.name}>
+              <FileName variant='body1'>{file.name}</FileName>
+            </Tooltip>
+
+            <Typography variant='caption' lineHeight={'14px'}>
+              {formatFileSize(file.size)}
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton onClick={() => onFileDelete(file)}>
+          <Icon icon='material-symbols:close' fontSize={24} />
+        </IconButton>
+      </FileBox>
+    </Box>
+  ))
 
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
     <Box key={uuidv4()}>
@@ -361,18 +587,7 @@ const InvoiceInfo = ({
       >
         {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
       </Typography>
-      <Box
-        sx={{
-          display: 'flex',
-          marginBottom: '8px',
-          width: '100%',
-          justifyContent: 'space-between',
-          borderRadius: '8px',
-          padding: '10px 12px',
-          border: '1px solid rgba(76, 78, 100, 0.22)',
-          background: '#f9f8f9',
-        }}
-      >
+      <FileBox>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ marginRight: '8px', display: 'flex' }}>
             <Icon
@@ -383,22 +598,7 @@ const InvoiceInfo = ({
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column' }}>
             <Tooltip title={file.fileName}>
-              <Typography
-                variant='body1'
-                fontSize={14}
-                fontWeight={600}
-                lineHeight={'20px'}
-                sx={{
-                  overflow: 'hidden',
-                  wordBreak: 'break-all',
-                  textOverflow: 'ellipsis',
-                  display: '-webkit-box',
-                  WebkitLineClamp: 1,
-                  WebkitBoxOrient: 'vertical',
-                }}
-              >
-                {file.fileName}
-              </Typography>
+              <FileName variant='body1'>{file.fileName}</FileName>
             </Tooltip>
 
             <Typography variant='caption' lineHeight={'14px'}>
@@ -407,11 +607,14 @@ const InvoiceInfo = ({
           </Box>
         </Box>
         {savedFiles.length ? null : (
-          <IconButton onClick={() => downloadOneFile(file)}>
+          <IconButton
+            onClick={() => downloadOneFile(file)}
+            disabled={isFileUploading}
+          >
             <Icon icon='mdi:download' fontSize={24} />
           </IconButton>
         )}
-      </Box>
+      </FileBox>
     </Box>
   ))
 
@@ -533,687 +736,583 @@ const InvoiceInfo = ({
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-      {edit ? (
-        <Card sx={{ padding: '24px' }}>
-          <DatePickerWrapper>
-            <Grid container xs={12} spacing={6}>
-              <InvoiceProjectInfoForm
-                control={invoiceInfoControl!}
-                setValue={setInvoiceInfo!}
-                watch={invoiceInfoWatch!}
-                errors={invoiceInfoErrors!}
-                clientTimezone={clientTimezone}
-              />
-              <Grid item xs={12}>
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'center',
-                    gap: '16px',
-                  }}
-                >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    onClick={() =>
-                      openModal({
-                        type: 'DiscardModal',
-                        children: (
-                          <DiscardModal
-                            onClose={() => closeModal('DiscardModal')}
-                            onClick={onClickDiscard}
-                          />
-                        ),
-                      })
-                    }
-                  >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant='contained'
-                    disabled={!isInvoiceInfoValid}
-                    onClick={() =>
-                      openModal({
-                        type: 'EditSaveModal',
-                        children: (
-                          <EditSaveModal
-                            onClose={() => closeModal('EditSaveModal')}
-                            onClick={() => onClickSave('basic')}
-                          />
-                        ),
-                      })
-                    }
-                  >
-                    Save
-                  </Button>
-                </Box>
-              </Grid>
-            </Grid>
-          </DatePickerWrapper>
-        </Card>
-      ) : accountingEdit ? (
-        <Card sx={{ padding: '24px' }}>
-          <Grid container xs={12} spacing={6}>
-            <InvoiceAccountingInfoForm
-              control={invoiceInfoControl!}
-              getValue={getInvoiceInfo!}
-              setValue={setInvoiceInfo!}
-              watch={invoiceInfoWatch!}
-              errors={invoiceInfoErrors!}
-              clientTimezone={clientTimezone}
-            />
-            <Grid item xs={12}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'center',
-                  gap: '16px',
-                }}
-              >
-                <Button
-                  variant='outlined'
-                  color='secondary'
-                  onClick={() =>
-                    openModal({
-                      type: 'DiscardModal',
-                      children: (
-                        <DiscardModal
-                          onClose={() => closeModal('DiscardModal')}
-                          onClick={onClickAccountingDiscard}
-                        />
-                      ),
-                    })
-                  }
-                >
-                  Cancel
-                </Button>
-                <Button
-                  variant='contained'
-                  onClick={() =>
-                    openModal({
-                      type: 'EditSaveModal',
-                      children: (
-                        <EditSaveModal
-                          onClose={() => closeModal('EditSaveModal')}
-                          onClick={() => onClickSave('accounting')}
-                        />
-                      ),
-                    })
-                  }
-                >
-                  Save
-                </Button>
-              </Box>
-            </Grid>
-          </Grid>
-        </Card>
-      ) : (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-          <Card sx={{ padding: '24px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  justifyContent: 'space-between',
-                  alignItems: 'center',
-                }}
-              >
-                <Typography variant='h6'>
-                  An Unexpected Proposal 1-10
-                </Typography>
-                {type === 'detail' &&
-                isUpdatable &&
-                currentRole &&
-                isInvoiceInfoUpdatable &&
-                currentRole.name !== 'CLIENT' ? (
-                  <IconButton
-                    onClick={() => setEdit!(true)}
-                    disabled={invoiceInfo.invoiceStatus === 30900}
-                  >
-                    <Icon icon='mdi:pencil-outline' />
-                  </IconButton>
-                ) : null}
-              </Box>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-              >
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
+      {isFileUploading ? null : (
+        <>
+          {edit ? (
+            <Card sx={{ padding: '24px' }}>
+              <DatePickerWrapper>
+                <Grid container xs={12} spacing={6}>
+                  <InvoiceProjectInfoForm
+                    control={invoiceInfoControl!}
+                    setValue={setInvoiceInfo!}
+                    watch={invoiceInfoWatch!}
+                    errors={invoiceInfoErrors!}
+                    clientTimezone={clientTimezone}
+                    client={client}
+                    invoiceInfo={invoiceInfo}
+                  />
+                  <Grid item xs={12}>
                     <Box
                       sx={{
                         display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
+                        justifyContent: 'center',
+                        gap: '16px',
                       }}
                     >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        onClick={() =>
+                          openModal({
+                            type: 'DiscardModal',
+                            children: (
+                              <DiscardModal
+                                onClose={() => closeModal('DiscardModal')}
+                                onClick={onClickDiscard}
+                              />
+                            ),
+                          })
+                        }
                       >
-                        Invoice date
-                      </Typography>
+                        Cancel
+                      </Button>
+                      <Button
+                        variant='contained'
+                        disabled={!isInvoiceInfoValid}
+                        onClick={() =>
+                          openModal({
+                            type: 'EditSaveModal',
+                            children: (
+                              <EditSaveModal
+                                onClose={() => closeModal('EditSaveModal')}
+                                onClick={() => onClickSave('basic')}
+                              />
+                            ),
+                          })
+                        }
+                      >
+                        Save
+                      </Button>
                     </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
+                  </Grid>
+                </Grid>
+              </DatePickerWrapper>
+            </Card>
+          ) : accountingEdit ? (
+            <Card sx={{ padding: '24px' }}>
+              <Grid container xs={12} spacing={6}>
+                <InvoiceAccountingInfoForm
+                  control={invoiceInfoControl!}
+                  getValue={getInvoiceInfo!}
+                  setValue={setInvoiceInfo!}
+                  watch={invoiceInfoWatch!}
+                  errors={invoiceInfoErrors!}
+                  clientTimezone={clientTimezone}
+                />
+                <Grid item xs={12}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'center',
+                      gap: '16px',
+                    }}
+                  >
+                    <Button
+                      variant='outlined'
+                      color='secondary'
+                      onClick={() =>
+                        openModal({
+                          type: 'DiscardModal',
+                          children: (
+                            <DiscardModal
+                              onClose={() => closeModal('DiscardModal')}
+                              onClick={onClickAccountingDiscard}
+                            />
+                          ),
+                        })
+                      }
                     >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateHelper(invoiceInfo.invoicedAt)}
-                      </Typography>
-                    </Box>
+                      Cancel
+                    </Button>
+                    <Button
+                      variant='contained'
+                      onClick={() =>
+                        openModal({
+                          type: 'EditSaveModal',
+                          children: (
+                            <EditSaveModal
+                              onClose={() => closeModal('EditSaveModal')}
+                              onClick={() => onClickSave('accounting')}
+                            />
+                          ),
+                        })
+                      }
+                    >
+                      Save
+                    </Button>
                   </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
+                </Grid>
+              </Grid>
+            </Card>
+          ) : (
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+              <Card sx={{ padding: '24px' }}>
+                <Box
+                  sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
+                >
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'space-between',
+                      alignItems: 'center',
+                    }}
+                  >
+                    <Typography variant='h6'>
+                      An Unexpected Proposal 1-10
+                    </Typography>
+                    {type === 'detail' &&
+                    isUpdatable &&
+                    currentRole &&
+                    isInvoiceInfoUpdatable &&
+                    currentRole.name !== 'CLIENT' ? (
+                      <IconButton
+                        onClick={() => setEdit!(true)}
+                        disabled={invoiceInfo.invoiceStatus === 30900}
                       >
-                        Status
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      {type === 'history' ? (
-                        InvoiceReceivableChip(
-                          statusLabel,
-                          invoiceInfo.invoiceStatus,
-                        )
-                      ) : (currentRole && currentRole.name === 'CLIENT') ||
-                        [30900, 301000, 301100, 301200].includes(
-                          invoiceInfo.invoiceStatus,
-                        ) ? (
+                        <Icon icon='mdi:pencil-outline' />
+                      </IconButton>
+                    ) : null}
+                  </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '20px',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex' }}>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
                         <Box
                           sx={{
                             display: 'flex',
                             gap: '8px',
                             alignItems: 'center',
+                            width: '25.21%',
                           }}
                         >
-                          {InvoiceReceivableChip(
-                            statusLabel,
-                            invoiceInfo.invoiceStatus,
-                          )}
-                          {invoiceInfo.invoiceStatus === 301200 && (
-                            <IconButton
-                              onClick={() => {
-                                invoiceInfo.reason &&
-                                  onClickReason('Canceled', invoiceInfo.reason)
-                              }}
-                            >
-                              <img
-                                src='/images/icons/onboarding-icons/more-reason.svg'
-                                alt='more'
-                              />
-                            </IconButton>
-                          )}
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Invoice date
+                          </Typography>
                         </Box>
-                      ) : (
-                        <Select
-                          value={status.toString()}
-                          onChange={handleChangeStatus}
-                          size='small'
-                          sx={{ width: '253px' }}
-                        >
-                          {statusOption.map(status => {
-                            return (
-                              <MenuItem key={uuidv4()} value={status.value}>
-                                {status.label}
-                              </MenuItem>
-                            )
-                          })}
-                        </Select>
-                      )}
-                    </Box>
-                  </Box>
-                </Box>
-                {currentRole && currentRole.name === 'CLIENT' ? (
-                  <Box sx={{ display: 'flex' }}>
-                    <Box sx={{ display: 'flex', width: '50%' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography fontSize={14} fontWeight={600}>
-                          Contact person
-                        </Typography>
-                      </Box>
-                      {contactPersonEdit ? (
                         <Box
                           sx={{
                             display: 'flex',
-                            gap: '10px',
-                            width: '300px',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '73.45%',
                           }}
                         >
-                          <Autocomplete
-                            autoHighlight
-                            fullWidth
-                            options={contactPersonList
-                              .filter(item => item.id !== contactPersonId)
-                              .map(value => ({
-                                value: value.value,
-                                label: value.label,
-                              }))}
-                            onChange={(e, v) => {
-                              // onChange(v.value)
-                              const res = contactPersonList.filter(
-                                item => item.id === Number(v.value),
-                              )
-                              setContactPersonId(
-                                res.length ? res[0].id! : Number(v.value)!,
-                              )
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
                             }}
-                            disableClearable
-                            // disabled={type === 'request'}
-                            value={
-                              contactPersonList
-                                .filter(value => value.id === contactPersonId)
-                                .map(value => ({
-                                  value: value.value,
-                                  label: value.label,
-                                }))[0] || { value: '', label: '' }
-                            }
-                            renderInput={params => (
-                              <TextField
-                                {...params}
-                                size='small'
-                                placeholder='Select a member'
-                                // label='Contact person*'
-                                inputProps={{
-                                  ...params.inputProps,
-                                }}
-                              />
-                            )}
-                          />
+                          >
+                            {FullDateHelper(invoiceInfo.invoicedAt)}
+                          </Typography>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex', flex: 1 }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '25.21%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Status
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '73.45%',
+                          }}
+                        >
+                          {type === 'history' ? (
+                            InvoiceReceivableChip(
+                              statusLabel,
+                              invoiceInfo.invoiceStatus,
+                            )
+                          ) : (currentRole && currentRole.name === 'CLIENT') ||
+                            [30900, 301000, 301100, 301200].includes(
+                              invoiceInfo.invoiceStatus,
+                            ) ? (
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                              }}
+                            >
+                              {InvoiceReceivableChip(
+                                statusLabel,
+                                invoiceInfo.invoiceStatus,
+                              )}
+                              {invoiceInfo.invoiceStatus === 301200 && (
+                                <IconButton
+                                  onClick={() => {
+                                    invoiceInfo.reason &&
+                                      onClickReason(
+                                        'Canceled',
+                                        invoiceInfo.reason,
+                                      )
+                                  }}
+                                >
+                                  <img
+                                    src='/images/icons/onboarding-icons/more-reason.svg'
+                                    alt='more'
+                                  />
+                                </IconButton>
+                              )}
+                            </Box>
+                          ) : (
+                            <Select
+                              value={status.toString()}
+                              onChange={handleChangeStatus}
+                              size='small'
+                              sx={{ width: '253px' }}
+                            >
+                              {statusOption.map(status => {
+                                return (
+                                  <MenuItem key={uuidv4()} value={status.value}>
+                                    {status.label}
+                                  </MenuItem>
+                                )
+                              })}
+                            </Select>
+                          )}
+                        </Box>
+                      </Box>
+                    </Box>
+                    {currentRole && currentRole.name === 'CLIENT' ? (
+                      <Box sx={{ display: 'flex' }}>
+                        <Box sx={{ display: 'flex', width: '50%' }}>
                           <Box
                             sx={{
                               display: 'flex',
-                              gap: '5px',
+                              gap: '8px',
                               alignItems: 'center',
+
+                              width: '25.21%',
                             }}
                           >
-                            <Button
-                              variant='outlined'
+                            <Typography fontSize={14} fontWeight={600}>
+                              Contact person
+                            </Typography>
+                          </Box>
+                          {contactPersonEdit ? (
+                            <Box
                               sx={{
-                                width: '26px !important',
-                                height: '26px',
-                                minWidth: '26px !important',
-                                padding: '0 !important',
-                                border: 'none',
-                                color: 'rgba(76, 78, 100, 0.6)',
+                                display: 'flex',
+                                gap: '10px',
+                                width: '300px',
                               }}
-                              onClick={() => setContactPersonEdit(false)}
                             >
-                              <Icon icon='ic:outline-close' fontSize={20} />
-                            </Button>
-                            <Button
-                              variant='contained'
+                              <Autocomplete
+                                autoHighlight
+                                fullWidth
+                                options={contactPersonList
+                                  .filter(item => item.id !== contactPersonId)
+                                  .map(value => ({
+                                    value: value.value,
+                                    label: value.label,
+                                  }))}
+                                onChange={(e, v) => {
+                                  // onChange(v.value)
+                                  const res = contactPersonList.filter(
+                                    item => item.id === Number(v.value),
+                                  )
+                                  setContactPersonId(
+                                    res.length ? res[0].id! : Number(v.value)!,
+                                  )
+                                }}
+                                disableClearable
+                                // disabled={type === 'request'}
+                                value={
+                                  contactPersonList
+                                    .filter(
+                                      value => value.id === contactPersonId,
+                                    )
+                                    .map(value => ({
+                                      value: value.value,
+                                      label: value.label,
+                                    }))[0] || { value: '', label: '' }
+                                }
+                                renderInput={params => (
+                                  <TextField
+                                    {...params}
+                                    size='small'
+                                    placeholder='Select a member'
+                                    // label='Contact person*'
+                                    inputProps={{
+                                      ...params.inputProps,
+                                    }}
+                                  />
+                                )}
+                              />
+                              <Box
+                                sx={{
+                                  display: 'flex',
+                                  gap: '5px',
+                                  alignItems: 'center',
+                                }}
+                              >
+                                <Button
+                                  variant='outlined'
+                                  sx={{
+                                    width: '26px !important',
+                                    height: '26px',
+                                    minWidth: '26px !important',
+                                    padding: '0 !important',
+                                    border: 'none',
+                                    color: 'rgba(76, 78, 100, 0.6)',
+                                  }}
+                                  onClick={() => setContactPersonEdit(false)}
+                                >
+                                  <Icon icon='ic:outline-close' fontSize={20} />
+                                </Button>
+                                <Button
+                                  variant='contained'
+                                  sx={{
+                                    width: '26px !important',
+                                    height: '26px',
+                                    minWidth: '26px !important',
+                                    padding: '0 !important',
+                                  }}
+                                  onClick={onClickEditSaveContactPerson}
+                                >
+                                  <Icon icon='mdi:check' fontSize={20} />
+                                </Button>
+                              </Box>
+                            </Box>
+                          ) : (
+                            <Typography
+                              variant='body2'
                               sx={{
-                                width: '26px !important',
-                                height: '26px',
-                                minWidth: '26px !important',
-                                padding: '0 !important',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px',
                               }}
-                              onClick={onClickEditSaveContactPerson}
                             >
-                              <Icon icon='mdi:check' fontSize={20} />
-                            </Button>
+                              {getLegalName({
+                                firstName: client?.contactPerson?.firstName,
+                                middleName: client?.contactPerson?.middleName,
+                                lastName: client?.contactPerson?.lastName,
+                              })}
+                              {client?.contactPerson?.jobTitle
+                                ? ` / ${client?.contactPerson?.jobTitle}`
+                                : ''}
+                              {type === 'history' ? null : (
+                                <IconButton
+                                  onClick={() => setContactPersonEdit(true)}
+                                >
+                                  <Icon icon='mdi:pencil-outline' />
+                                </IconButton>
+                              )}
+                            </Typography>
+                          )}
+                        </Box>
+                      </Box>
+                    ) : null}
+                    <Divider />
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '15px',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex' }}>
+                        <Box sx={{ display: 'flex', flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Work name
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '73.45%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                width: '100%',
+                              }}
+                            >
+                              {invoiceInfo.workName ?? '-'}
+                            </Typography>
                           </Box>
                         </Box>
-                      ) : (
-                        <Typography
-                          variant='body2'
-                          sx={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                          }}
-                        >
-                          {getLegalName({
-                            firstName: client?.contactPerson?.firstName,
-                            middleName: client?.contactPerson?.middleName,
-                            lastName: client?.contactPerson?.lastName,
-                          })}
-                          {client?.contactPerson?.jobTitle
-                            ? ` / ${client?.contactPerson?.jobTitle}`
-                            : ''}
-                          {type === 'history' ? null : (
-                            <IconButton
-                              onClick={() => setContactPersonEdit(true)}
+                        <Box sx={{ display: 'flex', flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
                             >
-                              <Icon icon='mdi:pencil-outline' />
-                            </IconButton>
-                          )}
-                        </Typography>
-                      )}
-                    </Box>
-                  </Box>
-                ) : null}
-                <Divider />
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}
-                >
-                  <Box sx={{ display: 'flex' }}>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
+                              Category
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '73.45%',
+                            }}
+                          >
+                            <JobTypeChip
+                              label={invoiceInfo.category}
+                              type={invoiceInfo.category}
+                            />
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Box sx={{ display: 'flex' }}>
+                        <Box
+                          sx={{ display: 'flex', flex: 1, alignItems: 'start' }}
                         >
-                          Work name
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '73.45%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle2'
-                          sx={{
-                            width: '100%',
-                          }}
-                        >
-                          {invoiceInfo.workName ?? '-'}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Category
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '73.45%',
-                        }}
-                      >
-                        <JobTypeChip
-                          label={invoiceInfo.category}
-                          type={invoiceInfo.category}
-                        />
-                      </Box>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex' }}>
-                    <Box sx={{ display: 'flex', flex: 1, alignItems: 'start' }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Service type
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Service type
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
 
-                          width: '73.45%',
-                          flexWrap: 'wrap',
-                        }}
-                      >
-                        {invoiceInfo.serviceType &&
-                          invoiceInfo.serviceType.map(value => {
-                            return (
-                              <ServiceTypeChip label={value} key={uuidv4()} />
-                            )
-                          })}
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
+                              width: '73.45%',
+                              flexWrap: 'wrap',
+                            }}
+                          >
+                            {invoiceInfo.serviceType &&
+                              invoiceInfo.serviceType.map(value => {
+                                return (
+                                  <ServiceTypeChip
+                                    label={value}
+                                    key={uuidv4()}
+                                  />
+                                )
+                              })}
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
 
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Area of expertise
-                        </Typography>
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Area of expertise
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              flexWrap: 'wrap',
+                              width: '73.45%',
+                            }}
+                          >
+                            {invoiceInfo.expertise &&
+                              invoiceInfo.expertise.map((value, idx) => {
+                                return (
+                                  <Typography
+                                    key={uuidv4()}
+                                    variant='subtitle2'
+                                  >
+                                    {invoiceInfo.expertise.length === idx + 1
+                                      ? value
+                                      : `${value}, `}
+                                  </Typography>
+                                )
+                              })}
+                          </Box>
+                        </Box>
                       </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          flexWrap: 'wrap',
-                          width: '73.45%',
-                        }}
-                      >
-                        {invoiceInfo.expertise &&
-                          invoiceInfo.expertise.map((value, idx) => {
-                            return (
-                              <Typography key={uuidv4()} variant='subtitle2'>
-                                {invoiceInfo.expertise.length === idx + 1
-                                  ? value
-                                  : `${value}, `}
-                              </Typography>
-                            )
-                          })}
-                      </Box>
                     </Box>
-                  </Box>
-                </Box>
-                <Divider />
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '33.28%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Payment due
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '66.62%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateTimezoneHelper(
-                          invoiceInfo.payDueAt,
-                          invoiceInfo.payDueTimezone!,
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Invoice confirm date
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateTimezoneHelper(
-                          invoiceInfo.invoiceConfirmedAt,
-                          invoiceInfo.invoiceConfirmTimezone!,
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', width: '50%' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '33.28%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Tax invoice due date
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '66.62%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {FullDateTimezoneHelper(
-                          invoiceInfo.invoiceConfirmedAt,
-                          invoiceInfo.invoiceConfirmTimezone!,
-                        )}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-
-                {currentRole && currentRole.name === 'CLIENT' ? null : (
-                  <>
                     <Divider />
                     <Box sx={{ display: 'flex' }}>
                       <Box sx={{ display: 'flex', flex: 1 }}>
@@ -1233,7 +1332,7 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            Revenue from
+                            Payment due
                           </Typography>
                         </Box>
                         <Box
@@ -1250,299 +1349,9 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            {invoiceInfo.revenueFrom ?? '-'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                      <Box sx={{ display: 'flex', flex: 1 }}>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'center',
-                            width: '25.21%',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle1'
-                            sx={{
-                              fontSize: '14px',
-                              fontWeight: 600,
-                              width: '100%',
-                            }}
-                          >
-                            Tax type
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'center',
-                            width: '73.45%',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle2'
-                            sx={{
-                              width: '100%',
-                            }}
-                          >
-                            {invoiceInfo.isTaxable ? 'Taxable' : 'Non-taxable'}
-                          </Typography>
-                        </Box>
-                      </Box>
-                    </Box>
-                  </>
-                )}
-
-                <Divider />
-                <Box sx={{ width: '100%' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                    }}
-                  >
-                    <Box display='flex' justifyContent='space-between'>
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Invoice description
-                      </Typography>
-                      <Box display='flex' width={380} alignItems='center'>
-                        <Checkbox
-                          value={invoiceInfo.showDescription}
-                          onChange={handelChangeShowDescription}
-                          checked={invoiceInfo.showDescription}
-                          disabled={[30900, 301200].includes(
-                            invoiceInfo.invoiceStatus,
-                          )}
-                        />
-
-                        <Typography variant='body2' display='block'>
-                          Show invoice description to client
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                      }}
-                    >
-                      <Typography variant='subtitle2'>
-                        {invoiceInfo.description ||
-                        invoiceInfo.description !== ''
-                          ? invoiceInfo.description
-                          : '-'}
-                      </Typography>
-                    </Box>
-                  </Box>
-                </Box>
-
-                {type === 'history' ||
-                (currentRole && currentRole.name === 'CLIENT') ? null : (
-                  <>
-                    <Divider />
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <Checkbox
-                        value={isReminder}
-                        onChange={handleChangeIsReminder}
-                        checked={isReminder}
-                        disabled={[30900, 301200].includes(
-                          invoiceInfo.invoiceStatus,
-                        )}
-                      />
-
-                      <Typography variant='body2'>
-                        Send reminder for this invoice
-                      </Typography>
-                      <IconButton
-                        onClick={() => {
-                          openModal({
-                            type: 'invoiceReminderModal',
-                            children: (
-                              <InformationModal
-                                onClose={() =>
-                                  closeModal('invoiceReminderModal')
-                                }
-                                title='Reminder information'
-                                subtitle='A reminder email will be automatically sent to the client when the invoice is overdue.'
-                                vary='info'
-                              />
-                            ),
-                          })
-                        }}
-                      >
-                        <Icon icon='ic:outline-info' />
-                      </IconButton>
-                    </Box>
-                  </>
-                )}
-              </Box>
-            </Box>
-          </Card>
-          {type === 'history' ||
-          (currentRole && currentRole.name === 'CLIENT') ? null : (
-            <Card sx={{ padding: '24px' }}>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
-              >
-                <Box
-                  sx={{
-                    display: 'flex',
-                    justifyContent: 'space-between',
-                    alignItems: 'center',
-                  }}
-                >
-                  <Typography variant='h6'>Accounting info</Typography>
-                  {type === 'detail' && isAccountInfoUpdatable ? (
-                    <IconButton onClick={() => setAccountingEdit!(true)}>
-                      <Icon icon='mdi:pencil-outline' />
-                    </IconButton>
-                  ) : null}
-                </Box>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}
-                >
-                  <Box sx={{ display: 'flex' }}>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Payment date
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '73.45%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle2'
-                          sx={{
-                            width: '100%',
-                          }}
-                        >
-                          {FullDateTimezoneHelper(
-                            invoiceInfo.paidAt,
-                            invoiceInfo.paidDateTimezone!,
-                          )}
-                        </Typography>
-                      </Box>
-                    </Box>
-                    <Box sx={{ display: 'flex', flex: 1 }}>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Issuance date of tax invoice
-                        </Typography>
-                      </Box>
-                      <Box
-                        sx={{
-                          display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '73.45%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle2'
-                          sx={{
-                            width: '100%',
-                          }}
-                        >
-                          {FullDateTimezoneHelper(
-                            invoiceInfo.taxInvoiceIssuedAt,
-                            invoiceInfo.taxInvoiceIssuedDateTimezone!,
-                          )}
-                        </Typography>
-                      </Box>
-                    </Box>
-                  </Box>
-
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '15px',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex' }}>
-                      <Box sx={{ display: 'flex', flex: 1 }}>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'center',
-                            width: '25.21%',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle1'
-                            sx={{
-                              fontSize: '14px',
-                              fontWeight: 600,
-                              width: '100%',
-                            }}
-                          >
-                            Sales recognition date
-                          </Typography>
-                        </Box>
-                        <Box
-                          sx={{
-                            display: 'flex',
-                            gap: '8px',
-                            alignItems: 'center',
-                            width: '73.45%',
-                          }}
-                        >
-                          <Typography
-                            variant='subtitle2'
-                            sx={{
-                              width: '100%',
-                            }}
-                          >
                             {FullDateTimezoneHelper(
-                              invoiceInfo.salesCheckedAt,
-                              invoiceInfo.salesCheckedDateTimezone!,
+                              invoiceInfo.payDueAt,
+                              invoiceInfo.payDueTimezone!,
                             )}
                           </Typography>
                         </Box>
@@ -1564,7 +1373,7 @@ const InvoiceInfo = ({
                               width: '100%',
                             }}
                           >
-                            Sales category
+                            Invoice confirm date
                           </Typography>
                         </Box>
                         <Box
@@ -1575,128 +1384,619 @@ const InvoiceInfo = ({
                             width: '73.45%',
                           }}
                         >
-                          {invoiceInfo.salesCategory}
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
+                            }}
+                          >
+                            {FullDateTimezoneHelper(
+                              invoiceInfo.invoiceConfirmedAt,
+                              invoiceInfo.invoiceConfirmTimezone!,
+                            )}
+                          </Typography>
                         </Box>
                       </Box>
                     </Box>
+                    <Box sx={{ display: 'flex' }}>
+                      <Box sx={{ display: 'flex', width: '50%' }}>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '33.28%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Tax invoice due date
+                          </Typography>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                            width: '66.62%',
+                          }}
+                        >
+                          <Typography
+                            variant='subtitle2'
+                            sx={{
+                              width: '100%',
+                            }}
+                          >
+                            {FullDateTimezoneHelper(
+                              invoiceInfo.invoiceConfirmedAt,
+                              invoiceInfo.invoiceConfirmTimezone!,
+                            )}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {currentRole && currentRole.name === 'CLIENT' ? null : (
+                      <>
+                        <Divider />
+                        <Box sx={{ display: 'flex' }}>
+                          <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '33.28%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Revenue from
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '66.62%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  width: '100%',
+                                }}
+                              >
+                                {invoiceInfo.revenueFrom ?? '-'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '25.21%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Tax type
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '73.45%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  width: '100%',
+                                }}
+                              >
+                                {invoiceInfo.isTaxable
+                                  ? 'Taxable'
+                                  : 'Non-taxable'}
+                              </Typography>
+                            </Box>
+                          </Box>
+                        </Box>
+                      </>
+                    )}
+
+                    <Divider />
+                    <Box sx={{ width: '100%' }}>
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          flexDirection: 'column',
+                          gap: '10px',
+                        }}
+                      >
+                        <Box display='flex' justifyContent='space-between'>
+                          <Typography
+                            variant='subtitle1'
+                            sx={{
+                              fontSize: '14px',
+                              fontWeight: 600,
+                              width: '100%',
+                            }}
+                          >
+                            Invoice description
+                          </Typography>
+                          <Box display='flex' width={380} alignItems='center'>
+                            <Checkbox
+                              value={invoiceInfo.showDescription}
+                              onChange={handelChangeShowDescription}
+                              checked={invoiceInfo.showDescription}
+                              disabled={[30900, 301200].includes(
+                                invoiceInfo.invoiceStatus,
+                              )}
+                            />
+
+                            <Typography variant='body2' display='block'>
+                              Show invoice description to client
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box
+                          sx={{
+                            display: 'flex',
+                            gap: '8px',
+                            alignItems: 'center',
+                          }}
+                        >
+                          <Typography variant='subtitle2'>
+                            {invoiceInfo.description ||
+                            invoiceInfo.description !== ''
+                              ? invoiceInfo.description
+                              : '-'}
+                          </Typography>
+                        </Box>
+                      </Box>
+                    </Box>
+
+                    {type === 'history' ||
+                    (currentRole && currentRole.name === 'CLIENT') ? null : (
+                      <>
+                        <Divider />
+                        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                          <Checkbox
+                            value={isReminder}
+                            onChange={handleChangeIsReminder}
+                            checked={isReminder}
+                            disabled={[30900, 301200].includes(
+                              invoiceInfo.invoiceStatus,
+                            )}
+                          />
+
+                          <Typography variant='body2'>
+                            Send reminder for this invoice
+                          </Typography>
+                          <IconButton
+                            onClick={() => {
+                              openModal({
+                                type: 'invoiceReminderModal',
+                                children: (
+                                  <InformationModal
+                                    onClose={() =>
+                                      closeModal('invoiceReminderModal')
+                                    }
+                                    title='Reminder information'
+                                    subtitle='A reminder email will be automatically sent to the client when the invoice is overdue.'
+                                    vary='info'
+                                  />
+                                ),
+                              })
+                            }}
+                          >
+                            <Icon icon='ic:outline-info' />
+                          </IconButton>
+                        </Box>
+                      </>
+                    )}
                   </Box>
-                  <Divider />
-                  <Box sx={{ width: '100%' }}>
+                </Box>
+              </Card>
+              {type === 'history' ||
+              (currentRole && currentRole.name === 'CLIENT') ? null : (
+                <Card sx={{ padding: '24px' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '36px',
+                    }}
+                  >
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        justifyContent: 'space-between',
+                        alignItems: 'center',
+                      }}
+                    >
+                      <Typography variant='h6'>Accounting info</Typography>
+                      {type === 'detail' && isAccountInfoUpdatable ? (
+                        <IconButton onClick={() => setAccountingEdit!(true)}>
+                          <Icon icon='mdi:pencil-outline' />
+                        </IconButton>
+                      ) : null}
+                    </Box>
                     <Box
                       sx={{
                         display: 'flex',
                         flexDirection: 'column',
-                        gap: '10px',
+                        gap: '20px',
                       }}
                     >
-                      <Box
-                        sx={{
-                          display: 'flex',
-
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '25.21%',
-                        }}
-                      >
-                        <Typography
-                          variant='subtitle1'
-                          sx={{
-                            fontSize: '14px',
-                            fontWeight: 600,
-                            width: '100%',
-                          }}
-                        >
-                          Notes
-                        </Typography>
+                      <Box sx={{ display: 'flex' }}>
+                        <Box sx={{ display: 'flex', flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Payment date
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '73.45%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                width: '100%',
+                              }}
+                            >
+                              {FullDateTimezoneHelper(
+                                invoiceInfo.paidAt,
+                                invoiceInfo.paidDateTimezone!,
+                              )}
+                            </Typography>
+                          </Box>
+                        </Box>
+                        <Box sx={{ display: 'flex', flex: 1 }}>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Issuance date of tax invoice
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '73.45%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                width: '100%',
+                              }}
+                            >
+                              {FullDateTimezoneHelper(
+                                invoiceInfo.taxInvoiceIssuedAt,
+                                invoiceInfo.taxInvoiceIssuedDateTimezone!,
+                              )}
+                            </Typography>
+                          </Box>
+                        </Box>
                       </Box>
+
                       <Box
                         sx={{
                           display: 'flex',
-                          gap: '8px',
-                          alignItems: 'center',
-                          width: '73.45%',
+                          flexDirection: 'column',
+                          gap: '15px',
                         }}
                       >
-                        <Typography
-                          variant='subtitle2'
+                        <Box sx={{ display: 'flex' }}>
+                          <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '25.21%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Sales recognition date
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '73.45%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle2'
+                                sx={{
+                                  width: '100%',
+                                }}
+                              >
+                                {FullDateTimezoneHelper(
+                                  invoiceInfo.salesCheckedAt,
+                                  invoiceInfo.salesCheckedDateTimezone!,
+                                )}
+                              </Typography>
+                            </Box>
+                          </Box>
+                          <Box sx={{ display: 'flex', flex: 1 }}>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '25.21%',
+                              }}
+                            >
+                              <Typography
+                                variant='subtitle1'
+                                sx={{
+                                  fontSize: '14px',
+                                  fontWeight: 600,
+                                  width: '100%',
+                                }}
+                              >
+                                Sales category
+                              </Typography>
+                            </Box>
+                            <Box
+                              sx={{
+                                display: 'flex',
+                                gap: '8px',
+                                alignItems: 'center',
+                                width: '73.45%',
+                              }}
+                            >
+                              {invoiceInfo.salesCategory}
+                            </Box>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Divider />
+                      <Box sx={{ width: '100%' }}>
+                        <Box
                           sx={{
-                            width: '100%',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px',
                           }}
                         >
-                          {invoiceInfo.notes ?? '-'}
+                          <Box
+                            sx={{
+                              display: 'flex',
+
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '25.21%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle1'
+                              sx={{
+                                fontSize: '14px',
+                                fontWeight: 600,
+                                width: '100%',
+                              }}
+                            >
+                              Notes
+                            </Typography>
+                          </Box>
+                          <Box
+                            sx={{
+                              display: 'flex',
+                              gap: '8px',
+                              alignItems: 'center',
+                              width: '73.45%',
+                            }}
+                          >
+                            <Typography
+                              variant='subtitle2'
+                              sx={{
+                                width: '100%',
+                              }}
+                            >
+                              {invoiceInfo.notes ?? '-'}
+                            </Typography>
+                          </Box>
+                        </Box>
+                      </Box>
+                      <Divider />
+                      <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                        <Checkbox
+                          value={issued}
+                          onChange={handleChangeIssued}
+                          checked={issued}
+                          // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+                        />
+
+                        <Typography variant='body2'>
+                          Tax invoice issued
                         </Typography>
                       </Box>
                     </Box>
                   </Box>
-                  <Divider />
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Checkbox
-                      value={issued}
-                      onChange={handleChangeIssued}
-                      checked={issued}
-                      // disabled={invoiceInfo.invoiceStatus === 'Paid'}
-                    />
-
-                    <Typography variant='body2'>Tax invoice issued</Typography>
-                  </Box>
-                </Box>
-              </Box>
-            </Card>
+                </Card>
+              )}
+            </Box>
           )}
-          {currentRole &&
-          currentRole.name === 'CLIENT' &&
-          type !== 'history' ? (
-            <Card sx={{ padding: '24px' }}>
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}
-              >
-                <Box
-                  sx={{ display: 'flex', gap: '20px', alignItems: 'center' }}
-                >
-                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                    <Typography variant='body1' fontWeight={600}>
-                      Tax invoice
-                    </Typography>
-                    <Typography variant='caption'>
-                      {formatFileSize(fileSize).toLowerCase()}/2 gb
-                    </Typography>
-                  </Box>
-                  <Box sx={{ display: 'flex', gap: '16px' }}>
-                    <Button
-                      variant='outlined'
-                      disabled={savedFiles.length < 1}
-                      sx={{
-                        height: '34px',
-                      }}
-                      onClick={() => downloadAllFiles(savedFiles)}
-                    >
-                      <Icon icon='mdi:download' fontSize={18} />
-                      &nbsp;Download all
-                    </Button>
-                  </Box>
-                </Box>
-                {savedFiles.length ? (
-                  <Box
-                    sx={{
-                      display: 'grid',
-                      gridTemplateColumns: 'repeat(3,1fr)',
-                      gridGap: '16px',
-                    }}
-                  >
-                    {savedFileList}
-                  </Box>
-                ) : (
-                  '-'
-                )}
-              </Box>
-            </Card>
-          ) : null}
-        </Box>
+        </>
       )}
+      {/* TODO: currentRole &&
+          currentRole.name === 'CLIENT' && 이 조건을 뺐는데 괜찮은지 렐 문의하기 */}
+      {type !== 'history' ? (
+        <Grid container spacing={6}>
+          <Grid item xs={isFileUploading ? 9 : 12}>
+            <Card sx={{ padding: '24px' }}>
+              <Grid item xs={12}>
+                <Box display='flex' gap='20px' alignItems='center'>
+                  <Box display='flex' flexDirection='column'>
+                    <Typography variant='h6'>Tax invoice</Typography>
+                    <Typography variant='caption'>
+                      {formatFileSize(fileSize).toLowerCase()}/ 50mb
+                    </Typography>
+                  </Box>
+                  {isUpdatable ? (
+                    <div {...getRootProps({ className: 'dropzone' })}>
+                      <Button
+                        variant='contained'
+                        size='small'
+                        fullWidth
+                        disabled={invoiceInfo.clientConfirmedAt === null}
+                      >
+                        <input {...getInputProps()} />
+                        Upload
+                      </Button>
+                    </div>
+                  ) : null}
+
+                  {isFileUploading ? null : (
+                    <Box sx={{ display: 'flex', gap: '16px' }}>
+                      <Button
+                        variant='outlined'
+                        disabled={savedFiles.length < 1}
+                        sx={{
+                          height: '34px',
+                        }}
+                        startIcon={<Icon icon='mdi:download' fontSize={18} />}
+                        onClick={() => downloadAllFiles(savedFiles)}
+                      >
+                        Download all
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+              {savedFiles.length ? (
+                <>
+                  <Grid item xs={12}>
+                    <Box
+                      display='grid'
+                      gridTemplateColumns='repeat(3,1fr)'
+                      gap='16px'
+                    >
+                      {savedFileList}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider />
+                  </Grid>
+                </>
+              ) : isFileUploading ? null : (
+                '-'
+              )}
+
+              <Grid item xs={12} mt={4}>
+                {files.length ? (
+                  <Box
+                    display='grid'
+                    gridTemplateColumns='repeat(3,1fr)'
+                    gap='16px'
+                  >
+                    {uploadedFileList}
+                  </Box>
+                ) : null}
+              </Grid>
+            </Card>
+          </Grid>
+          {isFileUploading ? (
+            <Grid item xs={3}>
+              <Card sx={{ padding: '24px' }}>
+                <Button
+                  variant='contained'
+                  color='success'
+                  fullWidth
+                  disabled={!files.length}
+                  startIcon={<Icon icon='ic:outline-send' />}
+                  onClick={onDeliverTaxInvoice}
+                >
+                  Deliver to client
+                </Button>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  sx={{ mt: 4 }}
+                  onClick={onCancelFileUpload}
+                >
+                  Cancel
+                </Button>
+              </Card>
+            </Grid>
+          ) : null}
+        </Grid>
+      ) : null}
 
       {edit ||
       type === 'history' ||
-      (currentRole && currentRole.name === 'CLIENT') ? null : (
+      (currentRole && currentRole.name === 'CLIENT') ||
+      isFileUploading ? null : (
         <Grid xs={12} container>
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
@@ -1719,3 +2019,26 @@ const InvoiceInfo = ({
 }
 
 export default InvoiceInfo
+
+const FileBox = styled(Box)`
+  display: flex;
+  margin-bottom: 8px;
+  width: 100%;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(76, 78, 100, 0.22);
+  background: #f9f8f9;
+`
+
+const FileName = styled(Typography)`
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
+`

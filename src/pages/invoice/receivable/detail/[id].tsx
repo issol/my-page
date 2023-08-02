@@ -137,6 +137,8 @@ const ReceivableInvoiceDetail = () => {
     useState<number>(5)
 
   const [clientEdit, setClientEdit] = useState(false)
+  const [isFileUploading, setIsFileUploading] = useState(false)
+
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const [value, setValue] = useState<MenuType>('invoice')
   const { openModal, closeModal } = useModal()
@@ -216,7 +218,8 @@ const ReceivableInvoiceDetail = () => {
     clientEdit ||
     projectTeamEdit ||
     accountingInfoEdit ||
-    langItemsEdit
+    langItemsEdit ||
+    isFileUploading
 
   const patchInvoiceInfoMutation = useMutation(
     (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
@@ -975,6 +978,8 @@ const ReceivableInvoiceDetail = () => {
                   isDeletable={isDeletable}
                   isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
+                  isFileUploading={isFileUploading}
+                  setIsFileUploading={setIsFileUploading}
                 />
               ) : null}
             </TabPanel>
