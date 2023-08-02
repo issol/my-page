@@ -300,3 +300,8 @@ export type CreateInvoiceReceivableRes = {
     }
   }
 }
+
+export type MarkDayInfo = {
+  paidAt: string
+  paidDateTimezone: CountryType
+}

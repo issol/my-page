@@ -8,6 +8,7 @@ import {
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryResType,
   InvoiceVersionHistoryType,
+  MarkDayInfo,
 } from '@src/types/invoice/receivable.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
@@ -18,6 +19,7 @@ import {
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
@@ -223,6 +225,36 @@ export const deliverTaxInvoice = async (
     const { data } = await axios.patch(
       `/api/enough/u/invoice/receivable/${invoiceId}/tax-invoice/send`,
       { files: fileInfo },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const markInvoiceAsPaid = async (
+  invoiceId: number,
+  info: MarkDayInfo,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/set-paid`,
+      info,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const cancelInvoice = async (
+  invoiceId: number,
+  info: CancelReasonType,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/cancel`,
+      { reason: info },
     )
     return data
   } catch (e: any) {

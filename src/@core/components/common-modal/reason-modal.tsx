@@ -25,6 +25,7 @@ type Props = {
   type: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   reason: ReasonType | null
+  showType?: boolean
 }
 export default function ReasonModal({
   onClose,
@@ -32,6 +33,7 @@ export default function ReasonModal({
   type,
   vary,
   reason,
+  showType = true,
 }: Props) {
   return (
     <Box
@@ -72,14 +74,18 @@ export default function ReasonModal({
 
         <DialogContentText id='alert-dialog-slide-description'>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                {type}&nbsp; reason
-              </Typography>
-              <Typography variant='body1'>
-                {reason ? reason?.reason : '-'}
-              </Typography>
-            </Box>
+            {!showType ? null : (
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}
+              >
+                <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                  {type}&nbsp; reason
+                </Typography>
+                <Typography variant='body1'>
+                  {reason ? reason?.reason : '-'}
+                </Typography>
+              </Box>
+            )}
             <Box
               sx={{
                 display: 'flex',

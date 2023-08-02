@@ -61,19 +61,21 @@ import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivab
 import {
   InvoiceReceivableDetailType,
   InvoiceReceivablePatchParamsType,
+  MarkDayInfo,
 } from '@src/types/invoice/receivable.type'
 import InformationModal from '@src/@core/components/common-modal/information-modal'
 import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accouting-info-form'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import {
+  cancelInvoice,
   deleteInvoice,
   deliverTaxInvoice,
+  markInvoiceAsPaid,
 } from '@src/apis/invoice/receivable.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ReasonType } from '@src/types/quotes/quote'
 import ReasonModal from '@src/@core/components/common-modal/reason-modal'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import invoice from '@src/store/invoice'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getClientDetail } from '@src/apis/client.api'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
@@ -89,6 +91,8 @@ import { toast } from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import CancelRequestModal from './modal/cancel-reason-modal'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 type Props = {
   type: string
@@ -241,6 +245,7 @@ const InvoiceInfo = ({
         <ReasonModal
           onClose={() => closeModal(`${status}ReasonModal`)}
           reason={reason}
+          showType={false}
           type={status}
           vary='info'
         />
@@ -577,15 +582,7 @@ const InvoiceInfo = ({
   ))
 
   const savedFileList = savedFiles?.map((file: DeliveryFileType) => (
-    <Box key={uuidv4()}>
-      <Typography
-        variant='body2'
-        fontSize={14}
-        fontWeight={400}
-        sx={{ mb: '5px' }}
-      >
-        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
-      </Typography>
+    <Box key={uuidv4()} mt={4}>
       <FileBox>
         <Box sx={{ display: 'flex', alignItems: 'center' }}>
           <Box sx={{ marginRight: '8px', display: 'flex' }}>
@@ -605,15 +602,21 @@ const InvoiceInfo = ({
             </Typography>
           </Box>
         </Box>
-        {savedFiles.length ? null : (
-          <IconButton
-            onClick={() => downloadOneFile(file)}
-            disabled={isFileUploading}
-          >
-            <Icon icon='mdi:download' fontSize={24} />
-          </IconButton>
-        )}
+        <IconButton
+          onClick={() => downloadOneFile(file)}
+          disabled={isFileUploading}
+        >
+          <Icon icon='mdi:download' fontSize={24} />
+        </IconButton>
       </FileBox>
+      <Typography
+        variant='body2'
+        fontSize={14}
+        fontWeight={400}
+        sx={{ mb: '5px' }}
+      >
+        {FullDateTimezoneHelper(file.createdAt, user?.timezone)}
+      </Typography>
     </Box>
   ))
 
@@ -729,6 +732,66 @@ const InvoiceInfo = ({
           vary='error'
           rightButtonText='Delete'
           subtitle={`[${invoiceInfo.corporationId}] ${invoiceInfo.projectName}`}
+        />
+      ),
+    })
+  }
+
+  const cancelMutation = useMutation(
+    (info: CancelReasonType) => cancelInvoice(invoiceInfo.id!, info),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: 'invoiceReceivableDetail',
+        })
+      },
+      onError: () => onError(),
+    },
+  )
+
+  const onCancelClick = () => {
+    openModal({
+      type: 'cancelReason',
+      children: (
+        <CancelRequestModal
+          onClose={() => closeModal('cancelReason')}
+          onClick={data => {
+            closeModal('cancelReason')
+            cancelMutation.mutate(data)
+          }}
+        />
+      ),
+    })
+  }
+
+  const makeInvoiceMarked = useMutation(
+    (info: MarkDayInfo) => markInvoiceAsPaid(invoiceInfo.id!, info),
+    {
+      onSuccess: () => {
+        queryClient.invalidateQueries({
+          queryKey: 'invoiceReceivableDetail',
+        })
+      },
+      onError: () => onError(),
+    },
+  )
+
+  const onMarkAsPaidClick = () => {
+    openModal({
+      type: 'markAsPaid',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('markAsPaid')}
+          onClick={() => {
+            closeModal('markAsPaid')
+            makeInvoiceMarked.mutate({
+              paidAt: Date(),
+              paidDateTimezone: user?.timezone!,
+            })
+          }}
+          title='Are you sure you want to mark this invoice as paid?'
+          vary='successful'
+          rightButtonText='Mark as paid'
         />
       ),
     })
@@ -1993,11 +2056,27 @@ const InvoiceInfo = ({
         </Grid>
       ) : null}
 
-      {edit ||
-      type === 'history' ||
-      (currentRole && currentRole.name === 'CLIENT') ||
-      isFileUploading ? null : (
-        <Grid xs={12} container>
+      {edit || isFileUploading || type === 'history' ? null : (
+        <Grid xs={12} container spacing={6}>
+          {currentRole && currentRole.name === 'CLIENT' ? null : (
+            <Grid item xs={4}>
+              <Card sx={{ padding: '20px', width: '100%' }}>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  color='error'
+                  size='large'
+                  disabled={
+                    !isDeletable ||
+                    ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                  }
+                  onClick={onClickDelete}
+                >
+                  Delete this invoice
+                </Button>
+              </Card>
+            </Grid>
+          )}
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
@@ -2007,11 +2086,31 @@ const InvoiceInfo = ({
                 size='large'
                 disabled={
                   !isDeletable ||
-                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                  /* TODO: 조건수정하기*/
+                  ![30900, 301200].includes(invoiceInfo.invoiceStatus)
                 }
-                onClick={onClickDelete}
+                onClick={onCancelClick}
               >
-                Delete this invoice
+                Cancel this invoice
+              </Button>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ padding: '20px', width: '100%' }}>
+              <Button
+                variant='contained'
+                fullWidth
+                color='success'
+                size='large'
+                disabled={
+                  !isUpdatable ||
+                  ![30700, 30800, 301000, 301100].includes(
+                    invoiceInfo.invoiceStatus,
+                  )
+                }
+                onClick={onMarkAsPaidClick}
+              >
+                Mark as paid
               </Button>
             </Card>
           </Grid>
