@@ -435,6 +435,7 @@ const InvoiceVersionHistoryModal = ({
               statusList={statusList}
               isUpdatable={isUpdatable}
               isDeletable={isDeletable}
+              isAccountInfoUpdatable={false}
             />
           </TabPanel>
           <TabPanel value='items' sx={{ height: '100%', minHeight: '552px' }}>

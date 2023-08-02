@@ -207,21 +207,6 @@ export const confirmInvoiceByLpm = async (
   }
 }
 
-// {
-//   "files": [
-//     {
-//       "type": "string",
-//       "fileName": "string",
-//       "filePath": "string",
-//       "fileExtension": "string",
-//       "fileSize": 0
-//     }
-//   ]
-// }
-
-//질문1: 해당 api사용 시 기존에 있던 데이터를 모두 보내고 + 새로운거 보내야 하는지 => yes
-//질문2: s3에 파일 업로드 시 getUploadUrlforCommon api에 보낼 type은 뭔지 => tax-invoice
-//파일 받아올 때 어떤 api? => invoiceInfo에 taxInvoiceFiles에 들어있음
 export const deliverTaxInvoice = async (
   invoiceId: number,
   fileInfo: DeliveryFileType[],

@@ -3,22 +3,7 @@ import { Box, Button, Card, Grid, Switch, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
-import { UseMutationResult } from 'react-query'
-
-import { CancelReasonType } from '@src/types/requests/detail.type'
-import {
-  CancelQuoteReason,
-  RequestRevisionReason,
-} from '@src/shared/const/reason/reason'
-import {
-  OrderDownloadData,
-  ProjectInfoType,
-} from '@src/types/orders/order-detail'
-
-import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
-import PrintOrderPage from '@src/pages/orders/order-print/print-page'
 import {
   InvoiceDownloadData,
   InvoiceReceivablePatchParamsType,

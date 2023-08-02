@@ -118,8 +118,8 @@ type Props = {
   isDeletable: boolean
   isAccountInfoUpdatable: boolean
   client?: ClientType
-  isFileUploading: boolean
-  setIsFileUploading: (n: boolean) => void
+  isFileUploading?: boolean
+  setIsFileUploading?: (n: boolean) => void
 }
 
 type FileProp = { name: string; type: string; size: number }
@@ -218,7 +218,7 @@ const InvoiceInfo = ({
           }
         }, [])
       setFiles(uniqueFiles)
-      setIsFileUploading(true)
+      setIsFileUploading && setIsFileUploading(true)
     },
     onDropRejected: () => onFileUploadReject(),
   })
@@ -351,7 +351,6 @@ const InvoiceInfo = ({
               salesCheckedDateTimezone: data.salesRecognitionDate?.timezone,
               notes: data.notes,
               salesCategory: data?.salesCategory,
-              taxInvoiceIssued: data?.taxInvoiceIssued,
             }
       if (onSave) {
         onSave({ id: invoiceInfo.id, form: res })
@@ -487,7 +486,7 @@ const InvoiceInfo = ({
               position: 'bottom-left',
             })
             setFiles([])
-            setIsFileUploading(false)
+            setIsFileUploading && setIsFileUploading(false)
             queryClient.invalidateQueries({
               queryKey: 'invoiceReceivableDetail',
             })
@@ -495,7 +494,7 @@ const InvoiceInfo = ({
         )
       }
     } catch (error) {
-      setIsFileUploading(false)
+      setIsFileUploading && setIsFileUploading(false)
     }
   }
 
@@ -528,7 +527,7 @@ const InvoiceInfo = ({
 
   function onCancelFileUpload() {
     if (!files.length) {
-      setIsFileUploading(false)
+      setIsFileUploading && setIsFileUploading(false)
     } else {
       openModal({
         type: 'cancelUpload',
@@ -538,7 +537,7 @@ const InvoiceInfo = ({
             title='Are you sure you want to deliver the uploaded files? You cannot delete the files after delivering them to the client.'
             onClick={() => {
               closeModal('cancelUpload')
-              setIsFileUploading(false)
+              setIsFileUploading && setIsFileUploading(false)
             }}
             onClose={() => closeModal('cancelUpload')}
             rightButtonText='Cancel'
@@ -628,6 +627,7 @@ const InvoiceInfo = ({
         invoiceDescription: invoiceInfo.description,
         invoiceDateTimezone: invoiceInfo.invoicedAtTimezone,
         invoiceDate: invoiceInfo.invoicedAt,
+        taxInvoiceIssued: invoiceInfo.taxInvoiceIssued,
         showDescription: invoiceInfo.showDescription,
         paymentDueDate: {
           date: invoiceInfo.payDueAt,
@@ -2005,7 +2005,10 @@ const InvoiceInfo = ({
                 fullWidth
                 color='error'
                 size='large'
-                disabled={!isDeletable}
+                disabled={
+                  !isDeletable ||
+                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                }
                 onClick={onClickDelete}
               >
                 Delete this invoice
