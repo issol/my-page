@@ -131,8 +131,6 @@ const ReceivableInvoiceDetail = () => {
   const [projectTeamListPageSize, setProjectTeamListPageSize] =
     useState<number>(10)
 
-  const [versionHistoryListPage, setVersionHistoryListPage] =
-    useState<number>(0)
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
 
@@ -308,6 +306,7 @@ const ReceivableInvoiceDetail = () => {
       type: 'InvoiceVersionHistoryModal',
       children: (
         <InvoiceVersionHistoryModal
+          invoiceInfo={invoiceInfo!}
           history={history}
           onClose={() => closeModal('InvoiceVersionHistoryModal')}
           onClick={handleRestoreVersion}
@@ -446,7 +445,12 @@ const ReceivableInvoiceDetail = () => {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row?.clientConfirmedAt,
+              row?.clientConfirmTimezone,
+            )}
+          </Box>
         )
       },
     },
@@ -1058,8 +1062,6 @@ const ReceivableInvoiceDetail = () => {
                 list={versionHistory!}
                 listCount={versionHistory?.length!}
                 columns={versionHistoryColumns}
-                page={versionHistoryListPage}
-                setPage={setVersionHistoryListPage}
                 pageSize={versionHistoryListPageSize}
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}

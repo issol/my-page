@@ -17,6 +17,7 @@ import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import {
   InvoiceDownloadData,
+  InvoiceReceivableDetailType,
   InvoiceVersionHistoryType,
 } from '@src/types/invoice/receivable.type'
 import InvoiceInfo from '../invoice-info'
@@ -36,8 +37,7 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import InvoiceClient from '../client'
-import { invoice_receivable } from '@src/shared/const/permission-class'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
+
 import { checkEditable } from '@src/apis/invoice/receivable.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientInvoice from '../client-invoice'
@@ -48,6 +48,7 @@ import {
 } from '@src/shared/helpers/price.helper'
 
 type Props = {
+  invoiceInfo: InvoiceReceivableDetailType
   history: InvoiceVersionHistoryType
   prices: StandardPriceListType[]
   pricesSuccess: boolean
@@ -63,6 +64,7 @@ type Props = {
 }
 
 const InvoiceVersionHistoryModal = ({
+  invoiceInfo,
   history,
   onClose,
   onClick,
@@ -75,13 +77,16 @@ const InvoiceVersionHistoryModal = ({
 }: Props) => {
   // console.log(history)
 
-  const [value, setValue] = useState<string>('1')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
 
   const currentRole = getCurrentRole()
+
+  const [value, setValue] = useState<string>(
+    currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
+  )
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
@@ -502,15 +507,19 @@ const InvoiceVersionHistoryModal = ({
           >
             Close
           </Button>
-          {isUpdatable && isUserInTeamMember && (
-            <Button
-              variant='contained'
-              sx={{ width: '226px' }}
-              onClick={onClick}
-            >
-              Restore this version
-            </Button>
-          )}
+          {isUpdatable &&
+            isUserInTeamMember &&
+            ![30000, 30100, 30200, 30900, 301200].includes(
+              invoiceInfo.invoiceStatus,
+            ) && (
+              <Button
+                variant='contained'
+                sx={{ width: '226px' }}
+                onClick={onClick}
+              >
+                Restore this version
+              </Button>
+            )}
         </Box>
       </Box>
     </Box>

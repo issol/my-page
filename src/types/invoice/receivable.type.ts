@@ -192,6 +192,9 @@ export type InvoiceVersionHistoryType = {
   version: number
   email: string
   downloadedAt: string
+  managerConfirmedAt: string | null
+  clientConfirmedAt: string | null
+  clientConfirmTimezone?: CountryType | null
 } & InvoiceHistoryType
 
 export type InvoiceVersionHistoryResType = {

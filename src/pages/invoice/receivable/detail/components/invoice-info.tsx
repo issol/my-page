@@ -68,6 +68,7 @@ import InvoiceAccountingInfoForm from '@src/pages/components/forms/invoice-accou
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import {
   cancelInvoice,
+  checkEditable,
   deleteInvoice,
   deliverTaxInvoice,
   markInvoiceAsPaid,
@@ -190,6 +191,13 @@ const InvoiceInfo = ({
       }
     >
   >([])
+
+  const [isUserInTeamMember, setIsUserInTeamMember] = useState(false)
+  useEffect(() => {
+    checkEditable(invoiceInfo.id).then(res => {
+      setIsUserInTeamMember(res)
+    })
+  }, [invoiceInfo])
 
   // ** Hooks
   const { getRootProps, getInputProps } = useDropzone({
@@ -604,7 +612,7 @@ const InvoiceInfo = ({
         </Box>
         <IconButton
           onClick={() => downloadOneFile(file)}
-          disabled={isFileUploading}
+          disabled={isFileUploading || !isUserInTeamMember}
         >
           <Icon icon='mdi:download' fontSize={24} />
         </IconButton>
@@ -1616,9 +1624,12 @@ const InvoiceInfo = ({
                               value={invoiceInfo.showDescription}
                               onChange={handelChangeShowDescription}
                               checked={invoiceInfo.showDescription}
-                              disabled={[30900, 301200].includes(
-                                invoiceInfo.invoiceStatus,
-                              )}
+                              disabled={
+                                type === 'history' ||
+                                [30900, 301200].includes(
+                                  invoiceInfo.invoiceStatus,
+                                )
+                              }
                             />
 
                             <Typography variant='body2' display='block'>
@@ -1643,8 +1654,7 @@ const InvoiceInfo = ({
                       </Box>
                     </Box>
 
-                    {type === 'history' ||
-                    (currentRole && currentRole.name === 'CLIENT') ? null : (
+                    {currentRole && currentRole.name === 'CLIENT' ? null : (
                       <>
                         <Divider />
                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
@@ -1652,9 +1662,12 @@ const InvoiceInfo = ({
                             value={isReminder}
                             onChange={handleChangeIsReminder}
                             checked={isReminder}
-                            disabled={[30900, 301200].includes(
-                              invoiceInfo.invoiceStatus,
-                            )}
+                            disabled={
+                              type === 'history' ||
+                              [30900, 301200].includes(
+                                invoiceInfo.invoiceStatus,
+                              )
+                            }
                           />
 
                           <Typography variant='body2'>
@@ -1966,7 +1979,7 @@ const InvoiceInfo = ({
                       {formatFileSize(fileSize).toLowerCase()}/ 50mb
                     </Typography>
                   </Box>
-                  {isUpdatable ? (
+                  {isUpdatable && isUserInTeamMember ? (
                     <div {...getRootProps({ className: 'dropzone' })}>
                       <Button
                         variant='contained'
@@ -1980,7 +1993,7 @@ const InvoiceInfo = ({
                     </div>
                   ) : null}
 
-                  {isFileUploading ? null : (
+                  {isFileUploading || !isUserInTeamMember ? null : (
                     <Box sx={{ display: 'flex', gap: '16px' }}>
                       <Button
                         variant='outlined'
@@ -2056,7 +2069,10 @@ const InvoiceInfo = ({
         </Grid>
       ) : null}
 
-      {edit || isFileUploading || type === 'history' ? null : (
+      {edit ||
+      isFileUploading ||
+      !isUserInTeamMember ||
+      type === 'history' ? null : (
         <Grid xs={12} container spacing={6}>
           {currentRole && currentRole.name === 'CLIENT' ? null : (
             <Grid item xs={4}>
