@@ -73,7 +73,12 @@ export const getInvoiceReceivableCalendarData = async (
 export const createInvoice = async (
   data: InvoiceReceivablePatchParamsType,
 ): Promise<CreateInvoiceReceivableRes> => {
-  return await axios.post('/api/enough/u/invoice/receivable', data)
+  return await axios.post('/api/enough/u/invoice/receivable', {
+    ...data,
+    taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+    showDescription: data.showDescription ? '1' : '0',
+    setReminder: data.setReminder ? '1' : '0',
+  })
 }
 
 export const getInvoiceDetail = async (
@@ -170,6 +175,9 @@ export const patchInvoiceInfo = async (
       `/api/enough/u/invoice/receivable/${id}`,
       {
         ...form,
+        taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
+        showDescription: form.showDescription ? '1' : '0',
+        setReminder: form.setReminder ? '1' : '0',
       },
     )
 
