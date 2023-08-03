@@ -236,17 +236,29 @@ const SignUpPage = () => {
   )
 
   function signUpOnsuccess(res: loginResType) {
-    if (role.includes(Roles.PRO) || role.includes(Roles.CLIENT)) {
+    if (role.includes(Roles.PRO)) {
       router.push(
         {
-          pathname: '/signup/finish/consumer',
+          pathname: '/signup/finish/pro',
           query: {
             userId: res.userId,
             email: res.email,
             accessToken: res.accessToken,
           },
         },
-        '/signup/finish/consumer',
+        '/signup/finish/pro',
+      )
+    } else if (role.includes(Roles.CLIENT)) {
+      router.push(
+        {
+          pathname: '/signup/finish/client',
+          query: {
+            userId: res.userId,
+            email: res.email,
+            accessToken: res.accessToken,
+          },
+        },
+        '/signup/finish/client',
       )
     } else {
       router.push('/signup/finish/manager')

@@ -112,19 +112,19 @@ const AuthProvider = ({ children }: Props) => {
         const TADRole =
           hasTadAndLpm(userAccess.role) &&
           userAccess.role.find(item => item.name === 'TAD')
-        TADRole
-          ? setCurrentRole(TADRole)
-          : setCurrentRole(userAccess.role[0])
-      }
-      else {
-        const findRole = userAccess.role.find(item => item.name === storageRole.name)
+        TADRole ? setCurrentRole(TADRole) : setCurrentRole(userAccess.role[0])
+      } else {
+        const findRole = userAccess.role.find(
+          item => item.name === storageRole.name,
+        )
         // 세션 스토리지에 storageRole 값이 있는 경우 name, type을 비교하여 현재 유저의 name, type과 다르면 업데이트
-        if (findRole && storageRole.type !== findRole?.type) setCurrentRole(findRole)
+        if (findRole && storageRole.type !== findRole?.type)
+          setCurrentRole(findRole)
         else setCurrentRole(userAccess.role[0])
       }
       if (!user?.firstName) {
         if (roles?.includes('PRO')) {
-          router.replace('/welcome/consumer')
+          router.replace('/welcome/pro')
         } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
           router.replace('/welcome/manager')
         }
