@@ -160,13 +160,15 @@ const SignUpPage = () => {
   const router = useRouter()
   const { email } = router.query
   const { setModal } = useContext(ModalContext)
+
   const [step, setStep] = useState<1 | 2 | 3>(1)
   const [showPassword, setShowPassword] = useState<boolean>(false)
   const [role, setRole] = useState<Array<RoleType>>([])
   const [pin, setPin] = useState('')
   const [pinError, setPinError] = useState('')
   const isPro = role.includes(Roles.PRO)
-  const isNotPro = role.some(item => item === Roles.LPM || item === Roles.TAD)
+  const isManager = role.some(item => item === Roles.LPM || item === Roles.TAD)
+  const isClient = role.some(item => item === Roles.CLIENT)
   const [validationNewPassword, setValidationNewPassword] = useState([
     {
       id: 1,
@@ -696,7 +698,7 @@ const SignUpPage = () => {
             <Box
               sx={{ display: 'flex', gap: '30px', justifyContent: 'center' }}
             >
-              <DisabledCard>
+              <Card>
                 <CardContent
                   sx={{
                     display: 'flex',
@@ -724,10 +726,10 @@ const SignUpPage = () => {
                     value={Roles.CLIENT}
                     checked={role.some(item => item === Roles.CLIENT) || false}
                     onChange={onRoleSelect}
-                    disabled
+                    disabled={isPro || isManager}
                   />
                 </CardContent>
-              </DisabledCard>
+              </Card>
               <Card>
                 <CardContent
                   sx={{
@@ -755,7 +757,7 @@ const SignUpPage = () => {
                     value={Roles.PRO}
                     id='pro'
                     checked={role.includes(Roles.PRO)}
-                    disabled={isNotPro}
+                    disabled={isManager || isClient}
                     onChange={onRoleSelect}
                   />
                 </CardContent>
@@ -785,7 +787,7 @@ const SignUpPage = () => {
                   <Checkbox
                     value={Roles.TAD}
                     id='tad'
-                    disabled={isPro}
+                    disabled={isPro || isClient}
                     checked={role.includes(Roles.TAD)}
                     onChange={onRoleSelect}
                   />
@@ -818,7 +820,7 @@ const SignUpPage = () => {
                     value={Roles.LPM}
                     id='lpm'
                     checked={role.includes(Roles.LPM)}
-                    disabled={isPro}
+                    disabled={isPro || isClient}
                     onChange={onRoleSelect}
                   />
                 </CardContent>
