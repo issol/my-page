@@ -8,15 +8,18 @@ import {
   InvoiceReceivablePatchParamsType,
   InvoiceVersionHistoryResType,
   InvoiceVersionHistoryType,
+  MarkDayInfo,
 } from '@src/types/invoice/receivable.type'
 import axios from 'src/configs/axios'
 import { makeQuery } from 'src/shared/transformer/query.transformer'
 import {
   ClientType,
+  DeliveryFileType,
   LanguageAndItemType,
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { CancelReasonType } from '@src/types/requests/detail.type'
 
 export const getReceivableList = async (
   filter: InvoiceReceivableFilterType,
@@ -72,7 +75,12 @@ export const getInvoiceReceivableCalendarData = async (
 export const createInvoice = async (
   data: InvoiceReceivablePatchParamsType,
 ): Promise<CreateInvoiceReceivableRes> => {
-  return await axios.post('/api/enough/u/invoice/receivable', data)
+  return await axios.post('/api/enough/u/invoice/receivable', {
+    ...data,
+    taxInvoiceIssued: data.taxInvoiceIssued ? '1' : '0',
+    showDescription: data.showDescription ? '1' : '0',
+    setReminder: data.setReminder ? '1' : '0',
+  })
 }
 
 export const getInvoiceDetail = async (
@@ -169,6 +177,9 @@ export const patchInvoiceInfo = async (
       `/api/enough/u/invoice/receivable/${id}`,
       {
         ...form,
+        taxInvoiceIssued: form.taxInvoiceIssued ? '1' : '0',
+        showDescription: form.showDescription ? '1' : '0',
+        setReminder: form.setReminder ? '1' : '0',
       },
     )
 
@@ -203,5 +214,50 @@ export const confirmInvoiceByLpm = async (
     return data
   } catch (e: any) {
     return false
+  }
+}
+
+export const deliverTaxInvoice = async (
+  invoiceId: number,
+  fileInfo: DeliveryFileType[],
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/tax-invoice/send`,
+      { files: fileInfo },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const markInvoiceAsPaid = async (
+  invoiceId: number,
+  info: MarkDayInfo,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/set-paid`,
+      info,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const cancelInvoice = async (
+  invoiceId: number,
+  info: CancelReasonType,
+): Promise<boolean> => {
+  try {
+    const { data } = await axios.patch(
+      `/api/enough/u/invoice/receivable/${invoiceId}/cancel`,
+      { reason: info },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
   }
 }

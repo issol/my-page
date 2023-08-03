@@ -84,7 +84,10 @@ import InvoiceVersionHistoryModal from './components/modal/version-history-detai
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { invoice_receivable } from '@src/shared/const/permission-class'
+import {
+  account_manage,
+  invoice_receivable,
+} from '@src/shared/const/permission-class'
 import { useGetStatusList } from '@src/queries/common.query'
 import { StyledNextLink } from '@src/@core/components/customLink'
 
@@ -128,12 +131,12 @@ const ReceivableInvoiceDetail = () => {
   const [projectTeamListPageSize, setProjectTeamListPageSize] =
     useState<number>(10)
 
-  const [versionHistoryListPage, setVersionHistoryListPage] =
-    useState<number>(0)
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
 
   const [clientEdit, setClientEdit] = useState(false)
+  const [isFileUploading, setIsFileUploading] = useState(false)
+
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const [value, setValue] = useState<MenuType>('invoice')
   const { openModal, closeModal } = useModal()
@@ -141,9 +144,11 @@ const ReceivableInvoiceDetail = () => {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(user?.id!)
+  const AccountingTeam = new account_manage(user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
 
   /* 케밥 메뉴 */
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -211,15 +216,15 @@ const ReceivableInvoiceDetail = () => {
     clientEdit ||
     projectTeamEdit ||
     accountingInfoEdit ||
-    langItemsEdit
+    langItemsEdit ||
+    isFileUploading
 
   const patchInvoiceInfoMutation = useMutation(
     (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
       patchInvoiceInfo(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
-        // console.log('success')
-
+        invalidateInvoiceDetail()
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)
         setProjectTeamEdit(false)
@@ -301,6 +306,7 @@ const ReceivableInvoiceDetail = () => {
       type: 'InvoiceVersionHistoryModal',
       children: (
         <InvoiceVersionHistoryModal
+          invoiceInfo={invoiceInfo!}
           history={history}
           onClose={() => closeModal('InvoiceVersionHistoryModal')}
           onClick={handleRestoreVersion}
@@ -439,7 +445,12 @@ const ReceivableInvoiceDetail = () => {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row?.clientConfirmedAt,
+              row?.clientConfirmTimezone,
+            )}
+          </Box>
         )
       },
     },
@@ -968,7 +979,10 @@ const ReceivableInvoiceDetail = () => {
                   statusList={statusList || []}
                   isUpdatable={isUpdatable}
                   isDeletable={isDeletable}
+                  isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
+                  isFileUploading={isFileUploading}
+                  setIsFileUploading={setIsFileUploading}
                 />
               ) : null}
             </TabPanel>
@@ -1048,8 +1062,6 @@ const ReceivableInvoiceDetail = () => {
                 list={versionHistory!}
                 listCount={versionHistory?.length!}
                 columns={versionHistoryColumns}
-                page={versionHistoryListPage}
-                setPage={setVersionHistoryListPage}
                 pageSize={versionHistoryListPageSize}
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}

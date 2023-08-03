@@ -235,7 +235,7 @@ export default function InvoiceDetailInfoForm({
               disabled={isAccountManager}
               showTimeSelect
               timeFormat='HH:mm'
-              timeIntervals={15}
+              timeIntervals={30}
               selected={!value ? null : new Date(value)}
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}
@@ -289,7 +289,7 @@ export default function InvoiceDetailInfoForm({
             <FullWidthDatePicker
               showTimeSelect
               timeFormat='HH:mm'
-              timeIntervals={15}
+              timeIntervals={30}
               selected={!value ? null : new Date(value)}
               dateFormat='MM/dd/yyyy h:mm aa'
               onChange={onChange}

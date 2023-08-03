@@ -82,7 +82,7 @@ const ConfirmInvoiceModal = ({ onClose, onClick }: Props) => {
               <FullWidthDatePicker
                 showTimeSelect
                 timeFormat='HH:mm'
-                timeIntervals={15}
+                timeIntervals={30}
                 selected={
                   data.taxInvoiceDueAt ? new Date(data?.taxInvoiceDueAt!) : null
                 }

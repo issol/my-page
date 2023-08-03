@@ -443,13 +443,10 @@ const DeliveriesFeedback = ({
   const onSubmit = () => {
     closeModal('DeliverToClientModal')
     if (files.length || importedFiles.length) {
-      const fileInfo: Array<{
-        filePath: string
-        fileSize: number
-        fileName: string
-        fileExtension: string
-        type?: 'imported' | 'uploaded'
-      }> = [...savedFiles, ...importedFiles]
+      const fileInfo: Array<DeliveryFileType> = [
+        ...savedFiles,
+        ...importedFiles,
+      ]
       const paths: string[] = files.map(file =>
         getFilePath(['delivery', project.id.toString()], file.name),
       )
