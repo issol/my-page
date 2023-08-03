@@ -117,7 +117,7 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { FullDateTimezoneHelper, convertLocalTimezoneToUTC, formatDateToISOString } from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 // ** react query
@@ -421,7 +421,8 @@ export default function QuotesDetail() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onBlur',
+    // mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -452,6 +453,7 @@ export default function QuotesDetail() {
             }
           }),
         )
+        console.log("itemsWithLang",itemsWithLang)
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
@@ -464,6 +466,7 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
           }
         })
+        console.log("result",result)
         itemReset({ items: result })
         itemTrigger()
       })()
@@ -908,10 +911,11 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    const currentTime = formatDateToISOString(convertLocalTimezoneToUTC(new Date()))
     makePdfData()
     dispatch(setQuoteLang(lang))
     dispatch(setQuote(downloadData))
-    patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
+    patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
       onMutationError(),
     )
     closeModal('PreviewModal')
