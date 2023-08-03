@@ -237,7 +237,6 @@ const DeliveriesFeedback = ({
   }
 
   const onClickUploadJobFile = (selected: DeliveryFileType[]) => {
-    console.log(selected)
     closeModal('ImportFromJobModal')
     setImportedFiles(selected)
   }
@@ -591,7 +590,7 @@ const DeliveriesFeedback = ({
           action='Redelivery requested'
           from='client'
           statusList={statusList!}
-          type='redelivery_request'
+          type='redelivery-requested'
           reasonList={RequestRedeliveryReason}
         />
       ),

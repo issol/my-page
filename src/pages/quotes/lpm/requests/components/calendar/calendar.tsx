@@ -56,7 +56,7 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      setCurrentListId(event?.id)
+      setCurrentListId(Number(event?.id))
     },
   }
 

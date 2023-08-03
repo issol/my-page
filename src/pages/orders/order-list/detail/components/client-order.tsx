@@ -132,7 +132,7 @@ const ClientOrder = ({
           from={'client'}
           statusList={statusList}
           type={
-            action === 'Request revision' ? 'requested_revision' : 'rejected'
+            action === 'Request revision' ? 'revision-requested' : 'rejected'
           }
           reasonList={
             action === 'Request revision'
