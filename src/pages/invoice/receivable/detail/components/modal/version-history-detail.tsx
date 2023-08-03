@@ -509,6 +509,7 @@ const InvoiceVersionHistoryModal = ({
           </Button>
           {isUpdatable &&
             isUserInTeamMember &&
+            history.isRestorable &&
             ![30000, 30100, 30200, 30900, 301200].includes(
               invoiceInfo.invoiceStatus,
             ) && (

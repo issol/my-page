@@ -195,6 +195,7 @@ export type InvoiceVersionHistoryType = {
   managerConfirmedAt: string | null
   clientConfirmedAt: string | null
   clientConfirmTimezone?: CountryType | null
+  isRestorable: boolean
 } & InvoiceHistoryType
 
 export type InvoiceVersionHistoryResType = {

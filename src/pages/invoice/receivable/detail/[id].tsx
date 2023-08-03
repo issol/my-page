@@ -138,7 +138,9 @@ const ReceivableInvoiceDetail = () => {
   const [isFileUploading, setIsFileUploading] = useState(false)
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-  const [value, setValue] = useState<MenuType>('invoice')
+  const [value, setValue] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
+  )
   const { openModal, closeModal } = useModal()
 
   const { data: priceUnitsList } = useGetAllClientPriceList()

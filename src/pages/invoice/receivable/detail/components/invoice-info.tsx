@@ -430,37 +430,6 @@ const InvoiceInfo = ({
     setFiles(files.filter(i => i.name !== file.name))
   }
 
-  // async function uploadFiles() {
-  //     const fileInfo: DeliveryFileType[] = []
-  //     const paths: string[] = files?.map(file =>
-  //       getFilePath(['invoice', String(invoiceInfo.id), 'tax'], file.name),
-  //     )
-  //     const promiseArr = paths.map((url, idx) => {
-  //       try{
-  //         const res = await getUploadUrlforCommon(S3FileType.TAX_INVOICE, url);
-  //       fileInfo.push({
-  //         type: 'uploaded',
-  //         filePath: url,
-  //         fileName: files[idx].name,
-  //         fileExtension: files[idx].type,
-  //         fileSize: files[idx].size,
-  //       });
-  //       await uploadFileToS3(res.url, files[idx]);
-  //       }catch(error){}
-  //       return getUploadUrlforCommon(S3FileType.TAX_INVOICE, url).then(res => {
-  //         fileInfo.push({
-  //           type: 'uploaded',
-  //           filePath: url,
-  //           fileName: files[idx].name,
-  //           fileExtension: files[idx].type,
-  //           fileSize: files[idx].size,
-  //         })
-  //         return uploadFileToS3(res.url, files[idx])
-  //       })
-
-  //     })
-  //     return [promiseArr, fileInfo]
-  //   }
   async function uploadFiles(): Promise<[Promise<void>[], DeliveryFileType[]]> {
     const fileInfo: DeliveryFileType[] = []
     const paths: string[] = files?.map(file =>
@@ -1965,8 +1934,83 @@ const InvoiceInfo = ({
           )}
         </>
       )}
-      {/* TODO: currentRole &&
-          currentRole.name === 'CLIENT' && 이 조건을 뺐는데 괜찮은지 렐 문의하기 */}
+
+      {type !== 'history' && currentRole && currentRole.name === 'CLIENT' ? (
+        <Grid container spacing={6}>
+          <Grid item xs={isFileUploading ? 9 : 12}>
+            <Card sx={{ padding: '24px' }}>
+              <Grid item xs={12}>
+                <Box display='flex' gap='20px' alignItems='center'>
+                  <Box display='flex' flexDirection='column'>
+                    <Typography variant='h6'>Tax invoice</Typography>
+                    <Typography variant='caption'>
+                      {formatFileSize(fileSize).toLowerCase()}/ 2gb
+                    </Typography>
+                  </Box>
+
+                  {isFileUploading || !isUserInTeamMember ? null : (
+                    <Box sx={{ display: 'flex', gap: '16px' }}>
+                      <Button
+                        variant='outlined'
+                        disabled={savedFiles.length < 1}
+                        sx={{
+                          height: '34px',
+                        }}
+                        startIcon={<Icon icon='mdi:download' fontSize={18} />}
+                        onClick={() => downloadAllFiles(savedFiles)}
+                      >
+                        Download all
+                      </Button>
+                    </Box>
+                  )}
+                </Box>
+              </Grid>
+              {savedFiles.length ? (
+                <>
+                  <Grid item xs={12}>
+                    <Box
+                      display='grid'
+                      gridTemplateColumns='repeat(3,1fr)'
+                      gap='16px'
+                    >
+                      {savedFileList}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider />
+                  </Grid>
+                </>
+              ) : (
+                '-'
+              )}
+            </Card>
+          </Grid>
+          {isFileUploading ? (
+            <Grid item xs={3}>
+              <Card sx={{ padding: '24px' }}>
+                <Button
+                  variant='contained'
+                  color='success'
+                  fullWidth
+                  disabled={!files.length}
+                  startIcon={<Icon icon='ic:outline-send' />}
+                  onClick={onDeliverTaxInvoice}
+                >
+                  Deliver to client
+                </Button>
+                <Button
+                  variant='outlined'
+                  fullWidth
+                  sx={{ mt: 4 }}
+                  onClick={onCancelFileUpload}
+                >
+                  Cancel
+                </Button>
+              </Card>
+            </Grid>
+          ) : null}
+        </Grid>
+      ) : null}
       {type !== 'history' ? (
         <Grid container spacing={6}>
           <Grid item xs={isFileUploading ? 9 : 12}>
@@ -2115,7 +2159,6 @@ const InvoiceInfo = ({
               <Button
                 variant='contained'
                 fullWidth
-                color='success'
                 size='large'
                 disabled={
                   !isUpdatable ||
