@@ -1,4 +1,5 @@
 import { ItemType } from '../common/item.type'
+import { OrderStatusType } from '../common/orders.type'
 import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
 
@@ -65,18 +66,3 @@ export type OrderListForJobType = {
   isItems: boolean
   items: ItemType[]
 }
-
-export type OrderStatusType =
-  | 'New'
-  | 'In preparation'
-  | 'Internal review'
-  | 'Order sent'
-  | 'In progress'
-  | 'Under revision'
-  | 'Partially delivered'
-  | 'Delivery completed'
-  | 'Redelivery requested'
-  | 'Delivery confirmed'
-  | 'Invoiced'
-  | 'Paid'
-  | 'Canceled'

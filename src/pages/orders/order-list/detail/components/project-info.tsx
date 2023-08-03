@@ -16,7 +16,6 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import Icon from '@src/@core/components/icon'
-import { OrderStatus } from '@src/shared/const/status/statuses'
 import {
   FullDateHelper,
   FullDateTimezoneHelper,
@@ -175,9 +174,9 @@ const ProjectInfo = ({
           onClose={() => closeModal(`${project.status}ReasonModal`)}
           reason={project.reason}
           type={
-            project.status === 'Redelivery requested'
+            project.status === 10800
               ? 'Requested'
-              : project.status
+              : statusList?.find(i => i.value === project?.status)?.label || ''
           }
           vary='info'
         />
@@ -351,9 +350,9 @@ const ProjectInfo = ({
                 >
                   {type === 'detail' &&
                   isUpdatable &&
-                  (project.status === 'New' ||
-                    project.status === 'In preparation' ||
-                    project.status === 'Internal review') ? (
+                  (project.status === 10000 ||
+                    project.status === 10100 ||
+                    project.status === 10200) ? (
                     <Autocomplete
                       autoHighlight
                       fullWidth
@@ -369,7 +368,7 @@ const ProjectInfo = ({
                       }}
                       value={
                         statusList &&
-                        statusList.find(item => item.label === project.status)
+                        statusList.find(item => item.value === project.status)
                       }
                       renderInput={params => (
                         <TextField
@@ -386,10 +385,14 @@ const ProjectInfo = ({
                     >
                       <OrderStatusChip
                         status={project.status}
-                        label={project.status}
+                        label={
+                          statusList?.find(
+                            item => item.value === project.status,
+                          )?.label || ''
+                        }
                       />
-                      {(project.status === 'Redelivery requested' ||
-                        project.status === 'Canceled') && (
+                      {(project.status === 10800 ||
+                        project.status === 101200) && (
                         <IconButton
                           onClick={() => {
                             project.reason && onClickReason()
@@ -811,10 +814,10 @@ const ProjectInfo = ({
                       display: 'flex',
                       alignItems: 'center',
                       opacity:
-                        project?.status === 'Delivery confirmed' ||
-                        project.status === 'Paid' ||
-                        project.status === 'Invoiced' ||
-                        project.status === 'Canceled'
+                        project?.status === 10900 ||
+                        project.status === 101100 ||
+                        project.status === 101000 ||
+                        project.status === 101200
                           ? 0.5
                           : 1,
                     }}
@@ -830,10 +833,10 @@ const ProjectInfo = ({
                       }}
                       checked={showDescription}
                       disabled={
-                        project?.status === 'Delivery confirmed' ||
-                        project.status === 'Paid' ||
-                        project.status === 'Invoiced' ||
-                        project.status === 'Canceled'
+                        project?.status === 10700 ||
+                        project.status === 101100 ||
+                        project.status === 101000 ||
+                        project.status === 101200
                       }
                     />
 
@@ -884,9 +887,9 @@ const ProjectInfo = ({
                 color='error'
                 size='large'
                 disabled={
-                  project?.status === 'Invoiced' ||
-                  project?.status === 'Canceled' ||
-                  project?.status === 'Paid'
+                  project?.status === 101000 ||
+                  project?.status === 101200 ||
+                  project?.status === 101100
                 }
                 onClick={onClickCancel}
               >
@@ -902,9 +905,9 @@ const ProjectInfo = ({
                 color='error'
                 size='large'
                 disabled={
-                  project?.status !== 'New' &&
-                  project?.status !== 'In preparation' &&
-                  project?.status !== 'Internal review'
+                  project?.status !== 10000 &&
+                  project?.status !== 10100 &&
+                  project?.status !== 10200
                 }
                 onClick={onClickDelete}
               >

@@ -662,10 +662,10 @@ const DeliveriesFeedback = ({
                       variant='contained'
                       sx={{ height: '34px' }}
                       disabled={
-                        project.status !== 'In progress' &&
-                        project.status !== 'Partially delivered' &&
-                        project.status !== 'Redelivery requested' &&
-                        project.status !== 'Order sent'
+                        project.status !== 10400 &&
+                        project.status !== 10600 &&
+                        project.status !== 10800 &&
+                        project.status !== 10300
                       }
                     >
                       <input {...getInputProps()} />
@@ -678,9 +678,9 @@ const DeliveriesFeedback = ({
                     variant='contained'
                     sx={{ height: '34px' }}
                     disabled={
-                      project.status !== 'In progress' &&
-                      project.status !== 'Partially delivered' &&
-                      project.status !== 'Redelivery requested'
+                      project.status !== 10400 &&
+                      project.status !== 10600 &&
+                      project.status !== 10800
                     }
                     onClick={onClickImportJob}
                   >
@@ -783,7 +783,7 @@ const DeliveriesFeedback = ({
                 <Button
                   variant='contained'
                   onClick={onClickConfirmDeliveries}
-                  disabled={project.status !== 'Delivery completed'}
+                  disabled={project.status !== 10700}
                 >
                   Confirm deliveries
                 </Button>
@@ -792,8 +792,7 @@ const DeliveriesFeedback = ({
                   onClick={onClickRequestRedelivery}
                   color='error'
                   disabled={
-                    project.status !== 'Partially delivered' &&
-                    project.status !== 'Delivery completed'
+                    project.status !== 10600 && project.status !== 10700
                   }
                 >
                   Request redelivery
@@ -825,9 +824,9 @@ const DeliveriesFeedback = ({
                     fullWidth
                     onClick={onClickCompleteDelivery}
                     disabled={
-                      (project.status !== 'Under revision' &&
-                        project.status !== 'Partially delivered' &&
-                        project.status !== 'Redelivery requested') ||
+                      (project.status !== 10500 &&
+                        project.status !== 10600 &&
+                        project.status !== 10800) ||
                       project.deliveries?.length === 0
                     }
                   >

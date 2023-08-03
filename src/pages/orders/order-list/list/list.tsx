@@ -3,17 +3,14 @@ import { Button, Card, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
-import { ClientRowType } from '@src/apis/client.api'
 import {
-  ClientStatusChip,
   ExtraNumberChip,
   JobTypeChip,
   OrderStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+
 import { StyledNextLink } from '@src/@core/components/customLink'
-import { useRouter } from 'next/router'
 import {
   OrderListFilterType,
   OrderListType,
@@ -22,6 +19,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { UserDataType, UserRoleType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { Dispatch, SetStateAction } from 'react'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type OrderListCellType = {
   row: OrderListType
@@ -56,6 +54,8 @@ export default function OrdersList({
   isCardHeader,
   role,
 }: Props) {
+  const { data: statusList } = useGetStatusList('Order')
+
   const columns: GridColumns<OrderListType> = [
     {
       field: 'corporationId',
@@ -93,7 +93,7 @@ export default function OrdersList({
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={row?.status}
+            label={statusList?.find(i => i.value === row?.status)?.label || ''}
           />
         )
       },
@@ -356,12 +356,12 @@ export default function OrdersList({
               }}
               disableSelectionOnClick
               getRowClassName={params =>
-                role.name === 'CLIENT' && params.row.status === 'Under revision'
+                role.name === 'CLIENT' && params.row.status === 10500
                   ? 'disabled'
                   : 'normal'
               }
               isRowSelectable={params =>
-                role.name === 'CLIENT' && params.row.status !== 'Under revision'
+                role.name === 'CLIENT' && params.row.status !== 10500
               }
             />
           </Box>

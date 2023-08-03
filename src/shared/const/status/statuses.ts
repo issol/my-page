@@ -220,29 +220,6 @@ export const QuotesStatus = [
   },
 ]
 
-export const OrderStatus = [
-  {
-    value: 'In preparation',
-    label: 'In preparation',
-  },
-  {
-    value: 'In progress',
-    label: 'In progress',
-  },
-  {
-    value: 'Completed',
-    label: 'Completed',
-  },
-  {
-    value: 'Invoiced',
-    label: 'Invoiced',
-  },
-  {
-    value: 'Canceled',
-    label: 'Canceled',
-  },
-]
-
 export const JobStatus = [
   {
     value: 'In preparation',
@@ -355,49 +332,6 @@ export const InvoicePayableCalendarStatus = [
   {
     value: 'Overdue',
     label: 'Overdue',
-    color: '#FF4D49',
-  },
-  {
-    value: 'Canceled',
-    label: 'Canceled',
-    color: '#FF4D49',
-  },
-]
-
-export const InvoiceCalenderStatus = [
-  {
-    value: 'In preparation',
-    label: 'In preparation',
-    color: '#F572D8',
-  },
-  {
-    value: 'Checking in progress',
-    label: 'Checking in progress',
-    color: '#FDB528',
-  },
-  {
-    value: 'Accepted by client',
-    label: 'Accepted by client',
-    color: '#64C623',
-  },
-  {
-    value: 'Tax invoice issued',
-    label: 'Tax invoice issued',
-    color: '#46A4C2',
-  },
-  {
-    value: 'Paid',
-    label: 'Paid',
-    color: '#267838',
-  },
-  {
-    value: 'Overdue',
-    label: 'Paid',
-    color: '#FF4D49',
-  },
-  {
-    value: 'Overdue (Reminder sent)',
-    label: 'Overdue (Reminder sent)',
     color: '#FF4D49',
   },
   {

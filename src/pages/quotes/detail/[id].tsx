@@ -195,47 +195,56 @@ export default function QuotesDetail() {
      * tab-projectInfo
      * button-confirmQuote
      * button-cancelQuote
-     *  */ 
-    featureName: 'tab-ProjectInfo' | 'tab-Languages&Items' | 'tab-Client' | 'tab-ProjectTeam' | 'tab-Restore' |
-      'button-DownloadQuote' | 'button-CreateOrder' | 'button-ConfirmQuote' | 'button-CancelQuote' | 'button-DeleteQuote'
-  ):boolean => {
+     *  */
+    featureName:
+      | 'tab-ProjectInfo'
+      | 'tab-Languages&Items'
+      | 'tab-Client'
+      | 'tab-ProjectTeam'
+      | 'tab-Restore'
+      | 'button-DownloadQuote'
+      | 'button-CreateOrder'
+      | 'button-ConfirmQuote'
+      | 'button-CancelQuote'
+      | 'button-DeleteQuote',
+  ): boolean => {
     let flag = false
-    if(currentRole! && currentRole.name !== 'CLIENT') {
+    if (currentRole! && currentRole.name !== 'CLIENT') {
       switch (featureName) {
         case 'tab-ProjectInfo':
         case 'tab-Languages&Items':
-          flag = 
+          flag =
             isUpdatable &&
             (project?.status === 'New' ||
-            project?.status === 'In preparation' ||
-            project?.status === 'Internal Review' ||
-            project?.status === 'Revision requested' ||
-            project?.status === 'Under revision' ||
-            (project?.status === 'Expired' && !project?.isConfirmed)) &&
+              project?.status === 'In preparation' ||
+              project?.status === 'Internal Review' ||
+              project?.status === 'Revision requested' ||
+              project?.status === 'Under revision' ||
+              (project?.status === 'Expired' && !project?.isConfirmed)) &&
             isIncludeProjectTeam()
           break
         case 'tab-Client':
-          flag = 
+          flag =
             isUpdatable &&
-            (project?.status !== 'Changed into order' &&
+            project?.status !== 'Changed into order' &&
             project?.status !== 'Rejected' &&
             project?.status !== 'Canceled' &&
-            !!!client?.contactPerson?.userId) &&
+            !!!client?.contactPerson?.userId &&
             isIncludeProjectTeam()
           break
         case 'tab-ProjectTeam':
-          flag = 
+          flag =
             isUpdatable &&
-            (project?.status !== 'Changed into order' &&
+            project?.status !== 'Changed into order' &&
             project?.status !== 'Rejected' &&
-            project?.status !== 'Canceled') &&
+            project?.status !== 'Canceled' &&
             isIncludeProjectTeam()
           break
         case 'tab-Restore':
-          flag = 
+          flag =
             isUpdatable &&
             (project?.status === 'Revision requested' ||
-            project?.status === 'Under revision') &&
+              project?.status === 'Under revision') &&
             isIncludeProjectTeam()
           break
         case 'button-DownloadQuote':
@@ -249,39 +258,39 @@ export default function QuotesDetail() {
             project?.status === 'Expired' ||
             project?.status === 'Rejected'
         case 'button-CreateOrder':
-          flag = 
+          flag =
             !project?.linkedOrder &&
             (project?.status === 'Revision requested' ||
-            project?.status === 'Revised' ||
-            project?.status === 'Accepted' ||
-            project?.status === 'Expired')
+              project?.status === 'Revised' ||
+              project?.status === 'Accepted' ||
+              project?.status === 'Expired')
           break
         case 'button-ConfirmQuote':
-          flag = 
-            (project?.status === 'New' ||
+          flag =
+            project?.status === 'New' ||
             project?.status === 'In preparation' ||
             project?.status === 'Internal Review' ||
-            project?.status === 'Under revision') ||
+            project?.status === 'Under revision' ||
             (project?.status === 'Expired' && !project?.isConfirmed)
           break
         case 'button-CancelQuote':
-          flag = 
+          flag =
             project?.status !== 'Changed into order' &&
             project?.status !== 'Canceled'
           break
         case 'button-DeleteQuote':
-          flag = 
-            isDeletable &&
-            (!!client?.contactPerson?.userId && 
-            ((project?.status === 'New' ||
-            project?.status === 'In preparation' ||
-            project?.status === 'Internal Review') ||
-            (project?.status === 'Expired' && !project?.isConfirmed))) ||
+          flag =
+            (isDeletable &&
+              !!client?.contactPerson?.userId &&
+              (project?.status === 'New' ||
+                project?.status === 'In preparation' ||
+                project?.status === 'Internal Review' ||
+                (project?.status === 'Expired' && !project?.isConfirmed))) ||
             (!!client?.contactPerson?.userId &&
-            (project?.status === 'New' ||
-            project?.status === 'In preparation' ||
-            project?.status === 'Internal Review' ||
-            project?.status === 'Expired'))
+              (project?.status === 'New' ||
+                project?.status === 'In preparation' ||
+                project?.status === 'Internal Review' ||
+                project?.status === 'Expired'))
           break
       }
     }
@@ -289,13 +298,14 @@ export default function QuotesDetail() {
   }
 
   // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
-  const isIncludeProjectTeam = (
-  ) => {
+  const isIncludeProjectTeam = () => {
     return Boolean(
-      currentRole?.name !== 'CLIENT' &&
-      (currentRole?.type === 'Master' || currentRole?.type === 'Manager') ||
-      currentRole?.type === 'General' && team?.length &&
-      team.some(item => item.userId === user?.id!))
+      (currentRole?.name !== 'CLIENT' &&
+        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+        (currentRole?.type === 'General' &&
+          team?.length &&
+          team.some(item => item.userId === user?.id!)),
+    )
   }
 
   // ** store
@@ -1244,9 +1254,7 @@ export default function QuotesDetail() {
                       query: { orderId: id },
                     })
                   }
-                  disabled={
-                    !canUseFeature('button-CreateOrder')
-                  }
+                  disabled={!canUseFeature('button-CreateOrder')}
                 >
                   Create order
                 </Button>
@@ -1255,9 +1263,7 @@ export default function QuotesDetail() {
                 <Button
                   variant='contained'
                   onClick={onClickConfirmQuote}
-                  disabled={
-                    !canUseFeature('button-ConfirmQuote')
-                  }
+                  disabled={!canUseFeature('button-ConfirmQuote')}
                 >
                   Confirm quote
                 </Button>
@@ -1375,9 +1381,7 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
-                      isUpdatable={
-                        canUseFeature('tab-ProjectInfo')
-                      }
+                      isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
@@ -1388,7 +1392,7 @@ export default function QuotesDetail() {
                       statusList={statusList!}
                     />
                   </Card>
-                  {currentRole && currentRole.name === 'CLIENT' ||
+                  {(currentRole && currentRole.name === 'CLIENT') ||
                   !isIncludeProjectTeam() ? null : (
                     <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
                       <Grid item xs={4}>
@@ -1398,9 +1402,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={
-                              !canUseFeature('button-CancelQuote')
-                            }
+                            disabled={!canUseFeature('button-CancelQuote')}
                             onClick={onClickCancel}
                           >
                             Cancel this quote
@@ -1452,9 +1454,7 @@ export default function QuotesDetail() {
                   setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
-                  isUpdatable={
-                    canUseFeature('tab-Languages&Items')
-                  }
+                  isUpdatable={canUseFeature('tab-Languages&Items')}
                   role={currentRole!}
                   itemTrigger={itemTrigger}
                 />

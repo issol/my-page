@@ -245,8 +245,8 @@ const LanguageAndItem = ({
             sx={{ display: 'flex', gap: '8px', mb: '24px' }}
             disabled={
               items.length < 1 ||
-              project?.status === 'Paid' ||
-              project?.status === 'Canceled'
+              project?.status === 101100 ||
+              project?.status === 101200
             }
             onClick={onClickSplitOrder}
           >
@@ -254,9 +254,9 @@ const LanguageAndItem = ({
             Split order
           </Button>
           {project &&
-          project.status !== 'Invoiced' &&
-          project.status !== 'Paid' &&
-          project.status !== 'Canceled' ? (
+          project.status !== 101000 &&
+          project.status !== 101100 &&
+          project.status !== 101200 ? (
             <IconButton
               onClick={() => {
                 updateProject && updateProject.mutate({ status: 105 })

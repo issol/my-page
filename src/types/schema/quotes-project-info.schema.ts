@@ -1,7 +1,5 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { OrderStatusType } from '../common/orders.type'
-import { QuoteStatusType } from '../common/quotes.type'
 
 export const quotesProjectInfoDefaultValue = {
   projectName: '',
