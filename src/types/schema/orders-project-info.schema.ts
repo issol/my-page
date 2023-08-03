@@ -1,10 +1,7 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { OrderStatusType } from '../common/orders.type'
 
 export const orderProjectInfoDefaultValue = {
-  // status: 'In preparation' as OrderStatusType,
-
   projectName: '',
   showDescription: false,
   orderedAt: Date(),

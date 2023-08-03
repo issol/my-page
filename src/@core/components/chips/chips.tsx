@@ -2,7 +2,7 @@ import styled from 'styled-components'
 import CustomChip from 'src/@core/components/mui/chip'
 import { Chip } from '@mui/material'
 import { StatusType } from '@src/apis/client.api'
-import { OrderStatusType } from '@src/types/orders/order-list'
+
 import { JobStatusType } from '@src/types/jobs/common.type'
 import { QuoteStatusType } from '@src/types/common/quotes.type'
 import {
@@ -11,6 +11,11 @@ import {
 } from '@src/types/invoice/common.type'
 import { RoleType, UserType } from '@src/context/types'
 import { RequestStatusType } from '@src/types/requests/common.type'
+import {
+  getOrderStatusColor,
+  getReceivableStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import { OrderStatusType } from '@src/types/common/orders.type'
 
 export function renderStatusChip(status: string) {
   const color =
@@ -229,70 +234,22 @@ export const ExtraNumberChip = styled(Chip)`
   color: #6d788d;
 `
 
-function getOrderColor(status: OrderStatusType) {
-  return status === 'New'
-    ? '#666CFF'
-    : status === 'In preparation'
-    ? '#F572D8'
-    : status === 'In progress'
-    ? '#FDB528'
-    : status === 'Internal review'
-    ? '#D8AF1D'
-    : status === 'Order sent'
-    ? '#B06646'
-    : status === 'Under revision'
-    ? '#26C6F9'
-    : status === 'Partially delivered'
-    ? '#BA971A'
-    : status === 'Delivery completed'
-    ? '#1A6BBA'
-    : status === 'Redelivery requested'
-    ? '#A81988'
-    : status === 'Delivery confirmed'
-    ? '#64C623'
-    : status === 'Invoiced'
-    ? '#9B6CD8'
-    : status === 'Paid'
-    ? '#1B8332'
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : ''
-}
-
-export const OrderStatusChip = styled(Chip)<{ status: OrderStatusType }>`
+export const OrderStatusChip = styled(Chip)<{
+  status: OrderStatusType
+}>`
   // //
   border: none;
-  ${({ status }) =>
-    status === 'New'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #666CFF; color: #666CFF;'
-      : status === 'In preparation'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #F572D8; color: #F572D8;'
-      : status === 'In progress'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FDB528; color: #FDB528;'
-      : status === 'Internal review'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #D8AF1D; color: #D8AF1D;'
-      : status === 'Order sent'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #B06646; color: #B06646;'
-      : status === 'Under revision'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #26C6F9; color: #26C6F9;'
-      : status === 'Partially delivered'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #BA971A; color: #BA971A;'
-      : status === 'Delivery completed'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #1A6BBA; color: #1A6BBA;'
-      : status === 'Redelivery requested'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #A81988; color: #A81988;'
-      : status === 'Delivery confirmed'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #64C623; color: #64C623;'
-      : status === 'Invoiced'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #9B6CD8; color: #9B6CD8;'
-      : status === 'Paid'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #1B8332; color: #1B8332;'
-      : status === 'Canceled'
-      ? 'background: linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #FF4D49; color: #FF4D49;'
-      : ''}
+  background: linear-gradient(
+      0deg,
+      rgba(255, 255, 255, 0.88),
+      rgba(255, 255, 255, 0.88)
+    ),
+    ${({ status }) => getOrderStatusColor(status)};
 `
 
-export const QuoteStatusChip = styled(Chip)<{ status: QuoteStatusType }>`
+export const QuoteStatusChip = styled(Chip)<{
+  status: QuoteStatusType
+}>`
   // //
   border: none;
   ${({ status }) =>
@@ -411,30 +368,7 @@ export function InvoiceReceivableChip(
   label: string,
   status: InvoiceReceivableStatusType,
 ) {
-  const color =
-    status === 30000
-      ? '#666CFF'
-      : status === 30100
-      ? '#F572D8'
-      : status === 30200
-      ? '#D8AF1D'
-      : status === 30300
-      ? '#547ED1'
-      : status === 30400
-      ? '#FDB528'
-      : status === 30500
-      ? '#26C6F9'
-      : status === 30600
-      ? '#AD7028'
-      : status === 30700
-      ? '#64C623'
-      : status === 30800
-      ? '#323A42'
-      : status === 30900
-      ? '#267838'
-      : status === 301000 || status === 301100 || status === 301200
-      ? '#FF4D49'
-      : ''
+  const color = getReceivableStatusColor(status)
 
   return (
     <CustomChip

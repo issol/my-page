@@ -1,11 +1,7 @@
 import axios from '@src/configs/axios'
 import { updateOrderType } from '@src/pages/orders/order-list/detail/[id]'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
-import {
-  ItemResType,
-  ProjectTeamFormType,
-} from '@src/types/common/orders-and-quotes.type'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
+import { ItemResType } from '@src/types/common/orders-and-quotes.type'
 import {
   ClientType,
   LanguageAndItemType,
@@ -13,7 +9,6 @@ import {
   ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
-import { ClientFormType } from '@src/types/schema/client.schema'
 
 export const getProjectInfo = async (id: number): Promise<ProjectInfoType> => {
   try {

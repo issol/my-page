@@ -54,7 +54,6 @@ import {
 } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { RevenueFrom } from '@src/shared/const/revenue-from'
 import { countries } from 'src/@fake-db/autocomplete'
-import { OrderStatus } from '@src/shared/const/status/statuses'
 import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types

@@ -38,10 +38,7 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import {
   orderProjectInfoDefaultValue,
   orderProjectInfoSchema,
@@ -562,7 +559,7 @@ export default function AddNewOrder() {
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
             showDescription: false,
-            status: statusList!.find(item => item.label === res?.status)?.value,
+            status: statusList!.find(item => item.value === res?.status)?.value,
             projectDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],

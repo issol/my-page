@@ -6,7 +6,7 @@ import { getAddress } from '@src/shared/helpers/address-helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { getGmtTimeEng } from '@src/shared/helpers/timezone.helper'
-import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
+import { ClientType } from '@src/types/orders/order-detail'
 
 import { Dispatch, SetStateAction } from 'react'
 import { UseMutationResult } from 'react-query'

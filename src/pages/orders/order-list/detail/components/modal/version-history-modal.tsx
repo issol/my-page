@@ -165,12 +165,12 @@ const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
           >
             Close
           </Button>
-          {project.status === 'Order sent' ||
-          project.status === 'In progress' ||
-          project.status === 'Under revision' ||
-          project.status === 'Partially delivered' ||
-          project.status === 'Delivery completed' ||
-          project.status === 'Redelivery requested' ? (
+          {project.status === 10300 ||
+          project.status === 10400 ||
+          project.status === 10500 ||
+          project.status === 10600 ||
+          project.status === 10700 ||
+          project.status === 10800 ? (
             <Button
               variant='contained'
               sx={{ width: '226px' }}

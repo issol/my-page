@@ -24,8 +24,6 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
-  // statusList: { value: number; label: string }[]
-  // project: ProjectInfoType
 }
 
 const ClientInvoice = ({

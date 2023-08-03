@@ -1,11 +1,11 @@
-import { RevenueFormType } from './../common/orders.type'
+import { OrderStatusType, RevenueFormType } from './../common/orders.type'
 import { CurrencyType } from '@src/types/common/standard-price'
 import { InvoiceReceivableStatusType } from './common.type'
 import { CountryType } from '../sign/personalInfoTypes'
 
 import { StatusType } from '@src/apis/client.api'
 import { AddressType, ClientAddressType } from '../schema/client-address.schema'
-import { OrderStatusType } from '../orders/order-list'
+
 import {
   ClientType,
   DeliveryFileType,

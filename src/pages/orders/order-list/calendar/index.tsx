@@ -18,7 +18,7 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 import { Typography } from '@mui/material'
 
 import { OrderListCalendarEventType } from '@src/apis/order-list.api'
-import { OrderListType, OrderStatusType } from '@src/types/orders/order-list'
+import { OrderListType } from '@src/types/orders/order-list'
 import { useGetOrderListCalendar } from '@src/queries/order/order.query'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
@@ -28,6 +28,8 @@ import { useGetStatusList } from '@src/queries/common.query'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 import { CalendarEventType } from '@src/types/common/calendar.type'
 import Calendar from './order-list-calendar-view'
+import { OrderStatusType } from '@src/types/common/orders.type'
+import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 
 const OrderListCalendar = () => {
   // ** States
@@ -67,36 +69,6 @@ const OrderListCalendar = () => {
     router.push(`/orders/order-list/detail/${row.id}`)
   }
 
-  function getColor(status: OrderStatusType) {
-    return status === 'New'
-      ? '#666CFF'
-      : status === 'In preparation'
-      ? '#F572D8'
-      : status === 'In progress'
-      ? '#FDB528'
-      : status === 'Internal review'
-      ? '#D8AF1D'
-      : status === 'Order sent'
-      ? '#B06646'
-      : status === 'Under revision'
-      ? '#26C6F9'
-      : status === 'Partially delivered'
-      ? '#BA971A'
-      : status === 'Delivery completed'
-      ? '#1A6BBA'
-      : status === 'Redelivery requested'
-      ? '#A81988'
-      : status === 'Delivery confirmed'
-      ? '#64C623'
-      : status === 'Invoiced'
-      ? '#9B6CD8'
-      : status === 'Paid'
-      ? '#1B8332'
-      : status === 'Canceled'
-      ? '#FF4D49'
-      : ''
-  }
-
   useEffect(() => {
     // console.log(currentListId)
 
@@ -124,10 +96,10 @@ const OrderListCalendar = () => {
       setEvent(
         data.data.filter(
           item =>
-            item.status !== 'Delivery confirmed' &&
-            item.status !== 'Canceled' &&
-            item.status !== 'Invoiced' &&
-            item.status !== 'Paid',
+            item.status !== 10700 &&
+            item.status !== 101200 &&
+            item.status !== 101000 &&
+            item.status !== 101100,
         ),
       )
     } else if (data?.data.length && !hideFilter) {
@@ -142,7 +114,7 @@ const OrderListCalendar = () => {
     if (statusList) {
       const res = statusList.map(value => ({
         ...value,
-        color: getColor(value.label as OrderStatusType),
+        color: getOrderStatusColor(value.value as OrderStatusType),
       }))
       setStatuses(res)
     }
