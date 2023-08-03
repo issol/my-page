@@ -2116,27 +2116,27 @@ const InvoiceInfo = ({
       {edit ||
       isFileUploading ||
       !isUserInTeamMember ||
-      type === 'history' ? null : (
+      type === 'history' ||
+      (currentRole && currentRole.name === 'CLIENT') ? null : (
         <Grid xs={12} container spacing={6}>
-          {currentRole && currentRole.name === 'CLIENT' ? null : (
-            <Grid item xs={4}>
-              <Card sx={{ padding: '20px', width: '100%' }}>
-                <Button
-                  variant='outlined'
-                  fullWidth
-                  color='error'
-                  size='large'
-                  disabled={
-                    !isDeletable ||
-                    ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
-                  }
-                  onClick={onClickDelete}
-                >
-                  Delete this invoice
-                </Button>
-              </Card>
-            </Grid>
-          )}
+          <Grid item xs={4}>
+            <Card sx={{ padding: '20px', width: '100%' }}>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                disabled={
+                  !isDeletable ||
+                  ![30000, 30100, 30200].includes(invoiceInfo.invoiceStatus)
+                }
+                onClick={onClickDelete}
+              >
+                Delete this invoice
+              </Button>
+            </Card>
+          </Grid>
+
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
