@@ -53,7 +53,7 @@ import CleaveWrapper from 'src/@core/styles/libs/react-cleave'
 
 // ** values
 import {
-  ConsumerUserInfoType,
+  ProUserInfoType,
   CountryType,
   PersonalInfo,
 } from 'src/types/sign/personalInfoTypes'
@@ -225,7 +225,7 @@ const PersonalInfoPro = () => {
   }, [fileSize])
 
   const updateUserInfoMutation = useMutation(
-    (data: ConsumerUserInfoType & { userId: number }) =>
+    (data: ProUserInfoType & { userId: number }) =>
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
@@ -294,7 +294,7 @@ const PersonalInfoPro = () => {
       })
       Promise.all(promiseArr)
         .then(res => {
-          const finalData: ConsumerUserInfoType & { userId: number } = {
+          const finalData: ProUserInfoType & { userId: number } = {
             userId: auth.user?.id || 0,
             firstName: data.firstName,
             lastName: data.lastName,

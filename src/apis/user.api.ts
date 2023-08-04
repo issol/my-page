@@ -2,7 +2,7 @@ import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
 import { RoleType } from 'src/context/types'
 import {
-  ConsumerUserInfoType,
+  ProUserInfoType,
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
@@ -47,7 +47,7 @@ export const getUserRoleNPermission = async (
 
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: ConsumerUserInfoType & { userId: number },
+  userInfo: ProUserInfoType & { userId: number },
 ) => {
   try {
     await axios.put(`/api/enough/u/pu/edit`, userInfo)

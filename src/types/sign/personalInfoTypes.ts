@@ -33,7 +33,7 @@ export interface PersonalInfo {
   specialties: Array<{ label: string; value: string }>
 }
 
-export type ConsumerUserInfoType = {
+export type ProUserInfoType = {
   firstName: string
   lastName: string
   country: string

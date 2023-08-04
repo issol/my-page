@@ -39,6 +39,7 @@ export type UserDataType = {
   firstName?: string
   lastName?: string
   username?: string
+  userCorporationId?: string
   //⬇️ extraData
   middleName?: string
   legalNamePronunciation?: string
