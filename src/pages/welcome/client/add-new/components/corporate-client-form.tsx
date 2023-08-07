@@ -26,7 +26,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 // ** hooks
-import { useForm } from 'react-hook-form'
+import { useFieldArray, useForm } from 'react-hook-form'
 import useModal from '@src/hooks/useModal'
 
 // ** apis
@@ -37,6 +37,14 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { toast } from 'react-hot-toast'
 import { isEmpty } from 'lodash'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
+import {
+  ClientAddressFormType,
+  clientAddressAllRequiredSchema,
+  clientAddressDefaultValue,
+  clientAddressSchema,
+} from '@src/types/schema/client-address.schema'
+
+import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
 
 type Props = {
   clientType: ClientClassificationType
@@ -75,6 +83,25 @@ export default function CorporateClientForm({
     defaultValues: getClientCompanyInfoDefaultValue(clientType),
     mode: 'onChange',
     resolver: yupResolver(clientCompanyInfoSchema),
+  })
+
+  const {
+    control: addressControl,
+    getValues: getAddress,
+    setValue,
+    handleSubmit,
+    watch,
+    formState: { errors: addressErrors, isValid: isAddressValid },
+  } = useForm<ClientAddressFormType>({
+    defaultValues: clientAddressDefaultValue,
+    mode: 'onChange',
+    resolver: yupResolver(clientAddressAllRequiredSchema),
+  })
+
+  const [checked, setChecked] = useState(false)
+  const { fields, append, remove, update } = useFieldArray({
+    control: addressControl,
+    name: 'clientAddresses',
   })
 
   function handleVerify() {
@@ -194,6 +221,40 @@ export default function CorporateClientForm({
                   Next
                 </Button>
               </Grid>
+            </Grid>
+          </Grid>
+        )
+      case 3:
+        return (
+          <Grid container spacing={6}>
+            <ClientAddressesForm
+              checked={checked}
+              setChecked={setChecked}
+              control={addressControl}
+              fields={fields}
+              append={append}
+              remove={remove}
+              update={update}
+              errors={addressErrors}
+              isValid={isAddressValid}
+              type='all-required'
+            />
+            <Grid item xs={12} display='flex' justifyContent='space-between'>
+              <Button
+                variant='contained'
+                color='secondary'
+                onClick={() => setActiveStep(2)}
+                startIcon={<Icon icon='material-symbols:arrow-back-rounded' />}
+              >
+                Previous
+              </Button>
+              <Button
+                variant='contained'
+                disabled={!isAddressValid}
+                onClick={() => setActiveStep(3)}
+              >
+                Get started!
+              </Button>
             </Grid>
           </Grid>
         )

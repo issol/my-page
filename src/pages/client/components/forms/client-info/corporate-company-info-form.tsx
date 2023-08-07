@@ -17,7 +17,6 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
         <Controller
           name='businessNumber'
           control={control}
-          rules={{ required: true }}
           render={({ field: { value, onChange, onBlur } }) => (
             <TextField
               autoFocus
@@ -36,7 +35,6 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
         <Controller
           name='representativeName'
           control={control}
-          rules={{ required: true }}
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
