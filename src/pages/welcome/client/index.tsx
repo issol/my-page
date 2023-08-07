@@ -1,20 +1,16 @@
 // ** React Imports
-import { useState, ReactNode } from 'react'
+import { useState, ReactNode, useEffect } from 'react'
 
 // ** Style components
 import Button from '@mui/material/Button'
-import Divider from '@mui/material/Divider'
-import TextField from '@mui/material/TextField'
 import InputLabel from '@mui/material/InputLabel'
 import IconButton from '@mui/material/IconButton'
-import Box, { BoxProps } from '@mui/material/Box'
+import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
-import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
-import Typography, { TypographyProps } from '@mui/material/Typography'
-import { Grid, List, OutlinedInput } from '@mui/material'
+import Typography from '@mui/material/Typography'
+import { Grid, OutlinedInput } from '@mui/material'
 import { Icon } from '@iconify/react'
-import styled from 'styled-components'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
@@ -25,10 +21,25 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 // ** NextJS
 import Link from 'next/link'
 import Image from 'next/image'
+import { useRouter } from 'next/router'
 
+import { getCurrentRole } from '@src/shared/auth/storage'
+
+//TODO: role이 CLIENT면서 client필수 정보가 없는 경우 이 페이지로 리다이렉트 시키기
 export default function ClientInformationHome() {
+  const { user } = useAuth()
+  const role = getCurrentRole()
+
+  const router = useRouter()
   const [businessNumber, setBusinessNumber] = useState<null | string>(null)
 
+  useEffect(() => {
+    if (role?.name !== 'CLIENT') {
+      router.push('/')
+    }
+  }, [role, user])
+
+  //TODO: 백엔드 논의 완료 되면 기능 완성하기
   function handleSearch() {
     //
   }
@@ -122,16 +133,7 @@ ClientInformationHome.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-const StepperImgWrapper = styled.div<{ step: number }>`
-  img {
-    opacity: ${({ step }) => (step === 1 ? 0.3 : 1)};
-  }
-`
-
-//TODO: 수정하기
-ClientInformationHome.guestGuard = true
-
-// ClientInformationHome.subject = {
-//   subject: '',
-//   can: '',
-// }
+ClientInformationHome.subject = {
+  subject: 'client',
+  can: 'update',
+}

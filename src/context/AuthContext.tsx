@@ -18,6 +18,8 @@ import {
   ErrCallbackType,
   UserDataType,
   UserRoleType,
+  ClientUserType,
+  CorporateClientInfoType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
 import { getUserInfo } from 'src/apis/user.api'
@@ -78,6 +80,12 @@ type Props = {
 const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
+
+  // ** CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
+  const [company, setCompany] = useState<
+    (ClientUserType & CorporateClientInfoType) | null
+  >(null)
+
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
   const dispatch = useAppDispatch()

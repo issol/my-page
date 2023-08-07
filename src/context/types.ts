@@ -63,12 +63,6 @@ export type UserDataType = {
   fromSNS?: null | 'GOOGLE'
 }
 
-export type CorporateTypeClientInfoType = {
-  businessNumber?: string
-  representativeName?: string
-  commencementDate?: string
-}
-
 export type LoginSuccessResponse = {
   email: string
   accessToken: string
@@ -95,10 +89,13 @@ export type PermissionObjectType = Array<{
 }>
 
 // ** CLIENT 유저가 받게 되는 유저 데이터 타입
-export type ClientType = 'individual' | 'corporate' | 'corporate_non_korean'
+export type ClientClassificationType =
+  | 'individual'
+  | 'corporate'
+  | 'corporate_non_korean'
 
 export type ClientUserType = {
-  businessClassification: ClientType
+  businessClassification: ClientClassificationType
   name: string //client name
   email: string
   phone?: string
@@ -109,7 +106,7 @@ export type ClientUserType = {
 }
 
 export type CorporateClientInfoType = {
-  businessNumber: string
-  representativeName: string
-  commencementDate: string
+  businessNumber?: string
+  representativeName?: string
+  commencementDate?: string
 }
