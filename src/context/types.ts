@@ -5,6 +5,7 @@ import {
   JobInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 export type UserType = 'Master' | 'Manager' | 'General'
@@ -23,6 +24,8 @@ export type LoginParams = {
   rememberMe?: boolean
 }
 
+export type ClientType = 'individual' | 'corporate' | 'corporate_non_korean'
+
 export type RegisterParams = {
   email: string
   username: string
@@ -31,9 +34,7 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  // role: Array<RoleType>
   email: string
-  // permission: Array<string>
   company?: string
   country?: string
   firstName?: string
@@ -58,9 +59,27 @@ export type UserDataType = {
   fax?: string
   userId: number
   department?: string
-  residence?: string
+  residence?: string //TODO: residence삭제하기
   dateOfBirth?: string
+  address: ClientAddressType<number>
   fromSNS?: null | 'GOOGLE'
+}
+
+export type CorporateTypeClientInfoType = {
+  businessNumber?: string
+  representativeName?: string
+  commencementDate?: string
+}
+
+export type ClientUserType = {
+  type: ClientType
+  name: string //client name
+  email: string
+  phone?: string
+  mobile?: string
+  fax?: string
+  websiteLink?: string
+  timezone: CountryType
 }
 
 export type LoginSuccessResponse = {

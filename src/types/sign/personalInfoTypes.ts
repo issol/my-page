@@ -1,3 +1,5 @@
+import { ClientAddressType } from '../schema/client-address.schema'
+
 export type PronounceType = 'SHE' | 'HE' | 'THEY' | 'NONE'
 
 export interface CountryType {
@@ -27,10 +29,11 @@ export interface PersonalInfo {
   phone?: string
   jobInfo: Array<JobInfoType>
   experience: string
-  residence?: string
-  dateOfBirth?: string
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
+  dateOfBirth?: string
+  residence?: string //TODO: residence삭제하기
+  address: ClientAddressType<string>
 }
 
 export type ProUserInfoType = {
@@ -51,6 +54,7 @@ export type ProUserInfoType = {
     resume?: Array<string>
     specialties: Array<string>
     timezone: CountryType
+    address: ClientAddressType<string>
   }
 }
 

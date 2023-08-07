@@ -13,16 +13,19 @@ import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import FormHelperText from '@mui/material/FormHelperText'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography, { TypographyProps } from '@mui/material/Typography'
-import { FormControlLabel, List, useMediaQuery } from '@mui/material'
+import { FormControlLabel, Grid, List, useMediaQuery } from '@mui/material'
 import Autocomplete from '@mui/material/Autocomplete'
 import Select from '@mui/material/Select'
 import MenuItem from '@mui/material/MenuItem'
 
+import DatePicker from 'react-datepicker'
+
+import CustomInput from 'src/views/forms/form-elements/pickers/PickersCustomInput'
 // ** styled components
 import FileItem from 'src/@core/components/fileItem'
 
 // ** Third Party Imports
-import { useForm, Controller, useFieldArray } from 'react-hook-form'
+import { useForm, Controller, useFieldArray, Control } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 // ** CleaveJS Imports
 import Cleave from 'cleave.js/react'
@@ -74,17 +77,18 @@ import { S3FileType } from 'src/shared/const/signedURLFileType'
 
 // **fetches
 import { getUserInfo, updateConsumerUserInfo } from 'src/apis/user.api'
-import {
-  FilePathEnum,
-  getPresignedUrl,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 
 // ** helpers
-import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import {
+  clientBillingAddressDefaultValue,
+  clientBillingAddressSchema,
+} from '@src/types/schema/client-billing-address.schema'
+import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -112,7 +116,7 @@ const Illustration = muiStyled('img')(({ theme }) => ({
   },
 }))
 
-const defaultValues = {
+const defaultValues: Omit<PersonalInfo, 'address'> = {
   firstName: '',
   middleName: '',
   lastName: '',
@@ -190,11 +194,26 @@ const PersonalInfoPro = () => {
     clearErrors,
     watch,
     trigger,
-    formState: { errors, dirtyFields },
-  } = useForm<PersonalInfo>({
+    formState: { errors, dirtyFields, isValid },
+  } = useForm<Omit<PersonalInfo, 'address'>>({
     defaultValues,
     mode: 'onChange',
     resolver: yupResolver(getProfileSchema('join')),
+  })
+
+  const {
+    control: addressControl,
+    getValues: getAddress,
+    setValue: setAddress,
+    setError: setAddressError,
+    formState: { errors: addressError, isValid: isAddressValid },
+  } = useForm<ClientAddressType>({
+    defaultValues: {
+      ...clientBillingAddressDefaultValue,
+      addressType: 'billing',
+    },
+    mode: 'onChange',
+    resolver: yupResolver(clientBillingAddressSchema),
   })
 
   const {
@@ -282,7 +301,7 @@ const PersonalInfoPro = () => {
     return str && !regex.test(str)
   }
 
-  const onSubmit = (data: PersonalInfo) => {
+  const onSubmit = (data: Omit<PersonalInfo, 'address'>) => {
     if (data.resume?.length) {
       const promiseArr = data.resume.map((file, idx) => {
         return getUploadUrlforCommon(
@@ -298,7 +317,7 @@ const PersonalInfoPro = () => {
             userId: auth.user?.id || 0,
             firstName: data.firstName,
             lastName: data.lastName,
-            country: data.timezone.label,
+            country: data.timezone.label, //TODO: 여기수정
             extraData: {
               havePreferredName: data.havePreferred,
               jobInfo: data.jobInfo,
@@ -315,6 +334,7 @@ const PersonalInfoPro = () => {
               pronounce: data.pronounce,
               specialties: data.specialties?.map(item => item.value),
               timezone: data.timezone,
+              address: getAddress(),
             },
           }
           updateUserInfoMutation.mutate(finalData)
@@ -671,7 +691,42 @@ const PersonalInfoPro = () => {
                       </FormControl>
                     </Box>
                   )}
-
+                  <FormControl sx={{ mb: 2, mt: 2 }} fullWidth>
+                    <DatePickerWrapper>
+                      <Controller
+                        control={control}
+                        name='dateOfBirth'
+                        render={({ field: { onChange, value } }) => {
+                          const selected = value ? new Date(value) : null
+                          return (
+                            <Box sx={{ width: '100%' }}>
+                              <DatePicker
+                                shouldCloseOnSelect={false}
+                                selected={selected}
+                                isClearable={true}
+                                onChange={onChange}
+                                placeholderText='MM/DD/YYYY'
+                                showYearDropdown
+                                scrollableYearDropdown
+                                customInput={
+                                  <CustomInput
+                                    label='Date of birth*'
+                                    icon='calendar'
+                                    error={Boolean(errors?.dateOfBirth)}
+                                  />
+                                }
+                              />
+                            </Box>
+                          )
+                        }}
+                      />
+                    </DatePickerWrapper>
+                    {errors.dateOfBirth && (
+                      <FormHelperText sx={{ color: 'error.main' }}>
+                        {errors.dateOfBirth.message}
+                      </FormHelperText>
+                    )}
+                  </FormControl>
                   <Divider />
                   <Box mt={4}>
                     <FormControl sx={{ mb: 2 }} fullWidth>
@@ -794,6 +849,22 @@ const PersonalInfoPro = () => {
                         </FormHelperText>
                       )}
                     </FormControl>
+                  </Box>
+                  <Divider />
+                  <Box>
+                    <Grid container spacing={6} mb={4}>
+                      <Grid item xs={12}>
+                        <Typography fontWeight={600} mt={2}>
+                          Permanent address
+                        </Typography>
+                      </Grid>
+                      <ClientBillingAddressesForm
+                        control={
+                          addressControl as Control<ClientAddressType, any>
+                        }
+                        errors={addressError}
+                      />
+                    </Grid>
                   </Box>
                 </Box>
               ) : (
@@ -1234,8 +1305,8 @@ const PersonalInfoPro = () => {
                     size='large'
                     type='submit'
                     variant='contained'
+                    disabled={!isValid}
                     sx={{ mb: 7 }}
-                    // disabled={!isEmpty(errors)}
                   >
                     Get started &rarr;
                   </Button>
@@ -1250,17 +1321,19 @@ const PersonalInfoPro = () => {
                         dirtyFields.firstName &&
                         dirtyFields.lastName &&
                         dirtyFields.timezone &&
+                        dirtyFields.dateOfBirth &&
                         (!errors.firstName ||
                           !errors.lastName ||
-                          !errors.timezone)
-                      )
+                          !errors.timezone ||
+                          !errors.dateOfBirth)
+                      ) || !isAddressValid
                     }
                     onClick={e => {
                       e.preventDefault()
                       setStep(2)
                     }}
                   >
-                    Next &rarr;
+                    Next &rarr;{' '}
                   </Button>
                 )}
               </Box>
@@ -1275,8 +1348,6 @@ const PersonalInfoPro = () => {
 PersonalInfoPro.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
-
-PersonalInfoPro.guestGuard = false
 
 PersonalInfoPro.acl = {
   action: 'update',
