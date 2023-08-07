@@ -43,11 +43,11 @@ type Props = {
   update: UseFieldArrayUpdate<ClientAddressFormType, 'clientAddresses'>
   errors: FieldErrors<ClientAddressFormType>
   isValid: boolean
+  // ** type : ClientAddressesForm과 동일한 format이나, 필수값에 차이가 있음.
+  // ** all-required는 client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
   type?: 'all-required' | 'default'
 }
 
-// ** ClientAddressesForm과 동일한 format이나, 필수값에 차이가 있음.
-// ** client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
 export default function ClientAddressesForm({
   checked,
   setChecked,

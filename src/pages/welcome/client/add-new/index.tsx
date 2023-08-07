@@ -20,11 +20,18 @@ import { useMutation } from 'react-query'
 import toast from 'react-hot-toast'
 
 // ** types
-import { ClientClassificationType } from '@src/context/types'
+import {
+  ClientClassificationType,
+  ClientCompanyInfoType,
+  CorporateClientInfoType,
+} from '@src/context/types'
 
 // ** components
 import CorporateClientForm from './components/corporate-client-form'
 import SelectClientRole from './components/select-role'
+import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
+import { updateCorporateClientInfo } from '@src/apis/user.api'
+import IndividualClientForm from './components/individual-client-form'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -60,6 +67,42 @@ export default function NewClientProfileForm() {
   // ** Hooks
   const auth = useAuth()
 
+  function onError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  const updateCorporate = useMutation(
+    (
+      data: CorporateClientInfoType &
+        ClientCompanyInfoType &
+        ClientAddressFormType,
+    ) => updateCorporateClientInfo(data),
+    {
+      //TODO: update client info 함수 붙이기. auth먼저 업뎃하기
+      onSuccess: () => {
+        router.push('/home')
+      },
+      onError: () => onError(),
+    },
+  )
+
+  function onCorporateClientInfoSubmit(
+    data: CorporateClientInfoType &
+      ClientCompanyInfoType &
+      ClientAddressFormType,
+  ) {
+    updateCorporate.mutate(data)
+  }
+
+  function onIndividualInfoSubmit(
+    data: ClientCompanyInfoType & ClientAddressFormType,
+  ) {
+    //TODO: 함수 바꾸기
+    updateCorporate.mutate(data)
+  }
+
   function renderForm() {
     switch (clientType) {
       case 'corporate':
@@ -68,10 +111,17 @@ export default function NewClientProfileForm() {
           <CorporateClientForm
             clientType={clientType}
             setClientType={setClientType}
+            onSubmit={onCorporateClientInfoSubmit}
           />
         )
       case 'individual':
-        return null
+        return (
+          <IndividualClientForm
+            clientType={clientType}
+            setClientType={setClientType}
+            onSubmit={onIndividualInfoSubmit}
+          />
+        )
       default:
         return null
     }
@@ -114,7 +164,11 @@ export default function NewClientProfileForm() {
         >
           <Illustration
             alt='forgot-password-illustration'
-            src={`/images/pages/auth-v2-register-multi-steps-illustration.png`}
+            src={
+              clientType === 'individual'
+                ? `/images/pages/register-illustration-1.png`
+                : `/images/pages/register-illustration-2.png`
+            }
           />
         </Box>
       ) : null}

@@ -1,7 +1,7 @@
 import { Fragment, useState } from 'react'
 
 // ** style components
-import { Box, Button, Grid, Typography } from '@mui/material'
+import { Button, Grid, Typography } from '@mui/material'
 import Stepper from '@src/pages/components/stepper'
 import { Icon } from '@iconify/react'
 
@@ -34,14 +34,12 @@ import { verifyCompanyInfo } from '@src/apis/user.api'
 
 // ** third parties
 import { yupResolver } from '@hookform/resolvers/yup'
-import { toast } from 'react-hot-toast'
 import { isEmpty } from 'lodash'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
 import {
   ClientAddressFormType,
   clientAddressAllRequiredSchema,
   clientAddressDefaultValue,
-  clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
 
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
@@ -49,10 +47,16 @@ import ClientAddressesForm from '@src/pages/client/components/forms/addresses-in
 type Props = {
   clientType: ClientClassificationType
   setClientType: (n: ClientClassificationType) => void
+  onSubmit: (
+    data: CorporateClientInfoType &
+      ClientCompanyInfoType &
+      ClientAddressFormType,
+  ) => void
 }
 export default function CorporateClientForm({
   clientType,
   setClientType,
+  onSubmit,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -88,9 +92,6 @@ export default function CorporateClientForm({
   const {
     control: addressControl,
     getValues: getAddress,
-    setValue,
-    handleSubmit,
-    watch,
     formState: { errors: addressErrors, isValid: isAddressValid },
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
@@ -164,12 +165,6 @@ export default function CorporateClientForm({
           }}
         />
       ),
-    })
-  }
-
-  function onError() {
-    toast.error('Something went wrong. Please try again.', {
-      position: 'bottom-left',
     })
   }
 
@@ -251,7 +246,7 @@ export default function CorporateClientForm({
               <Button
                 variant='contained'
                 disabled={!isAddressValid}
-                onClick={() => setActiveStep(3)}
+                onClick={() => handleSubmit()}
               >
                 Get started!
               </Button>
@@ -261,6 +256,14 @@ export default function CorporateClientForm({
       default:
         return null
     }
+  }
+
+  function handleSubmit() {
+    const clientInfo = getValues()
+    const companyInfo = getCompanyInfo()
+    const address = getAddress()
+
+    onSubmit({ ...clientInfo, ...companyInfo, ...address })
   }
 
   return (

@@ -1,12 +1,17 @@
 import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
-import { CorporateClientInfoType, RoleType } from 'src/context/types'
+import {
+  ClientCompanyInfoType,
+  CorporateClientInfoType,
+  RoleType,
+} from 'src/context/types'
 import {
   ProUserInfoType,
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
+import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -144,7 +149,7 @@ export const getDeleteAccountReasonList = async (): Promise<
   }
 }
 
-// TODO: 엔드포인트, 메소드 변경하기
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
 const sleep = (): Promise<boolean> =>
   new Promise(resolve =>
     setTimeout(() => {
@@ -160,6 +165,23 @@ export const verifyCompanyInfo = async (
     let result = false
     result = await sleep().then(res => res)
     return result
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
+export const updateCorporateClientInfo = async (
+  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
+): Promise<{
+  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
+}> => {
+  try {
+    const { data } = await axios.post('api/enough/u/delete-reason', info)
+    return data
+    // let result = false
+    // result = await sleep().then(res => res)
+    // return result
   } catch (e: any) {
     throw new Error(e)
   }
