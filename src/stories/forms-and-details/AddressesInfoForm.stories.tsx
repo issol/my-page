@@ -17,11 +17,6 @@ export default {
     name: {
       description: 'Client address info form',
     },
-    type: {
-      defaultValue: 'create',
-      control: { type: 'select' },
-      options: ['create', 'update'],
-    },
   },
 
   decorators: [
@@ -60,7 +55,7 @@ export default {
   ],
 } as ComponentMeta<typeof ClientAddressesForm>
 
-export const Default = ({ mode }: { mode: 'create' | 'update' }) => {
+export const Default = () => {
   const {
     control,
     getValues,

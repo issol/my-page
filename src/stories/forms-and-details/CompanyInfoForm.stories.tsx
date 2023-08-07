@@ -60,7 +60,7 @@ export default {
   ],
 } as ComponentMeta<typeof CompanyInfoForm>
 
-export const Default = ({ mode }: { mode: 'create' | 'update' }) => {
+export const Default = ({ type }: { type: 'create' | 'update' }) => {
   const {
     control,
     getValues,
@@ -76,7 +76,7 @@ export const Default = ({ mode }: { mode: 'create' | 'update' }) => {
   return (
     <Grid container spacing={6}>
       <CompanyInfoForm
-        mode={mode}
+        mode={type}
         control={control}
         setValue={setValue}
         errors={errors}
