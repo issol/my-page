@@ -37,13 +37,11 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
           name='representativeName'
           control={control}
           rules={{ required: true }}
-          render={({ field: { value, onChange, onBlur } }) => (
+          render={({ field: { value, onChange } }) => (
             <TextField
-              autoFocus
               fullWidth
               label='Name of representative*'
               value={value}
-              onBlur={onBlur}
               onChange={onChange}
               error={Boolean(errors.representativeName)}
             />
@@ -55,7 +53,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
         <DatePickerWrapper>
           <Controller
             control={control}
-            name='representativeName'
+            name='commencementDate'
             render={({ field: { onChange, value } }) => {
               const selected = value ? new Date(value) : null
               return (
@@ -71,7 +69,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
                       <CustomInput
                         label='Business commencement date*'
                         icon='calendar'
-                        error={Boolean(errors?.representativeName)}
+                        error={Boolean(errors?.commencementDate)}
                       />
                     }
                   />
@@ -80,7 +78,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
             }}
           />
         </DatePickerWrapper>
-        {renderErrorMsg(errors.representativeName)}
+        {renderErrorMsg(errors.commencementDate)}
       </Grid>
     </>
   )

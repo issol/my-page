@@ -94,7 +94,7 @@ export type ClientClassificationType =
   | 'corporate'
   | 'corporate_non_korean'
 
-export type ClientUserType = {
+export type ClientCompanyInfoType = {
   businessClassification: ClientClassificationType
   name: string //client name
   email: string

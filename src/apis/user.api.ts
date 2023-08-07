@@ -1,6 +1,6 @@
 import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
-import { RoleType } from 'src/context/types'
+import { CorporateClientInfoType, RoleType } from 'src/context/types'
 import {
   ProUserInfoType,
   ManagerUserInfoType,
@@ -139,6 +139,27 @@ export const getDeleteAccountReasonList = async (): Promise<
   try {
     const { data } = await axios.get('api/enough/u/delete-reason')
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+// TODO: 엔드포인트, 메소드 변경하기
+const sleep = (): Promise<boolean> =>
+  new Promise(resolve =>
+    setTimeout(() => {
+      resolve(true)
+    }, 1000),
+  )
+export const verifyCompanyInfo = async (
+  info: CorporateClientInfoType,
+): Promise<boolean> => {
+  try {
+    // const { data } = await axios.post('api/enough/u/delete-reason', info)
+    // return data
+    let result = false
+    result = await sleep().then(res => res)
+    return result
   } catch (e: any) {
     throw new Error(e)
   }
