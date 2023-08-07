@@ -92,6 +92,7 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import SelectClientRole from './components/select-role'
 import { ClientClassificationType } from '@src/context/types'
 import Image from 'next/image'
+import CorporateClientForm from './components/corporate-client-form'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -270,7 +271,7 @@ export default function NewClientProfileForm() {
                 setStep={setStep}
               />
             ) : (
-              <Box>수탭투</Box>
+              <CorporateClientForm />
             )}
           </BoxWrapper>
         </Box>
