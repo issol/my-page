@@ -24,8 +24,6 @@ export type LoginParams = {
   rememberMe?: boolean
 }
 
-export type ClientType = 'individual' | 'corporate' | 'corporate_non_korean'
-
 export type RegisterParams = {
   email: string
   username: string
@@ -71,17 +69,6 @@ export type CorporateTypeClientInfoType = {
   commencementDate?: string
 }
 
-export type ClientUserType = {
-  type: ClientType
-  name: string //client name
-  email: string
-  phone?: string
-  mobile?: string
-  fax?: string
-  websiteLink?: string
-  timezone: CountryType
-}
-
 export type LoginSuccessResponse = {
   email: string
   accessToken: string
@@ -106,3 +93,23 @@ export type PermissionObjectType = Array<{
   can: 'create' | 'read' | 'update' | 'delete'
   option?: { [key: string]: any }
 }>
+
+// ** CLIENT 유저가 받게 되는 유저 데이터 타입
+export type ClientType = 'individual' | 'corporate' | 'corporate_non_korean'
+
+export type ClientUserType = {
+  businessClassification: ClientType
+  name: string //client name
+  email: string
+  phone?: string
+  mobile?: string
+  fax?: string
+  websiteLink?: string
+  timezone: CountryType
+}
+
+export type CorporateClientInfoType = {
+  businessNumber: string
+  representativeName: string
+  commencementDate: string
+}
