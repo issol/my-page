@@ -73,7 +73,6 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
       .nullable(),
 
     dateOfBirth: yup.string().required(FormErrors.required),
-    residence: yup.string().nullable(), //TODO: residence삭제하기
     address: yup
       .array()
       .of(

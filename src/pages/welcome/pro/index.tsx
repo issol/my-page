@@ -317,7 +317,7 @@ const PersonalInfoPro = () => {
             userId: auth.user?.id || 0,
             firstName: data.firstName,
             lastName: data.lastName,
-            country: data.timezone.label, //TODO: 여기수정
+            country: data.timezone.label,
             extraData: {
               havePreferredName: data.havePreferred,
               jobInfo: data.jobInfo,
@@ -859,9 +859,7 @@ const PersonalInfoPro = () => {
                         </Typography>
                       </Grid>
                       <ClientBillingAddressesForm
-                        control={
-                          addressControl as Control<ClientAddressType, any>
-                        }
+                        control={addressControl}
                         errors={addressError}
                       />
                     </Grid>

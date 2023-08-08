@@ -57,7 +57,6 @@ export type UserDataType = {
   fax?: string
   userId: number
   department?: string
-  residence?: string //TODO: residence삭제하기
   dateOfBirth?: string
   address: ClientAddressType<number>
   fromSNS?: null | 'GOOGLE'

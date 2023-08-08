@@ -32,7 +32,6 @@ export interface PersonalInfo {
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
   dateOfBirth?: string
-  residence?: string //TODO: residence삭제하기
   address: ClientAddressType<string>
 }
 
