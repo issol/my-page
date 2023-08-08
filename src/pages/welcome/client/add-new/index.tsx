@@ -205,10 +205,7 @@ NewClientProfileForm.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-//TODO: 수정하기
-NewClientProfileForm.guestGuard = true
-
-// NewClientProfileForm.subject = {
-//   subject: '',
-//   can: '',
-// }
+NewClientProfileForm.acl = {
+  subject: 'client',
+  action: 'update',
+}

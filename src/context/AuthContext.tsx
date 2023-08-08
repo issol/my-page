@@ -130,18 +130,45 @@ const AuthProvider = ({ children }: Props) => {
           setCurrentRole(findRole)
         else setCurrentRole(userAccess.role[0])
       }
-      if (!user?.firstName) {
-        if (roles?.includes('PRO')) {
+
+      const isClient = roles?.includes('CLIENT')
+      const isProUpdatedProfile = roles?.includes('PRO') && user?.firstName
+      const isManagerUpdatedProfile =
+        (roles?.includes('TAD') || roles?.includes('LPM')) && user?.firstName
+      if (!isClient) {
+        if (!isProUpdatedProfile) {
           router.replace('/welcome/pro')
-        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
+        } else if (isManagerUpdatedProfile) {
           router.replace('/welcome/manager')
         }
         return
+      } else if (isClient) {
+        const isClientMaster =
+          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
+        if (isClientMaster) {
+          router.replace('/welcome/client')
+        } else {
+          //TODO: general client form으로 이동하도록 수정하기
+          router.replace('/welcome/client')
+        }
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
         return
       }
+
+      // if (!user?.firstName) {
+      //   if (roles?.includes('PRO')) {
+      //     router.replace('/welcome/pro')
+      //   } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
+      //     router.replace('/welcome/manager')
+      //   }
+      //   return
+      // } else if (redirectPath) {
+      //   router.replace(redirectPath)
+      //   removeRedirectPath()
+      //   return
+      // }
       if (router.pathname === '/') {
         router.push(`/home`)
       }

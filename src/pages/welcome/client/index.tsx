@@ -133,7 +133,7 @@ ClientInformationHome.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-ClientInformationHome.subject = {
+ClientInformationHome.acl = {
   subject: 'client',
-  can: 'update',
+  action: 'update',
 }
