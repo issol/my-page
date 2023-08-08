@@ -1,12 +1,17 @@
 import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
-import { RoleType } from 'src/context/types'
 import {
-  ConsumerUserInfoType,
+  ClientCompanyInfoType,
+  CorporateClientInfoType,
+  RoleType,
+} from 'src/context/types'
+import {
+  ProUserInfoType,
   ManagerUserInfoType,
 } from 'src/types/sign/personalInfoTypes'
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
+import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -47,7 +52,7 @@ export const getUserRoleNPermission = async (
 
 /* client, pro 프로필 업데이트용 */
 export const updateConsumerUserInfo = async (
-  userInfo: ConsumerUserInfoType & { userId: number },
+  userInfo: ProUserInfoType & { userId: number },
 ) => {
   try {
     await axios.put(`/api/enough/u/pu/edit`, userInfo)
@@ -139,6 +144,72 @@ export const getDeleteAccountReasonList = async (): Promise<
   try {
     const { data } = await axios.get('api/enough/u/delete-reason')
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
+const sleep = (): Promise<boolean> =>
+  new Promise(resolve =>
+    setTimeout(() => {
+      resolve(true)
+    }, 1000),
+  )
+export const verifyCompanyInfo = async (
+  info: CorporateClientInfoType,
+): Promise<boolean> => {
+  try {
+    // const { data } = await axios.post('api/enough/u/delete-reason', info)
+    // return data
+    let result = false
+    result = await sleep().then(res => res)
+    return result
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
+export const updateCorporateClientInfo = async (
+  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
+): Promise<{
+  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
+}> => {
+  try {
+    const { data } = await axios.post('api/enough/u/delete-reason', info)
+    return data
+    // let result = false
+    // result = await sleep().then(res => res)
+    // return result
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
+export const getClientUserInfo = async (
+  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
+): Promise<{
+  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
+}> => {
+  try {
+    // const { data } = await axios.post('api/enough/u/delete-reason', info)
+    // return data
+    // let result = false
+    // result = await sleep().then(res => res)
+    // return result
+    return {
+      data: {
+        businessClassification: 'corporate',
+        email: 'bon@dsfs.com',
+        name: 'Bon company',
+        timezone: { code: '', phone: '82', label: 'Korea' },
+        businessNumber: '123',
+        commencementDate: Date(),
+        representativeName: 'BBB',
+      },
+    }
   } catch (e: any) {
     throw new Error(e)
   }

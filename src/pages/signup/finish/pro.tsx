@@ -39,7 +39,7 @@ const FinishSignUpConsumer = () => {
         email: emailAsString,
         accessToken: accessTokenAsString,
       })
-      router.push('/welcome/consumer')
+      router.push('/welcome/pro')
     } else {
       router.push('/login')
     }

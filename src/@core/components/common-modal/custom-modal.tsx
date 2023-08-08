@@ -31,7 +31,7 @@ const CustomModal = ({
   return (
     <Box
       sx={{
-        maxWidth: '361px',
+        maxWidth: '381px',
         width: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',

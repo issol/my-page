@@ -43,7 +43,11 @@ type Props = {
   update: UseFieldArrayUpdate<ClientAddressFormType, 'clientAddresses'>
   errors: FieldErrors<ClientAddressFormType>
   isValid: boolean
+  // ** type : ClientAddressesForm과 동일한 format이나, 필수값에 차이가 있음.
+  // ** all-required는 client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
+  type?: 'all-required' | 'default'
 }
+
 export default function ClientAddressesForm({
   checked,
   setChecked,
@@ -54,12 +58,15 @@ export default function ClientAddressesForm({
   update,
   errors,
   isValid,
+  type = 'default',
 }: Props) {
   const country = getTypeList('CountryCode')
   const basicAddress = fields.filter(item => item.addressType !== 'additional')
   const additionalAddress = fields.filter(
     item => item.addressType === 'additional',
   )
+  const isAllRequired = type === 'all-required'
+
   function renderForm(
     id: string,
     key:
@@ -81,13 +88,7 @@ export default function ClientAddressesForm({
           render={({ field: { value, onChange } }) => (
             <TextField
               fullWidth
-              error={
-                key !== 'name'
-                  ? false
-                  : errors?.clientAddresses?.length
-                  ? Boolean(errors?.clientAddresses[idx]?.name)
-                  : false
-              }
+              error={Boolean(errors?.clientAddresses?.[idx]?.[key])}
               label={label}
               value={value ?? ''}
               onChange={onChange}
@@ -95,13 +96,11 @@ export default function ClientAddressesForm({
             />
           )}
         />
-        {key === 'name' &&
-          errors?.clientAddresses?.length &&
-          errors?.clientAddresses[idx]?.name && (
-            <FormHelperText sx={{ color: 'error.main' }}>
-              {errors?.clientAddresses[idx]?.name?.message}
-            </FormHelperText>
-          )}
+        {errors?.clientAddresses?.[idx]?.[key] && (
+          <FormHelperText sx={{ color: 'error.main' }}>
+            {errors?.clientAddresses?.[idx]?.[key]?.message}
+          </FormHelperText>
+        )}
       </>
     )
   }
@@ -111,13 +110,18 @@ export default function ClientAddressesForm({
     return (
       <>
         <Grid item xs={6}>
-          {renderForm(id, 'baseAddress', 'Street 1', 200)}
+          {renderForm(
+            id,
+            'baseAddress',
+            isAllRequired ? 'Street 1*' : 'Street 1',
+            200,
+          )}
         </Grid>
         <Grid item xs={6}>
           {renderForm(id, 'detailAddress', 'Street 2', 200)}
         </Grid>
         <Grid item xs={6}>
-          {renderForm(id, 'city', 'City', 100)}
+          {renderForm(id, 'city', isAllRequired ? 'City*' : 'City', 100)}
         </Grid>
         <Grid item xs={6}>
           {renderForm(id, 'state', 'State', 100)}
@@ -142,7 +146,7 @@ export default function ClientAddressesForm({
                 renderInput={params => (
                   <TextField
                     {...params}
-                    label='Country'
+                    label={isAllRequired ? 'Country*' : 'Country'}
                     inputProps={{
                       ...params.inputProps,
                     }}
@@ -153,7 +157,12 @@ export default function ClientAddressesForm({
           />
         </Grid>
         <Grid item xs={6}>
-          {renderForm(id, 'zipCode', 'ZIP code', 20)}
+          {renderForm(
+            id,
+            'zipCode',
+            isAllRequired ? 'ZIP code*' : 'ZIP code',
+            20,
+          )}
         </Grid>
       </>
     )

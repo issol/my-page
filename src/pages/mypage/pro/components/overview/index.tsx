@@ -80,6 +80,12 @@ import { ExperiencedYears } from '@src/shared/const/experienced-years'
 import { AreaOfExpertiseList } from '@src/shared/const/area-of-expertise/area-of-expertise'
 import { getResumeFilePath } from '@src/shared/transformer/filePath.transformer'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import {
+  clientBillingAddressDefaultValue,
+  clientBillingAddressSchema,
+} from '@src/types/schema/client-billing-address.schema'
 
 type Props = {
   userInfo: DetailUserType
@@ -141,7 +147,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     watch,
     reset,
     formState: { errors, dirtyFields, isValid },
-  } = useForm<PersonalInfo>({
+  } = useForm<Omit<PersonalInfo, 'address'>>({
     defaultValues: {
       legalNamePronunciation: '',
       havePreferred: false,
@@ -153,6 +159,24 @@ export default function MyPageOverview({ user, userInfo }: Props) {
     resolver: yupResolver(getProfileSchema('edit')),
   })
 
+  const {
+    control: addressControl,
+    getValues: getAddress,
+    reset: addressReset,
+    formState: {
+      errors: addressError,
+      isValid: isAddressValid,
+      dirtyFields: isAddressFieldDirty,
+    },
+  } = useForm<ClientAddressType>({
+    defaultValues: {
+      ...clientBillingAddressDefaultValue,
+      addressType: 'billing',
+    },
+    mode: 'onChange',
+    resolver: yupResolver(clientBillingAddressSchema),
+  })
+
   useEffect(() => {
     if (userInfo) {
       reset({
@@ -161,10 +185,12 @@ export default function MyPageOverview({ user, userInfo }: Props) {
         preferredNamePronunciation: userInfo.preferredNamePronunciation ?? '',
         havePreferred: user?.havePreferred ?? false,
         dateOfBirth: userInfo.dateOfBirth,
-        residence: userInfo?.residence,
         mobile: user.mobilePhone,
         timezone: userInfo.timezone!,
       })
+      if (userInfo?.address) {
+        addressReset({ ...userInfo?.address, id: String(userInfo.address.id) })
+      }
     }
   }, [userInfo])
 
@@ -191,6 +217,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
   function onProfileSave() {
     setEditProfile(false)
     const data = getValues()
+    const address = getAddress()
     // console.log('data', data)
     //TODO: mutation붙이기 + confirm modal
   }
@@ -488,6 +515,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
       },
     )
   }
+
   return (
     <Fragment>
       <Grid container spacing={6}>
@@ -521,7 +549,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
                 preferredNamePronunciation:
                   userInfo.preferredNamePronunciation ?? '',
                 dateOfBirth: userInfo.dateOfBirth,
-                residence: userInfo?.residence,
+                address: userInfo?.address,
                 mobilePhone: user.mobilePhone,
                 timezone: userInfo.timezone!,
               }}
@@ -773,6 +801,20 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               <Typography variant='h6'>My Profile</Typography>
             </Grid>
             <ProProfileForm control={control} errors={errors} watch={watch} />
+            <Grid item xs={12}>
+              <Divider />
+            </Grid>
+            <Grid item xs={12}>
+              <Grid container spacing={6} mb={4}>
+                <Grid item xs={12}>
+                  <Typography fontWeight={600}>Permanent address</Typography>
+                </Grid>
+                <ClientBillingAddressesForm
+                  control={addressControl}
+                  errors={addressError}
+                />
+              </Grid>
+            </Grid>
             <Grid
               item
               xs={12}
@@ -785,7 +827,11 @@ export default function MyPageOverview({ user, userInfo }: Props) {
               </Button>
               <Button
                 variant='contained'
-                disabled={!isValid || !isFieldDirty}
+                disabled={
+                  !isValid ||
+                  (!isFieldDirty && !isAddressFieldDirty) ||
+                  !isAddressValid
+                }
                 onClick={onProfileSave}
               >
                 Save

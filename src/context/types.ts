@@ -5,6 +5,7 @@ import {
   JobInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 export type UserType = 'Master' | 'Manager' | 'General'
@@ -31,14 +32,13 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  // role: Array<RoleType>
   email: string
-  // permission: Array<string>
   company?: string
   country?: string
   firstName?: string
   lastName?: string
   username?: string
+  userCorporationId?: string
   //⬇️ extraData
   middleName?: string
   legalNamePronunciation?: string
@@ -57,8 +57,8 @@ export type UserDataType = {
   fax?: string
   userId: number
   department?: string
-  residence?: string
   dateOfBirth?: string
+  address: ClientAddressType<number>
   fromSNS?: null | 'GOOGLE'
 }
 
@@ -74,6 +74,7 @@ export type AuthValuesType = {
   loading: boolean
   logout: () => void
   user: UserDataType | null
+  company: (ClientCompanyInfoType & CorporateClientInfoType) | null
   updateUserInfo: (response: loginResType) => void
   setLoading: (value: boolean) => void
   setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>
@@ -86,3 +87,26 @@ export type PermissionObjectType = Array<{
   can: 'create' | 'read' | 'update' | 'delete'
   option?: { [key: string]: any }
 }>
+
+// ** CLIENT 유저가 받게 되는 유저 데이터 타입
+export type ClientClassificationType =
+  | 'individual'
+  | 'corporate'
+  | 'corporate_non_korean'
+
+export type ClientCompanyInfoType = {
+  businessClassification: ClientClassificationType
+  name: string //client name
+  email: string
+  phone?: string
+  mobile?: string
+  fax?: string
+  websiteLink?: string
+  timezone: CountryType
+}
+
+export type CorporateClientInfoType = {
+  businessNumber?: string
+  representativeName?: string
+  commencementDate?: string
+}

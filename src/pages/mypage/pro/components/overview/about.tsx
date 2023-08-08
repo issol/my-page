@@ -17,6 +17,8 @@ import {
 } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
 import { Fragment } from 'react'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import { getAddress } from '@src/shared/helpers/address-helper'
 
 type Props = {
   userInfo: {
@@ -29,7 +31,7 @@ type Props = {
     telephone?: string
     dateOfBirth?: string
     status?: string
-    residence?: string
+    address: ClientAddressType<number>
   }
 }
 
@@ -70,8 +72,10 @@ export default function About({ userInfo }: Props) {
         <Typography variant='body2'>Contacts</Typography>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
-          <LabelTitle>Residence:</LabelTitle>
-          <Label>{userInfo.residence || '-'}</Label>
+          <LabelTitle>Permanent address :</LabelTitle>
+          <Label>
+            {userInfo?.address ? getAddress([userInfo?.address]) : '-'}
+          </Label>
         </Box>
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
           <Icon icon='mdi:cellphone' style={{ opacity: '0.7' }} />

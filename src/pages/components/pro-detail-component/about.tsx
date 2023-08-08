@@ -18,13 +18,11 @@ import { v4 as uuidv4 } from 'uuid'
 
 //** data */
 import { getGmtTime } from 'src/shared/helpers/timezone.helper'
-import { OnboardingUserType } from 'src/types/onboarding/list'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import {
-  FullDateTimezoneHelper,
-  MMDDYYYYHelper,
-} from '@src/shared/helpers/date.helper'
+import { MMDDYYYYHelper } from '@src/shared/helpers/date.helper'
 import { ProStatus } from '@src/shared/const/status/statuses'
+import { getAddress } from '@src/shared/helpers/address-helper'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 type Props = {
   userInfo: {
@@ -37,7 +35,7 @@ type Props = {
     telephone?: string
     dateOfBirth?: string
     status?: string
-    residence?: string
+    address: ClientAddressType<number>
   }
   type: string
   handleChangeStatus?: (event: SelectChangeEvent) => void
@@ -99,8 +97,10 @@ export default function About({
         {type === 'pro' ? (
           <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Icon icon='mdi:home' style={{ opacity: '0.7' }} />
-            <LabelTitle>Residence:</LabelTitle>
-            <Label>{userInfo.residence || '-'}</Label>
+            <LabelTitle>Permanent address:</LabelTitle>
+            <Label>
+              {userInfo?.address ? getAddress([userInfo?.address]) : '-'}
+            </Label>
           </Box>
         ) : null}
         <Box sx={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -133,10 +133,10 @@ export default function About({
           >
             {type === 'onboarding' ? (
               <FormControl fullWidth>
-                <TextField 
-                  disabled 
-                  id='about-status-textfield' 
-                  label='Status' 
+                <TextField
+                  disabled
+                  id='about-status-textfield'
+                  label='Status'
                   defaultValue={userInfo.status ? userInfo.status : ' '} // 온보딩이 진행중인 경우엔 상태값이 없음, 공백으로 빈칸 처리함
                 />
               </FormControl>

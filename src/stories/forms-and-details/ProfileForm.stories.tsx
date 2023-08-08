@@ -53,7 +53,7 @@ export const Default = () => {
     watch,
     reset,
     formState: { errors, dirtyFields, isValid },
-  } = useForm<PersonalInfo>({
+  } = useForm<Omit<PersonalInfo, 'address'>>({
     defaultValues: {
       legalNamePronunciation: '',
       havePreferred: false,
