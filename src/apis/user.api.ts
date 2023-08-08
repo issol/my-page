@@ -189,12 +189,12 @@ export const updateCorporateClientInfo = async (
 
 // TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
 export const getClientUserInfo = async (
-  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
+  userId: number,
 ): Promise<{
   data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
 }> => {
   try {
-    // const { data } = await axios.post('api/enough/u/delete-reason', info)
+    // const { data } = await axios.get('api/enough/u/delete-reason')
     // return data
     // let result = false
     // result = await sleep().then(res => res)
