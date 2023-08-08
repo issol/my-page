@@ -66,6 +66,7 @@ export default function NewClientProfileForm() {
 
   // ** Hooks
   const auth = useAuth()
+  console.log('auth', auth.company)
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {

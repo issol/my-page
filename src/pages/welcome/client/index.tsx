@@ -23,21 +23,16 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 
-import { getCurrentRole } from '@src/shared/auth/storage'
-
-//TODO: role이 CLIENT면서 client필수 정보가 없는 경우 이 페이지로 리다이렉트 시키기
 export default function ClientInformationHome() {
-  const { user } = useAuth()
-  const role = getCurrentRole()
-
+  const { company } = useAuth()
   const router = useRouter()
-  const [businessNumber, setBusinessNumber] = useState<null | string>(null)
+  const [businessNumber, setBusinessNumber] = useState<string>('')
 
   useEffect(() => {
-    if (role?.name !== 'CLIENT') {
+    if (company?.businessNumber) {
       router.push('/')
     }
-  }, [role, user])
+  }, [company])
 
   //TODO: 백엔드 논의 완료 되면 기능 완성하기
   function handleSearch() {
