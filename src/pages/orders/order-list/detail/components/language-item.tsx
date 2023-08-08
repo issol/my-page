@@ -229,6 +229,10 @@ const LanguageAndItem = ({
     }
   }
 
+  const sumTotalPrice = () => {
+    return true
+  }
+  
   return (
     <>
       {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
@@ -303,6 +307,7 @@ const LanguageAndItem = ({
           splitReady={splitReady}
           onClickCancelSplitOrder={onClickCancelSplitOrder}
           onClickSplitOrderConfirm={onClickSplitOrderConfirm}
+          sumTotalPrice={sumTotalPrice}
         />
       </Grid>
       {langItemsEdit ? (

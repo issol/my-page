@@ -41,6 +41,8 @@ import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
 import { useMutation, useQueryClient } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
+import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
   row: JobType
@@ -157,6 +159,22 @@ const EditPrices = ({
     }
   }, [jobPrices])
 
+  const openMinimumPriceModal = (value:any) => {
+    const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
+    openModal({
+      type: 'info-minimum',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
+          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+          vary="info"
+        />
+      ),
+    })
+  }
+
   return (
     <>
       {success && (
@@ -219,6 +237,7 @@ const EditPrices = ({
                 if (v) {
                   setPrice(v)
                   setItem(`items.${0}.priceId`, v.id)
+                  if (v?.languagePairs[0]?.minimumPrice) openMinimumPriceModal(v)
                 } else {
                   setPrice(null)
                 }

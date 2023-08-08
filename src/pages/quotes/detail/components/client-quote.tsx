@@ -59,7 +59,7 @@ const ClientQuote = ({
         },
       )
   }
-
+  console.log("downloadData",downloadData)
   const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&

@@ -1,5 +1,5 @@
 // ** react
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react'
 
 // ** style component
 import {
@@ -79,7 +79,9 @@ import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { UseMutationResult } from 'react-query'
-import { CheckBox } from '@mui/icons-material'
+import { CheckBox, TroubleshootRounded } from '@mui/icons-material'
+import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
+import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -124,6 +126,7 @@ type Props = {
     >
   >
   splitReady?: boolean
+  sumTotalPrice: () => void
 }
 
 export type DetailNewDataType = {
@@ -160,17 +163,13 @@ export default function ItemForm({
   selectedIds,
   setSelectedIds,
   splitReady,
+  sumTotalPrice,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
-
+  
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-
-  const [showMinimum, setShowMinimum] = useState({
-    checked: false,
-    show: false,
-  })
 
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
@@ -223,8 +222,8 @@ export default function ItemForm({
 
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
-    const itemData = getValues(`items.${idx}`)
 
+    const itemData = getValues(`items.${idx}`)
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
     const priceData =
@@ -261,7 +260,8 @@ export default function ItemForm({
           (res, item) => (res += Number(item.prices)),
           0,
         )
-        if (minimumPrice && showMinimum.show && price < minimumPrice) {
+        
+        if (minimumPrice && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
@@ -274,18 +274,20 @@ export default function ItemForm({
       if (total === itemData.totalPrice) return
       setValue(`items.${idx}.totalPrice`, total, {
         shouldDirty: true,
-        shouldValidate: true,
+        shouldValidate: false,
       })
     }
 
-    function getEachPrice(index: number) {
+    function getEachPrice(index: number, showMinimum?:boolean, isNotApplicable?:boolean) {
+      
       const data = getValues(itemName)
       if (!data?.length) return
       let prices = 0
       const detail = data?.[index]
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[index].quantity
-        if (minimumPrice && showMinimum.show) {
+        
+        if (minimumPrice && showMinimum) {
           prices = (percentQuantity / 100) * minimumPrice
         } else {
           const generalPrices = data.filter(item => item.unit !== 'Percent')
@@ -298,40 +300,74 @@ export default function ItemForm({
         prices = detail.unitPrice * detail.quantity
       }
 
-      if (prices === data[index].prices) return
-      setValue(`items.${idx}.detail.${index}.prices`, prices, {
+      // if (prices === data[index].prices) return
+      const currentCurrency = () => {
+        if (isNotApplicable) return detail?.currency
+        return priceData?.currency!
+      }
+      const roundingPrice = formatByRoundingProcedure(
+        prices,
+        priceData?.decimalPlace!
+        ? priceData?.decimalPlace!
+        : (currentCurrency() === 'USD' || currentCurrency() === 'SGD') 
+          ? 2 
+          : 1000,
+        priceData?.roundingProcedure! ?? 0,
+        currentCurrency(),
+      )
+
+      setValue(`items.${idx}.detail.${index}.currency`, currentCurrency(), {
         shouldDirty: true,
-        shouldValidate: true,
+        shouldValidate: false,
+      })
+      // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+      setValue(`items.${idx}.detail.${index}.prices`, roundingPrice, {
+        shouldDirty: true,
+        shouldValidate: false,
       })
     }
 
-    function onItemBoxLeave() {
-      const isMinimumPriceConfirmed =
-        !!minimumPrice &&
-        minimumPrice > getValues(`items.${idx}.totalPrice`) &&
-        showMinimum.checked
-
-      const isNotMinimum =
-        !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
-
-      if (!isMinimumPriceConfirmed && !isNotMinimum && type === 'edit') {
-        setShowMinimum({ ...showMinimum, show: true })
-        openModal({
-          type: 'info-minimum',
-          children: (
-            <SimpleAlertModal
-              onClose={() => {
-                closeModal('info-minimum')
-                setShowMinimum({ show: true, checked: true })
-              }}
-              message='The minimum price has been applied to the item(s).'
-            />
-          ),
-        })
-      }
-      itemTrigger('items')
-      getTotalPrice()
+    const openMinimumPriceModal = (value:any) => {
+      const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
+      openModal({
+        type: 'info-minimum',
+        children: (
+          <SimpleMultilineAlertModal
+            onClose={() => {
+              closeModal('info-minimum')
+            }}
+            message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+            vary="info"
+          />
+        ),
+      })
     }
+    // function onItemBoxLeave() {
+    //   const isMinimumPriceConfirmed =
+    //     !!minimumPrice &&
+    //     minimumPrice > getValues(`items.${idx}.totalPrice`) &&
+    //     showMinimum.checked
+
+    //   const isNotMinimum =
+    //     !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
+
+    //   if (!isMinimumPriceConfirmed && !isNotMinimum && type === 'edit') {
+    //     setShowMinimum({ ...showMinimum, show: true })
+    //     openModal({
+    //       type: 'info-minimum',
+    //       children: (
+    //         <SimpleAlertModal
+    //           onClose={() => {
+    //             closeModal('info-minimum')
+    //             setShowMinimum({ show: true, checked: true })
+    //           }}
+    //           message='The minimum price has been applied to the item(s).'
+    //         />
+    //       ),
+    //     })
+    //   }
+    //   itemTrigger('items')
+    // }
 
     /* tm analysis */
     function onCopyAnalysis(data: onCopyAnalysisParamType) {
@@ -352,6 +388,12 @@ export default function ItemForm({
         })
       })
       getTotalPrice()
+    }
+
+    const isNotApplicable = () => {
+      const value = getValues().items[idx]
+      if (value.priceId === NOT_APPLICABLE) return true
+      return false
     }
 
     return (
@@ -662,10 +704,12 @@ export default function ItemForm({
                                 value?.source!,
                                 value?.target!,
                               )
+                              if (v?.languagePairs[0]?.minimumPrice) openMinimumPriceModal(v)
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]
                                 copyLangPair[index].price = v
                               }
+                              
                             }
                           }}
                           value={
@@ -700,19 +744,24 @@ export default function ItemForm({
                 getTotalPrice={getTotalPrice}
                 getEachPrice={getEachPrice}
                 onDeletePriceUnit={onDeletePriceUnit}
-                onItemBoxLeave={onItemBoxLeave}
+                // onItemBoxLeave={onItemBoxLeave}
                 isValid={
                   !!itemData.source &&
                   !!itemData.target &&
                   (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
                 }
-                isNotApplicable={itemData.priceId === NOT_APPLICABLE}
+                // isNotApplicable={isNotApplicable()}
                 priceUnitsList={priceUnitsList}
-                showMinimum={showMinimum}
-                setShowMinimum={setShowMinimum}
+                // showMinimum={showMinimum}
+                // setShowMinimum={setShowMinimum}
                 type={type}
+                sumTotalPrice={sumTotalPrice}
+                // checkMinimumPrice={checkMinimumPrice}
               />
               {/* price unit end */}
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
               <Grid item xs={12}>
                 <Box
                   sx={{

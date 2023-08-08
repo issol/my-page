@@ -338,7 +338,7 @@
 .table-row-first {
   align-items: center;
   display: flex !important;
-  flex: 0.4469;
+  flex: 0.4090;
   min-height: 30px;
 
   /* height: 30px; */
@@ -359,7 +359,7 @@
   align-items: center;
   display: flex !important;
 
-  flex: 0.1497;
+  flex: 0.2434;
 
   height: 30px;
   text-align: left;
@@ -385,7 +385,7 @@
   align-items: center;
   display: flex !important;
 
-  flex: 0.1654;
+  flex: 0.1505;
 
   height: 30px;
   text-align: left;
@@ -404,7 +404,7 @@
   align-items: center;
   display: flex !important;
 
-  flex: 0.2335;
+  flex: 0.1905;
 
   height: 30px;
   text-align: left;

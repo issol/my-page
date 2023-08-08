@@ -421,8 +421,7 @@ export default function QuotesDetail() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    // mode: 'onBlur',
-    mode: 'onChange',
+    mode: 'onBlur',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -453,7 +452,6 @@ export default function QuotesDetail() {
             }
           }),
         )
-        console.log("itemsWithLang",itemsWithLang)
         const result = itemsWithLang?.items?.map(item => {
           return {
             id: item.id,
@@ -466,7 +464,6 @@ export default function QuotesDetail() {
             totalPrice: item?.totalPrice ?? 0,
           }
         })
-        console.log("result",result)
         itemReset({ items: result })
         itemTrigger()
       })()
@@ -1095,7 +1092,6 @@ export default function QuotesDetail() {
 
     setDownloadData(res)
   }
-
   useEffect(() => {
     makePdfData()
   }, [project, client])

@@ -111,7 +111,7 @@ export const defaultOption: StandardPriceListType & {
   currency: 'USD',
   catBasis: '',
   decimalPlace: 0,
-  roundingProcedure: '',
+  roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
@@ -160,6 +160,22 @@ export default function AddNewOrder() {
 
   const { openModal, closeModal } = useModal()
 
+  const [subPrice, setSubPrice] = useState(0)
+
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+    
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[])
+  
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -796,6 +812,7 @@ export default function AddNewOrder() {
                   priceUnitsList={priceUnitsList || []}
                   type='create'
                   itemTrigger={itemTrigger}
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -841,9 +858,7 @@ export default function AddNewOrder() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          getItem().items.reduce((acc, cur) => {
-                            return acc + cur.totalPrice
-                          }, 0),
+                          subPrice,
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency ?? 'USD',

@@ -135,6 +135,20 @@ export default function AddNewInvoice() {
 
   const { openModal, closeModal } = useModal()
 
+  const [subPrice, setSubPrice] = useState(0)
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[])
+
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -713,6 +727,7 @@ export default function AddNewInvoice() {
                   priceUnitsList={priceUnitsList || []}
                   type='invoiceDetail'
                   itemTrigger={itemTrigger}
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
 
@@ -745,9 +760,7 @@ export default function AddNewInvoice() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          items.reduce((acc, cur) => {
-                            return acc + cur.totalPrice
-                          }, 0),
+                          subPrice,
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency!,
