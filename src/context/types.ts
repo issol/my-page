@@ -74,6 +74,7 @@ export type AuthValuesType = {
   loading: boolean
   logout: () => void
   user: UserDataType | null
+  company: (ClientCompanyInfoType & CorporateClientInfoType) | null
   updateUserInfo: (response: loginResType) => void
   setLoading: (value: boolean) => void
   setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>

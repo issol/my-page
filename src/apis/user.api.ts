@@ -186,3 +186,31 @@ export const updateCorporateClientInfo = async (
     throw new Error(e)
   }
 }
+
+// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
+export const getClientUserInfo = async (
+  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
+): Promise<{
+  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
+}> => {
+  try {
+    // const { data } = await axios.post('api/enough/u/delete-reason', info)
+    // return data
+    // let result = false
+    // result = await sleep().then(res => res)
+    // return result
+    return {
+      data: {
+        businessClassification: 'corporate',
+        email: 'bon@dsfs.com',
+        name: 'Bon company',
+        timezone: { code: '', phone: '82', label: 'Korea' },
+        businessNumber: '123',
+        commencementDate: Date(),
+        representativeName: 'BBB',
+      },
+    }
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

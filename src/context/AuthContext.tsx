@@ -22,7 +22,7 @@ import {
   CorporateClientInfoType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
-import { getUserInfo } from 'src/apis/user.api'
+import { getClientUserInfo, getUserInfo } from 'src/apis/user.api'
 import {
   loginResType,
   LoginResTypeWithOptionalAccessToken,
@@ -58,6 +58,7 @@ import { useAppSelector } from 'src/hooks/useRedux'
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
+  company: null,
   loading: true,
   setUser: (n: any) => {
     return null
@@ -101,18 +102,28 @@ const AuthProvider = ({ children }: Props) => {
     )
   }
 
+  const userAccess = useAppSelector(state => state.userAccess)
+
   useEffect(() => {
     if (user) {
-      dispatch(getRole(user.id))
+      dispatch(getRole(user.id)).then(res => {
+        const isClient = res.payload.roles
+          ?.map((i: { name: string }) => i.name)
+          .includes('CLIENT')
+        if (isClient) {
+          getClientUserInfo(user.id).then(res => {
+            setCompany(res.data)
+          })
+        }
+      })
       dispatch(getPermission())
     }
   }, [user])
 
-  const userAccess = useAppSelector(state => state.userAccess)
-
   useEffect(() => {
     if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
+
       const redirectPath = getRedirectPath()
       const storageRole = getCurrentRole()
       // 세션 스토리지에 storageRole 값이 없는경우 사용자의 Role을 검사하여 설정(모든 유저 대상)
@@ -135,6 +146,7 @@ const AuthProvider = ({ children }: Props) => {
       const isProUpdatedProfile = roles?.includes('PRO') && user?.firstName
       const isManagerUpdatedProfile =
         (roles?.includes('TAD') || roles?.includes('LPM')) && user?.firstName
+      console.log('roles', roles)
       if (!isClient) {
         if (!isProUpdatedProfile) {
           router.replace('/welcome/pro')
@@ -145,35 +157,24 @@ const AuthProvider = ({ children }: Props) => {
       } else if (isClient) {
         const isClientMaster =
           userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
-        if (isClientMaster) {
+        if (isClientMaster && !company?.businessNumber) {
           router.replace('/welcome/client')
         } else {
-          //TODO: general client form으로 이동하도록 수정하기
-          router.replace('/welcome/client')
+          if (user?.firstName) {
+            //TODO: general client form으로 이동하도록 수정하기
+            router.replace('/welcome/client')
+          }
         }
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
         return
       }
-
-      // if (!user?.firstName) {
-      //   if (roles?.includes('PRO')) {
-      //     router.replace('/welcome/pro')
-      //   } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
-      //     router.replace('/welcome/manager')
-      //   }
-      //   return
-      // } else if (redirectPath) {
-      //   router.replace(redirectPath)
-      //   removeRedirectPath()
-      //   return
-      // }
       if (router.pathname === '/') {
         router.push(`/home`)
       }
     }
-  }, [userAccess.role, user])
+  }, [userAccess.role, user, company])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
@@ -297,6 +298,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const values = {
     user,
+    company,
     loading,
     setUser,
     setLoading,
