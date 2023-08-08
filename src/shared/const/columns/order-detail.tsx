@@ -7,6 +7,7 @@ import {
 } from '@src/types/orders/order-detail'
 
 export const getProjectTeamColumns = (role?: string) => {
+  console.log('role', role)
   const columns: GridColumns<ProjectTeamListType> = [
     {
       field: 'position',
@@ -59,7 +60,8 @@ export const getProjectTeamColumns = (role?: string) => {
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      hide: role === 'CLIENT',
+      hide: role !== 'CLIENT',
+      // hide: true,
       renderHeader: () => <Box>Email</Box>,
       renderCell: ({ row }: ProjectTeamCellType) => {
         return <Box>{row.email}</Box>

@@ -232,7 +232,7 @@ const LanguageAndItem = ({
   const sumTotalPrice = () => {
     return true
   }
-  
+
   return (
     <>
       {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (

@@ -146,7 +146,7 @@ const ClientOrder = ({
   return (
     <Grid container xs={12} spacing={4}>
       <Grid item xs={type === 'history' ? 12 : 9}>
-        {type === 'history' ? (
+        {/* {type === 'history' ? (
           <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
             <Box
               sx={{
@@ -191,7 +191,7 @@ const ClientOrder = ({
               </Typography>
             </Box>
           </Box>
-        ) : null}
+        ) : null} */}
         <PrintOrderPage
           data={downloadData!}
           type={'preview'}

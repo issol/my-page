@@ -212,6 +212,7 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
@@ -1395,52 +1396,54 @@ const OrderDetail = () => {
                     </Box>
                   </Grid>
 
-                  <Grid
-                    item
-                    xs={12}
-                    display='flex'
-                    padding='24px'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    mt={6}
-                    mb={6}
-                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-                  >
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      <Checkbox
-                        disabled={!langItemsEdit}
-                        checked={taxable}
-                        onChange={e => {
-                          if (!e.target.checked) {
-                            setTax(null)
-                          }
-                          setTaxable(e.target.checked)
-                        }}
-                      />
-                      <Typography>Tax</Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      {langItemsEdit ? (
-                        <>
-                          <TextField
-                            size='small'
-                            type='number'
-                            value={!tax ? '-' : tax}
-                            disabled={!taxable}
-                            sx={{ maxWidth: '120px', padding: 0 }}
-                            inputProps={{ inputMode: 'decimal' }}
-                            onChange={e => {
-                              if (e.target.value.length > 10) return
-                              setTax(Number(e.target.value))
-                            }}
-                          />
-                          %
-                        </>
-                      ) : (
-                        <Box>{tax ? `${tax} %` : null} </Box>
-                      )}
-                    </Box>
-                  </Grid>
+                  {currentRole?.name === 'CLIENT' ? null : (
+                    <Grid
+                      item
+                      xs={12}
+                      display='flex'
+                      padding='24px'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      mt={6}
+                      mb={6}
+                      sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                    >
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        <Checkbox
+                          disabled={!langItemsEdit}
+                          checked={taxable}
+                          onChange={e => {
+                            if (!e.target.checked) {
+                              setTax(null)
+                            }
+                            setTaxable(e.target.checked)
+                          }}
+                        />
+                        <Typography>Tax</Typography>
+                      </Box>
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        {langItemsEdit ? (
+                          <>
+                            <TextField
+                              size='small'
+                              type='number'
+                              value={!tax ? '-' : tax}
+                              disabled={!taxable}
+                              sx={{ maxWidth: '120px', padding: 0 }}
+                              inputProps={{ inputMode: 'decimal' }}
+                              onChange={e => {
+                                if (e.target.value.length > 10) return
+                                setTax(Number(e.target.value))
+                              }}
+                            />
+                            %
+                          </>
+                        ) : (
+                          <Box>{tax ? `${tax} %` : null} </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
 
                   {langItemsEdit
                     ? renderSubmitButton({
