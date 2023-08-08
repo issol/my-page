@@ -80,7 +80,10 @@ import { getCurrentRole } from '@src/shared/auth/storage'
 import { ProjectInfoType } from '@src/types/orders/order-detail'
 import { UseMutationResult } from 'react-query'
 import { CheckBox, TroubleshootRounded } from '@mui/icons-material'
-import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
 
 type Props = {
@@ -167,7 +170,7 @@ export default function ItemForm({
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
-  
+
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
 
@@ -260,7 +263,7 @@ export default function ItemForm({
           (res, item) => (res += Number(item.prices)),
           0,
         )
-        
+
         if (minimumPrice && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
@@ -278,15 +281,18 @@ export default function ItemForm({
       })
     }
 
-    function getEachPrice(index: number, showMinimum?:boolean, isNotApplicable?:boolean) {
-      
+    function getEachPrice(
+      index: number,
+      showMinimum?: boolean,
+      isNotApplicable?: boolean,
+    ) {
       const data = getValues(itemName)
       if (!data?.length) return
       let prices = 0
       const detail = data?.[index]
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[index].quantity
-        
+
         if (minimumPrice && showMinimum) {
           prices = (percentQuantity / 100) * minimumPrice
         } else {
@@ -308,9 +314,9 @@ export default function ItemForm({
       const roundingPrice = formatByRoundingProcedure(
         prices,
         priceData?.decimalPlace!
-        ? priceData?.decimalPlace!
-        : (currentCurrency() === 'USD' || currentCurrency() === 'SGD') 
-          ? 2 
+          ? priceData?.decimalPlace!
+          : currentCurrency() === 'USD' || currentCurrency() === 'SGD'
+          ? 2
           : 1000,
         priceData?.roundingProcedure! ?? 0,
         currentCurrency(),
@@ -327,8 +333,11 @@ export default function ItemForm({
       })
     }
 
-    const openMinimumPriceModal = (value:any) => {
-      const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
+    const openMinimumPriceModal = (value: any) => {
+      const minimumPrice = formatCurrency(
+        value?.languagePairs[0]?.minimumPrice,
+        value?.currency,
+      )
       openModal({
         type: 'info-minimum',
         children: (
@@ -337,7 +346,7 @@ export default function ItemForm({
               closeModal('info-minimum')
             }}
             message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
-            vary="info"
+            vary='info'
           />
         ),
       })
@@ -704,12 +713,12 @@ export default function ItemForm({
                                 value?.source!,
                                 value?.target!,
                               )
-                              if (v?.languagePairs[0]?.minimumPrice) openMinimumPriceModal(v)
+                              if (v?.languagePairs[0]?.minimumPrice)
+                                openMinimumPriceModal(v)
                               if (index !== -1) {
                                 const copyLangPair = [...languagePairs]
                                 copyLangPair[index].price = v
                               }
-                              
                             }
                           }}
                           value={
@@ -774,28 +783,30 @@ export default function ItemForm({
                     Item description
                   </Typography>
 
-                  <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                    <Controller
-                      name={`items.${idx}.showItemDescription`}
-                      control={control}
-                      render={({ field: { value, onChange } }) => (
-                        <Checkbox
-                          disabled={
-                            type === 'detail' || type === 'invoiceDetail'
-                          }
-                          value={value}
-                          onChange={e => {
-                            onChange(e.target.checked)
-                          }}
-                          checked={value}
-                        />
-                      )}
-                    />
+                  {currentRole?.name === 'CLIENT' ? null : (
+                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
+                      <Controller
+                        name={`items.${idx}.showItemDescription`}
+                        control={control}
+                        render={({ field: { value, onChange } }) => (
+                          <Checkbox
+                            disabled={
+                              type === 'detail' || type === 'invoiceDetail'
+                            }
+                            value={value}
+                            onChange={e => {
+                              onChange(e.target.checked)
+                            }}
+                            checked={value}
+                          />
+                        )}
+                      />
 
-                    <Typography variant='body2'>
-                      Show item description to client
-                    </Typography>
-                  </Box>
+                      <Typography variant='body2'>
+                        Show item description to client
+                      </Typography>
+                    </Box>
+                  )}
                 </Box>
                 {type === 'detail' || type === 'invoiceDetail' ? (
                   <Typography>
