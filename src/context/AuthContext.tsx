@@ -146,11 +146,11 @@ const AuthProvider = ({ children }: Props) => {
       const isProUpdatedProfile = roles?.includes('PRO') && user?.firstName
       const isManagerUpdatedProfile =
         (roles?.includes('TAD') || roles?.includes('LPM')) && user?.firstName
-      console.log('roles', roles)
+
       if (!isClient) {
         if (!isProUpdatedProfile) {
           router.replace('/welcome/pro')
-        } else if (isManagerUpdatedProfile) {
+        } else if (!isManagerUpdatedProfile) {
           router.replace('/welcome/manager')
         }
         return
