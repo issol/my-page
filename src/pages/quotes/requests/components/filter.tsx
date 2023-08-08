@@ -68,6 +68,16 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
     disableCloseOnSelect: true,
   }
 
+  const isSearchButtonDisable = () => {
+    if (filter.requestDateFrom) {
+      if (!filter.requestDateTo) return true
+    }
+    if (filter.desiredDueDateFrom) {
+      if (!filter.desiredDueDateTo) return true
+    }
+    return false
+  }
+
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
@@ -253,8 +263,8 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          requestDateFrom: e[0]?.toString(),
-                          requestDateTo: e[1]?.toString(),
+                          requestDateFrom: e[0]?.toISOString(),
+                          requestDateTo: e[1]?.toISOString(),
                         })
                       }}
                       customInput={
@@ -283,8 +293,8 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         if (!e.length) return
                         setFilter({
                           ...filter,
-                          desiredDueDateFrom: e[0]?.toString(),
-                          desiredDueDateTo: e[1]?.toString(),
+                          desiredDueDateFrom: e[0]?.toISOString(),
+                          desiredDueDateTo: e[1]?.toISOString(),
                         })
                       }}
                       customInput={
@@ -324,7 +334,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     >
                       Reset
                     </Button>
-                    <Button variant='contained' size='medium' onClick={search}>
+                    <Button variant='contained' size='medium' disabled={isSearchButtonDisable()} onClick={search}>
                       Search
                     </Button>
                   </Box>

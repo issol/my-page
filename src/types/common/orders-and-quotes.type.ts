@@ -28,7 +28,8 @@ export type LanguagePairsPostType = {
 export type ItemResType = {
   id: number
   contactPersonId: null | number
-  itemName: string
+  itemName?: string
+  name?: string
   dueAt: string
   sourceLanguage: string
   targetLanguage: string
