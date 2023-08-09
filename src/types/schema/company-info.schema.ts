@@ -16,6 +16,10 @@ export type CompanyInfoFormType = {
   isTaxable?: boolean
   tax?: number | null
   memo?: string
+  headquarter?: string
+  businessRegistrationNumber?: string
+  nameOfRepresentative?: string
+  businessCommencementDate?: string
 }
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
@@ -45,6 +49,10 @@ export const companyInfoSchema = yup.object().shape({
       !isTaxable ? yup.number().nullable() : schema,
     ),
   memo: yup.string().nullable(),
+  headquarter: yup.string().nullable(),
+  businessRegistrationNumber: yup.string().nullable(),
+  nameOfRepresentative: yup.string().nullable(),
+  businessCommencementDate: yup.date().nullable(),
 })
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {
