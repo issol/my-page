@@ -7,7 +7,7 @@ import RegisterClientForm from '@src/pages/components/forms/register-client-form
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 
 export default {
-  title: 'Forms/Forms/RegisterClientForm',
+  title: 'Forms/Forms/Information or Profile/RegisterClientForm',
   component: RegisterClientForm,
   argTypes: {
     name: {

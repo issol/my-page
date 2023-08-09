@@ -1,9 +1,9 @@
-import { FormHelperText, Grid, InputLabel, TextField } from '@mui/material'
+import { Box, FormHelperText, Grid, InputLabel, TextField } from '@mui/material'
 import CleaveWrapper from '@src/@core/styles/libs/react-cleave'
 import { CreditCardFormType } from '@src/types/payment-info/client/index.type'
 import Cleave from 'cleave.js/react'
 import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
-
+import styled from 'styled-components'
 type Props = {
   control: Control<CreditCardFormType, any>
   errors: FieldErrors<CreditCardFormType>
@@ -29,12 +29,14 @@ export default function CreditCardForm({ control, errors }: Props) {
               <>
                 <InputLabel
                   htmlFor='credit-card'
+                  error={Boolean(errors.cardNumber)}
                   sx={{ mb: 2, fontSize: '.75rem' }}
                 >
                   Credit card number*
                 </InputLabel>
-                <Cleave
+                <CustomCleave
                   id='credit-card'
+                  error={Boolean(errors.cardNumber)}
                   onChange={onChange}
                   value={value}
                   options={{ creditCard: true, delimiter: '-' }}
@@ -51,11 +53,16 @@ export default function CreditCardForm({ control, errors }: Props) {
             name='validDueAt'
             render={({ field: { onChange, value } }) => (
               <>
-                <InputLabel htmlFor='date' sx={{ mb: 2, fontSize: '.75rem' }}>
+                <InputLabel
+                  error={Boolean(errors.validDueAt)}
+                  htmlFor='date'
+                  sx={{ mb: 2, fontSize: '.75rem' }}
+                >
                   Credit card valid until*
                 </InputLabel>
-                <Cleave
+                <CustomCleave
                   id='date'
+                  error={Boolean(errors.validDueAt)}
                   placeholder='MM/YYYY'
                   value={value}
                   onChange={onChange}
@@ -74,3 +81,11 @@ export default function CreditCardForm({ control, errors }: Props) {
     </CleaveWrapper>
   )
 }
+
+const CustomCleave = styled(Cleave)<{ error: boolean }>`
+  border: ${({ error }) =>
+    error ? `1px solid rgb(255, 77, 73) !important` : ''};
+  ::placeholder {
+    color: ${({ error }) => (error ? `rgb(255, 77, 73) !important` : '')};
+  }
+`

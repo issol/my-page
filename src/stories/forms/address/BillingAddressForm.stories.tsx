@@ -8,7 +8,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { Divider, Grid } from '@mui/material'
 
 export default {
-  title: 'Forms/Forms/BillingAddress',
+  title: 'Forms/Forms/Address/BillingAddress',
   component: ClientBillingAddressesForm,
   argTypes: {
     name: {

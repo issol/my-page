@@ -8,7 +8,7 @@ import { PersonalInfo } from '@src/types/sign/personalInfoTypes'
 import { getProfileSchema } from '@src/types/schema/profile.schema'
 
 export default {
-  title: 'Forms/Forms/ProProfileForm',
+  title: 'Forms/Forms/Information or Profile/ProProfileForm',
   component: ProProfileForm,
   decorators: [
     Story => (

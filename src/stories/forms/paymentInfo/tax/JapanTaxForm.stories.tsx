@@ -12,7 +12,7 @@ import { japanTaxSchema } from '@src/types/schema/tax-info/japan-tax.schema'
 import { clientTaxInitialData } from '@src/types/schema/tax-info'
 
 export default {
-  title: 'Forms/Forms/JapanTaxForm',
+  title: 'Forms/Forms/PaymentInfo/Tax/JapanTaxForm',
   component: JapanTaxForm,
   argTypes: {
     name: {

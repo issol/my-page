@@ -9,7 +9,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { clientTaxInitialData } from '@src/types/schema/tax-info'
 
 export default {
-  title: 'Forms/Forms/SingaporeTaxForm',
+  title: 'Forms/Forms/PaymentInfo/Tax/SingaporeTaxForm',
   component: SingaporeTaxForm,
   argTypes: {
     name: {

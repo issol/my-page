@@ -10,7 +10,7 @@ import { koreaTaxSchema } from '@src/types/schema/tax-info/korea-tax.schema'
 import { clientTaxInitialData } from '@src/types/schema/tax-info'
 
 export default {
-  title: 'Forms/Forms/KoreaTaxForm',
+  title: 'Forms/Forms/PaymentInfo/Tax/KoreaTaxForm',
   component: KoreaTaxForm,
   argTypes: {
     name: {
