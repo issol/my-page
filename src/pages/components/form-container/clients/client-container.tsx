@@ -315,6 +315,7 @@ export default function ClientQuotesFormContainer({
             appendContactPerson={appendContactPerson}
             removeContactPersons={removeContactPersons}
             addressControl={addressControl}
+            getAddress={getAddressValues}
             addresses={addresses}
             appendAddress={appendAddress}
             removeAddress={removeAddress}

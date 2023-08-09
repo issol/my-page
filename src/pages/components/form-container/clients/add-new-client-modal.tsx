@@ -22,6 +22,7 @@ import {
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -63,6 +64,7 @@ type Props = {
 
   // ** addresses
   addressControl: Control<ClientAddressFormType, any>
+  getAddress: UseFormGetValues<ClientAddressFormType>
   addresses: FieldArrayWithId<ClientAddressFormType, 'clientAddresses', 'id'>[]
   appendAddress: UseFieldArrayAppend<ClientAddressFormType, 'clientAddresses'>
   removeAddress: UseFieldArrayRemove
@@ -89,6 +91,7 @@ export default function AddNewClientModal({
   appendContactPerson,
   removeContactPersons,
   addressControl,
+  getAddress,
   addresses,
   appendAddress,
   removeAddress,
@@ -192,6 +195,7 @@ export default function AddNewClientModal({
             update={updateAddress}
             errors={addressErrors}
             isValid={isAddressValid}
+            getValues={getAddress}
           />
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Button variant='outlined' color='secondary' onClick={handleBack}>

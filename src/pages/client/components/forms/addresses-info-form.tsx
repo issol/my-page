@@ -29,6 +29,7 @@ import {
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
+  UseFormGetValues,
 } from 'react-hook-form'
 
 import { getTypeList } from '@src/shared/transformer/type.transformer'
@@ -46,6 +47,7 @@ type Props = {
   // ** type : ClientAddressesForm과 동일한 format이나, 필수값에 차이가 있음.
   // ** all-required는 client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
   type?: 'all-required' | 'default'
+  getValues: UseFormGetValues<ClientAddressFormType>
 }
 
 export default function ClientAddressesForm({
@@ -59,6 +61,7 @@ export default function ClientAddressesForm({
   errors,
   isValid,
   type = 'default',
+  getValues,
 }: Props) {
   const country = getTypeList('CountryCode')
   const basicAddress = fields.filter(item => item.addressType !== 'additional')
@@ -171,9 +174,10 @@ export default function ClientAddressesForm({
   function setShippingAddress(isSameWithBilling: boolean) {
     const id = fields.filter(item => item.addressType === 'shipping')[0].id
     const idx = fields.map(item => item.id).indexOf(id)
-    const billingAddress = fields.filter(
+    console.log('isSameWithBilling', getValues())
+    const billingAddress = getValues()?.clientAddresses?.find(
       item => item.addressType === 'billing',
-    )[0]
+    )
     if (isSameWithBilling) {
       update(idx, { ...billingAddress, addressType: 'shipping' })
     } else {
