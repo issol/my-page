@@ -76,7 +76,7 @@ import {
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
 import { setInvoice, setInvoiceLang, setIsReady } from '@src/store/invoice'
 import SelectTemplateLanguageModal from '@src/@core/components/common-modal/select-template-language-modal'
-import InvoicePreview from './components/invoice-preview'
+
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -718,12 +718,16 @@ const ReceivableInvoiceDetail = () => {
         children: (
           <Box
             sx={{
-              width: '789px',
-              height: '95vh',
+              width: '794px',
+              maxHeight: '95vh',
+              // height: '95vh',
               overflow: 'scroll',
               background: '#ffffff',
               boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
               paddingBottom: '24px',
+              '::-webkit-scrollbar': {
+                display: 'none',
+              },
             }}
           >
             <div className='page'>

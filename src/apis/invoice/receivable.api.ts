@@ -18,6 +18,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '@src/types/orders/order-detail'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 
@@ -204,6 +205,19 @@ export const checkEditable = async (id: number): Promise<boolean> => {
   }
 }
 
+export const confirmInvoiceFromClient = async (
+  id: number,
+  form: {
+    clientConfirmedAt: string
+    clientConfirmTimezone: CountryType
+    taxInvoiceDueAt?: string | null
+    taxInvoiceDueTimezone?: CountryType | null
+  },
+) => {
+  await axios.patch(`/api/enough/u/invoice/receivable/${id}/accept`, {
+    ...form,
+  })
+}
 export const confirmInvoiceByLpm = async (
   invoiceId: number,
 ): Promise<boolean> => {
