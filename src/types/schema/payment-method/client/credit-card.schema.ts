@@ -7,6 +7,7 @@ export const creditCardSchema = yup.object().shape({
     .matches(
       /^[0-9!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]*$/,
       FormErrors.invalidCardNumber,
-    ),
+    )
+    .required(FormErrors.required),
   validDueAt: yup.string().required(FormErrors.required),
 })

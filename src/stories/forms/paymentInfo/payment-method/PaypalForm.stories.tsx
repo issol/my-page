@@ -3,16 +3,16 @@ import { ComponentMeta } from '@storybook/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
-import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'
-import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'
+import { PayPalFormType } from '@src/types/payment-info/client/index.type'
+import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'
 import {
   clientPaymentInitialData,
   getPaymentMethodSchema,
 } from '@src/types/schema/payment-method/client'
 
 export default {
-  title: 'Forms/Forms/PaymentInfo/Payment Method/AccountMethod',
-  component: AccountMethodForm,
+  title: 'Forms/Forms/PaymentInfo/Payment Method/PayPalForm',
+  component: PayPalForm,
   argTypes: {
     name: {
       description: 'Address form',
@@ -24,8 +24,7 @@ export default {
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Alert severity='info'>
-            payment method가 'wise', 'stripe', 'airwallex'일 때 사용하는
-            form입니다.
+            payment method가 'paypal' 일 때 사용하는 form입니다.
             <h3>사용법</h3>
             1. clientPaymentInitialData() 함수에 payment method의 타입을
             넣어주면 알맞는 initial data를 리턴합니다.
@@ -43,11 +42,11 @@ export default {
             }}
           >
             <code>
-              {`import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'`}
+              {`import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'`}
             </code>
             <br />
             <code>
-              {`import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'`}
+              {`import { PayPalFormType } from '@src/types/payment-info/client/index.type'`}
             </code>
             <br />
             <code>
@@ -68,19 +67,17 @@ export default {
       </Grid>
     ),
   ],
-} as ComponentMeta<typeof AccountMethodForm>
+} as ComponentMeta<typeof PayPalForm>
 
 export const Default = () => {
   const {
     control,
-    getValues: getPayMethodValues,
-    reset: resetPayMethod,
     formState: { errors, isValid },
-  } = useForm<AccountMethodFormType>({
+  } = useForm<PayPalFormType>({
     mode: 'onChange',
-    defaultValues: clientPaymentInitialData('wise'),
-    resolver: yupResolver(getPaymentMethodSchema('wise')),
+    defaultValues: clientPaymentInitialData('paypal'),
+    resolver: yupResolver(getPaymentMethodSchema('paypal')),
   })
 
-  return <AccountMethodForm control={control} errors={errors} />
+  return <PayPalForm control={control} errors={errors} />
 }

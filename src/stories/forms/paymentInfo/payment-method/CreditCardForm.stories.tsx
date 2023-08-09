@@ -3,16 +3,17 @@ import { ComponentMeta } from '@storybook/react'
 import { useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Alert, Divider, Grid } from '@mui/material'
-import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'
-import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'
+
+import CreditCardForm from '@src/pages/client/components/forms/payment-method/credit-card-form'
+import { CreditCardFormType } from '@src/types/payment-info/client/index.type'
 import {
   clientPaymentInitialData,
   getPaymentMethodSchema,
 } from '@src/types/schema/payment-method/client'
 
 export default {
-  title: 'Forms/Forms/PaymentInfo/Payment Method/AccountMethod',
-  component: AccountMethodForm,
+  title: 'Forms/Forms/PaymentInfo/Payment Method/CreditCardForm',
+  component: CreditCardForm,
   argTypes: {
     name: {
       description: 'Address form',
@@ -24,8 +25,7 @@ export default {
       <Grid container spacing={6}>
         <Grid item xs={12}>
           <Alert severity='info'>
-            payment method가 'wise', 'stripe', 'airwallex'일 때 사용하는
-            form입니다.
+            payment method가 'creditCard' 일 때 사용하는 form입니다.
             <h3>사용법</h3>
             1. clientPaymentInitialData() 함수에 payment method의 타입을
             넣어주면 알맞는 initial data를 리턴합니다.
@@ -43,11 +43,11 @@ export default {
             }}
           >
             <code>
-              {`import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'`}
+              {`import CreditCardForm from '@src/pages/client/components/forms/payment-method/credit-card-form'`}
             </code>
             <br />
             <code>
-              {`import { AccountMethodFormType } from '@src/types/payment-info/client/index.type'`}
+              {`import { CreditCardFormType } from '@src/types/payment-info/client/index.type'`}
             </code>
             <br />
             <code>
@@ -68,19 +68,17 @@ export default {
       </Grid>
     ),
   ],
-} as ComponentMeta<typeof AccountMethodForm>
+} as ComponentMeta<typeof CreditCardForm>
 
 export const Default = () => {
   const {
     control,
-    getValues: getPayMethodValues,
-    reset: resetPayMethod,
+    getValues,
     formState: { errors, isValid },
-  } = useForm<AccountMethodFormType>({
+  } = useForm<CreditCardFormType>({
     mode: 'onChange',
-    defaultValues: clientPaymentInitialData('wise'),
-    resolver: yupResolver(getPaymentMethodSchema('wise')),
+    defaultValues: clientPaymentInitialData('creditCard'),
+    resolver: yupResolver(getPaymentMethodSchema('creditCard')),
   })
-
-  return <AccountMethodForm control={control} errors={errors} />
+  return <CreditCardForm control={control} errors={errors} />
 }
