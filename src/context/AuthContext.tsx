@@ -157,7 +157,7 @@ const AuthProvider = ({ children }: Props) => {
       } else if (isClient) {
         const isClientMaster =
           userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
-        if (isClientMaster && !company?.businessNumber) {
+        if (isClientMaster && !company?.name) {
           router.replace('/welcome/client')
         } else {
           if (user?.firstName) {

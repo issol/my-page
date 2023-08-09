@@ -65,8 +65,13 @@ export default function NewClientProfileForm() {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   // ** Hooks
-  const auth = useAuth()
-  console.log('auth', auth.company)
+  const { company } = useAuth()
+
+  useEffect(() => {
+    if (company?.name) {
+      router.push('/')
+    }
+  }, [company])
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {

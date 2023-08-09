@@ -29,7 +29,7 @@ export default function ClientInformationHome() {
   const [businessNumber, setBusinessNumber] = useState<string>('')
 
   useEffect(() => {
-    if (company?.businessNumber) {
+    if (company?.name) {
       router.push('/')
     }
   }, [company])
