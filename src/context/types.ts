@@ -95,7 +95,7 @@ export type ClientClassificationType =
   | 'corporate_non_korean'
 
 export type ClientCompanyInfoType = {
-  businessClassification: ClientClassificationType
+  businessClassification?: ClientClassificationType
   name: string //client name
   email: string
   phone?: string
@@ -110,3 +110,17 @@ export type CorporateClientInfoType = {
   representativeName?: string
   commencementDate?: string
 }
+
+export type ClientUserType = {
+  clientId: number
+  corporationId: string
+  adminCompanyName: string
+  clientType: string
+  isReferred: boolean
+  status: string //!추후 number로 변경될 수 있음
+  companyId: null | string
+  isTaxable: boolean
+  tax: null | number
+} & ClientCompanyInfoType &
+  CorporateClientInfoType &
+  ClientAddressType

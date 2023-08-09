@@ -9,7 +9,7 @@ import Box from '@mui/material/Box'
 import FormControl from '@mui/material/FormControl'
 import InputAdornment from '@mui/material/InputAdornment'
 import Typography from '@mui/material/Typography'
-import { Grid, OutlinedInput } from '@mui/material'
+import { Grid, OutlinedInput, Radio } from '@mui/material'
 import { Icon } from '@iconify/react'
 
 // ** Hooks
@@ -22,21 +22,163 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 import Link from 'next/link'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
+import {
+  CompanyListByBusinessType,
+  getCompanyInfoByBusinessNumber,
+} from '@src/apis/common.api'
+import { DataGrid, GridColumns, GridOverlay } from '@mui/x-data-grid'
+import { BorderBox } from '@src/@core/components/detail-info'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
+import { requestJoinToCompany } from '@src/apis/user.api'
+import { toast } from 'react-hot-toast'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 export default function ClientInformationHome() {
-  const { company } = useAuth()
+  const { company, logout, user } = useAuth()
+
+  const roles = getCurrentRole()
+
+  const { openModal, closeModal } = useModal()
+
   const router = useRouter()
+
   const [businessNumber, setBusinessNumber] = useState<string>('')
+  const [companyList, setCompanyList] = useState<CompanyListByBusinessType[]>(
+    [],
+  )
+  const [searched, setSearched] = useState(false)
+  const [selected, setSelected] = useState<CompanyListByBusinessType | null>(
+    null,
+  )
 
   useEffect(() => {
-    if (company?.name) {
+    if (company?.name || roles?.name !== 'CLIENT') {
       router.push('/')
     }
   }, [company])
 
-  //TODO: 백엔드 논의 완료 되면 기능 완성하기
+  function requestJoin() {
+    if (!!selected && user) {
+      openModal({
+        type: 'request',
+        children: (
+          <CustomModal
+            vary='successful'
+            title='Are you sure you want to request to join this company?'
+            subtitle={selected.name}
+            subtitleColor='primary'
+            onClose={() => closeModal('request')}
+            onClick={() => {
+              closeModal('request')
+              requestJoinToCompany({
+                userId: user.userId,
+                email: user.email,
+                companyId: selected.id,
+              })
+                .then(() => {
+                  toast.success(
+                    'The source code has been copied to your clipboard.',
+                    {
+                      duration: 3000,
+                      position: 'bottom-left',
+                    },
+                  )
+                  setTimeout(() => {
+                    logout()
+                  }, 1000)
+                })
+                .catch(() => {
+                  toast.error(
+                    'Something went wrong while uploading files. Please try again.',
+                    {
+                      position: 'bottom-left',
+                    },
+                  )
+                })
+            }}
+            rightButtonText='Request'
+          />
+        ),
+      })
+    }
+  }
+
   function handleSearch() {
-    //
+    getCompanyInfoByBusinessNumber('Client', businessNumber).then(
+      (res: CompanyListByBusinessType[]) => {
+        setCompanyList(res)
+        setSearched(true)
+      },
+    )
+  }
+
+  const columns: GridColumns<CompanyListByBusinessType> = [
+    {
+      flex: 0.005,
+      minWidth: 30,
+      field: 'select',
+      headerName: 'select',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderHeader: () => {
+        return null
+      },
+      renderCell: ({ row }: { row: CompanyListByBusinessType }) => {
+        return (
+          <Radio
+            id='client'
+            checked={row.id === selected?.id}
+            onChange={() => setSelected(row)}
+          />
+        )
+      },
+    },
+    {
+      flex: 0.05,
+      minWidth: 214,
+      field: 'name',
+      headerName: 'Company name',
+      hideSortIcons: true,
+      disableColumnMenu: true,
+      sortable: false,
+      renderCell: ({ row }: { row: CompanyListByBusinessType }) => {
+        return (
+          <Typography>
+            <label htmlFor='client'>{row.name}</label>
+          </Typography>
+        )
+      },
+    },
+  ]
+
+  function NoList() {
+    return (
+      <GridOverlay style={{ zIndex: 5, pointerEvents: 'all' }}>
+        <Box
+          sx={{
+            width: '100%',
+            height: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            justifyContent: 'center',
+            alignItems: 'center',
+            gap: '24px',
+          }}
+        >
+          <Typography variant='body2'>Can’t find your company?</Typography>
+          <Button variant='contained'>
+            <Link
+              href='/welcome/client/add-new'
+              style={{ color: '#ffffff', textDecoration: 'none' }}
+            >
+              Can’t find your company?
+            </Link>
+          </Button>
+        </Box>
+      </GridOverlay>
+    )
   }
 
   return (
@@ -101,6 +243,7 @@ export default function ClientInformationHome() {
                   <IconButton
                     edge='end'
                     onClick={handleSearch}
+                    disabled={!businessNumber}
                     aria-label='Business registration number input'
                   >
                     <Icon fontSize={20} icon='material-symbols:search' />
@@ -119,6 +262,43 @@ export default function ClientInformationHome() {
             Search
           </Button>
         </Grid>
+        {!searched ? null : (
+          <>
+            <Grid item xs={12}>
+              <BorderBox
+                padding={0}
+                sx={{
+                  height: '500px',
+                  '& .MuiDataGrid-columnHeaderTitle': {
+                    textTransform: 'none',
+                  },
+                }}
+              >
+                <DataGrid
+                  components={{
+                    NoRowsOverlay: () => NoList(),
+                    NoResultsOverlay: () => NoList(),
+                  }}
+                  autoPageSize
+                  columns={columns}
+                  rows={companyList ?? []}
+                  disableSelectionOnClick
+                />
+              </BorderBox>
+            </Grid>
+            {!companyList.length ? null : (
+              <Grid item xs={12} display='flex' justifyContent='center'>
+                <Button
+                  variant='contained'
+                  disabled={!selected}
+                  onClick={requestJoin}
+                >
+                  Request to join
+                </Button>
+              </Grid>
+            )}
+          </>
+        )}
       </Grid>
     </Box>
   )

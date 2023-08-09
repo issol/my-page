@@ -107,26 +107,6 @@ export default function IndividualClientForm({
     }
   }
 
-  function handleStepBack() {
-    openModal({
-      type: 'stepBackAlert',
-      children: (
-        <CustomModal
-          vary='error'
-          title='Are you sure you want to move to previous page? You have to verify the company again.'
-          leftButtonText='Stay on this page'
-          rightButtonText='Move to previous page'
-          onClose={() => closeModal('stepBackAlert')}
-          onClick={() => {
-            closeModal('stepBackAlert')
-            resetCompanyInfo(getClientCompanyInfoDefaultValue(clientType))
-            setActiveStep(1)
-          }}
-        />
-      ),
-    })
-  }
-
   function renderForm() {
     switch (activeStep) {
       case 1:
@@ -167,6 +147,7 @@ export default function IndividualClientForm({
               errors={addressErrors}
               isValid={isAddressValid}
               type='all-required'
+              getValues={getAddress}
             />
             <Grid item xs={12} display='flex' justifyContent='space-between'>
               <Button

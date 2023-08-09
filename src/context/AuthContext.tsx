@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
+import { createContext, useEffect, useState, ReactNode } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -18,8 +18,7 @@ import {
   ErrCallbackType,
   UserDataType,
   UserRoleType,
-  ClientCompanyInfoType,
-  CorporateClientInfoType,
+  ClientUserType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
 import { getClientUserInfo, getUserInfo } from 'src/apis/user.api'
@@ -27,8 +26,6 @@ import {
   loginResType,
   LoginResTypeWithOptionalAccessToken,
 } from 'src/types/sign/signInTypes'
-import { Box } from '@mui/system'
-import { Button, Dialog, Typography } from '@mui/material'
 import {
   getUserDataFromBrowser,
   getUserTokenFromBrowser,
@@ -86,9 +83,7 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
 
   // **TODO: CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
-  const [company, setCompany] = useState<
-    (ClientCompanyInfoType & CorporateClientInfoType) | null
-  >(null)
+  const [company, setCompany] = useState<ClientUserType | null>(null)
 
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
@@ -114,8 +109,9 @@ const AuthProvider = ({ children }: Props) => {
           ?.map((i: { name: string }) => i.name)
           .includes('CLIENT')
         if (isClient) {
-          getClientUserInfo(user.id).then(res => {
-            setCompany(res.data)
+          getClientUserInfo().then(res => {
+            console.log('res', res)
+            setCompany(res)
           })
         }
       })
@@ -234,6 +230,7 @@ const AuthProvider = ({ children }: Props) => {
             type: 'signup-not-approval-modal',
             children: (
               <SignupNotApprovalModal
+                companyName={response.companyName ?? ''}
                 onClose={() => closeModal('signup-not-approval-modal')}
               />
             ),

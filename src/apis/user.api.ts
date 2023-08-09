@@ -1,3 +1,4 @@
+import { ClientUserType } from './../context/types'
 import axios from 'src/configs/axios'
 import axiosDefault from 'axios'
 import {
@@ -149,67 +150,41 @@ export const getDeleteAccountReasonList = async (): Promise<
   }
 }
 
-// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
-const sleep = (): Promise<boolean> =>
-  new Promise(resolve =>
-    setTimeout(() => {
-      resolve(true)
-    }, 1000),
-  )
 export const verifyCompanyInfo = async (
   info: CorporateClientInfoType,
 ): Promise<boolean> => {
   try {
-    // const { data } = await axios.post('api/enough/u/delete-reason', info)
-    // return data
-    let result = false
-    result = await sleep().then(res => res)
-    return result
-  } catch (e: any) {
-    throw new Error(e)
-  }
-}
-
-// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
-export const updateCorporateClientInfo = async (
-  info: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType,
-): Promise<{
-  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
-}> => {
-  try {
-    const { data } = await axios.post('api/enough/u/delete-reason', info)
+    const { data } = await axios.post('/api/enough/u/comp/validation', info)
     return data
-    // let result = false
-    // result = await sleep().then(res => res)
-    // return result
   } catch (e: any) {
     throw new Error(e)
   }
 }
 
-// TODO: 엔드포인트, 메소드 변경하기, return타입 체크하기
-export const getClientUserInfo = async (
-  userId: number,
-): Promise<{
-  data: CorporateClientInfoType & ClientCompanyInfoType & ClientAddressFormType
-}> => {
+export const getClientUserInfo = async (): Promise<ClientUserType> => {
   try {
-    // const { data } = await axios.get('api/enough/u/delete-reason')
-    // return data
-    // let result = false
-    // result = await sleep().then(res => res)
-    // return result
-    return {
-      data: {
-        businessClassification: 'corporate',
-        email: 'bon@dsfs.com',
-        name: '',
-        timezone: { code: '', phone: '82', label: 'Korea' },
-        businessNumber: '123',
-        commencementDate: Date(),
-        representativeName: 'BBB',
-      },
-    }
+    const { data } = await axios.get('/api/enough/u/client/my-company')
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export type RequestCompanyJoinType = {
+  userId: number
+  email: string
+  companyId: string
+}
+
+export const requestJoinToCompany = async (
+  info: RequestCompanyJoinType,
+): Promise<void> => {
+  try {
+    await axios.put('api/enough/a/r-req', {
+      ...info,
+      type: 'General',
+      roles: ['CLIENT'],
+    })
   } catch (e: any) {
     throw new Error(e)
   }

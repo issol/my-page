@@ -1,4 +1,4 @@
-import { useState, ReactNode, useEffect, useContext } from 'react'
+import { useState, ReactNode, useEffect } from 'react'
 import { useRouter } from 'next/router'
 import Image from 'next/image'
 
@@ -7,10 +7,6 @@ import Box, { BoxProps } from '@mui/material/Box'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
 import { useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
-
-// ** react hook form
-import { useForm } from 'react-hook-form'
-import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
 import { useAuth } from 'src/hooks/useAuth'
@@ -30,8 +26,10 @@ import {
 import CorporateClientForm from './components/corporate-client-form'
 import SelectClientRole from './components/select-role'
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
-import { updateCorporateClientInfo } from '@src/apis/user.api'
 import IndividualClientForm from './components/individual-client-form'
+
+// ** apis
+import { createClient } from '@src/apis/client.api'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -79,14 +77,13 @@ export default function NewClientProfileForm() {
     })
   }
 
-  const updateCorporate = useMutation(
+  const createClientMutation = useMutation(
     (
       data: CorporateClientInfoType &
         ClientCompanyInfoType &
         ClientAddressFormType,
-    ) => updateCorporateClientInfo(data),
+    ) => createClient(data),
     {
-      //TODO: update client info 함수 붙이기. auth먼저 업뎃하기
       onSuccess: () => {
         router.push('/home')
       },
@@ -94,19 +91,12 @@ export default function NewClientProfileForm() {
     },
   )
 
-  function onCorporateClientInfoSubmit(
+  function updateClientInformation(
     data: CorporateClientInfoType &
       ClientCompanyInfoType &
       ClientAddressFormType,
   ) {
-    updateCorporate.mutate(data)
-  }
-
-  function onIndividualInfoSubmit(
-    data: ClientCompanyInfoType & ClientAddressFormType,
-  ) {
-    //TODO: 함수 바꾸기
-    updateCorporate.mutate(data)
+    createClientMutation.mutate(data)
   }
 
   function renderForm() {
@@ -117,7 +107,7 @@ export default function NewClientProfileForm() {
           <CorporateClientForm
             clientType={clientType}
             setClientType={setClientType}
-            onSubmit={onCorporateClientInfoSubmit}
+            onSubmit={updateClientInformation}
           />
         )
       case 'individual':
@@ -125,7 +115,7 @@ export default function NewClientProfileForm() {
           <IndividualClientForm
             clientType={clientType}
             setClientType={setClientType}
-            onSubmit={onIndividualInfoSubmit}
+            onSubmit={updateClientInformation}
           />
         )
       default:
