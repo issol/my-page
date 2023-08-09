@@ -233,6 +233,7 @@ export default function CorporateClientForm({
               errors={addressErrors}
               isValid={isAddressValid}
               type='all-required'
+              getValues={getAddress}
             />
             <Grid item xs={12} display='flex' justifyContent='space-between'>
               <Button
