@@ -210,8 +210,8 @@ export const confirmInvoiceFromClient = async (
   form: {
     clientConfirmedAt: string
     clientConfirmTimezone: CountryType
-    taxInvoiceDueAt?: string
-    taxInvoiceDueTimezone?: CountryType
+    taxInvoiceDueAt?: string | null
+    taxInvoiceDueTimezone?: CountryType | null
   },
 ) => {
   await axios.patch(`/api/enough/u/invoice/receivable/${id}/accept`, {

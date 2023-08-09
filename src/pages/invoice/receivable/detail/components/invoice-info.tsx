@@ -2011,7 +2011,7 @@ const InvoiceInfo = ({
           ) : null}
         </Grid>
       ) : null}
-      {type !== 'history' ? (
+      {type !== 'history' && currentRole && currentRole.name !== 'CLIENT' ? (
         <Grid container spacing={6}>
           <Grid item xs={isFileUploading ? 9 : 12}>
             <Card sx={{ padding: '24px' }}>

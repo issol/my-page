@@ -60,8 +60,8 @@ Props) => {
     (data: {
       clientConfirmedAt: string
       clientConfirmTimezone: CountryType
-      taxInvoiceDueAt?: string
-      taxInvoiceDueTimezone?: CountryType
+      taxInvoiceDueAt?: string | null
+      taxInvoiceDueTimezone?: CountryType | null
     }) => confirmInvoiceFromClient(downloadData.invoiceId, data),
     {
       onSuccess: () => {
@@ -72,8 +72,8 @@ Props) => {
   )
 
   const handleConfirmInvoice = (data?: {
-    taxInvoiceDueAt: string
-    taxInvoiceDueTimezone: CountryType
+    taxInvoiceDueAt: string | null
+    taxInvoiceDueTimezone: CountryType | null
   }) => {
     //TODO API 연결
     const res = {
