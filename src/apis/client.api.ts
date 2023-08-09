@@ -26,6 +26,7 @@ import {
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
 import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { CorporateClientInfoType } from '@src/context/types'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -66,7 +67,8 @@ export const getClientList = async (
 
 export type CreateClientBodyType = CompanyInfoFormType &
   ClientAddressFormType &
-  ClientContactPersonType
+  ClientContactPersonType &
+  CorporateClientInfoType
 
 export const createClient = async (
   form: CreateClientBodyType,
