@@ -5,7 +5,7 @@ import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { Divider, Grid } from '@mui/material'
 
 export default {
-  title: 'Forms/Details/BillingAddress',
+  title: 'Forms/Details/Address/BillingAddress',
   component: BillingAddress,
   argTypes: {
     name: {

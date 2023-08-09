@@ -11,7 +11,7 @@ import {
 } from '@src/types/schema/company-info.schema'
 
 export default {
-  title: 'Forms/Forms/CompanyInfoForm',
+  title: 'Forms/Forms/Information or Profile/CompanyInfoForm',
   component: CompanyInfoForm,
   argTypes: {
     name: {

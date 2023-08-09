@@ -11,7 +11,7 @@ import {
 } from '@src/types/schema/client-address.schema'
 
 export default {
-  title: 'Forms/Forms/ClientAddressesForm',
+  title: 'Forms/Forms/Address/ClientAddressesForm',
   component: ClientAddressesForm,
   argTypes: {
     name: {
