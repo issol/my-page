@@ -8,6 +8,7 @@ type Props = {
   onClick: any
   title: string | JSX.Element
   subtitle?: string
+  subtitleColor?: 'primary' | 'secondary'
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
   textarea?: boolean
   textareaPlaceholder?: string
@@ -20,6 +21,7 @@ const CustomModal = ({
   onClick,
   title,
   subtitle,
+  subtitleColor,
   vary,
   leftButtonText,
   rightButtonText,
@@ -69,6 +71,7 @@ const CustomModal = ({
             <Typography
               variant='body2'
               textAlign='center'
+              color={subtitleColor ?? 'secondary'}
               sx={{ fontWeight: 700, fontSize: '16px' }}
             >
               {subtitle}
