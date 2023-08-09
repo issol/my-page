@@ -51,7 +51,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status },
+        { status: 20800 },
         {
           onSuccess: () => {
             closeModal('AcceptQuoteModal')
@@ -59,12 +59,12 @@ const ClientQuote = ({
         },
       )
   }
-
+  console.log("downloadData",downloadData)
   const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, reason: reason },
+        { status: 20500, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -77,7 +77,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, reason: reason },
+        { status: 201100, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
@@ -133,7 +133,7 @@ const ClientQuote = ({
           from={'client'}
           statusList={statusList}
           type={
-            action === 'Request revision' ? 'requested_revision' : 'rejected'
+            action === 'Request revision' ? 'revision-requested' : 'rejected'
           }
           reasonList={
             action === 'Request revision'
@@ -223,7 +223,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={onClickAcceptQuote}
@@ -237,7 +237,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={() => onClickAction('Request revision')}
@@ -259,7 +259,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={() => onClickAction('Rejected')}

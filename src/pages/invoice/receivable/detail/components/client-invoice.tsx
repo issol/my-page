@@ -3,7 +3,6 @@ import { Box, Button, Card, Grid, Switch, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { Dispatch, SetStateAction } from 'react'
 import useModal from '@src/hooks/useModal'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
 
@@ -40,8 +39,6 @@ type Props = {
     id: number
     form: InvoiceReceivablePatchParamsType
   }) => void
-  // statusList: { value: number; label: string }[]
-  // project: ProjectInfoType
 }
 
 const ClientInvoice = ({

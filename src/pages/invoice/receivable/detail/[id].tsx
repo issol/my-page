@@ -61,8 +61,11 @@ import InvoiceVersionHistory from './components/version-history'
 import VersionHistoryModal from '@src/pages/quotes/detail/components/version-history-detail'
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
-import { useMutation } from 'react-query'
-import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  confirmInvoiceByLpm,
+  patchInvoiceInfo,
+} from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import {
@@ -80,15 +83,21 @@ import {
 import InvoiceVersionHistoryModal from './components/modal/version-history-detail'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import Link from 'next/link'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { invoice_receivable } from '@src/shared/const/permission-class'
+import {
+  account_manage,
+  invoice_receivable,
+} from '@src/shared/const/permission-class'
+import { useGetStatusList } from '@src/queries/common.query'
+import { StyledNextLink } from '@src/@core/components/customLink'
+
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { InvoiceReceivableChip } from '@src/@core/components/chips/chips'
 import ClientInvoice from './components/client-invoice'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
 import PrintInvoicePage from './invoice-print/print-page'
+
 type MenuType =
   | 'invoice'
   | 'invoiceInfo'
@@ -103,6 +112,8 @@ const ReceivableInvoiceDetail = () => {
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()
+
+  const queryClient = useQueryClient()
 
   const [invoiceInfoEdit, setInvoiceInfoEdit] = useState(false)
   const [accountingInfoEdit, setAccountingInfoEdit] = useState(false)
@@ -120,30 +131,46 @@ const ReceivableInvoiceDetail = () => {
   const [projectTeamListPageSize, setProjectTeamListPageSize] =
     useState<number>(10)
 
-  const [versionHistoryListPage, setVersionHistoryListPage] =
-    useState<number>(0)
   const [versionHistoryListPageSize, setVersionHistoryListPageSize] =
     useState<number>(5)
 
   const [clientEdit, setClientEdit] = useState(false)
-  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
-  const [value, setValue] = useState<MenuType>('invoice')
-  const { openModal, closeModal } = useModal()
+  const [isFileUploading, setIsFileUploading] = useState(false)
 
-  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+  const [value, setValue] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
+  )
+  const { openModal, closeModal } = useModal()
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const User = new invoice_receivable(user?.id!)
+  const AccountingTeam = new account_manage(user?.id!)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountInfoUpdatable = ability.can('update', AccountingTeam)
+
+  /* 케밥 메뉴 */
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+  const handleMenuClick = (event: MouseEvent<HTMLElement>) => {
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleMenuClose = () => {
+    setAnchorEl(null)
+  }
 
   const {
     data: invoiceInfo,
     isLoading: invoiceInfoIsLoading,
     refetch: invoiceInfoRefetch,
   } = useGetReceivableInvoiceDetail(Number(id!))
+
+  const invalidateInvoiceDetail = () =>
+    queryClient.invalidateQueries({ queryKey: 'invoiceReceivableDetail' })
+
   const { data: langItem, isLoading: langItemLoading } =
     useGetReceivableInvoicePrices(Number(id!))
   const {
@@ -162,19 +189,44 @@ const ReceivableInvoiceDetail = () => {
     clientId: client?.client.clientId,
   })
   const { data: statusList, isLoading: statusListLoading } =
-    useGetInvoiceStatus()
+    useGetStatusList('InvoiceReceivable')
 
   const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
   const [tax, setTax] = useState<number | null>(invoiceInfo?.tax! ?? null)
   const [taxable, setTaxable] = useState(invoiceInfo?.isTaxable || false)
+
+  const invoiceStatus = invoiceInfo?.invoiceStatus
+  const statusLabel = statusList?.find(
+    i => i.value === invoiceInfo?.invoiceStatus,
+  )?.label
+
+  const isDownloadBtnVisible =
+    invoiceStatus !== 30500 &&
+    invoiceStatus !== 30000 &&
+    invoiceStatus !== 30100 &&
+    invoiceStatus !== 30200
+
+  const isConfirmBtnVisible =
+    isUpdatable &&
+    (invoiceStatus === 30000 ||
+      invoiceStatus === 30100 ||
+      invoiceStatus === 30200 ||
+      invoiceStatus === 30500)
+
+  const isEditing =
+    invoiceInfoEdit ||
+    clientEdit ||
+    projectTeamEdit ||
+    accountingInfoEdit ||
+    langItemsEdit ||
+    isFileUploading
 
   const patchInvoiceInfoMutation = useMutation(
     (data: { id: number; form: InvoiceReceivablePatchParamsType }) =>
       patchInvoiceInfo(data.id, data.form),
     {
       onSuccess: (data: { id: number }, variables) => {
-        // console.log('success')
-
+        invalidateInvoiceDetail()
         setInvoiceInfoEdit(false)
         setAccountingInfoEdit(false)
         setProjectTeamEdit(false)
@@ -191,22 +243,12 @@ const ReceivableInvoiceDetail = () => {
         closeModal('EditSaveModal')
       },
       onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
-        })
+        onError()
         closeModal('EditSaveModal')
       },
     },
   )
 
-  const handleClick = (event: MouseEvent<HTMLElement>) => {
-    event.stopPropagation()
-    setAnchorEl(event.currentTarget)
-  }
-
-  const handleClose = () => {
-    setAnchorEl(null)
-  }
   const handleChange = (event: SyntheticEvent, newValue: MenuType) => {
     if (
       invoiceInfoEdit ||
@@ -266,13 +308,14 @@ const ReceivableInvoiceDetail = () => {
       type: 'InvoiceVersionHistoryModal',
       children: (
         <InvoiceVersionHistoryModal
+          invoiceInfo={invoiceInfo!}
           history={history}
           onClose={() => closeModal('InvoiceVersionHistoryModal')}
           onClick={handleRestoreVersion}
           user={user!}
           prices={prices!}
           pricesSuccess={isSuccess}
-          statusList={statusList!}
+          statusList={statusList || []}
           isUpdatable={isUpdatable}
           isDeletable={isDeletable}
         />
@@ -404,7 +447,12 @@ const ReceivableInvoiceDetail = () => {
       renderHeader: () => <Box>Date&Time</Box>,
       renderCell: ({ row }: { row: InvoiceVersionHistoryType }) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.downloadedAt, user?.timezone!)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(
+              row?.clientConfirmedAt,
+              row?.clientConfirmTimezone,
+            )}
+          </Box>
         )
       },
     },
@@ -448,6 +496,32 @@ const ReceivableInvoiceDetail = () => {
         />
       ),
     })
+  }
+
+  //TODO: onSuccess에서 invalidate info해주고, onError추가하기
+  const confirmInvoice = useMutation((id: number) => confirmInvoiceByLpm(id), {
+    onSuccess: () => {
+      invalidateInvoiceDetail()
+    },
+    onError: () => onError(),
+  })
+  const onClickConfirmInvoice = () => {
+    if (invoiceInfo?.id) {
+      openModal({
+        type: 'ConfirmInvoice',
+        children: (
+          <CustomModal
+            vary='successful'
+            title='Are you sure you want to confirm this invoice? It will be delivered to the client.'
+            rightButtonText='Confirm'
+            onClose={() => closeModal('ConfirmInvoice')}
+            onClick={() => {
+              confirmInvoice.mutate(invoiceInfo.id)
+            }}
+          />
+        ),
+      })
+    }
   }
 
   useEffect(() => {
@@ -535,7 +609,7 @@ const ReceivableInvoiceDetail = () => {
         adminCompanyName: 'GloZ Inc.',
         companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
         corporationId: invoiceInfo!.corporationId,
-        orderCorporationId: invoiceInfo!.linkedOrder?.corporationId,
+        orderCorporationId: invoiceInfo?.corporationId ?? '',
         invoicedAt: invoiceInfo!.invoicedAt,
         paymentDueAt: {
           date: invoiceInfo!.payDueAt,
@@ -679,105 +753,122 @@ const ReceivableInvoiceDetail = () => {
     }
   }, [invoice.isReady])
 
+  function onError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         {invoiceInfo && !invoiceInfoIsLoading ? (
-          <Box
-            sx={{
-              width: '100%',
-              display: 'flex',
-              background: '#ffffff',
-              alignItems: 'center',
-              justifyContent: 'space-between',
-              padding: '20px',
-            }}
-          >
+          <Box display='flex'>
             <Box
               sx={{
+                width: '100%',
                 display: 'flex',
+                background: '#ffffff',
                 alignItems: 'center',
-                gap: '8px',
+                justifyContent: 'space-between',
+                padding: '20px',
               }}
             >
-              {invoiceInfoEdit ? null : (
-                <IconButton
-                  sx={{ padding: '0 !important', height: '24px' }}
-                  onClick={() => router.push('/invoice/receivable')}
-                >
-                  <Icon icon='mdi:chevron-left' width={24} height={24} />
-                </IconButton>
-              )}
-
-              <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-                <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
-                <Typography variant='h5'>
-                  {invoiceInfo?.corporationId}
-                </Typography>
-              </Box>
-              {currentRole &&
-              currentRole.name === 'CLIENT' &&
-              invoiceInfo?.linkedOrder ? (
-                <Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
+              >
+                {isEditing ? null : (
                   <IconButton
-                    sx={{ width: '24px', height: '24px', padding: 0 }}
-                    onClick={handleClick}
+                    sx={{ padding: '0 !important', height: '24px' }}
+                    onClick={() => router.push('/invoice/receivable')}
                   >
-                    <Icon icon='mdi:dots-vertical' />
+                    <Icon icon='mdi:chevron-left' width={24} height={24} />
                   </IconButton>
-                  <Menu
-                    elevation={8}
-                    anchorEl={anchorEl}
-                    id='customized-menu'
-                    onClose={handleClose}
-                    open={Boolean(anchorEl)}
-                    anchorOrigin={{
-                      vertical: 'bottom',
-                      horizontal: 'left',
-                    }}
-                    transformOrigin={{
-                      vertical: 'top',
-                      horizontal: 'left',
-                    }}
-                  >
-                    {invoiceInfo.linkedOrder ? (
-                      <MenuItem
-                        sx={{
-                          gap: 2,
-                          '&:hover': {
-                            background: 'inherit',
-                            cursor: 'default',
-                          },
-                        }}
-                      >
-                        Linked order :
-                        <Link
-                          href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
-                        >
-                          {invoiceInfo?.linkedOrder.corporationId ?? '-'}
-                        </Link>
-                      </MenuItem>
-                    ) : null}
-                  </Menu>
-                </Box>
-              ) : null}
-              {currentRole && currentRole.name === 'CLIENT'
-                ? InvoiceReceivableChip(invoiceInfo!.invoiceStatus)
-                : null}
-            </Box>
+                )}
 
-            {currentRole && currentRole.name === 'CLIENT' ? null : (
-              <Box sx={{ display: 'flex', gap: '16px', alignItems: 'center' }}>
-                <Button
-                  variant='outlined'
-                  sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
-                  onClick={onClickDownloadInvoice}
-                >
-                  <Icon icon='mdi:download' fontSize={20} />
-                  Download invoice
-                </Button>
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <img src='/images/icons/invoice/invoice-icon.svg' alt='' />
+                  <Typography variant='h5'>
+                    {invoiceInfo?.corporationId}
+                  </Typography>
+                </Box>
+
+                {currentRole && currentRole.name === 'CLIENT'
+                  ? InvoiceReceivableChip(
+                      statusLabel ?? '',
+                      invoiceInfo!.invoiceStatus,
+                    )
+                  : null}
+                {isEditing ? null : (
+                  <div>
+                    <IconButton
+                      aria-label='more'
+                      aria-haspopup='true'
+                      onClick={handleMenuClick}
+                    >
+                      <Icon icon='mdi:dots-vertical' />
+                    </IconButton>
+                    <Menu
+                      keepMounted
+                      id='link menu'
+                      anchorEl={anchorEl}
+                      onClose={handleMenuClose}
+                      open={Boolean(anchorEl)}
+                      PaperProps={{
+                        style: {
+                          maxHeight: 48 * 4.5,
+                        },
+                      }}
+                    >
+                      <MenuItem onClick={handleMenuClose}>
+                        <StyledNextLink
+                          href={`/orders/order-list/detail/${invoiceInfo?.orderId}`}
+                          color='black'
+                        >
+                          Linked order : {invoiceInfo?.orderCorporationId}
+                        </StyledNextLink>
+                      </MenuItem>
+                    </Menu>
+                  </div>
+                )}
               </Box>
-            )}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '16px',
+                  alignItems: 'center',
+                }}
+              >
+                {isEditing ||
+                (currentRole && currentRole.name === 'CLIENT') ? null : (
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    disabled={!isDownloadBtnVisible}
+                    onClick={onClickDownloadInvoice}
+                  >
+                    <Icon icon='mdi:download' fontSize={20} />
+                    Download invoice
+                  </Button>
+                )}
+                {isEditing ? null : (
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    disabled={!isConfirmBtnVisible}
+                    onClick={onClickConfirmInvoice}
+                  >
+                    <Icon icon='mdi:download' fontSize={20} />
+                    Confirm invoice
+                  </Button>
+                )}
+              </Box>
+            </Box>
           </Box>
         ) : null}
 
@@ -887,10 +978,13 @@ const ReceivableInvoiceDetail = () => {
                   clientTimezone={
                     getClientValue('contacts.timezone') ?? user?.timezone!
                   }
-                  statusList={statusList!}
+                  statusList={statusList || []}
                   isUpdatable={isUpdatable}
                   isDeletable={isDeletable}
+                  isAccountInfoUpdatable={isAccountInfoUpdatable}
                   client={client}
+                  isFileUploading={isFileUploading}
+                  setIsFileUploading={setIsFileUploading}
                 />
               ) : null}
             </TabPanel>
@@ -970,8 +1064,6 @@ const ReceivableInvoiceDetail = () => {
                 list={versionHistory!}
                 listCount={versionHistory?.length!}
                 columns={versionHistoryColumns}
-                page={versionHistoryListPage}
-                setPage={setVersionHistoryListPage}
                 pageSize={versionHistoryListPageSize}
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}

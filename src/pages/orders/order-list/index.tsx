@@ -89,13 +89,15 @@ export default function OrderList() {
     }[]
   >([])
 
-  const { data: orderList, isLoading } = useGetOrderList(filters)
+  const { data: orderList, isLoading } = useGetOrderList(filters, 'order')
   const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
   })
 
   const currentRole = getCurrentRole()
+
+  const { data } = useGetStatusList('Order')
 
   const { control, handleSubmit, trigger, reset } = useForm<FilterType>({
     defaultValues,

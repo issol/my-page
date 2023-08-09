@@ -27,18 +27,15 @@ import {
   InvoiceReceivableListType,
 } from '@src/types/invoice/receivable.type'
 
-import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
-
 // ** apis
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+// import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 const CalendarContainer = () => {
-  // ** States
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-
   // ** Hooks
   const { settings } = useSettings()
 
@@ -49,9 +46,13 @@ const CalendarContainer = () => {
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
-  const [statuses, setStatuses] = useState<
-    Array<{ color: string; value: number; label: string }>
-  >([])
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+
+  const statuses = statusList?.map(i => ({
+    value: i.value,
+    label: i.label,
+    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+  }))
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -70,8 +71,6 @@ const CalendarContainer = () => {
     filter,
   )
 
-  const { data: statusList, isLoading: statusListLoading } =
-    useGetInvoiceStatus()
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
@@ -80,36 +79,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
-
-  function getColor(status: InvoiceReceivableStatusType) {
-    return status === 'In preparation'
-      ? '#F572D8'
-      : status === 'Checking in progress'
-      ? '#FDB528'
-      : status === 'Accepted by client'
-      ? '#64C623'
-      : status === 'Tax invoice issued'
-      ? '#46A4C2'
-      : status === 'Paid'
-      ? '#267838'
-      : status === 'Overdue'
-      ? '#FF4D49'
-      : status === 'Canceled'
-      ? '#FF4D49'
-      : status === 'Overdue (Reminder sent)'
-      ? '#FF4D49'
-      : status === 'New'
-      ? '#666CFF'
-      : status === 'Invoice confirmed'
-      ? '#64C623'
-      : status === 'Revised'
-      ? '#AD7028'
-      : status === 'Under review'
-      ? '#FDB528'
-      : status === 'Under revision'
-      ? '#BA971A'
-      : ''
-  }
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -124,19 +93,6 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
-
-  useEffect(() => {
-    if (statusList) {
-      const res = statusList.map(value => ({
-        value: value.id,
-        label: value.statusName,
-        color: getColor(value.statusName as InvoiceReceivableStatusType),
-      }))
-      setStatuses(res)
-    }
-  }, [statusList])
-
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
   return (
     <Box>
@@ -159,7 +115,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={statuses}
+          status={statuses || []}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />

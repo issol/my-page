@@ -242,7 +242,7 @@ export default function AddNewQuotes() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -531,6 +531,21 @@ export default function AddNewQuotes() {
     toUrl: '/quotes',
   })
 
+  const [subPrice, setSubPrice] = useState(0)
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+    
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[])
+
   return (
     <Grid container spacing={6}>
       <ConfirmLeaveModal />
@@ -673,6 +688,7 @@ export default function AddNewQuotes() {
                   priceUnitsList={priceUnitsList || []}
                   itemTrigger={itemTrigger}
                   type='create'
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -718,9 +734,10 @@ export default function AddNewQuotes() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          getItem().items.reduce((acc, cur) => {
-                            return acc + cur.totalPrice
-                          }, 0),
+                          // getItem().items.reduce((acc, cur) => {
+                          //   return acc + cur.totalPrice
+                          // }, 0),
+                          subPrice,
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency ?? 'USD',

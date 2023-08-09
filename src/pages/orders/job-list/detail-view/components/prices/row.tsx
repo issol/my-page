@@ -1,7 +1,9 @@
 import { Box } from '@mui/material'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
 import { ModalType } from '@src/store/modal'
 import { ItemType } from '@src/types/common/item.type'
 import {
@@ -99,7 +101,7 @@ const Row = ({
     const data = getItem(itemName)
     if (data?.length) {
       const price = data.reduce((res, item) => (res += Number(item.prices)), 0)
-      if (minimumPrice && showMinimum.show && price < minimumPrice) {
+      if (minimumPrice && price < minimumPrice) {
         data.forEach(item => {
           total += item.unit === 'Percent' ? Number(item.prices) : 0
         })
@@ -111,18 +113,18 @@ const Row = ({
     if (total === itemData.totalPrice) return
     setItem(`items.${0}.totalPrice`, total, {
       shouldDirty: true,
-      shouldValidate: true,
+      shouldValidate: false,
     })
   }
 
-  function getEachPrice(index: number) {
+  function getEachPrice(index: number, showMinimum?:boolean, isNotApplicable?:boolean) {
     const data = getItem(itemName)
     if (!data?.length) return
     let prices = 0
     const detail = data?.[index]
     if (detail && detail.unit === 'Percent') {
       const percentQuantity = data[index].quantity
-      if (minimumPrice && showMinimum.show) {
+      if (minimumPrice && showMinimum) {
         prices = (percentQuantity / 100) * minimumPrice
       } else {
         const generalPrices = data.filter(item => item.unit !== 'Percent')
@@ -135,7 +137,26 @@ const Row = ({
       prices = detail.unitPrice * detail.quantity
     }
 
-    if (prices === data[index].prices) return
+    // if (prices === data[index].prices) return
+    const currentCurrency = () => {
+      if (isNotApplicable) return detail?.currency
+      return priceData?.currency!
+    }
+    const roundingPrice = formatByRoundingProcedure(
+      prices,
+      priceData?.decimalPlace!
+      ? priceData?.decimalPlace!
+      : (currentCurrency() === 'USD' || currentCurrency() === 'SGD') 
+        ? 2 
+        : 1000,
+      priceData?.roundingProcedure! ?? 0,
+      currentCurrency(),
+    )
+    setItem(`items.${0}.detail.${index}.currency`, currentCurrency(), {
+      shouldDirty: true,
+      shouldValidate: false,
+    })
+    // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
     setItem(`items.${0}.detail.${index}.prices`, prices, {
       shouldDirty: true,
       shouldValidate: true,
@@ -168,7 +189,10 @@ const Row = ({
     }
     getTotalPrice()
   }
-
+  const sumTotalPrice = () => {
+    return true
+  }
+  
   // console.log(details)
 
   return (
@@ -192,17 +216,18 @@ const Row = ({
         getTotalPrice={getTotalPrice}
         getEachPrice={getEachPrice}
         onDeletePriceUnit={onDeletePriceUnit}
-        onItemBoxLeave={onItemBoxLeave}
+        // onItemBoxLeave={onItemBoxLeave}
         isValid={
           !!itemData.source &&
           !!itemData.target &&
           (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
         }
-        isNotApplicable={itemData.priceId === NOT_APPLICABLE}
+        // isNotApplicable={itemData.priceId === NOT_APPLICABLE}
         priceUnitsList={priceUnitsList}
-        showMinimum={showMinimum}
-        setShowMinimum={setShowMinimum}
+        // showMinimum={showMinimum}
+        // setShowMinimum={setShowMinimum}
         type={type}
+        sumTotalPrice={sumTotalPrice}
       />
       {/* price unit end */}
     </Box>

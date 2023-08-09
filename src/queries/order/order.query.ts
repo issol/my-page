@@ -8,16 +8,25 @@ import {
 import {
   getOrderList,
   getOrderListCalendar,
+  getOrderListForInvoice,
   getOrderListInJob,
 } from '@src/apis/order-list.api'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import toast from 'react-hot-toast'
 import { useQuery } from 'react-query'
 
-export const useGetOrderList = (filter: OrderListFilterType) => {
+export const useGetOrderList = (
+  filter: OrderListFilterType,
+  type: 'invoice' | 'order',
+) => {
   return useQuery(
-    ['quotesList', { type: 'list' }, filter],
-    () => getOrderList(filter),
+    ['orderList', { type: 'list' }, filter, type],
+    () => {
+      if (type === 'order') {
+        return getOrderList(filter)
+      }
+      return getOrderListForInvoice(filter)
+    },
     {},
   )
 }
@@ -37,7 +46,7 @@ export const useGetOrderListCalendar = (
   filter: OrderListFilterType,
 ) => {
   return useQuery(
-    ['quotesList', { type: 'calendar' }, filter],
+    ['orderList', { type: 'calendar' }, filter],
     () => {
       return getOrderListCalendar(year, month, filter)
     },

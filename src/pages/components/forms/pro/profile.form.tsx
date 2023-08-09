@@ -13,7 +13,6 @@ import {
   Select,
   TextField,
 } from '@mui/material'
-import { getTypeList } from '@src/shared/transformer/type.transformer'
 import { CountryType, PersonalInfo } from '@src/types/sign/personalInfoTypes'
 import { Fragment } from 'react'
 import { Control, Controller, FieldErrors, UseFormWatch } from 'react-hook-form'
@@ -28,12 +27,11 @@ import { countries } from 'src/@fake-db/autocomplete'
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 
 type Props = {
-  control: Control<PersonalInfo, any>
-  errors: FieldErrors<PersonalInfo>
-  watch: UseFormWatch<PersonalInfo>
+  control: Control<Omit<PersonalInfo, 'address'>, any>
+  errors: FieldErrors<Omit<PersonalInfo, 'address'>>
+  watch: UseFormWatch<Omit<PersonalInfo, 'address'>>
 }
 export default function ProProfileForm({ control, errors, watch }: Props) {
-  const country = getTypeList('CountryCode')
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -159,9 +157,6 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
       )}
 
       <Grid item xs={12}>
-        <Divider />
-      </Grid>
-      <Grid item xs={6}>
         <DatePickerWrapper>
           <Controller
             name='dateOfBirth'
@@ -179,7 +174,10 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
           />
         </DatePickerWrapper>
       </Grid>
-      <Grid item xs={6}>
+      <Grid item xs={12}>
+        <Divider />
+      </Grid>
+      <Grid item xs={12}>
         <Controller
           name='timezone'
           control={control}
@@ -217,34 +215,38 @@ export default function ProProfileForm({ control, errors, watch }: Props) {
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='residence'
+          name='phone'
           control={control}
-          render={({ field: { value, onChange } }) => (
-            <Autocomplete
-              autoHighlight
+          rules={{ required: false }}
+          render={({ field: { value, onChange, onBlur } }) => (
+            <TextField
               fullWidth
-              options={country}
-              onChange={(e, v) => onChange(v?.value ?? null)}
-              value={
-                !value
-                  ? null
-                  : country.find(item => item.value === value) || null
+              label='Telephone'
+              variant='outlined'
+              value={value}
+              onBlur={onBlur}
+              onChange={e => {
+                if (isInvalidPhoneNumber(e.target.value)) return
+                onChange(e)
+              }}
+              inputProps={{ maxLength: 50 }}
+              error={Boolean(errors.mobile)}
+              placeholder={
+                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
               }
-              renderInput={params => (
-                <TextField
-                  {...params}
-                  label='Residence'
-                  inputProps={{
-                    ...params.inputProps,
-                  }}
-                />
-              )}
+              InputProps={{
+                startAdornment: watch('timezone')?.phone && (
+                  <InputAdornment position='start'>
+                    {'+' + watch('timezone')?.phone}
+                  </InputAdornment>
+                ),
+              }}
             />
           )}
         />
-        {errors.residence && (
+        {errors.phone && (
           <FormHelperText sx={{ color: 'error.main' }}>
-            {errors.residence.message}
+            {errors.phone.message}
           </FormHelperText>
         )}
       </Grid>

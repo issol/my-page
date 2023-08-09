@@ -67,6 +67,16 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
     disableCloseOnSelect: true,
   }
 
+  const isSearchButtonDisable = () => {
+    if (filter.requestDateFrom) {
+      if (!filter.requestDateTo) return true
+    }
+    if (filter.desiredDueDateFrom) {
+      if (!filter.desiredDueDateTo) return true
+    }
+    return false
+  }
+  
   return (
     <DatePickerWrapper>
       <Grid item xs={12}>
@@ -327,7 +337,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     >
                       Reset
                     </Button>
-                    <Button variant='contained' size='medium' onClick={search}>
+                    <Button variant='contained' size='medium' disabled={isSearchButtonDisable()} onClick={search}>
                       Search
                     </Button>
                   </Box>

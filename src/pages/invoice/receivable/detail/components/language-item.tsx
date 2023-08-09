@@ -122,6 +122,21 @@ const InvoiceLanguageAndItem = ({
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
 
   const currentRole = getCurrentRole()
+  const [subPrice, setSubPrice] = useState(0)
+
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+    
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[])
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -220,6 +235,7 @@ const InvoiceLanguageAndItem = ({
           type={'invoiceDetail'}
           orderId={invoiceInfo.orderId}
           itemTrigger={itemTrigger}
+          sumTotalPrice={sumTotalPrice}
         />
       </Grid>
       <Grid item xs={12}>
@@ -251,9 +267,7 @@ const InvoiceLanguageAndItem = ({
             >
               {formatCurrency(
                 formatByRoundingProcedure(
-                  items.reduce((acc, cur) => {
-                    return acc + cur.totalPrice
-                  }, 0),
+                  subPrice,
                   priceInfo?.decimalPlace!,
                   priceInfo?.roundingProcedure!,
                   priceInfo?.currency ?? 'USD',

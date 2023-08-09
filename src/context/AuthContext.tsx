@@ -18,9 +18,11 @@ import {
   ErrCallbackType,
   UserDataType,
   UserRoleType,
+  ClientCompanyInfoType,
+  CorporateClientInfoType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
-import { getUserInfo } from 'src/apis/user.api'
+import { getClientUserInfo, getUserInfo } from 'src/apis/user.api'
 import {
   loginResType,
   LoginResTypeWithOptionalAccessToken,
@@ -56,6 +58,7 @@ import { useAppSelector } from 'src/hooks/useRedux'
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
+  company: null,
   loading: true,
   setUser: (n: any) => {
     return null
@@ -78,6 +81,12 @@ type Props = {
 const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
+
+  // **TODO: CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
+  const [company, setCompany] = useState<
+    (ClientCompanyInfoType & CorporateClientInfoType) | null
+  >(null)
+
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
   const dispatch = useAppDispatch()
@@ -93,18 +102,28 @@ const AuthProvider = ({ children }: Props) => {
     )
   }
 
+  const userAccess = useAppSelector(state => state.userAccess)
+
   useEffect(() => {
     if (user) {
-      dispatch(getRole(user.id))
+      dispatch(getRole(user.id)).then(res => {
+        const isClient = res.payload.roles
+          ?.map((i: { name: string }) => i.name)
+          .includes('CLIENT')
+        if (isClient) {
+          getClientUserInfo(user.id).then(res => {
+            setCompany(res.data)
+          })
+        }
+      })
       dispatch(getPermission())
     }
   }, [user])
 
-  const userAccess = useAppSelector(state => state.userAccess)
-
   useEffect(() => {
     if (user && userAccess.role.length) {
       const roles = userAccess.role.map(item => item.name)
+
       const redirectPath = getRedirectPath()
       const storageRole = getCurrentRole()
       // 세션 스토리지에 storageRole 값이 없는경우 사용자의 Role을 검사하여 설정(모든 유저 대상)
@@ -112,23 +131,40 @@ const AuthProvider = ({ children }: Props) => {
         const TADRole =
           hasTadAndLpm(userAccess.role) &&
           userAccess.role.find(item => item.name === 'TAD')
-        TADRole
-          ? setCurrentRole(TADRole)
-          : setCurrentRole(userAccess.role[0])
-      }
-      else {
-        const findRole = userAccess.role.find(item => item.name === storageRole.name)
+        TADRole ? setCurrentRole(TADRole) : setCurrentRole(userAccess.role[0])
+      } else {
+        const findRole = userAccess.role.find(
+          item => item.name === storageRole.name,
+        )
         // 세션 스토리지에 storageRole 값이 있는 경우 name, type을 비교하여 현재 유저의 name, type과 다르면 업데이트
-        if (findRole && storageRole.type !== findRole?.type) setCurrentRole(findRole)
+        if (findRole && storageRole.type !== findRole?.type)
+          setCurrentRole(findRole)
         else setCurrentRole(userAccess.role[0])
       }
-      if (!user?.firstName) {
-        if (roles?.includes('PRO')) {
-          router.replace('/welcome/consumer')
-        } else if (roles?.includes('TAD') || roles?.includes('LPM')) {
+
+      const isClient = roles?.includes('CLIENT')
+      const isProUpdatedProfile = roles?.includes('PRO') && user?.firstName
+      const isManagerUpdatedProfile =
+        (roles?.includes('TAD') || roles?.includes('LPM')) && user?.firstName
+
+      if (!isClient) {
+        if (!isProUpdatedProfile) {
+          router.replace('/welcome/pro')
+        } else if (!isManagerUpdatedProfile) {
           router.replace('/welcome/manager')
         }
         return
+      } else if (isClient) {
+        const isClientMaster =
+          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
+        if (isClientMaster && !company?.name) {
+          router.replace('/welcome/client')
+        } else {
+          if (user?.firstName) {
+            //TODO: general client form으로 이동하도록 수정하기
+            router.replace('/welcome/client')
+          }
+        }
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
@@ -138,7 +174,7 @@ const AuthProvider = ({ children }: Props) => {
         router.push(`/home`)
       }
     }
-  }, [userAccess.role, user])
+  }, [userAccess.role, user, company])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
@@ -262,6 +298,7 @@ const AuthProvider = ({ children }: Props) => {
 
   const values = {
     user,
+    company,
     loading,
     setUser,
     setLoading,

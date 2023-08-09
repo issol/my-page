@@ -18,48 +18,6 @@ type Props = {
 }
 export default function ClientBillingAddressesForm({ control, errors }: Props) {
   const country = getTypeList('CountryCode')
-  console.log('client billing', errors)
-  function renderForm(
-    key:
-      | 'baseAddress'
-      | 'detailAddress'
-      | 'city'
-      | 'state'
-      | 'zipCode'
-      | 'name',
-    label: string,
-    maxLength: number,
-  ) {
-    return (
-      <>
-        <Controller
-          name={`${key}`}
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <TextField
-              fullWidth
-              error={
-                key !== 'name'
-                  ? false
-                  : errors?.[key]
-                  ? Boolean(errors?.[key])
-                  : false
-              }
-              label={label}
-              value={value ?? ''}
-              onChange={onChange}
-              inputProps={{ maxLength }}
-            />
-          )}
-        />
-        {key === 'name' && errors?.[key] && (
-          <FormHelperText sx={{ color: 'error.main' }}>
-            {errors?.[key]?.message}
-          </FormHelperText>
-        )}
-      </>
-    )
-  }
 
   return (
     <Fragment>

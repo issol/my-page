@@ -23,6 +23,7 @@ import {
   SyntheticEvent,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import ProjectInfo from './components/project-info'
@@ -164,6 +165,7 @@ const OrderDetail = () => {
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
   )
   const { data: statusList } = useGetStatusList('Order')
+
   const dispatch = useAppDispatch()
 
   const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
@@ -210,9 +212,15 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
   const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
+
+  const currentStatus = useMemo(
+    () => statusList?.find(item => item.value === projectInfo?.status),
+    [statusList, projectInfo],
+  )
 
   const {
     control: projectInfoControl,
@@ -791,9 +799,7 @@ const OrderDetail = () => {
     if (projectInfo) {
       const res = {
         ...projectInfo,
-        status:
-          statusList?.find(item => item.label === projectInfo.status)?.value ??
-          100,
+        status: currentStatus?.value ?? 100,
       }
       projectInfoReset(res)
     }
@@ -928,7 +934,7 @@ const OrderDetail = () => {
               {
                 isConfirmed: true,
                 status:
-                  projectInfo?.status === 'Under revision'
+                  projectInfo?.status === 10500
                     ? projectInfo.previousStatus
                     : 103,
               },
@@ -989,9 +995,9 @@ const OrderDetail = () => {
             onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
             reason={projectInfo.reason}
             type={
-              projectInfo.status === 'Redelivery requested'
+              projectInfo.status === 10800
                 ? 'Requested'
-                : projectInfo.status
+                : currentStatus?.label ?? ''
             }
             vary='info'
           />
@@ -1130,10 +1136,10 @@ const OrderDetail = () => {
                 <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                   <OrderStatusChip
                     status={projectInfo?.status ?? ''}
-                    label={projectInfo?.status}
+                    label={currentStatus?.label ?? ''}
                   />
-                  {(projectInfo?.status === 'Redelivery requested' ||
-                    projectInfo?.status === 'Canceled') && (
+                  {(projectInfo?.status === 10800 ||
+                    projectInfo?.status === 101200) && (
                     <IconButton
                       onClick={() => {
                         projectInfo?.reason && onClickReason()
@@ -1160,10 +1166,10 @@ const OrderDetail = () => {
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickDownloadOrder}
                     disabled={
-                      projectInfo?.status === 'New' ||
-                      projectInfo?.status === 'In preparation' ||
-                      projectInfo?.status === 'Internal review' ||
-                      projectInfo?.status === 'Under revision'
+                      projectInfo?.status === 10000 ||
+                      projectInfo?.status === 10100 ||
+                      projectInfo?.status === 10200 ||
+                      projectInfo?.status === 10500
                     }
                   >
                     <Icon icon='material-symbols:request-quote' />
@@ -1173,7 +1179,7 @@ const OrderDetail = () => {
                     variant='outlined'
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickCreateInvoice}
-                    disabled={projectInfo?.status !== 'Delivery confirmed'}
+                    disabled={projectInfo?.status !== 10900}
                   >
                     Create invoice
                   </Button>
@@ -1182,9 +1188,9 @@ const OrderDetail = () => {
                     sx={{ display: 'flex', gap: '8px' }}
                     onClick={onClickConfirmOrder}
                     disabled={
-                      projectInfo?.status !== 'New' &&
-                      projectInfo?.status !== 'In preparation' &&
-                      projectInfo?.status !== 'Under revision'
+                      projectInfo?.status !== 10000 &&
+                      projectInfo?.status !== 10100 &&
+                      projectInfo?.status !== 10500
                     }
                   >
                     Confirm order
@@ -1390,52 +1396,54 @@ const OrderDetail = () => {
                     </Box>
                   </Grid>
 
-                  <Grid
-                    item
-                    xs={12}
-                    display='flex'
-                    padding='24px'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    mt={6}
-                    mb={6}
-                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-                  >
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      <Checkbox
-                        disabled={!langItemsEdit}
-                        checked={taxable}
-                        onChange={e => {
-                          if (!e.target.checked) {
-                            setTax(null)
-                          }
-                          setTaxable(e.target.checked)
-                        }}
-                      />
-                      <Typography>Tax</Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      {langItemsEdit ? (
-                        <>
-                          <TextField
-                            size='small'
-                            type='number'
-                            value={!tax ? '-' : tax}
-                            disabled={!taxable}
-                            sx={{ maxWidth: '120px', padding: 0 }}
-                            inputProps={{ inputMode: 'decimal' }}
-                            onChange={e => {
-                              if (e.target.value.length > 10) return
-                              setTax(Number(e.target.value))
-                            }}
-                          />
-                          %
-                        </>
-                      ) : (
-                        <Box>{tax ? `${tax} %` : null} </Box>
-                      )}
-                    </Box>
-                  </Grid>
+                  {currentRole?.name === 'CLIENT' ? null : (
+                    <Grid
+                      item
+                      xs={12}
+                      display='flex'
+                      padding='24px'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      mt={6}
+                      mb={6}
+                      sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                    >
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        <Checkbox
+                          disabled={!langItemsEdit}
+                          checked={taxable}
+                          onChange={e => {
+                            if (!e.target.checked) {
+                              setTax(null)
+                            }
+                            setTaxable(e.target.checked)
+                          }}
+                        />
+                        <Typography>Tax</Typography>
+                      </Box>
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        {langItemsEdit ? (
+                          <>
+                            <TextField
+                              size='small'
+                              type='number'
+                              value={!tax ? '-' : tax}
+                              disabled={!taxable}
+                              sx={{ maxWidth: '120px', padding: 0 }}
+                              inputProps={{ inputMode: 'decimal' }}
+                              onChange={e => {
+                                if (e.target.value.length > 10) return
+                                setTax(Number(e.target.value))
+                              }}
+                            />
+                            %
+                          </>
+                        ) : (
+                          <Box>{tax ? `${tax} %` : null} </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
 
                   {langItemsEdit
                     ? renderSubmitButton({
@@ -1502,8 +1510,8 @@ const OrderDetail = () => {
                     client={client!}
                     setEdit={setClientEdit}
                     isUpdatable={
-                      projectInfo?.status !== 'Paid' &&
-                      projectInfo?.status !== 'Canceled' &&
+                      projectInfo?.status !== 101100 &&
+                      projectInfo?.status !== 101200 &&
                       client?.contactPerson?.userId !== null
                     }
                   />
@@ -1549,8 +1557,8 @@ const OrderDetail = () => {
                     setEdit={setProjectTeamEdit}
                     updateProject={updateProject}
                     isUpdatable={
-                      projectInfo?.status !== 'Paid' &&
-                      projectInfo?.status !== 'Canceled'
+                      projectInfo?.status !== 101100 &&
+                      projectInfo?.status !== 101200
                     }
                   />
                 )}

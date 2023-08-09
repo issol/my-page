@@ -905,7 +905,7 @@ function ProDetailOverview() {
                   telephone: userInfo?.telephone!,
                   dateOfBirth: userInfo?.dateOfBirth!,
                   status: userInfo?.status!,
-                  residence: userInfo?.residence!,
+                  address: userInfo?.address!,
                 }}
                 type={'pro'}
                 handleChangeStatus={handleChangeStatus}

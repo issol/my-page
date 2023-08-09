@@ -83,13 +83,15 @@ export default function RequestDetail() {
     setAnchorEl(null)
   }
 
-  const { data, refetch, dataUpdatedAt } = useGetClientRequestDetail(Number(id))
+  const { data, dataUpdatedAt } = useGetClientRequestDetail(Number(id))
 
   // 변경된 linkedQuote, linkedOrder 정보를 캐시로 인해 못가져오는 케이스가 있어 컴포넌트 전역에 refetch를 추가함
   // 데이터가 패칭된지 2초 ~ 60초 사이일 경우에만 refetch 처리를 하고 그 외에는 컴포넌트 로딩시 리엑트 쿼리가 데이터를 가져오도록 함
   useEffect(() => {
     const staleDuration = getStaleDuration(dataUpdatedAt)
-    if (staleDuration < 60 * 1000 && staleDuration > 2000) refetch()
+    if (staleDuration < 60 * 1000 && staleDuration > 2000) {
+      queryClient.invalidateQueries({ queryKey: 'request/client/detail' })
+    }
   }, [])
 
   const fileSize = useMemo(() => {
@@ -158,9 +160,8 @@ export default function RequestDetail() {
     }) => updateRequest(id, form),
     {
       onSuccess: () => {
-        return queryClient.invalidateQueries({
-          queryKey: 'request/client/detail',
-        })
+        queryClient.invalidateQueries({ queryKey: 'request/client/detail' })
+        queryClient.invalidateQueries({ queryKey: 'request/client/list' })
       },
       onError: () => onError(),
     },

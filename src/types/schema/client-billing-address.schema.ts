@@ -2,7 +2,14 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { ClientAddressType } from './client-address.schema'
 
-export const clientBillingAddressDefaultValue: ClientAddressType = {}
+export const clientBillingAddressDefaultValue: ClientAddressType = {
+  baseAddress: '',
+  detailAddress: '',
+  city: '',
+  state: '',
+  country: '',
+  zipCode: '',
+}
 
 export const clientBillingAddressSchema = yup.object().shape({
   addressType: yup

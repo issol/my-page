@@ -58,3 +58,28 @@ export const clientAddressSchema = yup.object().shape({
     )
     .nullable(),
 })
+
+export const clientAddressAllRequiredSchema = yup.object().shape({
+  clientAddresses: yup.array().of(
+    yup.object().shape({
+      addressType: yup
+        .string()
+        .oneOf(['billing', 'shipping', 'additional'])
+        .nullable(),
+      name: yup
+        .string()
+        .nullable()
+        .when('addressType', (addressType, schema) =>
+          addressType === 'additional'
+            ? yup.string().required(FormErrors.required)
+            : schema,
+        ),
+      baseAddress: yup.string().required(FormErrors.required),
+      detailAddress: yup.string().nullable(),
+      city: yup.string().required(FormErrors.required),
+      state: yup.string().nullable(),
+      country: yup.string().required(FormErrors.required),
+      zipCode: yup.string().required(FormErrors.required),
+    }),
+  ),
+})

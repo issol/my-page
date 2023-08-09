@@ -37,7 +37,7 @@ export default function RequestDetailCard({
   onStatusChange,
 }: Props) {
   const { data: statusList, isLoading } = useGetClientRequestStatus()
-
+  console.log("data",data)
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>
@@ -108,8 +108,17 @@ export default function RequestDetailCard({
       </Grid>
       <Grid item xs={6}>
         <LabelContainer>
-          <CustomTypo fontWeight={600}>LSP</CustomTypo>
-          <CustomTypo variant='body2'>{data?.lsp?.name}</CustomTypo>
+          <CustomTypo fontWeight={600}>Contact person</CustomTypo>
+          <CustomTypo variant='body2'>
+            {getLegalName({
+              firstName: data?.contactPerson?.firstName!,
+              middleName: data?.contactPerson?.middleName,
+              lastName: data?.contactPerson?.lastName!,
+            })}
+            {data?.contactPerson?.jobTitle
+              ? ` / ${data?.contactPerson?.jobTitle}`
+              : ''}
+          </CustomTypo>
         </LabelContainer>
       </Grid>
       <Grid item xs={12}>

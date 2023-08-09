@@ -25,6 +25,7 @@ import {
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -368,8 +369,6 @@ export const getClientInvoicesCalendarData = async (
   year: number,
   month: number,
 ): Promise<ClientInvoiceCalendarData> => {
-  const color_overdue = '#FF4D49'
-
   try {
     const { data } = await axios.get(
       `/api/enough/u/client/${id}/invoices?year=${year}&month=${month}`,
@@ -380,22 +379,7 @@ export const getClientInvoicesCalendarData = async (
         return {
           ...item,
           extendedProps: {
-            calendar:
-              item.invoiceStatus === 'Overdue' ||
-              item.invoiceStatus === 'Overdue (Reminder sent)' ||
-              item.invoiceStatus === 'Canceled'
-                ? color_overdue
-                : item.invoiceStatus === 'In preparation'
-                ? '#F572D8'
-                : item.invoiceStatus === 'Checking in progress'
-                ? '#FDB528'
-                : item.invoiceStatus === 'Accepted by client'
-                ? ' #64C623'
-                : item.invoiceStatus === 'Tax invoice issued'
-                ? '#46A4Ce'
-                : item.invoiceStatus === 'Paid'
-                ? '#267838'
-                : 'default',
+            calendar: getReceivableStatusColor(item.invoiceStatus),
           },
           allDay: true,
         }

@@ -22,6 +22,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 import { useContext } from 'react'
 import { AuthContext } from '@src/context/AuthContext'
 import { ProInvoiceListType } from '@src/types/invoice/common.type'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type CellType = {
   row: ProInvoiceListType
@@ -50,7 +51,7 @@ export default function ProInvoiceList({
 }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
-
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
   function NoList() {
     return (
       <Box
@@ -90,7 +91,8 @@ export default function ProInvoiceList({
       disableColumnMenu: true,
       sortable: false,
       renderCell: ({ row }: CellType) => {
-        return <>{InvoiceReceivableChip(row.status)}</>
+        const label = statusList?.find(i => i.value === row.status)?.label
+        if (label) return <>{InvoiceReceivableChip(label, row.status)}</>
       },
     },
 

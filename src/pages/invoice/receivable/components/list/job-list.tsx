@@ -1,5 +1,5 @@
 import { useRouter } from 'next/router'
-import { useContext, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
@@ -40,7 +40,7 @@ import {
 
 const initialFilter: OrderListFilterType = {
   search: '',
-  hideCompleted: '1',
+
   mine: '0',
   skip: 0,
   take: 10,
@@ -52,9 +52,10 @@ type OrderListCellType = {
 
 type Props = {
   onClose: () => void
+  type?: 'order' | 'invoice'
 }
 
-export default function OrderList({ onClose }: Props) {
+export default function OrderList({ onClose, type = 'order' }: Props) {
   const router = useRouter()
   const { user } = useContext(AuthContext)
   const { openModal, closeModal } = useModal()
@@ -65,7 +66,7 @@ export default function OrderList({ onClose }: Props) {
   const [activeFilter, setActiveFilter] =
     useState<OrderListFilterType>(initialFilter)
 
-  const { data: orderList, isLoading } = useGetOrderList(activeFilter)
+  const { data: orderList, isLoading } = useGetOrderList(activeFilter, type)
 
   function onSearch() {
     setActiveFilter({
@@ -74,6 +75,12 @@ export default function OrderList({ onClose }: Props) {
       take: activeFilter.take,
     })
   }
+
+  useEffect(() => {
+    if (type !== 'invoice') {
+      setActiveFilter({ ...activeFilter, hideCompleted: '1' })
+    }
+  }, [type])
 
   function onReset() {
     setFilter({ ...initialFilter })

@@ -215,7 +215,8 @@ const InvoiceProjectTeam = ({
             {type === 'detail' &&
             isUpdatable &&
             currentRole &&
-            currentRole.name !== 'CLIENT' ? (
+            currentRole.name !== 'CLIENT' &&
+            ![30900, 301200].includes(invoiceInfo?.invoiceStatus!) ? (
               <IconButton onClick={() => setEdit(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>

@@ -31,8 +31,6 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
     }),
     mobile: yup.string().nullable(),
     phone: yup.string().nullable(),
-    dateOfBirth: yup.string().nullable(),
-    residence: yup.string().nullable(),
     jobInfo: yup.array().of(
       yup.object().shape({
         jobType: yup.string().required(FormErrors.required),
@@ -71,6 +69,33 @@ export const getProfileSchema = (type: 'join' | 'edit') => {
             value: yup.string().nullable(),
           })
           .nullable(),
+      )
+      .nullable(),
+
+    dateOfBirth: yup.string().required(FormErrors.required),
+    address: yup
+      .array()
+      .of(
+        yup.object().shape({
+          addressType: yup
+            .string()
+            .oneOf(['billing', 'shipping', 'additional'])
+            .nullable(),
+          name: yup
+            .string()
+            .nullable()
+            .when('addressType', (addressType, schema) =>
+              addressType === 'additional'
+                ? yup.string().required(FormErrors.required)
+                : schema,
+            ),
+          baseAddress: yup.string().required(FormErrors.required),
+          detailAddress: yup.string().nullable(),
+          city: yup.string().required(FormErrors.required),
+          state: yup.string().nullable(),
+          country: yup.string().required(FormErrors.required),
+          zipCode: yup.string().required(FormErrors.required),
+        }),
       )
       .nullable(),
   })

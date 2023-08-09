@@ -20,8 +20,6 @@ import { useGetClientList } from '@src/queries/client.query'
 // ** NextJs
 import { useRouter } from 'next/router'
 import OrderList from './components/order-list'
-import JobInfoDetailView from './detail-view'
-import { useGetAllClientPriceList } from '@src/queries/price-units.query'
 
 type MenuType = 'list' | 'tracker'
 

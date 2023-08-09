@@ -24,7 +24,6 @@ import { UserDataType } from '@src/context/types'
 import ClientInvoiceList from './list/list'
 
 import ClientInvoiceCalendarContainer from './calendar'
-import invoice from '@src/store/invoice'
 
 export type FilterType = {
   invoicedDate: Array<Date | null>
@@ -222,7 +221,6 @@ export default function ClientInvoices({ id, user }: Props) {
             />
           </Box>
         ) : (
-          // <CalendarContainer id={id} sort={sort} setSort={setSort} />
           <ClientInvoiceCalendarContainer id={id} user={user} />
         )}
       </Box>

@@ -171,7 +171,10 @@ const InvoiceClient = ({
             gap: '30px',
           }}
         >
-          {type === 'detail' && isUpdatable ? (
+          {type === 'detail' &&
+          isUpdatable &&
+          client?.contactPerson?.userId === null &&
+          ![30900, 301200].includes(invoiceInfo?.invoiceStatus!) ? (
             <IconButton
               sx={{ position: 'absolute', top: 0, right: 0 }}
               onClick={() => setEdit!(true)}

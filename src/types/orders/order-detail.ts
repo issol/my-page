@@ -1,10 +1,9 @@
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import { OrderStatusType } from './order-list'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
-import { RevenueFormType } from '../common/orders.type'
+import { OrderStatusType, RevenueFormType } from '../common/orders.type'
 import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
 import { ReasonType } from '../quotes/quote'
@@ -28,7 +27,7 @@ export type ProjectTeamCellType = {
 export type DeliveryFileType = {
   id?: number
   createdAt?: string
-  type?: 'imported' | 'uploaded'
+  type?: 'imported' | 'uploaded' | 'existing'
   filePath: string
   fileName: string
   fileExtension: string
@@ -107,6 +106,7 @@ export type VersionHistoryType = {
   version: number
   email: string
   downloadedAt: string
+  items: LanguageAndItemType
 } & HistoryType
 
 export type OrderDownloadData = {

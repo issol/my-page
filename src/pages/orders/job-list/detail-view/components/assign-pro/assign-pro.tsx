@@ -19,8 +19,6 @@ import {
   GridColumns,
   GridSelectionModel,
 } from '@mui/x-data-grid'
-import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import LegalNameEmail from '@src/pages/onboarding/components/list/list-item/legalname-email'
 import {
   AssignmentStatusChip,
@@ -43,7 +41,6 @@ import {
   useMutation,
 } from 'react-query'
 import { ServiceTypeToProRole } from '@src/shared/const/role/roles'
-import { request } from 'http'
 import { requestJobToPro } from '@src/apis/job-detail.api'
 
 const defaultValues: AssignProFilterType = {

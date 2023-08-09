@@ -961,6 +961,7 @@ function OnboardingDetail() {
                   mobilePhone: userInfo?.mobilePhone!,
                   telephone: userInfo?.telephone!,
                   status: userInfo?.status!,
+                  address: userInfo?.address!,
                 }}
                 type='onboarding'
               />
