@@ -54,7 +54,7 @@ type Props = {
   pricesSuccess: boolean
   user: UserDataType
   onClose: any
-  onClick: any
+  onClick: (historyId: number) => void
   statusList: {
     value: number
     label: string
@@ -516,7 +516,7 @@ const InvoiceVersionHistoryModal = ({
               <Button
                 variant='contained'
                 sx={{ width: '226px' }}
-                onClick={onClick}
+                onClick={() => onClick(history.id)}
               >
                 Restore this version
               </Button>

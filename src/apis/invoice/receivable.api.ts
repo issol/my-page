@@ -261,3 +261,14 @@ export const cancelInvoice = async (
     throw new Error(e)
   }
 }
+
+export const restoreVersion = async (historyId: number): Promise<boolean> => {
+  try {
+    const { data } = await axios.put(
+      `/api/enough/u/invoice/receivable/restore/${historyId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}

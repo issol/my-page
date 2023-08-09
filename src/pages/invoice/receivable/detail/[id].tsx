@@ -65,6 +65,7 @@ import { useMutation, useQueryClient } from 'react-query'
 import {
   confirmInvoiceByLpm,
   patchInvoiceInfo,
+  restoreVersion,
 } from '@src/apis/invoice/receivable.api'
 import toast from 'react-hot-toast'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
@@ -283,7 +284,17 @@ const ReceivableInvoiceDetail = () => {
 
     setValue(newValue)
   }
-  const handleRestoreVersion = () => {
+
+  const restoreVersionMutation = useMutation(
+    (historyId: number) => restoreVersion(historyId),
+    {
+      onSuccess: () => {
+        invalidateInvoiceDetail()
+      },
+      onError: () => onError(),
+    },
+  )
+  const handleRestoreVersion = (historyId: number) => {
     openModal({
       type: 'RestoreVersionModal',
       children: (
@@ -293,7 +304,7 @@ const ReceivableInvoiceDetail = () => {
           onClick={() => {
             closeModal('RestoreVersionModal')
             closeModal('InvoiceVersionHistoryModal')
-            // TODO API 연결
+            restoreVersionMutation.mutate(historyId)
           }}
           vary='error'
           rightButtonText='Discard'
@@ -498,7 +509,6 @@ const ReceivableInvoiceDetail = () => {
     })
   }
 
-  //TODO: onSuccess에서 invalidate info해주고, onError추가하기
   const confirmInvoice = useMutation((id: number) => confirmInvoiceByLpm(id), {
     onSuccess: () => {
       invalidateInvoiceDetail()
