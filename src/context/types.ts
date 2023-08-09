@@ -75,7 +75,7 @@ export type AuthValuesType = {
   logout: () => void
   user: UserDataType | null
   company: (ClientCompanyInfoType & CorporateClientInfoType) | null
-  updateUserInfo: (response: loginResType) => void
+  updateUserInfo: (response: loginResType) => Promise<void>
   setLoading: (value: boolean) => void
   setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void

@@ -64,7 +64,10 @@ const defaultProvider: AuthValuesType = {
     return null
   },
   updateUserInfo: (res: LoginResTypeWithOptionalAccessToken) => {
-    return null
+    const resolve = () => {
+      return null
+    }
+    return new Promise(resolve)
   },
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
@@ -158,19 +161,16 @@ const AuthProvider = ({ children }: Props) => {
         const isClientMaster =
           userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
         if (isClientMaster && !company?.name) {
-          router.replace('/welcome/client')
+          router.replace('/signup/finish/client')
         } else {
-          if (user?.firstName) {
-            //TODO: general client form으로 이동하도록 수정하기
-            router.replace('/welcome/client')
-          }
+          router.replace('/signup/finish/client')
         }
+        return
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
         return
-      }
-      if (router.pathname === '/') {
+      } else if (router.pathname === '/') {
         router.push(`/home`)
       }
     }

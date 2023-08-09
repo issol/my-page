@@ -203,7 +203,7 @@ export const getClientUserInfo = async (
       data: {
         businessClassification: 'corporate',
         email: 'bon@dsfs.com',
-        name: 'Bon company',
+        name: '',
         timezone: { code: '', phone: '82', label: 'Korea' },
         businessNumber: '123',
         commencementDate: Date(),

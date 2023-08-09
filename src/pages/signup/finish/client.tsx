@@ -26,23 +26,10 @@ const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
 }))
 
 const FinishSignUpConsumer = () => {
-  const auth = useAuth()
   const router = useRouter()
-  const { userId, email, accessToken } = router.query
 
   function onButtonClick() {
-    if (userId && email && accessToken) {
-      const emailAsString: string = email as string
-      const accessTokenAsString: string = accessToken as string
-      auth.updateUserInfo({
-        userId: Number(userId),
-        email: emailAsString,
-        accessToken: accessTokenAsString,
-      })
-      router.push('/welcome/client')
-    } else {
-      router.push('/login')
-    }
+    router.push('/welcome/client')
   }
 
   return (
@@ -87,6 +74,11 @@ FinishSignUpConsumer.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-FinishSignUpConsumer.guestGuard = true
+FinishSignUpConsumer.acl = {
+  subject: 'client',
+  action: 'update',
+}
+
+// FinishSignUpConsumer.guestGuard = true
 
 export default FinishSignUpConsumer

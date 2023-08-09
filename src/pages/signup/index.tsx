@@ -249,17 +249,24 @@ const SignUpPage = () => {
         '/signup/finish/pro',
       )
     } else if (role.includes(Roles.CLIENT)) {
-      router.push(
-        {
-          pathname: '/signup/finish/client',
-          query: {
-            userId: res.userId,
-            email: res.email,
-            accessToken: res.accessToken,
-          },
-        },
-        '/signup/finish/client',
-      )
+      auth
+        .updateUserInfo({
+          userId: res.userId,
+          email: res.email,
+          accessToken: res.accessToken,
+        })
+        .then(() => router.push('/welcome/client'))
+      // router.push(
+      //   {
+      //     pathname: '/signup/finish/client',
+      //     query: {
+      //       userId: res.userId,
+      //       email: res.email,
+      //       accessToken: res.accessToken,
+      //     },
+      //   },
+      //   '/signup/finish/client',
+      // )
     } else {
       router.push('/signup/finish/manager')
     }
