@@ -94,8 +94,12 @@ export default function NewGeneralClientForm() {
   }
 
   const createClientMutation = useMutation(
-    (data: ContactPersonType & { userId: number } & { clientId: number }) =>
-      updateClientUserInfo(data),
+    (
+      data: ContactPersonType & { userId: number } & {
+        clientId: number
+        companyId: string
+      },
+    ) => updateClientUserInfo(data),
     {
       onSuccess: () => {
         router.push('/home')
@@ -105,10 +109,16 @@ export default function NewGeneralClientForm() {
   )
 
   function updateClientInformation() {
-    if (company) {
+    if (company && company.companyId) {
       const data: ContactPersonType & { userId: number } & {
         clientId: number
-      } = { ...getValues(), userId: user?.userId!, clientId: company.clientId }
+        companyId: string
+      } = {
+        ...getValues(),
+        userId: user?.userId!,
+        clientId: company.clientId,
+        companyId: company?.companyId,
+      }
       createClientMutation.mutate(data)
     }
   }

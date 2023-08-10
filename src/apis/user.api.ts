@@ -247,7 +247,10 @@ export const requestJoinToCompany = async (
 
 /* CLIENT 전용 프로필 업데이트 */
 export const updateClientUserInfo = async (
-  userInfo: ContactPersonType & { userId: number } & { clientId: number },
+  userInfo: ContactPersonType & { userId: number } & {
+    clientId: number
+    companyId: string
+  },
 ) => {
   try {
     await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
