@@ -106,7 +106,7 @@ export type ClientCompanyInfoType = {
 }
 
 export type CorporateClientInfoType = {
-  businessNumber?: string
+  registrationNumber?: string
   representativeName?: string
   commencementDate?: string
 }
@@ -121,6 +121,6 @@ export type ClientUserType = {
   companyId: null | string
   isTaxable: boolean
   tax: null | number
+  clientAddresses: ClientAddressType<number>[]
 } & ClientCompanyInfoType &
-  CorporateClientInfoType &
-  ClientAddressType
+  CorporateClientInfoType

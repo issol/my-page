@@ -15,7 +15,7 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
     <>
       <Grid item xs={12}>
         <Controller
-          name='businessNumber'
+          name='registrationNumber'
           control={control}
           render={({ field: { value, onChange, onBlur } }) => (
             <TextField
@@ -25,11 +25,11 @@ export default function CorporateCompanyInfoForm({ control, errors }: Props) {
               value={value}
               onBlur={onBlur}
               onChange={onChange}
-              error={Boolean(errors.businessNumber)}
+              error={Boolean(errors.registrationNumber)}
             />
           )}
         />
-        {renderErrorMsg(errors.businessNumber)}
+        {renderErrorMsg(errors.registrationNumber)}
       </Grid>
       <Grid item xs={12}>
         <Controller
