@@ -2,7 +2,7 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
 
-export type ClientType = 'Company' | 'Mr.' | 'Ms.'
+export type ClientType = 'Company' | 'Mr' | 'Ms'
 export type CompanyInfoFormType = {
   clientType: ClientType
   status: string
@@ -16,11 +16,15 @@ export type CompanyInfoFormType = {
   isTaxable?: boolean
   tax?: number | null
   memo?: string
+  headquarter?: string
+  businessRegistrationNumber?: string
+  nameOfRepresentative?: string
+  businessCommencementDate?: string
 }
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
     .string()
-    .oneOf(['Company', 'Mr.', 'Ms.'])
+    .oneOf(['Company', 'Mr', 'Ms'])
     .required(FormErrors.required),
   status: yup.string().required(FormErrors.required),
   name: yup.string().required(FormErrors.required),
@@ -45,6 +49,10 @@ export const companyInfoSchema = yup.object().shape({
       !isTaxable ? yup.number().nullable() : schema,
     ),
   memo: yup.string().nullable(),
+  headquarter: yup.string().nullable(),
+  businessRegistrationNumber: yup.string().nullable(),
+  nameOfRepresentative: yup.string().nullable(),
+  businessCommencementDate: yup.date().nullable(),
 })
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {

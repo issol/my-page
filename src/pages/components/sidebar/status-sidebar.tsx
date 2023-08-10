@@ -4,6 +4,7 @@ import Box from '@mui/material/Box'
 
 // ** styles
 import styled from 'styled-components'
+import { Typography } from '@mui/material'
 
 type Props = {
   alertIconStatus?: string
@@ -63,7 +64,8 @@ export default function CalendarStatusSideBar({
                   color={
                     item.label === alertIconStatus ||
                     item.label === 'Overdue' ||
-                    item.label === 'Overdue (Reminder sent)'
+                    item.label === 'Overdue (Reminder sent)' ||
+                    item.label === 'Canceled'
                       ? item.color
                       : ''
                   }

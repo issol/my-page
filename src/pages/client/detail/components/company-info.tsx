@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useContext, useEffect, useState } from 'react'
 
 // ** design component
 import { Icon } from '@iconify/react'
@@ -53,6 +53,8 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
+import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { AuthContext } from '@src/context/AuthContext'
 
 type Props = {
   clientId: number
@@ -60,6 +62,7 @@ type Props = {
   isUpdatable: boolean
   isDeletable: boolean
   isCreatable: boolean
+  isSigned: boolean
 }
 
 export default function ClientInfo({
@@ -68,10 +71,13 @@ export default function ClientInfo({
   isUpdatable,
   isDeletable,
   isCreatable,
+  isSigned,
 }: Props) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
   const { openModal, closeModal } = useModal()
+
+  const { user } = useContext(AuthContext)
 
   const {
     control,
@@ -100,6 +106,10 @@ export default function ClientInfo({
       websiteLink: clientInfo.websiteLink ?? '',
       isTaxable: clientInfo.isTaxable,
       tax: clientInfo.tax,
+      headquarter: clientInfo.headquarter,
+      businessRegistrationNumber: clientInfo.businessRegistrationNumber,
+      nameOfRepresentative: clientInfo.nameOfRepresentative,
+      businessCommencementDate: clientInfo.businessCommencementDate,
     })
   }, [clientInfo])
 
@@ -159,6 +169,8 @@ export default function ClientInfo({
     updateCompanyInfoMutation.mutate(getValues())
   }
 
+  console.log(isUpdatable)
+
   return (
     <Card>
       <CardHeader
@@ -169,95 +181,284 @@ export default function ClientInfo({
             justifyContent='space-between'
           >
             <Typography variant='h6'>Company info</Typography>
-            {isUpdatable ? (
+            {isSigned ? (
+              isUpdatable ? (
+                <IconButton onClick={() => setOpen(true)}>
+                  <Icon icon='mdi:pencil-outline' />
+                </IconButton>
+              ) : null
+            ) : isUpdatable ? (
               <IconButton onClick={() => setOpen(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             ) : null}
+            {/* {isUpdatable && !isSigned ? (
+              <IconButton onClick={() => setOpen(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            ) : null} */}
           </Box>
         }
       />
       <CardContent>
         <Box display='flex' flexDirection='column' gap='16px'>
           <InfoBox>
-            <Icon icon='ic:outline-email' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
-              Email:
+            <Icon
+              icon='pajamas:building'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Headquarter:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo.headquarter ?? '-'}
+              </Typography>
             </Typography>
-            <TitleTypography variant='body2'>
-              {clientInfo.email}
-            </TitleTypography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='mdi:earth' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
-              Time zone:
+            <Icon
+              icon='ic:sharp-playlist-add-check'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Business registration number:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo.businessRegistrationNumber ?? '-'}
+              </Typography>
             </Typography>
-            <TitleTypography variant='body2'>
-              {getGmtTime(clientInfo.timezone.code)}
-            </TitleTypography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='mdi:telephone' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
+            <Icon
+              icon='mdi:crown-outline'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Name of representative:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo.nameOfRepresentative ?? '-'}
+              </Typography>
+            </Typography>
+          </InfoBox>
+          <InfoBox>
+            <Icon
+              icon='ic:baseline-calendar-today'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Business commencement date:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo.businessCommencementDate
+                  ? FullDateTimezoneHelper(
+                      clientInfo.businessCommencementDate,
+                      user?.timezone,
+                    )
+                  : '-'}
+              </Typography>
+            </Typography>
+          </InfoBox>
+          <Divider />
+          <InfoBox>
+            <Icon
+              icon='ic:outline-email'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Email:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo.email ?? '-'}
+              </Typography>
+            </Typography>
+          </InfoBox>
+          <InfoBox>
+            <Icon
+              icon='mdi:earth'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Time zone:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {getGmtTime(clientInfo.timezone.code)}
+              </Typography>
+            </Typography>
+          </InfoBox>
+          <InfoBox>
+            <Icon
+              icon='mdi:telephone'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
               Telephone:
             </Typography>
-            <TitleTypography variant='body2'>
+            <Typography variant='body2' component={'span'}>
               {clientInfo?.phone
                 ? `+${clientInfo.timezone.phone})  ${clientInfo.phone}`
                 : '-'}
-            </TitleTypography>
+            </Typography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='material-symbols:smartphone' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
-              Mobile phone:
+            <Icon
+              icon='material-symbols:smartphone'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Mobile phone:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo?.mobile
+                  ? `+${clientInfo.timezone.phone})  ${clientInfo.mobile}`
+                  : '-'}
+              </Typography>
             </Typography>
-            <TitleTypography variant='body2'>
-              {clientInfo?.mobile
-                ? `+${clientInfo.timezone.phone})  ${clientInfo.mobile}`
-                : '-'}
-            </TitleTypography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='material-symbols:fax-outline-rounded' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
-              Fax:
+            <Icon
+              icon='material-symbols:fax-outline-rounded'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Fax:&nbsp;
+              <Typography variant='body2' component={'span'}>
+                {clientInfo?.fax
+                  ? `+${clientInfo.timezone.phone})  ${clientInfo.fax}`
+                  : '-'}
+              </Typography>
             </Typography>
-            <TitleTypography variant='body2'>
-              {clientInfo?.fax
-                ? `+${clientInfo.timezone.phone})  ${clientInfo.fax}`
-                : '-'}
-            </TitleTypography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='material-symbols:link' fontSize='20px' />
-            <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
-              Website:
+            <Icon
+              icon='ic:sharp-link'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
+            <Typography
+              fontSize='1rem'
+              variant='body2'
+              fontWeight='bold'
+              component={'div'}
+            >
+              Website:&nbsp;
+              <Typography
+                variant='body2'
+                component={'span'}
+                sx={{ alignItems: 'center' }}
+              >
+                {clientInfo.websiteLink && clientInfo.websiteLink !== ''
+                  ? clientInfo.websiteLink
+                  : '-'}
+                {clientInfo.websiteLink && clientInfo.websiteLink !== '' && (
+                  <IconButton
+                    edge='end'
+                    disabled={!clientInfo.websiteLink}
+                    sx={{ padding: 0 }}
+                    onClick={() =>
+                      window.open(`${clientInfo.websiteLink}`, '_blank')
+                    }
+                  >
+                    <Icon
+                      icon='material-symbols:open-in-new'
+                      opacity={0.7}
+                      fontSize={18}
+                    />
+                  </IconButton>
+                )}
+              </Typography>
             </Typography>
-            <Box
+            {/* <Box
               width='100%'
               display='flex'
               alignItems='center'
               justifyContent='space-between'
+              sx={{ border: '1px solid' }}
             >
               <TitleTypography variant='body2'>
-                {clientInfo.websiteLink ?? '-'}
+                {clientInfo.websiteLink && clientInfo.websiteLink !== ''
+                  ? clientInfo.websiteLink
+                  : '-'}
               </TitleTypography>
-              <IconButton
-                edge='end'
-                disabled={!clientInfo.websiteLink}
-                onClick={() =>
-                  window.open(`${clientInfo.websiteLink}`, '_blank')
-                }
-              >
-                <Icon icon='material-symbols:open-in-new' opacity={0.7} />
-              </IconButton>
-            </Box>
+              {clientInfo.websiteLink && clientInfo.websiteLink !== '' && (
+                <IconButton
+                  edge='end'
+                  disabled={!clientInfo.websiteLink}
+                  onClick={() =>
+                    window.open(`${clientInfo.websiteLink}`, '_blank')
+                  }
+                >
+                  <Icon icon='material-symbols:open-in-new' opacity={0.7} />
+                </IconButton>
+              )}
+            </Box> */}
           </InfoBox>
           <Divider />
           <InfoBox>
-            <Icon icon='mdi:dollar' fontSize='20px' />
+            <Icon
+              icon='mdi:dollar'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
             <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
               Tax type:
             </Typography>
@@ -266,7 +467,12 @@ export default function ClientInfo({
             </TitleTypography>
           </InfoBox>
           <InfoBox>
-            <Icon icon='heroicons-outline:receipt-tax' fontSize='20px' />
+            <Icon
+              icon='heroicons-outline:receipt-tax'
+              fontSize='20px'
+              color='rgba(76, 78, 100, 0.54)'
+              style={{ margin: '1px 0 0 1px' }}
+            />
             <Typography fontSize='1rem' variant='body2' fontWeight='bold'>
               Tax rate:
             </Typography>
@@ -342,5 +548,5 @@ export default function ClientInfo({
 const InfoBox = styled(Box)`
   display: flex;
   gap: 8px;
-  align-items: center;
+  align-items: start;
 `

@@ -20,6 +20,8 @@ import { Fragment } from 'react'
 import { ClientStatus } from '@src/shared/const/status/statuses'
 import { countries } from 'src/@fake-db/autocomplete'
 
+import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
+
 // ** react hook form
 import {
   Control,
@@ -35,10 +37,17 @@ import {
   CompanyInfoFormType,
 } from '@src/types/schema/company-info.schema'
 
+import DatePicker from 'react-datepicker'
+
 // ** helpers
 import { isInvalidPhoneNumber } from '@src/shared/helpers/phone-number.validator'
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { TaxTypeList } from '@src/shared/const/tax/tax-type'
+import { getTypeList } from '@src/shared/transformer/type.transformer'
+import styled from 'styled-components'
+import { DateTimePickerDefaultOptions } from '@src/shared/const/datePicker'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 
 type Props = {
   mode: 'create' | 'update'
@@ -54,7 +63,8 @@ export default function CompanyInfoForm({
   errors,
   watch,
 }: Props) {
-  const clientType: Array<ClientType> = ['Company', 'Mr.', 'Ms.']
+  const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
+  const country = getTypeList('CountryCode')
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
     type: ClientType,
@@ -68,7 +78,7 @@ export default function CompanyInfoForm({
         onClick={() => onChange(type)}
         color={value === type ? 'primary' : 'secondary'}
       >
-        {type}
+        {type === 'Mr' ? 'Mr.' : type === 'Ms' ? 'Ms.' : 'Company'}
       </Button>
     )
   }
@@ -122,6 +132,23 @@ export default function CompanyInfoForm({
     )
   }
 
+  const formattedNow = (now: Date) => {
+    const minutes = now.getMinutes()
+
+    const formattedMinutes =
+      minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
+
+    const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
+    const formattedTime = `${formattedHours}:${formattedMinutes
+      .toString()
+      .padStart(2, '0')}`
+    const formattedDate = new Date(now)
+    formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
+    formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
+
+    return formattedDate
+  }
+
   return (
     <Fragment>
       <Grid item xs={6}>
@@ -146,6 +173,7 @@ export default function CompanyInfoForm({
               autoHighlight
               fullWidth
               options={ClientStatus}
+              disableClearable
               onChange={(e, v) => {
                 if (!v) onChange({ value: '', label: '' })
                 else onChange(v.value)
@@ -214,9 +242,10 @@ export default function CompanyInfoForm({
               options={countries as CountryType[]}
               onChange={(e, v) => field.onChange(v)}
               disableClearable
+              getOptionLabel={option => getGmtTime(option.code)}
               renderOption={(props, option) => (
                 <Box component='li' {...props}>
-                  {option.label} ({option.code}) +{option.phone}
+                  {getGmtTime(option.code)}
                 </Box>
               )}
               renderInput={params => (
@@ -273,6 +302,93 @@ export default function CompanyInfoForm({
           )}
         />
         {renderErrorMsg('websiteLink')}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='headquarter'
+          control={control}
+          render={({ field }) => (
+            <Autocomplete
+              autoHighlight
+              fullWidth
+              {...field}
+              options={country}
+              onChange={(e, v) => field.onChange(v.value)}
+              disableClearable
+              value={
+                !field?.value
+                  ? { value: '', label: '' }
+                  : country.filter(item => item.value === field?.value)[0]
+              }
+              renderInput={params => (
+                <TextField
+                  {...params}
+                  label='Headquarter'
+                  inputProps={{
+                    ...params.inputProps,
+                  }}
+                />
+              )}
+            />
+          )}
+        />
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='businessRegistrationNumber'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.businessRegistrationNumber)}
+              label='Business registration number'
+              value={value}
+              onChange={onChange}
+              inputProps={{ maxLength: 50 }}
+            />
+          )}
+        />
+        {renderErrorMsg('businessRegistrationNumber')}
+      </Grid>
+      <Grid item xs={6}>
+        <Controller
+          name='nameOfRepresentative'
+          control={control}
+          render={({ field: { value, onChange } }) => (
+            <TextField
+              fullWidth
+              error={Boolean(errors.nameOfRepresentative)}
+              label='Name of representative'
+              value={value}
+              onChange={onChange}
+              inputProps={{ maxLength: 100 }}
+            />
+          )}
+        />
+        {renderErrorMsg('nameOfRepresentative')}
+      </Grid>
+      <Grid item xs={6}>
+        <DatePickerWrapper>
+          <Controller
+            name='businessCommencementDate'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FullWidthDatePicker
+                {...DateTimePickerDefaultOptions}
+                selected={!value ? null : formattedNow(new Date(value))}
+                onChange={onChange}
+                customInput={
+                  <CustomInput
+                    label='Business commencement Date'
+                    icon='calendar'
+                  />
+                }
+              />
+            )}
+          />
+        </DatePickerWrapper>
+
+        {renderErrorMsg('businessCommencementDate')}
       </Grid>
       <Grid item xs={12}>
         <Divider />
@@ -356,7 +472,7 @@ export default function CompanyInfoForm({
                     multiline
                     fullWidth
                     error={Boolean(errors.memo)}
-                    label='Write down some information to keep in mind about this client.'
+                    placeholder='Write down some information to keep in mind about this client.'
                     value={value ?? ''}
                     onChange={onChange}
                     inputProps={{ maxLength: 500 }}
@@ -373,3 +489,7 @@ export default function CompanyInfoForm({
     </Fragment>
   )
 }
+
+const FullWidthDatePicker = styled(DatePicker)`
+  width: 100%;
+`

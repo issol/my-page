@@ -201,7 +201,7 @@ const ClientInvoiceList = ({
                         }}
                         size='small'
                       >
-                        <Box>Invoiced date</Box>
+                        <Box>Invoice date</Box>
                       </TableCell>
                       {separateLine()}
 
@@ -401,7 +401,7 @@ const ClientInvoiceList = ({
                     }}
                     size='small'
                   >
-                    <Box>Invoiced date</Box>
+                    <Box>Invoice date</Box>
                   </TableCell>
                   {separateLine()}
 
