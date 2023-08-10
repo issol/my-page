@@ -58,7 +58,8 @@ export const getClientList = async (
 ): Promise<ClientListDataType> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/al?${makeQuery(filters)}`,
+      // `/api/enough/u/client/al?${makeQuery(filters)}`,
+      `/api/enough/u/client/guideline/al?${makeQuery(filters)}`,
     )
     return data
   } catch (e: any) {
