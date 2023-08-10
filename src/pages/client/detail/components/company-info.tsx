@@ -62,6 +62,7 @@ type Props = {
   isUpdatable: boolean
   isDeletable: boolean
   isCreatable: boolean
+  isSigned: boolean
 }
 
 export default function ClientInfo({
@@ -70,6 +71,7 @@ export default function ClientInfo({
   isUpdatable,
   isDeletable,
   isCreatable,
+  isSigned,
 }: Props) {
   const queryClient = useQueryClient()
   const [open, setOpen] = useState(false)
@@ -167,6 +169,8 @@ export default function ClientInfo({
     updateCompanyInfoMutation.mutate(getValues())
   }
 
+  console.log(isUpdatable)
+
   return (
     <Card>
       <CardHeader
@@ -177,11 +181,22 @@ export default function ClientInfo({
             justifyContent='space-between'
           >
             <Typography variant='h6'>Company info</Typography>
-            {isUpdatable ? (
+            {isSigned ? (
+              isUpdatable ? (
+                <IconButton onClick={() => setOpen(true)}>
+                  <Icon icon='mdi:pencil-outline' />
+                </IconButton>
+              ) : null
+            ) : isUpdatable ? (
               <IconButton onClick={() => setOpen(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
             ) : null}
+            {/* {isUpdatable && !isSigned ? (
+              <IconButton onClick={() => setOpen(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            ) : null} */}
           </Box>
         }
       />
