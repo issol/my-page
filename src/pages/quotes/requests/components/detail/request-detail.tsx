@@ -56,15 +56,14 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
         <LabelContainer>
           <CustomTypo fontWeight={600}>Contact person</CustomTypo>
           <CustomTypo variant='body2'>
-            {/* {getLegalName({
+            {getLegalName({
               firstName: data?.contactPerson?.firstName!,
               middleName: data?.contactPerson?.middleName,
               lastName: data?.contactPerson?.lastName!,
             })}
             {data?.contactPerson?.jobTitle
               ? ` / ${data?.contactPerson?.jobTitle}`
-              : ''} */}
-              {'LSP의 Contact person 정보가 API에 없음(수정해야함)'}
+              : ''}
           </CustomTypo>
         </LabelContainer>
       </Grid>
