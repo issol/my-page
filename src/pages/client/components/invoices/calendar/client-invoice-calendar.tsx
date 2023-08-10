@@ -32,8 +32,6 @@ const ClientInvoiceCalendar = (props: Props) => {
     }
   })
 
-  // console.log(finalEvent)
-
   // ** Refs
   const calendarRef = useRef()
 

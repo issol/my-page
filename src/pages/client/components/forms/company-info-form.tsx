@@ -63,7 +63,7 @@ export default function CompanyInfoForm({
   errors,
   watch,
 }: Props) {
-  const clientType: Array<ClientType> = ['Company', 'Mr.', 'Ms.']
+  const clientType: Array<ClientType> = ['Company', 'Mr', 'Ms']
   const country = getTypeList('CountryCode')
   // console.log('errors', errors)
   function renderCompanyTypeBtn(
@@ -78,7 +78,7 @@ export default function CompanyInfoForm({
         onClick={() => onChange(type)}
         color={value === type ? 'primary' : 'secondary'}
       >
-        {type}
+        {type === 'Mr' ? 'Mr.' : type === 'Ms' ? 'Ms.' : 'Company'}
       </Button>
     )
   }

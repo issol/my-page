@@ -2,7 +2,7 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
 
-export type ClientType = 'Company' | 'Mr.' | 'Ms.'
+export type ClientType = 'Company' | 'Mr' | 'Ms'
 export type CompanyInfoFormType = {
   clientType: ClientType
   status: string
@@ -24,7 +24,7 @@ export type CompanyInfoFormType = {
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
     .string()
-    .oneOf(['Company', 'Mr.', 'Ms.'])
+    .oneOf(['Company', 'Mr', 'Ms'])
     .required(FormErrors.required),
   status: yup.string().required(FormErrors.required),
   name: yup.string().required(FormErrors.required),

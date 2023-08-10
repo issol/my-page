@@ -93,7 +93,7 @@ export default function ClientProfile({
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='0px'>
         {clientInfo && !!id ? (
-          <Grid item xs={4}>
+          <Grid item xs={3.5}>
             <Box display='flex' flexDirection='column' gap='24px'>
               <ClientInfo
                 isUpdatable={isUpdatable}
@@ -126,7 +126,7 @@ export default function ClientProfile({
           </Grid>
         ) : null}
 
-        <Grid item xs={8}>
+        <Grid item xs={8.5}>
           <Box display='flex' flexDirection='column' gap='24px'>
             {clientInfo && !!id ? (
               <ContactPersons
