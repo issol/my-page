@@ -83,7 +83,6 @@ import {
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
 
-import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
