@@ -45,6 +45,7 @@ import { lpm_request } from '@src/shared/const/permission-class'
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 // ** types
 import { RequestDetailType } from '@src/types/requests/detail.type'
@@ -65,6 +66,7 @@ export default function RequestDetail() {
 
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
 
   const User = new lpm_request(user?.id!)
 
@@ -399,6 +401,8 @@ export default function RequestDetail() {
         <Card sx={{ padding: '24px' }}>
           <RequestDetailCard
             data={data}
+            user={user}
+            currentRole={currentRole}
             openReasonModal={openReasonModal}
             onStatusChange={onStatusChange}
           />
