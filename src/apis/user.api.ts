@@ -206,7 +206,7 @@ export const getClientUserInfo = async (
         name: 'Bon company',
         timezone: { code: '', phone: '82', label: 'Korea' },
         businessNumber: '123',
-        commencementDate: Date(),
+        commencementDate: new Date().toISOString(),
         representativeName: 'BBB',
       },
     }
