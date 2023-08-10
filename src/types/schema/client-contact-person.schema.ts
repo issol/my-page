@@ -20,7 +20,7 @@ export type ContactPersonType<T extends number | string = number> = {
     code: string
     label: string
   }
-  email: string
+  email?: string
   phone?: string | null
   mobile?: string | null
   fax?: string | null
@@ -33,6 +33,7 @@ export const contactPersonDefaultValue: ClientContactPersonType = {
   contactPersons: [],
 }
 
+// ** TAD가 직접 contact person을 등록하는 경우에 사용되는 schema
 export const clientContactPersonSchema = yup.object().shape({
   contactPersons: yup.array().of(
     yup.object().shape({
@@ -61,4 +62,31 @@ export const clientContactPersonSchema = yup.object().shape({
     }),
   ),
 })
-// .nullable()
+
+export const clientContactPersonDefaultValue = {
+  firstName: '',
+  middleName: '',
+  lastName: '',
+  department: '',
+  jobTitle: '',
+  phone: '',
+  mobile: '',
+  fax: '',
+}
+
+// ** CLIENT role로 가입한 유저일 경우에 사용되는 schema
+export const createContactPersonSchema = yup.object().shape({
+  firstName: yup.string().required(FormErrors.required),
+  middleName: yup.string().nullable(),
+  lastName: yup.string().required(FormErrors.required),
+  department: yup.string().nullable(),
+  jobTitle: yup.string().nullable(),
+  timezone: yup.object().shape({
+    code: yup.string().required(FormErrors.required),
+    label: yup.string().required(FormErrors.required),
+    phone: yup.string().required(FormErrors.required),
+  }),
+  phone: yup.string().nullable(),
+  mobile: yup.string().nullable(),
+  fax: yup.string().nullable(),
+})

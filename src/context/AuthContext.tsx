@@ -154,12 +154,12 @@ const AuthProvider = ({ children }: Props) => {
         }
         return
       } else if (isClient) {
-        const isClientMaster =
-          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
-        if (isClientMaster && !company?.name) {
+        const isClientGeneral =
+          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'General'
+        if (!company?.name) {
           router.replace('/signup/finish/client')
-        } else {
-          router.replace('/signup/finish/client')
+        } else if (isClientGeneral && !user.firstName) {
+          router.replace('/welcome/client/add-new/general-client')
         }
         return
       } else if (redirectPath) {

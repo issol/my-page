@@ -13,6 +13,7 @@ import {
 import { UserDataType } from 'src/context/types'
 import { CurrencyType } from '@src/types/common/standard-price'
 import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 
 export type UserInfoResType = Omit<
   UserDataType,
@@ -163,8 +164,62 @@ export const verifyCompanyInfo = async (
 
 export const getClientUserInfo = async (): Promise<ClientUserType> => {
   try {
-    const { data } = await axios.get('/api/enough/u/client/my-company')
-    return data
+    // const { data } = await axios.get('/api/enough/u/client/my-company')
+    // return data
+    return {
+      clientId: 7,
+      corporationId: 'C-000007',
+      adminCompanyName: 'GloZ',
+      clientType: 'Company',
+      name: 'Naver',
+      email: 'aaa@naver.com',
+      phone: '01011112222',
+      mobile: '01011112222',
+      fax: '01011112222',
+      websiteLink: 'https://naver.com',
+      status: 'New',
+      timezone: {
+        code: 'KR',
+        label: 'Korea, Republic of',
+        phone: '82',
+      },
+      isReferred: true,
+      companyId: null,
+      isTaxable: false,
+      tax: 30,
+      clientAddresses: [
+        {
+          id: 11,
+          createdAt: '2023-04-18T20:05:29.473Z',
+          updatedAt: '2023-04-18T20:05:29.473Z',
+          addressType: 'billing',
+          name: null,
+          baseAddress: null,
+          detailAddress: null,
+          city: null,
+          state: null,
+          country: null,
+          zipCode: null,
+        },
+        {
+          id: 12,
+          createdAt: '2023-04-18T20:05:29.473Z',
+          updatedAt: '2023-04-18T20:05:29.473Z',
+          addressType: 'shipping',
+          name: null,
+          baseAddress: null,
+          detailAddress: null,
+          city: null,
+          state: null,
+          country: null,
+          zipCode: null,
+        },
+      ],
+      businessClassification: 'corporate',
+      registrationNumber: 'string',
+      representativeName: '',
+      commencementDate: '2023-08-09',
+    }
   } catch (e: any) {
     throw new Error(e)
   }
@@ -185,6 +240,17 @@ export const requestJoinToCompany = async (
       type: 'General',
       roles: ['CLIENT'],
     })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+/* CLIENT 전용 프로필 업데이트 */
+export const updateClientUserInfo = async (
+  userInfo: ContactPersonType & { userId: number } & { clientId: number },
+) => {
+  try {
+    await axios.put(`/api/enough/u/pu/client/edit`, userInfo)
   } catch (e: any) {
     throw new Error(e)
   }

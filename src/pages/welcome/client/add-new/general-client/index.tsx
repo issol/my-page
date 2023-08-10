@@ -5,7 +5,7 @@ import Image from 'next/image'
 // ** Style Components
 import Box, { BoxProps } from '@mui/material/Box'
 import { styled as muiStyled, useTheme } from '@mui/material/styles'
-import { useMediaQuery } from '@mui/material'
+import { Button, Grid, Typography, useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
@@ -23,14 +23,19 @@ import {
 } from '@src/context/types'
 
 // ** components
-import CorporateClientForm from './components/corporate-client-form'
-import SelectClientRole from './components/select-role'
-import { ClientAddressFormType } from '@src/types/schema/client-address.schema'
-import IndividualClientForm from './components/individual-client-form'
 
 // ** apis
 import { createClient } from '@src/apis/client.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import {
+  ContactPersonType,
+  clientContactPersonDefaultValue,
+  createContactPersonSchema,
+} from '@src/types/schema/client-contact-person.schema'
+import CreateContactPersonForm from '@src/pages/components/forms/create-contact-person-form'
+import { updateClientUserInfo } from '@src/apis/user.api'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -51,14 +56,7 @@ const Illustration = muiStyled('img')(({ theme }) => ({
   },
 }))
 
-export default function NewClientProfileForm() {
-  // ** states
-  const [step, setStep] = useState<1 | 2>(1)
-
-  const [clientType, setClientType] = useState<ClientClassificationType | null>(
-    null,
-  )
-
+export default function NewGeneralClientForm() {
   const theme = useTheme()
   const router = useRouter()
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
@@ -66,17 +64,28 @@ export default function NewClientProfileForm() {
   const currentRole = getCurrentRole()
 
   // ** Hooks
-  const { company } = useAuth()
+  const { company, user } = useAuth()
 
   useEffect(() => {
     if (
-      company?.name ||
-      currentRole?.name !== 'CLIENT' ||
-      currentRole?.type !== 'Master'
+      user?.firstName ||
+      (currentRole?.name !== 'CLIENT' && currentRole?.type !== 'General')
     ) {
       router.push('/')
     }
-  }, [company])
+  }, [user])
+
+  const {
+    control,
+    getValues,
+    watch,
+    reset,
+    formState: { errors, dirtyFields, isValid },
+  } = useForm<ContactPersonType>({
+    defaultValues: clientContactPersonDefaultValue,
+    mode: 'onChange',
+    resolver: yupResolver(createContactPersonSchema),
+  })
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {
@@ -85,11 +94,8 @@ export default function NewClientProfileForm() {
   }
 
   const createClientMutation = useMutation(
-    (
-      data: CorporateClientInfoType &
-        ClientCompanyInfoType &
-        ClientAddressFormType,
-    ) => createClient(data),
+    (data: ContactPersonType & { userId: number } & { clientId: number }) =>
+      updateClientUserInfo(data),
     {
       onSuccess: () => {
         router.push('/home')
@@ -98,35 +104,12 @@ export default function NewClientProfileForm() {
     },
   )
 
-  function updateClientInformation(
-    data: CorporateClientInfoType &
-      ClientCompanyInfoType &
-      ClientAddressFormType,
-  ) {
-    createClientMutation.mutate(data)
-  }
-
-  function renderForm() {
-    switch (clientType) {
-      case 'corporate':
-      case 'corporate_non_korean':
-        return (
-          <CorporateClientForm
-            clientType={clientType}
-            setClientType={setClientType}
-            onSubmit={updateClientInformation}
-          />
-        )
-      case 'individual':
-        return (
-          <IndividualClientForm
-            clientType={clientType}
-            setClientType={setClientType}
-            onSubmit={updateClientInformation}
-          />
-        )
-      default:
-        return null
+  function updateClientInformation() {
+    if (company) {
+      const data: ContactPersonType & { userId: number } & {
+        clientId: number
+      } = { ...getValues(), userId: user?.userId!, clientId: company.clientId }
+      createClientMutation.mutate(data)
     }
   }
 
@@ -152,7 +135,7 @@ export default function NewClientProfileForm() {
       </Box>
 
       {/* Illust */}
-      {!hidden && step !== 1 ? (
+      {!hidden ? (
         <Box
           sx={{
             maxWidth: '30rem',
@@ -167,11 +150,7 @@ export default function NewClientProfileForm() {
         >
           <Illustration
             alt=''
-            src={
-              clientType === 'individual'
-                ? `/images/pages/register-illustration-1.png`
-                : `/images/pages/register-illustration-2.png`
-            }
+            src='/images/pages/auth-v2-register-multi-steps-illustration.png'
           />
         </Box>
       ) : null}
@@ -188,15 +167,28 @@ export default function NewClientProfileForm() {
           }}
         >
           <BoxWrapper>
-            {step === 1 ? (
-              <SelectClientRole
-                clientType={clientType}
-                setClientType={setClientType}
-                setStep={setStep}
+            <Box sx={{ alignItems: 'center' }} mb={6}>
+              <Typography variant='h5'>Personal Information</Typography>
+              <Typography variant='body2'>
+                Please fill in the required information.
+              </Typography>
+            </Box>
+            <Grid container spacing={6}>
+              <CreateContactPersonForm
+                control={control}
+                watch={watch}
+                errors={errors}
               />
-            ) : (
-              renderForm()
-            )}
+              <Grid item xs={12} display='flex' justifyContent='center'>
+                <Button
+                  variant='contained'
+                  disabled={!isValid}
+                  onClick={updateClientInformation}
+                >
+                  Get started!
+                </Button>
+              </Grid>
+            </Grid>
           </BoxWrapper>
         </Box>
       </RightWrapper>
@@ -204,11 +196,11 @@ export default function NewClientProfileForm() {
   )
 }
 
-NewClientProfileForm.getLayout = (page: ReactNode) => (
+NewGeneralClientForm.getLayout = (page: ReactNode) => (
   <BlankLayout>{page}</BlankLayout>
 )
 
-NewClientProfileForm.acl = {
+NewGeneralClientForm.acl = {
   subject: 'client',
   action: 'update',
 }
