@@ -24,8 +24,9 @@ export type ClientProjectListType = {
   category: string
   serviceType: Array<string>
   dueDate: string
-  status: string
+  status: number
   orderDate: string
+  updatedAt: string
   projectDescription: string
   type: 'order' | 'quote'
 }
@@ -40,7 +41,7 @@ export type ClientInvoiceFilterType = {
   paymentDueDateFrom?: Date | null
   paymentDueDateTo?: Date | null
   hidePaidInvoices?: boolean
-  status?: string[]
+  status?: number[]
   sort?: string
 }
 

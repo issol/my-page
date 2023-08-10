@@ -27,6 +27,21 @@ export type QuoteStatusType =
   | 'Under revision'
   | 'Revised'
 
+export type QuotesStatusType =
+  | 20000
+  | 20100
+  | 20200
+  | 20300
+  | 20400
+  | 20500
+  | 20600
+  | 20700
+  | 20800
+  | 20900
+  | 201000
+  | 201100
+  | 201200
+
 export type QuotesProjectInfoFormType = {
   status: QuoteStatusType
   workName?: string

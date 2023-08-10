@@ -8,6 +8,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 // ** types
 
 import { ClientProjectCalendarEventType } from '@src/apis/client.api'
+import { Box } from '@mui/material'
+import styled from 'styled-components'
 
 type Props = {
   event: Array<ClientProjectCalendarEventType>
@@ -24,13 +26,11 @@ const ClientProjectCalendar = (props: Props) => {
   const finalEvent = event.map(item => {
     return {
       ...item,
-      start: item.orderDate,
-      end: item.dueDate,
+      start: item.updatedAt,
+      end: item.updatedAt,
       title: item.projectName,
     }
   })
-
-  // console.log(finalEvent)
 
   // ** Refs
   const calendarRef = useRef()
@@ -48,11 +48,14 @@ const ClientProjectCalendar = (props: Props) => {
     eventResizableFromStart: true,
     ref: calendarRef,
     direction,
-
-    eventClassNames({ event: calendarEvent }: any) {
-      const colorName = calendarEvent._def.extendedProps.calendar
-      return [`bg-${colorName}`]
+    eventContent: (arg: any) => {
+      return (
+        <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
+          {arg.event?._def?.title}
+        </CustomEvent>
+      )
     },
+
     eventClick({ event }: any) {
       setCurrentListId(Number(event?.id))
     },
@@ -71,3 +74,14 @@ const ClientProjectCalendar = (props: Props) => {
 }
 
 export default ClientProjectCalendar
+
+const CustomEvent = styled(Box)<{ color: string }>`
+  border-color: transparent !important;
+
+  padding: 1px 4px 4px;
+  color: rgba(76, 78, 100, 0.87) !important;
+  border-left: ${({ color }) => `6px solid ${color}`} !important;
+
+  background: ${({ color }) =>
+    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
+`

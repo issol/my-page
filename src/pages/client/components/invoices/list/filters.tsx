@@ -70,6 +70,7 @@ type Props = {
   onReset: () => void
   control: Control<FilterType, any>
   trigger: UseFormTrigger<FilterType>
+  statusList: Array<{ value: number; label: string }>
 }
 
 export default function ClientInvoicesFilter({
@@ -80,6 +81,7 @@ export default function ClientInvoicesFilter({
   handleSubmit,
   trigger,
   control,
+  statusList,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -128,13 +130,14 @@ export default function ClientInvoicesFilter({
                             endDate={value[1]}
                             selected={value[0]}
                             startDate={value[0]}
+                            autoComplete='off'
                             shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
                               <CustomInput
-                                label='Invoiced date'
+                                label='Invoice date'
                                 icon='calendar'
                               />
                             }
@@ -155,6 +158,7 @@ export default function ClientInvoicesFilter({
                             endDate={value[1]}
                             selected={value[0]}
                             startDate={value[0]}
+                            autoComplete='off'
                             shouldCloseOnSelect={false}
                             id='date-range-picker-months'
                             onChange={onChange}
@@ -188,7 +192,7 @@ export default function ClientInvoicesFilter({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={WorkStatus}
+                          options={statusList}
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (

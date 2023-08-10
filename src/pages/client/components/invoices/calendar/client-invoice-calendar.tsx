@@ -8,6 +8,8 @@ import dayGridPlugin from '@fullcalendar/daygrid'
 // ** types
 
 import { ClientInvoiceCalendarEventType } from '@src/apis/client.api'
+import styled from 'styled-components'
+import { Box } from '@mui/material'
 
 type Props = {
   event: Array<ClientInvoiceCalendarEventType>
@@ -26,7 +28,7 @@ const ClientInvoiceCalendar = (props: Props) => {
       ...item,
       start: item.updatedAt,
       end: item.updatedAt,
-      title: item.invoiceName,
+      title: item.order?.projectName ?? '-',
     }
   })
 
@@ -48,11 +50,14 @@ const ClientInvoiceCalendar = (props: Props) => {
     eventResizableFromStart: true,
     ref: calendarRef,
     direction,
-
-    eventClassNames({ event: calendarEvent }: any) {
-      const colorName = calendarEvent._def.extendedProps.calendar
-      return [`bg-${colorName}`]
+    eventContent: (arg: any) => {
+      return (
+        <CustomEvent color={arg.event?._def?.extendedProps.calendar}>
+          {arg.event?._def?.title}
+        </CustomEvent>
+      )
     },
+
     eventClick({ event }: any) {
       setCurrentListId(Number(event?.id))
     },
@@ -71,3 +76,14 @@ const ClientInvoiceCalendar = (props: Props) => {
 }
 
 export default ClientInvoiceCalendar
+
+const CustomEvent = styled(Box)<{ color: string }>`
+  border-color: transparent !important;
+
+  padding: 1px 4px 4px;
+  color: rgba(76, 78, 100, 0.87) !important;
+  border-left: ${({ color }) => `6px solid ${color}`} !important;
+
+  background: ${({ color }) =>
+    `linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), ${color}`} !important;
+`

@@ -1,4 +1,8 @@
 import { OrderStatusType } from '@src/types/common/orders.type'
+import {
+  QuoteStatusType,
+  QuotesStatusType,
+} from '@src/types/common/quotes.type'
 import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 export function getReceivableStatusColor(status: InvoiceReceivableStatusType) {
@@ -56,6 +60,38 @@ export function getOrderStatusColor(status: OrderStatusType) {
       : status === 101100
       ? '#1B8332'
       : status === 101200
+      ? '#FF4D49'
+      : ''
+  return color
+}
+
+export function getQuoteStatusColor(status: QuotesStatusType) {
+  const color =
+    status === 20000
+      ? '#666CFF'
+      : status === 20100
+      ? '#F572D8'
+      : status === 20200
+      ? '#20B6E5'
+      : status === 20300
+      ? '#2B6603'
+      : status === 20400
+      ? '#FDB528'
+      : status === 20500
+      ? '#A81988'
+      : status === 20600
+      ? '#26C6F9'
+      : status === 20700
+      ? '#AD7028'
+      : status === 20800
+      ? '#64C623'
+      : status === 20900
+      ? '#1A6BBA'
+      : status === 201000
+      ? '#FF4D49'
+      : status === 201100
+      ? '#FF4D49'
+      : status === 201200
       ? '#FF4D49'
       : ''
   return color

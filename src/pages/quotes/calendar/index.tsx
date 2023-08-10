@@ -108,7 +108,14 @@ const CalendarContainer = () => {
 
   useEffect(() => {
     if (data?.data?.length) {
-      setEvent([...data.data])
+      setEvent(
+        data.data.filter(
+          item =>
+            item.status !== 'Changed into order' &&
+            item.status !== 'Canceled' &&
+            item.status !== 'Rejected',
+        ),
+      )
     } else {
       setEvent([])
     }

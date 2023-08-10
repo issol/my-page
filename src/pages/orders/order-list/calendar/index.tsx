@@ -70,11 +70,7 @@ const OrderListCalendar = () => {
   }
 
   useEffect(() => {
-    // console.log(currentListId)
-
     if (currentListId && data?.data) {
-      // console.log(currentListId)
-
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }
   }, [currentListId])
@@ -88,11 +84,7 @@ const OrderListCalendar = () => {
   }, [data])
 
   useEffect(() => {
-    // console.log(data)
-
     if (data?.data.length && hideFilter) {
-      // console.log(data.data)
-
       setEvent(
         data.data.filter(
           item =>
@@ -103,7 +95,6 @@ const OrderListCalendar = () => {
         ),
       )
     } else if (data?.data.length && !hideFilter) {
-      // console.log(data.data)
       setEvent([...data.data])
     }
   }, [data, hideFilter])
