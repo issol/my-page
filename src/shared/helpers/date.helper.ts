@@ -2,6 +2,8 @@ import { CountryType } from '@src/types/sign/personalInfoTypes'
 import dayjs from 'dayjs'
 import { convertCountryCodeToTimezone, getTimezone } from './timezone.helper'
 
+import { DateTime, IANAZone } from "luxon";
+
 export function convertDateByTimezone(date: string, from: string, to: string) {
   /**
    * from이 US, to가 KR일 경우, date를 US시간(미국)에서 KR시간(한국)으로 convert한다.
@@ -151,4 +153,25 @@ export const formatDateToISOString = (date:Date) => {
   const milliseconds = String(date.getUTCMilliseconds()).padStart(3, '0');
 
   return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}.${milliseconds}Z`;
+}
+
+/**
+ * 입력받은 date 객체를 로컬 타임존이 포함된 ISOString으로 변환
+ * 예 : Thu Aug 10 2023 00:00:00 GMT+0900 (한국 표준시) -> 2023-08-10T00:00:00.000+09:00 
+*/
+export const convertDateToLocalTimezoneISOString = (date:Date) => {
+  return DateTime.fromJSDate(date).toLocal().toISO()
+}
+
+/**
+ * 2023-08-31T04:00:00.000Z, US -> 2023-08-31T00:00:00.000-04:00
+ */
+export const convertUTCISOStringToLocalTimezoneISOString = (UTCISOString: string, timezoneCode: string) => {
+  const timezone = convertCountryCodeToTimezone(timezoneCode)
+  const utcDateTime = DateTime.fromISO(UTCISOString, { zone: 'utc' });
+  if (utcDateTime.isValid && timezone) {
+    const localDateTime = utcDateTime.setZone(timezone)
+    return localDateTime.toISO();
+  }
+  return utcDateTime.toISO();
 }
