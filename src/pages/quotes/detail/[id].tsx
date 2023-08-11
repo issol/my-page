@@ -717,6 +717,7 @@ export default function QuotesDetail() {
           .catch(e => onMutationError())
       }
     }
+    // TODO: TAD, LPM role을 둘다 가지고 있는 경우 롤 스위치 상황에 따라 이 조건이 동작하지 않을 수 있음
     if (currentRole && currentRole.name === 'LPM') {
       if (project && project.status === 'Revision requested') {
         patchQuoteProjectInfo(Number(id), { status: 20600 })

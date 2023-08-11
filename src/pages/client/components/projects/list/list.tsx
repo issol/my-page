@@ -233,7 +233,7 @@ const ClientProjectList = ({
                         }}
                         size='small'
                       >
-                        Due date
+                        Project due date
                       </TableCell>
                       {separateLine()}
                       <TableCell

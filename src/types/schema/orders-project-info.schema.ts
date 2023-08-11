@@ -4,7 +4,7 @@ import { FormErrors } from 'src/shared/const/formErrors'
 export const orderProjectInfoDefaultValue = {
   projectName: '',
   showDescription: false,
-  orderedAt: Date(),
+  orderedAt: new Date().toISOString(),
 }
 export const orderProjectInfoSchema = yup.object().shape({
   // status: yup.string().required(FormErrors.required),

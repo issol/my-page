@@ -17,7 +17,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestStatus } from '@src/queries/requests/client-request.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { FullDateTimezoneHelper, convertDateByTimezone, convertUTCISOStringToLocalTimezoneISOString } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
@@ -25,14 +25,19 @@ import styled from 'styled-components'
 import { RequestDetailType } from '@src/types/requests/detail.type'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { RequestStatusType } from '@src/types/requests/common.type'
+import { UserDataType, UserRoleType } from '@src/context/types'
 
 type Props = {
   data: RequestDetailType | undefined
+  user: UserDataType | null
+  currentRole: UserRoleType | null
   openReasonModal: () => void
   onStatusChange: (status: RequestStatusType) => void
 }
 export default function RequestDetailCard({
   data,
+  user,
+  currentRole,
   openReasonModal,
   onStatusChange,
 }: Props) {
@@ -176,10 +181,23 @@ export default function RequestDetailCard({
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {FullDateTimezoneHelper(
+                      {/* {FullDateTimezoneHelper(
                         item.desiredDueDate,
-                        item.desiredDueTimezone.code,
-                      )}
+                        user?.timezone.code,
+                      )} */}
+                      {/* {
+                        convertDateByTimezone(
+                          item.desiredDueDate,
+                          item.desiredDueTimezone.code,
+                          user?.timezone.code!
+                        )
+                      } */}
+                      {
+                        convertUTCISOStringToLocalTimezoneISOString(
+                          item.desiredDueDate,
+                          user?.timezone.code!
+                        )!
+                      }
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

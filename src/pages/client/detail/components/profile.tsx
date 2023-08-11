@@ -27,7 +27,7 @@ import { useRouter } from 'next/router'
 
 type Props = {
   clientId: string | string[] | undefined
-  clientInfo: ClientDetailType | null
+  clientInfo: ClientDetailType
   memo: { data: Array<ClientMemoType>; count: number }
   isUpdatable: boolean
   isDeletable: boolean
@@ -46,6 +46,10 @@ export default function ClientProfile({
   const { openModal, closeModal } = useModal()
   const id = Number(clientId)
   const queryClient = useQueryClient()
+
+  const isSigned: boolean = clientInfo.contactPersons
+    ? clientInfo.contactPersons[0].userId !== null
+    : false
 
   const createClientMemoMutation = useMutation(() => deleteClient(id), {
     onSuccess: () => onMutationSuccess(),
@@ -93,7 +97,7 @@ export default function ClientProfile({
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='0px'>
         {clientInfo && !!id ? (
-          <Grid item xs={4}>
+          <Grid item xs={3.5}>
             <Box display='flex' flexDirection='column' gap='24px'>
               <ClientInfo
                 isUpdatable={isUpdatable}
@@ -101,6 +105,7 @@ export default function ClientProfile({
                 isCreatable={isCreatable}
                 clientId={id}
                 clientInfo={clientInfo}
+                isSigned={isSigned}
               />
               <ClientAddresses
                 isUpdatable={isUpdatable}
@@ -109,24 +114,26 @@ export default function ClientProfile({
                 clientId={id}
                 clientInfo={clientInfo}
               />
-              <Card>
-                <CardContent>
-                  <Button
-                    variant='outlined'
-                    color='error'
-                    fullWidth
-                    disabled={!isDeletable}
-                    onClick={onDelete}
-                  >
-                    Delete this client
-                  </Button>
-                </CardContent>
-              </Card>
+              {isSigned ? null : isDeletable ? (
+                <Card>
+                  <CardContent>
+                    <Button
+                      variant='outlined'
+                      color='error'
+                      fullWidth
+                      disabled={!isDeletable}
+                      onClick={onDelete}
+                    >
+                      Delete this client
+                    </Button>
+                  </CardContent>
+                </Card>
+              ) : null}
             </Box>
           </Grid>
         ) : null}
 
-        <Grid item xs={8}>
+        <Grid item xs={8.5}>
           <Box display='flex' flexDirection='column' gap='24px'>
             {clientInfo && !!id ? (
               <ContactPersons
@@ -135,6 +142,7 @@ export default function ClientProfile({
                 isCreatable={isCreatable}
                 clientId={id}
                 clientInfo={clientInfo}
+                isSigned={isSigned}
               />
             ) : null}
             {memo && !!id ? <ClientMemo clientId={id} memo={memo} /> : null}

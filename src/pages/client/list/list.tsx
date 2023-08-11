@@ -100,7 +100,7 @@ export default function ClientList({
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Status</Box>,
+      renderHeader: () => <Box>Time zone</Box>,
       renderCell: ({ row }: ClientListCellType) => {
         return <div>{getGmtTime(row?.timezone?.code)}</div>
       },

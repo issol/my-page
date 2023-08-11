@@ -224,7 +224,7 @@
 .table-head-first {
   align-items: center;
   display: flex !important;
-  flex: 0.4469;
+  flex: 0.4090;
   min-width: 400px;
   height: 54px;
   text-align: left;
@@ -243,7 +243,7 @@
   align-items: center;
   display: flex !important;
   width: 134px;
-  flex: 0.1497;
+  flex: 0.2434;
   min-width: 134px;
 
   height: 54px;
@@ -263,7 +263,7 @@
   align-items: center;
   display: flex !important;
   width: 148px;
-  flex: 0.1654;
+  flex: 0.1505;
   min-width: 148px;
 
   height: 54px;
@@ -283,7 +283,7 @@
   align-items: center;
   display: flex !important;
   width: 204px;
-  flex: 0.2335;
+  flex: 0.1905;
   min-width: 204px;
 
   height: 54px;
@@ -386,12 +386,10 @@
   display: flex !important;
 
   flex: 0.1505;
-
-  height: 30px;
   text-align: left;
+  height: 30px;
   padding: 16px;
   border-bottom: none;
-  justify-content: center;
   vertical-align: inherit;
   font-weight: 400;
   font-size: 0.875rem;
@@ -466,6 +464,12 @@
   margin-top: 10px;
   justify-content: flex-end;
 }
+
+.flex-start-box {
+  display: flex;
+  justify-content: flex-start;
+}
+
 
 .total-box {
   display: flex;

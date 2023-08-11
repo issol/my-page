@@ -1,10 +1,10 @@
 export const ProjectType = [
   {
-    value: 'Quote',
+    value: 'quote',
     label: 'Quote',
   },
   {
-    value: 'Order',
+    value: 'order',
     label: 'Order',
   },
 ]

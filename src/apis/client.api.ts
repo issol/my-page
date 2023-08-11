@@ -25,8 +25,14 @@ import {
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
-import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 import { CorporateClientInfoType } from '@src/context/types'
+import {
+  getOrderStatusColor,
+  getQuoteStatusColor,
+  getReceivableStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import { QuotesStatusType } from '@src/types/common/quotes.type'
+import { OrderStatusType } from '@src/types/common/orders.type'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -53,7 +59,8 @@ export const getClientList = async (
 ): Promise<ClientListDataType> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/al?${makeQuery(filters)}`,
+      // `/api/enough/u/client/al?${makeQuery(filters)}`,
+      `/api/enough/u/client/guideline/al?${makeQuery(filters)}`,
     )
     return data
   } catch (e: any) {
@@ -297,40 +304,27 @@ export const getClientProjectsCalendarData = async (
   id: number,
   year: number,
   month: number,
+  selectedType: 'quote' | 'order',
 ): Promise<ClientProjectCalendarData> => {
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = 'overdue'
-
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}`,
+      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}&projectType=${selectedType}`,
     )
 
     return {
-      data: data.data.map((item: ClientProjectListType, idx: number) => ({
-        ...item,
-        extendedProps: {
-          // TODO : change color by Order, Quote ( To. Jay )
-          calendar:
-            item.status === 'Overdue' ||
-            item.status === 'Overdue (Reminder sent)' ||
-            item.status === 'Canceled'
-              ? color_overdue
-              : item.status === 'In preparation'
-              ? '#F572D8'
-              : item.status === 'Checking in progress'
-              ? '#FDB528'
-              : item.status === 'Accepted by client'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #64C623'
-              : item.status === 'Tax invoice issued'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #46A4Ce'
-              : item.status === 'Paid'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #267838'
-              : 'default',
-        },
-        allDay: true,
-      })),
-      count: data.count ?? 0,
+      data: data.data?.map((item: ClientProjectListType, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar:
+              item.type === 'order'
+                ? getOrderStatusColor(item.status as OrderStatusType)
+                : getQuoteStatusColor(item.status as QuotesStatusType),
+          },
+          allDay: true,
+        }
+      }),
+      count: data?.length ?? 0,
     }
   } catch (e: any) {
     return {

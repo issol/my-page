@@ -54,11 +54,12 @@ export const useGetClientProjectsCalendar = (
   id: number,
   year: number,
   month: number,
+  selectedType: 'order' | 'quote',
 ) => {
   return useQuery(
-    'get-client-project-calendar',
+    ['projectList', { type: 'calendar' }, { year, month, selectedType }],
     () => {
-      return getClientProjectsCalendarData(id, year, month)
+      return getClientProjectsCalendarData(id, year, month, selectedType)
     },
     {
       suspense: true,
@@ -77,7 +78,7 @@ export const useGetClientInvoiceList = (
   filter: ClientInvoiceFilterType,
 ) => {
   return useQuery<{ data: ClientInvoiceListType[]; totalCount: number }>(
-    [`${id}-client-invoices`, filter],
+    [`client-invoices`, filter],
     () => {
       return getClientInvoiceList(id, filter)
     },

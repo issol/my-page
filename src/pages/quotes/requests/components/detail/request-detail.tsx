@@ -14,7 +14,7 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import { FullDateTimezoneHelper, convertDateByTimezone, convertUTCISOStringToLocalTimezoneISOString } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useRouter } from 'next/router'
 import styled from 'styled-components'
@@ -56,15 +56,14 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
         <LabelContainer>
           <CustomTypo fontWeight={600}>Contact person</CustomTypo>
           <CustomTypo variant='body2'>
-            {/* {getLegalName({
+            {getLegalName({
               firstName: data?.contactPerson?.firstName!,
               middleName: data?.contactPerson?.middleName,
               lastName: data?.contactPerson?.lastName!,
             })}
             {data?.contactPerson?.jobTitle
               ? ` / ${data?.contactPerson?.jobTitle}`
-              : ''} */}
-              {'LSP의 Contact person 정보가 API에 없음(수정해야함)'}
+              : ''}
           </CustomTypo>
         </LabelContainer>
       </Grid>
@@ -129,10 +128,17 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                   <LabelContainer>
                     <CustomTypo fontWeight={600}>Desired due date</CustomTypo>
                     <CustomTypo variant='body2'>
-                      {FullDateTimezoneHelper(
-                        item.desiredDueDate,
-                        item.desiredDueTimezone.code,
-                      )}
+                      {/* {FullDateTimezoneHelper(
+                          item?.desiredDueDate, 
+                          item?.desiredDueTimezone.code
+                        )
+                      } */}
+                      {
+                        convertUTCISOStringToLocalTimezoneISOString(
+                          item.desiredDueDate,
+                          item?.desiredDueTimezone.code
+                        )!
+                      }
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

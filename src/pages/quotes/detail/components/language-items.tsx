@@ -130,6 +130,7 @@ export default function QuotesLanguageItemsDetail({
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
+  // TODO: Item 처음 등록 후 Languages&Items 로딩시 items[0].priceId가 null인 경우가 있음
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
   const [subPrice, setSubPrice] = useState(0)
   function sumTotalPrice() {

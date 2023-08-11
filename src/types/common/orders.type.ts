@@ -27,7 +27,7 @@ export type OrderProjectInfoFormType = {
   serviceType?: Array<string>
   expertise?: Array<string>
   revenueFrom: RevenueFormType
-  orderedAt: string
+  orderedAt: string | Date
   orderTimezone: CountryType
   projectDueAt: string
   projectDueTimezone: CountryType

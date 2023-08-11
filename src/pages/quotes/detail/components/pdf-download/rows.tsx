@@ -23,8 +23,15 @@ export interface Row {
   priceId?: number
   totalPrice?: number
 }
+type Props = {
+  rows: ItemType[]
+  currency: 'USD' | 'KRW' | 'SGD' | 'JPY'
+}
 
-export default function MakeTable({ rows }: { rows: ItemType[] }) {
+export default function MakeTable({ 
+  rows, 
+  currency 
+}: Props) {
   const [newRows, setNewRows] = useState(rows)
 
   function calculatePrice(row: ItemDetailType[]): number {
@@ -119,9 +126,9 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   </td>
                   <td className='table-row-divider'></td>
                   <td className='table-row-third'>
-                    <div className='center-box'>
+                    <div className='flex-start-box'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.unitPrice, 'USD')}
+                        {formatCurrency(value.unitPrice, currency || 'USD')}
                       </h6>
                     </div>
                   </td>
@@ -129,7 +136,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   <td className='table-row-fourth'>
                     <div className='table-row-fourth-content'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.prices, 'USD')}
+                        {formatCurrency(value.prices, currency || 'USD')}
                       </h6>
                     </div>
                   </td>
@@ -145,7 +152,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                     <td className='table-row-fourth'>
                       <div className='table-row-fourth-content'>
                         <h6 className='primary-subtitle'>
-                          {formatCurrency(row.totalPrice, 'USD')}
+                          {formatCurrency(row.totalPrice, currency || 'USD')}
                         </h6>
                       </div>
                     </td>

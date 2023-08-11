@@ -147,14 +147,16 @@ export default function ClientDetail() {
           />
         </TabPanel>
         <TabPanel value='4'>
-          <ClientProfile
-            clientId={id}
-            clientInfo={userInfo ?? null}
-            memo={memo || { data: [], count: 0 }}
-            isUpdatable={isUpdatable}
-            isDeletable={isDeletable}
-            isCreatable={isCreatable}
-          />
+          <Suspense>
+            <ClientProfile
+              clientId={id}
+              clientInfo={userInfo!}
+              memo={memo || { data: [], count: 0 }}
+              isUpdatable={isUpdatable}
+              isDeletable={isDeletable}
+              isCreatable={isCreatable}
+            />
+          </Suspense>
         </TabPanel>
         <TabPanel value='5'>
           {/* payment info */}

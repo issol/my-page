@@ -31,7 +31,8 @@ export type MemberListType = Pick<
 >
 export const getMemberList = async (): Promise<Array<MemberListType>> => {
   try {
-    const { data } = await axios.get(`/api/enough/a/role/us`)
+    // const { data } = await axios.get(`/api/enough/a/role/us`)
+    const { data } = await axios.get(`/api/enough/a/role/members`)
     return data
   } catch (e: any) {
     return []
