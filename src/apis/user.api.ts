@@ -164,62 +164,8 @@ export const verifyCompanyInfo = async (
 
 export const getClientUserInfo = async (): Promise<ClientUserType> => {
   try {
-    // const { data } = await axios.get('/api/enough/u/client/my-company')
-    // return data
-    return {
-      clientId: 7,
-      corporationId: 'C-000007',
-      adminCompanyName: 'GloZ',
-      clientType: 'Company',
-      name: 'Naver',
-      email: 'aaa@naver.com',
-      phone: '01011112222',
-      mobile: '01011112222',
-      fax: '01011112222',
-      websiteLink: 'https://naver.com',
-      status: 'New',
-      timezone: {
-        code: 'KR',
-        label: 'Korea, Republic of',
-        phone: '82',
-      },
-      isReferred: true,
-      companyId: null,
-      isTaxable: false,
-      tax: 30,
-      clientAddresses: [
-        {
-          id: 11,
-          createdAt: '2023-04-18T20:05:29.473Z',
-          updatedAt: '2023-04-18T20:05:29.473Z',
-          addressType: 'billing',
-          name: null,
-          baseAddress: null,
-          detailAddress: null,
-          city: null,
-          state: null,
-          country: null,
-          zipCode: null,
-        },
-        {
-          id: 12,
-          createdAt: '2023-04-18T20:05:29.473Z',
-          updatedAt: '2023-04-18T20:05:29.473Z',
-          addressType: 'shipping',
-          name: null,
-          baseAddress: null,
-          detailAddress: null,
-          city: null,
-          state: null,
-          country: null,
-          zipCode: null,
-        },
-      ],
-      businessClassification: 'corporate',
-      registrationNumber: 'string',
-      representativeName: '',
-      commencementDate: '2023-08-09',
-    }
+    const { data } = await axios.get('/api/enough/u/client/my-company')
+    return data
   } catch (e: any) {
     throw new Error(e)
   }

@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 
 export type UserInfoCardType = {
   userInfo: {
-    clientType: string
+    clientType: string | undefined
     name: string
   }
 }
@@ -43,7 +43,7 @@ export default function ClientInfoCard({ userInfo }: UserInfoCardType) {
           >
             <Box sx={{ display: 'flex', alignItems: 'center' }}>
               <Typography variant='h6' sx={{ color: 'rgba(76, 78, 100, 0.6)' }}>
-                [{userInfo.clientType}]&nbsp;
+                [{userInfo.clientType ?? '-'}]&nbsp;
               </Typography>
               <Typography variant='h5'>{userInfo.name}</Typography>
             </Box>
