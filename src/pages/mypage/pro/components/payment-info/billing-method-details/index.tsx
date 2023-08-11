@@ -20,9 +20,9 @@ import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 
 type Props = {
   billingMethod: ProPaymentType | null
-  info: BillingMethodUnionType
+  info: BillingMethodUnionType | undefined
   bankInfo: BankInfo | undefined
-  corrBankInfo: CorrespondentBankInfo | undefined
+  corrBankInfo: CorrespondentBankInfo | undefined | null
 }
 
 export default function BillingMethodDetail({
@@ -31,6 +31,8 @@ export default function BillingMethodDetail({
   bankInfo,
   corrBankInfo,
 }: Props) {
+  console.log('billingMethod', billingMethod)
+  console.log('info', info)
   function renderDetails() {
     if (!info) return null
     switch (billingMethod) {

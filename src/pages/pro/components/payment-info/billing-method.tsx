@@ -1,7 +1,7 @@
 import { Button, Card, CardHeader, Grid, Typography } from '@mui/material'
 import { Box } from '@mui/system'
 import logger from '@src/@core/utils/logger'
-import { UserPaymentInfoType } from '@src/apis/payment-info.api'
+import { ProPaymentInfoType } from '@src/apis/payment-info.api'
 import Icon from 'src/@core/components/icon'
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -9,7 +9,7 @@ import styled from 'styled-components'
 import { ContentGrid } from '.'
 
 type Props = {
-  info: UserPaymentInfoType
+  info: ProPaymentInfoType
   isAccountManager: boolean
   replaceDots: (value: string) => string
   getDetail: () => void

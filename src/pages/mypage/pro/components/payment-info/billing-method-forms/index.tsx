@@ -63,17 +63,18 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import useModal from '@src/hooks/useModal'
 import KoreaDomesticForm from './korea-domestic-form'
 import KoreaDomesticSoloForm from './korea-domestic-solo-form'
+import { ProPaymentFormType } from '@src/apis/payment-info.api'
 
 type Props = {
   isRegister: boolean
   changeBillingMethod: boolean
   checkBillingMethodChange: (v: ProPaymentType) => void
-  billingMethodData: any
+  billingMethodData: ProPaymentFormType | null
   billingMethod: ProPaymentType | null
   setBillingMethod: (v: ProPaymentType | null) => void
   setEdit: (v: boolean) => void
   setChangeBillingMethod: (v: boolean) => void
-  onBillingMethodSave: (n: any) => void
+  onBillingMethodSave: (n: ProPaymentFormType) => void
 }
 export default function BillingMethod({
   isRegister,
@@ -89,6 +90,9 @@ export default function BillingMethod({
   const { openModal, closeModal } = useModal()
 
   const [isSolo, setIsSolo] = useState(false)
+  const [haveCorrespondentBank, setHaveCorrespondentBank] = useState(
+    billingMethodData?.correspondentBankInfo !== null ? true : false,
+  )
 
   function renderLabel(label: string) {
     const regex = /^(.+?)(\(.+?\))$/
@@ -135,10 +139,10 @@ export default function BillingMethod({
     },
     resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
   })
-
   useEffect(() => {
+    console.log('billingMethodData', billingMethodData)
     if (billingMethod === getValues('type') && !!billingMethodData) {
-      reset({ ...billingMethodData })
+      reset({ ...billingMethodData.bankInfo, type: billingMethod })
     } else {
       reset({
         ...billingMethodInitialData(billingMethod, isSolo),
@@ -177,7 +181,7 @@ export default function BillingMethod({
     resolver: yupResolver(corrBankInfoSchema),
   })
 
-  const haveCorrBank = watch('haveCorrespondentBank')
+  // const haveCorrBank = watch('haveCorrespondentBank')
 
   function onBillingMethodSaveClick() {
     const personalData = getValues()
@@ -192,9 +196,9 @@ export default function BillingMethod({
           onSave={() => {
             closeModal('save')
             onBillingMethodSave({
-              ...personalData,
+              billingMethod: personalData,
               bankInfo,
-              corrBankInfo,
+              correspondentBankInfo: corrBankInfo,
             })
             setEdit(false)
           }}
@@ -244,7 +248,7 @@ export default function BillingMethod({
             </Grid>
             <BankInfoForm control={bankInfoControl} errors={bankInfoErrors} />
             <Grid item xs={12}>
-              <Controller
+              {/* <Controller
                 name='haveCorrespondentBank'
                 control={control}
                 rules={{ required: true }}
@@ -254,9 +258,18 @@ export default function BillingMethod({
                     control={<Checkbox checked={value} onChange={onChange} />}
                   />
                 )}
+              /> */}
+              <FormControlLabel
+                label='I have correspondent bank'
+                control={
+                  <Checkbox
+                    checked={haveCorrespondentBank}
+                    onChange={e => setHaveCorrespondentBank(e.target.checked)}
+                  />
+                }
               />
             </Grid>
-            {haveCorrBank ? (
+            {haveCorrespondentBank ? (
               <>
                 <Grid item xs={12}>
                   <Divider />

@@ -31,7 +31,6 @@ export type TransferWiseFormType = {
   copyOfId: File
   personalId: string
   // bankInfo: BankInfo
-  haveCorrespondentBank: boolean
   // correspondentBankInfo?: CorrespondentBankInfo
 }
 

@@ -14,7 +14,7 @@ import {
   Typography,
 } from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { TaxInfoType } from '@src/apis/payment-info.api'
+import { TaxResidentInfoType } from '@src/apis/payment-info.api'
 import useModal from '@src/hooks/useModal'
 import { TaxInfo } from '@src/shared/const/tax/tax-info'
 import {
@@ -28,7 +28,7 @@ import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   info: {
-    taxInfo: TaxInfoType
+    taxInfo: TaxResidentInfoType
     taxRate: number
   }
   edit: boolean

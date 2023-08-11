@@ -1,4 +1,4 @@
-import { TaxInfoType } from '@src/apis/payment-info.api'
+import { TaxResidentInfoType } from '@src/apis/payment-info.api'
 
 export const TaxInfo = [
   {
@@ -23,26 +23,28 @@ export const TaxInfo = [
   },
 ]
 
-export const TextRatePair: Array<{ label: TaxInfoType; value: number | null }> =
-  [
-    {
-      value: null,
-      label: 'Japan resident',
-    },
-    {
-      value: -3.3,
-      label: 'Korea resident',
-    },
-    {
-      value: 10,
-      label: 'Korea resident (Sole proprietorship)',
-    },
-    {
-      value: null,
-      label: 'Singapore resident',
-    },
-    {
-      value: null,
-      label: 'US resident',
-    },
-  ]
+export const TextRatePair: Array<{
+  label: TaxResidentInfoType
+  value: number | null
+}> = [
+  {
+    value: null,
+    label: 'Japan resident',
+  },
+  {
+    value: -3.3,
+    label: 'Korea resident',
+  },
+  {
+    value: 10,
+    label: 'Korea resident (Sole proprietorship)',
+  },
+  {
+    value: null,
+    label: 'Singapore resident',
+  },
+  {
+    value: null,
+    label: 'US resident',
+  },
+]

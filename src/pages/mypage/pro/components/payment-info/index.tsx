@@ -1,9 +1,8 @@
-import { Fragment, useState } from 'react'
+import { Fragment, useEffect, useState } from 'react'
 import { Box, Button, Card, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 
-import styled from 'styled-components'
 import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
 import BillingMethod from './billing-method-forms'
 import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
@@ -29,6 +28,20 @@ import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+import { useMutation, useQueryClient } from 'react-query'
+import {
+  ProPaymentFormType,
+  getTaxCodeList,
+  updateProBillingAddress,
+  updateProBillingMethod,
+  updateProTaxInfo,
+} from '@src/apis/payment-info.api'
+import { toast } from 'react-hot-toast'
+import {
+  useGetTaxCodeList,
+  useGetUserPaymentInfo,
+} from '@src/queries/payment-info.query'
+import { isEmpty } from 'lodash'
 
 type Props = {
   userInfo: DetailUserType
@@ -45,8 +58,11 @@ type Props = {
 export default function ProPaymentInfo({ userInfo, user }: Props) {
   const { openModal, closeModal } = useModal()
 
-  // ** TODO: 데이터 받았을 때 billing method의 type이 없을 경우 false 아니면 true로 세팅하기
-  const [isRegister, setIsRegister] = useState(false)
+  const queryClient = useQueryClient()
+  const invalidatePaymentInfo = () =>
+    queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
+
+  const [isRegister, setIsRegister] = useState(true)
 
   const [changeBillingMethod, setChangeBillingMethod] = useState(false)
 
@@ -54,18 +70,64 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
   const [editBillingAddress, setEditBillingAddress] = useState(false)
   const [editTaxInfo, setEditTaxInfo] = useState(false)
 
-  //TODO: 유저가 등록한 정보가 있는 경우 그걸로 초기화해주기
+  // ** ex: 'wise', 'us_ach' ...등의 method type
   const [billingMethod, setBillingMethod] = useState<ProPaymentType | null>(
     null,
   )
 
   //TODO: 최종 submit 시 보낼 데이터
-  const [billingMethodData, setBillingMethodData] = useState<any>(null)
+  const [billingMethodData, setBillingMethodData] =
+    useState<ProPaymentFormType | null>(null)
 
-  function onBillingMethodSave(data: any) {
-    if (!isRegister) {
-      //TODO: update mutation붙이기
+  const { data: paymentInfo } = useGetUserPaymentInfo(user.userId!, true)
+  const { data: taxCodes } = useGetTaxCodeList()
+  console.log('paymentInfo', paymentInfo)
+
+  const updatePaymentInfo = useMutation(
+    (info: ProPaymentFormType) => updateProBillingMethod(info),
+    {
+      onSuccess: () => invalidatePaymentInfo(),
+      onError,
+    },
+  )
+
+  const updateBillingAddress = useMutation(
+    (info: ClientAddressType) => updateProBillingAddress(info),
+    {
+      onSuccess: () => invalidatePaymentInfo(),
+      onError,
+    },
+  )
+  const updateTaxInfo = useMutation(
+    (statusCode: number) => updateProTaxInfo(user.userId!, statusCode),
+    {
+      onSuccess: () => invalidatePaymentInfo(),
+      onError,
+    },
+  )
+
+  function onError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  function onBillingMethodSave(data: ProPaymentFormType) {
+    for (const key in data.correspondentBankInfo) {
+      //@ts-ignore
+      if (!data.correspondentBankInfo[key]) {
+        //@ts-ignore
+        delete data.correspondentBankInfo[key]
+      }
     }
+    if (isEmpty(data.correspondentBankInfo)) {
+      data.correspondentBankInfo = null
+    }
+
+    if (!isRegister) {
+      updatePaymentInfo.mutate(data)
+    }
+
     setBillingMethodData(data)
   }
 
@@ -102,6 +164,32 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     resolver: yupResolver(taxInfoSchema(billingMethod)),
   })
 
+  // ** form reset by paymentInfo data
+  useEffect(() => {
+    if (paymentInfo) {
+      const { decryptPaymentInfo } = paymentInfo || undefined
+      setBillingMethod(decryptPaymentInfo?.billingMethod?.type)
+      setBillingMethodData({
+        billingMethod: decryptPaymentInfo?.billingMethod,
+        bankInfo: decryptPaymentInfo?.bankInfo,
+        correspondentBankInfo: decryptPaymentInfo?.correspondentBankInfo,
+      })
+
+      reset({ ...paymentInfo.billingAddress })
+
+      const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo.taxCode)
+      if (taxInfo) {
+        resetTaxInfo({
+          tax: Number(taxInfo.rate),
+          taxInfo: taxInfo.info,
+        })
+      }
+      if (decryptPaymentInfo?.billingMethod?.type) {
+        setIsRegister(true)
+      }
+    }
+  }, [paymentInfo])
+
   function onSaveEachForm(type: 'billingAddress' | 'taxInfo') {
     openModal({
       type: 'save',
@@ -121,11 +209,11 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       ),
     })
   }
-  console.log(
-    'isRegister && changeBillingMethod',
-    isRegister,
-    changeBillingMethod,
-  )
+  // console.log(
+  //   'isRegister && changeBillingMethod',
+  //   isRegister,
+  //   changeBillingMethod,
+  // )
   function onCancel() {
     openModal({
       type: 'discard',
@@ -144,20 +232,36 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     })
   }
 
-  function onRegister() {
-    const billingMethod = billingMethodData
+  function registerAllInfo() {
     const billingAddress = getValues()
     const taxInfo = getTaxInfo()
+
+    if (billingMethodData && taxCodes) {
+      const statusCode = taxCodes.find(i => i.info === taxInfo.taxInfo)
+        ?.statusCode!
+      const promises = [
+        updateProBillingMethod(billingMethodData),
+        updateProBillingAddress(billingAddress),
+        updateProTaxInfo(user.userId!, statusCode),
+      ]
+      Promise.all(promises)
+        .then(() => invalidatePaymentInfo())
+        .catch(onError)
+    }
+  }
+
+  function onRegister() {
     openModal({
       type: 'register',
       children: (
         <CustomModal
           title='Are you sure you want to register your payment information?
-
     You cannot modify Tax info. of Tax information after the registration.'
           vary='successful'
-          //TODO: mutation붙이기
-          onClick={() => console.log('')}
+          onClick={() => {
+            registerAllInfo()
+            closeModal('register')
+          }}
           onClose={() => closeModal('register')}
           rightButtonText='Register'
         />
@@ -201,7 +305,7 @@ Some information will reset..'
     const billingMethodInfo = billingMethodData //TODO: 이 값도 서버에서 받은 사용자 값으로 교체하기
 
     const isNewMethodKorea = newMethod.includes('koreaDomesticTransfer')
-    const isCurrMethodKorea = billingMethodInfo?.type?.includes(
+    const isCurrMethodKorea = billingMethodInfo?.billingMethod?.type?.includes(
       'koreaDomesticTransfer',
     )
     const isNotChangeable =
@@ -307,9 +411,9 @@ Some information will reset..'
               <Grid item xs={12}>
                 <BillingMethodDetail
                   billingMethod={billingMethod}
-                  info={billingMethodData}
+                  info={billingMethodData?.billingMethod}
                   bankInfo={billingMethodData?.bankInfo}
-                  corrBankInfo={billingMethodData?.corrBankInfo}
+                  corrBankInfo={billingMethodData?.correspondentBankInfo}
                 />
               </Grid>
             )}
@@ -332,8 +436,7 @@ Some information will reset..'
               {editBillingAddress ? null : (
                 <Button
                   variant='contained'
-                  //TODO: 아래 코드 주석 해제하기
-                  //   disabled={!billingMethodData}
+                  disabled={!billingMethodData}
                   onClick={() => setEditBillingAddress(!editBillingAddress)}
                 >
                   Update
@@ -396,8 +499,7 @@ Some information will reset..'
               {editTaxInfo ? null : (
                 <Button
                   variant='contained'
-                  //TODO: 아래 코드 주석 해제하기
-                  //   disabled={!billingMethodData}
+                  disabled={!billingMethodData}
                   onClick={() => setEditTaxInfo(!editTaxInfo)}
                 >
                   Update
@@ -426,7 +528,7 @@ Some information will reset..'
                   </Button>
                   <Button
                     variant='contained'
-                    disabled={!isValid}
+                    disabled={!isTaxInfoValid}
                     onClick={() => onSaveEachForm('taxInfo')}
                   >
                     Save
