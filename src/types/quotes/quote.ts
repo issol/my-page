@@ -11,6 +11,7 @@ export type QuotesFilterType = {
   seeMyQuotes?: 0 | 1
   status?: number[]
   client?: string[]
+  clientId?: number[]
   category?: string[]
   serviceType?: string[]
   ordering?: GridSortDirection
