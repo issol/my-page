@@ -83,6 +83,7 @@ export const Default = () => {
         update={update}
         errors={errors}
         isValid={isValid}
+        getValues={getValues}
       />
     </Grid>
   )

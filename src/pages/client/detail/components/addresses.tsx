@@ -253,6 +253,7 @@ export default function ClientAddresses({
               update={update}
               errors={errors}
               isValid={isValid}
+              getValues={getValues}
               type={'all-required'}
             />
             <Grid item xs={12}>

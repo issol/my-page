@@ -1,5 +1,5 @@
 // ** React Imports
-import { createContext, useEffect, useState, ReactNode, Dispatch } from 'react'
+import { createContext, useEffect, useState, ReactNode } from 'react'
 
 // ** Next Import
 import { useRouter } from 'next/router'
@@ -18,8 +18,7 @@ import {
   ErrCallbackType,
   UserDataType,
   UserRoleType,
-  ClientCompanyInfoType,
-  CorporateClientInfoType,
+  ClientUserType,
 } from './types'
 import { login, logout } from 'src/apis/sign.api'
 import { getClientUserInfo, getUserInfo } from 'src/apis/user.api'
@@ -27,8 +26,6 @@ import {
   loginResType,
   LoginResTypeWithOptionalAccessToken,
 } from 'src/types/sign/signInTypes'
-import { Box } from '@mui/system'
-import { Button, Dialog, Typography } from '@mui/material'
 import {
   getUserDataFromBrowser,
   getUserTokenFromBrowser,
@@ -64,7 +61,10 @@ const defaultProvider: AuthValuesType = {
     return null
   },
   updateUserInfo: (res: LoginResTypeWithOptionalAccessToken) => {
-    return null
+    const resolve = () => {
+      return null
+    }
+    return new Promise(resolve)
   },
   setLoading: () => Boolean,
   login: () => Promise.resolve(),
@@ -83,9 +83,7 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
 
   // **TODO: CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
-  const [company, setCompany] = useState<
-    (ClientCompanyInfoType & CorporateClientInfoType) | null
-  >(null)
+  const [company, setCompany] = useState<ClientUserType | null>(null)
 
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
@@ -111,8 +109,9 @@ const AuthProvider = ({ children }: Props) => {
           ?.map((i: { name: string }) => i.name)
           .includes('CLIENT')
         if (isClient) {
-          getClientUserInfo(user.id).then(res => {
-            setCompany(res.data)
+          getClientUserInfo().then(res => {
+            console.log('res', res)
+            setCompany(res)
           })
         }
       })
@@ -155,22 +154,19 @@ const AuthProvider = ({ children }: Props) => {
         }
         return
       } else if (isClient) {
-        const isClientMaster =
-          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'Master'
-        if (isClientMaster && !company?.name) {
-          router.replace('/welcome/client')
-        } else {
-          if (user?.firstName) {
-            //TODO: general client form으로 이동하도록 수정하기
-            router.replace('/welcome/client')
-          }
+        const isClientGeneral =
+          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'General'
+        if (!company?.name) {
+          router.replace('/signup/finish/client')
+        } else if (isClientGeneral && !user.firstName) {
+          router.replace('/welcome/client/add-new/general-client')
         }
+        return
       } else if (redirectPath) {
         router.replace(redirectPath)
         removeRedirectPath()
         return
-      }
-      if (router.pathname === '/') {
+      } else if (router.pathname === '/') {
         router.push(`/home`)
       }
     }
@@ -234,6 +230,7 @@ const AuthProvider = ({ children }: Props) => {
             type: 'signup-not-approval-modal',
             children: (
               <SignupNotApprovalModal
+                companyName={response.companyName ?? ''}
                 onClose={() => closeModal('signup-not-approval-modal')}
               />
             ),

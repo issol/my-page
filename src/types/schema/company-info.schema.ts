@@ -4,8 +4,8 @@ import { CountryType } from '../sign/personalInfoTypes'
 
 export type ClientType = 'Company' | 'Mr' | 'Ms'
 export type CompanyInfoFormType = {
-  clientType: ClientType
-  status: string
+  clientType?: ClientType
+  status?: string
   name: string
   email: string
   phone?: string

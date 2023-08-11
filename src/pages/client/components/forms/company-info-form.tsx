@@ -155,13 +155,15 @@ export default function CompanyInfoForm({
         <Controller
           name='clientType'
           control={control}
-          render={({ field: { value, onChange } }) => (
-            <Box display='flex' gap='18px'>
-              {clientType.map(item =>
-                renderCompanyTypeBtn(item, value, onChange),
-              )}
-            </Box>
-          )}
+          render={({ field: { value, onChange } }) => {
+            return (
+              <Box display='flex' gap='18px'>
+                {clientType.map(item =>
+                  renderCompanyTypeBtn(item, value!, onChange),
+                )}
+              </Box>
+            )
+          }}
         />
       </Grid>
       <Grid item xs={6}>

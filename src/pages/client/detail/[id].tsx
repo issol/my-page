@@ -76,7 +76,12 @@ export default function ClientDetail() {
 
   return (
     <Box sx={{ pb: '100px' }}>
-      <ClientInfoCard userInfo={userInfo!} />
+      <ClientInfoCard
+        userInfo={{
+          name: userInfo?.name!,
+          clientType: userInfo?.clientType,
+        }}
+      />
       <TabContext value={value}>
         <TabList
           onChange={handleChange}

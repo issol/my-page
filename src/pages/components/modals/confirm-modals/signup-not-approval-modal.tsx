@@ -4,9 +4,13 @@ import { SmallModalContainer } from '@src/@core/components/modal'
 import { Box, Button, Typography } from '@mui/material'
 
 type Props = {
+  companyName?: string
   onClose: () => void
 }
-export default function SignupNotApprovalModal({ onClose }: Props) {
+export default function SignupNotApprovalModal({
+  companyName,
+  onClose,
+}: Props) {
   return (
     <SmallModalContainer>
       {/* <AlertIcon type='error' /> */}
@@ -30,8 +34,11 @@ export default function SignupNotApprovalModal({ onClose }: Props) {
         />
       </Box>
       <Typography variant='h6' textAlign='center' mt='10px' gap='20px'>
-        Sign up approval for <span style={{ color: '#666CFF' }}>GloZ</span> is
-        in
+        Sign up approval for{' '}
+        <span style={{ color: '#666CFF' }}>
+          {companyName ? companyName : 'GloZ'}
+        </span>{' '}
+        is in
         <br />
         progress.
       </Typography>

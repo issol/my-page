@@ -45,6 +45,8 @@ type Props<T extends number | string = number> = {
   errors: FieldErrors<ClientContactPersonType<T>>
   watch: UseFormWatch<ClientContactPersonType<T>>
 }
+
+// ** TAD가 직접 contact person을 등록하는 경우에 사용되는 schema
 export default function AddContactPersonForm<
   T extends number | string = number,
 >(props: Props<T>) {

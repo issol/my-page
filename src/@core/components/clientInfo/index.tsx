@@ -10,7 +10,7 @@ import { useRouter } from 'next/router'
 
 export type UserInfoCardType = {
   userInfo: {
-    clientType: string
+    clientType: string | undefined
     name: string
   }
 }

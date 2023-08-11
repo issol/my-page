@@ -21,8 +21,9 @@ const LabelContainer = styled.div`
   display: grid;
   grid-template-columns: 1fr 1fr;
 `
-export const BorderBox = styled(Box)`
-  padding: 20px;
+
+export const BorderBox = styled(Box)<{ padding?: number }>`
+  padding: ${({ padding }) => (padding ? padding : 20)}px;
   border-radius: 10px;
   border: 1px solid rgba(76, 78, 100, 0.12);
 `

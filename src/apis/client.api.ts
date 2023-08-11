@@ -25,6 +25,7 @@ import {
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
+import { CorporateClientInfoType } from '@src/context/types'
 import {
   getOrderStatusColor,
   getQuoteStatusColor,
@@ -73,7 +74,8 @@ export const getClientList = async (
 
 export type CreateClientBodyType = CompanyInfoFormType &
   ClientAddressFormType &
-  ClientContactPersonType
+  ClientContactPersonType &
+  CorporateClientInfoType
 
 export const createClient = async (
   form: CreateClientBodyType,
