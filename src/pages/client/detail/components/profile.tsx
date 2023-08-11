@@ -114,20 +114,22 @@ export default function ClientProfile({
                 clientId={id}
                 clientInfo={clientInfo}
               />
-              {isSigned ? null : isDeletable ? (
-                <Card>
-                  <CardContent>
-                    <Button
-                      variant='outlined'
-                      color='error'
-                      fullWidth
-                      disabled={!isDeletable}
-                      onClick={onDelete}
-                    >
-                      Delete this client
-                    </Button>
-                  </CardContent>
-                </Card>
+              {isDeletable ? (
+                isSigned ? null : (
+                  <Card>
+                    <CardContent>
+                      <Button
+                        variant='outlined'
+                        color='error'
+                        fullWidth
+                        disabled={!isDeletable}
+                        onClick={onDelete}
+                      >
+                        Delete this client
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )
               ) : null}
             </Box>
           </Grid>

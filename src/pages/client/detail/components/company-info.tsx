@@ -181,7 +181,7 @@ export default function ClientInfo({
             justifyContent='space-between'
           >
             <Typography variant='h6'>Company info</Typography>
-            {isSigned ? (
+            {/* {isSigned ? (
               isUpdatable ? (
                 <IconButton onClick={() => setOpen(true)}>
                   <Icon icon='mdi:pencil-outline' />
@@ -191,6 +191,13 @@ export default function ClientInfo({
               <IconButton onClick={() => setOpen(true)}>
                 <Icon icon='mdi:pencil-outline' />
               </IconButton>
+            ) : null} */}
+            {isUpdatable ? (
+              isSigned ? null : (
+                <IconButton onClick={() => setOpen(true)}>
+                  <Icon icon='mdi:pencil-outline' />
+                </IconButton>
+              )
             ) : null}
             {/* {isUpdatable && !isSigned ? (
               <IconButton onClick={() => setOpen(true)}>

@@ -50,10 +50,13 @@ export default function ContactPersonList<T extends string | number>({
             <Typography variant='h6'>
               Contact person({fields?.length ?? 0})
             </Typography>
-            {isSigned ? null : updatable ? (
-              <Button variant='contained' onClick={openForm}>
-                Add contact person
-              </Button>
+
+            {updatable ? (
+              isSigned ? null : (
+                <Button variant='contained' onClick={openForm}>
+                  Add contact person
+                </Button>
+              )
             ) : null}
           </Box>
         }
