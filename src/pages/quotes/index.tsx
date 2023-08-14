@@ -342,6 +342,6 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
 `
 
 Quotes.acl = {
-  subject: 'client',
+  subject: 'quote',
   action: 'read',
 }
