@@ -82,8 +82,10 @@ const AuthProvider = ({ children }: Props) => {
   // ** States
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
 
-  // **TODO: CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
-  const [company, setCompany] = useState<ClientUserType | null | undefined>(undefined)
+  // ** CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
+  const [company, setCompany] = useState<ClientUserType | null | undefined>(
+    undefined,
+  )
 
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 

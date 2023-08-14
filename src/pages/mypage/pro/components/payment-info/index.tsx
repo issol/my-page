@@ -349,19 +349,25 @@ export default function ProPaymentInfo({ user }: Props) {
     if (billingMethodData && taxCodes) {
       const statusCode = taxCodes.find(i => i.info === taxInfo.taxInfo)
         ?.statusCode!
-      const promises = [
-        updatePaymentMethod(billingMethodData),
-        updateProBillingAddress(billingAddress),
-        updateProTaxInfo(user.userId!, statusCode),
-      ]
-      if (taxInfo.businessLicense) {
-        promises.push(
-          uploadProPaymentFile('businessLicense', taxInfo.businessLicense),
-        )
-      }
-      Promise.all(promises)
-        .then(() => invalidatePaymentInfo())
-        .catch(onError)
+
+      updatePaymentMethod(billingMethodData).then(() => {
+        if (taxInfo.businessLicense) {
+          Promise.all([
+            updateProBillingAddress(billingAddress),
+            updateProTaxInfo(user.userId!, statusCode),
+            uploadProPaymentFile('businessLicense', taxInfo.businessLicense),
+          ])
+            .then(() => invalidatePaymentInfo())
+            .catch(onError)
+        } else {
+          Promise.all([
+            updateProBillingAddress(billingAddress),
+            updateProTaxInfo(user.userId!, statusCode),
+          ])
+            .then(() => invalidatePaymentInfo())
+            .catch(onError)
+        }
+      })
     }
   }
 
@@ -607,7 +613,7 @@ Some information will reset..'
               </Fragment>
             ) : (
               <Grid item xs={12}>
-                <BillingAddress billingAddress={paymentInfo?.billingAddress} />
+                <BillingAddress billingAddress={getValues()} />
               </Grid>
             )}
           </Grid>

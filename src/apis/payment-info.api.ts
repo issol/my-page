@@ -96,8 +96,23 @@ export const getUserPaymentInfo = async (
   id: number,
 ): Promise<ProPaymentInfoType | null> => {
   try {
-    const data = await axios.get(`/api/enough/u/pro/${id}/payment/all`)
-    return data.data
+    const { data } = await axios.get(`/api/enough/u/pro/${id}/payment/all`)
+    if (data) {
+      return {
+        ...data,
+        files: data.files.map((i: any) => ({
+          id: i.id,
+          url: '',
+          filePath: '',
+          fileName: i.name,
+          fileExtension: i.type,
+          fileSize: i.size,
+          proId: i.proId,
+          positionType: i.positionType,
+        })),
+      }
+    }
+    return data
   } catch (e: any) {
     return null
   }

@@ -20,7 +20,6 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
-                autoFocus
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {
@@ -45,7 +44,6 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
-                autoFocus
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {
@@ -70,7 +68,6 @@ export default function CorresPondentBankInfoForm({ control, errors }: Props) {
             <>
               <TextField
                 fullWidth
-                autoFocus
                 value={value}
                 onBlur={onBlur}
                 onChange={e => {
