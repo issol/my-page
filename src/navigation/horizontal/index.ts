@@ -146,7 +146,7 @@ const navigation = (): HorizontalNavItemsType => {
           title: 'My Account',
           path: `/company/my-account`,
           action: 'read',
-          icon: 'mdi:account-check-outline',
+          icon: 'mdi:account-cog',
           subject: 'my_account',
         },
         {
