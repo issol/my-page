@@ -18,10 +18,10 @@ import { ConstType } from '@src/pages/onboarding/client-guideline'
 import { RequestFilterType } from '@src/types/requests/filters.type'
 
 // ** values
-import {
-  ServiceTypeList,
-  ServiceTypePair,
-} from '@src/shared/const/service-type/service-types'
+// import {
+//   ServiceTypeList,
+//   ServiceTypePair,
+// } from '@src/shared/const/service-type/service-types'
 
 // ** apis
 import { useGetClientRequestList } from '@src/queries/requests/client-request.query'
@@ -71,42 +71,44 @@ export default function Requests() {
     }
   )
 
-  function findServiceTypeFilter() {
-    let category: Array<ConstType> = []
-    if (filter.category?.length) {
-      filter.category.forEach(item => {
-        if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
-        category = category.concat(
-          ServiceTypePair[item as keyof typeof ServiceTypePair],
-        )
-      })
-    }
+  // function findServiceTypeFilter() {
+  //   let category: Array<ConstType> = []
+  //   if (filter.category?.length) {
+  //     filter.category.forEach(item => {
+  //       if (!ServiceTypePair[item as keyof typeof ServiceTypePair]) return
+  //       category = category.concat(
+  //         ServiceTypePair[item as keyof typeof ServiceTypePair],
+  //       )
+  //     })
+  //   }
 
-    if (category?.length) {
-      const result = category.reduce(
-        (acc: Array<ConstType>, item: ConstType) => {
-          const found = acc.find(ac => ac.value === item.value)
-          if (!found) return acc.concat(item)
-          return acc
-        },
-        [],
-      )
-      return result
-    }
-    return ServiceTypeList
-  }
+  //   if (category?.length) {
+  //     const result = category.reduce(
+  //       (acc: Array<ConstType>, item: ConstType) => {
+  //         const found = acc.find(ac => ac.value === item.value)
+  //         if (!found) return acc.concat(item)
+  //         return acc
+  //       },
+  //       [],
+  //     )
+  //     return result
+  //   }
+  //   return ServiceTypeList
+  // }
 
-  useEffect(() => {
-    const newFilter = findServiceTypeFilter()
-    setServiceType(newFilter)
-    if (newFilter.length)
-      setFilter({
-        ...filter,
-        serviceType: newFilter
-          .filter(item => filter.serviceType?.includes(item.value))
-          .map(item => item.value),
-      })
-  }, [filter.category])
+  // 기존 코드는 category의 변화에 따라 service type의 리스트가 변화하는게 아니라
+  // 변화된 service type을 필터에 추가하는 방식임. 필터의 리스트만 바껴야 하므로 사용하지 않음
+  // useEffect(() => {
+  //   const newFilter = findServiceTypeFilter()
+  //   setServiceType(newFilter)
+  //   if (newFilter.length)
+  //     setFilter({
+  //       ...filter,
+  //       serviceType: newFilter
+  //         .filter(item => filter.serviceType?.includes(item.value))
+  //         .map(item => item.value),
+  //     })
+  // }, [filter.category])
 
   function onSearch() {
     setActiveFilter({
@@ -164,7 +166,7 @@ export default function Requests() {
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
             <Filter
-              serviceType={serviceType}
+              // serviceType={serviceType}
               filter={filter}
               setFilter={setFilter}
               onReset={onReset}
