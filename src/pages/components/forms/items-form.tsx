@@ -541,7 +541,7 @@ export default function ItemForm({
                           item =>
                             item.value ===
                             getValues(
-                              `items.${idx}.contactPersonId`,
+                              `items.${idx}.contactPerson.id`,
                             )?.toString(),
                         )?.label
                       }

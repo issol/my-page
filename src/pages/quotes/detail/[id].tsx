@@ -465,6 +465,8 @@ export default function QuotesDetail() {
             detail: !item?.detail?.length ? [] : item.detail,
             analysis: item.analysis ?? [],
             totalPrice: item?.totalPrice ?? 0,
+            dueAt: item?.dueAt ?? '',
+            contactPerson: item?.contactPerson ?? {}
           }
         })
         itemReset({ items: result })
