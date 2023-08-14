@@ -54,13 +54,22 @@ export default function Requests() {
 
   const [menu, setMenu] = useState<MenuType>('list')
 
-  const [skip, setSkip] = useState(0)
+  const [requestListPage, setrequestListPage] = useState<number>(0)
+  const [requestListPageSize, setrequestPageSize] = useState<number>(10)
+
+  // const [skip, setSkip] = useState(0)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
   const [filter, setFilter] = useState<RequestFilterType>(initialFilter)
   const [activeFilter, setActiveFilter] =
     useState<RequestFilterType>(initialFilter)
 
-  const { data: list, isLoading } = useGetClientRequestList({ ...activeFilter })
+  const { data: list, isLoading } = useGetClientRequestList(
+    {
+       ...activeFilter,
+       skip: requestListPage * requestListPageSize,
+       take: requestListPageSize,
+    }
+  )
 
   function findServiceTypeFilter() {
     let category: Array<ConstType> = []
@@ -104,8 +113,8 @@ export default function Requests() {
       ...filter,
       mine: activeFilter.mine,
       hideCompleted: activeFilter.hideCompleted,
-      skip: skip * activeFilter.take,
-      take: activeFilter.take,
+      skip: requestListPage * requestListPageSize,
+      take: requestListPageSize,
     })
   }
 
@@ -218,18 +227,20 @@ export default function Requests() {
                 />
 
                 <List
-                  skip={skip}
-                  pageSize={activeFilter.skip}
-                  setSkip={(n: number) => {
-                    setSkip(n)
-                    setActiveFilter({
-                      ...activeFilter,
-                      skip: n * activeFilter.take,
-                    })
-                  }}
-                  setPageSize={(n: number) =>
-                    setActiveFilter({ ...activeFilter, take: n })
-                  }
+                  skip={requestListPage}
+                  pageSize={requestListPageSize}
+                  // setSkip={(n: number) => {
+                  //   setSkip(n)
+                  //   setActiveFilter({
+                  //     ...activeFilter,
+                  //     skip: n * activeFilter.take,
+                  //   })
+                  // }}
+                  setSkip={setrequestListPage}
+                  // setPageSize={(n: number) =>
+                  //   setActiveFilter({ ...activeFilter, take: n })
+                  // }
+                  setPageSize={setrequestPageSize}
                   filter={activeFilter}
                   setFilter={setActiveFilter}
                   list={list || { count: 0, data: [], totalCount: 0 }}

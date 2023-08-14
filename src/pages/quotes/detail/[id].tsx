@@ -353,7 +353,7 @@ export default function QuotesDetail() {
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
-  useEffect(() => {
+  const setProjectInfoData = () => {
     if (!isProjectLoading && project && statusList) {
       // console.log(project.quoteDateTimezone)
 
@@ -403,6 +403,9 @@ export default function QuotesDetail() {
         timezone: project.quoteDateTimezone ?? defaultTimezone,
       })
     }
+  }
+  useEffect(() => {
+    setProjectInfoData()
   }, [isProjectLoading, statusList, project])
 
   // console.log(getProjectInfoValues())
@@ -627,6 +630,14 @@ export default function QuotesDetail() {
     onError: () => onMutationError(),
   })
 
+  const reloadQuoteDetail = () => {
+    // tax 정보 변경 시 setTax를 하게 되는데 이때 cancel하게 되면 서버와 화면 데이터가 달라짐
+    queryClient.invalidateQueries(['quotesDetail'])
+    .then(() => {
+      setProjectInfoData()
+    })
+  }
+
   const onClickRestoreVersion = () => {
     openModal({
       type: 'RestoreConfirmModal',
@@ -817,6 +828,7 @@ export default function QuotesDetail() {
           onClick={() => {
             callback()
             closeModal('DiscardModal')
+            reloadQuoteDetail()
           }}
         />
       ),
@@ -1464,7 +1476,7 @@ export default function QuotesDetail() {
                       onCancel: () =>
                         onDiscard({ callback: () => setEditItems(false) }),
                       onSave: () => onItemSave(),
-                      isValid: isItemValid || (taxable && tax! > 0),
+                      isValid: isItemValid || !taxable || (taxable && tax! > 0),
                     })
                   : null}
               </CardContent>
