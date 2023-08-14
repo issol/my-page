@@ -141,7 +141,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         <TextField
                           {...params}
                           label='Status'
-                          placeholder='Status'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -176,7 +175,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         })
                       }
                       renderInput={params => (
-                        <TextField {...params} label='LSP' placeholder='LSP' />
+                        <TextField {...params} label='LSP' />
                       )}
                       renderOption={(props, option, { selected }) => (
                         <li {...props}>
@@ -223,7 +222,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         <TextField
                           {...params}
                           label='Category'
-                          placeholder='Category'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -273,7 +271,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         <TextField
                           {...params}
                           label='Service type'
-                          placeholder='Service type'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
