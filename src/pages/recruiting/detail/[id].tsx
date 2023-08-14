@@ -48,7 +48,7 @@ import { useRouter } from 'next/router'
 
 // ** fetches
 import { useGetRecruitingDetail } from 'src/queries/recruiting.query'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import {
   CurrentHistoryType,
   deleteRecruiting,
@@ -66,6 +66,7 @@ type CellType = {
 const RecruitingDetail = () => {
   const router = useRouter()
   const id = Number(router.query?.id)
+  const queryClient = useQueryClient()
 
   const [mainContent, setMainContent] = useState(EditorState.createEmpty())
   const [historyContent, setHistoryContent] = useState(
@@ -259,6 +260,7 @@ const RecruitingDetail = () => {
     () => hideRecruiting(id, !currentVersion?.isHide),
     {
       onSuccess: () => {
+        queryClient.invalidateQueries('get-recruiting/list')
         router.replace('/recruiting/')
       },
       onError: () => {
