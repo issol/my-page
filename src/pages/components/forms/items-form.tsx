@@ -487,7 +487,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -524,7 +524,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -549,7 +549,7 @@ export default function ItemForm({
                   </Box>
                 ) : (
                   <Controller
-                    name={`items.${idx}.contactPersonId`}
+                    name={`items.${idx}.contactPerson.id`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <Autocomplete
@@ -586,7 +586,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -664,7 +664,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -873,7 +873,7 @@ export default function ItemForm({
         item
         xs={12}
         display='flex'
-        padding='24px'
+        padding='20px'
         alignItems='center'
         justifyContent='space-between'
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
