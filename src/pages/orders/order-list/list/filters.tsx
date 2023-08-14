@@ -64,6 +64,7 @@ import _ from 'lodash'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { OrderListFilterType } from '@src/types/orders/order-list'
 import { UserRoleType } from '@src/context/types'
+import { RevenueFrom } from '@src/shared/const/revenue-from'
 
 type Props = {
   filter: OrderListFilterType
@@ -398,7 +399,7 @@ export default function OrdersFilters({
                             }}
                             disableCloseOnSelect
                             limitTags={1}
-                            options={WorkStatus}
+                            options={RevenueFrom}
                             id='revenueFrom'
                             getOptionLabel={option => option.label}
                             renderInput={params => (
