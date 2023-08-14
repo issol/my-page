@@ -35,6 +35,7 @@ import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { useQueryClient } from 'react-query'
 import {
+  PositionType,
   ProPaymentFormType,
   deleteProPaymentFile,
   getProPaymentFile,
@@ -107,32 +108,38 @@ export default function ProPaymentInfo({ user }: Props) {
     }
 
     let finalData: BillingMethodUnionType | null = null
+    let fileData: { position: PositionType; file: File }[] = []
     switch (billingMethod) {
       case 'wise':
       case 'us_ach':
       case 'internationalWire':
+      case 'paypal':
         finalData = data.billingMethod as TransferWiseFormType
-        await uploadProPaymentFile('copyOfId', finalData?.copyOfId!)
+        fileData = [{ position: 'copyOfId', file: finalData?.copyOfId! }]
         delete finalData.copyOfId
 
       case 'koreaDomesticTransfer':
         //@ts-ignore
         const isSolo = !data.billingMethod?.copyOfBankStatement
         finalData = data.billingMethod as KoreaDomesticTransferType
-        await uploadProPaymentFile('copyOfRrCard', finalData?.copyOfRrCard!)
+        fileData = [
+          { position: 'copyOfRrCard', file: finalData?.copyOfRrCard! },
+        ]
         delete finalData.copyOfRrCard
         if (!isSolo) {
-          await uploadProPaymentFile(
-            'copyOfBankStatement',
-            finalData.copyOfBankStatement!,
-          )
+          fileData.push({
+            position: 'copyOfBankStatement',
+            file: finalData?.copyOfBankStatement!,
+          })
           delete finalData.copyOfBankStatement
         }
-
-      case 'paypal':
-        finalData = data.billingMethod as PayPalType
-        await uploadProPaymentFile('copyOfId', finalData?.copyOfId!)
-        delete finalData.copyOfId
+    }
+    if (fileData.length) {
+      const formData = new FormData()
+      fileData.forEach(async i => {
+        formData.append('file', i.file)
+        await uploadProPaymentFile(i.position, formData)
+      })
     }
     await updateProBillingMethod({
       ...data,
@@ -304,9 +311,11 @@ export default function ProPaymentInfo({ user }: Props) {
                     updateProTaxInfo(user.userId!, statusCode)
                       .then(() => {
                         if (taxInfo.businessLicense) {
+                          const formData = new FormData()
+                          formData.append('file', taxInfo.businessLicense)
                           uploadProPaymentFile(
                             'businessLicense',
-                            taxInfo.businessLicense,
+                            formData,
                           ).then(() => invalidatePaymentInfo())
                         } else {
                           invalidatePaymentInfo()
@@ -352,10 +361,12 @@ export default function ProPaymentInfo({ user }: Props) {
 
       updatePaymentMethod(billingMethodData).then(() => {
         if (taxInfo.businessLicense) {
+          const formData = new FormData()
+          formData.append('file', taxInfo.businessLicense)
           Promise.all([
             updateProBillingAddress(billingAddress),
             updateProTaxInfo(user.userId!, statusCode),
-            uploadProPaymentFile('businessLicense', taxInfo.businessLicense),
+            uploadProPaymentFile('businessLicense', formData),
           ])
             .then(() => invalidatePaymentInfo())
             .catch(onError)
@@ -413,8 +424,14 @@ export default function ProPaymentInfo({ user }: Props) {
 
   async function uploadAdditionalFiles(files: File[]) {
     files.forEach(file => {
-      uploadProPaymentFile('additional', file)
+      const formData = new FormData()
+      formData.append('file', file)
+      uploadProPaymentFile('additional', formData)
     })
+
+    setTimeout(() => {
+      invalidatePaymentInfo()
+    }, 1500)
   }
 
   //TODO: 테스트하기

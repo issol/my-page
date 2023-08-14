@@ -1,5 +1,5 @@
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
-import axios from '@src/configs/axios'
+import axios, { BASEURL, axiosConfigs } from '@src/configs/axios'
 import { downloadBase64File } from '@src/shared/helpers/base64-downloader.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
 import {
@@ -153,12 +153,19 @@ export const updateProBillingMethod = async (
 
 export const uploadProPaymentFile = async (
   positionType: PositionType,
-  file: File,
+  file: FormData,
 ): Promise<void> => {
   try {
     await axios.post(
       `/api/enough/u/pro/payment/upload-file?positionType=${positionType}`,
       file,
+      {
+        ...axiosConfigs,
+        headers: {
+          ...axiosConfigs.headers,
+          'Content-Type': 'multipart/form-data',
+        },
+      },
     )
   } catch (e: any) {
     throw new Error(e)

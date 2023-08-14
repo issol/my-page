@@ -1,4 +1,4 @@
-import { Card, Grid } from '@mui/material'
+import { Card, CardHeader, Grid, Typography } from '@mui/material'
 
 // ** context
 import { Suspense, useContext, useState } from 'react'
@@ -13,10 +13,13 @@ import { toast } from 'react-hot-toast'
 // ** components
 import PersonalInfo from './personal-info'
 import BillingMethod from './billing-method'
-import BillingAddress from './billing-address'
+import BillingAddressDetail from '@src/pages/client/components/payment-info/billing-address'
 
 // ** actions
-import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
+import {
+  useGetTaxCodeList,
+  useGetUserPaymentInfo,
+} from '@src/queries/payment-info.query'
 import {
   FileNameType,
   downloadPersonalInfoFile,
@@ -30,6 +33,7 @@ import FileInfo from '@src/@core/components/file-info'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { useGetProOverview } from '@src/queries/pro/pro-details.query'
 
 type Props = {
   id: number
@@ -46,6 +50,9 @@ export default function PaymentInfo({ id, userRole }: Props) {
   const [isManagerRequest, setIsManagerRequest] = useState(false)
 
   const { data, refetch } = useGetUserPaymentInfo(id, isManagerRequest)
+  const { data: userInfo, isError, isFetched } = useGetProOverview(Number(id!))
+  const { data: taxCodes } = useGetTaxCodeList()
+  const taxInfo = taxCodes?.find(i => i.statusCode === data?.taxCode)
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
@@ -181,13 +188,13 @@ export default function PaymentInfo({ id, userRole }: Props) {
     <Suspense fallback={<FallbackSpinner />}>
       <Grid container spacing={6} mt='6px'>
         <Grid item xs={12} md={4} lg={4}>
-          <PersonalInfo
+          {/* <PersonalInfo
             onCopy={onCopy}
-            info={data?.userInfo!}
+            info={userInfo}
             isAccountManager={isAccountManager}
             replaceDots={replaceDots}
             downloadFile={downloadFile}
-          />
+          /> */}
           {userRole === 'LPM' ? (
             <Card sx={{ padding: '24px', mt: '24px' }}>
               <FileInfo
@@ -220,13 +227,39 @@ export default function PaymentInfo({ id, userRole }: Props) {
             replaceDots={replaceDots}
             getDetail={getDetail}
           />
-          <BillingAddress
-            info={data?.billingAddress!}
-            replaceDots={replaceDots}
-          />
-          {userRole === 'LPM' ? (
-            <Tax info={data?.tax!} edit={taxEdit} setEdit={setTaxEdit} />
-          ) : null}
+
+          <Card style={{ marginTop: '24px', padding: '24px' }}>
+            <Typography variant='h6' mb={6}>
+              Billing address
+            </Typography>
+            <BillingAddressDetail
+              billingAddress={{
+                baseAddress: replaceDots(
+                  data?.billingAddress?.baseAddress ?? '',
+                ),
+                city: replaceDots(data?.billingAddress?.city ?? ''),
+                country: replaceDots(data?.billingAddress?.country ?? ''),
+                detailAddress: replaceDots(
+                  data?.billingAddress?.detailAddress ?? '',
+                ),
+                state: replaceDots(data?.billingAddress?.state ?? ''),
+                zipCode: replaceDots(
+                  data?.billingAddress?.zipCode?.toString() ?? '',
+                ),
+              }}
+            />
+          </Card>
+          {/* TODO: taxInfo스키마 결정되면 수정하기 */}
+          {/* {userRole === 'LPM' ? (
+            <Tax
+              info={{
+                taxInfo: taxInfo?.info,
+                taxRate: taxInfo?.rate,
+              }}
+              edit={taxEdit}
+              setEdit={setTaxEdit}
+            />
+          ) : null} */}
         </Grid>
       </Grid>
     </Suspense>
