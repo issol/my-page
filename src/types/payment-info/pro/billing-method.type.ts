@@ -28,20 +28,16 @@ export type BillingMethodUnionType =
 // ** Transferwise, US ACH, International wire 용 form
 export type TransferWiseFormType = {
   type: ProPaymentType | null
-  copyOfId: File
+  copyOfId?: File
   personalId: string
-  // bankInfo: BankInfo
-  // correspondentBankInfo?: CorrespondentBankInfo
 }
 
 // ** 국내계좌송금 - 일반
 export type KoreaDomesticTransferType = {
   type: ProPaymentType | null
   rrn: number //Resident registration number
-  copyOfRrCard: File //Copy of Resident Registration Card
-  copyOfBankStatement: File //Copy of bank statement
-  // bankInfo: BankInfo
-  // correspondentBankInfo?: CorrespondentBankInfo
+  copyOfRrCard?: File //Copy of Resident Registration Card
+  copyOfBankStatement?: File //Copy of bank statement
 }
 
 // ** 국내계좌송금 - 개인사업자
@@ -49,16 +45,14 @@ export type KoreaDomesticTransferSoloType = {
   type: ProPaymentType | null
   businessName: string
   businessNumber: number //Business Registration Number*
-  copyOfRrCard: File //Copy of Resident Registration Card
-  // bankInfo: BankInfo
-  // correspondentBankInfo?: CorrespondentBankInfo
+  copyOfRrCard?: File //Copy of Resident Registration Card
 }
 
 export type PayPalType = {
   type: ProPaymentType | null
   email: string
   personalId: string
-  copyOfId: File
+  copyOfId?: File
 }
 
 export type BankInfo = {

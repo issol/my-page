@@ -3,7 +3,14 @@ import { Box, Button, Card, Grid, Typography } from '@mui/material'
 import { UserDataType } from '@src/context/types'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 
-import { ProPaymentType } from '@src/types/payment-info/pro/billing-method.type'
+import {
+  BillingMethodUnionType,
+  KoreaDomesticTransferSoloType,
+  KoreaDomesticTransferType,
+  PayPalType,
+  ProPaymentType,
+  TransferWiseFormType,
+} from '@src/types/payment-info/pro/billing-method.type'
 import BillingMethod from './billing-method-forms'
 import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
 import { useForm } from 'react-hook-form'
@@ -30,11 +37,15 @@ import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
 import {
+  PositionType,
   ProPaymentFormType,
+  deleteProPaymentFile,
+  getProPaymentFile,
   getTaxCodeList,
   updateProBillingAddress,
   updateProBillingMethod,
   updateProTaxInfo,
+  uploadProPaymentFile,
 } from '@src/apis/payment-info.api'
 import { toast } from 'react-hot-toast'
 import {
@@ -48,13 +59,6 @@ type Props = {
   user: UserDataType
 }
 
-/* TODO:
-1. 데이터를 받아왔을 때 billing method의 type이 없을 경우 register버튼 노출 => isRegister값으로 구분하기
-2. 데이터를 받아왔을 때 저장된게 있는 경우 모든 form reset해주기
-    1. Save버튼 클릭 시 바로 fetch되게 하기
-    2. cancel시 기존 데이터로 reset해주기
-3. 각 detail에 보낼 값들은 isRegister이 true면 저장된 데이터를, 아닌 경우면 form데이터를 getValues해서 넣어주기
-*/
 export default function ProPaymentInfo({ userInfo, user }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -75,36 +79,11 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     null,
   )
 
-  //TODO: 최종 submit 시 보낼 데이터
   const [billingMethodData, setBillingMethodData] =
     useState<ProPaymentFormType | null>(null)
 
   const { data: paymentInfo } = useGetUserPaymentInfo(user.userId!, true)
   const { data: taxCodes } = useGetTaxCodeList()
-  console.log('paymentInfo', paymentInfo)
-
-  const updatePaymentInfo = useMutation(
-    (info: ProPaymentFormType) => updateProBillingMethod(info),
-    {
-      onSuccess: () => invalidatePaymentInfo(),
-      onError,
-    },
-  )
-
-  const updateBillingAddress = useMutation(
-    (info: ClientAddressType) => updateProBillingAddress(info),
-    {
-      onSuccess: () => invalidatePaymentInfo(),
-      onError,
-    },
-  )
-  const updateTaxInfo = useMutation(
-    (statusCode: number) => updateProTaxInfo(user.userId!, statusCode),
-    {
-      onSuccess: () => invalidatePaymentInfo(),
-      onError,
-    },
-  )
 
   function onError() {
     toast.error('Something went wrong. Please try again.', {
@@ -113,6 +92,14 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
   }
 
   function onBillingMethodSave(data: ProPaymentFormType) {
+    // ** !isRegister인 경우 수정, 아닌 경우 create
+    if (!isRegister) {
+      updatePaymentMethod(data)
+    }
+    setBillingMethodData(data)
+  }
+
+  async function updatePaymentMethod(data: ProPaymentFormType) {
     for (const key in data.correspondentBankInfo) {
       //@ts-ignore
       if (!data.correspondentBankInfo[key]) {
@@ -124,11 +111,38 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       data.correspondentBankInfo = null
     }
 
-    if (!isRegister) {
-      updatePaymentInfo.mutate(data)
-    }
+    let finalData: BillingMethodUnionType | null = null
+    switch (billingMethod) {
+      case 'wise':
+      case 'us_ach':
+      case 'internationalWire':
+        finalData = data.billingMethod as TransferWiseFormType
+        await uploadProPaymentFile('copyOfId', finalData?.copyOfId!)
+        delete finalData.copyOfId
 
-    setBillingMethodData(data)
+      case 'koreaDomesticTransfer':
+        //@ts-ignore
+        const isSolo = !data.billingMethod?.copyOfBankStatement
+        finalData = data.billingMethod as KoreaDomesticTransferType
+        await uploadProPaymentFile('copyOfRrCard', finalData?.copyOfRrCard!)
+        delete finalData.copyOfRrCard
+        if (!isSolo) {
+          await uploadProPaymentFile(
+            'copyOfBankStatement',
+            finalData.copyOfBankStatement!,
+          )
+          delete finalData.copyOfBankStatement
+        }
+
+      case 'paypal':
+        finalData = data.billingMethod as PayPalType
+        await uploadProPaymentFile('copyOfId', finalData?.copyOfId!)
+        delete finalData.copyOfId
+    }
+    await updateProBillingMethod({
+      ...data,
+      billingMethod: finalData!,
+    })
   }
 
   const {
@@ -164,33 +178,114 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     resolver: yupResolver(taxInfoSchema(billingMethod)),
   })
 
+  async function resetBillingMethodData() {
+    const decryptPaymentInfo = paymentInfo?.decryptPaymentInfo
+    if (decryptPaymentInfo?.billingMethod?.type) {
+      let billingMethod: BillingMethodUnionType = {
+        ...decryptPaymentInfo?.billingMethod,
+      }
+      switch (decryptPaymentInfo?.billingMethod?.type) {
+        case 'wise':
+        case 'us_ach':
+        case 'internationalWire':
+        case 'paypal':
+          const copyOfId = paymentInfo?.files?.find(
+            i => i.positionType === 'copyOfId',
+          )
+          if (copyOfId) {
+            billingMethod = billingMethod as TransferWiseFormType
+            const file = await transferBlobToFile(copyOfId.id!, 'copyOfId')
+            if (file) billingMethod.copyOfId = file
+          }
+
+        case 'koreaDomesticTransfer':
+          const copyOfRrCard = paymentInfo?.files?.find(
+            i => i.positionType === 'copyOfRrCard',
+          )
+          //@ts-ignore
+          const isSolo = !billingMethod?.copyOfBankStatement
+          billingMethod = billingMethod as KoreaDomesticTransferType
+          if (copyOfRrCard) {
+            const file = await transferBlobToFile(
+              copyOfRrCard.id!,
+              'copyOfRrCard',
+            )
+            if (file) billingMethod.copyOfRrCard = file
+          }
+          if (!isSolo) {
+            const copyOfBankStatement = paymentInfo?.files?.find(
+              i => i.positionType === 'copyOfBankStatement',
+            )
+            if (copyOfBankStatement) {
+              const file = await transferBlobToFile(
+                copyOfBankStatement.id!,
+                'copyOfBankStatement',
+              )
+              if (file) billingMethod.copyOfBankStatement = file
+            }
+          }
+
+          setBillingMethod(decryptPaymentInfo?.billingMethod?.type)
+          setBillingMethodData({
+            billingMethod: billingMethod,
+            bankInfo: decryptPaymentInfo?.bankInfo,
+            correspondentBankInfo: decryptPaymentInfo?.correspondentBankInfo,
+          })
+      }
+    }
+  }
+
+  async function transferBlobToFile(
+    id: number,
+    fileName: string,
+  ): Promise<File | null> {
+    const res = await getProPaymentFile(id)
+    if (res) {
+      const fileData: File = new File([res], fileName, {
+        type: res.type,
+        lastModified: new Date().getTime(),
+      })
+      return fileData
+    }
+    return null
+  }
+
   // ** form reset by paymentInfo data
   useEffect(() => {
     if (paymentInfo) {
       const { decryptPaymentInfo } = paymentInfo || undefined
-      setBillingMethod(decryptPaymentInfo?.billingMethod?.type)
-      setBillingMethodData({
-        billingMethod: decryptPaymentInfo?.billingMethod,
-        bankInfo: decryptPaymentInfo?.bankInfo,
-        correspondentBankInfo: decryptPaymentInfo?.correspondentBankInfo,
-      })
+      resetBillingMethodData()
 
       reset({ ...paymentInfo.billingAddress })
 
       const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo.taxCode)
+      const taxInfoFile = paymentInfo?.files?.find(
+        i => i.positionType === 'businessLicense',
+      )
       if (taxInfo) {
+        if (taxInfoFile) {
+          transferBlobToFile(taxInfoFile.id!, 'businessLicense').then(res => {
+            if (res) {
+              resetTaxInfo({
+                tax: Number(taxInfo.rate),
+                taxInfo: taxInfo.info,
+                businessLicense: res,
+              })
+            }
+          })
+        }
         resetTaxInfo({
           tax: Number(taxInfo.rate),
           taxInfo: taxInfo.info,
         })
       }
       if (decryptPaymentInfo?.billingMethod?.type) {
-        setIsRegister(true)
+        setIsRegister(false)
       }
     }
   }, [paymentInfo])
 
-  function onSaveEachForm(type: 'billingAddress' | 'taxInfo') {
+  function onSaveEachForm(type: 'billingAddress' | 'tax') {
     openModal({
       type: 'save',
       children: (
@@ -201,7 +296,33 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
             setEditBillingAddress(false)
             setEditTaxInfo(false)
             if (!isRegister) {
-              //TODO: type에 따른 update mutation붙이기
+              switch (type) {
+                case 'billingAddress':
+                  updateProBillingAddress(getValues())
+                    .then(() => invalidatePaymentInfo())
+                    .catch(() => onError())
+                  return
+                case 'tax':
+                  if (taxCodes) {
+                    const taxInfo = getTaxInfo()
+                    const statusCode = taxCodes.find(
+                      i => i.info === taxInfo.taxInfo,
+                    )?.statusCode!
+                    updateProTaxInfo(user.userId!, statusCode)
+                      .then(() => {
+                        if (taxInfo.businessLicense) {
+                          uploadProPaymentFile(
+                            'businessLicense',
+                            taxInfo.businessLicense,
+                          ).then(() => invalidatePaymentInfo())
+                        } else {
+                          invalidatePaymentInfo()
+                        }
+                      })
+                      .catch(() => onError())
+                  }
+                  return
+              }
             }
           }}
           onClose={() => closeModal('save')}
@@ -209,11 +330,7 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       ),
     })
   }
-  // console.log(
-  //   'isRegister && changeBillingMethod',
-  //   isRegister,
-  //   changeBillingMethod,
-  // )
+
   function onCancel() {
     openModal({
       type: 'discard',
@@ -240,10 +357,15 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
       const statusCode = taxCodes.find(i => i.info === taxInfo.taxInfo)
         ?.statusCode!
       const promises = [
-        updateProBillingMethod(billingMethodData),
+        updatePaymentMethod(billingMethodData),
         updateProBillingAddress(billingAddress),
         updateProTaxInfo(user.userId!, statusCode),
       ]
+      if (taxInfo.businessLicense) {
+        promises.push(
+          uploadProPaymentFile('businessLicense', taxInfo.businessLicense),
+        )
+      }
       Promise.all(promises)
         .then(() => invalidatePaymentInfo())
         .catch(onError)
@@ -269,16 +391,40 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
     })
   }
 
-  function downloadAllFile() {
-    //TODO: 함수 완성하기
+  function downloadFile(file: FileItemType) {
+    if (!file?.id) return
+    getProPaymentFile(file.id).then(res => {
+      const url = window.URL.createObjectURL(res)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.fileName
+      document.body.appendChild(a)
+      a.click()
+      setTimeout((_: any) => {
+        window.URL.revokeObjectURL(url)
+      }, 60000)
+      a.remove()
+    })
   }
 
-  function uploadFiles(files: File[]) {
-    //TODO: 함수 완성하기
+  function downloadAllFile(files: FileItemType[] | null) {
+    if (!files) return
+    files.forEach(file => downloadFile(file))
   }
 
+  async function uploadAdditionalFiles(files: File[]) {
+    files.forEach(file => {
+      uploadProPaymentFile('additional', file)
+    })
+  }
+
+  //TODO: 테스트하기
   function onDeleteFile(file: FileItemType) {
-    //TODO: 함수 완성하기
+    if (file.id) {
+      deleteProPaymentFile(file.id!)
+        .then(() => invalidatePaymentInfo())
+        .catch(() => onError())
+    }
   }
 
   function onChangeBillingMethod() {
@@ -299,17 +445,18 @@ Some information will reset..'
       ),
     })
   }
-  // console.log('billing', billingMethodData)
+
   function checkBillingMethodChange(newMethod: ProPaymentType) {
-    const taxInfo = getTaxInfo() //TODO: 이 값은 서버에서 받은 사용자 값으로 교체해야 함
-    const billingMethodInfo = billingMethodData //TODO: 이 값도 서버에서 받은 사용자 값으로 교체하기
+    const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo?.taxCode)
+    const billingMethodType =
+      paymentInfo?.decryptPaymentInfo?.billingMethod.type
 
     const isNewMethodKorea = newMethod.includes('koreaDomesticTransfer')
-    const isCurrMethodKorea = billingMethodInfo?.billingMethod?.type?.includes(
+    const isCurrMethodKorea = billingMethodType?.includes(
       'koreaDomesticTransfer',
     )
     const isNotChangeable =
-      !taxInfo.taxInfo?.includes('Korea') &&
+      !taxInfo?.info?.includes('Korea') &&
       isNewMethodKorea &&
       !isCurrMethodKorea
 
@@ -343,10 +490,9 @@ Some information will reset..'
       setBillingMethod(newMethod)
     }
   }
-  // console.log('billing', billingMethod)
+
   return (
     <Grid container spacing={6}>
-      {/* TODO: 이 버튼은 billing method의 type이 없는 경우에만 노출하기 */}
       {editMethod || editBillingAddress || editTaxInfo || !isRegister ? null : (
         <Grid item xs={12} display='flex' justifyContent='end'>
           <Button
@@ -467,17 +613,7 @@ Some information will reset..'
               </Fragment>
             ) : (
               <Grid item xs={12}>
-                {/* TODO: 실 데이터로 교체하기 */}
-                <BillingAddress
-                  billingAddress={{
-                    addressType: 'billing',
-                    baseAddress: '알라깔라',
-                    detailAddress: '똑깔라비',
-                    city: 'Seoul',
-                    country: 'Korea',
-                    zipCode: '12313',
-                  }}
-                />
+                <BillingAddress billingAddress={paymentInfo?.billingAddress} />
               </Grid>
             )}
           </Grid>
@@ -529,7 +665,7 @@ Some information will reset..'
                   <Button
                     variant='contained'
                     disabled={!isTaxInfoValid}
-                    onClick={() => onSaveEachForm('taxInfo')}
+                    onClick={() => onSaveEachForm('tax')}
                   >
                     Save
                   </Button>
@@ -546,15 +682,16 @@ Some information will reset..'
           </Grid>
         </Card>
       </Grid>
-
-      {/* Additional files TODO: payment info파일은 다운로드 방식이 다르므로
-      백엔드와 논의 후 FileInfo컴포넌트 새로 만들기. file data 스키마 정의, 다운로드 방식 정하기 */}
       {!isRegister ? (
         <Grid item xs={4}>
           <Card sx={{ padding: '24px' }}>
             <FileInfo
               title='Additional files'
-              fileList={[]}
+              fileList={
+                paymentInfo?.files.filter(
+                  i => i.positionType === 'additional',
+                ) || []
+              }
               accept={{
                 'image/*': ['.png', '.jpg', '.jpeg'],
                 'text/csv': ['.cvs'],
@@ -567,7 +704,7 @@ Some information will reset..'
               }}
               fileType={''}
               onDownloadAll={downloadAllFile}
-              onFileDrop={uploadFiles}
+              onFileDrop={uploadAdditionalFiles}
               onDeleteFile={onDeleteFile}
               isUpdatable={true}
               isDeletable={true}

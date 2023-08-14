@@ -139,22 +139,12 @@ export default function BillingMethod({
     },
     resolver: yupResolver(getBillingMethodSchema(billingMethod, isSolo)),
   })
-  useEffect(() => {
-    console.log('billingMethodData', billingMethodData)
-    if (billingMethod === getValues('type') && !!billingMethodData) {
-      reset({ ...billingMethodData.bankInfo, type: billingMethod })
-    } else {
-      reset({
-        ...billingMethodInitialData(billingMethod, isSolo),
-        type: billingMethod,
-      })
-    }
-  }, [billingMethod, isSolo])
 
   const {
     control: bankInfoControl,
     getValues: getBankInfo,
     setValue: setBankInfo,
+    reset: resetBankInfo,
     formState: {
       errors: bankInfoErrors,
       isValid: isBankInfoValid,
@@ -170,6 +160,7 @@ export default function BillingMethod({
     control: corrBankInfoControl,
     getValues: getCorrBankInfo,
     setValue: setCorrBankInfo,
+    reset: resetCorrBankInfo,
     formState: {
       errors: corrBankInfoErrors,
       isValid: isCorrBankInfoValid,
@@ -180,8 +171,28 @@ export default function BillingMethod({
     defaultValues: corrBankInfoDefaultValue,
     resolver: yupResolver(corrBankInfoSchema),
   })
-
-  // const haveCorrBank = watch('haveCorrespondentBank')
+  console.log('getValue', getValues())
+  useEffect(() => {
+    if (!billingMethodData?.billingMethod) {
+      if (billingMethod === getValues('type') && !!billingMethodData) {
+        reset({ ...billingMethodData.bankInfo, type: billingMethod })
+      } else {
+        reset({
+          ...billingMethodInitialData(billingMethod, isSolo),
+          type: billingMethod,
+        })
+      }
+    } else {
+      reset({ ...billingMethodData.billingMethod, type: billingMethod })
+      resetBankInfo({
+        ...billingMethodData.bankInfo,
+      })
+      if (billingMethodData.correspondentBankInfo)
+        resetCorrBankInfo({
+          ...billingMethodData.correspondentBankInfo,
+        })
+    }
+  }, [billingMethod, isSolo, billingMethodData])
 
   function onBillingMethodSaveClick() {
     const personalData = getValues()
@@ -248,17 +259,6 @@ export default function BillingMethod({
             </Grid>
             <BankInfoForm control={bankInfoControl} errors={bankInfoErrors} />
             <Grid item xs={12}>
-              {/* <Controller
-                name='haveCorrespondentBank'
-                control={control}
-                rules={{ required: true }}
-                render={({ field: { value, onChange, onBlur } }) => (
-                  <FormControlLabel
-                    label='I have correspondent bank'
-                    control={<Checkbox checked={value} onChange={onChange} />}
-                  />
-                )}
-              /> */}
               <FormControlLabel
                 label='I have correspondent bank'
                 control={

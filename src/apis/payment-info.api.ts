@@ -18,6 +18,13 @@ export type TaxResidentInfoType =
   | 'Singapore resident'
   | 'Korea resident (Sole proprietorship)'
 
+export type PositionType =
+  | 'businessLicense'
+  | 'copyOfId'
+  | 'copyOfRrCard'
+  | 'copyOfBankStatement'
+  | 'additional'
+
 export type UserInfo = {
   userId: number | null
   identificationNumber?: string //social security number
@@ -25,8 +32,6 @@ export type UserInfo = {
   businessLicenseUploaded?: boolean
 }
 export type ProPaymentInfoType = {
-  // userInfo: UserInfo
-  // type: ProPaymentType | null
   decryptPaymentInfo: {
     billingMethod: BillingMethodUnionType
     bankInfo: {
@@ -40,7 +45,7 @@ export type ProPaymentInfoType = {
     correspondentBankInfo: CorrespondentBankInfo
   }
   billingAddress: ClientAddressType
-  files: Array<FileItemType>
+  files: Array<FileItemType & { positionType: PositionType; proId: number }>
   taxCode: number
 }
 
@@ -60,81 +65,25 @@ export const getUserPaymentInfoWithMasking = async (
   id: number,
 ): Promise<ProPaymentInfoType | null> => {
   try {
-    const data = await axios.get(`/api/enough/u/pro/${id}/payment/all/masking`)
-    return data.data
-    // return {
-    //   userInfo: {
-    //     userId: null,
-    //     identificationNumber: '',
-    //     identificationUploaded: false,
-    //     businessLicenseUploaded: false,
-    //   },
-    //   type: null,
-    //   bankInfo: {
-    //     bankName: '',
-    //     email: '',
-    //     accountNumber: '',
-    //     routingNumber: '',
-    //     swiftCode: '',
-    //     iban: '',
-    //   },
-    //   correspondentBankInfo: {
-    //     accountNumber: '',
-    //     swiftCode: '',
-    //     iban: '',
-    //   },
-
-    //   billingAddress: {
-    //     city: '',
-    //     state: '',
-    //     country: '',
-    //     zip: 0,
-    //   },
-    //   tax: {
-    //     taxInfo: 'Korea resident',
-    //     taxRate: 0.03,
-    //   },
-    //   files: [
-    //     {
-    //       filePath: '7686/resume/pro-task디테일.png',
-    //       fileName: 'pro-task디테일',
-    //       fileExtension: 'png',
-    //       fileSize: 200,
-    //       url: 'https://enough-upload-dev.gloground.com/7686/resume/pro-task%E1%84%83%E1%85%B5%E1%84%90%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF.png?Expires=1687169890&Key-Pair-Id=K3KY6G7GJ7W3IB&Signature=Et3zazpLpZtRRSmn4YBzhuL~Fx2Hwo7SuXaeFUeydpGxVkwHUAM~wZ3-dD7Z09g2syNWNvSNnL2IiVFBGOGV9jifUeScvK3sjkgQw48AKR9UCYKP9L7q3MTkWSSs-a97XNeLFaF~yXH6sZlpJw0y9vOmHJ10cmu~Uq7R9bY91qKd45GhDmdIOirH-cYI~BkjRrqSyy8kXDMhI03Gdyt6NoX4gaXwgZhUAbwA8YGfJiQjyXiHWtrFHM-ROWOTzJFrutIqGrnBbQaTNFORazK~eHKtFbVqumTgUvV~0LovacDbyLHjLvxynC3OZw7tcR4MGcguHdw0xk84ZJCtsbrdfw__',
-    //     },
-    //     {
-    //       url: '',
-    //       filePath: '',
-    //       fileName: 'test2',
-    //       fileSize: 400,
-    //       fileExtension: 'pdf',
-    //     },
-    //     {
-    //       url: '',
-    //       filePath: '',
-    //       fileName: 'test2',
-    //       fileExtension: 'pdf',
-    //     },
-    //     {
-    //       url: '',
-    //       filePath: '',
-    //       fileName: 'test2',
-    //       fileExtension: 'pdf',
-    //     },
-    //     {
-    //       url: '',
-    //       filePath: '',
-    //       fileName: 'test2',
-    //       fileExtension: 'pdf',
-    //     },
-    //     {
-    //       url: '',
-    //       filePath: '',
-    //       fileName: 'test2',
-    //       fileExtension: 'pdf',
-    //     },
-    //   ],
-    // }
+    const { data } = await axios.get(
+      `/api/enough/u/pro/${id}/payment/all/masking`,
+    )
+    if (data) {
+      return {
+        ...data,
+        files: data.files.map((i: any) => ({
+          id: i.id,
+          url: '',
+          filePath: '',
+          fileName: i.name,
+          fileExtension: i.type,
+          fileSize: i.size,
+          proId: i.proId,
+          positionType: i.positionType,
+        })),
+      }
+    }
+    return data
   } catch (e: any) {
     return null
   }
@@ -187,6 +136,40 @@ export const updateProBillingMethod = async (
   }
 }
 
+export const uploadProPaymentFile = async (
+  positionType: PositionType,
+  file: File,
+): Promise<void> => {
+  try {
+    await axios.post(
+      `/api/enough/u/pro/payment/upload-file?positionType=${positionType}`,
+      file,
+    )
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const getProPaymentFile = async (fileId: number): Promise<any> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/pro/payment/file/${fileId}`,
+      { responseType: 'blob' },
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteProPaymentFile = async (fileId: number): Promise<void> => {
+  try {
+    await axios.delete(`/api/enough/u/pro/payment/delete-file/${fileId}`)
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const updateProBillingAddress = async (
   info: ClientAddressType,
 ): Promise<void> => {
@@ -202,7 +185,9 @@ export const updateProTaxInfo = async (
   statusCode: number,
 ): Promise<void> => {
   try {
-    await axios.post(`/api/enough/u/pro/payment/tax/${proId}`, statusCode)
+    await axios.post(`/api/enough/u/pro/${proId}/payment/tax`, {
+      taxCode: statusCode,
+    })
   } catch (e: any) {
     throw new Error(e)
   }

@@ -31,8 +31,6 @@ export default function BillingMethodDetail({
   bankInfo,
   corrBankInfo,
 }: Props) {
-  console.log('billingMethod', billingMethod)
-  console.log('info', info)
   function renderDetails() {
     if (!info) return null
     switch (billingMethod) {
@@ -60,7 +58,7 @@ export default function BillingMethodDetail({
                   size='small'
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
-                  onClick={() => downloadStateFile(transferData?.copyOfId)}
+                  onClick={() => downloadStateFile(transferData?.copyOfId!)}
                 >
                   Download
                 </Button>
@@ -97,7 +95,7 @@ export default function BillingMethodDetail({
                     variant='outlined'
                     startIcon={<Icon icon='ic:baseline-download' />}
                     onClick={() =>
-                      downloadStateFile(koreanSoloData.copyOfRrCard)
+                      downloadStateFile(koreanSoloData.copyOfRrCard!)
                     }
                   >
                     Download
@@ -108,6 +106,7 @@ export default function BillingMethodDetail({
           )
         }
         const koreanData = info as KoreaDomesticTransferType
+        console.log('koreanData', koreanData)
         return (
           <>
             <BorderBox>
@@ -124,7 +123,7 @@ export default function BillingMethodDetail({
                   size='small'
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
-                  onClick={() => downloadStateFile(koreanData.copyOfRrCard)}
+                  onClick={() => downloadStateFile(koreanData.copyOfRrCard!)}
                 >
                   Download
                 </Button>
@@ -139,7 +138,7 @@ export default function BillingMethodDetail({
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
                   onClick={() =>
-                    downloadStateFile(koreanData.copyOfBankStatement)
+                    downloadStateFile(koreanData.copyOfBankStatement!)
                   }
                 >
                   Download
