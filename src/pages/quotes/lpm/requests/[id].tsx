@@ -316,7 +316,7 @@ export default function RequestDetail() {
         >
           <Box display='flex' alignItems='center' gap='8px'>
             <Box display='flex' alignItems='center' gap='8px'>
-              <IconButton onClick={() => router.back()}>
+              <IconButton onClick={() => router.push('/quotes/lpm/requests/')}>
                 <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
               </IconButton>
               <img

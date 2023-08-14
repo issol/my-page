@@ -227,7 +227,7 @@ export default function RequestDetail() {
           sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
         >
           <Box display='flex' alignItems='center' gap='8px'>
-            <IconButton onClick={() => router.back()}>
+            <IconButton onClick={() => router.push('/quotes/requests/')}>
               <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
             </IconButton>
             <img
