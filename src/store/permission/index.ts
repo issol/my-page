@@ -410,6 +410,22 @@ export const getPermission = createAsyncThunk(
             subject: 'pro_mypage',
             can: 'delete',
           },
+          {
+            subject: 'pro_payment',
+            can: 'read',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'create',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'update',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {

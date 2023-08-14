@@ -32,18 +32,16 @@ export type UserInfo = {
   businessLicenseUploaded?: boolean
 }
 export type ProPaymentInfoType = {
-  decryptPaymentInfo: {
-    billingMethod: BillingMethodUnionType
-    bankInfo: {
-      email?: string
-      bankName: string
-      accountNumber: string
-      routingNumber: string
-      swiftCode: string
-      iban: string
-    }
-    correspondentBankInfo: CorrespondentBankInfo
+  billingMethod: BillingMethodUnionType
+  bankInfo: {
+    email?: string
+    bankName: string
+    accountNumber: string
+    routingNumber: string
+    swiftCode: string
+    iban: string
   }
+  correspondentBankInfo: CorrespondentBankInfo
   billingAddress: ClientAddressType
   files: Array<FileItemType & { positionType: PositionType; proId: number }>
   taxCode: number
@@ -100,6 +98,9 @@ export const getUserPaymentInfo = async (
     if (data) {
       return {
         ...data,
+        billingMethod: data.decryptPaymentInfo.billingMethod,
+        bankInfo: data.decryptPaymentInfo.bankInfo,
+        correspondentBankInfo: data.decryptPaymentInfo.correspondentBankInfo,
         files: data.files.map((i: any) => ({
           id: i.id,
           url: '',

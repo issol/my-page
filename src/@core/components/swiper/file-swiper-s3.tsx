@@ -62,8 +62,8 @@ const FileSwiperFromS3 = ({
       <Box className='navigation-wrapper'>
         <Box ref={sliderRef} className='keen-slider'>
           {files?.map((value, idx) => {
-            const parts = value?.fileExtension.split('/')
-            const fileName = parts[parts.length - 1]
+            const parts = value?.fileExtension?.split('/') ?? ''
+            const fileType = parts[parts.length - 1]
 
             return (
               <FileContainer
@@ -87,7 +87,7 @@ const FileSwiperFromS3 = ({
 
                 <Box display='flex' flexDirection='column' alignItems='center'>
                   <img
-                    src={`/images/icons/file-icons/${fileName}-file.svg`}
+                    src={`/images/icons/file-icons/${fileType}-file.svg`}
                     alt='file'
                     width={40}
                   />

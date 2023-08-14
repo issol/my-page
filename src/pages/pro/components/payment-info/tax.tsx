@@ -33,9 +33,10 @@ type Props = {
   }
   edit: boolean
   setEdit: Dispatch<SetStateAction<boolean>>
+  isUpdatable: boolean
 }
 
-const Tax = ({ info, edit, setEdit }: Props) => {
+const Tax = ({ info, edit, setEdit, isUpdatable }: Props) => {
   const [taxInfo, setTaxInfo] = useState<string>(info?.taxInfo ?? null)
   const [taxRate, setTaxRate] = useState<number | null>(info?.taxRate ?? null)
 
@@ -131,6 +132,7 @@ const Tax = ({ info, edit, setEdit }: Props) => {
           <IconButton
             onClick={() => setEdit!(true)}
             // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+            disabled={!isUpdatable}
           >
             <Icon icon='mdi:pencil-outline' />
           </IconButton>

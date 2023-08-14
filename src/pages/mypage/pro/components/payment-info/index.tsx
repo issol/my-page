@@ -179,12 +179,11 @@ export default function ProPaymentInfo({ user }: Props) {
   })
 
   async function resetBillingMethodData() {
-    const decryptPaymentInfo = paymentInfo?.decryptPaymentInfo
-    if (decryptPaymentInfo?.billingMethod?.type) {
+    if (paymentInfo?.billingMethod?.type) {
       let billingMethod: BillingMethodUnionType = {
-        ...decryptPaymentInfo?.billingMethod,
+        ...paymentInfo?.billingMethod,
       }
-      switch (decryptPaymentInfo?.billingMethod?.type) {
+      switch (paymentInfo?.billingMethod?.type) {
         case 'wise':
         case 'us_ach':
         case 'internationalWire':
@@ -225,11 +224,11 @@ export default function ProPaymentInfo({ user }: Props) {
             }
           }
 
-          setBillingMethod(decryptPaymentInfo?.billingMethod?.type)
+          setBillingMethod(paymentInfo?.billingMethod?.type)
           setBillingMethodData({
             billingMethod: billingMethod,
-            bankInfo: decryptPaymentInfo?.bankInfo,
-            correspondentBankInfo: decryptPaymentInfo?.correspondentBankInfo,
+            bankInfo: paymentInfo?.bankInfo,
+            correspondentBankInfo: paymentInfo?.correspondentBankInfo,
           })
       }
     }
@@ -253,7 +252,6 @@ export default function ProPaymentInfo({ user }: Props) {
   // ** form reset by paymentInfo data
   useEffect(() => {
     if (paymentInfo) {
-      const { decryptPaymentInfo } = paymentInfo || undefined
       resetBillingMethodData()
 
       reset({ ...paymentInfo.billingAddress })
@@ -279,7 +277,7 @@ export default function ProPaymentInfo({ user }: Props) {
           taxInfo: taxInfo.info,
         })
       }
-      if (decryptPaymentInfo?.billingMethod?.type) {
+      if (paymentInfo?.billingMethod?.type) {
         setIsRegister(false)
       }
     }
@@ -434,7 +432,6 @@ export default function ProPaymentInfo({ user }: Props) {
     }, 1500)
   }
 
-  //TODO: 테스트하기
   function onDeleteFile(file: FileItemType) {
     if (file.id) {
       deleteProPaymentFile(file.id!)
@@ -464,8 +461,7 @@ Some information will reset..'
 
   function checkBillingMethodChange(newMethod: ProPaymentType) {
     const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo?.taxCode)
-    const billingMethodType =
-      paymentInfo?.decryptPaymentInfo?.billingMethod.type
+    const billingMethodType = paymentInfo?.billingMethod.type
 
     const isNewMethodKorea = newMethod.includes('koreaDomesticTransfer')
     const isCurrMethodKorea = billingMethodType?.includes(
