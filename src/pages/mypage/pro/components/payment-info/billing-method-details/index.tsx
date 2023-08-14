@@ -106,7 +106,7 @@ export default function BillingMethodDetail({
           )
         }
         const koreanData = info as KoreaDomesticTransferType
-        console.log('koreanData', koreanData)
+
         return (
           <>
             <BorderBox>

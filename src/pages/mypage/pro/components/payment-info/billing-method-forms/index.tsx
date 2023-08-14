@@ -63,10 +63,15 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import useModal from '@src/hooks/useModal'
 import KoreaDomesticForm from './korea-domestic-form'
 import KoreaDomesticSoloForm from './korea-domestic-solo-form'
-import { ProPaymentFormType } from '@src/apis/payment-info.api'
+import {
+  PositionType,
+  ProPaymentFormType,
+  ProPaymentInfoType,
+} from '@src/apis/payment-info.api'
 
 type Props = {
   isRegister: boolean
+  paymentInfo: ProPaymentInfoType | null
   changeBillingMethod: boolean
   checkBillingMethodChange: (v: ProPaymentType) => void
   billingMethodData: ProPaymentFormType | null
@@ -78,6 +83,7 @@ type Props = {
 }
 export default function BillingMethod({
   isRegister,
+  paymentInfo,
   changeBillingMethod,
   checkBillingMethodChange,
   billingMethodData,
@@ -143,7 +149,6 @@ export default function BillingMethod({
   const {
     control: bankInfoControl,
     getValues: getBankInfo,
-    setValue: setBankInfo,
     reset: resetBankInfo,
     formState: {
       errors: bankInfoErrors,
@@ -159,7 +164,6 @@ export default function BillingMethod({
   const {
     control: corrBankInfoControl,
     getValues: getCorrBankInfo,
-    setValue: setCorrBankInfo,
     reset: resetCorrBankInfo,
     formState: {
       errors: corrBankInfoErrors,
@@ -171,7 +175,7 @@ export default function BillingMethod({
     defaultValues: corrBankInfoDefaultValue,
     resolver: yupResolver(corrBankInfoSchema),
   })
-  console.log('getValue', getValues())
+
   useEffect(() => {
     if (!billingMethodData?.billingMethod) {
       if (billingMethod === getValues('type') && !!billingMethodData) {
@@ -248,7 +252,6 @@ export default function BillingMethod({
               getValues={getValues as UseFormGetValues<TransferWiseFormType>}
               setValue={setValue as UseFormSetValue<TransferWiseFormType>}
               errors={errors as FieldErrors<TransferWiseFormType>}
-              watch={watch as UseFormWatch<TransferWiseFormType>}
             />
             <Grid item xs={12}>
               <Divider />

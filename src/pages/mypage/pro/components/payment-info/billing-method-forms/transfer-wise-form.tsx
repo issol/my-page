@@ -25,8 +25,6 @@ import {
   FieldErrors,
   UseFormGetValues,
   UseFormSetValue,
-  UseFormWatch,
-  useForm,
 } from 'react-hook-form'
 
 // ** hooks
@@ -36,13 +34,13 @@ import useModal from '@src/hooks/useModal'
 // ** helpers & values
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { PositionType } from '@src/apis/payment-info.api'
 
 type Props = {
   control: Control<TransferWiseFormType, any>
   getValues: UseFormGetValues<TransferWiseFormType>
   setValue: UseFormSetValue<TransferWiseFormType>
   errors: FieldErrors<TransferWiseFormType>
-  watch: UseFormWatch<TransferWiseFormType>
 }
 
 export default function TransferWiseForm({
@@ -50,7 +48,6 @@ export default function TransferWiseForm({
   getValues,
   setValue,
   errors,
-  watch,
 }: Props) {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DEFAULT
   const { openModal, closeModal } = useModal()

@@ -5,7 +5,6 @@ import { DetailUserType } from '@src/types/common/detail-user.type'
 
 import {
   BillingMethodUnionType,
-  KoreaDomesticTransferSoloType,
   KoreaDomesticTransferType,
   PayPalType,
   ProPaymentType,
@@ -31,17 +30,14 @@ import { Icon } from '@iconify/react'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import BillingMethodDetail from './billing-method-details'
 import FileInfo from '@src/@core/components/file-info'
-import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import TaxInfoDetail from './tax-info-details'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import { useMutation, useQueryClient } from 'react-query'
+import { useQueryClient } from 'react-query'
 import {
-  PositionType,
   ProPaymentFormType,
   deleteProPaymentFile,
   getProPaymentFile,
-  getTaxCodeList,
   updateProBillingAddress,
   updateProBillingMethod,
   updateProTaxInfo,
@@ -55,11 +51,10 @@ import {
 import { isEmpty } from 'lodash'
 
 type Props = {
-  userInfo: DetailUserType
   user: UserDataType
 }
 
-export default function ProPaymentInfo({ userInfo, user }: Props) {
+export default function ProPaymentInfo({ user }: Props) {
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -148,8 +143,6 @@ export default function ProPaymentInfo({ userInfo, user }: Props) {
   const {
     control,
     getValues,
-    setValue,
-    watch,
     reset,
     formState: { errors, isValid },
   } = useForm<ClientAddressType>({
@@ -542,6 +535,7 @@ Some information will reset..'
                 <Grid item xs={12}>
                   <BillingMethod
                     isRegister={isRegister}
+                    paymentInfo={paymentInfo ?? null}
                     changeBillingMethod={changeBillingMethod}
                     setChangeBillingMethod={setChangeBillingMethod}
                     checkBillingMethodChange={checkBillingMethodChange}
