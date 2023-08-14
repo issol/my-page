@@ -189,7 +189,7 @@ export default function RequestDetail() {
             }
             closeModal('statusChange')
           }}
-          vary='error'
+          vary='successful'
           rightButtonText='Change'
         />
       ),
@@ -274,7 +274,7 @@ export default function RequestDetail() {
                 })
                 closeModal('requestNextStep')
               }}
-              vary='error'
+              vary='successful'
               rightButtonText='Request'
             />
           ),
@@ -295,7 +295,7 @@ export default function RequestDetail() {
                 })
                 closeModal('requestNextStep')
               }}
-              vary='error'
+              vary='successful'
               rightButtonText='Request'
             />
           ),
