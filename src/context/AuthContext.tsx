@@ -55,7 +55,7 @@ import { useAppSelector } from 'src/hooks/useRedux'
 // ** Defaults
 const defaultProvider: AuthValuesType = {
   user: null,
-  company: null,
+  company: undefined,
   loading: true,
   setUser: (n: any) => {
     return null
@@ -83,7 +83,7 @@ const AuthProvider = ({ children }: Props) => {
   const [user, setUser] = useState<UserDataType | null>(defaultProvider.user)
 
   // **TODO: CLIENT role로 가입한 유저에게만 리턴되는 데이터. 만약 CLIENT가 아닐 경우 null로 감
-  const [company, setCompany] = useState<ClientUserType | null>(null)
+  const [company, setCompany] = useState<ClientUserType | null | undefined>(undefined)
 
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
@@ -153,7 +153,7 @@ const AuthProvider = ({ children }: Props) => {
           router.replace('/welcome/manager')
         }
         return
-      } else if (isClient) {
+      } else if (isClient && company !== undefined) {
         const isClientGeneral =
           userAccess.role.find(i => i.name === 'CLIENT')?.type === 'General'
         if (!company?.name) {

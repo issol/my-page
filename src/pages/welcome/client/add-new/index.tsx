@@ -71,8 +71,7 @@ export default function NewClientProfileForm() {
   useEffect(() => {
     if (
       company?.name ||
-      currentRole?.name !== 'CLIENT' ||
-      currentRole?.type !== 'Master'
+      currentRole?.name !== 'CLIENT'
     ) {
       router.push('/')
     }
