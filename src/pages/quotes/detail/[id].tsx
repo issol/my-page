@@ -1169,9 +1169,7 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
-              {currentRole &&
-              currentRole.name === 'CLIENT' &&
-              (project?.linkedOrder || project?.linkedRequest) ? (
+              {project?.linkedOrder || project?.linkedRequest ? (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
