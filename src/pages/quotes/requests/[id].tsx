@@ -264,7 +264,7 @@ export default function RequestDetail() {
                       href={`/quotes/detail/${data?.linkedQuote.id}`}
                       color='black'
                     >
-                      Linked quote : {data?.linkedQuote.corporationId}
+                      Linked quote : <u>{data?.linkedQuote.corporationId}</u>
                     </StyledNextLink>
                   </MenuItem>
                 )}
@@ -274,7 +274,7 @@ export default function RequestDetail() {
                       href={`/quotes/detail/${data?.linkedOrder.id}`}
                       color='black'
                     >
-                      Linked order : {data?.linkedOrder.corporationId}
+                      Linked order : <u>{data?.linkedOrder.corporationId}</u>
                     </StyledNextLink>
                   </MenuItem>
                 )}

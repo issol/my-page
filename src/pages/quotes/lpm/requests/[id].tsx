@@ -326,7 +326,7 @@ export default function RequestDetail() {
               />
               <Typography variant='h6'>{data?.corporationId}</Typography>
             </Box>
-            {!data?.linkedQuote || data?.linkedOrder ? (
+            {data?.linkedQuote || data?.linkedOrder ? (
               <div>
                 <IconButton
                   aria-label='more'
@@ -351,9 +351,9 @@ export default function RequestDetail() {
                     <MenuItem onClick={handleClose}>
                       <StyledNextLink
                         href={`/quotes/detail/${data?.linkedQuote.id}`}
-                        color='black'
+                        color='secondary'
                       >
-                        Linked quote : {data?.linkedQuote.corporationId}
+                        Linked quote : <u>{data?.linkedQuote.corporationId}</u>
                       </StyledNextLink>
                     </MenuItem>
                   )}
@@ -363,7 +363,7 @@ export default function RequestDetail() {
                         href={`/quotes/detail/${data?.linkedOrder.id}`}
                         color='black'
                       >
-                        Linked order : {data?.linkedOrder.corporationId}
+                        Linked order : <u>{data?.linkedOrder.corporationId}</u>
                       </StyledNextLink>
                     </MenuItem>
                   )}
