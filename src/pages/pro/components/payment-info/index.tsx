@@ -185,8 +185,8 @@ export default function PaymentInfo({ id, userRole }: Props) {
               }}
             />
           </Card>
-          {/* TODO: taxInfo스키마 결정되면 수정하기 */}
-          {userRole === 'LPM' ? (
+          {/* TODO: taxInfo스키마 결정되면 수정하고 주석 해제하기*/}
+          {/* {userRole === 'LPM' ? (
             <Tax
               info={{
                 taxInfo: taxInfo?.info,
@@ -196,7 +196,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
               setEdit={setTaxEdit}
               isUpdatable={isUpdatable}
             />
-          ) : null}
+          ) : null} */}
         </Grid>
       </Grid>
     </Suspense>
