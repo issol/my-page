@@ -20,9 +20,9 @@ import { downloadStateFile } from '@src/shared/helpers/file-download.helper'
 
 type Props = {
   billingMethod: ProPaymentType | null
-  info: BillingMethodUnionType
+  info: BillingMethodUnionType | undefined
   bankInfo: BankInfo | undefined
-  corrBankInfo: CorrespondentBankInfo | undefined
+  corrBankInfo: CorrespondentBankInfo | undefined | null
 }
 
 export default function BillingMethodDetail({
@@ -58,7 +58,7 @@ export default function BillingMethodDetail({
                   size='small'
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
-                  onClick={() => downloadStateFile(transferData?.copyOfId)}
+                  onClick={() => downloadStateFile(transferData?.copyOfId!)}
                 >
                   Download
                 </Button>
@@ -95,7 +95,7 @@ export default function BillingMethodDetail({
                     variant='outlined'
                     startIcon={<Icon icon='ic:baseline-download' />}
                     onClick={() =>
-                      downloadStateFile(koreanSoloData.copyOfRrCard)
+                      downloadStateFile(koreanSoloData.copyOfRrCard!)
                     }
                   >
                     Download
@@ -106,6 +106,7 @@ export default function BillingMethodDetail({
           )
         }
         const koreanData = info as KoreaDomesticTransferType
+
         return (
           <>
             <BorderBox>
@@ -122,7 +123,7 @@ export default function BillingMethodDetail({
                   size='small'
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
-                  onClick={() => downloadStateFile(koreanData.copyOfRrCard)}
+                  onClick={() => downloadStateFile(koreanData.copyOfRrCard!)}
                 >
                   Download
                 </Button>
@@ -137,7 +138,7 @@ export default function BillingMethodDetail({
                   variant='outlined'
                   startIcon={<Icon icon='ic:baseline-download' />}
                   onClick={() =>
-                    downloadStateFile(koreanData.copyOfBankStatement)
+                    downloadStateFile(koreanData.copyOfBankStatement!)
                   }
                 >
                   Download

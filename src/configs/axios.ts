@@ -22,7 +22,7 @@ const addRefreshSubscriber = (callback: any) => {
   refreshSubscribers.push(callback)
 }
 
-const instance = axios.create({
+export const axiosConfigs = {
   baseURL: BASEURL,
   headers: {
     Accept: 'application/json',
@@ -31,7 +31,9 @@ const instance = axios.create({
   },
   timeout: 10000,
   withCredentials: true,
-})
+}
+
+const instance = axios.create(axiosConfigs)
 
 export const setHeaderToken = (token: string) => {
   saveUserTokenToBrowser(token)

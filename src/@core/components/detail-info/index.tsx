@@ -4,10 +4,11 @@ import styled from 'styled-components'
 type Props = {
   label: string
   value: string | number | null | undefined
+  interval?: number
 }
-export default function DetailInfoField({ label, value }: Props) {
+export default function DetailInfoField({ label, value, interval }: Props) {
   return (
-    <Grid item xs={12}>
+    <Grid item xs={interval ?? 12}>
       <LabelContainer>
         <Typography fontWeight={600}>{label}</Typography>
         <Typography variant='body2'>{value ?? '-'}</Typography>

@@ -61,38 +61,46 @@ const FileSwiperFromS3 = ({
     <>
       <Box className='navigation-wrapper'>
         <Box ref={sliderRef} className='keen-slider'>
-          {files?.map((value, idx) => (
-            <FileContainer key={value.filePath} className='keen-slider__slide'>
-              {isDeletable && (
-                <IconButton
-                  className='delete-button'
-                  onClick={() => {
-                    if (onDelete) onDelete(value)
-                  }}
-                >
-                  <Icon
-                    icon='mdi:trash-outline'
-                    color='#666CFF'
-                    fontSize={16}
-                  />
-                </IconButton>
-              )}
+          {files?.map((value, idx) => {
+            const parts = value?.fileExtension?.split('/') ?? ''
+            const fileType = parts[parts.length - 1]
 
-              <Box display='flex' flexDirection='column' alignItems='center'>
-                <img
-                  src={`/images/icons/file-icons/${value?.fileExtension}-file.svg`}
-                  alt='file'
-                  width={40}
-                />
-                <FileName
-                  onClick={() => onFileClick(value)}
-                  title={value?.fileName}
-                >
-                  <Title>{value?.fileName}</Title>
-                </FileName>
-              </Box>
-            </FileContainer>
-          ))}
+            return (
+              <FileContainer
+                key={value.filePath}
+                className='keen-slider__slide'
+              >
+                {isDeletable && (
+                  <IconButton
+                    className='delete-button'
+                    onClick={() => {
+                      if (onDelete) onDelete(value)
+                    }}
+                  >
+                    <Icon
+                      icon='mdi:trash-outline'
+                      color='#666CFF'
+                      fontSize={16}
+                    />
+                  </IconButton>
+                )}
+
+                <Box display='flex' flexDirection='column' alignItems='center'>
+                  <img
+                    src={`/images/icons/file-icons/${fileType}-file.svg`}
+                    alt='file'
+                    width={40}
+                  />
+                  <FileName
+                    onClick={() => onFileClick(value)}
+                    title={value?.fileName}
+                  >
+                    <Title>{value?.fileName}</Title>
+                  </FileName>
+                </Box>
+              </FileContainer>
+            )
+          })}
         </Box>
         {loaded && instanceRef.current && (
           <>

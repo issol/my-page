@@ -3,85 +3,135 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 import { IconButton } from '@mui/material'
 import styled from 'styled-components'
-import { FileNameType, UserInfo } from '@src/apis/payment-info.api'
+import {
+  FileNameType,
+  UserInfo,
+  getProPaymentFile,
+} from '@src/apis/payment-info.api'
+import {
+  BillingMethodUnionType,
+  KoreaDomesticTransferSoloType,
+  KoreaDomesticTransferType,
+  TransferWiseFormType,
+} from '@src/types/payment-info/pro/billing-method.type'
+import { BorderBox } from '@src/@core/components/detail-info'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 type Props = {
-  info: UserInfo
-  onCopy: (info: string) => void
-  isAccountManager: boolean
+  info: BillingMethodUnionType | undefined
   replaceDots: (value: string) => string
-  downloadFile: (value: FileNameType) => void
+  downloadFile: (file: FileItemType) => void
 }
 
 export default function PersonalInfo({
   info,
-  onCopy,
-  isAccountManager,
   replaceDots,
   downloadFile,
 }: Props) {
+  function renderDetails() {
+    if (!info) return null
+    switch (info.type) {
+      case 'internationalWire':
+      case 'wise':
+      case 'us_ach':
+      case 'paypal':
+        const transferData = info as TransferWiseFormType
+        return (
+          <>
+            <CardBox>
+              <img
+                src='/images/cards/social-number.png'
+                alt='social security number'
+                aria-label='social security number'
+                width={115}
+                height={70}
+              />
+              <Typography fontWeight={600}>
+                Personal (Social security) ID
+              </Typography>
+              <Typography variant='body2'>
+                {replaceDots(transferData?.personalId)}
+              </Typography>
+            </CardBox>
+            <CardBox mt={4}>
+              <img
+                src='/images/cards/business-license.png'
+                alt='social security number'
+                aria-label='social security number'
+                width={115}
+                height={70}
+              />
+              <Typography fontWeight={600}>W8/ W9/ Business license</Typography>
+            </CardBox>
+          </>
+        )
+      case 'koreaDomesticTransfer':
+        //@ts-ignore
+        const isSolo = !info?.copyOfBankStatement
+        if (isSolo) {
+          const koreanSoloData = info as KoreaDomesticTransferSoloType
+          return (
+            <CardBox>
+              <img
+                src='/images/cards/business-card.png'
+                alt='social security number'
+                aria-label='social security number'
+                width={115}
+                height={70}
+              />
+              <Typography fontWeight={600}>Business registration</Typography>
+              <Typography variant='body2' fontWeight={600}>
+                {koreanSoloData?.businessName}
+              </Typography>
+              <Typography variant='body2'>
+                {replaceDots(koreanSoloData?.businessNumber?.toString())}
+              </Typography>
+            </CardBox>
+          )
+        }
+        const koreanData = info as KoreaDomesticTransferType
+        return (
+          <>
+            <CardBox>
+              <img
+                src='/images/cards/social-number.png'
+                alt='social security number'
+                aria-label='social security number'
+                width={115}
+                height={70}
+              />
+              <Typography fontWeight={600}>Resident registration</Typography>
+              <Typography variant='body2'>
+                {replaceDots(koreanData?.rrn?.toString())}
+              </Typography>
+            </CardBox>
+            <CardBox mt={4}>
+              <img
+                src='/images/cards/bank-statement.png'
+                alt='social security number'
+                aria-label='social security number'
+                width={115}
+                height={70}
+              />
+              <Typography fontWeight={600}>Bank statement</Typography>
+            </CardBox>
+          </>
+        )
+      default:
+        return null
+    }
+  }
   return (
-    <Card>
-      <CardHeader title='Personal Info' />
-      <CardBox>
-        <img
-          src='/images/cards/social-number.png'
-          alt='social security number'
-          aria-label='social security number'
-          width={115}
-          height={70}
-        />
-        <Typography sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-          Social Security number
-        </Typography>
-        <Typography variant='body2'>
-          {replaceDots(info?.identificationNumber ?? '')}
-          <IconButton onClick={() => onCopy(info?.identificationNumber ?? '')}>
-            <Icon icon='mdi:content-copy' fontSize={20} />
-          </IconButton>
-        </Typography>
-        <Button
-          variant='outlined'
-          sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager || !info?.identificationUploaded}
-          onClick={() => downloadFile('identification')}
-        >
-          Download
-        </Button>
-      </CardBox>
-
-      <CardBox>
-        <img
-          src='/images/cards/business-license.png'
-          alt='social security number'
-          aria-label='social security number'
-          width={115}
-          height={70}
-        />
-        <Typography sx={{ marginTop: '15px', fontWeight: 'bold' }}>
-          W8/ W9/ Business license
-        </Typography>
-
-        <Button
-          variant='outlined'
-          sx={{ marginTop: '15px' }}
-          disabled={!isAccountManager || !info?.businessLicenseUploaded}
-          onClick={() => downloadFile('businessLicense')}
-        >
-          Download
-        </Button>
-      </CardBox>
+    <Card sx={{ padding: '24px' }}>
+      <Typography variant='h6'>Personal Info</Typography>
+      <Box mt={4}>{renderDetails()}</Box>
     </Card>
   )
 }
 
-const CardBox = styled(Box)`
-  margin: 0 18px 16px;
-  padding: 24px;
+const CardBox = styled(BorderBox)`
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 5px;
-  border: 1px solid rgba(76, 78, 100, 0.12);
-  border-radius: 10px;
+  gap: 8px;
 `

@@ -82,7 +82,7 @@ export default function ProMyPage() {
           </TabPanel>
           <TabPanel value='paymentInfo'>
             <Suspense fallback={<FallbackSpinner />}>
-              <ProPaymentInfo userInfo={userInfo!} user={user!} />
+              <ProPaymentInfo user={user!} />
             </Suspense>
           </TabPanel>
           <TabPanel value='myAccount'>
