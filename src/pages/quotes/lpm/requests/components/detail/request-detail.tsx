@@ -42,7 +42,7 @@ export default function RequestDetailCard({
   onStatusChange,
 }: Props) {
   const { data: statusList, isLoading } = useGetClientRequestStatus()
-  console.log("data",data)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={6}>

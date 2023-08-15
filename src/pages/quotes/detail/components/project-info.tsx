@@ -417,7 +417,7 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer>
               <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
               <CustomTypo variant='body2'>
-                {project.expertise ?? '-'}
+                {project.expertise?.join(', ') ?? '-'}
               </CustomTypo>
             </LabelContainer>
           </Grid>

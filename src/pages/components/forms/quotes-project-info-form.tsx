@@ -438,6 +438,10 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                disableCloseOnSelect
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 options={
                   !category || !ServiceTypePair[category]
                     ? ServiceTypeList
@@ -455,6 +459,12 @@ export default function ProjectInfoForm({
                     label='Service type'
                     placeholder='Service type'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )
@@ -475,6 +485,10 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                disableCloseOnSelect
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 options={
                   !category || !AreaOfExpertisePair[category]
                     ? AreaOfExpertiseList
@@ -492,6 +506,12 @@ export default function ProjectInfoForm({
                     label='Area of expertise'
                     placeholder='Area of expertise'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )

@@ -353,14 +353,14 @@ export const ClientRequestCalendarStatus = [
     color: '#FDB528',
   },
   {
-    value: 'Changed into order',
-    label: 'Changed into order',
-    color: '#1A6BBA',
-  },
-  {
     value: 'Changed into quote',
     label: 'Changed into quote',
     color: '#64C623',
+  },
+  {
+    value: 'Changed into order',
+    label: 'Changed into order',
+    color: '#1A6BBA',
   },
   {
     value: 'Canceled',

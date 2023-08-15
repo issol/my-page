@@ -227,7 +227,7 @@ export default function RequestDetail() {
           sx={{ background: '#fff', borderRadius: '8px', padding: '16px' }}
         >
           <Box display='flex' alignItems='center' gap='8px'>
-            <IconButton onClick={() => router.back()}>
+            <IconButton onClick={() => router.push('/quotes/requests/')}>
               <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
             </IconButton>
             <img
@@ -264,7 +264,7 @@ export default function RequestDetail() {
                       href={`/quotes/detail/${data?.linkedQuote.id}`}
                       color='black'
                     >
-                      Linked quote : {data?.linkedQuote.corporationId}
+                      Linked quote : <u>{data?.linkedQuote.corporationId}</u>
                     </StyledNextLink>
                   </MenuItem>
                 )}
@@ -274,7 +274,7 @@ export default function RequestDetail() {
                       href={`/quotes/detail/${data?.linkedOrder.id}`}
                       color='black'
                     >
-                      Linked order : {data?.linkedOrder.corporationId}
+                      Linked order : <u>{data?.linkedOrder.corporationId}</u>
                     </StyledNextLink>
                   </MenuItem>
                 )}

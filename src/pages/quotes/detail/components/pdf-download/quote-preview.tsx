@@ -347,7 +347,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                     <CustomTableCell
                       sx={{ flex: 0.1505, justifyContent: 'center' }}
                     >
-                      <Box>{`${columnName.price} (${data?.langItem?.languagePairs[0].price?.currency!})`}</Box>
+                      <Box>{`${columnName?.price} (${data?.langItem?.languagePairs[0]?.price?.currency!})`}</Box>
                     </CustomTableCell>
                     <CustomTableCell
                       align='center'
@@ -364,11 +364,11 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                         paddingLeft: '20px',
                       }}
                     >
-                      <Box>{`${columnName.totalPrice} (${data?.langItem?.languagePairs[0].price?.currency!})`}</Box>
+                      <Box>{`${columnName.totalPrice} (${data?.langItem?.languagePairs[0]?.price?.currency!})`}</Box>
                     </CustomTableCell>
                   </CustomTableRow>
                 </TableHead>
-                <MakeTable rows={data?.langItem?.items ?? []} currency={data?.langItem?.languagePairs[0].price?.currency!} />
+                <MakeTable rows={data?.langItem?.items ?? []} currency={data?.langItem?.languagePairs[0]?.price?.currency!} />
                 <TableBody>
                   <TableRow>
                     <TableCell
@@ -408,7 +408,7 @@ const PrintQuotePage = ({ data, type, user, lang }: Props) => {
                             ? 0
                             : formatCurrency(
                                 calculateTotalPriceRows(data.langItem),
-                                data?.langItem?.languagePairs[0].price?.currency!,
+                                data?.langItem?.languagePairs[0]?.price?.currency! || 'USD',
                               )}
                         </Typography>
                       </Box>
