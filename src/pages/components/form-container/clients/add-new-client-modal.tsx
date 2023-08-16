@@ -158,17 +158,19 @@ export default function AddNewClientModal({
               errors={contactPersonErrors}
               watch={watchContactPerson}
             />
-
-            <Grid item xs={12}>
-              <Button
-                onClick={appendContactPerson}
-                variant='contained'
-                disabled={!isCompanyInfoValid || contactPersons.length >= 1}
-                sx={{ p: 0.7, minWidth: 26 }}
-              >
-                <Icon icon='material-symbols:add' />
-              </Button>
-            </Grid>
+            {contactPersons.length < 1
+              ? (<Grid item xs={12}>
+                  <Button
+                    onClick={appendContactPerson}
+                    variant='contained'
+                    disabled={!isCompanyInfoValid || contactPersons.length >= 1}
+                    sx={{ p: 0.7, minWidth: 26 }}
+                  >
+                    <Icon icon='material-symbols:add' />
+                  </Button>
+                </Grid>)
+              : null
+            }
             <Grid item xs={12}>
               <Divider />
             </Grid>
