@@ -51,7 +51,7 @@ export default function OfficeDetails({ clientId }: Props) {
   /* const { data: officeList } = useGetClientOffice(clientId) */ //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
   const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
 
-  const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
+  const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US'] //TODO: 임시데이터.
   const earliestData = paymentInfo
     ? [...paymentInfo]
         .filter(item => item?.updatedAt)

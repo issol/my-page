@@ -166,16 +166,16 @@ export default function AddNewOrder() {
     const subPrice = getItem()?.items!
     if (subPrice) {
       const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
-    
+
       setSubPrice(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
-  
+  }, [])
+
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -477,7 +477,6 @@ export default function AddNewOrder() {
     return result
   }
 
-  //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
     if (requestId && requestData) {
       const { client } = requestData || undefined

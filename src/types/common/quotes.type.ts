@@ -152,7 +152,6 @@ export type HistoryType = {
   items: LanguageAndItemType
 }
 
-// TODO: 스키마수정하기
 export type QuoteDownloadData = {
   quoteId: number
   adminCompanyName: string

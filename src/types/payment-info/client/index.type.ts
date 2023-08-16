@@ -1,4 +1,3 @@
-/* TODO: 아래 타입들은 변경될 수 있음!! */
 export type OfficeType = 'Japan' | 'Korea' | 'Singapore' | 'US'
 
 export type PaymentType =

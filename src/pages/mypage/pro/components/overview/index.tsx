@@ -93,9 +93,10 @@ type Props = {
 }
 
 /* TODO
-1. file upload
-2. file delete
-4. userInfo update : profile, experience, notes, specialties
+1. My profile 업데이트 api연동하기
+2. Notes to LPM / TAD 업데이트 api연동하기
+3. Specialties 업데이트 api연동하기
+4. Resume 업로드, 삭제 api연동하기
 */
 export default function MyPageOverview({ user, userInfo }: Props) {
   const { openModal, closeModal } = useModal()
