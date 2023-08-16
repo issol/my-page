@@ -207,12 +207,14 @@ export default function ClientCompanyInfoPageComponent() {
 
   function onSaveForm() {
     if (infoEdit) {
+      setInfoEdit(false)
       updateClientMutation.mutate(getValues())
     } else {
       const address = getAddress()?.clientAddresses?.map(item => {
         delete item.id
         return item
       })
+      setAddressEdit(false)
       updateClientMutation.mutate({ clientAddresses: address })
     }
   }
