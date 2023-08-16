@@ -1,0 +1,400 @@
+import { Icon } from '@iconify/react'
+import TabContext from '@mui/lab/TabContext'
+import TabList from '@mui/lab/TabList'
+import TabPanel from '@mui/lab/TabPanel'
+import {
+  Autocomplete,
+  Box,
+  Button,
+  Card,
+  Grid,
+  IconButton,
+  Tab,
+  TextField,
+  Typography,
+  styled,
+} from '@mui/material'
+import Chip from '@src/@core/components/mui/chip'
+import {
+  ClientCompanyInfoType,
+  CorporateClientInfoType,
+  RoleType,
+} from '@src/context/types'
+import { FileType } from '@src/types/common/file.type'
+import { useGetCompanyInfo } from '@src/queries/company/company-info.query'
+import CustomChip from '@src/@core/components/mui/chip'
+
+import {
+  Suspense,
+  MouseEvent,
+  useState,
+  SyntheticEvent,
+  useEffect,
+  useContext,
+} from 'react'
+
+import useModal from '@src/hooks/useModal'
+import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
+import { Controller, useFieldArray, useForm } from 'react-hook-form'
+import { yupResolver } from '@hookform/resolvers/yup'
+import {
+  lpmCompanyAddressSchema,
+  lpmCompanyInfoSchema,
+} from '@src/types/schema/lpm-company-info.schema'
+import {
+  CompanyAddressFormType,
+  CompanyAddressParamsType,
+  CompanyInfoFormType,
+  CompanyInfoParamsType,
+  CompanyInfoType,
+} from '@src/types/company/info'
+
+import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
+import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
+import { AuthContext } from '@src/context/AuthContext'
+import { useMutation } from 'react-query'
+import {
+  patchCompanyAddress,
+  patchCompanyInfo,
+} from '@src/apis/company/company-info.api'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import {
+  getUploadUrlforCommon,
+  getDownloadUrlforCommon,
+  uploadFileToS3,
+} from 'src/apis/common.api'
+import { S3FileType } from 'src/shared/const/signedURLFileType'
+import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import CompanyInfoCard from './components/info-card'
+import CompanyInfoDetail from './components/company-info-detail'
+import {
+  clientCompanyInfoSchema,
+  getClientCompanyInfoDefaultValue,
+} from '@src/types/schema/client-info/client-company-info.schema'
+import {
+  ClientAddressFormType,
+  clientAddressAllRequiredSchema,
+  clientAddressDefaultValue,
+} from '@src/types/schema/client-address.schema'
+import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
+import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { updateClientUserInfo } from '@src/apis/user.api'
+import { toast } from 'react-hot-toast'
+import { createClient } from '@src/apis/client.api'
+import { getTypeList } from '@src/shared/transformer/type.transformer'
+import CompanyAddressDetail from './components/company-address-detail'
+
+interface FileProp {
+  name: string
+  type: string
+  size: number
+}
+
+type MenuType = 'companyInfo' | 'paymentInfo'
+export default function ClientCompanyInfo() {
+  const { openModal, closeModal } = useModal()
+
+  const country = getTypeList('CountryCode')
+
+  const [tab, setTab] = useState<MenuType>('companyInfo')
+
+  const { user, company } = useContext(AuthContext)
+
+  const [infoEdit, setInfoEdit] = useState(false)
+  const [addressEdit, setAddressEdit] = useState(false)
+  const [file, setFile] = useState<File | null>()
+
+  const currentRole = getCurrentRole()
+
+  const isUpdatable =
+    currentRole &&
+    (currentRole.type === 'Master' || currentRole.type === 'Manager')
+
+  const updateClientMutation = useMutation(
+    (
+      data: CorporateClientInfoType &
+        ClientCompanyInfoType &
+        ClientAddressFormType,
+    ) => createClient(data),
+    {
+      onSuccess: () => {
+        // router.push('/home')
+        //TODO: onSuccess붙이기
+      },
+      onError: () => onError(),
+    },
+  )
+
+  function onError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  const {
+    control,
+    getValues,
+    reset,
+    watch,
+    formState: { errors, isValid },
+  } = useForm<ClientCompanyInfoType>({
+    defaultValues: getClientCompanyInfoDefaultValue(
+      company?.businessClassification ?? 'corporate',
+    ),
+    mode: 'onChange',
+    resolver: yupResolver(clientCompanyInfoSchema),
+  })
+
+  const {
+    control: addressControl,
+    getValues: getAddress,
+    reset: resetAddress,
+    formState: { errors: addressErrors, isValid: isAddressValid },
+  } = useForm<ClientAddressFormType>({
+    defaultValues: clientAddressDefaultValue,
+    mode: 'onChange',
+    resolver: yupResolver(clientAddressAllRequiredSchema),
+  })
+
+  useEffect(() => {
+    reset({
+      businessClassification: company?.businessClassification,
+      name: company?.name ?? '',
+      email: company?.email ?? '',
+      phone: company?.phone ?? '',
+      mobile: company?.mobile ?? '',
+      fax: company?.fax ?? '',
+      websiteLink: company?.websiteLink ?? '',
+      timezone: company?.timezone,
+      headquarter: company?.headquarter ?? '',
+    })
+    if (company?.clientAddresses.length) {
+      resetAddress({
+        clientAddresses: company?.clientAddresses
+          .map(i => ({
+            ...i,
+            id: i?.id?.toString(),
+          }))
+          .filter(i => i.addressType !== 'billing'),
+      })
+    }
+  }, [company])
+
+  const { fields, append, remove, update } = useFieldArray({
+    control: addressControl,
+    name: 'clientAddresses',
+  })
+  console.log('fields', fields)
+  console.log('getAddress', getAddress())
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    shouldWarn: infoEdit || addressEdit,
+    toUrl: '/',
+  })
+
+  const handleChange = (_: any, newValue: MenuType) => {
+    setTab(newValue)
+  }
+
+  return (
+    <Suspense>
+      <ConfirmLeaveModal />
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
+        <CompanyInfoCard companyInfo={company!} />
+        <TabContext value={tab}>
+          <TabList
+            onChange={handleChange}
+            aria-label='client company info menu'
+            style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
+          >
+            <CustomTab
+              value='companyInfo'
+              label='Company info'
+              iconPosition='start'
+              icon={<Icon icon='iconoir:large-suitcase' />}
+              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+            />
+
+            <CustomTab
+              value='paymentInfo'
+              label='Payment info'
+              iconPosition='start'
+              icon={<Icon icon='mdi:dollar' />}
+              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+            />
+          </TabList>
+          <TabPanel value='companyInfo'>
+            {infoEdit || addressEdit ? null : (
+              <>
+                <Card style={{ padding: '24px' }}>
+                  <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Box display='flex' gap='16px' alignItems='center'>
+                      <Typography variant='h6'>Company information</Typography>
+                      {company?.businessClassification === 'corporate' ? (
+                        <CustomChip
+                          icon={<Icon icon='fluent:shield-task-16-filled' />}
+                          label='Verified'
+                          skin='light'
+                          color='success'
+                          size='small'
+                        />
+                      ) : null}
+                    </Box>
+
+                    {isUpdatable && (
+                      <IconButton onClick={() => setInfoEdit(true)}>
+                        <Icon icon='mdi:pencil-outline' />
+                      </IconButton>
+                    )}
+                  </Box>
+                  <CompanyInfoDetail companyInfo={company} />
+                </Card>
+                <Card style={{ padding: '24px', marginTop: '24px' }}>
+                  <Box
+                    display='flex'
+                    justifyContent='space-between'
+                    alignItems='center'
+                  >
+                    <Typography variant='h6'>Address</Typography>
+                    {isUpdatable && (
+                      <IconButton onClick={() => setAddressEdit(true)}>
+                        <Icon icon='mdi:pencil-outline' />
+                      </IconButton>
+                    )}
+                  </Box>
+
+                  <CompanyAddressDetail
+                    address={company?.clientAddresses ?? []}
+                  />
+                </Card>
+              </>
+            )}
+            {infoEdit ? (
+              <Card style={{ padding: '24px' }}>
+                <Grid container spacing={6}>
+                  {company?.businessClassification !==
+                  'corporate_non_korean' ? null : (
+                    <Grid item xs={12}>
+                      <Controller
+                        name='headquarter'
+                        control={control}
+                        render={({ field }) => (
+                          <Autocomplete
+                            autoHighlight
+                            fullWidth
+                            {...field}
+                            options={country}
+                            onChange={(e, v) => field.onChange(v.value)}
+                            disableClearable
+                            value={
+                              !field?.value
+                                ? { value: '', label: '' }
+                                : country.find(
+                                    item => item.value === field?.value,
+                                  )
+                            }
+                            renderInput={params => (
+                              <TextField
+                                {...params}
+                                label='Headquarter'
+                                inputProps={{
+                                  ...params.inputProps,
+                                }}
+                              />
+                            )}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
+
+                  <ClientCompanyInfoForm
+                    control={control}
+                    errors={errors}
+                    watch={watch}
+                  />
+                  <Grid
+                    item
+                    xs={12}
+                    display='flex'
+                    justifyContent='center'
+                    gap='16px'
+                  >
+                    <Button
+                      variant='outlined'
+                      onClick={() => setInfoEdit(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant='contained'
+                      disabled={!isValid}
+                      // onClick={() => setActiveStep(3)}
+                    >
+                      Save
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Card>
+            ) : null}
+
+            {addressEdit ? (
+              <Card style={{ padding: '24px' }}>
+                <Grid container spacing={6}>
+                  <ClientAddressesForm
+                    control={addressControl}
+                    fields={fields}
+                    append={append}
+                    remove={remove}
+                    update={update}
+                    errors={addressErrors}
+                    isValid={isAddressValid}
+                    type='all-required'
+                    getValues={getAddress}
+                    hideBilling={true}
+                  />
+                  <Grid
+                    item
+                    xs={12}
+                    display='flex'
+                    justifyContent='center'
+                    gap='16px'
+                  >
+                    <Button
+                      variant='outlined'
+                      onClick={() => setAddressEdit(false)}
+                    >
+                      Cancel
+                    </Button>
+                    <Button
+                      variant='contained'
+                      disabled={!isAddressValid}
+                      // onClick={() => handleSubmit()}
+                    >
+                      Save
+                    </Button>
+                  </Grid>
+                </Grid>
+              </Card>
+            ) : null}
+          </TabPanel>
+          <TabPanel value='paymentInfo'></TabPanel>
+        </TabContext>
+      </Box>
+    </Suspense>
+  )
+}
+
+const CustomTab = styled(Tab)`
+  text-transform: none;
+  padding: 0px 27px;
+`
+
+ClientCompanyInfo.acl = {
+  subject: 'client',
+  action: 'read',
+}

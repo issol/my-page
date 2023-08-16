@@ -47,7 +47,7 @@ export type ResponseMembersType = {
   email: string
   firstName: string
   jobTitle: string
-  department?: string
+  department?: string // ** role이 CLIENT인 경우에만 오는 정보
   lastName: string
   middleName: string | null
   permissionGroups: string[]

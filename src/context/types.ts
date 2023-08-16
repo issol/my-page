@@ -103,6 +103,7 @@ export type ClientCompanyInfoType = {
   fax?: string
   websiteLink?: string
   timezone: CountryType
+  headquarter?: string
 }
 
 export type CorporateClientInfoType = {
@@ -112,6 +113,7 @@ export type CorporateClientInfoType = {
 }
 
 export type ClientUserType = {
+  headquarter?: string
   clientId: number
   corporationId: string
   adminCompanyName: string
