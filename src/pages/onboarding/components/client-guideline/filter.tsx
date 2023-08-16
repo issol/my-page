@@ -185,12 +185,11 @@ export default function Filters({
                 </InputLabel>
                 <OutlinedInput
                   label='Search client guidelines'
-                  value={filter.content}
+                  value={filter.search}
                   onChange={e =>
                     setFilter({
                       ...filter,
-                      content: e.target.value,
-                      title: e.target.value,
+                      search: e.target.value,
                     })
                   }
                   endAdornment={
