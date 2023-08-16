@@ -377,6 +377,7 @@ export default function QuotesFilters({
                         <Box sx={{ width: '100%' }}>
                           <DatePicker
                             selectsRange
+                            autoComplete='off'
                             monthsShown={2}
                             endDate={value[1]}
                             selected={value[0]}
