@@ -28,9 +28,12 @@ import {
 
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useAppSelector } from 'src/hooks/useRedux'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
+  const isClient = getCurrentRole()?.name === 'CLIENT'
+
   const ability = useContext(AbilityContext)
   const { data: signUpRequests, isError } = useGetSignUpRequests(
     ability.can('update', 'permission_request'),
@@ -44,7 +47,9 @@ const Members = () => {
     let flag = false
     userAccess.role.map(item => {
       if (
-        (item.name === 'LPM' || item.name === 'TAD') &&
+        (item.name === 'LPM' ||
+          item.name === 'TAD' ||
+          item.name === 'CLIENT') &&
         item.type === 'General'
       )
         flag = true
@@ -254,6 +259,11 @@ const Members = () => {
       <ApproveSignUpRequestModal
         approveSignUpRequest={approveSignUpRequest}
         user={user}
+        message={
+          isClient
+            ? 'Are you sure to approve the registration request for this account'
+            : 'Are you sure to approve the sign up request for this account?'
+        }
       />,
     )
   }
@@ -263,6 +273,11 @@ const Members = () => {
       <DeclineSignUpRequestModal
         declineSignUpRequest={declineSignUpRequest}
         user={user}
+        message={
+          isClient
+            ? 'Are you sure to decline the sign up request for this account?'
+            : ''
+        }
         onClose={() => setModal(null)}
       />,
     )

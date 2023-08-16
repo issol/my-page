@@ -19,11 +19,13 @@ import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 type Props = {
   declineSignUpRequest: (user: SignUpRequestsType) => void
   user: SignUpRequestsType
+  message: string
   onClose: any
 }
 export default function DeclineSignUpRequestModal({
   declineSignUpRequest,
   onClose,
+  message,
   user,
 }: Props) {
   const { setModal } = useContext(ModalContext)
@@ -77,9 +79,9 @@ export default function DeclineSignUpRequestModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to decline the sign up <br />
-            request for this account?
+            {message}
           </Typography>
+
           <Typography
             sx={{
               fontFamily: 'Inter',
