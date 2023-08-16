@@ -244,7 +244,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       options={serviceTypeList}
                       value={filterValue(serviceTypeList, 'serviceType')}
                       onChange={(e, v) => {
-                        // onChange(v)
                         if (v.length){
                           const arr: {
                             label: Category
