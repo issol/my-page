@@ -156,13 +156,6 @@ const navigation = (): HorizontalNavItemsType => {
           icon: 'material-symbols:lock-open-outline',
           subject: 'company_info',
         },
-        {
-          title: 'Company Info',
-          path: `/company/client-company-info`,
-          action: 'read',
-          icon: 'material-symbols:lock-open-outline',
-          subject: 'client_company_info',
-        },
       ],
     },
     {

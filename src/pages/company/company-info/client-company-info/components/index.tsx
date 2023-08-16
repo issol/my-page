@@ -65,8 +65,7 @@ import {
 } from 'src/apis/common.api'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
-import CompanyInfoCard from './components/info-card'
-import CompanyInfoDetail from './components/company-info-detail'
+
 import {
   clientCompanyInfoSchema,
   getClientCompanyInfoDefaultValue,
@@ -83,7 +82,11 @@ import { updateClientUserInfo } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
 import { createClient } from '@src/apis/client.api'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
-import CompanyAddressDetail from './components/company-address-detail'
+import CompanyInfoCard from './info-card'
+
+import CompanyAddressDetail from './company-address-detail'
+import CompanyInfoDetail from './company-info-detail'
+// import CompanyAddressDetail from './components/company-address-detail'
 
 interface FileProp {
   name: string
@@ -92,7 +95,7 @@ interface FileProp {
 }
 
 type MenuType = 'companyInfo' | 'paymentInfo'
-export default function ClientCompanyInfo() {
+export default function ClientCompanyInfoPageComponent() {
   const { openModal, closeModal } = useModal()
 
   const country = getTypeList('CountryCode')
@@ -394,7 +397,7 @@ const CustomTab = styled(Tab)`
   padding: 0px 27px;
 `
 
-ClientCompanyInfo.acl = {
-  subject: 'client',
-  action: 'read',
-}
+// ClientCompanyInfo.acl = {
+//   subject: 'client',
+//   action: 'read',
+// }
