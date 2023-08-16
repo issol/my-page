@@ -52,7 +52,7 @@ import {
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import { AuthContext } from '@src/context/AuthContext'
-import { useMutation } from 'react-query'
+import { useMutation, useQueryClient } from 'react-query'
 import {
   patchCompanyAddress,
   patchCompanyInfo,
@@ -80,12 +80,14 @@ import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-inf
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { updateClientUserInfo } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
-import { createClient } from '@src/apis/client.api'
+import { createClient, updateClient } from '@src/apis/client.api'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import CompanyInfoCard from './info-card'
 
 import CompanyAddressDetail from './company-address-detail'
 import CompanyInfoDetail from './company-info-detail'
+import { isEmpty } from 'lodash'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 // import CompanyAddressDetail from './components/company-address-detail'
 
 interface FileProp {
@@ -96,7 +98,11 @@ interface FileProp {
 
 type MenuType = 'companyInfo' | 'paymentInfo'
 export default function ClientCompanyInfoPageComponent() {
+  const currentRole = getCurrentRole()
+  console.log('currentRole', currentRole)
   const { openModal, closeModal } = useModal()
+
+  const queryClient = useQueryClient()
 
   const country = getTypeList('CountryCode')
 
@@ -108,7 +114,10 @@ export default function ClientCompanyInfoPageComponent() {
   const [addressEdit, setAddressEdit] = useState(false)
   const [file, setFile] = useState<File | null>()
 
-  const currentRole = getCurrentRole()
+  const { ConfirmLeaveModal } = useConfirmLeave({
+    shouldWarn: infoEdit || addressEdit,
+    toUrl: '/',
+  })
 
   const isUpdatable =
     currentRole &&
@@ -119,11 +128,10 @@ export default function ClientCompanyInfoPageComponent() {
       data: CorporateClientInfoType &
         ClientCompanyInfoType &
         ClientAddressFormType,
-    ) => createClient(data),
+    ) => updateClient(company?.clientId!, data),
     {
       onSuccess: () => {
-        // router.push('/home')
-        //TODO: onSuccess붙이기
+        queryClient.invalidateQueries({ queryKey: 'clientUserInfo' })
       },
       onError: () => onError(),
     },
@@ -140,7 +148,7 @@ export default function ClientCompanyInfoPageComponent() {
     getValues,
     reset,
     watch,
-    formState: { errors, isValid },
+    formState: { errors, isValid, dirtyFields },
   } = useForm<ClientCompanyInfoType>({
     defaultValues: getClientCompanyInfoDefaultValue(
       company?.businessClassification ?? 'corporate',
@@ -153,7 +161,11 @@ export default function ClientCompanyInfoPageComponent() {
     control: addressControl,
     getValues: getAddress,
     reset: resetAddress,
-    formState: { errors: addressErrors, isValid: isAddressValid },
+    formState: {
+      errors: addressErrors,
+      isValid: isAddressValid,
+      dirtyFields: addressDirtyFields,
+    },
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
@@ -188,15 +200,52 @@ export default function ClientCompanyInfoPageComponent() {
     control: addressControl,
     name: 'clientAddresses',
   })
-  console.log('fields', fields)
-  console.log('getAddress', getAddress())
-  const { ConfirmLeaveModal } = useConfirmLeave({
-    shouldWarn: infoEdit || addressEdit,
-    toUrl: '/',
-  })
 
   const handleChange = (_: any, newValue: MenuType) => {
     setTab(newValue)
+  }
+
+  function onSaveForm() {
+    if (infoEdit) {
+      updateClientMutation.mutate(getValues())
+    } else {
+      const address = getAddress()?.clientAddresses?.map(item => {
+        delete item.id
+        return item
+      })
+      updateClientMutation.mutate({ clientAddresses: address })
+    }
+  }
+
+  function onCancelEdit() {
+    if (infoEdit) {
+      if (!isEmpty(dirtyFields)) {
+        setInfoEdit(false)
+      } else {
+        openDiscardModal(() => setInfoEdit(false))
+      }
+    } else {
+      if (!isEmpty(addressDirtyFields)) {
+        setAddressEdit(false)
+      } else {
+        openDiscardModal(() => setAddressEdit(false))
+      }
+    }
+  }
+
+  function openDiscardModal(onClick: any) {
+    openModal({
+      type: 'discardAlert',
+      children: (
+        <DiscardModal
+          onClick={() => {
+            onClick()
+            closeModal('discardAlert')
+          }}
+          onClose={() => closeModal('discardAlert')}
+        />
+      ),
+    })
   }
 
   return (
@@ -327,16 +376,13 @@ export default function ClientCompanyInfoPageComponent() {
                     justifyContent='center'
                     gap='16px'
                   >
-                    <Button
-                      variant='outlined'
-                      onClick={() => setInfoEdit(false)}
-                    >
+                    <Button variant='outlined' onClick={onCancelEdit}>
                       Cancel
                     </Button>
                     <Button
                       variant='contained'
-                      disabled={!isValid}
-                      // onClick={() => setActiveStep(3)}
+                      disabled={!isValid || isEmpty(dirtyFields)}
+                      onClick={onSaveForm}
                     >
                       Save
                     </Button>
@@ -358,7 +404,6 @@ export default function ClientCompanyInfoPageComponent() {
                     isValid={isAddressValid}
                     type='all-required'
                     getValues={getAddress}
-                    hideBilling={true}
                   />
                   <Grid
                     item
@@ -367,16 +412,13 @@ export default function ClientCompanyInfoPageComponent() {
                     justifyContent='center'
                     gap='16px'
                   >
-                    <Button
-                      variant='outlined'
-                      onClick={() => setAddressEdit(false)}
-                    >
+                    <Button variant='outlined' onClick={onCancelEdit}>
                       Cancel
                     </Button>
                     <Button
                       variant='contained'
-                      disabled={!isAddressValid}
-                      // onClick={() => handleSubmit()}
+                      disabled={!isAddressValid || isEmpty(addressDirtyFields)}
+                      onClick={onSaveForm}
                     >
                       Save
                     </Button>
@@ -396,8 +438,3 @@ const CustomTab = styled(Tab)`
   text-transform: none;
   padding: 0px 27px;
 `
-
-// ClientCompanyInfo.acl = {
-//   subject: 'client',
-//   action: 'read',
-// }

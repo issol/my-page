@@ -48,7 +48,6 @@ type Props = {
   // ** all-required는 client address form을 수정할때, role이 CLIENT인 유저가 최초로 정보를 등록할 때 사용
   type?: 'all-required' | 'default'
   getValues: UseFormGetValues<ClientAddressFormType>
-  hideBilling?: boolean //** billing address form을 감춰야 할 때 true를 줌. default는 billing address form보여줌 */
 }
 
 export default function ClientAddressesForm({
@@ -63,7 +62,6 @@ export default function ClientAddressesForm({
   isValid,
   type = 'default',
   getValues,
-  hideBilling,
 }: Props) {
   const country = getTypeList('CountryCode')
   const basicAddress = fields.filter(item => item.addressType !== 'additional')

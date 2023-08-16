@@ -115,12 +115,12 @@ export default function CompanyInfoForm({
               inputProps={{ maxLength: 50 }}
               error={Boolean(errors[key])}
               placeholder={
-                !watch('timezone').phone ? `+ 1) 012 345 6789` : `012 345 6789`
+                !watch('timezone')?.phone ? `+ 1) 012 345 6789` : `012 345 6789`
               }
               InputProps={{
-                startAdornment: watch('timezone').phone && (
+                startAdornment: watch('timezone')?.phone && (
                   <InputAdornment position='start'>
-                    {'+' + watch('timezone').phone}
+                    {'+' + watch('timezone')?.phone}
                   </InputAdornment>
                 ),
               }}

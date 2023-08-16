@@ -6,13 +6,13 @@ export type ClientType = 'Company' | 'Mr' | 'Ms'
 export type CompanyInfoFormType = {
   clientType?: ClientType
   status?: string
-  name: string
-  email: string
+  name?: string
+  email?: string
   phone?: string
   mobile?: string
   fax?: string
   websiteLink?: string
-  timezone: CountryType
+  timezone?: CountryType
   isTaxable?: boolean
   tax?: number | null
   memo?: string
