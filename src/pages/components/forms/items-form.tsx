@@ -84,7 +84,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
-import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>

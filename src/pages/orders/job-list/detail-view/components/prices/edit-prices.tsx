@@ -41,7 +41,7 @@ import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
 import { useMutation, useQueryClient } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
-import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {

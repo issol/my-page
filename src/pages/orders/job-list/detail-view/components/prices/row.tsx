@@ -1,6 +1,6 @@
 import { Box } from '@mui/material'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
-import SimpleMultilineAlertModal from '@src/pages/client/components/modals/simple-multiline-alert-modal'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 import ItemPriceUnitForm from '@src/pages/components/forms/item-price-unit-form'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { formatByRoundingProcedure, formatCurrency } from '@src/shared/helpers/price.helper'
