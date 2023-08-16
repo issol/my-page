@@ -231,17 +231,7 @@ export default function Requests() {
                 <List
                   skip={requestListPage}
                   pageSize={requestListPageSize}
-                  // setSkip={(n: number) => {
-                  //   setSkip(n)
-                  //   setActiveFilter({
-                  //     ...activeFilter,
-                  //     skip: n * activeFilter.take,
-                  //   })
-                  // }}
                   setSkip={setrequestListPage}
-                  // setPageSize={(n: number) =>
-                  //   setActiveFilter({ ...activeFilter, take: n })
-                  // }
                   setPageSize={setrequestPageSize}
                   filter={activeFilter}
                   setFilter={setActiveFilter}
