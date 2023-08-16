@@ -190,11 +190,91 @@ export default function ItemForm({
     }
   }, [teamMembers])
 
+  const getPricebyPairs = (idx: number) => {
+    const options = getPriceOptions(
+      getValues(`items.${idx}.source`),
+      getValues(`items.${idx}.target`),
+    )
+    return options
+  }
+  // Language pair에 price가 변경된 경우 0번째 language-pair의 currency와 모든 item의 price의 currency를 비교하여
+  // currency가 다른 경우 해당 item의 price를 null 처리한다.
+  // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
+  // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
+  useEffect(() => {
+    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    let items = getValues('items')
+    let isUpdate = false
+    if (items.length && targetCurrency) {
+      items.map((item,idx) => {
+        const matchPriceList = getPricebyPairs(idx)
+        const itemPriceId = item.priceId
+        const itemPrice = matchPriceList.filter(pair => itemPriceId === pair.id!)
+        if (itemPrice[0]?.currency && targetCurrency !== itemPrice[0]?.currency) {
+          setValue(`items.${idx}.priceId`, null, setValueOptions)
+          isUpdate = true
+        }
+      })
+      if (languagePairs.length === 1 && isUpdate) {
+        selectCurrencyViolation(1)
+      }
+    }
+  }, [languagePairs])
+
+  // item의 Price currency와 0번째 Language pair price의 currency를 비교한다.
+  // 값이 다르면 item의 price를 null 처리한다.
+  const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
+    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    if (targetCurrency) {
+      if (price?.currency !== targetCurrency) {
+        setValue(`items.${index}.priceId`, null, setValueOptions)
+        selectCurrencyViolation(1)
+        return false
+      }
+    }
+    return true
+  }
+
+  const controlMinimumPriceModal = (price:StandardPriceListType) => {
+    if (price.languagePairs[0]?.minimumPrice) {
+      openMinimumPriceModal(price)
+    }
+  }
+
+  const selectNotApplicableOption = () => {
+    openModal({
+      type: 'info-not-applicable-unavailable',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('info-not-applicable-unavailable')}
+          message={`The "Not Applicable" option is currently unavailable.\n\nPlease select a price or\ncreate a new price if there is no suitable price according to the conditions.`}
+          vary='info'
+        />
+      ),
+    })
+  }
+
+  const selectCurrencyViolation = (type: number) => {
+    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
+    const message2 = 'Please select the price for the first language pair first.'
+    openModal({
+      type: 'error-currency-violation',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('error-currency-violation')}
+          message={type === 1 ? message1 : message2}
+          vary={type === 1 ? 'error' : 'info'}
+        />
+      ),
+    })
+  }
+
   function onChangeLanguagePair(v: languageType | null, idx: number) {
     setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
+      controlMinimumPriceModal(v?.price)
     }
   }
 
@@ -221,6 +301,25 @@ export default function ItemForm({
       }
     }
     return -1
+  }
+
+  const openMinimumPriceModal = (value: any) => {
+    const minimumPrice = formatCurrency(
+      value?.languagePairs[0]?.minimumPrice,
+      value?.currency,
+    )
+    openModal({
+      type: 'info-minimum',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
+          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+          vary='info'
+        />
+      ),
+    })
   }
 
   const Row = ({ idx }: { idx: number }) => {
@@ -333,24 +432,6 @@ export default function ItemForm({
       })
     }
 
-    const openMinimumPriceModal = (value: any) => {
-      const minimumPrice = formatCurrency(
-        value?.languagePairs[0]?.minimumPrice,
-        value?.currency,
-      )
-      openModal({
-        type: 'info-minimum',
-        children: (
-          <SimpleMultilineAlertModal
-            onClose={() => {
-              closeModal('info-minimum')
-            }}
-            message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
-            vary='info'
-          />
-        ),
-      })
-    }
     // function onItemBoxLeave() {
     //   const isMinimumPriceConfirmed =
     //     !!minimumPrice &&
@@ -704,20 +785,23 @@ export default function ItemForm({
                           isOptionEqualToValue={(option, newValue) => {
                             return option.priceName === newValue.priceName
                           }}
-                          getOptionLabel={option => option.priceName}
+                          getOptionLabel={option => `${option.priceName} (${option.currency})`}
                           onChange={(e, v) => {
-                            onChange(v?.id)
-                            const value = getValues().items[idx]
+                            // Not Applicable 임시 막기
+                            // currency 체크 로직
                             if (v) {
-                              const index = findLangPairIndex(
-                                value?.source!,
-                                value?.target!,
-                              )
-                              if (v?.languagePairs[0]?.minimumPrice)
-                                openMinimumPriceModal(v)
-                              if (index !== -1) {
-                                const copyLangPair = [...languagePairs]
-                                copyLangPair[index].price = v
+                              if (checkPriceCurrency(v, idx)) {
+                                onChange(v?.id)
+                                const value = getValues().items[idx]
+                                const index = findLangPairIndex(
+                                  value?.source!,
+                                  value?.target!,
+                                )
+                                controlMinimumPriceModal(v)
+                                if (index !== -1) {
+                                  const copyLangPair = [...languagePairs]
+                                  copyLangPair[index].price = v
+                                }
                               }
                             }
                           }}
@@ -765,7 +849,6 @@ export default function ItemForm({
                 // setShowMinimum={setShowMinimum}
                 type={type}
                 sumTotalPrice={sumTotalPrice}
-                // checkMinimumPrice={checkMinimumPrice}
               />
               {/* price unit end */}
               <Grid item xs={12}>

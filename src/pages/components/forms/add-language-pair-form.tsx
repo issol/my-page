@@ -44,6 +44,12 @@ import { StandardPriceListType } from '@src/types/common/standard-price'
 // ** helpers
 import languageHelper from '@src/shared/helpers/language.helper'
 
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+// ** modals
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+
 type Props = {
   languagePairs: languageType[]
   setLanguagePairs: Dispatch<SetStateAction<languageType[]>>
@@ -61,6 +67,8 @@ export default function AddLanguagePairForm({
   type,
   onDeleteLanguagePair,
 }: Props) {
+  const { openModal, closeModal } = useModal()
+
   const languageList = getGloLanguage()
   const defaultValue = { value: '', label: '' }
 
@@ -103,6 +111,69 @@ export default function AddLanguagePairForm({
     })
     setLanguagePairs(languagePairs.concat(result))
     setLanguagePair({ source: '', target: [] })
+  }
+
+  const updateLanguagePairs = (languagePairs: languageType[]) => {
+    let updatedLanguagePairs = { ...languagePairs }
+    let isValidCondition = true
+    let type=0
+    const targetCurrency = languagePairs[0]?.price?.currency! ?? null
+    if (targetCurrency) {
+      if (languagePairs[0].price) {
+        languagePairs.map((pair,index) => {
+          if (pair.price && targetCurrency !== pair.price?.currency) {
+            isValidCondition = false
+            type=1
+            // 첫번째 Language-pair를 기준으로 currency가 맞지 않는 price를 null로 변경
+            updatedLanguagePairs = languagePairs.map(item => ({
+              ...item,
+              price: item.price?.currency === targetCurrency ? item.price : null,
+            }));
+          }
+        })
+      }
+    } else {
+      // 첫번째 언어페어의가 null인 경우, 모든 Price를 null로 바꿈
+      isValidCondition = false
+      type=2
+      updatedLanguagePairs = languagePairs.map(item => ({
+        ...item,
+        price: null,
+      }));
+    }
+    if(isValidCondition) setLanguagePairs(languagePairs)
+    else {
+      selectCurrencyViolation(type)
+      setLanguagePairs(updatedLanguagePairs)
+    }
+  }
+
+  const selectNotApplicableOption = () => {
+    openModal({
+      type: 'info-not-applicable-unavailable',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('info-not-applicable-unavailable')}
+          message={`The "Not Applicable" option is currently unavailable.\n\nPlease select a price or\ncreate a new price if there is no suitable price according to the conditions.`}
+          vary='info'
+        />
+      ),
+    })
+  }
+
+  const selectCurrencyViolation = (type: number) => {
+    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
+    const message2 = 'Please select the price for the first language pair first.'
+    openModal({
+      type: 'error-currency-violation',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('error-currency-violation')}
+          message={type === 1 ? message1 : message2}
+          vary={type === 1 ? 'error' : 'info'}
+        />
+      ),
+    })
   }
 
   return (
@@ -213,8 +284,10 @@ export default function AddLanguagePairForm({
                     ) {
                       const copyPairs = [...languagePairs]
                       copyPairs[idx].price = matchingPrice[0]
-                      setLanguagePairs(copyPairs)
+                      updateLanguagePairs(copyPairs)
                     }
+                    // row가 갑자기 여러번 리랜더링 되는 현상이 있음
+                    console.log("Re-rendering-row",row)
                     return (
                       <TableRow hover tabIndex={-1} key={row.id}>
                         <TableCell>
@@ -252,12 +325,16 @@ export default function AddLanguagePairForm({
                               options={options}
                               groupBy={option => option?.groupName ?? ''}
                               onChange={(e, v) => {
-                                const copyPairs = [...languagePairs]
-                                copyPairs[idx].price = v
-                                setLanguagePairs(copyPairs)
+                                if(v && v.id === -1) {
+                                  selectNotApplicableOption()
+                                } else {
+                                  const copyPairs = [...languagePairs]
+                                  copyPairs[idx].price = v
+                                  updateLanguagePairs(copyPairs)
+                                }
                               }}
                               id='autocomplete-controlled'
-                              getOptionLabel={option => option.priceName}
+                              getOptionLabel={option => `${option.priceName} (${option.currency})`}
                               renderInput={params => (
                                 <TextField {...params} placeholder='Price' />
                               )}
