@@ -51,6 +51,7 @@ import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/
 import { getPermission, getRole } from 'src/store/permission'
 import { useAppDispatch } from 'src/hooks/useRedux'
 import { useAppSelector } from 'src/hooks/useRedux'
+import { useGetClientUserInfo } from '@src/queries/common.query'
 
 // ** Defaults
 const defaultProvider: AuthValuesType = {
@@ -87,6 +88,9 @@ const AuthProvider = ({ children }: Props) => {
     undefined,
   )
 
+  const [fetchClient, setFetchClient] = useState(false)
+  const { data: companyData } = useGetClientUserInfo(fetchClient)
+
   const [loading, setLoading] = useState<boolean>(defaultProvider.loading)
 
   const dispatch = useAppDispatch()
@@ -110,16 +114,17 @@ const AuthProvider = ({ children }: Props) => {
         const isClient = res.payload.roles
           ?.map((i: { name: string }) => i.name)
           .includes('CLIENT')
-        if (isClient) {
-          getClientUserInfo().then(res => {
-            console.log('res', res)
-            setCompany(res)
-          })
-        }
+        setFetchClient(isClient)
       })
       dispatch(getPermission())
     }
   }, [user])
+
+  useEffect(() => {
+    if (companyData) {
+      setCompany(companyData)
+    }
+  }, [companyData])
 
   useEffect(() => {
     if (user && userAccess.role.length) {
