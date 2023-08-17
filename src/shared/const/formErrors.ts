@@ -1,6 +1,7 @@
 export const FormErrors = {
   invalidEmail: 'Invalid email address',
   invalidUrl: 'Invalid link',
+  notHTTPPrefixUrl: 'Please include http:// or https:// in the website address',
   registeredEmail: 'This email is already registered',
   invalidVerificationCode: 'Invalid verification code',
   required: 'This field is required.',
