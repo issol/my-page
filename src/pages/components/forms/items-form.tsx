@@ -906,7 +906,7 @@ export default function ItemForm({
                             rows={4}
                             multiline
                             fullWidth
-                            label='Write down an item description.'
+                            placeholder='Write down an item description.'
                             value={value ?? ''}
                             onChange={onChange}
                             inputProps={{ maxLength: 500 }}

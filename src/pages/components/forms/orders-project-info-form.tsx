@@ -591,7 +591,7 @@ export default function ProjectInfoForm({
                 multiline
                 fullWidth
                 error={Boolean(errors.projectDescription)}
-                label='Write down a project description.'
+                placeholder='Write down a project description.'
                 value={value ?? ''}
                 onChange={onChange}
                 inputProps={{ maxLength: 500 }}

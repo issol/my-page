@@ -852,7 +852,7 @@ export default function MyPageOverview({ user, userInfo }: Props) {
             rows={4}
             multiline
             fullWidth
-            label='Please write down the note to share with LPM / TAD.'
+            placeholder='Please write down the note to share with LPM / TAD.'
             value={note}
             onChange={e => setNote(e.target.value)}
             inputProps={{ maxLength: 500 }}

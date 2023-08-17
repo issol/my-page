@@ -439,7 +439,7 @@ export default function AddNewRequest() {
                       multiline
                       fullWidth
                       error={Boolean(errors.notes)}
-                      label='Write down a note'
+                      placeholder='Write down a note'
                       value={value ?? ''}
                       onChange={onChange}
                       inputProps={{ maxLength: 500 }}
