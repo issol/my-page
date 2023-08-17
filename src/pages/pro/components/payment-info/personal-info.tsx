@@ -5,6 +5,7 @@ import { IconButton } from '@mui/material'
 import styled from 'styled-components'
 import {
   FileNameType,
+  PositionType,
   UserInfo,
   getProPaymentFile,
 } from '@src/apis/payment-info.api'
@@ -21,12 +22,16 @@ type Props = {
   info: BillingMethodUnionType | undefined
   replaceDots: (value: string) => string
   downloadFile: (file: FileItemType) => void
+  files?: Array<FileItemType & { positionType: PositionType; proId: number }>
+  isAccountManager: boolean
 }
 
 export default function PersonalInfo({
   info,
   replaceDots,
   downloadFile,
+  files,
+  isAccountManager,
 }: Props) {
   function renderDetails() {
     if (!info) return null
@@ -36,6 +41,10 @@ export default function PersonalInfo({
       case 'us_ach':
       case 'paypal':
         const transferData = info as TransferWiseFormType
+        const copyOfId = files?.find(i => i.positionType === 'copyOfId')
+        const businessLicense = files?.find(
+          i => i.positionType === 'businessLicense',
+        )
         return (
           <>
             <CardBox>
@@ -52,6 +61,14 @@ export default function PersonalInfo({
               <Typography variant='body2'>
                 {replaceDots(transferData?.personalId)}
               </Typography>
+              {copyOfId && isAccountManager && (
+                <Button
+                  variant='outlined'
+                  onClick={() => downloadFile(copyOfId)}
+                >
+                  Download
+                </Button>
+              )}
             </CardBox>
             <CardBox mt={4}>
               <img
@@ -62,12 +79,21 @@ export default function PersonalInfo({
                 height={70}
               />
               <Typography fontWeight={600}>W8/ W9/ Business license</Typography>
+              {businessLicense && isAccountManager && (
+                <Button
+                  variant='outlined'
+                  onClick={() => downloadFile(businessLicense)}
+                >
+                  Download
+                </Button>
+              )}
             </CardBox>
           </>
         )
       case 'koreaDomesticTransfer':
         //@ts-ignore
         const isSolo = !info?.copyOfBankStatement
+        const copyOfRrCard = files?.find(i => i.positionType === 'copyOfRrCard')
         if (isSolo) {
           const koreanSoloData = info as KoreaDomesticTransferSoloType
           return (
@@ -86,10 +112,21 @@ export default function PersonalInfo({
               <Typography variant='body2'>
                 {replaceDots(koreanSoloData?.businessNumber?.toString())}
               </Typography>
+              {copyOfRrCard && isAccountManager && (
+                <Button
+                  variant='outlined'
+                  onClick={() => downloadFile(copyOfRrCard)}
+                >
+                  Download
+                </Button>
+              )}
             </CardBox>
           )
         }
         const koreanData = info as KoreaDomesticTransferType
+        const copyOfBankStatement = files?.find(
+          i => i.positionType === 'copyOfBankStatement',
+        )
         return (
           <>
             <CardBox>
@@ -114,6 +151,14 @@ export default function PersonalInfo({
                 height={70}
               />
               <Typography fontWeight={600}>Bank statement</Typography>
+              {copyOfBankStatement && (
+                <Button
+                  variant='outlined'
+                  onClick={() => downloadFile(copyOfBankStatement)}
+                >
+                  Download
+                </Button>
+              )}
             </CardBox>
           </>
         )

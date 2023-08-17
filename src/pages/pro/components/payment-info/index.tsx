@@ -63,7 +63,7 @@ export default function PaymentInfo({ id, userRole }: Props) {
   const invalidatePaymentInfo = () =>
     queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
 
-  const { data } = useGetUserPaymentInfo(id, true)
+  const { data } = useGetUserPaymentInfo(id, isAccountManager)
 
   const replaceDots = (value: string) => {
     if (!value) return '-'
@@ -124,6 +124,8 @@ export default function PaymentInfo({ id, userRole }: Props) {
             info={data?.billingMethod}
             replaceDots={replaceDots}
             downloadFile={downloadFile}
+            files={data?.files || []}
+            isAccountManager={isAccountManager}
           />
           {userRole === 'LPM' ? (
             <Card sx={{ padding: '24px', mt: '24px' }}>
