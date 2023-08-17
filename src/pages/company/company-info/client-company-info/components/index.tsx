@@ -21,7 +21,6 @@ import {
   RoleType,
 } from '@src/context/types'
 import { FileType } from '@src/types/common/file.type'
-import { useGetCompanyInfo } from '@src/queries/company/company-info.query'
 import CustomChip from '@src/@core/components/mui/chip'
 
 import {
@@ -34,35 +33,14 @@ import {
 } from 'react'
 
 import useModal from '@src/hooks/useModal'
-import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  lpmCompanyAddressSchema,
-  lpmCompanyInfoSchema,
-} from '@src/types/schema/lpm-company-info.schema'
-import {
-  CompanyAddressFormType,
-  CompanyAddressParamsType,
-  CompanyInfoFormType,
-  CompanyInfoParamsType,
-  CompanyInfoType,
-} from '@src/types/company/info'
 
-import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import { AuthContext } from '@src/context/AuthContext'
 import { useMutation, useQueryClient } from 'react-query'
-import {
-  patchCompanyAddress,
-  patchCompanyInfo,
-} from '@src/apis/company/company-info.api'
+
 import { getCurrentRole } from '@src/shared/auth/storage'
-import {
-  getUploadUrlforCommon,
-  getDownloadUrlforCommon,
-  uploadFileToS3,
-} from 'src/apis/common.api'
+
 import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 
@@ -77,10 +55,9 @@ import {
 } from '@src/types/schema/client-address.schema'
 import ClientAddressesForm from '@src/pages/client/components/forms/addresses-info-form'
 import ClientCompanyInfoForm from '@src/pages/client/components/forms/client-info/client-company-info-form'
-import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
-import { updateClientUserInfo } from '@src/apis/user.api'
+
 import { toast } from 'react-hot-toast'
-import { createClient, updateClient } from '@src/apis/client.api'
+import { updateClient } from '@src/apis/client.api'
 import { getTypeList } from '@src/shared/transformer/type.transformer'
 import CompanyInfoCard from './info-card'
 
@@ -88,7 +65,7 @@ import CompanyAddressDetail from './company-address-detail'
 import CompanyInfoDetail from './company-info-detail'
 import { isEmpty } from 'lodash'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-// import CompanyAddressDetail from './components/company-address-detail'
+import CompanyPaymentInfo from './payment-info'
 
 interface FileProp {
   name: string
@@ -99,7 +76,7 @@ interface FileProp {
 type MenuType = 'companyInfo' | 'paymentInfo'
 export default function ClientCompanyInfoPageComponent() {
   const currentRole = getCurrentRole()
-  console.log('currentRole', currentRole)
+
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -172,7 +149,7 @@ export default function ClientCompanyInfoPageComponent() {
     resolver: yupResolver(clientAddressAllRequiredSchema),
   })
 
-  useEffect(() => {
+  function resetCompanyInfoForm() {
     reset({
       businessClassification: company?.businessClassification,
       name: company?.name ?? '',
@@ -184,15 +161,23 @@ export default function ClientCompanyInfoPageComponent() {
       timezone: company?.timezone,
       headquarter: company?.headquarter ?? '',
     })
+  }
+
+  function resetAddressForm() {
+    resetAddress({
+      clientAddresses: company?.clientAddresses
+        .map(i => ({
+          ...i,
+          id: i?.id?.toString(),
+        }))
+        .filter(i => i.addressType !== 'billing'),
+    })
+  }
+
+  useEffect(() => {
+    resetCompanyInfoForm()
     if (company?.clientAddresses.length) {
-      resetAddress({
-        clientAddresses: company?.clientAddresses
-          .map(i => ({
-            ...i,
-            id: i?.id?.toString(),
-          }))
-          .filter(i => i.addressType !== 'billing'),
-      })
+      resetAddressForm()
     }
   }, [company])
 
@@ -221,16 +206,22 @@ export default function ClientCompanyInfoPageComponent() {
 
   function onCancelEdit() {
     if (infoEdit) {
-      if (!isEmpty(dirtyFields)) {
+      if (isEmpty(dirtyFields)) {
         setInfoEdit(false)
       } else {
-        openDiscardModal(() => setInfoEdit(false))
+        openDiscardModal(() => {
+          setInfoEdit(false)
+          resetCompanyInfoForm()
+        })
       }
     } else {
-      if (!isEmpty(addressDirtyFields)) {
+      if (isEmpty(addressDirtyFields)) {
         setAddressEdit(false)
       } else {
-        openDiscardModal(() => setAddressEdit(false))
+        openDiscardModal(() => {
+          setAddressEdit(false)
+          resetAddressForm()
+        })
       }
     }
   }
@@ -429,7 +420,9 @@ export default function ClientCompanyInfoPageComponent() {
               </Card>
             ) : null}
           </TabPanel>
-          <TabPanel value='paymentInfo'></TabPanel>
+          <TabPanel value='paymentInfo'>
+            <CompanyPaymentInfo />
+          </TabPanel>
         </TabContext>
       </Box>
     </Suspense>
