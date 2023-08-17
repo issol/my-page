@@ -66,6 +66,7 @@ import {
   ClientPaymentFormType,
   OfficeTaxType,
   OfficeType,
+  PayPalFormType,
   PaymentMethodUnionType,
   PaymentType,
 } from '@src/types/payment-info/client/index.type'
@@ -75,6 +76,7 @@ import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { BorderBox } from '@src/@core/components/detail-info'
+import PaymentMethodDetail from './payment-method-detail'
 
 export default function CompanyPaymentInfo() {
   const isUserRoleGeneral = getCurrentRole()?.type === 'General'
@@ -271,14 +273,22 @@ export default function CompanyPaymentInfo() {
   ) {
     if (!company?.clientId) return
     const existData = paymentInfo?.find(info => info.office === office)
-    const data = {
+    let data = {
       clientId: company.clientId,
       office,
       paymentMethod,
       paymentData,
       taxData,
     }
-
+    if (office === 'Korea') {
+      const taxData = data.taxData as PayPalFormType
+      data = {
+        ...data,
+        taxData: {
+          recipientEmail: taxData.email,
+        },
+      }
+    }
     updatePaymentInfo.mutate(
       !existData ? data : { ...data, paymentId: existData.id },
     )
@@ -350,6 +360,7 @@ export default function CompanyPaymentInfo() {
                 display='flex'
                 justifyContent='space-between'
                 alignItems='center'
+                mb={4}
               >
                 <Typography variant='h6'>Payment info</Typography>
                 {isUpdatable && isLSPReviewedPaymentMethod && (
@@ -358,11 +369,16 @@ export default function CompanyPaymentInfo() {
                   </IconButton>
                 )}
               </Box>
-              {!isLSPReviewedPaymentMethod ? (
+              {!isLSPReviewedPaymentMethod || office === null ? (
                 <AlertBox>
                   The LSP is currently reviewing the payment method.
                 </AlertBox>
-              ) : null}
+              ) : (
+                <PaymentMethodDetail
+                  office={office}
+                  paymentInfo={paymentInfo}
+                />
+              )}
             </Card>
             <Card style={{ padding: '24px' }}>
               <Box
@@ -528,7 +544,6 @@ export default function CompanyPaymentInfo() {
 }
 
 const AlertBox = styled(Box)`
-  margin-top: 20px;
   padding: 20px;
   color: #fdb528;
   background: rgb(101, 76, 26);
