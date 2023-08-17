@@ -19,6 +19,7 @@ import { BorderBox } from '@src/@core/components/detail-info'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 type Props = {
+  onCopy: (info: string) => void
   info: BillingMethodUnionType | undefined
   replaceDots: (value: string) => string
   downloadFile: (file: FileItemType) => void
@@ -27,6 +28,7 @@ type Props = {
 }
 
 export default function PersonalInfo({
+  onCopy,
   info,
   replaceDots,
   downloadFile,
@@ -58,9 +60,18 @@ export default function PersonalInfo({
               <Typography fontWeight={600}>
                 Personal (Social security) ID
               </Typography>
-              <Typography variant='body2'>
-                {replaceDots(transferData?.personalId)}
-              </Typography>
+              <Box display='flex' alignItems='center'>
+                <Typography variant='body2'>
+                  {replaceDots(transferData?.personalId)}
+                </Typography>
+                {isAccountManager && (
+                  <IconButton
+                    onClick={() => onCopy(transferData?.personalId ?? '')}
+                  >
+                    <Icon icon='mdi:content-copy' fontSize={20} />
+                  </IconButton>
+                )}
+              </Box>
               {copyOfId && isAccountManager && (
                 <Button
                   variant='outlined'
@@ -138,9 +149,18 @@ export default function PersonalInfo({
                 height={70}
               />
               <Typography fontWeight={600}>Resident registration</Typography>
-              <Typography variant='body2'>
-                {replaceDots(koreanData?.rrn?.toString())}
-              </Typography>
+              <Box display='flex' alignItems='center'>
+                <Typography variant='body2'>
+                  {replaceDots(koreanData?.rrn?.toString())}
+                </Typography>
+                {isAccountManager && (
+                  <IconButton
+                    onClick={() => onCopy(koreanData?.rrn?.toString() ?? '')}
+                  >
+                    <Icon icon='mdi:content-copy' fontSize={20} />
+                  </IconButton>
+                )}
+              </Box>
             </CardBox>
             <CardBox mt={4}>
               <img

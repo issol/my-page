@@ -59,6 +59,13 @@ export default function PaymentInfo({ id, userRole }: Props) {
 
   const clipboard = useClipboard()
 
+  const onCopy = (info: string) => {
+    clipboard.copy(info)
+    toast.success('The text has been copied to your clipboard.', {
+      duration: 2000,
+    })
+  }
+
   const queryClient = useQueryClient()
   const invalidatePaymentInfo = () =>
     queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
@@ -121,42 +128,43 @@ export default function PaymentInfo({ id, userRole }: Props) {
       <Grid container spacing={6} mt='6px'>
         <Grid item xs={12} md={4} lg={4}>
           <PersonalInfo
+            onCopy={onCopy}
             info={data?.billingMethod}
             replaceDots={replaceDots}
             downloadFile={downloadFile}
             files={data?.files || []}
             isAccountManager={isAccountManager}
           />
-          {userRole === 'LPM' ? (
-            <Card sx={{ padding: '24px', mt: '24px' }}>
-              <FileInfo
-                fileList={
-                  data?.files.filter(i => i.positionType === 'additional') || []
-                }
-                title='Additional files'
-                accept={{
-                  'image/*': ['.png', '.jpg', '.jpeg'],
-                  'text/csv': ['.cvs'],
-                  'application/pdf': ['.pdf'],
-                  'text/plain': ['.txt'],
-                  'application/vnd.ms-powerpoint': ['.ppt'],
-                  'application/msword': ['.doc'],
-                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                    ['.docx'],
-                }}
-                fileType={S3FileType.PRO_PAYMENT_INFO}
-                onDownloadAll={downloadAllFile}
-                onFileDrop={uploadFiles}
-                onDeleteFile={onDeleteFile}
-                isUpdatable={isUpdatable}
-                isDeletable={isDeletable}
-              />
-            </Card>
-          ) : null}
+          <Card sx={{ padding: '24px', mt: '24px' }}>
+            <FileInfo
+              fileList={
+                data?.files.filter(i => i.positionType === 'additional') || []
+              }
+              title='Additional files'
+              accept={{
+                'image/*': ['.png', '.jpg', '.jpeg'],
+                'text/csv': ['.cvs'],
+                'application/pdf': ['.pdf'],
+                'text/plain': ['.txt'],
+                'application/vnd.ms-powerpoint': ['.ppt'],
+                'application/msword': ['.doc'],
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                  ['.docx'],
+              }}
+              fileType={S3FileType.PRO_PAYMENT_INFO}
+              onDownloadAll={downloadAllFile}
+              onFileDrop={uploadFiles}
+              onDeleteFile={onDeleteFile}
+              isReadable={isAccountManager}
+              isUpdatable={isAccountManager}
+              isDeletable={isAccountManager}
+            />
+          </Card>
         </Grid>
 
         <Grid item xs={12} md={8} lg={8}>
           <BillingMethod
+            onCopy={onCopy}
             info={data?.billingMethod}
             bankInfo={data?.bankInfo}
             corrBankInfo={data?.correspondentBankInfo}
@@ -185,17 +193,16 @@ export default function PaymentInfo({ id, userRole }: Props) {
               }}
             />
           </Card>
-          {userRole === 'LPM' ? (
-            <Tax
-              info={{
-                taxInfo: data?.taxInfo ?? null,
-                taxRate: data?.taxRate ?? null,
-              }}
-              edit={taxEdit}
-              setEdit={setTaxEdit}
-              isUpdatable={isUpdatable}
-            />
-          ) : null}
+          <Tax
+            proId={id}
+            info={{
+              taxInfo: data?.taxInfo ?? null,
+              taxRate: data?.taxRate ?? null,
+            }}
+            edit={taxEdit}
+            setEdit={setTaxEdit}
+            isUpdatable={isAccountManager}
+          />
         </Grid>
       </Grid>
     </Suspense>

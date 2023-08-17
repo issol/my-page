@@ -1,4 +1,11 @@
-import { Button, Card, CardHeader, Grid, Typography } from '@mui/material'
+import {
+  Button,
+  Card,
+  CardHeader,
+  Grid,
+  IconButton,
+  Typography,
+} from '@mui/material'
 import { Box } from '@mui/system'
 import logger from '@src/@core/utils/logger'
 import { ProPaymentInfoType } from '@src/apis/payment-info.api'
@@ -17,6 +24,7 @@ import {
 import { BorderBox } from '@src/@core/components/detail-info'
 
 type Props = {
+  onCopy: (info: string) => void
   info: BillingMethodUnionType | undefined
   bankInfo: BankInfo | undefined
   corrBankInfo: CorrespondentBankInfo | undefined | null
@@ -25,6 +33,7 @@ type Props = {
 }
 
 export default function BillingMethod({
+  onCopy,
   info,
   bankInfo,
   corrBankInfo,
@@ -54,10 +63,20 @@ export default function BillingMethod({
             <Grid item xs={6}>
               <ContentGrid>
                 <Typography sx={{ fontWeight: 600 }}>Email address</Typography>
-                <Typography variant='body2'>
+
+                <Box display='flex' alignItems='center'>
+                  <Typography variant='body2'>
+                    {/* @ts-ignore */}
+                    {replaceDots(info?.email)}
+                  </Typography>
                   {/* @ts-ignore */}
-                  {replaceDots(info?.email)}
-                </Typography>
+                  {isAccountManager && info?.email && (
+                    //@ts-ignore
+                    <IconButton onClick={() => onCopy(info?.email ?? '')}>
+                      <Icon icon='mdi:content-copy' fontSize={20} />
+                    </IconButton>
+                  )}
+                </Box>
               </ContentGrid>
             </Grid>
           </>
@@ -91,21 +110,39 @@ export default function BillingMethod({
                   <Typography sx={{ fontWeight: 600 }}>
                     Account number
                   </Typography>
-                  <Typography variant='body2'>
-                    {bankInfo?.accountNumber
-                      ? replaceDots(bankInfo?.accountNumber)
-                      : '-'}
-                  </Typography>
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {bankInfo?.accountNumber
+                        ? replaceDots(bankInfo?.accountNumber)
+                        : '-'}
+                    </Typography>
+                    {isAccountManager && bankInfo?.accountNumber && (
+                      <IconButton
+                        onClick={() => onCopy(bankInfo?.accountNumber ?? '')}
+                      >
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
                 <ContentGrid>
                   <Typography sx={{ fontWeight: 600 }}>
                     Routing number
                   </Typography>
-                  <Typography variant='body2'>
-                    {bankInfo?.routingNumber
-                      ? replaceDots(bankInfo?.routingNumber)
-                      : '-'}
-                  </Typography>
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {bankInfo?.routingNumber
+                        ? replaceDots(bankInfo?.routingNumber)
+                        : '-'}
+                    </Typography>
+                    {isAccountManager && bankInfo?.routingNumber && (
+                      <IconButton
+                        onClick={() => onCopy(bankInfo?.routingNumber ?? '')}
+                      >
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
                 <ContentGrid>
                   <Typography sx={{ fontWeight: 600 }}>SWIFT code</Typography>
@@ -117,9 +154,17 @@ export default function BillingMethod({
                 </ContentGrid>
                 <ContentGrid>
                   <Typography sx={{ fontWeight: 600 }}>IBAN</Typography>
-                  <Typography variant='body2'>
-                    {bankInfo?.iban ? replaceDots(bankInfo?.iban) : '-'}
-                  </Typography>
+
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {bankInfo?.iban ? replaceDots(bankInfo?.iban) : '-'}
+                    </Typography>
+                    {isAccountManager && bankInfo?.iban && (
+                      <IconButton onClick={() => onCopy(bankInfo?.iban ?? '')}>
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
               </Grid>
 
@@ -131,27 +176,58 @@ export default function BillingMethod({
                   <Typography sx={{ fontWeight: 600 }}>
                     Routing number
                   </Typography>
-                  <Typography variant='body2'>
-                    {corrBankInfo?.accountNumber
-                      ? replaceDots(corrBankInfo?.accountNumber)
-                      : '-'}
-                  </Typography>
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.accountNumber
+                        ? replaceDots(corrBankInfo?.accountNumber)
+                        : '-'}
+                    </Typography>
+                    {isAccountManager && corrBankInfo?.accountNumber && (
+                      <IconButton
+                        onClick={() =>
+                          onCopy(corrBankInfo?.accountNumber ?? '')
+                        }
+                      >
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
                 <ContentGrid>
                   <Typography sx={{ fontWeight: 600 }}>
                     SWIFT code / BIC
                   </Typography>
-                  <Typography variant='body2'>
-                    {corrBankInfo?.swiftCode
-                      ? replaceDots(corrBankInfo?.swiftCode)
-                      : '-'}
-                  </Typography>
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.swiftCode
+                        ? replaceDots(corrBankInfo?.swiftCode)
+                        : '-'}
+                    </Typography>
+                    {isAccountManager && corrBankInfo?.swiftCode && (
+                      <IconButton
+                        onClick={() => onCopy(corrBankInfo?.swiftCode ?? '')}
+                      >
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
                 <ContentGrid>
                   <Typography sx={{ fontWeight: 600 }}>IBAN</Typography>
-                  <Typography variant='body2'>
-                    {corrBankInfo?.iban ? replaceDots(corrBankInfo?.iban) : '-'}
-                  </Typography>
+                  <Box display='flex' alignItems='center'>
+                    <Typography variant='body2'>
+                      {corrBankInfo?.iban
+                        ? replaceDots(corrBankInfo?.iban)
+                        : '-'}
+                    </Typography>
+                    {isAccountManager && corrBankInfo?.iban && (
+                      <IconButton
+                        onClick={() => onCopy(corrBankInfo?.iban ?? '')}
+                      >
+                        <Icon icon='mdi:content-copy' fontSize={20} />
+                      </IconButton>
+                    )}
+                  </Box>
                 </ContentGrid>
               </Grid>
             </Grid>
