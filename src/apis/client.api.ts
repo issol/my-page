@@ -88,6 +88,18 @@ export const createClient = async (
   }
 }
 
+export const updateClient = async (
+  clientId: number,
+  form: CreateClientBodyType,
+): Promise<CreateClientResType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, form)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const getClientDetail = async (
   id: number,
 ): Promise<ClientDetailType> => {

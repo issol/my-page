@@ -146,9 +146,9 @@ export type InvoiceReceivableDetailType = {
   payDueTimezone: CountryType
   invoiceConfirmedAt: string | null //TODO:추후 삭제 필요
   invoiceConfirmTimezone: CountryType | null //TODO:추후 삭제 필요
-  managerConfirmedAt: string | null
-  clientConfirmedAt: string | null
-  clientConfirmTimezone?: CountryType | null
+  managerConfirmedAt: string | null //** invoiceConfirmedAt을 대체하는 값으로, manager가 confirm했을 때 이 값이 업데이트 됨
+  clientConfirmedAt: string | null //** invoiceConfirmedAt을 대체하는 값으로, client가 confirm했을 때 이 값이 업데이트 됨
+  clientConfirmTimezone?: CountryType | null //** invoiceConfirmTimezone을 대체하는 값으로, client가 confirm했을 때 이 값이 업데이트 됨
   taxInvoiceDueAt: string | null
   taxInvoiceDueTimezone: CountryType | null
   paidAt: string | null

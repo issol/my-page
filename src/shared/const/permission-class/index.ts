@@ -141,3 +141,12 @@ export class pro_payment {
     })
   }
 }
+export class client_payment {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_payment.prototype.constructor, 'name', {
+      value: 'client_payment',
+    })
+  }
+}

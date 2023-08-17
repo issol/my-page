@@ -64,8 +64,6 @@ export default function PaymentInfo({ id, userRole }: Props) {
     queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
 
   const { data } = useGetUserPaymentInfo(id, true)
-  const { data: taxCodes } = useGetTaxCodeList()
-  const taxInfo = taxCodes?.find(i => i.statusCode === data?.taxCode)
 
   const replaceDots = (value: string) => {
     if (!value) return '-'
@@ -185,18 +183,17 @@ export default function PaymentInfo({ id, userRole }: Props) {
               }}
             />
           </Card>
-          {/* TODO: taxInfo스키마 결정되면 수정하고 주석 해제하기*/}
-          {/* {userRole === 'LPM' ? (
+          {userRole === 'LPM' ? (
             <Tax
               info={{
-                taxInfo: taxInfo?.info,
-                taxRate: taxInfo?.rate,
+                taxInfo: data?.taxInfo ?? null,
+                taxRate: data?.taxRate ?? null,
               }}
               edit={taxEdit}
               setEdit={setTaxEdit}
               isUpdatable={isUpdatable}
             />
-          ) : null} */}
+          ) : null}
         </Grid>
       </Grid>
     </Suspense>

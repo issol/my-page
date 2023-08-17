@@ -42,9 +42,6 @@ type Props = {
   }[]
 }
 
-/**
- * TODO : createdAt은 타입 바뀔수도 있으므로 확인 후 수정하기
- */
 export default function JobHistory({
   jobId,
   jobCorId,

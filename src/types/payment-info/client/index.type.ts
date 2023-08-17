@@ -1,4 +1,3 @@
-/* TODO: 아래 타입들은 변경될 수 있음!! */
 export type OfficeType = 'Japan' | 'Korea' | 'Singapore' | 'US'
 
 export type PaymentType =
@@ -16,9 +15,9 @@ export const PaymentMethodPairs: {
 } = {
   Korea: [
     { value: 'bankTransfer', label: 'Bank transfer' },
-    { value: 'creditCard', label: 'Credit card' },
-    { value: 'paypal', label: 'PayPal' },
-    { value: 'wise', label: 'Wise' },
+    // { value: 'creditCard', label: 'Credit card' },
+    // { value: 'paypal', label: 'PayPal' },
+    // { value: 'wise', label: 'Wise' },
   ],
   US: [
     { value: 'directDeposit', label: 'Direct deposit' },
@@ -63,6 +62,8 @@ export type OfficeTaxType =
   | USTaxFormType
   | SingaporeTaxFormType
   | JapanTaxFormType
+  // ** TaxType에 PayPalFormType을 넣은 이유는 Client < Company Info < Payment info에서 korea tax form이 email이기 때문
+  | PayPalFormType
 
 export type KoreaTaxFormType = {
   businessNumber: number

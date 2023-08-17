@@ -196,6 +196,7 @@ export const updateClientUserInfo = async (
   userInfo: ContactPersonType & { userId: number } & {
     clientId: number
     companyId: string
+    headquarter?: string
   },
 ) => {
   try {

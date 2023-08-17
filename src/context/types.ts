@@ -96,13 +96,14 @@ export type ClientClassificationType =
 
 export type ClientCompanyInfoType = {
   businessClassification?: ClientClassificationType
-  name: string //client name
-  email: string
+  name?: string //client name
+  email?: string
   phone?: string
   mobile?: string
   fax?: string
   websiteLink?: string
-  timezone: CountryType
+  timezone?: CountryType
+  headquarter?: string
 }
 
 export type CorporateClientInfoType = {
@@ -112,6 +113,7 @@ export type CorporateClientInfoType = {
 }
 
 export type ClientUserType = {
+  headquarter?: string
   clientId: number
   corporationId: string
   adminCompanyName: string

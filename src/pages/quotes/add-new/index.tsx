@@ -273,7 +273,6 @@ export default function AddNewQuotes() {
     }
   }, [prices, languagePairs])
 
-  //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
     if (requestId && requestData) {
       const { client } = requestData || undefined
@@ -536,15 +535,15 @@ export default function AddNewQuotes() {
     const subPrice = getItem()?.items!
     if (subPrice) {
       const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
-    
+
       setSubPrice(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
+  }, [])
 
   return (
     <Grid container spacing={6}>

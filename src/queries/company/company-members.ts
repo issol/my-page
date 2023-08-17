@@ -48,13 +48,14 @@ export const useGetMembers = (ability: boolean) => {
 
       return data.map((value: ResponseMembersType) => ({
         id: value.userId,
-        role: sortRole(filterRole(value.permissionGroups),'role'),
+        role: sortRole(filterRole(value.permissionGroups), 'role'),
         //permission 값 미사용
         permission: [],
         email: value.email,
         firstName: value.firstName ?? '-',
         middleName: value.middleName ?? '',
         lastName: value.lastName ?? '-',
+        department: value?.department ?? '_',
         updatedAt: value.updatedAt,
         createdAt: value.createdAt,
         jobTitle: value.jobTitle,

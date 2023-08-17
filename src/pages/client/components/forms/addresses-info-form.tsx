@@ -174,7 +174,7 @@ export default function ClientAddressesForm({
   function setShippingAddress(isSameWithBilling: boolean) {
     const id = fields.filter(item => item.addressType === 'shipping')[0].id
     const idx = fields.map(item => item.id).indexOf(id)
-    console.log('isSameWithBilling', getValues())
+
     const billingAddress = getValues()?.clientAddresses?.find(
       item => item.addressType === 'billing',
     )

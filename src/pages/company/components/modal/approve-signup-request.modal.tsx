@@ -19,11 +19,12 @@ import { MembersType, SignUpRequestsType } from 'src/types/company/members'
 type Props = {
   approveSignUpRequest: (user: SignUpRequestsType) => void
   user: SignUpRequestsType
+  message: string
 }
 export default function ApproveSignUpRequestModal({
   approveSignUpRequest,
-
   user,
+  message,
 }: Props) {
   const { setModal } = useContext(ModalContext)
   return (
@@ -76,9 +77,9 @@ export default function ApproveSignUpRequestModal({
               color: 'rgba(76, 78, 100, 0.6)',
             }}
           >
-            Are you sure to approve the sign up <br />
-            request for this account?
+            {message}
           </Typography>
+
           <Typography
             sx={{
               fontFamily: 'Inter',

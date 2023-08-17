@@ -8,6 +8,7 @@ import {
 
 export const clientCompanyInfoSchema = yup.object().shape({
   name: yup.string().required(FormErrors.required),
+  headquarter: yup.string().nullable(),
   email: yup
     .string()
     .email(FormErrors.invalidEmail)

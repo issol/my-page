@@ -256,27 +256,26 @@ export default function ProPaymentInfo({ user }: Props) {
 
       reset({ ...paymentInfo.billingAddress })
 
-      const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo.taxCode)
       const taxInfoFile = paymentInfo?.files?.find(
         i => i.positionType === 'businessLicense',
       )
-      if (taxInfo) {
-        if (taxInfoFile) {
-          transferBlobToFile(taxInfoFile.id!, 'businessLicense').then(res => {
-            if (res) {
-              resetTaxInfo({
-                tax: Number(taxInfo.rate),
-                taxInfo: taxInfo.info,
-                businessLicense: res,
-              })
-            }
-          })
-        }
-        resetTaxInfo({
-          tax: Number(taxInfo.rate),
-          taxInfo: taxInfo.info,
+
+      if (taxInfoFile) {
+        transferBlobToFile(taxInfoFile.id!, 'businessLicense').then(res => {
+          if (res) {
+            resetTaxInfo({
+              taxInfo: paymentInfo.taxInfo,
+              tax: Number(paymentInfo.taxRate),
+              businessLicense: res,
+            })
+          }
         })
       }
+      resetTaxInfo({
+        taxInfo: paymentInfo.taxInfo,
+        tax: Number(paymentInfo.taxRate),
+      })
+
       if (paymentInfo?.billingMethod?.type) {
         setIsRegister(false)
       }
@@ -460,7 +459,6 @@ Some information will reset..'
   }
 
   function checkBillingMethodChange(newMethod: ProPaymentType) {
-    const taxInfo = taxCodes?.find(i => i.statusCode === paymentInfo?.taxCode)
     const billingMethodType = paymentInfo?.billingMethod.type
 
     const isNewMethodKorea = newMethod.includes('koreaDomesticTransfer')
@@ -468,7 +466,7 @@ Some information will reset..'
       'koreaDomesticTransfer',
     )
     const isNotChangeable =
-      !taxInfo?.info?.includes('Korea') &&
+      !paymentInfo?.taxInfo?.includes('Korea') &&
       isNewMethodKorea &&
       !isCurrMethodKorea
 

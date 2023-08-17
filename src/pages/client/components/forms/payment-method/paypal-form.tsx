@@ -5,8 +5,15 @@ import { Control, Controller, FieldError, FieldErrors } from 'react-hook-form'
 type Props = {
   control: Control<PayPalFormType, any>
   errors: FieldErrors<PayPalFormType>
+  placeholder?: string
+  label?: string
 }
-export default function PayPalForm({ control, errors }: Props) {
+export default function PayPalForm({
+  control,
+  errors,
+  placeholder,
+  label,
+}: Props) {
   function renderError(errors: FieldError | undefined) {
     if (!errors) return null
     return (
@@ -29,8 +36,8 @@ export default function PayPalForm({ control, errors }: Props) {
               value={value}
               inputProps={{ maxLength: 100 }}
               onChange={onChange}
-              label='Email*'
-              placeholder='username@example.com'
+              label={label ?? 'Email*'}
+              placeholder={placeholder ?? 'username@example.com'}
             />
           )}
         />

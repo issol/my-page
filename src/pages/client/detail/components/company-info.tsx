@@ -319,7 +319,7 @@ export default function ClientInfo({
             >
               Time zone:&nbsp;
               <Typography variant='body2' component={'span'}>
-                {getGmtTime(clientInfo.timezone.code)}
+                {getGmtTime(clientInfo?.timezone?.code)}
               </Typography>
             </Typography>
           </InfoBox>
@@ -340,7 +340,7 @@ export default function ClientInfo({
             </Typography>
             <Typography variant='body2' component={'span'}>
               {clientInfo?.phone
-                ? `+${clientInfo.timezone.phone})  ${clientInfo.phone}`
+                ? `+${clientInfo?.timezone?.phone})  ${clientInfo.phone}`
                 : '-'}
             </Typography>
           </InfoBox>
@@ -360,7 +360,7 @@ export default function ClientInfo({
               Mobile phone:&nbsp;
               <Typography variant='body2' component={'span'}>
                 {clientInfo?.mobile
-                  ? `+${clientInfo.timezone.phone})  ${clientInfo.mobile}`
+                  ? `+${clientInfo?.timezone?.phone})  ${clientInfo.mobile}`
                   : '-'}
               </Typography>
             </Typography>
@@ -381,7 +381,7 @@ export default function ClientInfo({
               Fax:&nbsp;
               <Typography variant='body2' component={'span'}>
                 {clientInfo?.fax
-                  ? `+${clientInfo.timezone.phone})  ${clientInfo.fax}`
+                  ? `+${clientInfo?.timezone?.phone})  ${clientInfo.fax}`
                   : '-'}
               </Typography>
             </Typography>
