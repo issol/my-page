@@ -28,8 +28,8 @@ import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
   info: {
-    taxInfo: TaxResidentInfoType
-    taxRate: number
+    taxInfo: TaxResidentInfoType | null
+    taxRate: number | null
   }
   edit: boolean
   setEdit: Dispatch<SetStateAction<boolean>>
@@ -37,8 +37,8 @@ type Props = {
 }
 
 const Tax = ({ info, edit, setEdit, isUpdatable }: Props) => {
-  const [taxInfo, setTaxInfo] = useState<string>(info?.taxInfo ?? null)
-  const [taxRate, setTaxRate] = useState<number | null>(info?.taxRate ?? null)
+  const [taxInfo, setTaxInfo] = useState<string | null>(info?.taxInfo)
+  const [taxRate, setTaxRate] = useState<number | null>(info?.taxRate)
 
   const [isTaxRateDisabled, setIsTaxRateDisabled] = useState<boolean>(false)
 
@@ -151,7 +151,7 @@ const Tax = ({ info, edit, setEdit, isUpdatable }: Props) => {
               <FormControl fullWidth>
                 <InputLabel id='controlled-select-label'>Tax info*</InputLabel>
                 <Select
-                  value={taxInfo}
+                  value={taxInfo ?? undefined}
                   label='Tax info*'
                   fullWidth
                   id='controlled-select'

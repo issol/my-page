@@ -44,7 +44,9 @@ export type ProPaymentInfoType = {
   correspondentBankInfo: CorrespondentBankInfo
   billingAddress: ClientAddressType
   files: Array<FileItemType & { positionType: PositionType; proId: number }>
-  taxCode: number
+  // taxCode: number
+  taxInfo: TaxResidentInfoType
+  taxRate: number
 }
 
 export const getPaymentInfoRequest = async (
