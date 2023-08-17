@@ -207,11 +207,13 @@ export const updateProBillingAddress = async (
 
 export const updateProTaxInfo = async (
   proId: number,
-  statusCode: number,
+  taxInfo: string,
+  taxRate: number,
 ): Promise<void> => {
   try {
     await axios.post(`/api/enough/u/pro/${proId}/payment/tax`, {
-      taxCode: statusCode,
+      taxInfo,
+      taxRate,
     })
   } catch (e: any) {
     throw new Error(e)
