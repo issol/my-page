@@ -1,3 +1,4 @@
+import { getClientNotes } from '@src/apis/client.api'
 import {
   getClientBillingAddress,
   getClientOfficeList,
@@ -85,4 +86,20 @@ export const useGetClientPaymentFile = (clientId: number) => {
       },
     },
   )
+}
+
+export const useGetClientNotes = (clientId : number) =>{
+  return useQuery([`clientPaymentInfo`, { type: 'notes' }, clientId], () => {
+    return getClientNotes(clientId)
+  },{
+    suspense: true,
+    useErrorBoundary: true,
+    staleTime: 60 * 1000,
+    keepPreviousData: true,
+    onError: () => {
+      toast.error('Something went wrong. Please try again.', {
+        position: 'bottom-left',
+      })
+    },
+  })
 }

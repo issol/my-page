@@ -24,6 +24,7 @@ import { deleteClient } from '@src/apis/client.api'
 // ** toast
 import { toast } from 'react-hot-toast'
 import { useRouter } from 'next/router'
+import { client } from '@src/shared/const/permission-class'
 
 type Props = {
   clientId: string | string[] | undefined
@@ -47,10 +48,7 @@ export default function ClientProfile({
   const id = Number(clientId)
   const queryClient = useQueryClient()
 
-  const isSigned: boolean = clientInfo.contactPersons
-    ? clientInfo.contactPersons[0].userId !== null
-    : false
-
+  const isSigned: boolean = clientInfo.isEnrolledClient
   const createClientMemoMutation = useMutation(() => deleteClient(id), {
     onSuccess: () => onMutationSuccess(),
     onError: () => onMutationError(),
@@ -114,20 +112,22 @@ export default function ClientProfile({
                 clientId={id}
                 clientInfo={clientInfo}
               />
-              {isSigned ? null : isDeletable ? (
-                <Card>
-                  <CardContent>
-                    <Button
-                      variant='outlined'
-                      color='error'
-                      fullWidth
-                      disabled={!isDeletable}
-                      onClick={onDelete}
-                    >
-                      Delete this client
-                    </Button>
-                  </CardContent>
-                </Card>
+              {isDeletable ? (
+                isSigned ? null : (
+                  <Card>
+                    <CardContent>
+                      <Button
+                        variant='outlined'
+                        color='error'
+                        fullWidth
+                        disabled={!isDeletable}
+                        onClick={onDelete}
+                      >
+                        Delete this client
+                      </Button>
+                    </CardContent>
+                  </Card>
+                )
               ) : null}
             </Box>
           </Grid>
