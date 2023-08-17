@@ -51,9 +51,9 @@ export type ClientPaymentFormType = {
   clientId: number
   paymentId?: number // paymentId 가 전달되면 업데이트, 전달되지 않으면 생성
   office: OfficeType
-  paymentMethod: PaymentType
-  paymentData: PaymentMethodUnionType
-  taxData: OfficeTaxType
+  paymentMethod?: PaymentType
+  paymentData?: PaymentMethodUnionType
+  taxData?: OfficeTaxType
 }
 
 /* Tax form types */

@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react'
+import { Suspense, useContext, useEffect, useState } from 'react'
 
 // ** style components
 import {
@@ -38,7 +38,9 @@ import { toast } from 'react-hot-toast'
 // ** apis
 import {
   useGetClientBillingAddress,
+  useGetClientNotes,
   useGetClientPaymentFile,
+  useGetClientPaymentInfo,
 } from '@src/queries/payment/client-payment.query'
 import {
   deleteClientPaymentFile,
@@ -52,12 +54,16 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
 
 import { client } from '@src/shared/const/permission-class'
+import SelectOffice from './select-office'
+import NotesToClient from './notes-to-client'
+import { ClientDetailType } from '@src/types/client/client'
 
 type Props = {
   clientId: number
+  clientInfo: ClientDetailType
 }
 
-export default function PaymentInfo({ clientId }: Props) {
+export default function PaymentInfo({ clientId, clientInfo }: Props) {
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -67,13 +73,15 @@ export default function PaymentInfo({ clientId }: Props) {
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
 
-  const User = new client(user?.id!)
+  const User = new client(clientId)
 
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
   const { data: fileList } = useGetClientPaymentFile(clientId)
   const { data: billingAddress } = useGetClientBillingAddress(clientId)
+  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
+  const { data: notesToClient } = useGetClientNotes(clientId)
 
   const {
     control,
@@ -128,7 +136,11 @@ export default function PaymentInfo({ clientId }: Props) {
 
   function uploadFiles(files: File[]) {
     if (files.length) {
-      const promiseArr = files.map(i => uploadClientPaymentFile(clientId, i))
+      const promiseArr = files.map(i => {
+        const formData = new FormData()
+        formData.append('file', i)
+        return uploadClientPaymentFile(clientId, formData)
+      })
 
       Promise.all(promiseArr)
         .then(() => {
@@ -199,7 +211,18 @@ export default function PaymentInfo({ clientId }: Props) {
       <Grid item xs={12} md={8}>
         <Box display='flex' flexDirection='column' gap='24px'>
           {/* office details */}
-          <OfficeDetails clientId={clientId} />
+          <Suspense>
+            {paymentInfo && paymentInfo.length === 0 ? (
+              <SelectOffice isUpdatable={isUpdatable} clientId={clientId} />
+            ) : (
+              <OfficeDetails
+                paymentInfo={paymentInfo!}
+                clientId={clientId}
+                isEnrolledClient={clientInfo.isEnrolledClient}
+                isUpdatable={isUpdatable}
+              />
+            )}
+          </Suspense>
 
           {/* billing address */}
           <Card>
@@ -221,6 +244,14 @@ export default function PaymentInfo({ clientId }: Props) {
               <BillingAddress billingAddress={billingAddress} />
             </CardContent>
           </Card>
+          <Suspense>
+            {paymentInfo && paymentInfo.length === 0 ? null : (
+              <NotesToClient
+                notesToClient={notesToClient!}
+                clientId={clientId}
+              />
+            )}
+          </Suspense>
         </Box>
       </Grid>
 

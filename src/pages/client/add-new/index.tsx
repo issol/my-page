@@ -94,6 +94,7 @@ export default function AddNewClient() {
   const [isGeneral, setIsGeneral] = useState(true)
 
   const { openModal, closeModal } = useModal()
+  const [isWarn, setIsWarn] = useState(true)
 
   // ** confirm page leaving
 
@@ -510,7 +511,10 @@ export default function AddNewClient() {
         <AddConfirmModal
           message='Are you sure you want to add this client?'
           title={getCompanyInfoValues().name}
-          onClick={() => createClientMutation.mutate(data)}
+          onClick={() => {
+            setIsWarn(false)
+            createClientMutation.mutate(data)
+          }}
           onClose={() => closeModal('create-client')}
         />
       ),
@@ -558,7 +562,7 @@ export default function AddNewClient() {
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/client',
   })
 

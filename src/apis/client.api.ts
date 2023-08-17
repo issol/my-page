@@ -33,6 +33,7 @@ import {
 } from '@src/shared/helpers/colors.helper'
 import { QuotesStatusType } from '@src/types/common/quotes.type'
 import { OrderStatusType } from '@src/types/common/orders.type'
+import { FileType } from '@src/types/common/file.type'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -100,6 +101,31 @@ export const updateClient = async (
   }
 }
 
+export const createNotesToClient = async (clientId: number, note: string) => {
+  try {
+    await axios.post(`/api/enough/u/client/payment-info/notes`, {
+      clientId,
+      note,
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createNotesToClientFiles = async (
+  clientId: number,
+  files: FileType[],
+) => {
+  try {
+    await axios.post(`/api/enough/u/client/payment-info/notes/file`, {
+      clientId,
+      files,
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export const getClientDetail = async (
   id: number,
 ): Promise<ClientDetailType> => {
@@ -125,6 +151,19 @@ export const getClientMemo = async (
   }
 }
 
+export const getClientNotes = async (
+  clientId: number,
+): Promise<{ id?: number; note: string | null; file: Array<FileType> }> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/payment-info/notes?clientId=${clientId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export type updateClientInfoType = Omit<CompanyInfoFormType, 'memo'>
 export const updateClientInfo = async (
   clientId: number,
@@ -133,6 +172,20 @@ export const updateClientInfo = async (
   try {
     const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateNotesToClient = async (
+  clientId: number,
+  note: string | null,
+) => {
+  try {
+    await axios.patch(`/api/enough/u/client/payment-info/notes`, {
+      clientId,
+      note,
+    })
   } catch (e: any) {
     throw new Error(e)
   }
@@ -199,6 +252,14 @@ export const deleteContactPerson = async (
       `/api/enough/u/contact-person/${contactPersonId}`,
     )
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteNotesToClientFiles = async (fileId: number) => {
+  try {
+    await axios.delete(`/api/enough/u/client/payment-info/notes/file/${fileId}`)
   } catch (e: any) {
     throw new Error(e)
   }

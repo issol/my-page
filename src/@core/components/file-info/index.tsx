@@ -149,9 +149,9 @@ export default function FileInfo({
               onFileClick={file => {
                 if (!isReadable) return
                 if (onFileClick !== undefined) {
-                  onFileClick(file)
+                  isUpdatable && onFileClick(file)
                 } else {
-                  onFileClickForPreview(file)
+                  isUpdatable && onFileClickForPreview(file)
                 }
               }}
               onDelete={onDeleteFile}

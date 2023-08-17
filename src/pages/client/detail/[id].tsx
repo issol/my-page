@@ -161,7 +161,7 @@ export default function ClientDetail() {
         <TabPanel value='5'>
           {/* payment info */}
           <Suspense fallback={<FallbackSpinner />}>
-            <PaymentInfo clientId={Number(id)} />
+            <PaymentInfo clientId={Number(id)} clientInfo={userInfo!} />
           </Suspense>
         </TabPanel>
       </TabContext>
