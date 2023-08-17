@@ -4,8 +4,6 @@ import { Fragment, useEffect, useMemo, useState } from 'react'
 import {
   Box,
   Button,
-  Dialog,
-  DialogContent,
   Divider,
   FormControlLabel,
   Grid,
@@ -21,7 +19,6 @@ import {
   ClientPaymentInfoDetail,
   CreditCardFormType,
   JapanTaxFormType,
-  KoreaTaxFormType,
   OfficeTaxType,
   OfficeType,
   PayPalFormType,
@@ -43,20 +40,21 @@ import {
 // ** third parties
 import { yupResolver } from '@hookform/resolvers/yup'
 import { Control, useForm } from 'react-hook-form'
+
+// ** components
 import BankTransferForm from '@src/pages/client/components/forms/payment-method/bank-transfer-form'
 import CreditCardForm from '@src/pages/client/components/forms/payment-method/credit-card-form'
-import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'
 import AccountMethodForm from '@src/pages/client/components/forms/payment-method/account-method-form'
-import KoreaTaxForm from '@src/pages/client/components/forms/tax-info/korea-tax-form'
+import PayPalForm from '@src/pages/client/components/forms/payment-method/paypal-form'
 import USTaxForm from '@src/pages/client/components/forms/tax-info/us-tax-form'
 import SingaporeTaxForm from '@src/pages/client/components/forms/tax-info/singapore-tax-form'
 import JapanTaxForm from '@src/pages/client/components/forms/tax-info/japan-tax-form'
-
-// ** components
+import { isEmpty } from 'lodash'
 
 type Props = {
   office: OfficeType
   cancel: () => void
+  openDiscardModal: (onClick: any) => void
   paymentInfo: ClientPaymentInfoDetail[] | undefined
   onSave: (
     paymentMethod: PaymentType,
@@ -70,6 +68,7 @@ export default function PaymentMethodForm({
   office,
   paymentInfo,
   cancel,
+  openDiscardModal,
   onSave,
 }: Props) {
   const methodList = PaymentMethodPairs[office]
@@ -87,7 +86,7 @@ export default function PaymentMethodForm({
     control,
     getValues,
     reset,
-    formState: { errors, isValid },
+    formState: { errors, isValid, dirtyFields },
   } = useForm<OfficeTaxType>({
     mode: 'onChange',
     defaultValues: clientTaxInitialData(office),
@@ -98,22 +97,34 @@ export default function PaymentMethodForm({
     control: payMethodControl,
     getValues: getPayMethodValues,
     reset: resetPayMethod,
-    formState: { errors: payMethodErrors, isValid: isPayMethodValid },
+    formState: {
+      errors: payMethodErrors,
+      isValid: isPayMethodValid,
+      dirtyFields: payMethodDirtyFields,
+    },
   } = useForm<PaymentMethodUnionType>({
     mode: 'onChange',
     defaultValues: clientPaymentInitialData(currentMethod),
     resolver: yupResolver(getPaymentMethodSchema(currentMethod)),
   })
 
+  function resetTaxDataForm() {
+    reset(currentPaymentInfo?.taxData)
+  }
+
+  function resetPaymentInfoForm() {
+    resetPayMethod(currentPaymentInfo?.paymentData)
+  }
+
   useEffect(() => {
     if (currentPaymentInfo?.taxData) {
-      reset(currentPaymentInfo?.taxData)
+      resetTaxDataForm()
     }
   }, [office])
 
   useEffect(() => {
     if (currentPaymentInfo?.paymentData) {
-      resetPayMethod(currentPaymentInfo?.paymentData)
+      resetPaymentInfoForm()
     }
   }, [currentMethod])
 
@@ -246,7 +257,21 @@ export default function PaymentMethodForm({
         gap='16px'
         justifyContent='center'
       >
-        <Button variant='outlined' color='secondary' onClick={cancel}>
+        <Button
+          variant='outlined'
+          color='secondary'
+          onClick={() => {
+            if (isEmpty(dirtyFields) && isEmpty(payMethodDirtyFields)) {
+              cancel()
+            } else {
+              openDiscardModal(() => {
+                cancel()
+                reset(currentPaymentInfo?.taxData)
+                resetPayMethod(currentPaymentInfo?.paymentData)
+              })
+            }
+          }}
+        >
           Cancel
         </Button>
         <Button

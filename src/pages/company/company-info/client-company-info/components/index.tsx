@@ -66,6 +66,7 @@ import CompanyInfoDetail from './company-info-detail'
 import { isEmpty } from 'lodash'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import CompanyPaymentInfo from './payment-info'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 interface FileProp {
   name: string
@@ -242,7 +243,7 @@ export default function ClientCompanyInfoPageComponent() {
   }
 
   return (
-    <Suspense>
+    <Suspense fallback={<FallbackSpinner />}>
       <ConfirmLeaveModal />
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
         <CompanyInfoCard companyInfo={company!} />
@@ -421,7 +422,9 @@ export default function ClientCompanyInfoPageComponent() {
             ) : null}
           </TabPanel>
           <TabPanel value='paymentInfo'>
-            <CompanyPaymentInfo />
+            <Suspense fallback={<FallbackSpinner />}>
+              <CompanyPaymentInfo />
+            </Suspense>
           </TabPanel>
         </TabContext>
       </Box>

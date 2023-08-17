@@ -1,8 +1,17 @@
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** style components
 import { Icon } from '@iconify/react'
-import { Box, Button, Card, Grid, IconButton, Typography } from '@mui/material'
+import {
+  Box,
+  Button,
+  Card,
+  Divider,
+  Grid,
+  IconButton,
+  Tooltip,
+  Typography,
+} from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import styled from 'styled-components'
 
@@ -11,6 +20,7 @@ import FileInfo from '@src/@core/components/file-info'
 import BillingAddress from '@src/pages/client/components/payment-info/billing-address'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import PaymentMethodForm from './payment-method-form'
 
 // ** types
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
@@ -22,6 +32,7 @@ import { AbilityContext } from '@src/layouts/components/acl/Can'
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import { useForm } from 'react-hook-form'
+import { useMutation, useQueryClient } from 'react-query'
 
 // ** ability
 import { client_payment } from '@src/shared/const/permission-class'
@@ -30,21 +41,27 @@ import { client_payment } from '@src/shared/const/permission-class'
 import { isEmpty } from 'lodash'
 import { toast } from 'react-hot-toast'
 import { yupResolver } from '@hookform/resolvers/yup'
+import { v4 as uuidv4 } from 'uuid'
 
 // ** apis
+import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import {
-  getDownloadUrlforCommon,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from '@src/apis/common.api'
+  createClientPaymentInfo,
+  deleteClientPaymentFile,
+  getClientPaymentFileFromServer,
+  uploadClientPaymentFile,
+} from '@src/apis/payment/client-payment.api'
+import {
+  useGetClientBillingAddress,
+  useGetClientPaymentFile,
+  useGetClientPaymentInfo,
+} from '@src/queries/payment/client-payment.query'
+import { updateClientAddress } from '@src/apis/client.api'
 
 // ** types & schema
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
 import { clientBillingAddressSchema } from '@src/types/schema/client-billing-address.schema'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-
-// ** helpers
-import { getFilePath } from '@src/shared/transformer/filePath.transformer'
 import {
   ClientPaymentFormType,
   OfficeTaxType,
@@ -52,12 +69,15 @@ import {
   PaymentMethodUnionType,
   PaymentType,
 } from '@src/types/payment-info/client/index.type'
-import { useGetClientPaymentInfo } from '@src/queries/payment/client-payment.query'
-import PaymentMethodForm from './payment-method-form'
-import { useMutation, useQueryClient } from 'react-query'
-import { createClientPaymentInfo } from '@src/apis/payment/client-payment.api'
+
+// ** helpers
+import { getFilePath } from '@src/shared/transformer/filePath.transformer'
+import { formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { BorderBox } from '@src/@core/components/detail-info'
 
 export default function CompanyPaymentInfo() {
+  const isUserRoleGeneral = getCurrentRole()?.type === 'General'
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -69,37 +89,33 @@ export default function CompanyPaymentInfo() {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
-  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(
+  const { data: paymentInfo } = useGetClientPaymentInfo(company?.clientId!)
+  const { data: billingAddress } = useGetClientBillingAddress(
     company?.clientId!,
   )
+  const { data: fileList } = useGetClientPaymentFile(company?.clientId!)
 
   const [editInfo, setEditInfo] = useState(false)
   const [editAddress, setEditAddress] = useState(false)
 
-  //TODO: 임시 값. LSP가 payment info 리뷰가 끝났는지 여부를 판단할 수 있는 값(서버에서 fetch한)을 기준으로 검사하도록 수정해야 함.
-  const isLSPReviewedPaymentMethod = true
+  // TODO: Notes from LSP에 보여줄 파일을 fetch해서 setSavedFiles, setFileSize해주기
+  const [savedFiles, setSavedFiles] = useState<FileItemType[]>([])
+  const [fileSize, setFileSize] = useState(0)
 
-  //['Japan', 'Korea', 'Singapore', 'US']
-  const office: OfficeType = 'US'
+  const isLSPReviewedPaymentMethod = useMemo(
+    () => !!paymentInfo?.length,
+    [paymentInfo],
+  )
 
-  // TODO: 서버에서 fetch한 값으로 교체하기
-  const billingAddress: ClientAddressType = {
-    addressType: 'billing',
-    baseAddress: '서울 특별시 마포구',
-    detailAddress: '동교동 123',
-    state: '',
-    city: '서울',
-    country: '대한민국',
-    zipCode: '123456',
-  }
+  const office: OfficeType | null = useMemo(() => {
+    if (!paymentInfo?.length) return null
+    return paymentInfo[0].office
+  }, [paymentInfo])
 
   const {
     control,
     getValues,
-    setValue,
-    watch,
     reset,
-    trigger,
     formState: { errors, isValid, dirtyFields },
   } = useForm<ClientAddressType>({
     defaultValues: {
@@ -115,29 +131,13 @@ export default function CompanyPaymentInfo() {
     resolver: yupResolver(clientBillingAddressSchema),
   })
 
-  //TODO: 수정: billing address정보를 fetch한 데이터로 reset해주기.
   function resetBillingAddressForm() {
     reset(billingAddress)
   }
 
   useEffect(() => {
     resetBillingAddressForm()
-  }, [])
-
-  function onCancelSave() {
-    if (editInfo) {
-      //TODO: 함수완성하기
-    } else {
-      if (isEmpty(dirtyFields)) {
-        setEditAddress(false)
-      } else {
-        openDiscardModal(() => {
-          setEditAddress(false)
-          resetBillingAddressForm()
-        })
-      }
-    }
-  }
+  }, [billingAddress])
 
   function openDiscardModal(onClick: any) {
     openModal({
@@ -164,8 +164,17 @@ export default function CompanyPaymentInfo() {
             title='Are you sure you want to delete this file?'
             subtitle={file.fileName}
             onClick={() => {
-              //TODO: delete api연결하기
               closeModal('deleteFile')
+              deleteClientPaymentFile(company?.clientId!, file.id!)
+                .then(() => {
+                  toast.success('Success', {
+                    position: 'bottom-left',
+                  })
+                  queryClient.invalidateQueries({
+                    queryKey: 'get/client/payment/file',
+                  })
+                })
+                .catch(e => onError())
             }}
             onClose={() => closeModal('deleteFile')}
             rightButtonText='Delete'
@@ -176,30 +185,25 @@ export default function CompanyPaymentInfo() {
   }
 
   function uploadFiles(files: File[]) {
-    const fileInfo: Array<{ name: string; size: number; fileKey: string }> = []
+    if (files.length && company?.clientId) {
+      const promiseArr = files.map(i => {
+        const formData = new FormData()
+        formData.append('file', i)
+        return uploadClientPaymentFile(company?.clientId, formData)
+      })
 
-    //TODO: getFilePath의 인자는 임시로 넣어둠. 서버에 저장할 file path가 정해지면 해당 값으로 만들어주기.
-    const paths: string[] = files?.map(file => getFilePath([''], file.name))
-    const promiseArr = paths.map((url, idx) => {
-      //TODO: S3FileType.RESUME는 임시로 넣어둔 값. Client의 file위치가 정해지면 S3FileType에 값 추가하고, 해당 값으로 교체하기
-      return getUploadUrlforCommon(S3FileType.RESUME, url).then(res => {
-        fileInfo.push({
-          name: files[idx].name,
-          size: files[idx]?.size,
-          fileKey: url,
+      Promise.all(promiseArr)
+        .then(() => {
+          toast.success('Success', {
+            position: 'bottom-left',
+          })
+          queryClient.invalidateQueries({ queryKey: 'get/client/payment/file' })
         })
-        return uploadFileToS3(res.url, files[idx])
-      })
-    })
-
-    Promise.all(promiseArr)
-      .then(res => {
-        //TODO: file upload가 완료된 후의 작업 추가하기
-      })
-      .catch(() => onError())
+        .catch(e => onError())
+    }
   }
 
-  function downloadFile(file: FileItemType) {
+  function downloadNotesFromLSPFile(file: FileItemType) {
     if (!file) return
     //TODO: S3FileType.RESUME는 임시로 넣어둔 값. Client의 file위치가 정해지면 S3FileType에 값 추가하고, 해당 값으로 교체하기
     getDownloadUrlforCommon(S3FileType.RESUME, file.filePath).then(res => {
@@ -228,9 +232,25 @@ export default function CompanyPaymentInfo() {
     })
   }
 
-  function downloadAllFile(files: FileItemType[] | null) {
+  function onFileClick(file: FileItemType) {
+    if (!file?.id) return
+    getClientPaymentFileFromServer(file.id).then(res => {
+      const url = window.URL.createObjectURL(res)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.fileName
+      document.body.appendChild(a)
+      a.click()
+      setTimeout((_: any) => {
+        window.URL.revokeObjectURL(url)
+      }, 60000)
+      a.remove()
+    })
+  }
+
+  function downloadAllFiles(files: FileItemType[] | null) {
     if (!files) return
-    files.forEach(file => downloadFile(file))
+    files.forEach(file => onFileClick(file))
   }
 
   const updatePaymentInfo = useMutation(
@@ -264,6 +284,53 @@ export default function CompanyPaymentInfo() {
     )
     setEditInfo(false)
   }
+
+  const updateBillingaddress = useMutation(
+    (form: ClientAddressType) => updateClientAddress({ data: [form] }),
+    {
+      onSuccess: () => {
+        toast.success('Success', {
+          position: 'bottom-left',
+        })
+        queryClient.invalidateQueries({ queryKey: 'get/client/billingAddress' })
+      },
+      onError: () => onError(),
+    },
+  )
+
+  function onSaveBillingAddress() {
+    const data = getValues()
+    setEditAddress(false)
+    updateBillingaddress.mutate({ ...data, id: billingAddress?.id! })
+  }
+
+  const savedFileList = savedFiles?.map((file: FileItemType) => (
+    <Box key={uuidv4()} mt={4}>
+      <FileBox>
+        <Box sx={{ display: 'flex', alignItems: 'center' }}>
+          <Box sx={{ marginRight: '8px', display: 'flex' }}>
+            <Icon
+              icon='material-symbols:file-present-outline'
+              style={{ color: 'rgba(76, 78, 100, 0.54)' }}
+              fontSize={24}
+            />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+            <Tooltip title={file.fileName}>
+              <FileName variant='body1'>{file.fileName}</FileName>
+            </Tooltip>
+
+            <Typography variant='caption' lineHeight={'14px'}>
+              {formatFileSize(file?.fileSize ?? 0)}
+            </Typography>
+          </Box>
+        </Box>
+        <IconButton onClick={() => downloadNotesFromLSPFile(file)}>
+          <Icon icon='mdi:download' fontSize={24} />
+        </IconButton>
+      </FileBox>
+    </Box>
+  ))
 
   function onError() {
     toast.error(
@@ -313,16 +380,66 @@ export default function CompanyPaymentInfo() {
               </Box>
               <BillingAddress billingAddress={billingAddress} />
             </Card>
-            <Card style={{ padding: '24px' }}>
-              <Typography variant='h6'>Notes from LSP</Typography>
+            <Card sx={{ padding: '24px' }}>
+              <Grid item xs={12}>
+                <Box display='flex' gap='20px' alignItems='center'>
+                  <Box display='flex' flexDirection='column'>
+                    <Typography variant='h6'>Notes from LSP</Typography>
+                    <Typography variant='caption'>
+                      {formatFileSize(fileSize).toLowerCase()}/ 50 mb
+                    </Typography>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', gap: '16px' }}>
+                    <Button
+                      variant='outlined'
+                      disabled={!savedFiles.length}
+                      sx={{
+                        height: '34px',
+                      }}
+                      startIcon={<Icon icon='mdi:download' fontSize={18} />}
+                      onClick={() => downloadAllFiles(savedFiles)}
+                    >
+                      Download all
+                    </Button>
+                  </Box>
+                </Box>
+              </Grid>
+              {savedFiles.length ? (
+                <>
+                  <Grid item xs={12}>
+                    <Box
+                      display='grid'
+                      gridTemplateColumns='repeat(3,1fr)'
+                      gap='16px'
+                    >
+                      {savedFileList}
+                    </Box>
+                  </Grid>
+                  <Grid item xs={12}>
+                    <Divider />
+                  </Grid>
+                </>
+              ) : (
+                '-'
+              )}
+              <Divider />
+              <Grid item xs={12} mt={4}>
+                <BorderBox>
+                  <Typography variant='body2'>
+                    {/* TODO: 밑에는 임시 텍스트로, LSP가 등록한 메시지를 넣어주어야 함. 만약 메시지가 없다면 하이픈'-' 표시 */}
+                    Please check our address : 3325 Wilshire Blvd Ste 626 Los
+                    Angeles CA 90010
+                  </Typography>
+                </BorderBox>
+              </Grid>
             </Card>
           </Grid>
           <Grid item xs={4}>
             <Card sx={{ padding: '24px' }}>
               <FileInfo
                 title='Files'
-                //TODO: 서버에서 받아온 파일 정보로 교체하기
-                fileList={[]}
+                fileList={fileList || []}
                 accept={{
                   'image/*': ['.png', '.jpg', '.jpeg'],
                   'text/csv': ['.cvs'],
@@ -333,12 +450,17 @@ export default function CompanyPaymentInfo() {
                   'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
                     ['.docx'],
                 }}
-                fileType={''}
-                onDownloadAll={downloadAllFile}
+                onFileClick={onFileClick}
+                onDownloadAll={downloadAllFiles}
                 onFileDrop={uploadFiles}
                 onDeleteFile={onDeleteFile}
-                isUpdatable={isUpdatable && isLSPReviewedPaymentMethod}
-                isDeletable={isDeletable}
+                isReadable={!isUserRoleGeneral}
+                isUpdatable={
+                  isUpdatable &&
+                  isLSPReviewedPaymentMethod &&
+                  !isUserRoleGeneral
+                }
+                isDeletable={isDeletable && !isUserRoleGeneral}
               />
             </Card>
           </Grid>
@@ -346,14 +468,17 @@ export default function CompanyPaymentInfo() {
       )}
       {!editInfo ? null : (
         <Grid item xs={12}>
-          <Card style={{ padding: '24px' }}>
-            <PaymentMethodForm
-              office={office}
-              cancel={() => setEditInfo(false)}
-              onSave={onSavePaymentInfo}
-              paymentInfo={paymentInfo}
-            />
-          </Card>
+          {office === null ? null : (
+            <Card style={{ padding: '24px' }}>
+              <PaymentMethodForm
+                office={office}
+                cancel={() => setEditInfo(false)}
+                onSave={onSavePaymentInfo}
+                paymentInfo={paymentInfo}
+                openDiscardModal={openDiscardModal}
+              />
+            </Card>
+          )}
         </Grid>
       )}
       {!editAddress ? null : (
@@ -371,10 +496,26 @@ export default function CompanyPaymentInfo() {
                 justifyContent='center'
                 gap='1rem'
               >
-                <Button variant='outlined' onClick={onCancelSave}>
+                <Button
+                  variant='outlined'
+                  onClick={() => {
+                    if (isEmpty(dirtyFields)) {
+                      setEditAddress(false)
+                    } else {
+                      openDiscardModal(() => {
+                        setEditAddress(false)
+                        resetBillingAddressForm()
+                      })
+                    }
+                  }}
+                >
                   Cancel
                 </Button>
-                <Button variant='contained' disabled={!isValid}>
+                <Button
+                  variant='contained'
+                  disabled={!isValid}
+                  onClick={onSaveBillingAddress}
+                >
                   Save
                 </Button>
               </Grid>
@@ -398,4 +539,27 @@ const AlertBox = styled(Box)`
     ),
     #fdb528;
   border-radius: 10px;
+`
+
+const FileBox = styled(Box)`
+  display: flex;
+  margin-bottom: 8px;
+  width: 100%;
+  justify-content: space-between;
+  border-radius: 8px;
+  padding: 10px 12px;
+  border: 1px solid rgba(76, 78, 100, 0.22);
+  background: #f9f8f9;
+`
+
+const FileName = styled(Typography)`
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 20px;
+  overflow: hidden;
+  word-break: break-all;
+  text-overflow: ellipsis;
+  display: -webkit-box;
+  -webkit-line-clamp: 1;
+  -webkit-box-orient: vertical;
 `

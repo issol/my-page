@@ -110,7 +110,7 @@ export const getClientPaymentFile = async (
 
 export const uploadClientPaymentFile = async (
   clientId: number,
-  file: File,
+  file: FormData,
 ): Promise<void> => {
   try {
     const { data } = await axios.post(

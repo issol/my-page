@@ -34,6 +34,7 @@ type Props = {
   fileType?: string //one of S3FileType
   isUpdatable: boolean
   isDeletable: boolean
+  isReadable?: boolean
 }
 
 export default function FileInfo({
@@ -48,6 +49,7 @@ export default function FileInfo({
   fileType,
   isUpdatable,
   isDeletable,
+  isReadable = true,
 }: Props) {
   const { openModal, closeModal } = useModal()
 
@@ -129,6 +131,7 @@ export default function FileInfo({
                 variant='outlined'
                 sx={{ p: 2, minWidth: 38 }}
                 onClick={() => onDownloadAll(fileList)}
+                disabled={!isReadable}
               >
                 <Icon icon='ic:baseline-download' fontSize={20} />
               </Button>
@@ -144,6 +147,7 @@ export default function FileInfo({
               direction='ltr'
               files={fileList}
               onFileClick={file => {
+                if (!isReadable) return
                 if (onFileClick !== undefined) {
                   onFileClick(file)
                 } else {
