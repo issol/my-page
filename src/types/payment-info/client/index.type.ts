@@ -64,6 +64,7 @@ export type OfficeTaxType =
   | JapanTaxFormType
   // ** TaxType에 PayPalFormType을 넣은 이유는 Client < Company Info < Payment info에서 korea tax form이 email이기 때문
   | PayPalFormType
+  | { recipientEmail: string }
 
 export type KoreaTaxFormType = {
   businessNumber: number
