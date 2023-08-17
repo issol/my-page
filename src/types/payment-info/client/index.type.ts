@@ -16,9 +16,9 @@ export const PaymentMethodPairs: {
 } = {
   Korea: [
     { value: 'bankTransfer', label: 'Bank transfer' },
-    { value: 'creditCard', label: 'Credit card' },
-    { value: 'paypal', label: 'PayPal' },
-    { value: 'wise', label: 'Wise' },
+    // { value: 'creditCard', label: 'Credit card' },
+    // { value: 'paypal', label: 'PayPal' },
+    // { value: 'wise', label: 'Wise' },
   ],
   US: [
     { value: 'directDeposit', label: 'Direct deposit' },
@@ -52,9 +52,9 @@ export type ClientPaymentFormType = {
   clientId: number
   paymentId?: number // paymentId 가 전달되면 업데이트, 전달되지 않으면 생성
   office: OfficeType
-  paymentMethod: PaymentType
-  paymentData: PaymentMethodUnionType
-  taxData: OfficeTaxType
+  paymentMethod?: PaymentType
+  paymentData?: PaymentMethodUnionType
+  taxData?: OfficeTaxType
 }
 
 /* Tax form types */

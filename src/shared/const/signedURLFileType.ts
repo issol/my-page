@@ -12,4 +12,5 @@ export const S3FileType = {
   CLIENT_PAYMENT: 'client-payment', //TODO: 임시 값으로 서버에서 path를 정하면 수정하기
   ORDER_DELIVERY: 'delivery',
   TAX_INVOICE: 'tax-invoice',
+  NOTES_TO_CLIENT: 'notes-to-client',
 } as const

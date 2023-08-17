@@ -51,4 +51,5 @@ export type ClientDetailType = Omit<CompanyInfoFormType, 'memo'> & {
     clientId: number
     corporationId: string
     authorId: number
+    isEnrolledClient: boolean
   } & ClientContactPersonType & { isReferred: boolean }

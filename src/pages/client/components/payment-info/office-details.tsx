@@ -14,6 +14,7 @@ import {
   InputLabel,
   MenuItem,
   Select,
+  SelectChangeEvent,
   Typography,
 } from '@mui/material'
 
@@ -24,6 +25,7 @@ import PaymentMethodForm from './payment-method-form'
 // ** types
 import {
   ClientPaymentFormType,
+  ClientPaymentInfoDetail,
   OfficeTaxType,
   OfficeType,
   PaymentMethodUnionType,
@@ -42,14 +44,18 @@ import { useMutation, useQueryClient } from 'react-query'
 
 // ** third parties
 import { toast } from 'react-hot-toast'
+import useModal from '@src/hooks/useModal'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 type Props = {
+  paymentInfo: ClientPaymentInfoDetail[]
   clientId: number
 }
 
-export default function OfficeDetails({ clientId }: Props) {
+export default function OfficeDetails({ paymentInfo, clientId }: Props) {
   /* const { data: officeList } = useGetClientOffice(clientId) */ //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
-  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
+
+  const { openModal, closeModal } = useModal()
 
   const officeList: OfficeType[] = ['Japan', 'Korea', 'Singapore', 'US']
   const earliestData = paymentInfo
@@ -86,6 +92,39 @@ export default function OfficeDetails({ clientId }: Props) {
       onError: () => onError(),
     },
   )
+
+  const onClickChangeOffice = (
+    event: SelectChangeEvent<'Japan' | 'Korea' | 'Singapore' | 'US'>,
+  ) => {
+    openModal({
+      type: 'ChangeConfirmModal',
+      children: (
+        <CustomModal
+          title={
+            <>
+              Are you sure you want to change to the{' '}
+              <Typography fontWeight={600} component={'span'} variant='body2'>
+                {event.target.value}
+              </Typography>{' '}
+              office? It will be notified to the client and the original
+              information will not be saved.
+            </>
+          }
+          onClose={() => closeModal('ChangeConfirmModal')}
+          rightButtonText='Change'
+          vary='error'
+          onClick={() => {
+            updatePaymentInfo.mutate({
+              clientId: clientId,
+              office: event.target.value as OfficeType,
+            })
+            setOffice(event.target.value as OfficeType)
+            closeModal('ChangeConfirmModal')
+          }}
+        />
+      ),
+    })
+  }
 
   function onSave(
     paymentMethod: PaymentType,
@@ -129,13 +168,11 @@ export default function OfficeDetails({ clientId }: Props) {
             <Box display='flex' alignItems='center' gap='16px'>
               <Typography variant='h6'>Office details</Typography>
               <FormControl sx={{ m: 1, minWidth: 80 }}>
-                <InputLabel id='select office'>Office</InputLabel>
                 <Select
                   labelId='select office'
                   value={office}
-                  onChange={e => setOffice(e.target.value as OfficeType)}
-                  autoWidth
-                  label='Age'
+                  size='small'
+                  onChange={onClickChangeOffice}
                 >
                   {officeList.map(i => (
                     <MenuItem value={i} key={i}>
