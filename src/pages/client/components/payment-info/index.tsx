@@ -56,12 +56,14 @@ import { AuthContext } from '@src/context/AuthContext'
 import { client } from '@src/shared/const/permission-class'
 import SelectOffice from './select-office'
 import NotesToClient from './notes-to-client'
+import { ClientDetailType } from '@src/types/client/client'
 
 type Props = {
   clientId: number
+  clientInfo: ClientDetailType
 }
 
-export default function PaymentInfo({ clientId }: Props) {
+export default function PaymentInfo({ clientId, clientInfo }: Props) {
   const { openModal, closeModal } = useModal()
 
   const queryClient = useQueryClient()
@@ -134,7 +136,11 @@ export default function PaymentInfo({ clientId }: Props) {
 
   function uploadFiles(files: File[]) {
     if (files.length) {
-      const promiseArr = files.map(i => uploadClientPaymentFile(clientId, i))
+      const promiseArr = files.map(i => {
+        const formData = new FormData()
+        formData.append('file', i)
+        return uploadClientPaymentFile(clientId, formData)
+      })
 
       Promise.all(promiseArr)
         .then(() => {
@@ -209,7 +215,12 @@ export default function PaymentInfo({ clientId }: Props) {
             {paymentInfo && paymentInfo.length === 0 ? (
               <SelectOffice isUpdatable={isUpdatable} clientId={clientId} />
             ) : (
-              <OfficeDetails paymentInfo={paymentInfo!} clientId={clientId} />
+              <OfficeDetails
+                paymentInfo={paymentInfo!}
+                clientId={clientId}
+                isEnrolledClient={clientInfo.isEnrolledClient}
+                isUpdatable={isUpdatable}
+              />
             )}
           </Suspense>
 

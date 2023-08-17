@@ -50,9 +50,16 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 type Props = {
   paymentInfo: ClientPaymentInfoDetail[]
   clientId: number
+  isEnrolledClient: boolean
+  isUpdatable: boolean
 }
 
-export default function OfficeDetails({ paymentInfo, clientId }: Props) {
+export default function OfficeDetails({
+  paymentInfo,
+  clientId,
+  isEnrolledClient,
+  isUpdatable,
+}: Props) {
   /* const { data: officeList } = useGetClientOffice(clientId) */ //TODO: 데이터가 채워지면 주석 해제하고 이 값 사용하기
 
   const { openModal, closeModal } = useModal()
@@ -182,9 +189,17 @@ export default function OfficeDetails({ paymentInfo, clientId }: Props) {
                 </Select>
               </FormControl>
             </Box>
-            <IconButton onClick={() => setEditForm(true)}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+            {isEnrolledClient ? (
+              isUpdatable ? (
+                <IconButton onClick={() => setEditForm(true)}>
+                  <Icon icon='mdi:pencil-outline' />
+                </IconButton>
+              ) : null
+            ) : (
+              <IconButton onClick={() => setEditForm(true)}>
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            )}
           </Box>
         }
       />
