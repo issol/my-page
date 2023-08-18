@@ -126,6 +126,7 @@ export type ProjectInfoType = {
   tax: number | null
   isTaxable: boolean
   isConfirmed: boolean
+  confirmedAt: string | null
   reason: ReasonType | null
   linkedOrder: {
     id: number

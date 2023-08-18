@@ -117,7 +117,11 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
-import { FullDateTimezoneHelper, convertLocalTimezoneToUTC, formatDateToISOString } from '@src/shared/helpers/date.helper'
+import {
+  FullDateTimezoneHelper,
+  convertLocalTimezoneToUTC,
+  formatDateToISOString,
+} from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 // ** react query
@@ -220,7 +224,8 @@ export default function QuotesDetail() {
               project?.status === 'Internal Review' ||
               project?.status === 'Revision requested' ||
               project?.status === 'Under revision' ||
-              (project?.status === 'Expired' && !project?.isConfirmed)) &&
+              (project?.status === 'Expired' &&
+                project?.confirmedAt === null)) &&
             isIncludeProjectTeam()
           break
         case 'tab-Client':
@@ -271,7 +276,7 @@ export default function QuotesDetail() {
             project?.status === 'In preparation' ||
             project?.status === 'Internal Review' ||
             project?.status === 'Under revision' ||
-            (project?.status === 'Expired' && !project?.isConfirmed)
+            (project?.status === 'Expired' && project?.confirmedAt === null)
           break
         case 'button-CancelQuote':
           flag =
@@ -285,7 +290,8 @@ export default function QuotesDetail() {
               (project?.status === 'New' ||
                 project?.status === 'In preparation' ||
                 project?.status === 'Internal Review' ||
-                (project?.status === 'Expired' && !project?.isConfirmed))) ||
+                (project?.status === 'Expired' &&
+                  project?.confirmedAt === null))) ||
             (!!client?.contactPerson?.userId &&
               (project?.status === 'New' ||
                 project?.status === 'In preparation' ||
@@ -466,7 +472,7 @@ export default function QuotesDetail() {
             analysis: item.analysis ?? [],
             totalPrice: item?.totalPrice ?? 0,
             dueAt: item?.dueAt ?? '',
-            contactPerson: item?.contactPerson ?? {}
+            contactPerson: item?.contactPerson ?? {},
           }
         })
         itemReset({ items: result })
@@ -634,8 +640,7 @@ export default function QuotesDetail() {
 
   const reloadQuoteDetail = () => {
     // tax 정보 변경 시 setTax를 하게 되는데 이때 cancel하게 되면 서버와 화면 데이터가 달라짐
-    queryClient.invalidateQueries(['quotesDetail'])
-    .then(() => {
+    queryClient.invalidateQueries(['quotesDetail']).then(() => {
       setProjectInfoData()
     })
   }
@@ -923,7 +928,9 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
-    const currentTime = formatDateToISOString(convertLocalTimezoneToUTC(new Date()))
+    const currentTime = formatDateToISOString(
+      convertLocalTimezoneToUTC(new Date()),
+    )
     makePdfData()
     dispatch(setQuoteLang(lang))
     dispatch(setQuote(downloadData))
@@ -1127,7 +1134,7 @@ export default function QuotesDetail() {
           project?.status !== 'In preparation' &&
           project?.status !== 'Internal Review' &&
           project?.status === 'Expired' &&
-          project?.isConfirmed)
+          project?.confirmedAt !== null)
       )
     }
   }
