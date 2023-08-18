@@ -9,17 +9,23 @@ export type InvoicePayableStatusType =
   | 'Canceled'
 
 export type InvoiceReceivableStatusType =
-  | 'In preparation'
-  | 'Checking in progress'
-  | 'Accepted by client'
-  | 'Tax invoice issued'
-  | 'Paid'
-  | 'Overdue'
-  | 'Overdue (Reminder sent)'
-  | 'Canceled'
+  | 30000 //New
+  | 30100 //In preparation
+  | 30200 //Internal review
+  | 30300 //Invoice sent
+  | 30400 //Client review
+  | 30500 //Under revision
+  | 30600 //Revised
+  | 30700 // Invoice confirmed
+  | 30800 //Tax invoice issued
+  | 30900 //Paid
+  | 301000 //Overdue
+  | 301100 //Overdue (Reminder sent)
+  | 301200 //Canceled
 
 export type InvoiceProjectInfoFormType = {
-  status: InvoiceReceivableStatusType
+  status?: InvoiceReceivableStatusType
+  showDescription: boolean
   workName?: string
   projectName: string
   invoiceDescription?: string
@@ -28,10 +34,11 @@ export type InvoiceProjectInfoFormType = {
   expertise?: Array<string>
   revenueFrom: RevenueFormType
   invoiceDate: string
+  invoiceDateTimezone: CountryType
   paymentDueDate: { date: string; timezone: CountryType }
-  invoiceConfirmDate?: { date: string; timezone: CountryType }
-  taxInvoiceDueDate?: { date: string; timezone: CountryType }
-  paymentDate?: { date: string; timezone: CountryType }
+  invoiceConfirmDate?: { date: string | null; timezone: CountryType }
+  taxInvoiceDueDate?: { date: string | null; timezone: CountryType }
+  paymentDate?: { date: string | null; timezone: CountryType }
   taxInvoiceIssuanceDate?: { date: string; timezone: CountryType }
   salesRecognitionDate?: { date: string; timezone: CountryType }
   salesCategory?: string
@@ -57,7 +64,7 @@ export type ProInvoiceListType = {
 }
 
 export type ProInvoiceListFilterType = {
-  status?: string[]
+  status?: number[]
   invoicedDateFrom?: string
   invoicedDateTo?: string
   payDueDateFrom?: string

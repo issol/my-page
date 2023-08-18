@@ -43,7 +43,7 @@ export const googleAuth = async (credential: string): Promise<loginResType> => {
   }
 }
 
-/* TODO : url 수정 */
+/* TODO: linked in signup, login은 일단 holding중 */
 export const redirectLinkedInAuth = (e: any) => {
   e.preventDefault()
   if (typeof window === 'object') {

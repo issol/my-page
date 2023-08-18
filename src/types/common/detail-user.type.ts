@@ -1,13 +1,13 @@
 import {
   AppliedRoleType,
-  CertifiedRoleType,
   OnboardingProDetailsType,
 } from '../onboarding/details'
-import { OnboardingJobInfoType } from '../onboarding/list'
+import { ClientAddressType } from '../schema/client-address.schema'
 
 export interface DetailUserType extends OnboardingProDetailsType {
   dateOfBirth?: string
   status?: string
-  residence?: string
+  address: ClientAddressType<number>
+  isOffOnWeekends: boolean
   appliedRoles: Array<AppliedRoleType>
 }

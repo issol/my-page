@@ -83,7 +83,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
     take: standardPriceListPageSize,
     skip: standardPriceListPage * standardPriceListPageSize,
     clientId: used === 'client' ? clientId : null,
-    isStandard: !used ? true : null
+    isStandard: !used ? true : null,
   })
 
   const [languagePairListPage, setLanguagePairListPage] = useState<number>(0)
@@ -234,7 +234,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
     data: AddPriceType,
     modalType: string,
   ) => {
-    console.log(selectedData)
+    // console.log(selectedData)
 
     openModal({
       type: `${modalType}Price${modalType === 'Edit' ? 'Save' : 'Add'}Modal`,
@@ -279,7 +279,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
             open={true}
             onClose={() => {
               closeModal('NoPriceUnitModal')
-              router.push({pathname: '/company/price/', query: {tab: 3}})
+              router.push({ pathname: '/company/price/', query: { tab: 3 } })
             }}
           />
         ),
@@ -290,7 +290,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
   const onClickEditPrice = (priceData: StandardPriceListType) => {
     setSelectedPriceData(priceData)
     setSelectedModalType('Edit')
-    console.log(priceData)
+    // console.log(priceData)
 
     openModal({
       type: 'EditPriceModal',
@@ -330,7 +330,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
     event: MuiEvent<React.MouseEvent>,
   ) => {
     // if (params.row !== selectedLanguagePair) {
-    console.log(params.row)
+    // console.log(params.row)
     if (selectedPriceData?.priceUnit.length) {
       setSelectedLanguagePair(params.row)
     }
@@ -401,7 +401,7 @@ const StandardPrices = ({ clientId, page, title, proId, used }: Props) => {
   }
 
   const sortPriceUnitListByTitle = (priceUnitData: PriceUnitType[]) => {
-    return priceUnitData.sort((a, b) => a.title.localeCompare(b.title));
+    return priceUnitData.sort((a, b) => a.title.localeCompare(b.title))
   }
 
   const onClickSetPriceUnit = () => {

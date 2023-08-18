@@ -43,6 +43,8 @@ import { AuthContext } from '@src/context/AuthContext'
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
+import PaymentInfo from '../components/payment-info'
+import FallbackSpinner from '@src/@core/components/spinner'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -74,7 +76,12 @@ export default function ClientDetail() {
 
   return (
     <Box sx={{ pb: '100px' }}>
-      <ClientInfoCard userInfo={userInfo!} />
+      <ClientInfoCard
+        userInfo={{
+          name: userInfo?.name!,
+          clientType: userInfo?.clientType,
+        }}
+      />
       <TabContext value={value}>
         <TabList
           onChange={handleChange}
@@ -140,16 +147,23 @@ export default function ClientDetail() {
           />
         </TabPanel>
         <TabPanel value='4'>
-          <ClientProfile
-            clientId={id}
-            clientInfo={userInfo ?? null}
-            memo={memo || { data: [], count: 0 }}
-            isUpdatable={isUpdatable}
-            isDeletable={isDeletable}
-            isCreatable={isCreatable}
-          />
+          <Suspense>
+            <ClientProfile
+              clientId={id}
+              clientInfo={userInfo!}
+              memo={memo || { data: [], count: 0 }}
+              isUpdatable={isUpdatable}
+              isDeletable={isDeletable}
+              isCreatable={isCreatable}
+            />
+          </Suspense>
         </TabPanel>
-        <TabPanel value='5'></TabPanel>
+        <TabPanel value='5'>
+          {/* payment info */}
+          <Suspense fallback={<FallbackSpinner />}>
+            <PaymentInfo clientId={Number(id)} clientInfo={userInfo!} />
+          </Suspense>
+        </TabPanel>
       </TabContext>
     </Box>
   )

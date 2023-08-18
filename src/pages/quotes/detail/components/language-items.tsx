@@ -1,4 +1,4 @@
-import { Dispatch, SetStateAction } from 'react'
+import { Dispatch, SetStateAction, useState, useEffect, useMemo } from 'react'
 
 // ** style components
 import {
@@ -44,6 +44,7 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
+  UseFormWatch,
 } from 'react-hook-form'
 import { UserRoleType } from '@src/context/types'
 import {
@@ -129,10 +130,21 @@ export default function QuotesLanguageItemsDetail({
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
-
+  // TODO: Item 처음 등록 후 Languages&Items 로딩시 items[0].priceId가 null인 경우가 있음
   const priceInfo = prices?.find(value => value.id === items[0]?.priceId)
-
-  console.log(priceInfo)
+  const [subPrice, setSubPrice] = useState(0)
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice;
+      }, 0)
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  },[])
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -213,7 +225,7 @@ export default function QuotesLanguageItemsDetail({
       totalPrice: 0,
     })
   }
-  console.log(isEditMode)
+  // console.log(isEditMode)
 
   return (
     <Grid container>
@@ -253,6 +265,7 @@ export default function QuotesLanguageItemsDetail({
           priceUnitsList={priceUnitsList || []}
           type={isEditMode ? 'edit' : 'detail'}
           itemTrigger={itemTrigger}
+          sumTotalPrice={sumTotalPrice}
         />
       </Grid>
 
@@ -272,51 +285,50 @@ export default function QuotesLanguageItemsDetail({
           </Button>
         </Grid>
       ) : null}
-
-      {/* tax */}
-      {role.name === 'CLIENT' ? (
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <Box
+      {/* subTotal */}
+      <Grid item xs={12}>
+        <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '20px',
+              borderBottom: '2px solid #666CFF',
+              justifyContent: 'center',
+              width: '257px',
+            }}
+          >
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
               sx={{
-                display: 'flex',
-                gap: '20px',
-                borderBottom: '2px solid #666CFF',
-                justifyContent: 'center',
-                width: '257px',
+                padding: '16px 16px 16px 20px',
+                flex: 1,
+                textAlign: 'right',
               }}
             >
-              <Typography
-                fontWeight={600}
-                variant='subtitle1'
-                sx={{
-                  padding: '16px 16px 16px 20px',
-                  flex: 1,
-                  textAlign: 'right',
-                }}
-              >
-                Subtotal
-              </Typography>
-              <Typography
-                fontWeight={600}
-                variant='subtitle1'
-                sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
-              >
-                {formatCurrency(
-                  formatByRoundingProcedure(
-                    items.reduce((acc, cur) => {
-                      return acc + cur.totalPrice
-                    }, 0),
-                    priceInfo?.decimalPlace!,
-                    priceInfo?.roundingProcedure!,
-                    priceInfo?.currency ?? 'USD',
-                  ),
+              Subtotal
+            </Typography>
+            <Typography
+              fontWeight={600}
+              variant='subtitle1'
+              sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+            >
+              {formatCurrency(
+                formatByRoundingProcedure(
+                  subPrice,
+                  priceInfo?.decimalPlace!,
+                  priceInfo?.roundingProcedure!,
                   priceInfo?.currency ?? 'USD',
-                )}
-              </Typography>
-            </Box>
+                ),
+                priceInfo?.currency ?? 'USD',
+              )}
+            </Typography>
           </Box>
-        </Grid>
+        </Box>
+      </Grid>
+      {/* tax */}
+      {role.name === 'CLIENT' ? (
+        null
       ) : (
         <Grid
           item
@@ -342,7 +354,6 @@ export default function QuotesLanguageItemsDetail({
             />
             <Typography>Tax</Typography>
           </Box>
-
           <Box display='flex' alignItems='center' gap='4px'>
             {isEditMode ? (
               <>

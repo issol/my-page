@@ -220,29 +220,6 @@ export const QuotesStatus = [
   },
 ]
 
-export const OrderStatus = [
-  {
-    value: 'In preparation',
-    label: 'In preparation',
-  },
-  {
-    value: 'In progress',
-    label: 'In progress',
-  },
-  {
-    value: 'Completed',
-    label: 'Completed',
-  },
-  {
-    value: 'Invoiced',
-    label: 'Invoiced',
-  },
-  {
-    value: 'Canceled',
-    label: 'Canceled',
-  },
-]
-
 export const JobStatus = [
   {
     value: 'In preparation',
@@ -339,81 +316,56 @@ export const InvoicePayableStatus = [
 export const InvoicePayableCalendarStatus = [
   {
     value: 'Invoice created',
-    label: '#F572D8',
+    label: 'Invoice created',
+    color: '#F572D8',
   },
   {
     value: 'Invoice accepted',
-    label: '#9B6CD8',
+    label: 'Invoice accepted',
+    color: '#9B6CD8',
   },
   {
     value: 'Paid',
-    label: '#FF4D49',
+    label: 'Paid',
+    color: '#FF4D49',
   },
   {
     value: 'Overdue',
-    label: '#FF4D49',
+    label: 'Overdue',
+    color: '#FF4D49',
   },
   {
     value: 'Canceled',
-    label: '#FF4D49',
-  },
-]
-
-export const InvoiceCalenderStatus = [
-  {
-    value: 'In preparation',
-    label: '#F572D8',
-  },
-  {
-    value: 'Checking in progress',
-    label: '#FDB528',
-  },
-  {
-    value: 'Accepted by client',
-    label: '#64C623',
-  },
-  {
-    value: 'Tax invoice issued',
-    label: '#46A4C2',
-  },
-  {
-    value: 'Paid',
-    label: '#267838',
-  },
-  {
-    value: 'Overdue',
-    label: '#FF4D49',
-  },
-  {
-    value: 'Overdue (Reminder sent)',
-    label: '#FF4D49',
-  },
-  {
-    value: 'Canceled',
-    label: '#FF4D49',
+    label: 'Canceled',
+    color: '#FF4D49',
   },
 ]
 
 export const ClientRequestCalendarStatus = [
   {
     value: 'Request created',
-    label: '#666CFF',
+    label: 'Request created',
+    color: '#666CFF',
   },
   {
     value: 'In preparation',
-    label: '#FDB528',
-  },
-  {
-    value: 'Changed into order',
-    label: '#1A6BBA',
+    label: 'In preparation',
+    color: '#FDB528',
   },
   {
     value: 'Changed into quote',
-    label: '#64C623',
+    label: 'Changed into quote',
+    color: '#64C623',
+  },
+  {
+    value: 'Changed into order',
+    label: 'Changed into order',
+    color: '#1A6BBA',
   },
   {
     value: 'Canceled',
-    label: '#FF4D49',
+    label: 'Canceled',
+    color: '#FF4D49',
   },
 ]
 
@@ -463,42 +415,52 @@ export const ClientQuoteStatus = [
 export const ClientQuoteCalendarStatus = [
   {
     value: 'New',
-    label: '#666CFF',
+    label: 'New',
+    color: '#666CFF',
   },
   {
     value: 'Under review',
-    label: '#FDB528',
+    label: 'Under review',
+    color: '#FDB528',
   },
   {
     value: 'Revision requested',
-    label: '#A81988',
+    label: 'Revision requested',
+    color: '#A81988',
   },
   {
     value: 'Under revision',
-    label: '#26C6F9',
+    label: 'Under revision',
+    color: '#26C6F9',
   },
   {
     value: 'Revised',
-    label: '#AD7028',
+    label: 'Revised',
+    color: '#AD7028',
   },
   {
     value: 'Accepted',
-    label: '#64C623',
+    label: 'Accepted',
+    color: '#64C623',
   },
   {
     value: 'Changed into order',
-    label: '#1A6BBA',
+    label: 'Changed into order',
+    color: '#1A6BBA',
   },
   {
     value: 'Expired',
-    label: '#FF4D49',
+    label: 'Expired',
+    color: '#FF4D49',
   },
   {
     value: 'Rejected',
-    label: '#FF4D49',
+    label: 'Rejected',
+    color: '#FF4D49',
   },
   {
     value: 'Canceled',
-    label: '#FF4D49',
+    label: 'Canceled',
+    color: '#FF4D49',
   },
 ]

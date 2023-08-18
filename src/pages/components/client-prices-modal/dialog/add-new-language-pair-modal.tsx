@@ -68,7 +68,7 @@ const AddNewLanguagePairModal = ({ onClose, currency, onSubmit }: Props) => {
   })
 
   // const onSubmit = (data: AddNewLanguagePair) => {
-  //   console.log(data)
+  //   // console.log(data)
   // }
 
   const removePair = (item: { id: string }) => {
@@ -146,7 +146,7 @@ const AddNewLanguagePairModal = ({ onClose, currency, onSubmit }: Props) => {
         ],
       })
     } else if (type === 'Add') {
-      console.log(getValues())
+      // console.log(getValues())
       onSubmit(getValues())
     }
   }

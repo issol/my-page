@@ -1,5 +1,5 @@
 // ** react
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
+import { Dispatch, SetStateAction, useEffect, useState, useRef } from 'react'
 
 // ** style component
 import {
@@ -9,6 +9,7 @@ import {
   Divider,
   Grid,
   IconButton,
+  Radio,
   TextField,
   Typography,
 } from '@mui/material'
@@ -28,8 +29,15 @@ import {
   useFieldArray,
 } from 'react-hook-form'
 
+import RadioButtonUncheckedIcon from '@mui/icons-material/RadioButtonUnchecked'
+import CheckCircleIcon from '@mui/icons-material/CheckCircle'
+
 // ** types
-import { ItemDetailType, ItemType } from '@src/types/common/item.type'
+import {
+  ItemDetailType,
+  ItemType,
+  PostItemType,
+} from '@src/types/common/item.type'
 
 // ** Third Party Imports
 import DatePicker from 'react-datepicker'
@@ -69,6 +77,14 @@ import { FullDateHelper } from '@src/shared/helpers/date.helper'
 import Link from 'next/link'
 import { InvoiceReceivableDetailType } from '@src/types/invoice/receivable.type'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { ProjectInfoType } from '@src/types/orders/order-detail'
+import { UseMutationResult } from 'react-query'
+import { CheckBox, TroubleshootRounded } from '@mui/icons-material'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
 
 type Props = {
   control: Control<{ items: ItemType[] }, any>
@@ -83,13 +99,37 @@ type Props = {
   getPriceOptions: (
     source: string,
     target: string,
-  ) => Array<StandardPriceListType & { groupName: string }>
+  ) => Array<StandardPriceListType & { groupName?: string }>
   priceUnitsList: Array<PriceUnitListType>
-  type: string
+  type: 'edit' | 'detail' | 'invoiceDetail' | 'create'
   orderId?: number
   itemTrigger: UseFormTrigger<{
     items: ItemType[]
   }>
+  updateItems?: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      items: PostItemType[]
+    },
+    unknown
+  >
+  project?: ProjectInfoType
+
+  onClickCancelSplitOrder?: () => void
+  onClickSplitOrderConfirm?: () => void
+  selectedIds?: { id: number; selected: boolean }[]
+  setSelectedIds?: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        selected: boolean
+      }[]
+    >
+  >
+  splitReady?: boolean
+  sumTotalPrice: () => void
 }
 
 export type DetailNewDataType = {
@@ -119,16 +159,20 @@ export default function ItemForm({
   type,
   orderId,
   itemTrigger,
+  updateItems,
+  project,
+  onClickCancelSplitOrder,
+  onClickSplitOrderConfirm,
+  selectedIds,
+  setSelectedIds,
+  splitReady,
+  sumTotalPrice,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
 
   const defaultValue = { value: '', label: '' }
   const setValueOptions = { shouldDirty: true, shouldValidate: true }
-  const [showMinimum, setShowMinimum] = useState({
-    checked: false,
-    show: false,
-  })
 
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string }[]
@@ -146,11 +190,91 @@ export default function ItemForm({
     }
   }, [teamMembers])
 
+  const getPricebyPairs = (idx: number) => {
+    const options = getPriceOptions(
+      getValues(`items.${idx}.source`),
+      getValues(`items.${idx}.target`),
+    )
+    return options
+  }
+  // Language pair에 price가 변경된 경우 0번째 language-pair의 currency와 모든 item의 price의 currency를 비교하여
+  // currency가 다른 경우 해당 item의 price를 null 처리한다.
+  // 모달은 등록한 Language pair가 1개인 경우에만 발생시킨다.
+  // (등록한 Language pair가 여러개인 경우 AddLanguagePairForm 폼에서 처리된다.)
+  useEffect(() => {
+    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    let items = getValues('items')
+    let isUpdate = false
+    if (items.length && targetCurrency) {
+      items.map((item,idx) => {
+        const matchPriceList = getPricebyPairs(idx)
+        const itemPriceId = item.priceId
+        const itemPrice = matchPriceList.filter(pair => itemPriceId === pair.id!)
+        if (itemPrice[0]?.currency && targetCurrency !== itemPrice[0]?.currency) {
+          setValue(`items.${idx}.priceId`, null, setValueOptions)
+          isUpdate = true
+        }
+      })
+      if (languagePairs.length === 1 && isUpdate) {
+        selectCurrencyViolation(1)
+      }
+    }
+  }, [languagePairs])
+
+  // item의 Price currency와 0번째 Language pair price의 currency를 비교한다.
+  // 값이 다르면 item의 price를 null 처리한다.
+  const checkPriceCurrency = (price: StandardPriceListType, index: number) => {
+    const targetCurrency = languagePairs[0]?.price?.currency ?? null
+    if (targetCurrency) {
+      if (price?.currency !== targetCurrency) {
+        setValue(`items.${index}.priceId`, null, setValueOptions)
+        selectCurrencyViolation(1)
+        return false
+      }
+    }
+    return true
+  }
+
+  const controlMinimumPriceModal = (price:StandardPriceListType) => {
+    if (price.languagePairs[0]?.minimumPrice) {
+      openMinimumPriceModal(price)
+    }
+  }
+
+  const selectNotApplicableOption = () => {
+    openModal({
+      type: 'info-not-applicable-unavailable',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('info-not-applicable-unavailable')}
+          message={`The "Not Applicable" option is currently unavailable.\n\nPlease select a price or\ncreate a new price if there is no suitable price according to the conditions.`}
+          vary='info'
+        />
+      ),
+    })
+  }
+
+  const selectCurrencyViolation = (type: number) => {
+    const message1 = `Please check the currency of the selected price. You can't use different currencies in a quote.`
+    const message2 = 'Please select the price for the first language pair first.'
+    openModal({
+      type: 'error-currency-violation',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => closeModal('error-currency-violation')}
+          message={type === 1 ? message1 : message2}
+          vary={type === 1 ? 'error' : 'info'}
+        />
+      ),
+    })
+  }
+
   function onChangeLanguagePair(v: languageType | null, idx: number) {
     setValue(`items.${idx}.source`, v?.source ?? '', setValueOptions)
     setValue(`items.${idx}.target`, v?.target ?? '', setValueOptions)
     if (v?.price) {
       setValue(`items.${idx}.priceId`, v?.price?.id, setValueOptions)
+      controlMinimumPriceModal(v?.price)
     }
   }
 
@@ -179,10 +303,29 @@ export default function ItemForm({
     return -1
   }
 
+  const openMinimumPriceModal = (value: any) => {
+    const minimumPrice = formatCurrency(
+      value?.languagePairs[0]?.minimumPrice,
+      value?.currency,
+    )
+    openModal({
+      type: 'info-minimum',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
+          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+          vary='info'
+        />
+      ),
+    })
+  }
+
   const Row = ({ idx }: { idx: number }) => {
     const [cardOpen, setCardOpen] = useState(true)
-    const itemData = getValues(`items.${idx}`)
 
+    const itemData = getValues(`items.${idx}`)
     /* price unit */
     const itemName: `items.${number}.detail` = `items.${idx}.detail`
     const priceData =
@@ -219,7 +362,8 @@ export default function ItemForm({
           (res, item) => (res += Number(item.prices)),
           0,
         )
-        if (minimumPrice && showMinimum.show && price < minimumPrice) {
+
+        if (minimumPrice && price < minimumPrice) {
           data.forEach(item => {
             total += item.unit === 'Percent' ? Number(item.prices) : 0
           })
@@ -232,18 +376,23 @@ export default function ItemForm({
       if (total === itemData.totalPrice) return
       setValue(`items.${idx}.totalPrice`, total, {
         shouldDirty: true,
-        shouldValidate: true,
+        shouldValidate: false,
       })
     }
 
-    function getEachPrice(index: number) {
+    function getEachPrice(
+      index: number,
+      showMinimum?: boolean,
+      isNotApplicable?: boolean,
+    ) {
       const data = getValues(itemName)
       if (!data?.length) return
       let prices = 0
       const detail = data?.[index]
       if (detail && detail.unit === 'Percent') {
         const percentQuantity = data[index].quantity
-        if (minimumPrice && showMinimum.show) {
+
+        if (minimumPrice && showMinimum) {
           prices = (percentQuantity / 100) * minimumPrice
         } else {
           const generalPrices = data.filter(item => item.unit !== 'Percent')
@@ -256,40 +405,59 @@ export default function ItemForm({
         prices = detail.unitPrice * detail.quantity
       }
 
-      if (prices === data[index].prices) return
-      setValue(`items.${idx}.detail.${index}.prices`, prices, {
+      // if (prices === data[index].prices) return
+      const currentCurrency = () => {
+        if (isNotApplicable) return detail?.currency
+        return priceData?.currency!
+      }
+      const roundingPrice = formatByRoundingProcedure(
+        prices,
+        priceData?.decimalPlace!
+          ? priceData?.decimalPlace!
+          : currentCurrency() === 'USD' || currentCurrency() === 'SGD'
+          ? 2
+          : 1000,
+        priceData?.roundingProcedure! ?? 0,
+        currentCurrency(),
+      )
+
+      setValue(`items.${idx}.detail.${index}.currency`, currentCurrency(), {
         shouldDirty: true,
-        shouldValidate: true,
+        shouldValidate: false,
+      })
+      // TODO: NOT_APPLICABLE일때 Price의 Currency를 업데이트 할 수 있는 방법이 필요함
+      setValue(`items.${idx}.detail.${index}.prices`, roundingPrice, {
+        shouldDirty: true,
+        shouldValidate: false,
       })
     }
 
-    function onItemBoxLeave() {
-      const isMinimumPriceConfirmed =
-        !!minimumPrice &&
-        minimumPrice > getValues(`items.${idx}.totalPrice`) &&
-        showMinimum.checked
+    // function onItemBoxLeave() {
+    //   const isMinimumPriceConfirmed =
+    //     !!minimumPrice &&
+    //     minimumPrice > getValues(`items.${idx}.totalPrice`) &&
+    //     showMinimum.checked
 
-      const isNotMinimum =
-        !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
+    //   const isNotMinimum =
+    //     !minimumPrice || minimumPrice <= getValues(`items.${idx}.totalPrice`)
 
-      if (!isMinimumPriceConfirmed && !isNotMinimum) {
-        setShowMinimum({ ...showMinimum, show: true })
-        openModal({
-          type: 'info-minimum',
-          children: (
-            <SimpleAlertModal
-              onClose={() => {
-                closeModal('info-minimum')
-                setShowMinimum({ show: true, checked: true })
-              }}
-              message='The minimum price has been applied to the item(s).'
-            />
-          ),
-        })
-      }
-      itemTrigger('items')
-      getTotalPrice()
-    }
+    //   if (!isMinimumPriceConfirmed && !isNotMinimum && type === 'edit') {
+    //     setShowMinimum({ ...showMinimum, show: true })
+    //     openModal({
+    //       type: 'info-minimum',
+    //       children: (
+    //         <SimpleAlertModal
+    //           onClose={() => {
+    //             closeModal('info-minimum')
+    //             setShowMinimum({ show: true, checked: true })
+    //           }}
+    //           message='The minimum price has been applied to the item(s).'
+    //         />
+    //       ),
+    //     })
+    //   }
+    //   itemTrigger('items')
+    // }
 
     /* tm analysis */
     function onCopyAnalysis(data: onCopyAnalysisParamType) {
@@ -312,6 +480,12 @@ export default function ItemForm({
       getTotalPrice()
     }
 
+    const isNotApplicable = () => {
+      const value = getValues().items[idx]
+      if (value.priceId === NOT_APPLICABLE) return true
+      return false
+    }
+
     return (
       <Box
         style={{
@@ -328,6 +502,23 @@ export default function ItemForm({
               justifyContent='space-between'
             >
               <Box display='flex' alignItems='center' gap='8px'>
+                {splitReady && selectedIds ? (
+                  <Checkbox
+                    checked={selectedIds[idx].selected}
+                    onChange={e => {
+                      setSelectedIds &&
+                        setSelectedIds(prev => {
+                          const copy = [...prev]
+                          copy[idx].selected = e.target.checked
+                          return copy
+                        })
+                    }}
+                    sx={{ padding: 0 }}
+                    // sx={{ border: '1px solid', padding: 0 }}
+                    // icon={<RadioButtonUncheckedIcon />}
+                    // checkedIcon={<CheckCircleIcon />}
+                  />
+                ) : null}
                 <IconButton onClick={() => setCardOpen(!cardOpen)}>
                   <Icon
                     icon={`${
@@ -377,7 +568,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -401,7 +592,9 @@ export default function ItemForm({
                         {...DateTimePickerDefaultOptions}
                         selected={!value ? null : new Date(value)}
                         onChange={onChange}
-                        customInput={<CustomInput label='Item due date*' />}
+                        customInput={
+                          <CustomInput label='Item due date*' icon='calendar' />
+                        }
                       />
                     )}
                   />
@@ -412,7 +605,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -429,7 +622,7 @@ export default function ItemForm({
                           item =>
                             item.value ===
                             getValues(
-                              `items.${idx}.contactPersonId`,
+                              `items.${idx}.contactPerson.id`,
                             )?.toString(),
                         )?.label
                       }
@@ -437,13 +630,16 @@ export default function ItemForm({
                   </Box>
                 ) : (
                   <Controller
-                    name={`items.${idx}.contactPersonId`}
+                    name={`items.${idx}.contactPerson.id`}
                     control={control}
                     render={({ field: { value, onChange } }) => (
                       <Autocomplete
                         autoHighlight
                         fullWidth
                         options={contactPersonList}
+                        isOptionEqualToValue={(option, newValue) => {
+                          return option.value === newValue.value
+                        }}
                         onChange={(e, v) => {
                           onChange(v?.value ?? '')
                         }}
@@ -471,7 +667,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -549,7 +745,7 @@ export default function ItemForm({
                   <Box
                     sx={{
                       display: 'flex',
-                      height: '54px',
+                      height: '21px',
                       gap: '8px',
                       alignItems: 'center',
                     }}
@@ -585,19 +781,27 @@ export default function ItemForm({
                           autoHighlight
                           fullWidth
                           options={options}
-                          groupBy={option => option?.groupName}
-                          getOptionLabel={option => option.priceName}
+                          groupBy={option => option?.groupName ?? ''}
+                          isOptionEqualToValue={(option, newValue) => {
+                            return option.priceName === newValue.priceName
+                          }}
+                          getOptionLabel={option => `${option.priceName} (${option.currency})`}
                           onChange={(e, v) => {
-                            onChange(v?.id)
-                            const value = getValues().items[idx]
+                            // Not Applicable 임시 막기
+                            // currency 체크 로직
                             if (v) {
-                              const index = findLangPairIndex(
-                                value?.source!,
-                                value?.target!,
-                              )
-                              if (index !== -1) {
-                                const copyLangPair = [...languagePairs]
-                                copyLangPair[index].price = v
+                              if (checkPriceCurrency(v, idx)) {
+                                onChange(v?.id)
+                                const value = getValues().items[idx]
+                                const index = findLangPairIndex(
+                                  value?.source!,
+                                  value?.target!,
+                                )
+                                controlMinimumPriceModal(v)
+                                if (index !== -1) {
+                                  const copyLangPair = [...languagePairs]
+                                  copyLangPair[index].price = v
+                                }
                               }
                             }
                           }}
@@ -633,19 +837,23 @@ export default function ItemForm({
                 getTotalPrice={getTotalPrice}
                 getEachPrice={getEachPrice}
                 onDeletePriceUnit={onDeletePriceUnit}
-                onItemBoxLeave={onItemBoxLeave}
+                // onItemBoxLeave={onItemBoxLeave}
                 isValid={
                   !!itemData.source &&
                   !!itemData.target &&
                   (!!itemData.priceId || itemData.priceId === NOT_APPLICABLE)
                 }
-                isNotApplicable={itemData.priceId === NOT_APPLICABLE}
+                // isNotApplicable={isNotApplicable()}
                 priceUnitsList={priceUnitsList}
-                showMinimum={showMinimum}
-                setShowMinimum={setShowMinimum}
+                // showMinimum={showMinimum}
+                // setShowMinimum={setShowMinimum}
                 type={type}
+                sumTotalPrice={sumTotalPrice}
               />
               {/* price unit end */}
+              <Grid item xs={12}>
+                <Divider />
+              </Grid>
               <Grid item xs={12}>
                 <Box
                   sx={{
@@ -657,13 +865,17 @@ export default function ItemForm({
                   <Typography variant='subtitle1' mb='24px' fontWeight={600}>
                     Item description
                   </Typography>
-                  {type === 'detail' || type === 'invoiceDetail' ? null : (
+
+                  {currentRole?.name === 'CLIENT' ? null : (
                     <Box sx={{ display: 'flex', alignItems: 'center' }}>
                       <Controller
-                        name={`items.${idx}.isShowItemDescription`}
+                        name={`items.${idx}.showItemDescription`}
                         control={control}
                         render={({ field: { value, onChange } }) => (
                           <Checkbox
+                            disabled={
+                              type === 'detail' || type === 'invoiceDetail'
+                            }
                             value={value}
                             onChange={e => {
                               onChange(e.target.checked)
@@ -694,7 +906,7 @@ export default function ItemForm({
                             rows={4}
                             multiline
                             fullWidth
-                            label='Write down an item description.'
+                            placeholder='Write down an item description.'
                             value={value ?? ''}
                             onChange={onChange}
                             inputProps={{ maxLength: 500 }}
@@ -744,13 +956,17 @@ export default function ItemForm({
         item
         xs={12}
         display='flex'
-        padding='24px'
+        padding='20px'
         alignItems='center'
         justifyContent='space-between'
         sx={{ background: '#F5F5F7', marginBottom: '24px' }}
       >
         <Typography variant='h6'>Items ({fields.length ?? 0})</Typography>
-        {type === 'invoiceDetail' && orderId && (
+        {(type === 'invoiceDetail' || type === 'detail') &&
+        currentRole &&
+        currentRole.name !== 'CLIENT' &&
+        orderId &&
+        fields.length ? (
           <Link
             href={`/orders/job-list/details/?orderId=${orderId}`}
             style={{ display: 'flex', gap: '8px', alignItems: 'center' }}
@@ -758,7 +974,7 @@ export default function ItemForm({
             Jobs
             <Icon icon='ic:outline-arrow-forward' color='#666CFF' />
           </Link>
-        )}
+        ) : null}
       </Grid>
       {fields.map((item, idx) => (
         <Row key={item.id} idx={idx} />

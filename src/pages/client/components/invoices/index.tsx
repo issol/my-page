@@ -24,12 +24,12 @@ import { UserDataType } from '@src/context/types'
 import ClientInvoiceList from './list/list'
 
 import ClientInvoiceCalendarContainer from './calendar'
-import invoice from '@src/store/invoice'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type FilterType = {
   invoicedDate: Array<Date | null>
   paymentDueDate: Array<Date | null>
-  status: Array<{ label: string; value: string }>
+  status: Array<{ label: string; value: number }>
   search: string
 }
 
@@ -61,6 +61,9 @@ export default function ClientInvoices({ id, user }: Props) {
   const [clientInvoiceListPage, setClientInvoiceListPage] = useState<number>(0)
   const [clientInvoiceListPageSize, setClientInvoiceListPageSize] =
     useState<number>(10)
+
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('InvoiceReceivable')
 
   const [hidePaidInvoices, setHidePaidInvoices] = useState(false)
   const [selectedInvoiceRow, setSelectedInvoiceRow] =
@@ -116,13 +119,14 @@ export default function ClientInvoices({ id, user }: Props) {
   }
 
   const onSubmit = (data: FilterType) => {
-    const { invoicedDate, paymentDueDate, search } = data
+    const { invoicedDate, paymentDueDate, search, status } = data
 
     const filter: ClientInvoiceFilterType = {
       invoicedDateFrom: invoicedDate[0],
       invoicedDateTo: invoicedDate[1],
       paymentDueDateFrom: paymentDueDate[0],
       paymentDueDateTo: paymentDueDate[1],
+      status: status.map(value => value.value),
 
       search: search,
       take: clientInvoiceListPageSize,
@@ -161,15 +165,19 @@ export default function ClientInvoices({ id, user }: Props) {
       <Box>
         {menu === 'list' ? (
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
-            <ClientProjectsFilter
-              filter={filters}
-              control={control}
-              setFilter={setFilters}
-              onReset={onClickResetButton}
-              handleSubmit={handleSubmit}
-              onSubmit={onSubmit}
-              trigger={trigger}
-            />
+            {!statusList && statusListLoading ? null : (
+              <ClientProjectsFilter
+                filter={filters}
+                control={control}
+                setFilter={setFilters}
+                onReset={onClickResetButton}
+                handleSubmit={handleSubmit}
+                onSubmit={onSubmit}
+                trigger={trigger}
+                statusList={statusList!}
+              />
+            )}
+
             <Box
               sx={{
                 display: 'flex',
@@ -222,7 +230,6 @@ export default function ClientInvoices({ id, user }: Props) {
             />
           </Box>
         ) : (
-          // <CalendarContainer id={id} sort={sort} setSort={setSort} />
           <ClientInvoiceCalendarContainer id={id} user={user} />
         )}
       </Box>

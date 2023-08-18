@@ -13,7 +13,7 @@ import { Box } from '@mui/system'
 import Divider from '@mui/material/Divider'
 
 // ** React Imports
-import { Fragment, useContext, useEffect, useState } from 'react'
+import { Fragment, useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -49,23 +49,14 @@ import {
 
 import { CategoryList } from 'src/shared/const/category/categories'
 
-import {
-  ClientList,
-  ClientListIncludeGloz,
-} from 'src/shared/const/client/clients'
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 
 // ** fetches
-import {
-  postFiles,
-  getUploadUrlforCommon,
-  uploadFileToS3,
-} from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 import { useMutation } from 'react-query'
 import {
   checkGuidelineExistence,
   FilePostType,
-  getGuidelineUploadPreSignedUrl,
   postGuideline,
 } from 'src/apis/client-guideline.api'
 
@@ -82,6 +73,7 @@ import { getFilePath } from 'src/shared/transformer/filePath.transformer'
 import logger from '@src/@core/utils/logger'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { useGetClientList } from '@src/queries/client.query'
 
 const defaultValues = {
   title: '',
@@ -97,6 +89,12 @@ const ClientGuidelineForm = () => {
   // ** contexts
   const { user } = useContext(AuthContext)
   const { setModal } = useContext(ModalContext)
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** states
   const [content, setContent] = useState(EditorState.createEmpty())
@@ -143,10 +141,14 @@ const ClientGuidelineForm = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    alt={`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   />
                   <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    {`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -496,8 +498,7 @@ const ClientGuidelineForm = () => {
                       <Autocomplete
                         autoHighlight
                         fullWidth
-                        options={ClientListIncludeGloz}
-                        // filterSelectedOptions
+                        options={clientList}
                         onChange={(e, v) => {
                           if (!v) onChange({ value: '', label: '' })
                           else onChange(v)
@@ -646,8 +647,7 @@ const ClientGuidelineForm = () => {
                     Attached file
                   </Typography>
                   <Typography variant='body2'>
-                    {formatFileSize(fileSize)}
-                    / {byteToMB(MAXIMUM_FILE_SIZE)}
+                    {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 <div {...getRootProps({ className: 'dropzone' })}>

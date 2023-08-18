@@ -43,6 +43,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { useAppSelector } from 'src/hooks/useRedux'
 import { splitPermissionName } from '@src/shared/helpers/role.helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 interface CellType {
   row: MembersType
@@ -81,6 +82,8 @@ const MemberList = ({
   deleteMemberMutation,
   hasGeneralPermission,
 }: Props) => {
+  const isClient = getCurrentRole()?.name === 'CLIENT'
+
   const { openModal, closeModal } = useModal()
 
   const [selectedMember, setSelectedMember] = useState<MembersType | null>(null)
@@ -91,7 +94,7 @@ const MemberList = ({
   const userAccess = useAppSelector(state => state.userAccess)
   const handleClick = (event: MouseEvent<HTMLElement>, member: MembersType) => {
     event.stopPropagation()
-    if(!selectedMember) {
+    if (!selectedMember) {
       setSelectedMember(member)
       setAnchorEl(event.currentTarget)
     } else {
@@ -332,6 +335,24 @@ const MemberList = ({
     },
     {
       flex: 0.256,
+      field: 'department',
+      minWidth: 320,
+      headerName: 'Department',
+      hideSortIcons: true,
+      filterable: false,
+      sortable: false,
+      disableColumnMenu: true,
+      hide: !isClient,
+      renderCell: ({ row }: CellType) => {
+        return (
+          <Typography noWrap variant='body2'>
+            {row?.department ?? '-'}
+          </Typography>
+        )
+      },
+    },
+    {
+      flex: 0.256,
       field: 'jobTitle',
       minWidth: 320,
       headerName: 'Job title',
@@ -355,6 +376,7 @@ const MemberList = ({
       hideSortIcons: true,
       filterable: false,
       sortable: false,
+      hide: isClient,
       disableColumnMenu: true,
 
       renderCell: ({ row }: CellType) => {
@@ -389,13 +411,10 @@ const MemberList = ({
       renderCell: ({ row }: CellType) => {
         const splitPermission = row.role.map(item => splitPermissionName(item))
         return (
-
           <Typography noWrap variant='body2'>
-            {
-              splitPermission.every(val => val === splitPermission[0])
+            {splitPermission.every(val => val === splitPermission[0])
               ? splitPermission[0]
-              : splitPermission.join(' / ')
-            }
+              : splitPermission.join(' / ')}
           </Typography>
         )
       },
@@ -409,6 +428,7 @@ const MemberList = ({
       filterable: false,
       sortable: false,
       disableColumnMenu: true,
+      hide: isClient,
       renderCell: ({ row }: CellType) => {
         return (
           <>
@@ -459,7 +479,7 @@ const MemberList = ({
           elevation={8}
           anchorEl={anchorEl}
           id='customized-menu'
-          onClose={(e) => handleClose(e)}
+          onClose={e => handleClose(e)}
           open={Boolean(anchorEl)}
           anchorOrigin={{
             vertical: 'bottom',
@@ -472,7 +492,7 @@ const MemberList = ({
         >
           <MenuItem
             sx={{ gap: 2 }}
-            onClick={(e) => {
+            onClick={e => {
               selectedMember && onClickEditMember()
             }}
           >

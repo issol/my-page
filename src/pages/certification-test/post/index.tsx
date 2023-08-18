@@ -55,7 +55,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { useDropzone } from 'react-dropzone'
 
 // ** fetches
-import { postFiles, getUploadUrlforCommon, uploadFileToS3  } from 'src/apis/common.api'
+import { getUploadUrlforCommon, uploadFileToS3 } from 'src/apis/common.api'
 import { useMutation, useQueryClient } from 'react-query'
 
 // ** types
@@ -74,7 +74,6 @@ import { getGloLanguage } from 'src/shared/transformer/language.transformer'
 import _ from 'lodash'
 import {
   checkBasicTestExistence,
-  getTestUploadPreSignedUrl,
   patchTest,
   postTest,
   PatchFormType,
@@ -84,7 +83,6 @@ import {
 import { RoleSelectType, SelectType } from 'src/types/onboarding/list'
 import { JobList } from 'src/shared/const/job/jobs'
 
-import { Default } from 'src/stories/Link.stories'
 import { BasicTestExistencePayloadType } from 'src/types/certification-test/list'
 import { useGetTestDetail } from 'src/queries/certification-test/certification-test-detail.query'
 import languageHelper from 'src/shared/helpers/language.helper'
@@ -190,10 +188,14 @@ const TestMaterialPost = () => {
                     src='/images/icons/project-icons/status-alert-error.png'
                     width={60}
                     height={60}
-                    alt={`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    alt={`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   />
                   <Typography variant='body2'>
-                    {`The maximum file size you can upload is ${byteToMB(MAXIMUM_FILE_SIZE)}.`}
+                    {`The maximum file size you can upload is ${byteToMB(
+                      MAXIMUM_FILE_SIZE,
+                    )}.`}
                   </Typography>
                 </Box>
                 <ModalButtonGroup>
@@ -282,9 +284,7 @@ const TestMaterialPost = () => {
           >
             {file.name}
           </Box>
-          <Typography variant='body2'>
-            {formatFileSize(file.size)}
-          </Typography>
+          <Typography variant='body2'>{formatFileSize(file.size)}</Typography>
         </Grid>
         <Grid item xs={2}>
           <IconButton onClick={() => handleRemoveFile(file)}>
@@ -339,9 +339,7 @@ const TestMaterialPost = () => {
           >
             {file.name}
           </Box>
-          <Typography variant='body2'>
-            {formatFileSize(file.size)}
-          </Typography>
+          <Typography variant='body2'>{formatFileSize(file.size)}</Typography>
         </Grid>
         <Grid item xs={2}>
           <IconButton onClick={() => handleRemoveSavedFile(file)}>
@@ -586,7 +584,7 @@ const TestMaterialPost = () => {
   )
   useEffect(() => {
     const subscription = watch((value, { name, type }) => {
-      console.log(value)
+      // console.log(value)
 
       if (value.testType === 'Basic test') {
         if (value.target && value.target.value !== '') {
@@ -697,36 +695,37 @@ const TestMaterialPost = () => {
         ),
       )
       const promiseArr = paths.map((url, idx) => {
-        return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url)
-        .then(res => {
-          fileInfo.push({
-            name: data.file[idx].name,
-            size: data.file[idx]?.size,
-            fileKey: url,
-          })
-          return uploadFileToS3(res.url, data.file[idx])
-        })
-      })
-      Promise.all(promiseArr)
-      .then(res => {
-        finalValue.files = fileInfo
-        patchValue.files = fileInfo
-
-        isFetched
-          ? patchTestMutation.mutate(patchValue)
-          : postTestMutation.mutate(finalValue)
-      })
-      .catch(err => {
-        isFetched
-          ? patchTestMutation.mutate(patchValue)
-          : postTestMutation.mutate(finalValue)
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
+        return getUploadUrlforCommon(S3FileType.TEST_GUIDELINE, url).then(
+          res => {
+            fileInfo.push({
+              name: data.file[idx].name,
+              size: data.file[idx]?.size,
+              fileKey: url,
+            })
+            return uploadFileToS3(res.url, data.file[idx])
           },
         )
       })
+      Promise.all(promiseArr)
+        .then(res => {
+          finalValue.files = fileInfo
+          patchValue.files = fileInfo
+
+          isFetched
+            ? patchTestMutation.mutate(patchValue)
+            : postTestMutation.mutate(finalValue)
+        })
+        .catch(err => {
+          isFetched
+            ? patchTestMutation.mutate(patchValue)
+            : postTestMutation.mutate(finalValue)
+          toast.error(
+            'Something went wrong while uploading files. Please try again.',
+            {
+              position: 'bottom-left',
+            },
+          )
+        })
     } else {
       patchValue.files = fileInfo
       isFetched
@@ -1118,7 +1117,7 @@ const TestMaterialPost = () => {
                         editorState={content}
                         placeholder={`Write down a test guideline or attach it as a file. \n This guideline will be delivered to Pros when they take the test.`}
                         onEditorStateChange={data => {
-                          console.log(data)
+                          // console.log(data)
 
                           setShowError(true)
                           setContent(data)
@@ -1156,8 +1155,8 @@ const TestMaterialPost = () => {
                           Test guideline file
                         </Typography>
                         <Typography variant='body2'>
-                          {formatFileSize(fileSize)}
-                          / {byteToMB(MAXIMUM_FILE_SIZE)}
+                          {formatFileSize(fileSize)}/{' '}
+                          {byteToMB(MAXIMUM_FILE_SIZE)}
                         </Typography>
                       </Box>
                       <div {...getRootProps({ className: 'dropzone' })}>

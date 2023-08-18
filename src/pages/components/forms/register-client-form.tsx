@@ -42,6 +42,7 @@ type Props = {
   setTax: (n: number) => void
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
+  formType: 'create' | 'edit'
 }
 
 export default function RegisterClientForm({
@@ -52,6 +53,7 @@ export default function RegisterClientForm({
   setTax,
   setTaxable,
   type,
+  formType,
 }: Props) {
   const [clientDetail, setClientDetail] = useState<ClientDetailType | null>(
     null,
@@ -140,7 +142,12 @@ export default function RegisterClientForm({
                   lastName: item.lastName!,
                 })} / ${item.jobTitle}`,
           }))
-          setContactPersonList(defaultFilter.concat(result))
+          console.log('contactPersonData', result)
+          if (!result[0].userId) {
+            setContactPersonList(defaultFilter.concat(result))
+          } else {
+            setContactPersonList(result)
+          }
         } else {
           setContactPersonList(defaultFilter)
         }
@@ -203,7 +210,12 @@ export default function RegisterClientForm({
                   onChange(v ? v.value : '')
                 }}
                 disableClearable
-                disabled={type === 'invoice' || type === 'request'}
+                disabled={
+                  type === 'request' ||
+                  (formType === 'edit' && type === 'order') ||
+                  type === 'invoice'
+                }
+                // disabled
                 value={selectedClient || { value: -0, label: '' }}
                 renderInput={params => (
                   <TextField

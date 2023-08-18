@@ -37,11 +37,8 @@ import {
 import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
-import { ItemType } from '@src/types/common/item.type'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
+import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import {
   orderProjectInfoDefaultValue,
   orderProjectInfoSchema,
@@ -89,6 +86,11 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 import { useGetClientRequestDetail } from '@src/queries/requests/client-request.query'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type languageType = {
   id: number | string
@@ -98,30 +100,30 @@ export type languageType = {
 }
 
 export const defaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',
   catBasis: '',
   decimalPlace: 0,
-  roundingProcedure: '',
+  roundingProcedure: 'Round (Round down to 0.5 - round up from 0.5)',
   languagePairs: [],
   priceUnit: [],
   catInterface: { memSource: [], memoQ: [] },
 }
 
 export const proDefaultOption: StandardPriceListType & {
-  groupName: string
+  groupName?: string
 } = {
   id: NOT_APPLICABLE,
   isStandard: false,
   priceName: 'Not applicable',
-  groupName: 'Not applicable',
+  // groupName: 'Not applicable',
   category: '',
   serviceType: [],
   currency: 'USD',
@@ -140,6 +142,11 @@ export default function AddNewOrder() {
   const { user } = useContext(AuthContext)
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+  const [isWarn, setIsWarn] = useState(true)
+
+  const { data: statusList } = useGetStatusList('Order')
+
+  const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
   useEffect(() => {
     if (!router.isReady) return
@@ -152,6 +159,22 @@ export default function AddNewOrder() {
   }, [router.query])
 
   const { openModal, closeModal } = useModal()
+
+  const [subPrice, setSubPrice] = useState(0)
+
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  }, [])
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -248,7 +271,7 @@ export default function AddNewOrder() {
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
   } = useForm<OrderProjectInfoFormType>({
     mode: 'onChange',
-    defaultValues: orderProjectInfoDefaultValue,
+    defaultValues: { ...orderProjectInfoDefaultValue, status: 100 },
     resolver: yupResolver(orderProjectInfoSchema),
   })
 
@@ -357,10 +380,12 @@ export default function AddNewOrder() {
       priceId: null,
       detail: [],
       totalPrice: 0,
+      showItemDescription: false,
     })
   }
 
   function onSubmit() {
+    setIsWarn(false)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -370,13 +395,21 @@ export default function AddNewOrder() {
           : getClientValue().contactPersonId,
     }
     const rawProjectInfo = getProjectInfoValues()
+    const subTotal = getItem().items.reduce(
+      (acc, item) => acc + item.totalPrice,
+      0,
+    )
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.taxable ? null : tax,
+      // isTaxable : taxable,
+      tax: !rawProjectInfo.isTaxable ? null : tax,
+      subtotal: subTotal,
     }
-    const items = getItem().items.map(item => ({
+
+    const items: Array<PostItemType> = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -444,7 +477,6 @@ export default function AddNewOrder() {
     return result
   }
 
-  //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
     if (requestId && requestData) {
       const { client } = requestData || undefined
@@ -470,9 +502,10 @@ export default function AddNewOrder() {
         i => i.category !== items[0]?.category,
       )
       projectInfoReset({
-        projectDueDate: {
-          date: findEarliestDate(desiredDueDates),
-        },
+        projectDueAt: findEarliestDate(desiredDueDates),
+        // projectDueDate: {
+        //   date: findEarliestDate(desiredDueDates),
+        // },
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
@@ -536,24 +569,25 @@ export default function AddNewOrder() {
       getProjectInfo(id)
         .then(res => {
           projectInfoReset({
-            status: 'In preparation' as OrderStatusType,
-            orderDate: Date(),
+            // status: 'In preparation' as OrderStatusType,
+            orderedAt: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
+            showDescription: false,
+            status: statusList!.find(item => item.value === res?.status)?.value,
             projectDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
             revenueFrom: res?.revenueFrom ?? null,
-            projectDueDate: {
-              date: res?.projectDueAt ?? '',
-              timezone: res?.projectDueTimezone ?? {
-                label: '',
-                phone: '',
-                code: '',
-              },
+            projectDueAt: res?.projectDueAt ?? '',
+            projectDueTimezone: res?.projectDueTimezone ?? {
+              label: '',
+              phone: '',
+              code: '',
             },
-            taxable: res.isTaxable,
+
+            isTaxable: res.isTaxable,
           })
           setTax(res?.tax ?? null)
         })
@@ -594,9 +628,19 @@ export default function AddNewOrder() {
     }
   }
 
+  useEffect(() => {
+    if (languagePairs && prices) {
+      const priceInfo =
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+      setPriceInfo(priceInfo)
+    }
+  }, [prices, languagePairs])
+
+  // console.log(priceInfo)
+
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/orders/order-list',
   })
 
@@ -679,8 +723,9 @@ export default function AddNewOrder() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTax={setTax}
-                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'order'}
+                formType={'create'}
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -711,6 +756,8 @@ export default function AddNewOrder() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
+                  getClientValue={getClientValue}
+                  getValues={getProjectInfoValues}
                 />
                 <Grid
                   item
@@ -764,6 +811,7 @@ export default function AddNewOrder() {
                   priceUnitsList={priceUnitsList || []}
                   type='create'
                   itemTrigger={itemTrigger}
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -780,6 +828,46 @@ export default function AddNewOrder() {
                   </Typography>
                 </Button>
               </Grid>
+              <Grid item xs={12}>
+                <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '20px',
+                      borderBottom: '2px solid #666CFF',
+                      justifyContent: 'center',
+                      width: '257px',
+                    }}
+                  >
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{
+                        padding: '16px 16px 16px 20px',
+                        flex: 1,
+                        textAlign: 'right',
+                      }}
+                    >
+                      Subtotal
+                    </Typography>
+                    <Typography
+                      fontWeight={600}
+                      variant='subtitle1'
+                      sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                    >
+                      {formatCurrency(
+                        formatByRoundingProcedure(
+                          subPrice,
+                          priceInfo?.decimalPlace!,
+                          priceInfo?.roundingProcedure!,
+                          priceInfo?.currency ?? 'USD',
+                        ),
+                        priceInfo?.currency ?? 'USD',
+                      )}
+                    </Typography>
+                  </Box>
+                </Box>
+              </Grid>
               <Grid
                 item
                 xs={12}
@@ -793,10 +881,10 @@ export default function AddNewOrder() {
               >
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Checkbox
-                    checked={getProjectInfoValues().taxable}
+                    checked={getProjectInfoValues().isTaxable}
                     onChange={e => {
                       if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
+                      setProjectInfo('isTaxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
                       })
@@ -809,8 +897,8 @@ export default function AddNewOrder() {
                   <TextField
                     size='small'
                     type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
+                    value={getProjectInfoValues().isTaxable ? '-' : tax}
+                    disabled={getProjectInfoValues().isTaxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -833,7 +921,7 @@ export default function AddNewOrder() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
                   onClick={onSubmit}
                 >

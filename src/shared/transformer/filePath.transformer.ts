@@ -13,3 +13,7 @@ export function getFilePath(name: string[], fileName: string) {
 export function getResumeFilePath(userId: number, fileName: string) {
   return 'user/' + userId + '/resume/' + fileName
 }
+
+export function getNotesToClientFilePath(clientId: number, fileName: string) {
+  return 'client/' + clientId + '/notes/' + fileName
+}

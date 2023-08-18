@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -11,7 +11,6 @@ import { Typography } from '@mui/material'
 // ** components
 import Calendar from './calendar'
 import QuotesList from '../list/list'
-import CalendarSideBar from '@src/pages/components/sidebar'
 
 // ** Hooks
 import { useSettings } from 'src/@core/hooks/useSettings'
@@ -21,18 +20,20 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { useGetQuotesCalendarData } from '@src/queries/quotes.query'
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import { QuotesListType } from '@src/types/common/quotes.type'
+import { QuoteStatusType, QuotesListType } from '@src/types/common/quotes.type'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
-import {
-  ClientQuoteCalendarStatus,
-  ClientQuoteStatus,
-} from '@src/shared/const/status/statuses'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const CalendarContainer = () => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
+  const { data: statusList } = useGetStatusList('Quote')
+
+  const [statuses, setStatuses] = useState<
+    Array<{ color: string; value: number; label: string }>
+  >([])
 
   // ** Hooks
   const { settings } = useSettings()
@@ -51,8 +52,9 @@ const CalendarContainer = () => {
   const [filters, setFilters] = useState<QuotesFilterType>({})
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetQuotesCalendarData(year, month + 1, {
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+
+  const { data, isLoading } = useGetQuotesCalendarData(year, month, {
     seeMyQuotes,
     hideCompletedQuotes,
     ...filters,
@@ -66,6 +68,38 @@ const CalendarContainer = () => {
     Array<CalendarEventType<QuotesListType>>
   >([])
 
+  function getColor(status: QuoteStatusType) {
+    return status === 'New'
+      ? '#666CFF'
+      : status === 'In preparation'
+      ? `#F572D8`
+      : status === 'Internal Review'
+      ? `#20B6E5`
+      : status === 'Client review'
+      ? `#FDB528`
+      : status === 'Expired'
+      ? '#FF4D49'
+      : status === 'Rejected'
+      ? '#FF4D49'
+      : status === 'Accepted'
+      ? '#64C623'
+      : status === 'Changed into order'
+      ? '#1A6BBA'
+      : status === 'Canceled'
+      ? '#FF4D49'
+      : status === 'Under review'
+      ? '#FDB528'
+      : status === 'Revised'
+      ? '#AD7028'
+      : status === 'Revision requested'
+      ? '#A81988'
+      : status === 'Under revision'
+      ? '#26C6F9'
+      : status === 'Quote sent'
+      ? '#2B6603'
+      : ''
+  }
+
   useEffect(() => {
     if (currentListId && data?.data) {
       setCurrentList(data?.data.filter(item => item.id === currentListId))
@@ -74,11 +108,28 @@ const CalendarContainer = () => {
 
   useEffect(() => {
     if (data?.data?.length) {
-      setEvent([...data.data])
+      setEvent(
+        data.data.filter(
+          item =>
+            item.status !== 'Changed into order' &&
+            item.status !== 'Canceled' &&
+            item.status !== 'Rejected',
+        ),
+      )
     } else {
       setEvent([])
     }
   }, [data])
+
+  useEffect(() => {
+    if (statusList) {
+      const res = statusList.map(value => ({
+        ...value,
+        color: getColor(value.label as QuoteStatusType),
+      }))
+      setStatuses(res)
+    }
+  }, [statusList])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
@@ -101,23 +152,15 @@ const CalendarContainer = () => {
           },
         }}
       >
-        <CalendarStatusSideBar
-          alertIconStatus='Canceled'
-          status={ClientQuoteCalendarStatus}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-        />
-        {/* <CalendarSideBar
-          title='Quote status'
-          alertIconStatus='Canceled'
-          event={event}
-          month={month}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={n => setCurrentListId(n.toString())}
-        /> */}
+        <Suspense>
+          <CalendarStatusSideBar
+            alertIconStatus='Canceled'
+            status={statuses!}
+            mdAbove={mdAbove}
+            leftSidebarWidth={leftSidebarWidth}
+          />
+        </Suspense>
+
         <Box
           sx={{
             px: 5,

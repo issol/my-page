@@ -1,3 +1,5 @@
+import { ClientAddressType } from '../schema/client-address.schema'
+
 export type PronounceType = 'SHE' | 'HE' | 'THEY' | 'NONE'
 
 export interface CountryType {
@@ -18,7 +20,7 @@ export interface PersonalInfo {
   middleName?: string
   lastName: string
   legalNamePronunciation?: string
-  pronounce?: PronounceType
+  pronounce?: PronounceType | null
   havePreferred: boolean
   preferredName?: string
   preferredNamePronunciation?: string
@@ -29,9 +31,11 @@ export interface PersonalInfo {
   experience: string
   resume: Array<File> | null
   specialties: Array<{ label: string; value: string }>
+  dateOfBirth?: string
+  address: ClientAddressType<string>
 }
 
-export type ConsumerUserInfoType = {
+export type ProUserInfoType = {
   firstName: string
   lastName: string
   country: string
@@ -45,10 +49,11 @@ export type ConsumerUserInfoType = {
     telephone?: string
     preferredName?: string
     preferredNamePronunciation?: string
-    pronounce?: PronounceType
+    pronounce?: PronounceType | null
     resume?: Array<string>
     specialties: Array<string>
     timezone: CountryType
+    address: ClientAddressType<string>
   }
 }
 

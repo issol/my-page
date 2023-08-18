@@ -21,7 +21,7 @@ import IconButton from '@mui/material/IconButton'
 import Icon from 'src/@core/components/icon'
 
 // ** React Imports
-import { useContext, useEffect, useState } from 'react'
+import { useContext, useEffect, useMemo, useState } from 'react'
 
 // ** NextJS
 import { useRouter } from 'next/router'
@@ -51,12 +51,12 @@ import { AuthContext } from 'src/context/AuthContext'
 // ** form
 import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
-import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 
 // ** fetches
 import { FormType, postRecruiting, StatusType } from '@src/apis/recruiting.api'
 import { useMutation } from 'react-query'
 import { useGetJobPostingList } from '@src/queries/jobPosting.query'
+import { useGetClientList } from '@src/queries/client.query'
 
 // ** types
 import {
@@ -89,6 +89,12 @@ export default function RecruitingPost() {
     skip: skip * pageSize,
     take: pageSize,
   })
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   // ** contexts
   const { user } = useContext(AuthContext)
@@ -363,7 +369,7 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={ClientListIncludeGloz}
+                          options={clientList}
                           // filterSelectedOptions
                           onChange={(e, v) => {
                             if (!v) onChange({ value: '', label: '' })
@@ -400,7 +406,9 @@ export default function RecruitingPost() {
                         <Autocomplete
                           autoHighlight
                           fullWidth
-                          options={!jobTypeOption.length ? JobList : jobTypeOption}
+                          options={
+                            !jobTypeOption.length ? JobList : jobTypeOption
+                          }
                           value={value}
                           // filterSelectedOptions
                           onChange={(e, v) => {

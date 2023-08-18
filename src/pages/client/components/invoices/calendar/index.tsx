@@ -23,10 +23,13 @@ import { useGetClientInvoicesCalendar } from '@src/queries/client/client-detail'
 
 import { UserDataType } from '@src/context/types'
 import { ClientInvoiceListType } from '@src/types/client/client-projects.type'
-import ClientInvoiceCalendarSideBar from './client-invoice-sidebar'
 
 import ClientInvoiceCalendar from './client-invoice-calendar'
 import ClientInvoiceList from '../list/list'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
+import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 
 type Props = {
   id: number
@@ -37,6 +40,12 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [hideFilter, setHideFilter] = useState(false)
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('InvoiceReceivable')
+
+  const [statuses, setStatuses] = useState<
+    Array<{ color: string; value: number; label: string }>
+  >([])
 
   // ** Hooks
   const { settings } = useSettings()
@@ -47,7 +56,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
   const { data } = useGetClientInvoicesCalendar(id, year, month)
   const [event, setEvent] = useState<Array<ClientInvoiceCalendarEventType>>([])
 
@@ -74,7 +83,7 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   useEffect(() => {
     if (currentListId && data?.data) {
-      console.log(currentListId)
+      // console.log(currentListId)
 
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }
@@ -103,11 +112,27 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
 
   useEffect(() => {
     if (data?.data.length && hideFilter) {
-      setEvent(data.data.filter(item => item.invoiceStatus !== 'Paid'))
+      setEvent(
+        data.data.filter(
+          item => item.invoiceStatus !== 30900 && item.invoiceStatus !== 301200,
+        ),
+      )
     } else if (data?.data.length && !hideFilter) {
       setEvent([...data.data])
     }
   }, [data, hideFilter])
+
+  useEffect(() => {
+    if (statusList) {
+      const res = statusList.map(value => ({
+        ...value,
+        color: getReceivableStatusColor(
+          value.value as InvoiceReceivableStatusType,
+        ),
+      }))
+      setStatuses(res)
+    }
+  }, [statusList])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
@@ -122,15 +147,33 @@ const ClientInvoiceCalendarContainer = ({ id, user }: Props) => {
           }),
         }}
       >
-        <ClientInvoiceCalendarSideBar
-          event={event}
-          month={month}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={setCurrentListId}
-        />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            backgroundColor: '#fff',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+
+              borderRight: '1px solid rgba(76, 78, 100, 0.12)',
+              padding: '40px 20px 0 20px',
+            }}
+          >
+            <Typography variant='body2' fontWeight={600}>
+              Invoice status
+            </Typography>
+          </Box>
+          <CalendarStatusSideBar
+            alertIconStatus=''
+            status={statuses!}
+            mdAbove={mdAbove}
+            leftSidebarWidth={leftSidebarWidth}
+          />
+        </Box>
+
         <Box
           sx={{
             px: 5,

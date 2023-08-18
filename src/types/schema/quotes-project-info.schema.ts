@@ -1,11 +1,9 @@
 import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
-import { OrderStatusType } from '../common/orders.type'
-import { QuoteStatusType } from '../common/quotes.type'
 
 export const quotesProjectInfoDefaultValue = {
   projectName: '',
-  isShowDescription: false,
+  showDescription: false,
 }
 export const quotesProjectInfoSchema = yup.object().shape({
   status: yup.number().required(FormErrors.required),
@@ -57,5 +55,5 @@ export const quotesProjectInfoSchema = yup.object().shape({
       phone: yup.string().nullable(),
     }),
   }),
-  isShowDescription: yup.boolean().required(),
+  showDescription: yup.boolean().required(),
 })

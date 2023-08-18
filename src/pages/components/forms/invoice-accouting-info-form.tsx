@@ -1,3 +1,4 @@
+import { Fragment, useEffect } from 'react'
 import {
   Autocomplete,
   Box,
@@ -16,10 +17,6 @@ import DatePicker from 'react-datepicker'
 // ** Custom Component Imports
 import CustomInput from '@src/views/forms/form-elements/pickers/PickersCustomInput'
 
-// ** types
-
-import { Fragment, useEffect } from 'react'
-
 // ** react hook form
 import {
   Control,
@@ -30,22 +27,16 @@ import {
   UseFormWatch,
 } from 'react-hook-form'
 
-// ** fetch
-import { useGetWorkNameList } from '@src/queries/pro-project/project.query'
-
-// ** hooks
-import useModal from '@src/hooks/useModal'
-
-// ** components
-
 // ** values
-
 import { countries } from 'src/@fake-db/autocomplete'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
 import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
+
+// ** helpers
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
 
 type Props = {
   control: Control<InvoiceProjectInfoFormType, any>
@@ -75,6 +66,8 @@ export default function InvoiceAccountingInfoForm({
 
   useEffect(() => {
     setValue('sendReminder', true, setValueOptions)
+    if (!getValue('salesCategory'))
+      setValue('salesCategory', getValue('category'))
   }, [])
 
   function renderErrorMsg(key: keyof InvoiceProjectInfoFormType) {
@@ -114,21 +107,25 @@ export default function InvoiceAccountingInfoForm({
       <Divider />
 
       <Grid item xs={6}>
-        <Controller
-          name='paymentDueDate.date'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
-              selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
-              onChange={onChange}
-              customInput={<CustomInput label='Payment due*' icon='calendar' />}
-            />
-          )}
-        />
+        <DatePickerWrapper>
+          <Controller
+            name='paymentDueDate.date'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FullWidthDatePicker
+                showTimeSelect
+                timeFormat='HH:mm'
+                timeIntervals={30}
+                selected={!value ? null : new Date(value)}
+                dateFormat='MM/dd/yyyy h:mm aa'
+                onChange={onChange}
+                customInput={
+                  <CustomInput label='Payment due*' icon='calendar' />
+                }
+              />
+            )}
+          />
+        </DatePickerWrapper>
       </Grid>
       <Grid item xs={6}>
         <Controller
@@ -165,27 +162,32 @@ export default function InvoiceAccountingInfoForm({
         />
       </Grid>
       <Grid item xs={6}>
-        <Controller
-          name='invoiceConfirmDate.date'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
-              selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
-              onChange={onChange}
-              customInput={
-                <CustomInput label='Invoice confirm date' icon='calendar' />
-              }
-            />
-          )}
-        />
+        <DatePickerWrapper>
+          <Controller
+            name='taxInvoiceIssuanceDate.date'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FullWidthDatePicker
+                showTimeSelect
+                timeFormat='HH:mm'
+                timeIntervals={30}
+                selected={!value ? null : new Date(value)}
+                dateFormat='MM/dd/yyyy h:mm aa'
+                onChange={onChange}
+                customInput={
+                  <CustomInput
+                    label='Issuance date of tax invoice'
+                    icon='calendar'
+                  />
+                }
+              />
+            )}
+          />
+        </DatePickerWrapper>
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='invoiceConfirmDate.timezone'
+          name='taxInvoiceIssuanceDate.timezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -207,7 +209,7 @@ export default function InvoiceAccountingInfoForm({
                 <TextField
                   {...params}
                   label='Time zone'
-                  error={Boolean(errors?.invoiceConfirmDate?.timezone)}
+                  error={Boolean(errors?.taxInvoiceIssuanceDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}
@@ -218,30 +220,29 @@ export default function InvoiceAccountingInfoForm({
         />
       </Grid>
       <Grid item xs={6}>
-        <Controller
-          name='taxInvoiceDueDate.date'
-          control={control}
-          render={({ field: { value, onChange } }) => (
-            <FullWidthDatePicker
-              showTimeSelect
-              timeFormat='HH:mm'
-              timeIntervals={15}
-              selected={!value ? null : new Date(value)}
-              dateFormat='MM/dd/yyyy h:mm aa'
-              onChange={onChange}
-              customInput={
-                <CustomInput
-                  label='Due date for the tax invoice'
-                  icon='calendar'
-                />
-              }
-            />
-          )}
-        />
+        <DatePickerWrapper>
+          <Controller
+            name='salesRecognitionDate.date'
+            control={control}
+            render={({ field: { value, onChange } }) => (
+              <FullWidthDatePicker
+                showTimeSelect
+                timeFormat='HH:mm'
+                timeIntervals={30}
+                selected={!value ? null : new Date(value)}
+                dateFormat='MM/dd/yyyy h:mm aa'
+                onChange={onChange}
+                customInput={
+                  <CustomInput label='Sales recognition date' icon='calendar' />
+                }
+              />
+            )}
+          />
+        </DatePickerWrapper>
       </Grid>
       <Grid item xs={6}>
         <Controller
-          name='taxInvoiceDueDate.timezone'
+          name='salesRecognitionDate.timezone'
           control={control}
           render={({ field }) => (
             <Autocomplete
@@ -263,7 +264,7 @@ export default function InvoiceAccountingInfoForm({
                 <TextField
                   {...params}
                   label='Time zone'
-                  error={Boolean(errors?.taxInvoiceDueDate?.timezone)}
+                  error={Boolean(errors?.salesRecognitionDate?.timezone)}
                   inputProps={{
                     ...params.inputProps,
                   }}

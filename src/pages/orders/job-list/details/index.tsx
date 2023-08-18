@@ -172,7 +172,7 @@ const JobDetails = () => {
 
     if (jobDetails) {
       if (ref.current) {
-        console.log(ref.current)
+        // console.log(ref.current)
 
         ref.current.scrollIntoView({
           behavior: 'smooth',
@@ -199,7 +199,7 @@ const JobDetails = () => {
         </TableCell>
       )
     }
-    console.log(info)
+    // console.log(info)
 
     return (
       <Card>

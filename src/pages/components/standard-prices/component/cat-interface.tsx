@@ -65,7 +65,7 @@ const CatInterface = ({
   isEditingCatInterface,
   selectedLanguagePair,
 }: Props) => {
-  console.log('init data', priceUnitList, priceData)
+  // console.log('init data', priceUnitList, priceData)
   const queryClient = useQueryClient()
   const [alignment, setAlignment] = useState<string>('Memsource')
   const { openModal, closeModal } = useModal()
@@ -109,7 +109,7 @@ const CatInterface = ({
     [key: string]: PriceUnitListWithHeaders[]
   }>({ Memsource: [], memoQ: [] })
 
-  console.log('priceUnitListWithHeaders', priceUnitListWithHeaders)
+  // console.log('priceUnitListWithHeaders', priceUnitListWithHeaders)
   // CATUnit의 정렬순서를 PriceUnit과 동일한 순서로 맞춥니다.
   const sortCATUnitList = (CATUnitData: PriceUnitListWithHeaders[]) => {
     const sortedData: PriceUnitListWithHeaders[] = []

@@ -1,27 +1,25 @@
 import { Button, Card, Grid, Typography } from '@mui/material'
 
 import { Box } from '@mui/system'
-import { DataGrid, GridColumns } from '@mui/x-data-grid'
+import { DataGrid, GridColumns, gridClasses } from '@mui/x-data-grid'
 import CardHeader from '@mui/material/CardHeader'
-import { ClientRowType } from '@src/apis/client.api'
 import {
-  ClientStatusChip,
   ExtraNumberChip,
   JobTypeChip,
   OrderStatusChip,
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
-import { getGmtTime } from '@src/shared/helpers/timezone.helper'
+
 import { StyledNextLink } from '@src/@core/components/customLink'
-import { useRouter } from 'next/router'
 import {
   OrderListFilterType,
   OrderListType,
 } from '@src/types/orders/order-list'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { UserDataType } from '@src/context/types'
+import { UserDataType, UserRoleType } from '@src/context/types'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { Dispatch, SetStateAction } from 'react'
+import { useGetStatusList } from '@src/queries/common.query'
 
 type OrderListCellType = {
   row: OrderListType
@@ -39,6 +37,7 @@ type Props = {
   listCount: number
   isLoading: boolean
   isCardHeader: boolean
+  role: UserRoleType
 }
 
 export default function OrdersList({
@@ -53,7 +52,10 @@ export default function OrdersList({
   handleRowClick,
   user,
   isCardHeader,
+  role,
 }: Props) {
+  const { data: statusList } = useGetStatusList('Order')
+
   const columns: GridColumns<OrderListType> = [
     {
       field: 'corporationId',
@@ -91,7 +93,7 @@ export default function OrdersList({
           <OrderStatusChip
             size='small'
             status={row?.status}
-            label={row?.status}
+            label={statusList?.find(i => i.value === row?.status)?.label || ''}
           />
         )
       },
@@ -100,11 +102,13 @@ export default function OrdersList({
       flex: 0.1,
       minWidth: 260,
       field: 'name',
-      headerName: 'Company name / Email',
+      headerName: `${role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email`,
       hideSortIcons: true,
       disableColumnMenu: true,
       sortable: false,
-      renderHeader: () => <Box>Client name / Email</Box>,
+      renderHeader: () => (
+        <Box>{role.name === 'CLIENT' ? 'LSP' : 'Company name'} / Email</Box>
+      ),
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box display='flex' flexDirection='column'>
@@ -140,10 +144,19 @@ export default function OrdersList({
       renderCell: ({ row }: OrderListCellType) => {
         return (
           <Box sx={{ display: 'flex', gap: '8px' }}>
-            <JobTypeChip type={row.category} label={row.category} />
+            {row.category ? (
+              <JobTypeChip type={row.category} label={row.category} />
+            ) : (
+              '-'
+            )}
 
-            <ServiceTypeChip label={row.serviceType[0]} />
-            {row.serviceType.length > 1 ? (
+            {row.serviceType ? (
+              <ServiceTypeChip label={row.serviceType[0]} />
+            ) : (
+              '-'
+            )}
+
+            {row.serviceType && row.serviceType.length > 1 ? (
               <ExtraNumberChip label={row.serviceType.slice(1).length} />
             ) : null}
           </Box>
@@ -162,7 +175,7 @@ export default function OrdersList({
       renderHeader: () => <Box>Order date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.orderedAt, user?.timezone)}</Box>
+          <Box>{FullDateTimezoneHelper(row.orderedAt, row.orderTimezone)}</Box>
         )
       },
     },
@@ -178,7 +191,9 @@ export default function OrdersList({
       renderHeader: () => <Box>Project due date</Box>,
       renderCell: ({ row }: OrderListCellType) => {
         return (
-          <Box>{FullDateTimezoneHelper(row.projectDueAt, user?.timezone)}</Box>
+          <Box>
+            {FullDateTimezoneHelper(row.projectDueAt, row.projectDueTimezone)}
+          </Box>
         )
       },
     },
@@ -193,8 +208,11 @@ export default function OrdersList({
       sortable: false,
       renderHeader: () => <Box>Total price</Box>,
       renderCell: ({ row }: OrderListCellType) => {
-        return <Box></Box>
-        // {formatCurrency(row.totalPrice, row.currency)}
+        return (
+          <Box>
+            {!row.currency ? '-' : formatCurrency(row.totalPrice, row.currency)}
+          </Box>
+        )
       },
     },
   ]
@@ -223,11 +241,13 @@ export default function OrdersList({
             title={
               <Box display='flex' justifyContent='space-between'>
                 <Typography variant='h6'>Orders ({listCount ?? 0})</Typography>
-                <Button variant='contained'>
-                  <StyledNextLink href='/orders/add-new' color='white'>
-                    Create new order
-                  </StyledNextLink>
-                </Button>
+                {role.name === 'CLIENT' ? null : (
+                  <Button variant='contained'>
+                    <StyledNextLink href='/orders/add-new' color='white'>
+                      Create new order
+                    </StyledNextLink>
+                  </Button>
+                )}
               </Box>
             }
             sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
@@ -292,12 +312,25 @@ export default function OrdersList({
                 NoRowsOverlay: () => NoList(),
                 NoResultsOverlay: () => NoList(),
               }}
-              sx={{ overflowX: 'scroll', cursor: 'pointer' }}
+              sx={{
+                overflowX: 'scroll',
+                cursor: 'pointer',
+                [`& .${gridClasses.row}.disabled`]: {
+                  opacity: 0.5,
+                  cursor: 'not-allowed',
+                },
+              }}
               columns={columns}
               rows={list ?? []}
               rowCount={listCount ?? 0}
               loading={isLoading}
               onCellClick={params => {
+                if (
+                  role.name === 'CLIENT' &&
+                  params.row.status === 'Under revision'
+                )
+                  return
+
                 handleRowClick(params.row)
               }}
               rowsPerPageOptions={[10, 25, 50]}
@@ -322,6 +355,14 @@ export default function OrdersList({
                 setRowsPerPage!(newPageSize)
               }}
               disableSelectionOnClick
+              getRowClassName={params =>
+                role.name === 'CLIENT' && params.row.status === 10500
+                  ? 'disabled'
+                  : 'normal'
+              }
+              isRowSelectable={params =>
+                role.name === 'CLIENT' && params.row.status !== 10500
+              }
             />
           </Box>
         </Card>

@@ -11,6 +11,29 @@ const navigation = (): HorizontalNavItemsType => {
       path: `/dashboards`,
     },
     {
+      title: 'My page',
+      icon: 'iconamoon:profile-circle-fill',
+      action: 'read',
+      subject: 'pro_mypage',
+      path: `/mypage/pro`,
+    },
+    {
+      title: 'My page',
+      icon: 'mdi:account-circle',
+      action: 'read',
+      subject: 'my_page',
+
+      children: [
+        {
+          title: 'Notification Center',
+          path: '/my-page/notification-center',
+          action: 'read',
+          subject: 'my_page',
+          icon: 'mdi:account-circle',
+        },
+      ],
+    },
+    {
       title: 'Pros',
       icon: 'ic:baseline-people-outline',
       action: 'read',
@@ -123,7 +146,7 @@ const navigation = (): HorizontalNavItemsType => {
           title: 'My Account',
           path: `/company/my-account`,
           action: 'read',
-          icon: 'mdi:account-check-outline',
+          icon: 'mdi:account-cog',
           subject: 'my_account',
         },
         {

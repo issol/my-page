@@ -117,7 +117,11 @@ import { getClientPriceList } from '@src/apis/company/company-price.api'
 
 // ** helpers
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
-import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
+import {
+  FullDateTimezoneHelper,
+  convertLocalTimezoneToUTC,
+  formatDateToISOString,
+} from '@src/shared/helpers/date.helper'
 import { transformTeamData } from '@src/shared/transformer/team.transformer'
 
 // ** react query
@@ -136,6 +140,10 @@ import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import Link from 'next/link'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { QuoteStatusChip } from '@src/@core/components/chips/chips'
+import { CancelOrderReason } from '@src/shared/const/reason/reason'
+import { UserRoleType } from '@src/context/types'
+import { ProjectInfoType } from '@src/types/common/quotes.type'
+import { ClientType, ProjectTeamListType } from '@src/types/orders/order-detail'
 
 type MenuType = 'project' | 'history' | 'team' | 'client' | 'item' | 'quote'
 
@@ -143,9 +151,9 @@ export type updateProjectInfoType =
   | QuotesProjectInfoFormType
   | ProjectTeamFormType
   | ClientPostType
-  | { tax: null | number; taxable: boolean }
+  | { tax: null | number; isTaxable: boolean }
   | { status: number }
-  | { status: number; canceledReason: CancelReasonType }
+  | { status: number; reason: CancelReasonType }
   | { status: number; isConfirmed: boolean }
 
 export default function QuotesDetail() {
@@ -184,6 +192,128 @@ export default function QuotesDetail() {
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
 
+  const canUseFeature = (
+    /**
+     * featureName Convention
+     * feature-name
+     * tab-projectInfo
+     * button-confirmQuote
+     * button-cancelQuote
+     *  */
+    featureName:
+      | 'tab-ProjectInfo'
+      | 'tab-Languages&Items'
+      | 'tab-Client'
+      | 'tab-ProjectTeam'
+      | 'tab-Restore'
+      | 'button-DownloadQuote'
+      | 'button-CreateOrder'
+      | 'button-ConfirmQuote'
+      | 'button-CancelQuote'
+      | 'button-DeleteQuote',
+  ): boolean => {
+    let flag = false
+    if (currentRole! && currentRole.name !== 'CLIENT') {
+      switch (featureName) {
+        case 'tab-ProjectInfo':
+        case 'tab-Languages&Items':
+          flag =
+            isUpdatable &&
+            (project?.status === 'New' ||
+              project?.status === 'In preparation' ||
+              project?.status === 'Internal Review' ||
+              project?.status === 'Revision requested' ||
+              project?.status === 'Under revision' ||
+              (project?.status === 'Expired' &&
+                project?.confirmedAt === null)) &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-Client':
+          flag =
+            isUpdatable &&
+            project?.status !== 'Changed into order' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            !!!client?.contactPerson?.userId &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-ProjectTeam':
+          flag =
+            isUpdatable &&
+            project?.status !== 'Changed into order' &&
+            project?.status !== 'Rejected' &&
+            project?.status !== 'Canceled' &&
+            isIncludeProjectTeam()
+          break
+        case 'tab-Restore':
+          flag =
+            isUpdatable &&
+            (project?.status === 'Revision requested' ||
+              project?.status === 'Under revision') &&
+            isIncludeProjectTeam()
+          break
+        case 'button-DownloadQuote':
+          flag =
+            project?.status === 'Quote sent' ||
+            project?.status === 'Client review' ||
+            project?.status === 'Revision requested' ||
+            project?.status === 'Revised' ||
+            project?.status === 'Accepted' ||
+            project?.status === 'Changed into order' ||
+            project?.status === 'Expired' ||
+            project?.status === 'Rejected'
+        case 'button-CreateOrder':
+          flag =
+            !project?.linkedOrder &&
+            (project?.status === 'Revision requested' ||
+              project?.status === 'Revised' ||
+              project?.status === 'Accepted' ||
+              project?.status === 'Expired')
+          break
+        case 'button-ConfirmQuote':
+          flag =
+            project?.status === 'New' ||
+            project?.status === 'In preparation' ||
+            project?.status === 'Internal Review' ||
+            project?.status === 'Under revision' ||
+            (project?.status === 'Expired' && project?.confirmedAt === null)
+          break
+        case 'button-CancelQuote':
+          flag =
+            project?.status !== 'Changed into order' &&
+            project?.status !== 'Canceled'
+          break
+        case 'button-DeleteQuote':
+          flag =
+            (isDeletable &&
+              !!client?.contactPerson?.userId &&
+              (project?.status === 'New' ||
+                project?.status === 'In preparation' ||
+                project?.status === 'Internal Review' ||
+                (project?.status === 'Expired' &&
+                  project?.confirmedAt === null))) ||
+            (!!client?.contactPerson?.userId &&
+              (project?.status === 'New' ||
+                project?.status === 'In preparation' ||
+                project?.status === 'Internal Review' ||
+                project?.status === 'Expired'))
+          break
+      }
+    }
+    return flag
+  }
+
+  // 로그인 한 유저가 project team에 속해있는지 체크, 만약 Master, Manager일 경우 true 리턴
+  const isIncludeProjectTeam = () => {
+    return Boolean(
+      (currentRole?.name !== 'CLIENT' &&
+        (currentRole?.type === 'Master' || currentRole?.type === 'Manager')) ||
+        (currentRole?.type === 'General' &&
+          team?.length &&
+          team.some(item => item.userId === user?.id!)),
+    )
+  }
+
   // ** store
   const dispatch = useAppDispatch()
   const quote = useAppSelector(state => state.quote)
@@ -206,9 +336,11 @@ export default function QuotesDetail() {
 
   // ** 1. Project info
   const [editProject, setEditProject] = useState(false)
-  const { data: project, isLoading: isProjectLoading } = useGetProjectInfo(
-    Number(id),
-  )
+  const {
+    data: project,
+    isLoading: isProjectLoading,
+    refetch,
+  } = useGetProjectInfo(Number(id))
 
   const {
     control: projectInfoControl,
@@ -222,14 +354,14 @@ export default function QuotesDetail() {
     defaultValues: {
       status: 20000,
       projectName: '',
-      isShowDescription: false,
+      showDescription: false,
     },
     resolver: yupResolver(quotesProjectInfoSchema),
   })
 
-  useEffect(() => {
+  const setProjectInfoData = () => {
     if (!isProjectLoading && project && statusList) {
-      console.log(project.quoteDateTimezone)
+      // console.log(project.quoteDateTimezone)
 
       const defaultTimezone = {
         code: '',
@@ -246,7 +378,7 @@ export default function QuotesDetail() {
         category: project.category,
         serviceType: project.serviceType,
         expertise: project.expertise,
-        isShowDescription: false,
+        showDescription: false,
 
         quoteDate: {
           date: project.quoteDate,
@@ -271,15 +403,18 @@ export default function QuotesDetail() {
       })
 
       setTax(project.tax ?? null)
-      setTaxable(project.taxable)
+      setTaxable(project.isTaxable)
       setProjectInfo('quoteDate', {
         date: project.quoteDate,
         timezone: project.quoteDateTimezone ?? defaultTimezone,
       })
     }
+  }
+  useEffect(() => {
+    setProjectInfoData()
   }, [isProjectLoading, statusList, project])
 
-  console.log(getProjectInfoValues())
+  // console.log(getProjectInfoValues())
 
   // ** 2. Language & Items
   const [editItems, setEditItems] = useState(false)
@@ -336,6 +471,8 @@ export default function QuotesDetail() {
             detail: !item?.detail?.length ? [] : item.detail,
             analysis: item.analysis ?? [],
             totalPrice: item?.totalPrice ?? 0,
+            dueAt: item?.dueAt ?? '',
+            contactPerson: item?.contactPerson ?? {},
           }
         })
         itemReset({ items: result })
@@ -447,7 +584,7 @@ export default function QuotesDetail() {
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
   const [tax, setTax] = useState<number | null>(project!.tax)
-  const [taxable, setTaxable] = useState(project?.taxable || false)
+  const [taxable, setTaxable] = useState(project?.isTaxable || false)
 
   // ** Version history
   const [historyPageSize, setHistoryPageSize] = useState(10)
@@ -496,10 +633,17 @@ export default function QuotesDetail() {
 
   const restoreMutation = useMutation((id: number) => restoreVersion(id), {
     onSuccess: () => {
-      queryClient.invalidateQueries(`quotesHistory`)
+      queryClient.invalidateQueries(['quotesDetail'])
     },
     onError: () => onMutationError(),
   })
+
+  const reloadQuoteDetail = () => {
+    // tax 정보 변경 시 setTax를 하게 되는데 이때 cancel하게 되면 서버와 화면 데이터가 달라짐
+    queryClient.invalidateQueries(['quotesDetail']).then(() => {
+      setProjectInfoData()
+    })
+  }
 
   const onClickRestoreVersion = () => {
     openModal({
@@ -546,7 +690,7 @@ export default function QuotesDetail() {
                   >
                     Close
                   </Button>
-                  {isUpdatable ? (
+                  {canUseFeature('tab-Restore') ? (
                     <Button
                       variant='contained'
                       sx={{ width: '226px' }}
@@ -580,6 +724,29 @@ export default function QuotesDetail() {
     })
   }
 
+  useEffect(() => {
+    // ** Client가 Status가 New(20300)인 Quote를 열람할 경우, 자동으로 Status를 Under review(20400)로 바꾸고 데이터를 리패치한다.
+    if (currentRole && currentRole.name === 'CLIENT') {
+      if (project && project.status === 'New') {
+        patchQuoteProjectInfo(Number(id), { status: 20400 })
+          .then(res => {
+            refetch()
+          })
+          .catch(e => onMutationError())
+      }
+    }
+    // TODO: TAD, LPM role을 둘다 가지고 있는 경우 롤 스위치 상황에 따라 이 조건이 동작하지 않을 수 있음
+    if (currentRole && currentRole.name === 'LPM') {
+      if (project && project.status === 'Revision requested') {
+        patchQuoteProjectInfo(Number(id), { status: 20600 })
+          .then(res => {
+            refetch()
+          })
+          .catch(e => onMutationError())
+      }
+    }
+  }, [])
+
   const updateProject = useMutation(
     (form: updateProjectInfoType) => patchQuoteProjectInfo(Number(id), form),
     {
@@ -598,7 +765,6 @@ export default function QuotesDetail() {
 
   function onProjectInfoSave() {
     const projectInfo = getProjectInfoValues()
-    console.log(projectInfo)
 
     onSave(() => updateProject.mutate(projectInfo))
   }
@@ -607,6 +773,7 @@ export default function QuotesDetail() {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -629,7 +796,7 @@ export default function QuotesDetail() {
       try {
         await patchQuoteLanguagePairs(Number(id), langs)
         await patchQuoteItems(Number(id), items)
-        updateProject.mutate({ tax, taxable })
+        updateProject.mutate({ tax, isTaxable: taxable })
         setEditItems(false)
         queryClient.invalidateQueries({
           queryKey: ['quotesDetailItems'],
@@ -668,6 +835,7 @@ export default function QuotesDetail() {
           onClick={() => {
             callback()
             closeModal('DiscardModal')
+            reloadQuoteDetail()
           }}
         />
       ),
@@ -715,9 +883,9 @@ export default function QuotesDetail() {
       children: (
         <SelectReasonModal
           onClose={() => closeModal('CancelQuoteModal')}
-          onClick={(status: number, cancelReason: CancelReasonType) =>
+          onClick={(status: number, reason: CancelReasonType) =>
             updateProject.mutate(
-              { status: status, canceledReason: cancelReason },
+              { status: status, reason: reason },
               {
                 onSuccess: () => {
                   closeModal('CancelQuoteModal')
@@ -731,6 +899,8 @@ export default function QuotesDetail() {
           action='Canceled'
           from='lsp'
           statusList={statusList!}
+          type='canceled'
+          reasonList={CancelOrderReason}
         />
       ),
     })
@@ -758,10 +928,13 @@ export default function QuotesDetail() {
 
   // ** Download pdf
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    const currentTime = formatDateToISOString(
+      convertLocalTimezoneToUTC(new Date()),
+    )
     makePdfData()
     dispatch(setQuoteLang(lang))
     dispatch(setQuote(downloadData))
-    patchQuoteProjectInfo(Number(id), { downloadedAt: Date() }).catch(e =>
+    patchQuoteProjectInfo(Number(id), { downloadedAt: currentTime }).catch(e =>
       onMutationError(),
     )
     closeModal('PreviewModal')
@@ -870,6 +1043,10 @@ export default function QuotesDetail() {
   }
 
   const onClickConfirmQuote = () => {
+    const projectStatus = () => {
+      if (project?.status === 'Under revision') return 20700 // Revised로 변경
+      else return 20300 // Quote sent로 변경, 초기값
+    }
     openModal({
       type: 'ConfirmQuoteModal',
       children: (
@@ -877,10 +1054,10 @@ export default function QuotesDetail() {
           onClose={() => closeModal('ConfirmQuoteModal')}
           onClick={() =>
             updateProject.mutate(
-              { isConfirmed: true, status: 20003 },
+              { isConfirmed: true, status: projectStatus() },
               {
                 onSuccess: () => {
-                  closeModal('CancelQuoteModal')
+                  closeModal('ConfirmQuoteModal')
                 },
               },
             )
@@ -937,7 +1114,6 @@ export default function QuotesDetail() {
 
     setDownloadData(res)
   }
-
   useEffect(() => {
     makePdfData()
   }, [project, client])
@@ -948,7 +1124,7 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
+          project?.status !== 'Internal Review' &&
           project?.status !== 'Expired')
       )
     } else {
@@ -956,9 +1132,9 @@ export default function QuotesDetail() {
         !isDeletable ||
         (project?.status !== 'New' &&
           project?.status !== 'In preparation' &&
-          project?.status !== 'Internal review' &&
+          project?.status !== 'Internal Review' &&
           project?.status === 'Expired' &&
-          project?.isConfirmed)
+          project?.confirmedAt !== null)
       )
     }
   }
@@ -1000,9 +1176,7 @@ export default function QuotesDetail() {
                 height='50px'
               />
               <Typography variant='h5'>{project?.corporationId}</Typography>
-              {currentRole &&
-              currentRole.name === 'CLIENT' &&
-              (project?.linkedOrder || project?.linkedRequest) ? (
+              {project?.linkedOrder || project?.linkedRequest ? (
                 <Box>
                   <IconButton
                     sx={{ width: '24px', height: '24px', padding: 0 }}
@@ -1083,33 +1257,37 @@ export default function QuotesDetail() {
                 variant='outlined'
                 sx={{ display: 'flex', gap: '8px' }}
                 onClick={onClickDownloadQuotes}
+                disabled={
+                  // TODO: General 계정의 download 제한 유무 체크해야함
+                  !canUseFeature('button-DownloadQuote')
+                }
               >
                 <Icon icon='material-symbols:request-quote' />
                 Download quote
               </Button>
-              <Button
-                variant='outlined'
-                onClick={() =>
-                  router.push({
-                    pathname: `/orders/add-new`,
-                    query: { orderId: id },
-                  })
-                }
-              >
-                Create order
-              </Button>
-              <Button
-                variant='contained'
-                onClick={onClickConfirmQuote}
-                disabled={
-                  project?.status !== 'New' &&
-                  project?.status !== 'In preparation' &&
-                  project?.status !== 'Internal review' &&
-                  project?.status !== 'Under revision'
-                }
-              >
-                Confirm quote
-              </Button>
+              {isIncludeProjectTeam() ? (
+                <Button
+                  variant='outlined'
+                  onClick={() =>
+                    router.push({
+                      pathname: `/orders/add-new`,
+                      query: { orderId: id },
+                    })
+                  }
+                  disabled={!canUseFeature('button-CreateOrder')}
+                >
+                  Create order
+                </Button>
+              ) : null}
+              {isIncludeProjectTeam() ? (
+                <Button
+                  variant='contained'
+                  onClick={onClickConfirmQuote}
+                  disabled={!canUseFeature('button-ConfirmQuote')}
+                >
+                  Confirm quote
+                </Button>
+              ) : null}
             </Box>
           )}
         </Box>
@@ -1223,11 +1401,7 @@ export default function QuotesDetail() {
                     <QuotesProjectInfoDetail
                       project={project}
                       setEditMode={setEditProject}
-                      isUpdatable={
-                        isUpdatable &&
-                        currentRole! &&
-                        currentRole.name !== 'CLIENT'
-                      }
+                      isUpdatable={canUseFeature('tab-ProjectInfo')}
                       updateStatus={(status: number) =>
                         updateProject.mutate({ status: status })
                       }
@@ -1238,7 +1412,8 @@ export default function QuotesDetail() {
                       statusList={statusList!}
                     />
                   </Card>
-                  {currentRole && currentRole.name === 'CLIENT' ? null : (
+                  {(currentRole && currentRole.name === 'CLIENT') ||
+                  !isIncludeProjectTeam() ? null : (
                     <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
                       <Grid item xs={4}>
                         <Card sx={{ padding: '20px', width: '100%' }}>
@@ -1247,11 +1422,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={
-                              !isUpdatable ||
-                              project?.status === 'Changed into order' ||
-                              project?.status === 'Canceled'
-                            }
+                            disabled={!canUseFeature('button-CancelQuote')}
                             onClick={onClickCancel}
                           >
                             Cancel this quote
@@ -1265,7 +1436,7 @@ export default function QuotesDetail() {
                             fullWidth
                             color='error'
                             size='large'
-                            disabled={deleteButtonDisabled()}
+                            disabled={!canUseFeature('button-CancelQuote')}
                             onClick={onClickDelete}
                           >
                             Delete this quote
@@ -1286,7 +1457,7 @@ export default function QuotesDetail() {
                 <QuotesLanguageItemsDetail
                   languagePairs={languagePairs}
                   setLanguagePairs={setLanguagePairs}
-                  clientId={getClientValue('clientId')}
+                  clientId={getClientValue('clientId') ?? null}
                   priceUnitsList={priceUnitsList || []}
                   itemControl={itemControl}
                   items={items}
@@ -1303,9 +1474,7 @@ export default function QuotesDetail() {
                   setTaxable={setTaxable}
                   isEditMode={editItems}
                   setIsEditMode={setEditItems}
-                  isUpdatable={
-                    isUpdatable && currentRole! && currentRole.name !== 'CLIENT'
-                  }
+                  isUpdatable={canUseFeature('tab-Languages&Items')}
                   role={currentRole!}
                   itemTrigger={itemTrigger}
                 />
@@ -1314,7 +1483,7 @@ export default function QuotesDetail() {
                       onCancel: () =>
                         onDiscard({ callback: () => setEditItems(false) }),
                       onSave: () => onItemSave(),
-                      isValid: isItemValid || (taxable && tax! > 0),
+                      isValid: isItemValid || !taxable || (taxable && tax! > 0),
                     })
                   : null}
               </CardContent>
@@ -1333,6 +1502,7 @@ export default function QuotesDetail() {
                     setTax={setTax}
                     setTaxable={setTaxable}
                     type='quotes'
+                    formType='edit'
                   />
                   <Grid item xs={12}>
                     {renderSubmitButton({
@@ -1347,7 +1517,7 @@ export default function QuotesDetail() {
                 <QuotesClientDetail
                   client={client}
                   setIsEditMode={setEditClient}
-                  isUpdatable={isUpdatable}
+                  isUpdatable={canUseFeature('tab-Client')}
                 />
               )}
             </Card>
@@ -1391,9 +1561,7 @@ export default function QuotesDetail() {
                     <Typography variant='h6'>
                       Project team ({team?.length})
                     </Typography>
-                    {isUpdatable &&
-                    currentRole &&
-                    currentRole.name !== 'CLIENT' ? (
+                    {canUseFeature('tab-ProjectTeam') ? (
                       <IconButton onClick={() => setEditTeam(!editTeam)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>

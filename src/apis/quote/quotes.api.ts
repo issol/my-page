@@ -31,7 +31,8 @@ export type MemberListType = Pick<
 >
 export const getMemberList = async (): Promise<Array<MemberListType>> => {
   try {
-    const { data } = await axios.get(`/api/enough/a/role/us`)
+    // const { data } = await axios.get(`/api/enough/a/role/us`)
+    const { data } = await axios.get(`/api/enough/a/role/members`)
     return data
   } catch (e: any) {
     return []
@@ -56,7 +57,7 @@ function getColor(status: QuoteStatusType) {
     ? '#666CFF'
     : status === 'In preparation'
     ? `#F572D8`
-    : status === 'Internal review'
+    : status === 'Internal Review'
     ? `#20B6E5`
     : status === 'Client review'
     ? `#FDB528`
@@ -77,8 +78,10 @@ function getColor(status: QuoteStatusType) {
     : status === 'Revision requested'
     ? '#A81988'
     : status === 'Under revision'
-    ? '26C6F9'
-    : null
+    ? '#26C6F9'
+    : status === 'Quote sent'
+    ? '#2B6603'
+    : ''
 }
 
 export const getQuotesCalendarData = async (
@@ -205,7 +208,7 @@ export const getLangItems = async (
       ...data,
       items: data.items.map((item: ItemResType) => ({
         ...item,
-        name: item?.itemName,
+        name: item?.name,
         source: item?.sourceLanguage,
         target: item?.targetLanguage,
         totalPrice: item.totalPrice ? Number(item.totalPrice) : 0,
@@ -260,8 +263,8 @@ export const patchQuoteProjectInfo = async (
     | ProjectTeamFormType
     | ClientFormType
     | { status: number }
-    | { tax: null | number; taxable: boolean }
-    | { status: number; canceledReason: CancelReasonType }
+    | { tax: null | number; isTaxable: boolean }
+    | { status: number; reason: CancelReasonType }
     | { downloadedAt: string }
     | { isConfirmed: boolean },
 ) => {

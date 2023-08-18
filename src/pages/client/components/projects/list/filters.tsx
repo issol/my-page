@@ -146,7 +146,9 @@ export default function ClientProjectsFilter({
                           isOptionEqualToValue={(option, newValue) => {
                             return option.value === newValue.value
                           }}
-                          onChange={onChange}
+                          onChange={(event, item) => {
+                            onChange(item)
+                          }}
                           value={value}
                           disableCloseOnSelect
                           limitTags={1}
@@ -268,7 +270,7 @@ export default function ClientProjectsFilter({
                       )}
                     />
                   </Grid>
-                  <Grid item xs={4}>
+                  {/* <Grid item xs={4}>
                     <Controller
                       control={control}
                       name='status'
@@ -300,9 +302,9 @@ export default function ClientProjectsFilter({
                         />
                       )}
                     />
-                  </Grid>
+                  </Grid> */}
 
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <Controller
                       control={control}
                       name='dueAt'
@@ -315,11 +317,15 @@ export default function ClientProjectsFilter({
                             selected={value[0]}
                             startDate={value[0]}
                             shouldCloseOnSelect={false}
+                            autoComplete='off'
                             id='date-range-picker-months'
                             onChange={onChange}
                             popperPlacement={popperPlacement}
                             customInput={
-                              <CustomInput label='Due date' icon='calendar' />
+                              <CustomInput
+                                label='Project due date'
+                                icon='calendar'
+                              />
                             }
                           />
                         </Box>
@@ -327,7 +333,7 @@ export default function ClientProjectsFilter({
                     />
                   </Grid>
 
-                  <Grid item xs={4}>
+                  <Grid item xs={6}>
                     <FormControl fullWidth>
                       <Controller
                         control={control}

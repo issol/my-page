@@ -1,14 +1,4 @@
-import { yupResolver } from '@hookform/resolvers/yup'
-import {
-  Box,
-  Button,
-  Card,
-  Checkbox,
-  Grid,
-  IconButton,
-  TextField,
-  Typography,
-} from '@mui/material'
+import { Box, Button, Grid, IconButton, Typography } from '@mui/material'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import Icon from '@src/@core/components/icon'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
@@ -19,23 +9,20 @@ import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-f
 import ItemForm from '@src/pages/components/forms/items-form'
 import { defaultOption, languageType } from '@src/pages/orders/add-new'
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
-import { useGetLangItem } from '@src/queries/order/order.query'
-import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import { getCurrentRole } from '@src/shared/auth/storage'
+
 import languageHelper from '@src/shared/helpers/language.helper'
 import { ItemType, PostItemType } from '@src/types/common/item.type'
+
+import { PriceUnitListType } from '@src/types/common/standard-price'
 import {
-  LanguagePairsPostType,
-  LanguagePairsType,
-} from '@src/types/common/orders-and-quotes.type'
-import {
-  PriceUnitListType,
-  StandardPriceListType,
-} from '@src/types/common/standard-price'
-import { LanguageAndItemType } from '@src/types/orders/order-detail'
-import { itemSchema } from '@src/types/schema/item.schema'
+  LanguageAndItemType,
+  ProjectInfoType,
+} from '@src/types/orders/order-detail'
+
 import { ProjectTeamType } from '@src/types/schema/project-team.schema'
-import { useRouter } from 'next/router'
-import { Dispatch, Fragment, SetStateAction, useEffect, useState } from 'react'
+
+import { Dispatch, SetStateAction } from 'react'
 import {
   Control,
   FieldArrayWithId,
@@ -45,9 +32,9 @@ import {
   UseFormGetValues,
   UseFormSetValue,
   UseFormTrigger,
-  useForm,
 } from 'react-hook-form'
-import { useMutation, useQueryClient } from 'react-query'
+import { UseMutationResult } from 'react-query'
+import { updateOrderType } from '../[id]'
 
 type Props = {
   langItem: LanguageAndItemType
@@ -93,6 +80,30 @@ type Props = {
   orderId: number
   setLangItemsEdit: Dispatch<SetStateAction<boolean>>
   langItemsEdit: boolean
+  project?: ProjectInfoType
+  updateItems?: UseMutationResult<
+    any,
+    unknown,
+    {
+      id: number
+      items: PostItemType[]
+    },
+    unknown
+  >
+  onClickSplitOrder?: () => void
+  onClickCancelSplitOrder?: () => void
+  onClickSplitOrderConfirm?: () => void
+  selectedIds?: { id: number; selected: boolean }[]
+  setSelectedIds?: Dispatch<
+    SetStateAction<
+      {
+        id: number
+        selected: boolean
+      }[]
+    >
+  >
+  splitReady?: boolean
+  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
 }
 
 const LanguageAndItem = ({
@@ -115,78 +126,23 @@ const LanguageAndItem = ({
   orderId,
   setLangItemsEdit,
   langItemsEdit,
+  project,
+  updateItems,
+  onClickSplitOrder,
+  onClickCancelSplitOrder,
+  onClickSplitOrderConfirm,
+  selectedIds,
+  setSelectedIds,
+  splitReady,
+  updateProject,
 }: Props) => {
   const { openModal, closeModal } = useModal()
-  const queryClient = useQueryClient()
+
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: clientId,
   })
 
-  const patchLanguagePairs = useMutation(
-    (data: { id: number; langPair: LanguagePairsType[] }) =>
-      patchLangPairForOrder(data.id, data.langPair),
-  )
-
-  const patchItems = useMutation(
-    (data: { id: number; items: PostItemType[] }) =>
-      patchItemsForOrder(data.id, data.items),
-  )
-
-  const handleBack = () => {
-    setLangItemsEdit(false)
-  }
-
-  const onSubmit = () => {
-    const items: PostItemType[] = getItem().items.map(item => ({
-      ...item,
-      analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
-    }))
-    const langs: LanguagePairsPostType[] = languagePairs.map(item => {
-      if (item?.price?.id) {
-        return {
-          langPairId: Number(item.id),
-          source: item.source,
-          target: item.target,
-          priceId: item.price.id,
-        }
-      }
-      return {
-        langPairId: Number(item.id),
-        source: item.source,
-        target: item.target,
-      }
-    })
-
-    patchLanguagePairs.mutate(
-      { id: orderId, langPair: langs },
-      {
-        onSuccess: () => {
-          patchItems.mutate(
-            { id: orderId, items: items },
-            {
-              onSuccess: () => {
-                setLangItemsEdit(false)
-                queryClient.invalidateQueries(`LangItem-${orderId}`)
-                closeModal('LanguageAndItemEditModal')
-              },
-            },
-          )
-        },
-      },
-    )
-  }
-
-  const onClickSave = () => {
-    openModal({
-      type: 'LanguageAndItemEditModal',
-      children: (
-        <EditSaveModal
-          onClose={() => closeModal('LanguageAndItemEditModal')}
-          onClick={onSubmit}
-        />
-      ),
-    })
-  }
+  const currentRole = getCurrentRole()
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -199,12 +155,16 @@ const LanguageAndItem = ({
       })
       .map(item => ({
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
+
         ...item,
       }))
+
     return [defaultOption].concat(filteredList)
   }
 
   function isAddItemDisabled(): boolean {
+    console.log(languagePairs)
+
     if (!languagePairs.length) return true
     return languagePairs.some(item => !item?.price)
   }
@@ -222,6 +182,7 @@ const LanguageAndItem = ({
       priceId: null,
       detail: [],
       totalPrice: 0,
+      showItemDescription: false,
     })
   }
 
@@ -268,36 +229,61 @@ const LanguageAndItem = ({
     }
   }
 
+  const sumTotalPrice = () => {
+    return true
+  }
+
   return (
     <>
-      <Box
-        sx={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          width: '100%',
-        }}
-      >
-        <Button
-          variant='outlined'
-          sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+      {!langItemsEdit && currentRole && currentRole.name !== 'CLIENT' ? (
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'space-between',
+            alignItems: 'center',
+            width: '100%',
+          }}
         >
-          <Icon icon='ic:baseline-splitscreen' />
-          Split Order
-        </Button>
-        <IconButton onClick={() => setLangItemsEdit(!langItemsEdit)}>
-          <Icon icon='mdi:pencil-outline' />
-        </IconButton>
-      </Box>
-      <Grid item xs={12}>
-        <AddLanguagePairForm
-          languagePairs={languagePairs}
-          setLanguagePairs={setLanguagePairs}
-          getPriceOptions={getPriceOptions}
-          type={langItemsEdit ? 'edit' : 'detail'}
-          onDeleteLanguagePair={onDeleteLanguagePair}
-        />
-      </Grid>
+          <Button
+            variant='outlined'
+            sx={{ display: 'flex', gap: '8px', mb: '24px' }}
+            disabled={
+              items.length < 1 ||
+              project?.status === 101100 ||
+              project?.status === 101200
+            }
+            onClick={onClickSplitOrder}
+          >
+            <Icon icon='ic:baseline-splitscreen' />
+            Split order
+          </Button>
+          {project &&
+          project.status !== 101000 &&
+          project.status !== 101100 &&
+          project.status !== 101200 ? (
+            <IconButton
+              onClick={() => {
+                updateProject && updateProject.mutate({ status: 105 })
+                setLangItemsEdit(!langItemsEdit)
+              }}
+            >
+              <Icon icon='mdi:pencil-outline' />
+            </IconButton>
+          ) : null}
+        </Box>
+      ) : null}
+      {currentRole && currentRole.name === 'CLIENT' ? null : (
+        <Grid item xs={12}>
+          <AddLanguagePairForm
+            languagePairs={languagePairs}
+            setLanguagePairs={setLanguagePairs}
+            getPriceOptions={getPriceOptions}
+            type={langItemsEdit ? 'edit' : 'detail'}
+            onDeleteLanguagePair={onDeleteLanguagePair}
+          />
+        </Grid>
+      )}
+
       <Grid item xs={12} mt={6} mb={6}>
         <ItemForm
           control={itemControl}
@@ -313,6 +299,15 @@ const LanguageAndItem = ({
           priceUnitsList={priceUnitsList || []}
           type={langItemsEdit ? 'edit' : 'detail'}
           itemTrigger={itemTrigger}
+          project={project}
+          updateItems={updateItems}
+          orderId={orderId}
+          selectedIds={selectedIds}
+          setSelectedIds={setSelectedIds}
+          splitReady={splitReady}
+          onClickCancelSplitOrder={onClickCancelSplitOrder}
+          onClickSplitOrderConfirm={onClickSplitOrderConfirm}
+          sumTotalPrice={sumTotalPrice}
         />
       </Grid>
       {langItemsEdit ? (

@@ -62,6 +62,7 @@ export default function AddressesForm({
         update={update}
         errors={errors}
         isValid={isValid}
+        getValues={getValues}
       />
       <Grid item xs={12}>
         <Divider />

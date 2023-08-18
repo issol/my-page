@@ -11,6 +11,7 @@ export type QuotesFilterType = {
   seeMyQuotes?: 0 | 1
   status?: number[]
   client?: string[]
+  clientId?: number[]
   category?: string[]
   serviceType?: string[]
   ordering?: GridSortDirection
@@ -25,3 +26,10 @@ export type SortType =
   | 'quoteRegisteredDate'
   | 'quoteDeadline'
   | 'expiryDate'
+
+export type ReasonType = {
+  from: 'client' | 'lsp'
+  reason: string
+  message: string
+  type: string
+}

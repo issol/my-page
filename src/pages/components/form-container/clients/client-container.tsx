@@ -66,6 +66,7 @@ type Props = {
   setTax: (n: number | null) => void
   setTaxable: (n: boolean) => void
   type: 'order' | 'invoice' | 'quotes' | 'request'
+  formType: 'edit' | 'create'
 }
 export default function ClientQuotesFormContainer({
   control,
@@ -74,6 +75,7 @@ export default function ClientQuotesFormContainer({
   setTax,
   setTaxable,
   type,
+  formType,
 }: Props) {
   const { openModal, closeModal } = useModal()
   const [openForm, setOpenForm] = useState(false)
@@ -177,9 +179,7 @@ export default function ClientQuotesFormContainer({
       personType: 'Mr.',
       firstName: '',
       lastName: '',
-      timezone: companyInfo
-        ? companyInfo.timezone
-        : { code: '', label: '', phone: '' },
+      timezone: companyInfo.timezone ?? { code: '', label: '', phone: '' },
       email: '',
       userId: null,
     })
@@ -290,6 +290,7 @@ export default function ClientQuotesFormContainer({
           setTax={setTax}
           setTaxable={setTaxable}
           type={type}
+          formType={formType}
         />
       </Grid>
 
@@ -312,6 +313,7 @@ export default function ClientQuotesFormContainer({
             appendContactPerson={appendContactPerson}
             removeContactPersons={removeContactPersons}
             addressControl={addressControl}
+            getAddress={getAddressValues}
             addresses={addresses}
             appendAddress={appendAddress}
             removeAddress={removeAddress}

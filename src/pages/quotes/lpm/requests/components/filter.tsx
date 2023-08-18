@@ -32,19 +32,31 @@ import { RequestFilterType } from '@src/types/requests/filters.type'
 import { ConstType } from '@src/pages/onboarding/client-guideline'
 
 // ** values
-import { CategoryList } from '@src/shared/const/category/categories'
-import { ServiceTypeList } from '@src/shared/const/service-type/service-types'
+import { CategoryList, CategoryListPair } from '@src/shared/const/category/categories'
+import { ServiceTypeList, ServiceTypePair } from '@src/shared/const/service-type/service-types'
+import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
+import { Category } from '@src/shared/const/category/category.enum'
+
+import _ from 'lodash'
 
 type Props = {
   filter: RequestFilterType
   setFilter: (n: RequestFilterType) => void
-  serviceType: Array<ConstType>
+  // serviceType: Array<ConstType>
   onReset: () => void
   search: () => void
 }
 
 export default function Filter({ filter, setFilter, onReset, search }: Props) {
   const [collapsed, setCollapsed] = useState<boolean>(true)
+  const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
+  const [categoryList, setCategoryList] = useState(CategoryList)
+
+  const onFilterReset = () => {
+    setServiceTypeList(ServiceTypeList)
+    setCategoryList(CategoryList)
+    onReset()
+  }
 
   function filterValue(
     option: any,
@@ -65,6 +77,16 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
     autoHighlight: true,
     fullWidth: true,
     disableCloseOnSelect: true,
+  }
+
+  const isSearchButtonDisable = () => {
+    if (filter.requestDateFrom) {
+      if (!filter.requestDateTo) return true
+    }
+    if (filter.desiredDueDateFrom) {
+      if (!filter.desiredDueDateTo) return true
+    }
+    return false
   }
 
   return (
@@ -118,7 +140,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         <TextField
                           {...params}
                           label='Status'
-                          placeholder='Status'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -156,7 +177,6 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                         <TextField
                           {...params}
                           label='Client'
-                          placeholder='Client'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -176,21 +196,34 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       multiple
                       disableCloseOnSelect
                       limitTags={1}
-                      options={CategoryList}
-                      value={filterValue(CategoryList, 'category')}
-                      onChange={(e, v) =>
+                      options={categoryList}
+                      value={filterValue(categoryList, 'category')}
+                      onChange={(e, v) => {
+                        if (v.length){
+                          const arr: {
+                            label: ServiceType
+                            value: ServiceType
+                          }[] = []
+                          v.map(value => {
+                            /* @ts-ignore */
+                            const res = ServiceTypePair[value.value]
+                            arr.push(...res)
+                          })
+                          setServiceTypeList(_.uniqBy(arr, 'value'))
+                        } else {
+                          setServiceTypeList(ServiceTypeList)
+                        }
                         setFilter({
                           ...filter,
                           category: v.map(item => item.value),
                         })
-                      }
+                      }}
                       id='category'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
                         <TextField
                           {...params}
                           label='Category'
-                          placeholder='Category'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -210,21 +243,35 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                       multiple
                       limitTags={1}
                       disableCloseOnSelect
-                      options={ServiceTypeList || []}
-                      value={filterValue(ServiceTypeList, 'serviceType')}
-                      onChange={(e, v) =>
+                      options={serviceTypeList}
+                      value={filterValue(serviceTypeList, 'serviceType')}
+                      onChange={(e, v) => {
+                        if (v.length){
+                          const arr: {
+                            label: Category
+                            value: Category
+                          }[] = []
+                          v.map(value => {
+                            /* @ts-ignore */
+                            const res = CategoryListPair[value.value]
+                            arr.push(...res)
+                          })
+                          setCategoryList(arr)
+                        } else {
+                          setCategoryList(CategoryList)
+                        }
+                      
                         setFilter({
                           ...filter,
                           serviceType: v.map(item => item.value),
                         })
-                      }
+                      }}
                       id='serviceType'
                       getOptionLabel={option => option.label}
                       renderInput={params => (
                         <TextField
                           {...params}
                           label='Service type'
-                          placeholder='Service type'
                         />
                       )}
                       renderOption={(props, option, { selected }) => (
@@ -327,7 +374,7 @@ export default function Filter({ filter, setFilter, onReset, search }: Props) {
                     >
                       Reset
                     </Button>
-                    <Button variant='contained' size='medium' onClick={search}>
+                    <Button variant='contained' size='medium' disabled={isSearchButtonDisable()} onClick={search}>
                       Search
                     </Button>
                   </Box>

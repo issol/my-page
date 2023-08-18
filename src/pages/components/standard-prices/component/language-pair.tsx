@@ -184,7 +184,7 @@ const LanguagePair = ({
 
   const handleSave = useCallback(() => {
     if (isEditingLanguagePair !== null && selectedLanguagePair != null) {
-      console.log(editRowsModel[isEditingLanguagePair].priceFactor)
+      // console.log(editRowsModel[isEditingLanguagePair].priceFactor)
       const res = {
         source: selectedLanguagePair?.source,
         target: selectedLanguagePair.target,
@@ -204,7 +204,7 @@ const LanguagePair = ({
 
   const handleDelete = (id: number) => {
     deleteLanguagePairMutation.mutate(id)
-    console.log(`${id} deleted`)
+    // console.log(`${id} deleted`)
   }
 
   const handleEditCancel = () => {
@@ -241,7 +241,7 @@ const LanguagePair = ({
   }
 
   const onClickSaveEditLanguagePair = () => {
-    console.log('hi')
+    // console.log('hi')
 
     openModal({
       type: 'editSaveLanguagePairModal',
@@ -274,7 +274,7 @@ const LanguagePair = ({
     (params, event) => {
       if (event.key === 'Enter' || cellMode === 'edit') {
         event.defaultMuiPrevented = true
-        console.log(params)
+        // console.log(params)
       }
     },
     [cellMode],

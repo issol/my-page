@@ -15,7 +15,11 @@ import {
 import ProjectTeam from '../project-team'
 import { HistoryType, VersionHistoryType } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
-import { InvoiceVersionHistoryType } from '@src/types/invoice/receivable.type'
+import {
+  InvoiceDownloadData,
+  InvoiceReceivableDetailType,
+  InvoiceVersionHistoryType,
+} from '@src/types/invoice/receivable.type'
 import InvoiceInfo from '../invoice-info'
 import InvoiceLanguageAndItem from '../language-item'
 import { defaultOption, languageType } from '../../../add-new'
@@ -33,26 +37,34 @@ import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import { UserDataType } from '@src/context/types'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import InvoiceClient from '../client'
-import { invoice_receivable } from '@src/shared/const/permission-class'
-import { AbilityContext } from '@src/layouts/components/acl/Can'
+
 import { checkEditable } from '@src/apis/invoice/receivable.api'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import ClientInvoice from '../client-invoice'
+import { PriceRoundingResponseEnum } from '@src/shared/const/rounding-procedure/rounding-procedure.enum'
+import {
+  formatByRoundingProcedure,
+  formatCurrency,
+} from '@src/shared/helpers/price.helper'
 
 type Props = {
+  invoiceInfo: InvoiceReceivableDetailType
   history: InvoiceVersionHistoryType
   prices: StandardPriceListType[]
   pricesSuccess: boolean
   user: UserDataType
   onClose: any
-  onClick: any
+  onClick: (historyId: number) => void
   statusList: {
-    id: number
-    statusName: string
+    value: number
+    label: string
   }[]
   isUpdatable: boolean
   isDeletable: boolean
 }
 
 const InvoiceVersionHistoryModal = ({
+  invoiceInfo,
   history,
   onClose,
   onClick,
@@ -63,13 +75,18 @@ const InvoiceVersionHistoryModal = ({
   isUpdatable,
   isDeletable,
 }: Props) => {
-  console.log(history)
+  // console.log(history)
 
-  const [value, setValue] = useState<string>('1')
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
   const handleChange = (event: SyntheticEvent, newValue: string) => {
     setValue(newValue)
   }
+
+  const currentRole = getCurrentRole()
+
+  const [value, setValue] = useState<string>(
+    currentRole && currentRole.name === 'CLIENT' ? 'invoice' : 'invoiceInfo',
+  )
 
   const { data: priceUnitsList } = useGetAllClientPriceList()
 
@@ -77,6 +94,14 @@ const InvoiceVersionHistoryModal = ({
   const [page, setPage] = useState<number>(0)
 
   const [isUserInTeamMember, setIsUserInTeamMember] = useState<boolean>(false)
+
+  const [downloadData, setDownloadData] = useState<InvoiceDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
+
+  const [priceInfo, setPriceInfo] = useState<StandardPriceListType | null>(null)
 
   const {
     control: itemControl,
@@ -207,6 +232,101 @@ const InvoiceVersionHistoryModal = ({
     }
   }, [history])
 
+  useEffect(() => {
+    if (history) {
+      const { projectInfo, client, members, items } = history
+      const pm = members!.find(value => value.position === 'projectManager')
+
+      const subtotal = items.items.reduce((acc, cur) => {
+        return acc + cur.totalPrice
+      }, 0)
+
+      const tax = subtotal * (projectInfo!.tax! / 100)
+
+      const res: InvoiceDownloadData = {
+        invoiceId: Number(projectInfo.id!),
+        adminCompanyName: 'GloZ Inc.',
+        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+        corporationId: projectInfo!.corporationId,
+        orderCorporationId: projectInfo?.corporationId,
+        invoicedAt: projectInfo!.invoicedAt,
+        paymentDueAt: {
+          date: projectInfo!.payDueAt,
+          timezone: projectInfo!.payDueTimezone,
+        },
+        pm: {
+          firstName: pm?.firstName!,
+          lastName: pm?.lastName!,
+          email: pm?.email!,
+          middleName: pm?.middleName!,
+        },
+        companyName: client!.client.name,
+        projectName: projectInfo!.projectName,
+        client: client!,
+        contactPerson: client!.contactPerson,
+        clientAddress: client!.clientAddress,
+        langItem: items!,
+        subtotal: priceInfo
+          ? formatCurrency(
+              formatByRoundingProcedure(
+                subtotal,
+                priceInfo?.decimalPlace!,
+                priceInfo?.roundingProcedure!,
+                priceInfo?.currency!,
+              ),
+              priceInfo?.currency!,
+            )
+          : '',
+        taxPercent: projectInfo!.tax,
+        tax:
+          projectInfo!.isTaxable && priceInfo
+            ? formatCurrency(
+                formatByRoundingProcedure(
+                  tax,
+                  priceInfo?.decimalPlace!,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency!,
+                ),
+                priceInfo?.currency!,
+              )
+            : null,
+        total:
+          projectInfo!.isTaxable && priceInfo
+            ? formatCurrency(
+                formatByRoundingProcedure(
+                  subtotal - tax,
+                  priceInfo?.decimalPlace ?? 0,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency ?? 'USD',
+                ),
+                priceInfo?.currency ?? 'USD',
+              )
+            : formatCurrency(
+                formatByRoundingProcedure(
+                  subtotal,
+                  priceInfo?.decimalPlace ?? 0,
+                  priceInfo?.roundingProcedure ??
+                    PriceRoundingResponseEnum.Type_0,
+                  priceInfo?.currency ?? 'USD',
+                ),
+                priceInfo?.currency ?? 'USD',
+              ),
+      }
+      setDownloadData(res)
+    }
+  }, [history])
+
+  useEffect(() => {
+    if (languagePairs && prices) {
+      const priceInfo =
+        prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
+
+      setPriceInfo(priceInfo)
+    }
+  }, [prices, languagePairs])
+
   return (
     <Box
       sx={{
@@ -245,8 +365,22 @@ const InvoiceVersionHistoryModal = ({
             aria-label='Order detail Tab menu'
             style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
           >
+            {currentRole && currentRole.name === 'CLIENT' ? (
+              <CustomTap
+                value='invoice'
+                label='Invoice'
+                iconPosition='start'
+                icon={
+                  <Icon
+                    icon='material-symbols:receipt-long'
+                    fontSize={'18px'}
+                  />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            ) : null}
             <CustomTap
-              value='1'
+              value='invoiceInfo'
               label='Invoice info'
               iconPosition='start'
               icon={
@@ -255,21 +389,26 @@ const InvoiceVersionHistoryModal = ({
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
             <CustomTap
-              value='2'
+              value='items'
               label='Languages & Items'
               iconPosition='start'
               icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
+            {currentRole && currentRole.name === 'CLIENT' ? null : (
+              <CustomTap
+                value='client'
+                label='Client'
+                iconPosition='start'
+                icon={
+                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                }
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
+            )}
+
             <CustomTap
-              value='3'
-              label='Client'
-              iconPosition='start'
-              icon={<Icon icon='mdi:account-star-outline' fontSize={'18px'} />}
-              onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-            />
-            <CustomTap
-              value='4'
+              value='team'
               label='Project team'
               iconPosition='start'
               icon={
@@ -278,7 +417,21 @@ const InvoiceVersionHistoryModal = ({
               onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
             />
           </TabList>
-          <TabPanel value='1' sx={{ height: '100%', minHeight: '552px' }}>
+          <TabPanel value='invoice' sx={{ pt: '24px' }}>
+            {downloadData ? (
+              <ClientInvoice
+                downloadData={downloadData}
+                downloadLanguage={downloadLanguage}
+                setDownloadLanguage={setDownloadLanguage}
+                type='detail'
+                user={user!}
+              />
+            ) : null}
+          </TabPanel>
+          <TabPanel
+            value='invoiceInfo'
+            sx={{ height: '100%', minHeight: '552px' }}
+          >
             <InvoiceInfo
               type='history'
               invoiceInfo={history.projectInfo}
@@ -287,9 +440,10 @@ const InvoiceVersionHistoryModal = ({
               statusList={statusList}
               isUpdatable={isUpdatable}
               isDeletable={isDeletable}
+              isAccountInfoUpdatable={false}
             />
           </TabPanel>
-          <TabPanel value='2' sx={{ height: '100%', minHeight: '552px' }}>
+          <TabPanel value='items' sx={{ height: '100%', minHeight: '552px' }}>
             <Grid xs={12} container>
               <InvoiceLanguageAndItem
                 langItem={history.items!}
@@ -310,7 +464,7 @@ const InvoiceVersionHistoryModal = ({
               />
             </Grid>
           </TabPanel>
-          <TabPanel value='3' sx={{ height: '100%', minHeight: '552px' }}>
+          <TabPanel value='client' sx={{ height: '100%', minHeight: '552px' }}>
             <InvoiceClient
               type='history'
               client={history.client}
@@ -320,7 +474,7 @@ const InvoiceVersionHistoryModal = ({
               isUpdatable={isUpdatable}
             />
           </TabPanel>
-          <TabPanel value='4' sx={{ height: '100%', minHeight: '552px' }}>
+          <TabPanel value='team' sx={{ height: '100%', minHeight: '552px' }}>
             <ProjectTeam
               type='history'
               list={history.members}
@@ -353,15 +507,20 @@ const InvoiceVersionHistoryModal = ({
           >
             Close
           </Button>
-          {isUpdatable && isUserInTeamMember && (
-            <Button
-              variant='contained'
-              sx={{ width: '226px' }}
-              onClick={onClick}
-            >
-              Restore this version
-            </Button>
-          )}
+          {isUpdatable &&
+            isUserInTeamMember &&
+            history.isRestorable &&
+            ![30000, 30100, 30200, 30900, 301200].includes(
+              invoiceInfo.invoiceStatus,
+            ) && (
+              <Button
+                variant='contained'
+                sx={{ width: '226px' }}
+                onClick={() => onClick(history.id)}
+              >
+                Restore this version
+              </Button>
+            )}
         </Box>
       </Box>
     </Box>

@@ -57,7 +57,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
   const [fileSize, setFileSize] = useState<number>(0)
   const [files, setFiles] = useState<File[]>([])
 
-  console.log(row)
+  // console.log(row)
 
   const {
     data: sourceFileList,
@@ -106,7 +106,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
           } else {
             const found = acc.find(f => f.name === file.name)
             if (!found) acc.push(file)
-            console.log(acc)
+            // console.log(acc)
 
             return acc
           }
@@ -178,18 +178,18 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
         type: 'SAMPLE' | 'SOURCE' | 'TARGET'
       }> = []
       const paths: string[] = files.map(file => {
-        console.log(file.name)
+        // console.log(file.name)
 
         return `project/${row.id}/${file.name}`
       })
-      console.log(paths)
+      // console.log(paths)
 
       const s3URL = paths.map(value => {
         return getUploadUrlforCommon('job', value).then(res => {
           return res.url
         })
       })
-      console.log(s3URL)
+      // console.log(s3URL)
 
       Promise.all(s3URL).then(res => {
         const promiseArr = res.map((url: string, idx: number) => {
@@ -312,8 +312,7 @@ const SourceFileUpload = ({ info, row, orderDetail, item, refetch }: Props) => {
               Source file to Pro
             </Typography>
             <Typography variant='subtitle2'>
-              {formatFileSize(fileSize)}
-              / {byteToGB(MAXIMUM_FILE_SIZE)}
+              {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
             </Typography>
           </Box>
           <Box

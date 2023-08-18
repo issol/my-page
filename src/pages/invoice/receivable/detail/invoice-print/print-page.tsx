@@ -1,17 +1,10 @@
-import { formatCurrency } from '@src/shared/helpers/price.helper'
-
 import { useEffect } from 'react'
-import {
-  LanguageAndItemType,
-  OrderDownloadData,
-} from '@src/types/orders/order-detail'
+
 import { useRouter } from 'next/router'
 import {
   Box,
-  Button,
   Divider,
   Table,
-  TableBody,
   TableCell,
   TableContainer,
   TableHead,
@@ -26,8 +19,7 @@ import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { patchProjectInfo } from '@src/apis/order-detail.api'
+
 import MakeTable from '@src/pages/orders/order-list/detail/components/rows'
 import { InvoiceDownloadData } from '@src/types/invoice/receivable.type'
 import { patchInvoiceInfo } from '@src/apis/invoice/receivable.api'
@@ -88,7 +80,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
           <Typography variant='subtitle2'>
             {lang === 'EN'
               ? '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010'
-              : '서울특별시 강남구 영동대로 106길 11, 3층(삼성동, 현성빌딩)'}
+              : '서울특별시 금천구 가산디지털1로 204, 903호 (가산 반도아이비밸리)'}
           </Typography>
         </Box>
         <Box>
@@ -431,7 +423,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       textAlign: 'right',
                     }}
                   >
-                    Subtotal:
+                    {lang === 'EN' ? 'Subtotal' : '총 금액'}:
                   </Typography>
                   <Typography
                     variant='subtitle1'
@@ -448,7 +440,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                   </Typography>
                 </Box>
               </Box>
-              {!data.tax && (
+              {data.tax !== null && (
                 <Box
                   sx={{
                     display: 'flex',
@@ -479,7 +471,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                      Tax(-{data.taxPercent}%):
+                      {lang === 'EN' ? 'Tax' : '세액'}(-{data.taxPercent}%):
                     </Typography>
                     <Typography
                       variant='subtitle1'
@@ -491,7 +483,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                         textAlign: 'right',
                       }}
                     >
-                      - {data.subtotal}
+                      - {data.tax}
                     </Typography>
                   </Box>
                 </Box>
@@ -528,7 +520,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       flex: 1,
                     }}
                   >
-                    Total:
+                    {lang === 'EN' ? 'Total' : '실제 청구액'}:
                   </Typography>
                   <Typography
                     variant='subtitle1'
@@ -540,7 +532,7 @@ const PrintInvoicePage = ({ data, type, user, lang }: Props) => {
                       flex: 1,
                     }}
                   >
-                    {data.subtotal}
+                    {data.total}
                   </Typography>
                 </Box>
               </Box>

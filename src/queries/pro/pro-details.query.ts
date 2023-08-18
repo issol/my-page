@@ -1,4 +1,8 @@
-import { getProOverview, getProWorkDays } from '@src/apis/pro/pro-details.api'
+import {
+  getProWorkDays,
+  getMyOverview,
+  getProOverview,
+} from '@src/apis/pro/pro-details.api'
 import { DetailUserType } from '@src/types/common/detail-user.type'
 import { useQuery } from 'react-query'
 import _ from 'lodash'
@@ -31,17 +35,17 @@ export const useGetProOverview = (userId: number) => {
   )
 }
 
-export const useGetProWorkDays = (userId: number, year: number) => {
-  return useQuery(
-    [`${userId}-workDays`, year],
-    () => getProWorkDays(userId, year),
-    {
-      staleTime: 60 * 1000, // 1
-      suspense: true,
-      useErrorBoundary: (error: any) => error.response?.status >= 400,
-    },
-  )
-}
+// export const useGetProWorkDays = (userId: number, year: number) => {
+//   return useQuery(
+//     [`${userId}-workDays`, year],
+//     () => getProWorkDays(userId, year),
+//     {
+//       staleTime: 60 * 1000, // 1
+//       suspense: true,
+//       useErrorBoundary: (error: any) => error.response?.status >= 400,
+//     },
+//   )
+// }
 
 export const useGetProInvoiceList = (
   id: number,
@@ -71,6 +75,32 @@ export const useGetProInvoiceListCalendar = (
       suspense: true,
       staleTime: 60 * 1000,
       keepPreviousData: true,
+    },
+  )
+}
+
+//pro가 my page에서 보는 데이터
+export const useGetMyOverview = (userId: number) => {
+  const id = typeof userId === 'number' ? userId : 0
+  return useQuery(`myId:${userId}`, () => getMyOverview(id!), {
+    staleTime: 60 * 1000, // 1
+    suspense: true,
+    useErrorBoundary: true,
+  })
+}
+
+export const useGetProWorkDays = (
+  userId: number,
+  year: number,
+  month: number,
+) => {
+  return useQuery(
+    [`myOffDays:${userId}`, year, month],
+    () => getProWorkDays(userId, year, month),
+    {
+      staleTime: 60 * 1000, // 1
+      suspense: true,
+      useErrorBoundary: true,
     },
   )
 }

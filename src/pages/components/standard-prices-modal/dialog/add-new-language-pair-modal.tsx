@@ -88,7 +88,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
         })
       },
       onError: error => {
-        console.log("addLanguagePairMutation-error",error)
+        // console.log("addLanguagePairMutation-error",error)
         if (error === 'LanguagePairDuplication') {
           openModal({
             type: 'LanguagePairDuplicationModal',
@@ -209,7 +209,7 @@ const AddNewLanguagePairModal = ({ onClose, priceData, page }: Props) => {
     }
   }
 
-  console.log(errors)
+  // console.log(errors)
 
   // const handleUpdate = (index: number, values: any) => {
   //   pairFields

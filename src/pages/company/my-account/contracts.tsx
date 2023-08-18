@@ -197,7 +197,7 @@ const Contracts = ({
                     value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
-                      console.log(value)
+                      // console.log(value)
 
                       if (!v) onChange(null)
                       else onChange(v)
@@ -230,7 +230,7 @@ const Contracts = ({
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      !watch('timezone').phone
+                      !watch('timezone')?.phone
                         ? `+ 1) 012 345 6789`
                         : `012 345 6789`
                     }
@@ -263,7 +263,7 @@ const Contracts = ({
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      !watch('timezone').phone
+                      !watch('timezone')?.phone
                         ? `+ 1) 012 345 6789`
                         : `012 345 6789`
                     }
@@ -296,7 +296,7 @@ const Contracts = ({
                     fullWidth
                     value={value || ''}
                     placeholder={
-                      !watch('timezone').phone
+                      !watch('timezone')?.phone
                         ? `+ 1) 012 345 6789`
                         : `012 345 6789`
                     }

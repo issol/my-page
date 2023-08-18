@@ -83,7 +83,7 @@ const ViewPrices = ({
   const { data: prices, isSuccess } = useGetClientPriceList({
     clientId: 7,
   })
-  console.log(fields)
+  // console.log(fields)
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]

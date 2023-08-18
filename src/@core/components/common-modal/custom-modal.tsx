@@ -1,13 +1,17 @@
-import { Box, Button, Typography } from '@mui/material'
+import { Box, Button, TextField, Typography } from '@mui/material'
 
 import AlertIcon from '../alert-icon'
+import { useState } from 'react'
 
 type Props = {
   onClose: any
   onClick: any
-  title: string
+  title: string | JSX.Element
   subtitle?: string
+  subtitleColor?: 'primary' | 'secondary'
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
+  textarea?: boolean
+  textareaPlaceholder?: string
   leftButtonText?: string
   rightButtonText: string
 }
@@ -17,14 +21,19 @@ const CustomModal = ({
   onClick,
   title,
   subtitle,
+  subtitleColor,
   vary,
   leftButtonText,
   rightButtonText,
+  textarea,
+  textareaPlaceholder,
 }: Props) => {
+  const [text, setText] = useState('')
+
   return (
     <Box
       sx={{
-        maxWidth: '361px',
+        maxWidth: '381px',
         width: '100%',
         background: '#ffffff',
         boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
@@ -62,13 +71,37 @@ const CustomModal = ({
             <Typography
               variant='body2'
               textAlign='center'
+              color={subtitleColor ?? 'secondary'}
               sx={{ fontWeight: 700, fontSize: '16px' }}
             >
               {subtitle}
             </Typography>
           ) : null}
         </Box>
-
+        {textarea ? (
+          <Box sx={{ mt: '24px' }}>
+            <TextField
+              fullWidth
+              rows={4}
+              multiline
+              value={text}
+              onChange={e => setText(e.target.value)}
+              inputProps={{ maxLength: 500 }}
+              placeholder={textareaPlaceholder}
+            />
+            <Box
+              sx={{
+                display: 'flex',
+                justifyContent: 'flex-end',
+                fontSize: '12px',
+                lineHeight: '25px',
+                color: '#888888',
+              }}
+            >
+              {text.length}/500
+            </Box>
+          </Box>
+        ) : null}
         <Box
           sx={{
             display: 'flex',
@@ -80,7 +113,11 @@ const CustomModal = ({
           <Button variant='outlined' onClick={onClose}>
             {leftButtonText ?? 'Cancel'}
           </Button>
-          <Button variant='contained' onClick={onClick}>
+          <Button
+            variant='contained'
+            onClick={() => (textarea ? onClick(text) : onClick())}
+            disabled={textarea && text === ''}
+          >
             {rightButtonText}
           </Button>
         </Box>

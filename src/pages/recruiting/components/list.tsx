@@ -263,6 +263,12 @@ export default function RecruitingList({
             onPageChange={setSkip}
             onPageSizeChange={newPageSize => setPageSize(newPageSize)}
             columns={columns}
+            sortModel={[
+              {
+                field: 'id',
+                sort: 'desc',
+              },
+            ]}
           />
         </Box>
       </Card>

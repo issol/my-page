@@ -9,14 +9,14 @@ const CSVRenderer: DocRenderer = ({
   mainState: { currentDocument, config },
 }) => {
   const [rows, setRows] = useState<string[][]>([])
-  console.log(currentDocument)
+  // console.log(currentDocument)
 
   useEffect(() => {
     if (currentDocument?.fileData) {
       const parseResult = papaparse.parse(currentDocument.fileData as string, {
         delimiter: config?.csvDelimiter ?? ',',
       })
-      console.log(parseResult)
+      // console.log(parseResult)
       if (!parseResult.errors?.length && parseResult.data) {
         setRows(parseResult.data as string[][])
       }

@@ -1,4 +1,4 @@
-import { Card, Grid } from '@mui/material'
+import { Card, CardHeader, Grid, Typography } from '@mui/material'
 
 // ** context
 import { Suspense, useContext, useState } from 'react'
@@ -13,23 +13,33 @@ import { toast } from 'react-hot-toast'
 // ** components
 import PersonalInfo from './personal-info'
 import BillingMethod from './billing-method'
-import BillingAddress from './billing-address'
+import BillingAddressDetail from '@src/pages/client/components/payment-info/billing-address'
 
 // ** actions
-import { useGetUserPaymentInfo } from '@src/queries/payment-info.query'
+import {
+  useGetTaxCodeList,
+  useGetUserPaymentInfo,
+} from '@src/queries/payment-info.query'
 import {
   FileNameType,
+  deleteProPaymentFile,
   downloadPersonalInfoFile,
+  getProPaymentFile,
+  uploadProPaymentFile,
 } from '@src/apis/payment-info.api'
 
 import logger from '@src/@core/utils/logger'
 import FallbackSpinner from '@src/@core/components/spinner'
 import { useEffect } from 'react'
 import Tax from './tax'
-import FileInfo from '@src/@core/components/files'
-import { FileItemType } from '@src/@core/components/swiper/file-swiper'
+import FileInfo from '@src/@core/components/file-info'
+import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 import { getDownloadUrlforCommon } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { useGetProOverview } from '@src/queries/pro/pro-details.query'
+import { AuthContext } from '@src/context/AuthContext'
+import { pro_payment } from '@src/shared/const/permission-class'
+import { useQueryClient } from 'react-query'
 
 type Props = {
   id: number
@@ -38,14 +48,16 @@ type Props = {
 
 export default function PaymentInfo({ id, userRole }: Props) {
   const ability = useContext(AbilityContext)
+  const { user } = useContext(AuthContext)
+
+  const User = new pro_payment(user?.id!)
   const isAccountManager = ability.can('read', 'account_manage')
+  const isUpdatable = ability.can('update', User)
+  const isDeletable = ability.can('delete', User)
+
   const [taxEdit, setTaxEdit] = useState(false)
 
   const clipboard = useClipboard()
-
-  const [isManagerRequest, setIsManagerRequest] = useState(false)
-
-  const { data, refetch } = useGetUserPaymentInfo(id, isManagerRequest)
 
   const onCopy = (info: string) => {
     clipboard.copy(info)
@@ -54,127 +66,61 @@ export default function PaymentInfo({ id, userRole }: Props) {
     })
   }
 
+  const queryClient = useQueryClient()
+  const invalidatePaymentInfo = () =>
+    queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
+
+  const { data } = useGetUserPaymentInfo(id, isAccountManager)
+
   const replaceDots = (value: string) => {
     if (!value) return '-'
-    return value.replaceAll('*', '●')
+    return value.replaceAll('*', '•')
   }
 
-  function fetchFile(fileName: FileNameType) {
-    downloadPersonalInfoFile(id, fileName)
-      .then()
-      .catch(err => {
-        console.log(err)
-        toast.error(
-          'Something went wrong while uploading files. Please try again.',
-          {
-            position: 'bottom-left',
-          },
-        )
-      })
+  function downloadFile(file: FileItemType) {
+    if (!file?.id) return
+    getProPaymentFile(file.id).then(res => {
+      const url = window.URL.createObjectURL(res)
+      const a = document.createElement('a')
+      a.href = url
+      a.download = file.fileName
+      document.body.appendChild(a)
+      a.click()
+      setTimeout((_: any) => {
+        window.URL.revokeObjectURL(url)
+      }, 60000)
+      a.remove()
+    })
   }
 
-  function downloadFile(name: FileNameType) {
-    fetchFile(name)
-  }
-
-  useEffect(() => {
-    if (isManagerRequest) {
-      refetch()
-    }
-  }, [isManagerRequest])
-
-  function getDetail() {
-    setIsManagerRequest(true)
-  }
-
-  const downloadAllFile = (file: FileItemType[] | null) => {
-    if (file) {
-      file.map(value => {
-        getDownloadUrlforCommon(
-          S3FileType.PRO_PAYMENT_INFO,
-          value.filePath,
-        ).then(res => {
-          const previewFile = {
-            url: res.url,
-            fileName: value.fileName,
-            fileExtension: value.fileExtension,
-          }
-          fetch(previewFile.url, { method: 'GET' })
-            .then(res => {
-              return res.blob()
-            })
-            .then(blob => {
-              const url = window.URL.createObjectURL(blob)
-              const a = document.createElement('a')
-              a.href = url
-              a.download = `${value.fileName}.${value.fileExtension}`
-              document.body.appendChild(a)
-              a.click()
-              setTimeout((_: any) => {
-                window.URL.revokeObjectURL(url)
-              }, 60000)
-              a.remove()
-              // onClose()
-            })
-            .catch(error =>
-              toast.error(
-                'Something went wrong while uploading files. Please try again.',
-                {
-                  position: 'bottom-left',
-                },
-              ),
-            )
-        })
-      })
-    }
+  const downloadAllFile = (files: FileItemType[] | null) => {
+    if (!files) return
+    files.forEach(file => downloadFile(file))
   }
 
   function uploadFiles(files: File[]) {
-    // if (files.length) {
-    //   const fileInfo: Array<FilePostType> = []
-    //   const paths: string[] = files?.map(file =>
-    //     //TODO: 보낼 값은 백엔드에 문의하기
-    //     // getFilePath(
-    //     //   [
-    //     //     data.client.value,
-    //     //     data.category.value,
-    //     //     data.serviceType.value,
-    //     //     'V1',
-    //     //   ],
-    //     //   file.name,
-    //     // ),
-    //   )
-    //   const promiseArr = paths.map((url, idx) => {
-    //     return getUploadUrlforCommon(S3FileType.CLIENT_PAYMENT, url).then(
-    //       res => {
-    //         fileInfo.push({
-    //           name: files[idx].name,
-    //           size: files[idx]?.size,
-    //           fileUrl: url,
-    //         })
-    //         return uploadFileToS3(res.url, files[idx])
-    //       },
-    //     )
-    //   })
-    //   Promise.all(promiseArr)
-    //     .then(res => {
-    //       //TODO: mutation함수 추가하기
-    //       // finalValue.files = fileInfo
-    //       // guidelineMutation.mutate(finalValue)
-    //     })
-    //     .catch(err =>
-    //       toast.error(
-    //         'Something went wrong while uploading files. Please try again.',
-    //         {
-    //           position: 'bottom-left',
-    //         },
-    //       ),
-    //     )
-    // }
+    files.forEach(file => {
+      const formData = new FormData()
+      formData.append('file', file)
+      uploadProPaymentFile('additional', formData)
+    })
+    setTimeout(() => {
+      invalidatePaymentInfo()
+    }, 1500)
   }
 
   function onDeleteFile(file: FileItemType) {
-    // TODO API 연결
+    if (file.id) {
+      deleteProPaymentFile(file.id!)
+        .then(() => invalidatePaymentInfo())
+        .catch(() => onError())
+    }
+  }
+
+  function onError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
   }
 
   return (
@@ -183,50 +129,80 @@ export default function PaymentInfo({ id, userRole }: Props) {
         <Grid item xs={12} md={4} lg={4}>
           <PersonalInfo
             onCopy={onCopy}
-            info={data?.userInfo!}
-            isAccountManager={isAccountManager}
+            info={data?.billingMethod}
             replaceDots={replaceDots}
             downloadFile={downloadFile}
+            files={data?.files || []}
+            isAccountManager={isAccountManager}
           />
-          {userRole === 'LPM' ? (
-            <Card sx={{ padding: '24px', mt: '24px' }}>
-              <FileInfo
-                fileList={data?.files ?? []}
-                accept={{
-                  'image/*': ['.png', '.jpg', '.jpeg'],
-                  'text/csv': ['.cvs'],
-                  'application/pdf': ['.pdf'],
-                  'text/plain': ['.txt'],
-                  'application/vnd.ms-powerpoint': ['.ppt'],
-                  'application/msword': ['.doc'],
-                  'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
-                    ['.docx'],
-                }}
-                fileType={S3FileType.PRO_PAYMENT_INFO}
-                onDownloadAll={downloadAllFile}
-                onFileDrop={uploadFiles}
-                onDeleteFile={onDeleteFile}
-                isUpdatable={false}
-                isDeletable={false}
-              />
-            </Card>
-          ) : null}
+          <Card sx={{ padding: '24px', mt: '24px' }}>
+            <FileInfo
+              fileList={
+                data?.files.filter(i => i.positionType === 'additional') || []
+              }
+              title='Additional files'
+              accept={{
+                'image/*': ['.png', '.jpg', '.jpeg'],
+                'text/csv': ['.cvs'],
+                'application/pdf': ['.pdf'],
+                'text/plain': ['.txt'],
+                'application/vnd.ms-powerpoint': ['.ppt'],
+                'application/msword': ['.doc'],
+                'application/vnd.openxmlformats-officedocument.wordprocessingml.document':
+                  ['.docx'],
+              }}
+              fileType={S3FileType.PRO_PAYMENT_INFO}
+              onDownloadAll={downloadAllFile}
+              onFileDrop={uploadFiles}
+              onDeleteFile={onDeleteFile}
+              isReadable={isAccountManager}
+              isUpdatable={isAccountManager}
+              isDeletable={isAccountManager}
+            />
+          </Card>
         </Grid>
 
         <Grid item xs={12} md={8} lg={8}>
           <BillingMethod
-            info={data!}
+            onCopy={onCopy}
+            info={data?.billingMethod}
+            bankInfo={data?.bankInfo}
+            corrBankInfo={data?.correspondentBankInfo}
             isAccountManager={isAccountManager}
             replaceDots={replaceDots}
-            getDetail={getDetail}
           />
-          <BillingAddress
-            info={data?.billingAddress!}
-            replaceDots={replaceDots}
+
+          <Card style={{ marginTop: '24px', padding: '24px' }}>
+            <Typography variant='h6' mb={6}>
+              Billing address
+            </Typography>
+            <BillingAddressDetail
+              billingAddress={{
+                baseAddress: replaceDots(
+                  data?.billingAddress?.baseAddress ?? '',
+                ),
+                city: replaceDots(data?.billingAddress?.city ?? ''),
+                country: replaceDots(data?.billingAddress?.country ?? ''),
+                detailAddress: replaceDots(
+                  data?.billingAddress?.detailAddress ?? '',
+                ),
+                state: replaceDots(data?.billingAddress?.state ?? ''),
+                zipCode: replaceDots(
+                  data?.billingAddress?.zipCode?.toString() ?? '',
+                ),
+              }}
+            />
+          </Card>
+          <Tax
+            proId={id}
+            info={{
+              taxInfo: data?.taxInfo ?? null,
+              taxRate: data?.taxRate ?? null,
+            }}
+            edit={taxEdit}
+            setEdit={setTaxEdit}
+            isUpdatable={isAccountManager}
           />
-          {userRole === 'LPM' ? (
-            <Tax info={data?.tax!} edit={taxEdit} setEdit={setTaxEdit} />
-          ) : null}
         </Grid>
       </Grid>
     </Suspense>

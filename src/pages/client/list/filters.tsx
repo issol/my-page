@@ -75,37 +75,35 @@ export default function ClientListFilter({
             <Grid container spacing={6} rowSpacing={4}>
               <Grid item xs={12} sm={6} md={6}>
                 <FormControl fullWidth>
-                  <FormControl fullWidth>
-                    <Autocomplete
-                      autoHighlight
-                      fullWidth
-                      multiple
-                      options={ClientStatus}
-                      value={filterValue(ClientStatus, 'status')}
-                      onChange={(e, v) =>
-                        setFilter({
-                          ...filter,
-                          status: v.map(item => item.value),
-                        })
-                      }
-                      // filterSelectedOptions
-                      id='status'
-                      getOptionLabel={option => option.label}
-                      renderInput={params => (
-                        <TextField
-                          {...params}
-                          label='Status'
-                          placeholder='Status'
-                        />
-                      )}
-                      renderOption={(props, option, { selected }) => (
-                        <li {...props}>
-                          <Checkbox checked={selected} sx={{ mr: 2 }} />
-                          {option.label}
-                        </li>
-                      )}
-                    />
-                  </FormControl>
+                  <Autocomplete
+                    autoHighlight
+                    fullWidth
+                    multiple
+                    options={ClientStatus}
+                    value={filterValue(ClientStatus, 'status')}
+                    onChange={(e, v) =>
+                      setFilter({
+                        ...filter,
+                        status: v.map(item => item.value),
+                      })
+                    }
+                    // filterSelectedOptions
+                    id='status'
+                    getOptionLabel={option => option.label}
+                    renderInput={params => (
+                      <TextField
+                        {...params}
+                        label='Status'
+                        placeholder='Status'
+                      />
+                    )}
+                    renderOption={(props, option, { selected }) => (
+                      <li {...props}>
+                        <Checkbox checked={selected} sx={{ mr: 2 }} />
+                        {option.label}
+                      </li>
+                    )}
+                  />
                 </FormControl>
               </Grid>
               <Grid item xs={12} sm={6} md={6}>

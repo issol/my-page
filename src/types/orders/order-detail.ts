@@ -1,12 +1,12 @@
 import { ServiceType } from '@src/shared/const/service-type/service-type.enum'
-import { OrderStatusType } from './order-list'
 import { CountryType } from '../sign/personalInfoTypes'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { Row } from '@src/pages/orders/order-list/detail/components/rows'
-import { RevenueFormType } from '../common/orders.type'
+import { OrderStatusType, RevenueFormType } from '../common/orders.type'
 import { ItemType } from '../common/item.type'
 import { CurrencyType } from '../common/standard-price'
+import { ReasonType } from '../quotes/quote'
 
 export type PositionType = 'supervisor' | 'projectManager' | 'teamMember'
 
@@ -24,11 +24,22 @@ export type ProjectTeamCellType = {
   row: ProjectTeamListType
 }
 
+export type DeliveryFileType = {
+  id?: number
+  createdAt?: string
+  type?: 'imported' | 'uploaded' | 'existing'
+  filePath: string
+  fileName: string
+  fileExtension: string
+  fileSize: number
+}
+
 export type ProjectInfoType = {
   id: number
   corporationId: string
   orderedAt: string
   status: OrderStatusType
+  previousStatus: number
   workName: string
   category: string
   serviceType: string[]
@@ -38,8 +49,32 @@ export type ProjectInfoType = {
   projectDueAt: string
   projectDueTimezone: CountryType
   projectDescription: string
+  showDescription: boolean
   tax: number
   isTaxable: boolean
+
+  linkedInvoiceReceivable: {
+    id: number
+    corporationId: string
+  } | null
+  linkedJobs: {
+    id: number
+    corporationId: string
+  }[]
+
+  linkedQuote: {
+    id: number
+    corporationId: string
+  } | null
+  linkedRequest: {
+    id: number
+    corporationId: string
+  } | null
+
+  reason: ReasonType | null
+  deliveries: DeliveryFileType[]
+  feedback: string | null
+  subtotal: string
 }
 
 export type ClientType = {
@@ -71,6 +106,7 @@ export type VersionHistoryType = {
   version: number
   email: string
   downloadedAt: string
+  items: LanguageAndItemType
 } & HistoryType
 
 export type OrderDownloadData = {

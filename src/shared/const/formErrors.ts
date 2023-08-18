@@ -1,6 +1,7 @@
 export const FormErrors = {
   invalidEmail: 'Invalid email address',
   invalidUrl: 'Invalid link',
+  notHTTPPrefixUrl: 'Please include http:// or https:// in the website address',
   registeredEmail: 'This email is already registered',
   invalidVerificationCode: 'Invalid verification code',
   required: 'This field is required.',
@@ -10,5 +11,8 @@ export const FormErrors = {
   checkbox: 'Field must be checked',
   passwordLength: '9-20 characters',
   passwordRegexCase: 'Uppercase and lowercase characters',
+  passwordDoesntMatch: 'Password doesn’t match',
   passwordRegexSpecialChar: 'At least one number and special character',
+  invalidNumber: 'Invalid number',
+  invalidCardNumber: 'Only numbers and special characters are allowed',
 } as const

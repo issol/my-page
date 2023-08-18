@@ -25,6 +25,7 @@ import { TitleTypography } from '@src/@core/styles/typography'
 import {
   ClientAddressFormType,
   ClientAddressType,
+  clientAddressAllRequiredSchema,
   clientAddressDefaultValue,
   clientAddressSchema,
 } from '@src/types/schema/client-address.schema'
@@ -89,7 +90,7 @@ export default function ClientAddresses({
   } = useForm<ClientAddressFormType>({
     defaultValues: clientAddressDefaultValue,
     mode: 'onChange',
-    resolver: yupResolver(clientAddressSchema),
+    resolver: yupResolver(clientAddressAllRequiredSchema),
   })
 
   const { fields, append, remove, update } = useFieldArray({
@@ -157,7 +158,7 @@ export default function ClientAddresses({
         return item
       })
       updateClientAddressMutation.mutate({ data: finalForm })
-      console.log(finalForm)
+      // console.log(finalForm)
     }
   }
 
@@ -183,9 +184,7 @@ export default function ClientAddresses({
         {filteredAddress()?.length
           ? filteredAddress()?.map((item, idx) => {
               const chipName =
-                item.addressType === 'shipping'
-                  ? 'Shipping address'
-                  : item.name
+                item.addressType === 'shipping' ? 'Shipping address' : item.name
               return (
                 <Box key={idx}>
                   <Divider style={{ marginBottom: '24px' }} />
@@ -254,6 +253,8 @@ export default function ClientAddresses({
               update={update}
               errors={errors}
               isValid={isValid}
+              getValues={getValues}
+              type={'all-required'}
             />
             <Grid item xs={12}>
               <Divider />

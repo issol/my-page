@@ -65,6 +65,8 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
+import { convertDateToLocalTimezoneISOString, convertLocalTimezoneToUTC } from '@src/shared/helpers/date.helper'
+import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/timezone.helper'
 
 export default function AddNewRequest() {
   const router = useRouter()
@@ -185,6 +187,16 @@ export default function AddNewRequest() {
 
   function mutateData() {
     const data: RequestFormType = getValues()
+    const dateFixedItem = data.items.map(item => {
+      // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
+      const newDesiredDueDate = () => {
+        const convertISOString = convertDateToLocalTimezoneISOString(new Date(item.desiredDueDate))
+        if (convertISOString) return changeTimezoneFromLocalTimezoneISOString(convertISOString, item.desiredDueTimezone.code)
+        return item.desiredDueDate
+      } 
+      return {...item, desiredDueDate:newDesiredDueDate()}
+    })
+    const calData = {...data, items:dateFixedItem}
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
@@ -204,8 +216,8 @@ export default function AddNewRequest() {
       })
       Promise.all(promiseArr)
         .then(res => {
-          data.sampleFiles = fileInfo
-          createMutation.mutate(data)
+          calData.sampleFiles = fileInfo
+          createMutation.mutate(calData)
         })
         .catch(err => {
           toast.error(
@@ -216,7 +228,7 @@ export default function AddNewRequest() {
           )
         })
     } else {
-      createMutation.mutate(data)
+      createMutation.mutate(calData)
     }
   }
   function onRequest() {
@@ -427,7 +439,7 @@ export default function AddNewRequest() {
                       multiline
                       fullWidth
                       error={Boolean(errors.notes)}
-                      label='Write down a note'
+                      placeholder='Write down a note'
                       value={value ?? ''}
                       onChange={onChange}
                       inputProps={{ maxLength: 500 }}

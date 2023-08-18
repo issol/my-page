@@ -1,22 +1,22 @@
 import { Icon } from '@iconify/react'
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
   CardHeader,
   FormControl,
   IconButton,
-  InputLabel,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
   TextField,
   Typography,
 } from '@mui/material'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { TaxInfoType } from '@src/apis/payment-info.api'
+import {
+  TaxResidentInfoType,
+  updateProTaxInfo,
+} from '@src/apis/payment-info.api'
 import useModal from '@src/hooks/useModal'
-import { TaxInfo } from '@src/shared/const/tax/tax-info'
+import { TextRatePair } from '@src/shared/const/tax/tax-info'
 import {
   ChangeEvent,
   Dispatch,
@@ -24,51 +24,36 @@ import {
   useEffect,
   useState,
 } from 'react'
+import { toast } from 'react-hot-toast'
+import { useQueryClient } from 'react-query'
 import { v4 as uuidv4 } from 'uuid'
 
 type Props = {
+  proId: number
   info: {
-    taxInfo: TaxInfoType
-    taxRate: number
+    taxInfo: TaxResidentInfoType | null
+    taxRate: number | null
   }
   edit: boolean
   setEdit: Dispatch<SetStateAction<boolean>>
+  isUpdatable: boolean
 }
 
-const Tax = ({ info, edit, setEdit }: Props) => {
-  const [taxInfo, setTaxInfo] = useState<string>(info?.taxInfo ?? null)
-  const [taxRate, setTaxRate] = useState<number | null>(info?.taxRate ?? null)
+const Tax = ({ proId, info, edit, setEdit, isUpdatable }: Props) => {
+  const queryClient = useQueryClient()
+  const invalidatePaymentInfo = () =>
+    queryClient.invalidateQueries({ queryKey: 'get-payment-info' })
+
+  const [taxInfo, setTaxInfo] = useState<string>(info?.taxInfo ?? '')
+  const [taxRate, setTaxRate] = useState<number | null>(info?.taxRate)
 
   const [isTaxRateDisabled, setIsTaxRateDisabled] = useState<boolean>(false)
 
   const { openModal, closeModal } = useModal()
 
-  const handleTaxInfoChange = (e: SelectChangeEvent) => {
-    const newTaxInfo = e.target.value as string
-    switch (newTaxInfo) {
-      case 'Japan resident':
-      case 'US resident':
-      case 'Singapore resident':
-        setTaxRate(null)
-        setIsTaxRateDisabled(true)
-        break
-      case 'Korea resident':
-        setTaxRate(-3.3)
-        setIsTaxRateDisabled(false)
-        break
-      case 'Korea resident (Sole proprietorship)':
-        setTaxRate(10)
-        setIsTaxRateDisabled(false)
-        break
-    }
-    setTaxInfo(e.target.value as string)
-  }
-
   const handleChangeTaxRate = (event: ChangeEvent<HTMLInputElement>) => {
     if (event.target.value !== '') {
       const newTaxRate = Number(event.target.value)
-      console.log(newTaxRate)
-
       setTaxRate(newTaxRate)
     } else {
       setTaxRate(null)
@@ -76,8 +61,14 @@ const Tax = ({ info, edit, setEdit }: Props) => {
   }
 
   const handleSaveTax = () => {
-    // TODO API 연결
-    closeModal('TaxSaveModal')
+    updateProTaxInfo(proId, taxInfo!, taxRate!)
+      .then(() => invalidatePaymentInfo())
+      .catch(() => {
+        toast.error('Something went wrong. Please try again.', {
+          position: 'bottom-left',
+        })
+      }),
+      closeModal('TaxSaveModal')
     setEdit(false)
   }
 
@@ -131,6 +122,7 @@ const Tax = ({ info, edit, setEdit }: Props) => {
           <IconButton
             onClick={() => setEdit!(true)}
             // disabled={invoiceInfo.invoiceStatus === 'Paid'}
+            disabled={!isUpdatable}
           >
             <Icon icon='mdi:pencil-outline' />
           </IconButton>
@@ -147,23 +139,21 @@ const Tax = ({ info, edit, setEdit }: Props) => {
               }}
             >
               <FormControl fullWidth>
-                <InputLabel id='controlled-select-label'>Tax info*</InputLabel>
-                <Select
-                  value={taxInfo}
-                  label='Tax info*'
+                <Autocomplete
                   fullWidth
-                  id='controlled-select'
-                  onChange={handleTaxInfoChange}
-                  labelId='controlled-select-label'
-                >
-                  {TaxInfo.map(value => {
-                    return (
-                      <MenuItem value={value.value} key={uuidv4()}>
-                        {value.label}
-                      </MenuItem>
-                    )
-                  })}
-                </Select>
+                  onChange={(_, item) => {
+                    if (item) {
+                      setTaxInfo(item?.label)
+                      setTaxRate(item?.value)
+                    }
+                  }}
+                  value={TextRatePair.find(i => i.label === taxInfo)}
+                  options={TextRatePair}
+                  getOptionLabel={option => option.label}
+                  renderInput={params => (
+                    <TextField {...params} label='Tax info*' />
+                  )}
+                />
               </FormControl>
             </Box>
             <Box
@@ -199,7 +189,7 @@ const Tax = ({ info, edit, setEdit }: Props) => {
             <Button
               variant='outlined'
               onClick={() => {
-                setTaxInfo(info.taxInfo)
+                setTaxInfo(info.taxInfo ?? '')
                 setTaxRate(info.taxRate)
                 setEdit(false)
               }}

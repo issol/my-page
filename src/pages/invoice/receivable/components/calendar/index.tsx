@@ -27,22 +27,32 @@ import {
   InvoiceReceivableListType,
 } from '@src/types/invoice/receivable.type'
 
-import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
-
 // ** apis
 import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
+import { getCurrentRole } from '@src/shared/auth/storage'
+// import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
+import { InvoiceReceivableStatusType } from '@src/types/invoice/common.type'
 
 const CalendarContainer = () => {
-  // ** States
-  const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
-
   // ** Hooks
   const { settings } = useSettings()
+
+  const currentRole = getCurrentRole()
 
   // ** calendar values
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
+
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+
+  const statuses = statusList?.map(i => ({
+    value: i.value,
+    label: i.label,
+    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+  }))
 
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
@@ -60,6 +70,7 @@ const CalendarContainer = () => {
     month,
     filter,
   )
+
   const [event, setEvent] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
@@ -68,10 +79,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<InvoiceReceivableListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -86,8 +93,6 @@ const CalendarContainer = () => {
       setEvent([])
     }
   }, [data])
-
-  const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
 
   return (
     <Box>
@@ -110,7 +115,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={InvoiceCalenderStatus}
+          status={statuses || []}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />
@@ -175,6 +180,7 @@ const CalendarContainer = () => {
                 ? { data: currentList, totalCount: currentList?.length }
                 : { data: [], totalCount: 0 }
             }
+            role={currentRole!}
           />
         </Box>
       )}

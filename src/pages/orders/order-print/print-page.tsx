@@ -1,5 +1,5 @@
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import MakeTable, { Row } from '../order-list/detail/components/rows'
+import MakeTable from '../order-list/detail/components/rows'
 import { useEffect } from 'react'
 import {
   LanguageAndItemType,
@@ -8,7 +8,6 @@ import {
 import { useRouter } from 'next/router'
 import {
   Box,
-  Button,
   Divider,
   Table,
   TableBody,
@@ -26,8 +25,8 @@ import { getPhoneNumber } from '@src/shared/helpers/phone-number-helper'
 import { useAppDispatch } from '@src/hooks/useRedux'
 import { resetOrderLang } from '@src/store/order'
 import { useMutation } from 'react-query'
-import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
-import { patchProjectInfo } from '@src/apis/order-detail.api'
+
+import { patchOrderProjectInfo } from '@src/apis/order-detail.api'
 
 type Props = {
   data: OrderDownloadData
@@ -42,7 +41,7 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
 
   const patchProjectInfoMutation = useMutation(
     (data: { id: number; form: { downloadedAt: string } }) =>
-      patchProjectInfo(data.id, data.form),
+      patchOrderProjectInfo(data.id, data.form),
     {},
   )
   useEffect(() => {
@@ -383,29 +382,47 @@ const PrintOrderPage = ({ data, type, user, lang }: Props) => {
             </TableHead>
 
             <MakeTable rows={data.langItem.items} />
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'flex-end',
-                gap: '50px',
-                paddingRight: '10%',
-                mt: '10px',
-              }}
-              className='total-price'
-            >
-              <Typography
-                variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
-              >
-                Total:
-              </Typography>
-              <Typography
-                variant='subtitle1'
-                sx={{ fontWeight: 600, color: '#666CFF', fontSize: '14px' }}
-              >
-                {formatCurrency(calculateTotalPriceRows(data.langItem), 'USD')}
-              </Typography>
-            </Box>
+            <TableBody>
+              <TableRow>
+                <TableCell colSpan={4} align='right' style={{ border: 'none' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      justifyContent: 'flex-end',
+                      gap: '50px',
+                      mt: '10px',
+                    }}
+                    className='total-price'
+                  >
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontWeight: 600,
+                        color: '#666CFF',
+                        fontSize: '14px',
+                      }}
+                    >
+                      Subtotal:
+                    </Typography>
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontWeight: 600,
+                        color: '#666CFF',
+                        fontSize: '14px',
+                      }}
+                    >
+                      {!data.langItem
+                        ? 0
+                        : formatCurrency(
+                            calculateTotalPriceRows(data.langItem),
+                            'USD',
+                          )}
+                    </Typography>
+                  </Box>
+                </TableCell>
+              </TableRow>
+            </TableBody>
           </Table>
         </TableContainer>
       </Box>

@@ -1,15 +1,15 @@
 import { ItemType } from '../common/item.type'
+import { OrderStatusType } from '../common/orders.type'
 import { CurrencyType } from '../common/standard-price'
 import { CountryType } from '../sign/personalInfoTypes'
-import { ProjectTeamListType } from './order-detail'
 
 export type OrderListFilterType = {
-  take: number
-  skip: number
+  take?: number
+  skip?: number
   search?: string
   ordering?: 'desc' | 'asc'
   sort?: 'corporationId' | 'projectDueDate' | 'orderDate' | 'totalPrice'
-  status?: string[]
+  status?: number[]
   client?: string[]
   category?: string[]
   serviceType?: string[]
@@ -18,9 +18,10 @@ export type OrderListFilterType = {
   projectDueDateFrom?: string
   projectDueDateTo?: string
   revenueFrom?: string[]
-  mine?: string
-  hideCompleted?: string
+  mine?: '0' | '1'
+  hideCompleted?: '0' | '1'
   ordersWithoutJobs?: number
+  lsp?: string[]
 }
 
 export type OrderListType = {
@@ -65,10 +66,3 @@ export type OrderListForJobType = {
   isItems: boolean
   items: ItemType[]
 }
-
-export type OrderStatusType =
-  | 'In preparation'
-  | 'In progress'
-  | 'Completed'
-  | 'Invoiced'
-  | 'Canceled'

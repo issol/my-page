@@ -12,6 +12,10 @@ import SelectReasonModal from '../../components/modal/select-reason-modal'
 import { UseMutationResult } from 'react-query'
 import { updateProjectInfoType } from '../[id]'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import {
+  CancelQuoteReason,
+  RequestRevisionReason,
+} from '@src/shared/const/reason/reason'
 
 type Props = {
   downloadData: QuoteDownloadData
@@ -47,7 +51,7 @@ const ClientQuote = ({
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status },
+        { status: 20800 },
         {
           onSuccess: () => {
             closeModal('AcceptQuoteModal')
@@ -55,15 +59,12 @@ const ClientQuote = ({
         },
       )
   }
-
-  const handleRequestRevision = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  console.log("downloadData",downloadData)
+  const handleRequestRevision = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, canceledReason: cancelReason },
+        { status: 20500, reason: reason },
         {
           onSuccess: () => {
             closeModal('RequestRevisionModal')
@@ -72,14 +73,11 @@ const ClientQuote = ({
       )
   }
 
-  const handleRejectQuote = (
-    status: number,
-    cancelReason: CancelReasonType,
-  ) => {
+  const handleRejectQuote = (status: number, reason: CancelReasonType) => {
     // TODO API call
     updateProject &&
       updateProject?.mutate(
-        { status: status, canceledReason: cancelReason },
+        { status: 201100, reason: reason },
         {
           onSuccess: () => {
             closeModal('RejectQuoteModal')
@@ -134,6 +132,14 @@ const ClientQuote = ({
           action={action}
           from={'client'}
           statusList={statusList}
+          type={
+            action === 'Request revision' ? 'revision-requested' : 'rejected'
+          }
+          reasonList={
+            action === 'Request revision'
+              ? RequestRevisionReason
+              : CancelQuoteReason
+          }
         />
       ),
     })
@@ -217,7 +223,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={onClickAcceptQuote}
@@ -231,7 +237,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={() => onClickAction('Request revision')}
@@ -253,7 +259,7 @@ const ClientQuote = ({
                 disabled={
                   project.status !== 'New' &&
                   project.status !== 'Under review' &&
-                  project.status !== 'Rejected' &&
+                  project.status !== 'Revised' &&
                   project.status !== 'Expired'
                 }
                 onClick={() => onClickAction('Rejected')}

@@ -29,7 +29,7 @@ export type CustomRadioBasicData = {
 )
 export type CustomRadioBasicProps = {
   name: string
-  selected: string
+  selected: string | null
   color?: ThemeColor
   gridProps: GridProps
   data: CustomRadioBasicData

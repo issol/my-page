@@ -75,7 +75,7 @@ export default function CancelRequestModal({ onClose, onClick }: Props) {
           rows={4}
           multiline
           fullWidth
-          label='Write down a reason for canceling this request.'
+          placeholder='Write down a reason for canceling this request.'
           value={reason}
           onChange={e => {
             setReason(e.target.value)

@@ -20,7 +20,7 @@ type Props = {
 const Calendar = (props: Props) => {
   // ** Props
   const { event, setYear, setMonth, direction, setCurrentListId } = props
-  console.log(event)
+  // console.log(event)
 
   const finalEvent = event.map(item => {
     return {
@@ -56,8 +56,6 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      console.log(event.id)
-
       setCurrentListId(Number(event?.id))
     },
   }
@@ -65,7 +63,7 @@ const Calendar = (props: Props) => {
   async function handleMonthChange(payload: DatesSetArg) {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
-    const currMonth = currDate.getMonth()
+    const currMonth = currDate.getMonth() + 1
     setYear(currYear)
     setMonth(currMonth)
   }

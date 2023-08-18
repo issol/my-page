@@ -201,7 +201,7 @@ const ClientInvoiceList = ({
                         }}
                         size='small'
                       >
-                        <Box>Invoiced date</Box>
+                        <Box>Invoice date</Box>
                       </TableCell>
                       {separateLine()}
 
@@ -243,7 +243,7 @@ const ClientInvoiceList = ({
                     </TableRow>
                   </TableHead>
                   <TableBody>
-                    {list.length ? (
+                    {list?.length ? (
                       list?.map(row => (
                         <ClientInvoicesRows
                           key={uuidv4()}
@@ -401,7 +401,7 @@ const ClientInvoiceList = ({
                     }}
                     size='small'
                   >
-                    <Box>Invoiced date</Box>
+                    <Box>Invoice date</Box>
                   </TableCell>
                   {separateLine()}
 

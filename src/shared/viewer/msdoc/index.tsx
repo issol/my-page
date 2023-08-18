@@ -6,7 +6,7 @@ import styled from 'styled-components'
 const MSDocRenderer: DocRenderer = ({ mainState: { currentDocument } }) => {
   if (!currentDocument) return null
 
-  console.log(encodeURIComponent(currentDocument.uri))
+  // console.log(encodeURIComponent(currentDocument.uri))
 
   return (
     <Container id='msdoc-renderer'>

@@ -273,6 +273,8 @@ export default function QuotesList({
           [`& .${gridClasses.row}.disabled`]: {
             opacity: 0.5,
             cursor: 'not-allowed',
+            borderBottom: '1px solid rgba(76, 78, 100, 0.12)',
+            // backgroundColor: 'rgba(0, 0, 0, 0.1)',
           },
         }}
         columns={columns}

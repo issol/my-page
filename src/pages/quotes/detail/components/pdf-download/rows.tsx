@@ -1,7 +1,8 @@
 import { Box, TableRow, Typography } from '@mui/material'
 import languageHelper from '@src/shared/helpers/language.helper'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
+import { useEffect, useState } from 'react'
 import { v4 as uuidv4 } from 'uuid'
 
 interface Detail {
@@ -22,17 +23,55 @@ export interface Row {
   priceId?: number
   totalPrice?: number
 }
+type Props = {
+  rows: ItemType[]
+  currency: 'USD' | 'KRW' | 'SGD' | 'JPY'
+}
 
-export default function MakeTable({ rows }: { rows: ItemType[] }) {
-  function calculateTotalPrice(row: ItemType[]): number {
+export default function MakeTable({ 
+  rows, 
+  currency 
+}: Props) {
+  const [newRows, setNewRows] = useState(rows)
+
+  function calculatePrice(row: ItemDetailType[]): number {
     return row.reduce((total, item) => {
-      return total + item.totalPrice
+      return total + Number(item.prices)
     }, 0)
   }
+  // minimumPrice 정보가 없으므로 Row의 totalPrice와 Row.detail의 prices의 합이 다르면 minimumPrice가 적용된 것으로 간주한다.
+  const setMinimumPriceRow = () => {
+    const dummyRow = JSON.parse(JSON.stringify(rows));
+    rows.map((row, idx) => {
+      if(row.detail) {
+        const calPrice = calculatePrice(row.detail)
+        if (calPrice !== row.totalPrice) {
+          const addRow = {
+            createdAt: null,
+            currency: row.detail[0]?.currency,
+            deletedAt: null,
+            id: 999999,
+            priceUnit: 'Minimum price per item',
+            priceUnitId: 999999,
+            prices: row.totalPrice,
+            quantity: 1,
+            unit: 'Minimum price',
+            unitPrice: row.totalPrice,
+            updatedAt: null,
+          }
+          dummyRow[idx].detail?.push(addRow)
+          setNewRows(dummyRow)
+        }
+      }
+    })  
+  }
+  useEffect(() => {
+    setMinimumPriceRow()
+  }, [rows])
 
   return (
     <tbody className='table-body'>
-      {rows.map(row => (
+      {newRows.map(row => (
         <Box className='table-item' key={uuidv4()}>
           {row?.detail?.map((value, index) => {
             return (
@@ -87,9 +126,9 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   </td>
                   <td className='table-row-divider'></td>
                   <td className='table-row-third'>
-                    <div className='center-box'>
+                    <div className='flex-start-box'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(value.unitPrice, 'USD')}
+                        {formatCurrency(value.unitPrice, currency || 'USD')}
                       </h6>
                     </div>
                   </td>
@@ -97,7 +136,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                   <td className='table-row-fourth'>
                     <div className='table-row-fourth-content'>
                       <h6 className='subtitle2'>
-                        {formatCurrency(row.totalPrice, 'USD')}
+                        {formatCurrency(value.prices, currency || 'USD')}
                       </h6>
                     </div>
                   </td>
@@ -113,7 +152,7 @@ export default function MakeTable({ rows }: { rows: ItemType[] }) {
                     <td className='table-row-fourth'>
                       <div className='table-row-fourth-content'>
                         <h6 className='primary-subtitle'>
-                          {formatCurrency(calculateTotalPrice(rows), 'USD')}
+                          {formatCurrency(row.totalPrice, currency || 'USD')}
                         </h6>
                       </div>
                     </td>

@@ -14,7 +14,13 @@ import { promises as fs } from 'fs'
 import { dirname } from 'path'
 
 // Installation: npm install --save-dev @iconify/tools @iconify/utils @iconify/json @iconify/iconify
-import { importDirectory, cleanupSVG, parseColors, isEmptyColor, runSVGO } from '@iconify/tools'
+import {
+  importDirectory,
+  cleanupSVG,
+  parseColors,
+  isEmptyColor,
+  runSVGO,
+} from '@iconify/tools'
 import { getIcons, stringToIcon, minifyIconSet } from '@iconify/utils'
 import type { IconifyJSON, IconifyMetaData } from '@iconify/types'
 
@@ -62,7 +68,7 @@ const sources: BundleScriptConfig = {
 
     // Custom file with only few icons
 
-/* 
+    /* 
      {
       filename: require.resolve('@iconify/json/json/line-md.json'),
       icons: ['home-twotone-alt', 'github', 'document-list', 'document-code', 'image-twotone']
@@ -73,8 +79,7 @@ const sources: BundleScriptConfig = {
     // 'json/gg.json'
   ],
 
-
-/* 
+  /* 
    icons: [
     'bx:basket',
     'bi:airplane-engines',
@@ -89,15 +94,15 @@ const sources: BundleScriptConfig = {
     {
       dir: 'src/iconify-bundle/svg',
       monotone: false,
-      prefix: 'custom'
-    }
+      prefix: 'custom',
+    },
 
     /* {
       dir: 'src/iconify-bundle/emojis',
       monotone: false,
       prefix: 'emoji'
     } */
-  ]
+  ],
 }
 
 // Iconify component (this changes import statement in generated file)
@@ -122,7 +127,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
   const dir = dirname(target)
   try {
     await fs.mkdir(dir, {
-      recursive: true
+      recursive: true,
     })
   } catch (err) {
     //
@@ -140,7 +145,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
       const filename = require.resolve(`@iconify/json/json/${prefix}.json`)
       sourcesJSON.push({
         filename,
-        icons: organizedList[prefix]
+        icons: organizedList[prefix],
       })
     }
   }
@@ -154,7 +159,9 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
 
       // Load icon set
       const filename = typeof item === 'string' ? item : item.filename
-      let content = JSON.parse(await fs.readFile(filename, 'utf8')) as IconifyJSON
+      let content = JSON.parse(
+        await fs.readFile(filename, 'utf8'),
+      ) as IconifyJSON
 
       // Filter icons
       if (typeof item !== 'string' && item.icons?.length) {
@@ -169,7 +176,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
       removeMetaData(content)
       minifyIconSet(content)
       bundle += 'addCollection(' + JSON.stringify(content) + ');\n'
-      console.log(`Bundled icons from ${filename}`)
+      // console.log(`Bundled icons from ${filename}`)
     }
   }
 
@@ -182,7 +189,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
 
       // Import icons
       const iconSet = await importDirectory(source.dir, {
-        prefix: source.prefix
+        prefix: source.prefix,
       })
 
       // Validate, clean up, fix palette and optimise
@@ -212,7 +219,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
               defaultColor: 'currentColor',
               callback: (attr, colorStr, color) => {
                 return !color || isEmptyColor(color) ? colorStr : 'currentColor'
-              }
+              },
             })
           }
 
@@ -229,7 +236,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
         // Update icon from SVG instance
         iconSet.fromSVG(name, svg)
       })
-      console.log(`Bundled ${iconSet.count()} icons from ${source.dir}`)
+      // console.log(`Bundled ${iconSet.count()} icons from ${source.dir}`)
 
       // Export to JSON
       const content = iconSet.export()
@@ -240,7 +247,7 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
   // Save to file
   await fs.writeFile(target, bundle, 'utf8')
 
-  console.log(`Saved ${target} (${bundle.length} bytes)`)
+  // console.log(`Saved ${target} (${bundle.length} bytes)`)
 })().catch(err => {
   console.error(err)
 })
@@ -249,7 +256,14 @@ const target = 'src/iconify-bundle/icons-bundle-react.js'
  * Remove metadata from icon set
  */
 function removeMetaData(iconSet: IconifyJSON) {
-  const props: (keyof IconifyMetaData)[] = ['info', 'chars', 'categories', 'themes', 'prefixes', 'suffixes']
+  const props: (keyof IconifyMetaData)[] = [
+    'info',
+    'chars',
+    'categories',
+    'themes',
+    'prefixes',
+    'suffixes',
+  ]
   props.forEach(prop => {
     delete iconSet[prop]
   })

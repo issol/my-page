@@ -120,11 +120,11 @@ export default function Onboarding() {
       order: 'desc',
     }
 
-    console.log(filter)
+    // console.log(filter)
 
     setFilters(filter)
 
-    console.log(data)
+    // console.log(data)
   }
 
   const handleFilterStateChange =
@@ -229,11 +229,11 @@ export default function Onboarding() {
 
         // 필터에 Source, Target, jobType, role, testStatus가 있는 경우 매칭되는 jobInfo를 jobInfo의 0번째 인덱스로 이동시킴
         // 리스트에서 Job type/Role, Language Pair, Test status를 볼수있게 처리
-        const sourceFilters = filters.source || [];
-        const targetFilters = filters.target || [];
-        const jobTypeFilters = filters.jobType || [];
-        const roleFilters = filters.role || [];
-        const testStatusFilters = filters.testStatus || [];
+        const sourceFilters = filters.source || []
+        const targetFilters = filters.target || []
+        const jobTypeFilters = filters.jobType || []
+        const roleFilters = filters.role || []
+        const testStatusFilters = filters.testStatus || []
 
         row.jobInfo.some((value, idx) => {
           const source = value.source || ''
@@ -246,17 +246,18 @@ export default function Onboarding() {
             (targetFilters.length === 0 || targetFilters.includes(target)) &&
             (jobTypeFilters.length === 0 || jobTypeFilters.includes(jobType)) &&
             (roleFilters.length === 0 || roleFilters.includes(role)) &&
-            (testStatusFilters.length === 0 || testStatusFilters.includes(testStatus))
+            (testStatusFilters.length === 0 ||
+              testStatusFilters.includes(testStatus))
           ) {
-            const dummy = row.jobInfo[idx];
+            const dummy = row.jobInfo[idx]
             for (let i = idx; i > 0; i--) {
-              row.jobInfo[i] = row.jobInfo[i - 1];
+              row.jobInfo[i] = row.jobInfo[i - 1]
             }
-            row.jobInfo[0] = dummy;
-            return true;
+            row.jobInfo[0] = dummy
+            return true
           }
-          return false;
-        });
+          return false
+        })
         const jobInfo = row.jobInfo.map(value => ({
           jobType: value.jobType,
           role: value.role,

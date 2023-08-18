@@ -63,6 +63,7 @@ type Props = {
   isUpdatable: boolean
   isDeletable: boolean
   isCreatable: boolean
+  isSigned: boolean
 }
 
 export default function ContactPersons({
@@ -71,6 +72,7 @@ export default function ContactPersons({
   isUpdatable,
   isDeletable,
   isCreatable,
+  isSigned,
 }: Props) {
   const { contactPersons } = clientInfo
 
@@ -328,6 +330,7 @@ export default function ContactPersons({
         fields={contactPersons || []}
         columns={columns}
         isUpdatable={isUpdatable}
+        isSigned={isSigned}
         pageSize={pageSize}
         setPageSize={setPageSize}
         openForm={openCreateContactPersonForm}

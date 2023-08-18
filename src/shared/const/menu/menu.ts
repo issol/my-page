@@ -4,6 +4,7 @@ export const TADMenu = [
   'Certification Test',
   'Pros',
   'Company',
+  'My page',
 ]
 
 export const LPMMenu = [
@@ -16,6 +17,6 @@ export const LPMMenu = [
   'Requests',
 ]
 
-export const PROMenu = [
-  'temp'
-]
+export const PROMenu = ['My page']
+
+export const CLIENTMenu = ['Quotes']

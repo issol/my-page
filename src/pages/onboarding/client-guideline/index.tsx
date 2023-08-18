@@ -28,8 +28,7 @@ export type FilterType = {
   client?: Array<string>
   category?: Array<string>
   serviceType?: Array<string>
-  title?: string
-  content?: string
+  search?: string
   skip: number
   take: number
 }
@@ -38,8 +37,7 @@ export const initialFilter: FilterType = {
   client: [],
   category: [],
   serviceType: [],
-  title: '',
-  content: '',
+  search: '',
   skip: 0,
   take: 10,
 }

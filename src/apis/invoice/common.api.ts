@@ -5,7 +5,9 @@ export const getInvoiceStatusList = async (): Promise<
   Array<{ id: number; statusName: string }>
 > => {
   try {
-    const { data } = await axios.get(`/api/enough/u/invoice/status/list`)
+    const { data } = await axios.get(
+      `/api/enough/u/invoice-receivable/status/list`,
+    )
     return data.data
   } catch (e: any) {
     return []

@@ -29,7 +29,7 @@ import { updateRequest } from '@src/apis/requests/client-request.api'
 
 // ** hooks
 import { useRouter } from 'next/router'
-import { MouseEvent, useContext, useMemo, useState } from 'react'
+import { MouseEvent, useContext, useEffect, useMemo, useState } from 'react'
 import useModal from '@src/hooks/useModal'
 import { useMutation, useQueryClient } from 'react-query'
 
@@ -45,6 +45,7 @@ import { lpm_request } from '@src/shared/const/permission-class'
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { AuthContext } from '@src/context/AuthContext'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 // ** types
 import { RequestDetailType } from '@src/types/requests/detail.type'
@@ -52,6 +53,8 @@ import { FileType } from '@src/types/common/file.type'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
+import { BookOnline } from '@mui/icons-material'
+import { getStaleDuration, hasObjValues } from '@src/shared/helpers/data.helper'
 
 export default function RequestDetail() {
   const router = useRouter()
@@ -63,6 +66,7 @@ export default function RequestDetail() {
 
   const ability = useContext(AbilityContext)
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
 
   const User = new lpm_request(user?.id!)
 
@@ -81,7 +85,16 @@ export default function RequestDetail() {
     setAnchorEl(null)
   }
 
-  const { data } = useGetClientRequestDetail(Number(id))
+  const { data, dataUpdatedAt } = useGetClientRequestDetail(Number(id))
+
+  // 변경된 linkedQuote, linkedOrder 정보를 캐시로 인해 못가져오는 케이스가 있어 컴포넌트 전역에 refetch를 추가함
+  // 데이터가 패칭된지 2초 ~ 60초 사이일 경우에만 refetch 처리를 하고 그 외에는 컴포넌트 로딩시 리엑트 쿼리가 데이터를 가져오도록 함
+  useEffect(() => {
+    const staleDuration = getStaleDuration(dataUpdatedAt)
+    if (staleDuration < 60 * 1000 && staleDuration > 2000) {
+      queryClient.invalidateQueries({ queryKey: 'request/client/detail' })
+    }
+  }, [])
 
   const fileSize = useMemo(() => {
     if (data?.sampleFiles) {
@@ -149,9 +162,8 @@ export default function RequestDetail() {
     }) => updateRequest(id, form),
     {
       onSuccess: () => {
-        return queryClient.invalidateQueries({
-          queryKey: 'request/client/detail',
-        })
+        queryClient.invalidateQueries({ queryKey: 'request/client/detail' })
+        queryClient.invalidateQueries({ queryKey: 'request/client/list' })
       },
       onError: () => onError(),
     },
@@ -177,7 +189,7 @@ export default function RequestDetail() {
             }
             closeModal('statusChange')
           }}
-          vary='error'
+          vary='successful'
           rightButtonText='Change'
         />
       ),
@@ -262,7 +274,7 @@ export default function RequestDetail() {
                 })
                 closeModal('requestNextStep')
               }}
-              vary='error'
+              vary='successful'
               rightButtonText='Request'
             />
           ),
@@ -283,7 +295,7 @@ export default function RequestDetail() {
                 })
                 closeModal('requestNextStep')
               }}
-              vary='error'
+              vary='successful'
               rightButtonText='Request'
             />
           ),
@@ -304,7 +316,7 @@ export default function RequestDetail() {
         >
           <Box display='flex' alignItems='center' gap='8px'>
             <Box display='flex' alignItems='center' gap='8px'>
-              <IconButton onClick={() => router.back()}>
+              <IconButton onClick={() => router.push('/quotes/lpm/requests/')}>
                 <Icon icon='material-symbols:arrow-back-ios-new-rounded' />
               </IconButton>
               <img
@@ -314,7 +326,7 @@ export default function RequestDetail() {
               />
               <Typography variant='h6'>{data?.corporationId}</Typography>
             </Box>
-            {!data?.linkedQuote || data?.linkedOrder ? (
+            {data?.linkedQuote || data?.linkedOrder ? (
               <div>
                 <IconButton
                   aria-label='more'
@@ -339,9 +351,9 @@ export default function RequestDetail() {
                     <MenuItem onClick={handleClose}>
                       <StyledNextLink
                         href={`/quotes/detail/${data?.linkedQuote.id}`}
-                        color='black'
+                        color='secondary'
                       >
-                        Linked quote : {data?.linkedQuote.corporationId}
+                        Linked quote : <u>{data?.linkedQuote.corporationId}</u>
                       </StyledNextLink>
                     </MenuItem>
                   )}
@@ -351,7 +363,7 @@ export default function RequestDetail() {
                         href={`/quotes/detail/${data?.linkedOrder.id}`}
                         color='black'
                       >
-                        Linked order : {data?.linkedOrder.corporationId}
+                        Linked order : <u>{data?.linkedOrder.corporationId}</u>
                       </StyledNextLink>
                     </MenuItem>
                   )}
@@ -365,7 +377,8 @@ export default function RequestDetail() {
               onClick={() => createNextStep('quote')}
               disabled={
                 data?.status === 'Changed into quote' ||
-                data?.status === 'Canceled'
+                data?.status === 'Canceled' ||
+                hasObjValues(data?.linkedQuote)
               }
             >
               Create quote
@@ -375,7 +388,8 @@ export default function RequestDetail() {
               onClick={() => createNextStep('order')}
               disabled={
                 data?.status === 'Changed into order' ||
-                data?.status === 'Canceled'
+                data?.status === 'Canceled' ||
+                hasObjValues(data?.linkedOrder)
               }
             >
               Create order
@@ -387,6 +401,8 @@ export default function RequestDetail() {
         <Card sx={{ padding: '24px' }}>
           <RequestDetailCard
             data={data}
+            user={user}
+            currentRole={currentRole}
             openReasonModal={openReasonModal}
             onStatusChange={onStatusChange}
           />
@@ -422,8 +438,7 @@ export default function RequestDetail() {
                     Sample files
                   </Typography>
                   <Typography variant='body2'>
-                    {formatFileSize(fileSize)}
-                    / {byteToGB(MAXIMUM_FILE_SIZE)}
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 {!data?.sampleFiles?.length ? (
@@ -502,6 +517,6 @@ const ItemBox = styled(Box)`
 `
 
 RequestDetail.acl = {
-  subject: 'client_request',
+  subject: 'lpm_request',
   action: 'read',
 }

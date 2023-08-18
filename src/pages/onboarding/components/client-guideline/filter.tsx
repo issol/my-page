@@ -20,12 +20,13 @@ import { Box } from '@mui/system'
 import Icon from 'src/@core/components/icon'
 
 // **values
-import { ClientListIncludeGloz } from 'src/shared/const/client/clients'
 import { ServiceTypeList } from 'src/shared/const/service-type/service-types'
 import { CategoryList } from '@src/shared/const/category/categories'
 
 // ** types
 import { ConstType, FilterType } from '../../client-guideline'
+import { useGetClientList } from '@src/queries/client.query'
+import { useMemo } from 'react'
 
 type Props = {
   filter: FilterType
@@ -42,6 +43,12 @@ export default function Filters({
   onReset,
   serviceType,
 }: Props) {
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
+
   function filterValue(
     option: any,
     keyName: keyof Omit<FilterType, 'skip' | 'take'>,
@@ -76,11 +83,11 @@ export default function Filters({
                   fullWidth
                   multiple
                   disableCloseOnSelect
-                  value={filterValue(ClientListIncludeGloz, 'client')}
+                  value={filterValue(clientList, 'client')}
                   onChange={(e, v) =>
                     setFilter({ ...filter, client: v.map(item => item.value) })
                   }
-                  options={ClientListIncludeGloz}
+                  options={clientList}
                   // filterSelectedOptions
                   id='client'
                   getOptionLabel={option => option.label}
@@ -178,12 +185,11 @@ export default function Filters({
                 </InputLabel>
                 <OutlinedInput
                   label='Search client guidelines'
-                  value={filter.content}
+                  value={filter.search}
                   onChange={e =>
                     setFilter({
                       ...filter,
-                      content: e.target.value,
-                      title: e.target.value,
+                      search: e.target.value,
                     })
                   }
                   endAdornment={

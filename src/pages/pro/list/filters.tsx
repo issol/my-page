@@ -19,7 +19,13 @@ import { OnboardingListRolePair } from 'src/shared/const/role/roles'
 import { ProStatus, TestStatus } from 'src/shared/const/status/statuses'
 import { ExperiencedYearsForFilter } from 'src/shared/const/experienced-years'
 
-import { useState, Dispatch, SetStateAction, SyntheticEvent } from 'react'
+import {
+  useState,
+  Dispatch,
+  SetStateAction,
+  SyntheticEvent,
+  useMemo,
+} from 'react'
 import _ from 'lodash'
 
 import InputAdornment from '@mui/material/InputAdornment'
@@ -31,7 +37,7 @@ import { GloLanguageEnum } from '@glocalize-inc/glo-languages'
 import Accordion from '@mui/material/Accordion'
 import AccordionSummary from '@mui/material/AccordionSummary'
 import { ProFilterType } from '@src/types/pro/list'
-import { ClientList } from '@src/shared/const/client/clients'
+import { useGetClientList } from '@src/queries/client.query'
 
 export type CardProps = {
   dropdownClose: boolean
@@ -103,6 +109,12 @@ export default function ProListFilters({
   const onFocusSearchInput = () => {
     setOnFocused(true)
   }
+
+  const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })
+  const clientList = useMemo(
+    () => clientData?.data?.map(i => ({ label: i.name, value: i.name })) || [],
+    [clientData],
+  )
 
   return (
     <>
@@ -200,7 +212,7 @@ export default function ProListFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={ClientList}
+                          options={clientList}
                           id='clients'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
@@ -238,8 +250,7 @@ export default function ProListFilters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setSourceMultiple(true)
                               else setSourceMultiple(false)
                             }
@@ -288,8 +299,7 @@ export default function ProListFilters({
                                 item[0] = item[1]
                                 item.splice(1)
                               }
-                            }
-                            else {
+                            } else {
                               if (item.length > 1) setTargetMultiple(true)
                               else setTargetMultiple(false)
                             }
@@ -345,7 +355,7 @@ export default function ProListFilters({
                               }[] = []
                               item.map((data, idx) => {
                                 const jobTypeValue = data?.value
-                                console.log(jobTypeValue)
+                                // console.log(jobTypeValue)
 
                                 /* @ts-ignore */
                                 const res = OnboardingListRolePair.filter(
@@ -412,7 +422,7 @@ export default function ProListFilters({
                                 label: string
                                 value: string
                               }[] = []
-                              console.log(item)
+                              // console.log(item)
 
                               item.map((data, idx) => {
                                 data.jobType.map(value => {

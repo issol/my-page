@@ -24,6 +24,7 @@ export type RequestDetailType = {
   canceledReason?: CancelReasonType
   linkedQuote?: LinkedInfoType
   linkedOrder?: LinkedInfoType
+  showDescription?: boolean
 }
 
 export type LinkedInfoType = {
@@ -34,4 +35,5 @@ export type CancelReasonType = {
   from: 'client' | 'lsp'
   reason: string
   message: string
+  type?: string
 }

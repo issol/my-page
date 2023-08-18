@@ -22,6 +22,7 @@ import {
   UseFieldArrayAppend,
   UseFieldArrayRemove,
   UseFieldArrayUpdate,
+  UseFormGetValues,
   UseFormSetValue,
   UseFormWatch,
 } from 'react-hook-form'
@@ -63,6 +64,7 @@ type Props = {
 
   // ** addresses
   addressControl: Control<ClientAddressFormType, any>
+  getAddress: UseFormGetValues<ClientAddressFormType>
   addresses: FieldArrayWithId<ClientAddressFormType, 'clientAddresses', 'id'>[]
   appendAddress: UseFieldArrayAppend<ClientAddressFormType, 'clientAddresses'>
   removeAddress: UseFieldArrayRemove
@@ -89,6 +91,7 @@ export default function AddNewClientModal({
   appendContactPerson,
   removeContactPersons,
   addressControl,
+  getAddress,
   addresses,
   appendAddress,
   removeAddress,
@@ -155,17 +158,19 @@ export default function AddNewClientModal({
               errors={contactPersonErrors}
               watch={watchContactPerson}
             />
-
-            <Grid item xs={12}>
-              <Button
-                onClick={appendContactPerson}
-                variant='contained'
-                disabled={!isCompanyInfoValid || contactPersons.length >= 1}
-                sx={{ p: 0.7, minWidth: 26 }}
-              >
-                <Icon icon='material-symbols:add' />
-              </Button>
-            </Grid>
+            {contactPersons.length < 1
+              ? (<Grid item xs={12}>
+                  <Button
+                    onClick={appendContactPerson}
+                    variant='contained'
+                    disabled={!isCompanyInfoValid || contactPersons.length >= 1}
+                    sx={{ p: 0.7, minWidth: 26 }}
+                  >
+                    <Icon icon='material-symbols:add' />
+                  </Button>
+                </Grid>)
+              : null
+            }
             <Grid item xs={12}>
               <Divider />
             </Grid>
@@ -192,6 +197,7 @@ export default function AddNewClientModal({
             update={updateAddress}
             errors={addressErrors}
             isValid={isAddressValid}
+            getValues={getAddress}
           />
           <Grid item xs={12} display='flex' justifyContent='space-between'>
             <Button variant='outlined' color='secondary' onClick={handleBack}>

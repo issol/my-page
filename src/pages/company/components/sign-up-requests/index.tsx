@@ -8,6 +8,7 @@ import RenderChips from 'src/pages/company/components/sign-up-requests/render-ch
 import Button from '@mui/material/Button'
 import { Dispatch, SetStateAction } from 'react'
 import RenderRoleChips from 'src/pages/company/components/sign-up-requests/render-chips'
+import { getCurrentRole } from '@src/shared/auth/storage'
 
 type Props = {
   data: SignUpRequestsType[]
@@ -50,6 +51,7 @@ const SignUpRequests = ({
   handleApproveSignUpRequest,
   checkPermission,
 }: Props) => {
+  const isClient = getCurrentRole()?.name === 'CLIENT'
   const columns: GridColDef[] = [
     {
       flex: 0.1,
@@ -84,6 +86,7 @@ const SignUpRequests = ({
       filterable: false,
       sortable: false,
       disableColumnMenu: true,
+      hide: isClient,
       renderCell: ({ row }: CellType) => {
         return (
           <Typography noWrap variant='body2'>
@@ -156,9 +159,13 @@ const SignUpRequests = ({
     <>
       <Card>
         <CardHeader
-          title={` Sign up requests (${data.length})`}
+          title={
+            isClient
+              ? `Registration requests (${data.length})`
+              : `Sign up requests (${data.length})`
+          }
           sx={{ pb: 4, '& .MuiCardHeader-title': { letterSpacing: '.15px' } }}
-        ></CardHeader>
+        />
         <Box
           sx={{
             maxHeight: 310,

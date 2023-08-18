@@ -5,6 +5,7 @@ import {
   JobInfoType,
   PronounceType,
 } from 'src/types/sign/personalInfoTypes'
+import { ClientAddressType } from '@src/types/schema/client-address.schema'
 
 export type RoleType = 'CLIENT' | 'PRO' | 'LPM' | 'TAD'
 export type UserType = 'Master' | 'Manager' | 'General'
@@ -31,14 +32,13 @@ export type RegisterParams = {
 
 export type UserDataType = {
   id: number
-  // role: Array<RoleType>
   email: string
-  // permission: Array<string>
   company?: string
   country?: string
   firstName?: string
   lastName?: string
   username?: string
+  userCorporationId?: string
   //⬇️ extraData
   middleName?: string
   legalNamePronunciation?: string
@@ -57,6 +57,9 @@ export type UserDataType = {
   fax?: string
   userId: number
   department?: string
+  dateOfBirth?: string
+  address: ClientAddressType<number>
+  fromSNS?: null | 'GOOGLE'
 }
 
 export type LoginSuccessResponse = {
@@ -71,7 +74,8 @@ export type AuthValuesType = {
   loading: boolean
   logout: () => void
   user: UserDataType | null
-  updateUserInfo: (response: loginResType) => void
+  company: ClientUserType | null | undefined
+  updateUserInfo: (response: loginResType) => Promise<void>
   setLoading: (value: boolean) => void
   setUser: Nullable<Dispatch<SetStateAction<UserDataType | null>>>
   login: (params: LoginParams, errorCallback?: ErrCallbackType) => void
@@ -83,3 +87,42 @@ export type PermissionObjectType = Array<{
   can: 'create' | 'read' | 'update' | 'delete'
   option?: { [key: string]: any }
 }>
+
+// ** CLIENT 유저가 받게 되는 유저 데이터 타입
+export type ClientClassificationType =
+  | 'individual'
+  | 'corporate'
+  | 'corporate_non_korean'
+
+export type ClientCompanyInfoType = {
+  businessClassification?: ClientClassificationType
+  name?: string //client name
+  email?: string
+  phone?: string
+  mobile?: string
+  fax?: string
+  websiteLink?: string
+  timezone?: CountryType
+  headquarter?: string
+}
+
+export type CorporateClientInfoType = {
+  registrationNumber?: string
+  representativeName?: string
+  commencementDate?: string
+}
+
+export type ClientUserType = {
+  headquarter?: string
+  clientId: number
+  corporationId: string
+  adminCompanyName: string
+  clientType: string
+  isReferred: boolean
+  status: string //!추후 number로 변경될 수 있음
+  companyId: null | string
+  isTaxable: boolean
+  tax: null | number
+  clientAddresses: ClientAddressType<number>[]
+} & ClientCompanyInfoType &
+  CorporateClientInfoType

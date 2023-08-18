@@ -2,25 +2,29 @@ import * as yup from 'yup'
 import { FormErrors } from 'src/shared/const/formErrors'
 import { CountryType } from '../sign/personalInfoTypes'
 
-export type ClientType = 'Company' | 'Mr.' | 'Ms.'
+export type ClientType = 'Company' | 'Mr' | 'Ms'
 export type CompanyInfoFormType = {
-  clientType: ClientType
-  status: string
-  name: string
-  email: string
+  clientType?: ClientType
+  status?: string
+  name?: string
+  email?: string
   phone?: string
   mobile?: string
   fax?: string
   websiteLink?: string
-  timezone: CountryType
+  timezone?: CountryType
   isTaxable?: boolean
   tax?: number | null
   memo?: string
+  headquarter?: string
+  businessRegistrationNumber?: string
+  nameOfRepresentative?: string
+  businessCommencementDate?: string
 }
 export const companyInfoSchema = yup.object().shape({
   clientType: yup
     .string()
-    .oneOf(['Company', 'Mr.', 'Ms.'])
+    .oneOf(['Company', 'Mr', 'Ms'])
     .required(FormErrors.required),
   status: yup.string().required(FormErrors.required),
   name: yup.string().required(FormErrors.required),
@@ -31,7 +35,15 @@ export const companyInfoSchema = yup.object().shape({
   phone: yup.string().nullable(),
   mobile: yup.string().nullable(),
   fax: yup.string().nullable(),
-  websiteLink: yup.string().url(FormErrors.invalidUrl).nullable(),
+  // websiteLink: yup.string().url(FormErrors.invalidUrl).nullable(),
+  websiteLink: yup
+    .string()
+    .test('is-http-url', FormErrors.notHTTPPrefixUrl, value => {
+      if (!value) return true;  // Pass validation if value is empty
+      return value.startsWith('http://') || value.startsWith('https://');
+    })
+    .url(FormErrors.invalidUrl)
+    .nullable(),
   timezone: yup.object().shape({
     code: yup.string().required(FormErrors.required),
     label: yup.string().required(FormErrors.required),
@@ -45,6 +57,10 @@ export const companyInfoSchema = yup.object().shape({
       !isTaxable ? yup.number().nullable() : schema,
     ),
   memo: yup.string().nullable(),
+  headquarter: yup.string().nullable(),
+  businessRegistrationNumber: yup.string().nullable(),
+  nameOfRepresentative: yup.string().nullable(),
+  businessCommencementDate: yup.date().nullable(),
 })
 
 export const companyInfoDefaultValue: CompanyInfoFormType = {

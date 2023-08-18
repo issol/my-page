@@ -40,7 +40,7 @@ import {
   quotesProjectInfoDefaultValue,
   quotesProjectInfoSchema,
 } from '@src/types/schema/quotes-project-info.schema'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemType, PostItemType } from '@src/types/common/item.type'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { StandardPriceListType } from '@src/types/common/standard-price'
@@ -81,6 +81,7 @@ import {
   formatByRoundingProcedure,
   formatCurrency,
 } from '@src/shared/helpers/price.helper'
+import CustomModal from '@src/@core/components/common-modal/custom-modal'
 
 export type languageType = {
   id: number | string
@@ -113,6 +114,7 @@ export default function AddNewQuotes() {
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
+  const [isWarn, setIsWarn] = useState(true)
 
   const { openModal, closeModal } = useModal()
 
@@ -240,7 +242,7 @@ export default function AddNewQuotes() {
     reset: itemReset,
     formState: { errors: itemErrors, isValid: isItemValid },
   } = useForm<{ items: ItemType[] }>({
-    mode: 'onBlur',
+    mode: 'onChange',
     defaultValues: { items: [] },
     resolver: yupResolver(itemSchema),
   })
@@ -263,7 +265,7 @@ export default function AddNewQuotes() {
   }, [requestId])
 
   useEffect(() => {
-    console.log(languagePairs)
+    // console.log(languagePairs)
     if (languagePairs && prices) {
       const priceInfo =
         prices?.find(value => value.id === languagePairs[0]?.price?.id) ?? null
@@ -271,7 +273,6 @@ export default function AddNewQuotes() {
     }
   }, [prices, languagePairs])
 
-  //TODO: 잘 되는지 테스트 필요
   function initializeFormWithRequest() {
     if (requestId && requestData) {
       const { client } = requestData || undefined
@@ -303,6 +304,8 @@ export default function AddNewQuotes() {
         category: isCategoryNotSame ? '' : items[0].category,
         serviceType: isCategoryNotSame ? [] : items.flatMap(i => i.serviceType),
         projectDescription: requestData?.notes ?? '',
+        showDescription: requestData?.showDescription ?? false,
+        status: 20000,
       })
       const itemLangPairs =
         items?.map(i => ({
@@ -358,13 +361,13 @@ export default function AddNewQuotes() {
     }
   }
 
-  console.log(getItem())
+  // console.log(getItem())
 
-  console.log(
-    getItem().items.reduce((acc, cur) => {
-      return acc + cur.totalPrice
-    }, 0),
-  )
+  // console.log(
+  //   getItem().items.reduce((acc, cur) => {
+  //     return acc + cur.totalPrice
+  //   }, 0),
+  // )
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
@@ -400,11 +403,27 @@ export default function AddNewQuotes() {
       priceId: null,
       detail: [],
       totalPrice: 0,
-      isShowItemDescription: false,
+      showItemDescription: false,
+    })
+  }
+
+  const onClickSaveQuote = () => {
+    openModal({
+      type: 'SaveQuoteModal',
+      children: (
+        <CustomModal
+          onClick={onSubmit}
+          onClose={() => closeModal('SaveQuoteModal')}
+          title='Are you sure you want to create this quote?'
+          vary='successful'
+          rightButtonText='Save'
+        />
+      ),
     })
   }
 
   function onSubmit() {
+    setIsWarn(false)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -420,12 +439,13 @@ export default function AddNewQuotes() {
     )
     const projectInfo = {
       ...rawProjectInfo,
-      tax: !rawProjectInfo.taxable ? null : tax,
+      tax: !rawProjectInfo.isTaxable ? null : tax,
       subtotal: subTotal,
     }
-    const items = getItem().items.map(item => ({
+    const items: Array<PostItemType> = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
 
     const langs = languagePairs.map(item => {
@@ -452,6 +472,8 @@ export default function AddNewQuotes() {
       requestId: requestId ?? null,
     }
 
+    // console.log(stepOneData)
+
     createQuotesInfo(stepOneData)
       .then(res => {
         if (res.id) {
@@ -461,6 +483,7 @@ export default function AddNewQuotes() {
           ])
             .then(() => {
               router.push(`/quotes/detail/${res.id}`)
+              closeModal('SaveQuoteModal')
             })
             .catch(e => onRequestError())
         }
@@ -479,6 +502,7 @@ export default function AddNewQuotes() {
       supervisorId: undefined,
       member: [],
     }
+    // console.log(data.teams)
 
     data.teams.forEach(item => {
       if (item.type === 'supervisorId') {
@@ -491,7 +515,7 @@ export default function AddNewQuotes() {
         if (!item.id) {
           result.member = []
         } else {
-          result?.member?.push(item.id!)
+          result?.member?.push(Number(item.id!))
         }
       }
     })
@@ -502,9 +526,24 @@ export default function AddNewQuotes() {
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/quotes',
   })
+
+  const [subPrice, setSubPrice] = useState(0)
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  }, [])
 
   return (
     <Grid container spacing={6}>
@@ -560,8 +599,9 @@ export default function AddNewQuotes() {
                 setValue={setClientValue}
                 watch={clientWatch}
                 setTax={setTax}
-                setTaxable={(n: boolean) => setProjectInfo('taxable', n)}
+                setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type={requestId ? 'request' : 'quotes'}
+                formType='create'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -647,6 +687,7 @@ export default function AddNewQuotes() {
                   priceUnitsList={priceUnitsList || []}
                   itemTrigger={itemTrigger}
                   type='create'
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
               <Grid item xs={12}>
@@ -692,9 +733,10 @@ export default function AddNewQuotes() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          getItem().items.reduce((acc, cur) => {
-                            return acc + cur.totalPrice
-                          }, 0),
+                          // getItem().items.reduce((acc, cur) => {
+                          //   return acc + cur.totalPrice
+                          // }, 0),
+                          subPrice,
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency ?? 'USD',
@@ -718,10 +760,10 @@ export default function AddNewQuotes() {
               >
                 <Box display='flex' alignItems='center' gap='4px'>
                   <Checkbox
-                    checked={getProjectInfoValues().taxable}
+                    checked={getProjectInfoValues().isTaxable}
                     onChange={e => {
                       if (!e.target.checked) setTax(null)
-                      setProjectInfo('taxable', e.target.checked, {
+                      setProjectInfo('isTaxable', e.target.checked, {
                         shouldDirty: true,
                         shouldValidate: true,
                       })
@@ -733,8 +775,8 @@ export default function AddNewQuotes() {
                   <TextField
                     size='small'
                     type='number'
-                    value={!getProjectInfoValues().taxable ? '-' : tax}
-                    disabled={!getProjectInfoValues().taxable}
+                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().isTaxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
@@ -757,9 +799,9 @@ export default function AddNewQuotes() {
                 <Button
                   variant='contained'
                   disabled={
-                    !isItemValid && getProjectInfoValues('taxable') && !tax
+                    !isItemValid && getProjectInfoValues('isTaxable') && !tax
                   }
-                  onClick={onSubmit}
+                  onClick={onClickSaveQuote}
                 >
                   Save
                 </Button>

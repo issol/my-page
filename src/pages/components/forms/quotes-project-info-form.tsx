@@ -94,17 +94,15 @@ export default function ProjectInfoForm({
 
   const formattedNow = (now: Date) => {
     const minutes = now.getMinutes()
-    console.log(minutes % 30)
 
     const formattedMinutes =
       minutes % 30 === 0 ? minutes : minutes > 30 ? 0 : 30
-    console.log(formattedMinutes)
 
     const formattedHours = minutes > 30 ? now.getHours() + 1 : now.getHours()
     const formattedTime = `${formattedHours}:${formattedMinutes
       .toString()
       .padStart(2, '0')}`
-    const formattedDate = new Date()
+    const formattedDate = new Date(now)
     formattedDate.setHours(parseInt(formattedTime.split(':')[0]))
     formattedDate.setMinutes(parseInt(formattedTime.split(':')[1]))
 
@@ -440,6 +438,10 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                disableCloseOnSelect
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 options={
                   !category || !ServiceTypePair[category]
                     ? ServiceTypeList
@@ -457,6 +459,12 @@ export default function ProjectInfoForm({
                     label='Service type'
                     placeholder='Service type'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )
@@ -477,6 +485,10 @@ export default function ProjectInfoForm({
                 fullWidth
                 disabled={!category}
                 multiple
+                disableCloseOnSelect
+                isOptionEqualToValue={(option, newValue) => {
+                  return option.value === newValue.value
+                }}
                 options={
                   !category || !AreaOfExpertisePair[category]
                     ? AreaOfExpertiseList
@@ -494,6 +506,12 @@ export default function ProjectInfoForm({
                     label='Area of expertise'
                     placeholder='Area of expertise'
                   />
+                )}
+                renderOption={(props, option, { selected }) => (
+                  <li {...props}>
+                    <Checkbox checked={selected} sx={{ mr: 2 }} />
+                    {option.label}
+                  </li>
                 )}
               />
             )
@@ -726,7 +744,7 @@ export default function ProjectInfoForm({
           <Typography variant='h6'>Project description</Typography>
           <Box sx={{ display: 'flex', alignItems: 'center' }}>
             <Controller
-              name='isShowDescription'
+              name='showDescription'
               control={control}
               render={({ field: { value, onChange } }) => (
                 <Checkbox
@@ -755,7 +773,7 @@ export default function ProjectInfoForm({
                 multiline
                 fullWidth
                 error={Boolean(errors.projectDescription)}
-                label='Write down a project description.'
+                placeholder='Write down a project description.'
                 value={value ?? ''}
                 onChange={onChange}
                 inputProps={{ maxLength: 500 }}

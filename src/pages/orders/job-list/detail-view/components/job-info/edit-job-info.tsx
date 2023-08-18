@@ -147,7 +147,7 @@ const EditJobInfo = ({
     }) => uploadFile(file),
     {
       onSuccess: () => {
-        console.log('success')
+        // console.log('success')
       },
     },
   )
@@ -203,7 +203,7 @@ const EditJobInfo = ({
           } else {
             const found = acc.find(f => f.name === file.name)
             if (!found) acc.push(file)
-            console.log(acc)
+            // console.log(acc)
 
             return acc
           }
@@ -249,7 +249,7 @@ const EditJobInfo = ({
     )
   })
 
-  console.log('data', getValues())
+  // console.log('data', getValues())
   const onSubmit = () => {
     const data = getValues()
     if (files.length) {
@@ -694,7 +694,7 @@ const EditJobInfo = ({
                     value={value || { code: '', label: '', phone: '' }}
                     options={countries as CountryType[]}
                     onChange={(e, v) => {
-                      console.log(value)
+                      // console.log(value)
 
                       if (!v) onChange(null)
                       else onChange(v)
@@ -837,8 +837,7 @@ const EditJobInfo = ({
 
             <Box>
               <Typography variant='subtitle2'>
-                {formatFileSize(fileSize)}
-                / {byteToGB(MAXIMUM_FILE_SIZE)}
+                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
               </Typography>
             </Box>
           </Box>

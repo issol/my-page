@@ -18,7 +18,6 @@ import ToggleViewButton, {
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
 
 // ** types
 import { InvoiceReceivableFilterType } from '@src/types/invoice/receivable.type'
@@ -28,8 +27,6 @@ import { ConstType } from '@src/pages/onboarding/client-guideline'
 import Filter from './components/list/filter'
 import ReceivableList from './components/list/list'
 import CalendarContainer from './components/calendar'
-
-import ModalWithButtonName from '@src/pages/client/components/modals/modal-with-button-name'
 
 // ** apis
 import { useGetReceivableList } from '@src/queries/invoice/receivable.query'
@@ -43,6 +40,10 @@ import {
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import OrderList from './components/list/job-list'
+import { useGetCompanyOptions } from '@src/queries/options.query'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetClientList } from '@src/queries/client.query'
+import { useGetStatusList } from '@src/queries/common.query'
 
 const initialFilter: InvoiceReceivableFilterType = {
   invoiceStatus: [],
@@ -76,14 +77,40 @@ export default function Receivable() {
 
   const [menu, setMenu] = useState<ToggleMenuType>('list')
 
+  const [clientList, setClientList] = useState<
+    {
+      label: string
+      value: number
+    }[]
+  >([])
+  const [companyList, setCompanyList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
+
   const [skip, setSkip] = useState(0)
   const [filter, setFilter] =
     useState<InvoiceReceivableFilterType>(initialFilter)
   const [activeFilter, setActiveFilter] =
     useState<InvoiceReceivableFilterType>(initialFilter)
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
+  const currentRole = getCurrentRole()
 
   const { data: list, isLoading } = useGetReceivableList(activeFilter)
+  const { data: statusList, isLoading: statusListLoading } =
+    useGetStatusList('InvoiceReceivable')
+
+  const { data: clients, isLoading: clientListLoading } = useGetClientList({
+    take: 1000,
+    skip: 0,
+  })
+
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
 
   function onSearch() {
     setActiveFilter({
@@ -134,6 +161,27 @@ export default function Receivable() {
       })
   }, [filter.category])
 
+  useEffect(() => {
+    if (clients && !clientListLoading) {
+      const res = clients.data.map(client => ({
+        label: client.name,
+        value: client.clientId,
+      }))
+      setClientList(res)
+    }
+  }, [clients, clientListLoading])
+  useEffect(() => {
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !companiesListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompanyList(res)
+      }
+    }
+  }, [companies, companiesListLoading])
+
   function onClickCreateInvoice() {
     openModal({
       type: 'order-list',
@@ -144,7 +192,10 @@ export default function Receivable() {
           maxWidth='lg'
         >
           <DialogContent sx={{ padding: '50px' }}>
-            <OrderList onClose={() => closeModal('order-list')} />
+            <OrderList
+              onClose={() => closeModal('order-list')}
+              type='invoice'
+            />
           </DialogContent>
         </Dialog>
       ),
@@ -172,6 +223,13 @@ export default function Receivable() {
               setFilter={setFilter}
               onReset={onReset}
               search={onSearch}
+              role={currentRole!}
+              clientList={clientList}
+              clientListLoading={clientListLoading}
+              companyList={companyList}
+              companyListLoading={companiesListLoading}
+              statusList={statusList || []}
+              statusListLoading={statusListLoading}
             />
           </Grid>
           <Grid
@@ -241,6 +299,7 @@ export default function Receivable() {
                 setPageSize={(n: number) =>
                   setActiveFilter({ ...activeFilter, take: n })
                 }
+                role={currentRole!}
               />
             </Card>
           </Grid>

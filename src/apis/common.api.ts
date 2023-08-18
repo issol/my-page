@@ -1,6 +1,8 @@
 import axios, { BASEURL } from 'src/configs/axios'
 import originalAxios from 'axios'
 import { getUserTokenFromBrowser } from 'src/shared/auth/storage'
+import { ClientClassificationType } from '@src/context/types'
+import { CountryType } from '@src/types/sign/personalInfoTypes'
 
 export enum FilePathEnum {
   resume = 'resume',
@@ -15,6 +17,28 @@ export type StatusType =
   | 'InvoiceReceivable'
   | 'InvoicePayable'
   | 'Job'
+
+export type CompanyListByBusinessType = {
+  id: string
+  name: string
+  emailDomain: string[]
+  type: string
+  businessClassification: ClientClassificationType
+  headquarter: string
+  logo: string | null
+  registrationNumber: string
+  commencementDate: string
+  email: string
+  phone: string
+  fax: string
+  ceo: {
+    lastName: string
+    firstName: string
+    middleName: string
+  }[]
+  representativeName: string | null
+  timezone: CountryType
+}
 
 //resume, contract form 용 (유저 개개인용)
 export const getPresignedUrl = async (
@@ -69,18 +93,6 @@ export const getDownloadUrlforCommon = async (
   }
 }
 
-export const postFiles = async (url: string, formData: FormData) => {
-  return originalAxios.put(url, formData, {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-      Authorization:
-        'Bearer ' + typeof window === 'object'
-          ? getUserTokenFromBrowser()
-          : null,
-    },
-  })
-}
-
 export const uploadFileToS3 = async (url: string, file: any) => {
   return originalAxios.put(url, file, {
     headers: {
@@ -94,7 +106,7 @@ export const getStatusList = async (
 ): Promise<Array<{ value: number; label: string }>> => {
   try {
     const { data } = await axios.get(`/api/enough/u/status/list?type=${type}`)
-    console.log(data)
+    // console.log(data)
 
     const res = data.map((item: any) => ({
       label: item.status,
@@ -102,6 +114,20 @@ export const getStatusList = async (
     }))
 
     return res
+  } catch (e: any) {
+    return []
+  }
+}
+
+export const getCompanyInfoByBusinessNumber = async (
+  type: string, //일단은 type으로 들어가는 값은 'Client'만 있음. 추가될 경우 type정의하기
+  registrationNumber: string,
+): Promise<Array<CompanyListByBusinessType>> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/comp/list?type=${type}&registrationNumber=${registrationNumber}`,
+    )
+    return data
   } catch (e: any) {
     return []
   }

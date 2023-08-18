@@ -32,7 +32,6 @@ import styled from 'styled-components'
 import Icon from 'src/@core/components/icon'
 
 // ** values
-import { ClientListIncludeGloz } from '@src/shared/const/client/clients'
 import { CategoryList } from '@src/shared/const/category/categories'
 import { JobStatus } from '@src/shared/const/status/statuses'
 import { ServiceTypeList } from '@src/shared/const/service-type/service-types'

@@ -63,6 +63,8 @@ import { Category } from '@src/shared/const/category/category.enum'
 import _ from 'lodash'
 import { QuotesFilterType } from '@src/types/quotes/quote'
 import { OrderListFilterType } from '@src/types/orders/order-list'
+import { UserRoleType } from '@src/context/types'
+import { RevenueFrom } from '@src/shared/const/revenue-from'
 
 type Props = {
   filter: OrderListFilterType
@@ -88,6 +90,10 @@ type Props = {
     label: Category
     value: Category
   }[]
+  clientList: {
+    label: string
+    value: number
+  }[]
   setCategoryList: Dispatch<
     SetStateAction<
       {
@@ -96,6 +102,8 @@ type Props = {
       }[]
     >
   >
+  statusList: { value: number; label: string }[]
+  role: UserRoleType
 }
 
 export default function OrdersFilters({
@@ -110,6 +118,9 @@ export default function OrdersFilters({
   setServiceTypeList,
   categoryList,
   setCategoryList,
+  clientList,
+  statusList,
+  role,
 }: Props) {
   const theme = useTheme()
   const { direction } = theme
@@ -163,7 +174,7 @@ export default function OrdersFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={WorkStatus}
+                          options={statusList}
                           id='status'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
@@ -182,7 +193,7 @@ export default function OrdersFilters({
                   <Grid item xs={3}>
                     <Controller
                       control={control}
-                      name='client'
+                      name={role.name === 'CLIENT' ? 'lsp' : 'client'}
                       render={({ field: { onChange, value } }) => (
                         <Autocomplete
                           multiple
@@ -196,11 +207,14 @@ export default function OrdersFilters({
                           }}
                           disableCloseOnSelect
                           limitTags={1}
-                          options={WorkStatus}
+                          options={clientList}
                           id='client'
                           getOptionLabel={option => option.label}
                           renderInput={params => (
-                            <TextField {...params} label='Client' />
+                            <TextField
+                              {...params}
+                              label={role.name === 'CLIENT' ? 'LSP' : 'Client'}
+                            />
                           )}
                           renderOption={(props, option, { selected }) => (
                             <li {...props}>
@@ -322,6 +336,7 @@ export default function OrdersFilters({
                         <Box sx={{ width: '100%' }}>
                           <DatePicker
                             selectsRange
+                            autoComplete='off'
                             monthsShown={2}
                             endDate={value[1]}
                             selected={value[0]}
@@ -346,6 +361,7 @@ export default function OrdersFilters({
                         <Box sx={{ width: '100%' }}>
                           <DatePicker
                             selectsRange
+                            autoComplete='off'
                             monthsShown={2}
                             endDate={value[1]}
                             selected={value[0]}
@@ -365,42 +381,43 @@ export default function OrdersFilters({
                       )}
                     />
                   </Grid>
+                  {role.name === 'CLIENT' ? null : (
+                    <Grid item xs={3}>
+                      <Controller
+                        control={control}
+                        name='revenueFrom'
+                        render={({ field: { onChange, value } }) => (
+                          <Autocomplete
+                            multiple
+                            fullWidth
+                            onChange={(event, item) => {
+                              onChange(item)
+                            }}
+                            value={value}
+                            isOptionEqualToValue={(option, newValue) => {
+                              return option.value === newValue.value
+                            }}
+                            disableCloseOnSelect
+                            limitTags={1}
+                            options={RevenueFrom}
+                            id='revenueFrom'
+                            getOptionLabel={option => option.label}
+                            renderInput={params => (
+                              <TextField {...params} label='Revenue from' />
+                            )}
+                            renderOption={(props, option, { selected }) => (
+                              <li {...props}>
+                                <Checkbox checked={selected} sx={{ mr: 2 }} />
+                                {option.label}
+                              </li>
+                            )}
+                          />
+                        )}
+                      />
+                    </Grid>
+                  )}
 
-                  <Grid item xs={3}>
-                    <Controller
-                      control={control}
-                      name='revenueFrom'
-                      render={({ field: { onChange, value } }) => (
-                        <Autocomplete
-                          multiple
-                          fullWidth
-                          onChange={(event, item) => {
-                            onChange(item)
-                          }}
-                          value={value}
-                          isOptionEqualToValue={(option, newValue) => {
-                            return option.value === newValue.value
-                          }}
-                          disableCloseOnSelect
-                          limitTags={1}
-                          options={WorkStatus}
-                          id='revenueFrom'
-                          getOptionLabel={option => option.label}
-                          renderInput={params => (
-                            <TextField {...params} label='Revenue from' />
-                          )}
-                          renderOption={(props, option, { selected }) => (
-                            <li {...props}>
-                              <Checkbox checked={selected} sx={{ mr: 2 }} />
-                              {option.label}
-                            </li>
-                          )}
-                        />
-                      )}
-                    />
-                  </Grid>
-
-                  <Grid item xs={3}>
+                  <Grid item xs={role.name === 'CLIENT' ? 6 : 3}>
                     <FormControl fullWidth>
                       <Controller
                         control={control}

@@ -4,10 +4,12 @@ import Box from '@mui/material/Box'
 
 // ** styles
 import styled from 'styled-components'
+import { Typography } from '@mui/material'
 
 type Props = {
   alertIconStatus?: string
-  status: Array<{ value: string; label: string }>
+  status: Array<{ value: number | string; label: string; color: string }>
+
   mdAbove: boolean
   leftSidebarWidth: number
 }
@@ -42,20 +44,41 @@ export default function CalendarStatusSideBar({
       }}
     >
       {status.length
-        ? status?.map((item: any) => {
-            return (
-              <BoxFeature
-                key={item.value}
-                bg={item.label}
-                $bgSize={item.value === alertIconStatus ? '5px 5px' : ''}
-                color={item.value === alertIconStatus ? item.label : ''}
-              >
-                {item.value === alertIconStatus
-                  ? `🔴 ${item.value}`
-                  : item.value}
-              </BoxFeature>
-            )
-          })
+        ? status?.map(
+            (item: {
+              value: number | string
+              label: string
+              color: string
+            }) => {
+              return (
+                <BoxFeature
+                  key={item.value}
+                  bg={item.color}
+                  $bgSize={
+                    item.label === alertIconStatus ||
+                    item.label === 'Overdue' ||
+                    item.label === 'Overdue (Reminder sent)'
+                      ? '5px 5px'
+                      : ''
+                  }
+                  color={
+                    item.label === alertIconStatus ||
+                    item.label === 'Overdue' ||
+                    item.label === 'Overdue (Reminder sent)' ||
+                    item.label === 'Canceled'
+                      ? item.color
+                      : ''
+                  }
+                >
+                  {item.label === alertIconStatus ||
+                  item.label === 'Overdue' ||
+                  item.label === 'Overdue (Reminder sent)'
+                    ? `🔴 ${item.label}`
+                    : item.label}
+                </BoxFeature>
+              )
+            },
+          )
         : ''}
     </Drawer>
   )

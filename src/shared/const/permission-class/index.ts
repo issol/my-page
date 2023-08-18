@@ -122,3 +122,31 @@ export class lpm_request {
     })
   }
 }
+
+export class account_manage {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(account_manage.prototype.constructor, 'name', {
+      value: 'account_manage',
+    })
+  }
+}
+export class pro_payment {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(pro_payment.prototype.constructor, 'name', {
+      value: 'pro_payment',
+    })
+  }
+}
+export class client_payment {
+  authorId: number
+  constructor(authorId: number) {
+    this.authorId = authorId
+    Object.defineProperty(client_payment.prototype.constructor, 'name', {
+      value: 'client_payment',
+    })
+  }
+}

@@ -11,7 +11,7 @@ export const getPermission = createAsyncThunk(
   'permissions/gerPermissions',
   async (): Promise<PermissionObjectType> => {
     try {
-      if (process.env.NODE_ENV !== 'development') {
+      if (process.env.NODE_ENV === 'development') {
         const { data } = await axios.get(`/api/enough/a/role/map`)
         return data
       } else {
@@ -20,9 +20,14 @@ export const getPermission = createAsyncThunk(
             subject: 'permission_request',
             can: 'read',
           },
+
           {
             subject: 'permission_request',
             can: 'update',
+          },
+          {
+            subject: 'my_page',
+            can: 'read',
           },
           {
             subject: 'personalInfo_pro',
@@ -210,6 +215,18 @@ export const getPermission = createAsyncThunk(
             can: 'read',
           },
           {
+            subject: 'account_manage',
+            can: 'update',
+          },
+          {
+            subject: 'account_manage',
+            can: 'delete',
+          },
+          {
+            subject: 'account_manage',
+            can: 'create',
+          },
+          {
             subject: 'company_info',
             can: 'read',
           },
@@ -377,6 +394,54 @@ export const getPermission = createAsyncThunk(
             subject: 'lpm_request',
             can: 'delete',
           },
+          {
+            subject: 'pro_mypage',
+            can: 'read',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'create',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'update',
+          },
+          {
+            subject: 'pro_mypage',
+            can: 'delete',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'read',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'create',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'update',
+          },
+          {
+            subject: 'pro_payment',
+            can: 'delete',
+          },
+          {
+            subject: 'client_payment',
+            can: 'read',
+          },
+          {
+            subject: 'client_payment',
+            can: 'create',
+          },
+          {
+            subject: 'client_payment',
+            can: 'update',
+          },
+          {
+            subject: 'client_payment',
+            can: 'delete',
+          },
         ]
       }
     } catch (e: any) {
@@ -424,7 +489,7 @@ export const permissionSlice: Slice<{
       state.role = []
     },
     setCurrentRole: (state, action) => {
-      console.log(action)
+      // console.log(action)
 
       state.currentRole = action.payload
     },

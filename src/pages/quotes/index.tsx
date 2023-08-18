@@ -1,4 +1,4 @@
-import { Suspense, useState } from 'react'
+import { Suspense, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Button from '@mui/material/Button'
@@ -30,6 +30,7 @@ import { useGetQuotesList } from '@src/queries/quotes.query'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetClientList } from '@src/queries/client.query'
 import { useGetStatusList } from '@src/queries/common.query'
+import { useGetCompanyOptions } from '@src/queries/options.query'
 
 export type FilterType = {
   quoteDate: Date[]
@@ -40,7 +41,7 @@ export type FilterType = {
   lsp?: Array<{ label: string; value: string }>
 
   status: Array<{ label: string; value: number }>
-  client?: Array<{ label: string; value: string }>
+  client?: Array<{ label: string; value: number }>
   category: Array<{ label: string; value: string }>
   serviceType: Array<{ label: string; value: string }>
 
@@ -68,6 +69,7 @@ const defaultFilters: QuotesFilterType = {
   estimatedDeliveryDate: [],
   status: [],
   client: [],
+  clientId: [],
   category: [],
   serviceType: [],
   search: '',
@@ -94,6 +96,18 @@ export default function Quotes({ id, user }: Props) {
   const [filters, setFilters] = useState<QuotesFilterType>(defaultFilters)
   const [serviceTypeList, setServiceTypeList] = useState(ServiceTypeList)
   const [categoryList, setCategoryList] = useState(CategoryList)
+  const [clientList, setClientList] = useState<
+    {
+      label: string
+      value: number
+    }[]
+  >([])
+  const [companiesList, setCompaniesList] = useState<
+    {
+      label: string
+      value: string
+    }[]
+  >([])
 
   const currentRole = getCurrentRole()
 
@@ -103,10 +117,14 @@ export default function Quotes({ id, user }: Props) {
     take: quoteListPageSize,
   })
 
-  const { data: clientList, isLoading: clientListLoading } = useGetClientList({
+  const { data: clients, isLoading: clientListLoading } = useGetClientList({
     take: 1000,
     skip: 0,
   })
+  const { data: companies, isLoading: companiesListLoading } =
+    currentRole?.name === 'CLIENT'
+      ? useGetCompanyOptions('LSP')
+      : { data: [], isLoading: false }
 
   const { control, handleSubmit, trigger, reset, watch } = useForm<FilterType>({
     defaultValues,
@@ -169,12 +187,13 @@ export default function Quotes({ id, user }: Props) {
       quoteDeadline: quoteDeadline?.map(value => value),
       quoteExpiryDate: quoteExpiryDate?.map(value => value),
       status: status.map(value => value.value),
-      client: client?.map(value => value.value),
+      // client: client?.map(value => value.label),
+      clientId: client?.map(value => value.value),
       serviceType: serviceType.map(value => value.value),
       category: category.map(value => value.value),
       estimatedDeliveryDate: estimatedDeliveryDate?.map(value => value),
       projectDueDate: projectDueDate?.map(value => value),
-      lsp: lsp?.map(value => value.value),
+      lsp: lsp?.map(value => value.label),
       search: search,
       take: quoteListPageSize,
       skip: quoteListPageSize * quoteListPage,
@@ -182,6 +201,27 @@ export default function Quotes({ id, user }: Props) {
 
     setFilters(filter)
   }
+  useEffect(() => {
+    if (clients && !clientListLoading) {
+      const res = clients.data.map(client => ({
+        label: client.name,
+        value: client.clientId,
+      }))
+      setClientList(res)
+    }
+  }, [clients, clientListLoading])
+
+  useEffect(() => {
+    if (currentRole?.name === 'CLIENT') {
+      if (companies && !clientListLoading) {
+        const res = companies.map(company => ({
+          label: company.name,
+          value: company.id,
+        }))
+        setCompaniesList(res)
+      }
+    }
+  }, [companies, clientListLoading])
 
   return (
     <Box display='flex' flexDirection='column'>
@@ -228,6 +268,8 @@ export default function Quotes({ id, user }: Props) {
                 setCategoryList={setCategoryList}
                 role={currentRole!}
                 quoteStatusList={statusList!}
+                clientList={clientList}
+                companiesList={companiesList}
               />
             </Suspense>
 
@@ -300,6 +342,6 @@ const CustomBtn = styled(Button)<{ $focus: boolean }>`
 `
 
 Quotes.acl = {
-  subject: 'client',
+  subject: 'quote',
   action: 'read',
 }

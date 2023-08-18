@@ -96,7 +96,7 @@ export default function CancelRoleModal({
             variant='contained'
             sx={{ borderRadius: '8px', textTransform: 'none' }}
             onClick={() => {
-              console.log('close')
+              // console.log('close')
               onClose()
               onCloseAssignRoleModal()
             }}

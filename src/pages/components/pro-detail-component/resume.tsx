@@ -21,12 +21,15 @@ import { getDownloadUrlforCommon } from 'src/apis/common.api'
 
 type Props = {
   userInfo: OnboardingProDetailsType
-  onClickResume: (file: {
-    url: string
-    filePath: string
-    fileName: string
-    fileExtension: string
-  }, fileType: string) => void
+  onClickResume: (
+    file: {
+      url: string
+      filePath: string
+      fileName: string
+      fileExtension: string
+    },
+    fileType: string,
+  ) => void
 }
 
 export default function Resume({ userInfo, onClickResume }: Props) {
@@ -44,14 +47,13 @@ export default function Resume({ userInfo, onClickResume }: Props) {
   ) => {
     if (file) {
       file.map(value => {
-        getDownloadUrlforCommon(S3FileType.RESUME, value.filePath)
-        .then(res => {
+        getDownloadUrlforCommon(S3FileType.RESUME, value.filePath).then(res => {
           const previewFile = {
             url: res.url,
             fileName: value.fileName,
-            fileExtension: value.fileExtension
+            fileExtension: value.fileExtension,
           }
-          console.log("previewFile",previewFile)
+          // console.log("previewFile",previewFile)
           fetch(previewFile.url, { method: 'GET' })
             .then(res => {
               return res.blob()

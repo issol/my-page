@@ -1,6 +1,7 @@
 import axios from '@src/configs/axios'
+import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 import { makeQuery } from '@src/shared/transformer/query.transformer'
-import { OrderStatusType } from '@src/types/common/orders.type'
+
 import {
   OrderListFilterType,
   OrderListForJobType,
@@ -14,11 +15,12 @@ export type OrderListCalendarEventType = OrderListType & {
 
 export const getOrderList = async (
   filter: OrderListFilterType,
-): Promise<{ data: OrderListType[]; count: number }> => {
+): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
   try {
     const { data } = await axios.get<{
       data: OrderListType[]
       count: number
+      totalCount: number
     }>(`/api/enough/u/order/list?${makeQuery(filter)}`)
 
     return data
@@ -26,6 +28,27 @@ export const getOrderList = async (
     return {
       data: [],
       count: 0,
+      totalCount: 0,
+    }
+  }
+}
+
+export const getOrderListForInvoice = async (
+  filter: OrderListFilterType,
+): Promise<{ data: OrderListType[]; count: number; totalCount: number }> => {
+  try {
+    const { data } = await axios.get<{
+      data: OrderListType[]
+      count: number
+      totalCount: number
+    }>(`/api/enough/u/order/invoice-available?${makeQuery(filter)}`)
+
+    return data
+  } catch (error) {
+    return {
+      data: [],
+      count: 0,
+      totalCount: 0,
     }
   }
 }
@@ -63,42 +86,32 @@ export const getOrderListInJob = async (
   }
 }
 
-function getColor(status: OrderStatusType) {
-  return status === 'In preparation'
-    ? `#F572D8`
-    : status === 'In progress'
-    ? `#FDB528`
-    : status === 'Completed'
-    ? `#72E128`
-    : status === 'Invoiced'
-    ? `#9B6CD8`
-    : status === 'Canceled'
-    ? '#FF4D49'
-    : null
-}
-
 export const getOrderListCalendar = async (
   year: number,
   month: number,
+  filter: OrderListFilterType,
 ): Promise<{ data: OrderListCalendarEventType[]; totalCount: number }> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/order/list?year=${year}&month=${month}`,
+      `/api/enough/u/order/calendar?year=${year}&month=${month}&${makeQuery(
+        filter,
+      )}`,
     )
 
     // return data
+    // console.log(data)
 
     return {
-      data: data.data?.map((item: OrderListType, idx: number) => {
+      data: data?.map((item: OrderListType, idx: number) => {
         return {
           ...item,
           extendedProps: {
-            calendar: getColor(item.status),
+            calendar: getOrderStatusColor(item.status),
           },
           allDay: true,
         }
       }),
-      totalCount: data?.totalCount ?? 0,
+      totalCount: data?.length ?? 0,
     }
 
     // const data: OrderListType[] = [

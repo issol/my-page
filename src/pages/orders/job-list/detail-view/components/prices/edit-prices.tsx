@@ -41,6 +41,8 @@ import { SaveJobPricesParamsType } from '@src/types/orders/job-detail'
 import { useMutation, useQueryClient } from 'react-query'
 import { saveJobPrices } from '@src/apis/job-detail.api'
 import { JobPricesDetailType } from '@src/types/jobs/jobs.type'
+import SimpleMultilineAlertModal from '@src/pages/components/modals/custom-modals/simple-multiline-alert-modal'
+import { formatCurrency } from '@src/shared/helpers/price.helper'
 
 type Props = {
   row: JobType
@@ -97,7 +99,7 @@ const EditPrices = ({
   const { data: prices, isSuccess } = useGetProPriceList({})
   const queryClient = useQueryClient()
 
-  console.log(getItem('items'), 'item')
+  // console.log(getItem('items'), 'item')
 
   const [success, setSuccess] = useState(false)
 
@@ -110,7 +112,7 @@ const EditPrices = ({
 
   const [price, setPrice] = useState<
     | (StandardPriceListType & {
-        groupName: string
+        groupName?: string
       })
     | null
   >(null)
@@ -148,7 +150,7 @@ const EditPrices = ({
 
   useEffect(() => {
     if (jobPrices) {
-      console.log(jobPrices)
+      // console.log(jobPrices)
 
       const res = getPriceOptions(jobPrices.source, jobPrices.target).find(
         value => value.id === jobPrices.priceId,
@@ -156,6 +158,22 @@ const EditPrices = ({
       setPrice(res!)
     }
   }, [jobPrices])
+
+  const openMinimumPriceModal = (value:any) => {
+    const minimumPrice = formatCurrency(value?.languagePairs[0]?.minimumPrice, value?.currency)
+    openModal({
+      type: 'info-minimum',
+      children: (
+        <SimpleMultilineAlertModal
+          onClose={() => {
+            closeModal('info-minimum')
+          }}
+          message={`The selected Price includes a Minimum price setting.\n\nMinimum price: ${minimumPrice}\n\nIf the amount of the added Price unit is lower than the Minimum price, the Minimum price will be automatically applied to the Total price.`}
+          vary="info"
+        />
+      ),
+    })
+  }
 
   return (
     <>
@@ -214,11 +232,12 @@ const EditPrices = ({
               fullWidth
               value={price ?? null}
               options={options}
-              groupBy={option => option?.groupName}
+              groupBy={option => option?.groupName ?? ''}
               onChange={(e, v) => {
                 if (v) {
                   setPrice(v)
                   setItem(`items.${0}.priceId`, v.id)
+                  if (v?.languagePairs[0]?.minimumPrice) openMinimumPriceModal(v)
                 } else {
                   setPrice(null)
                 }

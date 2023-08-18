@@ -21,6 +21,9 @@ const ProDatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
     '& > div': {
       width: '100%',
     },
+    '& .disabled-weekend': {
+      background: 'pink',
+    },
 
     '& .react-datepicker-popper': {
       zIndex: 20,
@@ -121,11 +124,14 @@ const ProDatePickerWrapper = styled(Box)<BoxProps>(({ theme }) => {
         pointerEvents: 'none !important',
         background:
           'linear-gradient(0deg, rgba(255, 255, 255, 0.88), rgba(255, 255, 255, 0.88)), #72E128',
-        // borderRadius: '50%',
 
         lineHeight: '2.25rem',
-        // color: theme.palette.text.primary,
+
+        /* exclude date ui */
         '&.react-datepicker__day--excluded': {
+          background: 'rgba(76, 78, 100, 0.12) !important',
+        },
+        '&.disabled-weekend': {
           background: 'rgba(76, 78, 100, 0.12) !important',
         },
         '&.react-datepicker__day--selected': {

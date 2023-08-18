@@ -86,8 +86,10 @@ const CompanyInfoOverview = ({
     const reader = new FileReader()
     reader.onload = () => {
       const fileData = reader.result
-        if (fileData !== null && typeof fileData === 'string') {
-        const imgElement = document.getElementById('company-logo') as HTMLImageElement
+      if (fileData !== null && typeof fileData === 'string') {
+        const imgElement = document.getElementById(
+          'company-logo',
+        ) as HTMLImageElement
         if (imgElement) {
           imgElement.src = fileData
         }
@@ -112,13 +114,14 @@ const CompanyInfoOverview = ({
             />
           ),
         })
-      }
-      else if (uniqueFile.size > FILE_SIZE.COMPANY_LOGO) {
+      } else if (uniqueFile.size > FILE_SIZE.COMPANY_LOGO) {
         openModal({
           type: 'FileSizeErrorModal',
           children: (
             <SimpleAlertModal
-              message={`The maximum file size you can upload is ${byteToMB(FILE_SIZE.COMPANY_LOGO)}.`}
+              message={`The maximum file size you can upload is ${byteToMB(
+                FILE_SIZE.COMPANY_LOGO,
+              )}.`}
               onClose={() => {
                 handleDeleteLogo()
                 closeModal('FileSizeErrorModal')
@@ -126,8 +129,7 @@ const CompanyInfoOverview = ({
             />
           ),
         })
-      }
-      else {
+      } else {
         setCompanyImage(uniqueFile)
         onClickUploadLogo(uniqueFile)
       }
@@ -158,7 +160,9 @@ const CompanyInfoOverview = ({
   }
 
   const handleDeleteLogo = () => {
-    const imgElement = document.getElementById('company-logo') as HTMLImageElement
+    const imgElement = document.getElementById(
+      'company-logo',
+    ) as HTMLImageElement
     if (imgElement) {
       imgElement.src = '/images/company/default-company-logo.svg'
       onClickUploadLogo(null)
@@ -192,9 +196,7 @@ const CompanyInfoOverview = ({
               >
                 <img
                   id='company-logo'
-                  src={
-                    companyLogoURL
-                  }
+                  src={companyLogoURL}
                   alt=''
                   style={{
                     width: '80px',
@@ -223,18 +225,12 @@ const CompanyInfoOverview = ({
                 }}
               >
                 <div {...getRootProps()}>
-                  <Button
-                    variant='contained'
-                    sx={{ width: '173px' }}
-                  >
+                  <Button variant='contained' sx={{ width: '173px' }}>
                     <input {...getInputProps()} />
                     Upload new photo
                   </Button>
                 </div>
-                <Button
-                  variant='outlined'
-                  onClick={onClickDeleteLogo}
-                >
+                <Button variant='outlined' onClick={onClickDeleteLogo}>
                   Delete
                 </Button>
               </Box>
@@ -384,7 +380,7 @@ const CompanyInfoOverview = ({
                         value={value || { code: '', label: '', phone: '' }}
                         options={countries as CountryType[]}
                         onChange={(e, v) => {
-                          console.log(value)
+                          // console.log(value)
 
                           if (!v) onChange(null)
                           else onChange(v)

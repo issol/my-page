@@ -10,6 +10,7 @@ type Props<T extends string | number> = {
   pageSize: number
   setPageSize: (n: number) => void
   onRowClick?: (row: GridRowParams<ContactPersonType<T>>) => void
+  isSigned?: boolean
 }
 export default function ContactPersonList<T extends string | number>({
   fields,
@@ -19,6 +20,7 @@ export default function ContactPersonList<T extends string | number>({
   pageSize,
   setPageSize,
   onRowClick,
+  isSigned,
 }: Props<T>) {
   const updatable = isUpdatable === undefined ? true : isUpdatable
 
@@ -47,11 +49,14 @@ export default function ContactPersonList<T extends string | number>({
           <Box display='flex' justifyContent='space-between'>
             <Typography variant='h6'>
               Contact person({fields?.length ?? 0})
-            </Typography>{' '}
+            </Typography>
+
             {updatable ? (
-              <Button variant='contained' onClick={openForm}>
-                Add contact person
-              </Button>
+              isSigned ? null : (
+                <Button variant='contained' onClick={openForm}>
+                  Add contact person
+                </Button>
+              )
             ) : null}
           </Box>
         }

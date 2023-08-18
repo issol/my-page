@@ -247,8 +247,8 @@ const AddSavePriceModal = ({
           noValidate
           autoComplete='off'
           onSubmit={handleSubmit(data => {
-            console.log('handleSubmit', data)
-            console.log(type)
+            // console.log('handleSubmit', data)
+            // console.log(type)
             if (selected) {
               const finalData: StandardPriceListType = {
                 ...selected,

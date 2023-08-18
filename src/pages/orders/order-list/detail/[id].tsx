@@ -8,6 +8,8 @@ import {
   Checkbox,
   Grid,
   IconButton,
+  Menu,
+  MenuItem,
   Tab,
   TextField,
   Typography,
@@ -15,20 +17,19 @@ import {
 } from '@mui/material'
 import Icon from '@src/@core/components/icon'
 import {
-  ChangeEvent,
+  Fragment,
   MouseEvent,
   Suspense,
   SyntheticEvent,
   useContext,
   useEffect,
+  useMemo,
   useState,
 } from 'react'
 import ProjectInfo from './components/project-info'
 import OrderDetailClient from './components/client'
 import {
   OrderDownloadData,
-  ProjectTeamCellType,
-  ProjectTeamListType,
   VersionHistoryType,
 } from '@src/types/orders/order-detail'
 import { GridColumns } from '@mui/x-data-grid'
@@ -47,13 +48,14 @@ import {
   useGetProjectTeam,
   useGetVersionHistory,
 } from '@src/queries/order/order.query'
+
 import DownloadOrderModal from './components/modal/download-order-modal'
-import OrderPreview from './components/order-preview'
+
 import { useAppDispatch, useAppSelector } from '@src/hooks/useRedux'
-import { setOrder, setOrderLang } from '@src/store/order'
+import { setIsReady, setOrder, setOrderLang } from '@src/store/order'
 import EditAlertModal from '@src/@core/components/common-modal/edit-alert-modal'
 import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
+import { patchOrderProjectInfo, splitOrder } from '@src/apis/order-detail.api'
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import LanguageAndItem from './components/language-item'
 import { defaultOption, languageType } from '../../add-new'
@@ -73,10 +75,34 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import {
   LanguagePairsPostType,
   LanguagePairsType,
+  ProjectTeamFormType,
 } from '@src/types/common/orders-and-quotes.type'
 import { patchItemsForOrder, patchLangPairForOrder } from '@src/apis/order.api'
 import { OrderProjectInfoFormType } from '@src/types/common/orders.type'
 import { toast } from 'react-hot-toast'
+import { useGetStatusList } from '@src/queries/common.query'
+import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
+import {
+  orderProjectInfoDefaultValue,
+  orderProjectInfoSchema,
+} from '@src/types/schema/orders-project-info.schema'
+import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
+import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
+import DiscardModal from '@src/@core/components/common-modal/discard-modal'
+import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+
+import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
+import { transformTeamData } from '@src/shared/transformer/team.transformer'
+import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
+import Link from 'next/link'
+import DeliveriesFeedback from './components/deliveries-feedback'
+import { OrderStatusChip } from '@src/@core/components/chips/chips'
+import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import ClientOrder from './components/client-order'
+import PrintOrderPage from '../../order-print/print-page'
+
 interface Detail {
   id: number
   quantity: number
@@ -94,28 +120,86 @@ export interface Row {
   detail: Detail[]
 }
 
-type MenuType = 'project' | 'history' | 'team' | 'client' | 'item'
+export type updateOrderType =
+  | OrderProjectInfoFormType
+  | ProjectTeamFormType
+  | ClientFormType
+  | { status: number }
+  | { tax: null | number; isTaxable: '1' | '0' }
+  | { downloadedAt: string }
+  | { status: number; reason: CancelReasonType }
+  | { status: number; isConfirmed: boolean }
+  | { showDescription: boolean }
+  | {
+      deliveries: {
+        filePath: string
+        fileName: string
+        fileExtension: string
+        fileSize?: number
+      }[]
+    }
+  | { feedback: string; status: number }
+  | { feedback: string }
+
+type RenderSubmitButtonProps = {
+  onCancel: () => void
+  onSave: () => void
+  isValid: boolean
+}
+
+type MenuType =
+  | 'order'
+  | 'project'
+  | 'history'
+  | 'team'
+  | 'client'
+  | 'item'
+  | 'deliveries-feedback'
 const OrderDetail = () => {
   const router = useRouter()
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
   const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
+  const [value, setValue] = useState<MenuType>(
+    currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',
+  )
+  const { data: statusList } = useGetStatusList('Order')
 
-  const [value, setValue] = useState<MenuType>('project')
   const dispatch = useAppDispatch()
+
+  const [anchorEl, setAnchorEl] = useState<null | HTMLElement>(null)
+
+  const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
+    null,
+  )
+
+  const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
+
+  const handleClick = (event: MouseEvent<HTMLElement>) => {
+    event.stopPropagation()
+    setAnchorEl(event.currentTarget)
+  }
+
+  const handleClose = () => {
+    setAnchorEl(null)
+  }
 
   useEffect(() => {
     if (
       menuQuery &&
-      ['project', 'history', 'team', 'client', 'item'].includes(menuQuery)
+      [
+        'project',
+        'history',
+        'team',
+        'client',
+        'item',
+        'deliveries-feedback',
+      ].includes(menuQuery)
     ) {
       setValue(menuQuery)
     }
   }, [menuQuery])
-
-  // useEffect(() => {
-  //   router.replace(`/orders/order-list/detail/${id}?menu=${value}`)
-  // }, [value])
 
   const { data: projectInfo, isLoading: projectInfoLoading } =
     useGetProjectInfo(Number(id!))
@@ -128,9 +212,45 @@ const OrderDetail = () => {
   const { data: langItem, isLoading: langItemLoading } = useGetLangItem(
     Number(id!),
   )
+
   const [tax, setTax] = useState<number | null>(projectInfo!.tax)
-  const [taxable, setTaxable] = useState(projectInfo?.isTaxable || false)
+  const [taxable, setTaxable] = useState(projectInfo?.isTaxable ?? false)
   const { data: priceUnitsList } = useGetAllClientPriceList()
+
+  const currentStatus = useMemo(
+    () => statusList?.find(item => item.value === projectInfo?.status),
+    [statusList, projectInfo],
+  )
+
+  const {
+    control: projectInfoControl,
+    getValues: getProjectInfo,
+    setValue: setProjectInfo,
+    watch: projectInfoWatch,
+    reset: projectInfoReset,
+    formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
+  } = useForm<OrderProjectInfoFormType>({
+    mode: 'onChange',
+    defaultValues: orderProjectInfoDefaultValue,
+    resolver: yupResolver(orderProjectInfoSchema),
+  })
+
+  const {
+    control: clientControl,
+    getValues: getClientValue,
+    setValue: setClientValue,
+    watch: clientWatch,
+    reset: clientReset,
+    formState: { errors: clientErrors, isValid: isClientValid },
+  } = useForm<ClientFormType>({
+    mode: 'onChange',
+    defaultValues: {
+      clientId: NOT_APPLICABLE,
+      contactPersonId: NOT_APPLICABLE,
+      addressType: 'shipping',
+    },
+    resolver: yupResolver(clientSchema),
+  })
 
   const {
     control: itemControl,
@@ -196,6 +316,11 @@ const OrderDetail = () => {
   const [clientEdit, setClientEdit] = useState(false)
   const [projectTeamEdit, setProjectTeamEdit] = useState(false)
   const [langItemsEdit, setLangItemsEdit] = useState(false)
+  const [splitReady, setSplitReady] = useState<boolean>(false)
+  const [selectedIds, setSelectedIds] = useState<
+    { id: number; selected: boolean }[]
+  >(getItem('items').map(value => ({ id: value.id!, selected: false })))
+
   const order = useAppSelector(state => state.order)
 
   const [projectTeamListPage, setProjectTeamListPage] = useState<number>(0)
@@ -216,6 +341,17 @@ const OrderDetail = () => {
 
   function getPriceOptions(source: string, target: string) {
     if (!isSuccess) return [defaultOption]
+    console.log(prices)
+
+    console.log(
+      prices.filter(item => {
+        const matchingPairs = item.languagePairs.filter(
+          pair => pair.source === source && pair.target === target,
+        )
+        return matchingPairs.length > 0
+      }),
+    )
+
     const filteredList = prices
       .filter(item => {
         const matchingPairs = item.languagePairs.filter(
@@ -227,10 +363,71 @@ const OrderDetail = () => {
         groupName: item.isStandard ? 'Standard client price' : 'Matching price',
         ...item,
       }))
+
+    console.log([defaultOption].concat(filteredList))
+
     return [defaultOption].concat(filteredList)
   }
 
   const [languagePairs, setLanguagePairs] = useState<Array<languageType>>([])
+
+  function renderSubmitButton({
+    onCancel,
+    onSave,
+    isValid,
+  }: RenderSubmitButtonProps) {
+    return (
+      <Grid item xs={12}>
+        <Box display='flex' gap='16px' justifyContent='center'>
+          <Button variant='outlined' color='secondary' onClick={onCancel}>
+            Cancel
+          </Button>
+          <Button variant='contained' disabled={!isValid} onClick={onSave}>
+            Save
+          </Button>
+        </Box>
+      </Grid>
+    )
+  }
+
+  function onSave(callBack: () => void) {
+    openModal({
+      type: 'EditSaveModal',
+      children: (
+        <EditSaveModal
+          onClose={() => closeModal('EditSaveModal')}
+          onClick={() => {
+            closeModal('EditSaveModal')
+            callBack()
+          }}
+        />
+      ),
+    })
+  }
+
+  function onDiscard({ callback }: { callback: () => void }) {
+    openModal({
+      type: 'DiscardModal',
+      children: (
+        <DiscardModal
+          onClose={() => {
+            // callback()
+            closeModal('DiscardModal')
+          }}
+          onClick={() => {
+            callback()
+            closeModal('DiscardModal')
+          }}
+        />
+      ),
+    })
+  }
+
+  function onProjectInfoSave() {
+    const projectInfo = getProjectInfo()
+
+    onSave(() => updateProject.mutate(projectInfo))
+  }
 
   const initializeData = () => {
     setLanguagePairs(
@@ -258,6 +455,7 @@ const OrderDetail = () => {
         analysis: item.analysis ?? [],
         totalPrice: item?.totalPrice ?? 0,
         dueAt: item?.dueAt,
+        showItemDescription: item.showItemDescription,
       }
     })
     itemReset({ items: result })
@@ -310,15 +508,9 @@ const OrderDetail = () => {
     setValue(newValue)
   }
 
-  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
-    onSuccess: () => {
-      queryClient.invalidateQueries('orderList')
-      router.push('/orders/order-list')
-    },
-  })
-
   const handleRestoreVersion = () => {
     // TODO API 연결
+    updateProject && updateProject.mutate({ status: 105 })
   }
 
   const onClickRestoreVersion = () => {
@@ -346,6 +538,7 @@ const OrderDetail = () => {
       children: (
         <VersionHistoryModal
           history={history}
+          project={projectInfo!}
           onClose={() => closeModal('VersionHistoryModal')}
           onClick={onClickRestoreVersion}
         />
@@ -353,18 +546,26 @@ const OrderDetail = () => {
     })
   }
 
+  // const onClickPreview = (lang: 'EN' | 'KO') => {
+  //   dispatch(setOrderLang(lang))
+  //   openModal({
+  //     type: 'PreviewModal',
+  //     children: (
+  //       <OrderPreview
+  //         onClose={() => closeModal('PreviewModal')}
+  //         data={order.orderTotalData!}
+  //         lang={lang}
+  //       />
+  //     ),
+  //   })
+  // }
+
   const onClickPreview = (lang: 'EN' | 'KO') => {
+    makePdfData()
     dispatch(setOrderLang(lang))
-    openModal({
-      type: 'PreviewModal',
-      children: (
-        <OrderPreview
-          onClose={() => closeModal('PreviewModal')}
-          data={order.orderTotalData!}
-          lang={lang}
-        />
-      ),
-    })
+    dispatch(setOrder(downloadData))
+
+    closeModal('PreviewModal')
   }
 
   const onClickDownloadOrder = () => {
@@ -372,8 +573,37 @@ const OrderDetail = () => {
       type: 'DownloadOrderModal',
       children: (
         <DownloadOrderModal
-          onClose={() => closeModal('DownloadOrderModal')}
+          onClose={() => {
+            closeModal('DownloadOrderModal')
+            dispatch(setIsReady(false))
+          }}
           onClick={onClickPreview}
+          clientOrderLang={
+            currentRole && currentRole.name === 'CLIENT'
+              ? downloadLanguage
+              : undefined
+          }
+        />
+      ),
+    })
+  }
+
+  const onClickCreateInvoice = () => {
+    openModal({
+      type: 'CreateInvoiceModal',
+      children: (
+        <CustomModal
+          onClick={() =>
+            router.push({
+              pathname: '/invoice/receivable/add-new',
+              query: { orderId: id },
+            })
+          }
+          onClose={() => closeModal('CreateInvoiceModal')}
+          title='Are you sure you want to create an invoice with this order?'
+          subtitle={`[${projectInfo?.corporationId}] ${projectInfo?.projectName}`}
+          vary='successful'
+          rightButtonText='Create'
         />
       ),
     })
@@ -382,8 +612,8 @@ const OrderDetail = () => {
   const versionHistoryColumns: GridColumns<VersionHistoryType> = [
     {
       field: 'position',
-      flex: 0.3,
-      minWidth: 419,
+      flex: 0.3355,
+
       headerName: 'Position',
       disableColumnMenu: true,
       renderHeader: () => <Box>Version</Box>,
@@ -392,7 +622,7 @@ const OrderDetail = () => {
       },
     },
     {
-      minWidth: 420,
+      flex: 0.3363,
       field: 'member',
       headerName: 'Member',
       hideSortIcons: true,
@@ -404,7 +634,7 @@ const OrderDetail = () => {
       },
     },
     {
-      minWidth: 410,
+      flex: 0.3283,
       field: 'jobTitle',
       headerName: 'Job title',
       hideSortIcons: true,
@@ -418,48 +648,98 @@ const OrderDetail = () => {
       },
     },
   ]
+  function makePdfData() {
+    const pm = projectTeam?.find(value => value.position === 'projectManager')
+
+    const res: OrderDownloadData = {
+      orderId: Number(id!),
+      adminCompanyName: 'GloZ Inc.',
+      companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
+      corporationId: projectInfo!.corporationId,
+      orderedAt: projectInfo!.orderedAt,
+      projectDueAt: {
+        date: projectInfo!.projectDueAt,
+        timezone: projectInfo!.projectDueTimezone,
+      },
+      pm: {
+        firstName: pm?.firstName!,
+        lastName: pm?.lastName!,
+        email: pm?.email!,
+        middleName: pm?.middleName!,
+      },
+      companyName: client!.client.name,
+      projectName: projectInfo!.projectName,
+      client: client!,
+      contactPerson: client!.contactPerson,
+      clientAddress: client!.clientAddress,
+      langItem: langItem!,
+    }
+
+    setDownloadData(res)
+  }
+
+  function handlePrint() {
+    closeModal('DownloadOrderModal')
+    router.push('/orders/order-print')
+  }
 
   useEffect(() => {
-    if (
-      !projectInfoLoading &&
-      !projectTeamLoading &&
-      !clientLoading &&
-      !langItemLoading
-    ) {
-      const pm = projectTeam!.find(value => value.position === 'projectManager')
+    if (projectInfo && client && langItem && projectTeam) makePdfData()
+  }, [projectInfo, client, langItem, projectTeam])
 
-      const res: OrderDownloadData = {
-        orderId: Number(id!),
-        adminCompanyName: 'GloZ Inc.',
-        companyAddress: '3325 Wilshire Blvd Ste 626 Los Angeles CA 90010',
-        corporationId: projectInfo!.corporationId,
-        orderedAt: projectInfo!.orderedAt,
-        projectDueAt: {
-          date: projectInfo!.projectDueAt,
-          timezone: projectInfo!.projectDueTimezone,
-        },
-        pm: {
-          firstName: pm?.firstName!,
-          lastName: pm?.lastName!,
-          email: pm?.email!,
-          middleName: pm?.middleName!,
-        },
-        companyName: client!.client.name,
-        projectName: projectInfo!.projectName,
-        client: client!,
-        contactPerson: client!.contactPerson,
-        clientAddress: client!.clientAddress,
-        langItem: langItem!,
-      }
-      dispatch(setOrder(res))
+  useEffect(() => {
+    if (order.isReady && order.orderTotalData) {
+      console.log(order)
+      openModal({
+        type: 'PreviewModal',
+        isCloseable: false,
+        children: (
+          <Box
+            sx={{
+              width: '789px',
+              height: '95vh',
+              overflow: 'scroll',
+              background: '#ffffff',
+              boxShadow: '0px 0px 20px rgba(76, 78, 100, 0.4)',
+              paddingBottom: '24px',
+            }}
+          >
+            <div className='page'>
+              <PrintOrderPage
+                data={order.orderTotalData}
+                type='preview'
+                user={user!}
+                lang={order.lang}
+              />
+            </div>
+
+            <Box display='flex' justifyContent='center' gap='10px'>
+              <Button
+                variant='outlined'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  closeModal('PreviewModal')
+                  dispatch(setIsReady(false))
+                }}
+              >
+                Close
+              </Button>
+              <Button
+                variant='contained'
+                sx={{ width: 226 }}
+                onClick={() => {
+                  handlePrint()
+                  closeModal('PreviewModal')
+                }}
+              >
+                Download
+              </Button>
+            </Box>
+          </Box>
+        ),
+      })
     }
-  }, [
-    dispatch,
-    projectInfoLoading,
-    projectTeamLoading,
-    clientLoading,
-    langItemLoading,
-  ])
+  }, [order.isReady])
 
   useEffect(() => {
     if (langItem) {
@@ -468,11 +748,11 @@ const OrderDetail = () => {
           id: String(item.id),
           source: item.source,
           target: item.target,
-          price: !item?.price
-            ? null
-            : getPriceOptions(item.source, item.target).filter(
+          price: item.price
+            ? getPriceOptions(item.source, item.target).find(
                 price => price.id === item?.price?.id!,
-              )[0],
+              ) ?? null
+            : null,
         }))!,
       )
       const result = langItem?.items?.map(item => {
@@ -491,6 +771,9 @@ const OrderDetail = () => {
         }
       })
       itemReset({ items: result })
+      setSelectedIds(
+        langItem.items.map(value => ({ id: value.id ?? 0, selected: false })),
+      )
     }
     if (projectTeam) {
       const teams: Array<{
@@ -513,7 +796,23 @@ const OrderDetail = () => {
       }))
       resetTeam({ teams })
     }
-  }, [langItem, projectTeam])
+    if (projectInfo) {
+      const res = {
+        ...projectInfo,
+        status: currentStatus?.value ?? 100,
+      }
+      projectInfoReset(res)
+    }
+
+    if (client) {
+      clientReset({
+        clientId: client.client.clientId,
+        contactPersonId: client.contactPerson?.id,
+        addressType: client.clientAddress.find(value => value.isSelected)
+          ?.addressType!,
+      })
+    }
+  }, [langItem, projectTeam, projectInfo, client])
 
   const patchLanguagePairs = useMutation(
     (data: { id: number; langPair: LanguagePairsType[] }) =>
@@ -530,6 +829,7 @@ const OrderDetail = () => {
     const items: PostItemType[] = getItem().items.map(item => ({
       ...item,
       analysis: item.analysis?.map(anal => anal?.data?.id!) || [],
+      showItemDescription: item.showItemDescription ? '1' : '0',
     }))
     const langs: LanguagePairsPostType[] = languagePairs.map(item => {
       if (item?.price?.id) {
@@ -565,27 +865,146 @@ const OrderDetail = () => {
       },
     )
 
-    // @ts-ignore
-    patchProjectInfoMutation.mutate({ id: Number(id), form: { taxable, tax } })
+    updateProject.mutate({ isTaxable: taxable ? '1' : '0', tax })
   }
 
-  const patchProjectInfoMutation = useMutation(
-    (data: { id: number; form: OrderProjectInfoFormType }) =>
-      patchProjectInfo(data.id, data.form),
+  const updateProject = useMutation(
+    (form: updateOrderType) => patchOrderProjectInfo(Number(id), form),
     {
       onSuccess: () => {
         setProjectInfoEdit(false)
-        queryClient.invalidateQueries(`projectInfo-${Number(id)}`)
-        closeModal('EditSaveModal')
-      },
-      onError: () => {
-        toast.error('Something went wrong. Please try again.', {
-          position: 'bottom-left',
+        setClientEdit(false)
+        setProjectTeamEdit(false)
+        setLangItemsEdit(false)
+        queryClient.invalidateQueries({
+          queryKey: ['orderDetail'],
         })
-        closeModal('EditSaveModal')
+        queryClient.invalidateQueries(['orderList'])
+      },
+      onError: () => onMutationError(),
+    },
+  )
+
+  const splitOrderMutation = useMutation(
+    (items: number[]) => splitOrder(Number(id!), items),
+    {
+      onSuccess: (data: { orderId: number }) => {
+        setSplitReady(false)
+        setSelectedIds(prevSelectedIds =>
+          prevSelectedIds.map(id => ({ ...id, selected: false })),
+        )
+
+        queryClient.invalidateQueries(['orderDetail'])
+        queryClient.invalidateQueries(['orderList'])
+
+        router.push(`/orders/order-list/detail/${data.orderId}`)
       },
     },
   )
+
+  function onMutationError() {
+    toast.error('Something went wrong. Please try again.', {
+      position: 'bottom-left',
+    })
+  }
+
+  function onProjectTeamSave() {
+    const teams = transformTeamData(getTeamValues())
+    onSave(() => updateProject.mutate(teams))
+  }
+
+  function onClientSave() {
+    const form = getClientValue()
+    const clientInfo: ClientFormType = {
+      addressType: form.addressType,
+      clientId: form.clientId!,
+      contactPersonId: form.contactPersonId,
+    }
+    onSave(() => updateProject.mutate(clientInfo))
+  }
+
+  const onClickConfirmOrder = () => {
+    openModal({
+      type: 'ConfirmOrderModal',
+      children: (
+        <CustomModal
+          onClose={() => closeModal('ConfirmOrderModal')}
+          onClick={() => {
+            updateProject.mutate(
+              {
+                isConfirmed: true,
+                status:
+                  projectInfo?.status === 10500
+                    ? projectInfo.previousStatus
+                    : 103,
+              },
+              {
+                onSuccess: () => {
+                  closeModal('ConfirmOrderModal')
+                },
+              },
+            )
+          }}
+          title='Are you sure you want to confirm this order? It will be delivered to the client.'
+          vary='successful'
+          rightButtonText='Confirm'
+        />
+      ),
+    })
+  }
+
+  const handleSplitOrder = () => {
+    const res = selectedIds
+      .filter(value => value.selected)
+      .map(value => value.id)
+    splitOrderMutation.mutate(res)
+  }
+
+  const onClickSplitOrder = () => {
+    setSplitReady(true)
+  }
+
+  const onClickCancelSplitOrder = () => {
+    setSplitReady(false)
+    setSelectedIds(prevSelectedIds =>
+      prevSelectedIds.map(id => ({ ...id, selected: false })),
+    )
+  }
+
+  const onClickSplitOrderConfirm = () => {
+    openModal({
+      type: 'SplitOrderModal',
+      children: (
+        <CustomModal
+          onClick={() => handleSplitOrder()}
+          onClose={() => closeModal('SplitOrderModal')}
+          title='Are you sure you want to create new order with selected item(s)? The selected item(s) will be removed from the original order.'
+          vary='successful'
+          rightButtonText='Create'
+        />
+      ),
+    })
+  }
+
+  const onClickReason = () => {
+    if (projectInfo) {
+      openModal({
+        type: `${projectInfo.status}ReasonModal`,
+        children: (
+          <ReasonModal
+            onClose={() => closeModal(`${projectInfo.status}ReasonModal`)}
+            reason={projectInfo.reason}
+            type={
+              projectInfo.status === 10800
+                ? 'Requested'
+                : currentStatus?.label ?? ''
+            }
+            vary='info'
+          />
+        ),
+      })
+    }
+  }
 
   return (
     <Grid item xs={12} sx={{ pb: '100px' }}>
@@ -600,40 +1019,186 @@ const OrderDetail = () => {
             padding: '20px',
           }}
         >
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-            }}
-          >
-            {projectInfoEdit ||
-            projectTeamEdit ||
-            clientEdit ||
-            langItemsEdit ? null : (
-              <IconButton
-                sx={{ padding: '0 !important', height: '24px' }}
-                onClick={() => router.push('/orders/order-list')}
+          {projectInfo && (
+            <>
+              <Box
+                sx={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: '8px',
+                }}
               >
-                <Icon icon='mdi:chevron-left' width={24} height={24} />
-              </IconButton>
-            )}
+                {projectInfoEdit ||
+                projectTeamEdit ||
+                clientEdit ||
+                langItemsEdit ? null : (
+                  <IconButton
+                    sx={{ padding: '0 !important', height: '24px' }}
+                    onClick={() => router.push('/orders/order-list')}
+                  >
+                    <Icon icon='mdi:chevron-left' width={24} height={24} />
+                  </IconButton>
+                )}
 
-            <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
-              <img src='/images/icons/order-icons/book.svg' alt='' />
-              <Typography variant='h5'>{projectInfo?.corporationId}</Typography>
-            </Box>
-          </Box>
-          <Box>
-            <Button
-              variant='outlined'
-              sx={{ display: 'flex', gap: '8px' }}
-              onClick={onClickDownloadOrder}
-            >
-              <Icon icon='material-symbols:request-quote' />
-              Download order
-            </Button>
-          </Box>
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <img src='/images/icons/order-icons/book.svg' alt='' />
+                  <Typography variant='h5'>
+                    {projectInfo?.corporationId}
+                  </Typography>
+                  {projectInfo?.linkedRequest ||
+                  projectInfo?.linkedQuote ||
+                  projectInfo?.linkedInvoiceReceivable ? (
+                    <Box>
+                      <IconButton
+                        sx={{ width: '24px', height: '24px', padding: 0 }}
+                        onClick={handleClick}
+                      >
+                        <Icon icon='mdi:dots-vertical' />
+                      </IconButton>
+                      <Menu
+                        elevation={8}
+                        anchorEl={anchorEl}
+                        id='customized-menu'
+                        onClose={handleClose}
+                        open={Boolean(anchorEl)}
+                        anchorOrigin={{
+                          vertical: 'bottom',
+                          horizontal: 'left',
+                        }}
+                        transformOrigin={{
+                          vertical: 'top',
+                          horizontal: 'left',
+                        }}
+                      >
+                        {projectInfo?.linkedRequest ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked requests :
+                            <Link
+                              href={
+                                currentRole && currentRole.name === 'CLIENT'
+                                  ? `/quotes/requests/${projectInfo?.linkedRequest.id}`
+                                  : `/quotes/lpm/requests/${projectInfo?.linkedRequest.id}`
+                              }
+                            >
+                              {projectInfo?.linkedRequest.corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                        {projectInfo.linkedQuote ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked quote :
+                            <Link
+                              href={`/orders/order-list/detail/${projectInfo.linkedQuote.id}`}
+                            >
+                              {projectInfo?.linkedQuote.corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                        {projectInfo.linkedInvoiceReceivable ? (
+                          <MenuItem
+                            sx={{
+                              gap: 2,
+                              '&:hover': {
+                                background: 'inherit',
+                                cursor: 'default',
+                              },
+                            }}
+                          >
+                            Linked invoice :
+                            <Link
+                              href={`/orders/order-list/detail/${projectInfo.linkedInvoiceReceivable.id}`}
+                            >
+                              {projectInfo?.linkedInvoiceReceivable
+                                .corporationId ?? '-'}
+                            </Link>
+                          </MenuItem>
+                        ) : null}
+                      </Menu>
+                    </Box>
+                  ) : null}
+                </Box>
+                <Box sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                  <OrderStatusChip
+                    status={projectInfo?.status ?? ''}
+                    label={currentStatus?.label ?? ''}
+                  />
+                  {(projectInfo?.status === 10800 ||
+                    projectInfo?.status === 101200) && (
+                    <IconButton
+                      onClick={() => {
+                        projectInfo?.reason && onClickReason()
+                      }}
+                    >
+                      <img
+                        src='/images/icons/onboarding-icons/more-reason.svg'
+                        alt='more'
+                      />
+                    </IconButton>
+                  )}
+                </Box>
+              </Box>
+              {projectInfoEdit ||
+              projectTeamEdit ||
+              clientEdit ||
+              langItemsEdit ||
+              (currentRole && currentRole.name === 'CLIENT') ? null : (
+                <Box
+                  sx={{ display: 'flex', alignItems: 'center', gap: '16px' }}
+                >
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickDownloadOrder}
+                    disabled={
+                      projectInfo?.status === 10000 ||
+                      projectInfo?.status === 10100 ||
+                      projectInfo?.status === 10200 ||
+                      projectInfo?.status === 10500
+                    }
+                  >
+                    <Icon icon='material-symbols:request-quote' />
+                    Download order
+                  </Button>
+                  <Button
+                    variant='outlined'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickCreateInvoice}
+                    disabled={projectInfo?.status !== 10900}
+                  >
+                    Create invoice
+                  </Button>
+                  <Button
+                    variant='contained'
+                    sx={{ display: 'flex', gap: '8px' }}
+                    onClick={onClickConfirmOrder}
+                    disabled={
+                      projectInfo?.status !== 10000 &&
+                      projectInfo?.status !== 10100 &&
+                      projectInfo?.status !== 10500
+                    }
+                  >
+                    Confirm order
+                  </Button>
+                </Box>
+              )}
+            </>
+          )}
         </Box>
         <Box>
           <TabContext value={value}>
@@ -642,6 +1207,16 @@ const OrderDetail = () => {
               aria-label='Order detail Tab menu'
               style={{ borderBottom: '1px solid rgba(76, 78, 100, 0.12)' }}
             >
+              {currentRole && currentRole.name === 'CLIENT' ? (
+                <CustomTap
+                  value='order'
+                  label='Order'
+                  iconPosition='start'
+                  icon={<Icon icon='ic:outline-list-alt' fontSize={'18px'} />}
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              ) : null}
+
               <CustomTap
                 value='project'
                 label='Project info'
@@ -656,15 +1231,17 @@ const OrderDetail = () => {
                 icon={<Icon icon='pajamas:earth' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
-              <CustomTap
-                value='client'
-                label='Client'
-                iconPosition='start'
-                icon={
-                  <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
-                }
-                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
-              />
+              {currentRole && currentRole.name === 'CLIENT' ? null : (
+                <CustomTap
+                  value='client'
+                  label='Client'
+                  iconPosition='start'
+                  icon={
+                    <Icon icon='mdi:account-star-outline' fontSize={'18px'} />
+                  }
+                  onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+                />
+              )}
               <CustomTap
                 value='team'
                 label='Project team'
@@ -681,17 +1258,76 @@ const OrderDetail = () => {
                 icon={<Icon icon='ic:outline-history' fontSize={'18px'} />}
                 onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
               />
+              <CustomTap
+                value='deliveries-feedback'
+                label='Deliveries & Feedback'
+                iconPosition='start'
+                icon={<Icon icon='ic:outline-send' fontSize={'18px'} />}
+                onClick={(e: MouseEvent<HTMLElement>) => e.preventDefault()}
+              />
             </TabList>
+            <TabPanel value='order' sx={{ pt: '24px' }}>
+              <Suspense>
+                {downloadData ? (
+                  <ClientOrder
+                    downloadData={downloadData!}
+                    user={user!}
+                    downloadLanguage={downloadLanguage}
+                    setDownloadLanguage={setDownloadLanguage}
+                    onClickDownloadOrder={onClickDownloadOrder}
+                    type='detail'
+                    updateProject={updateProject}
+                    statusList={statusList!}
+                    project={projectInfo!}
+                  />
+                ) : null}
+              </Suspense>
+            </TabPanel>
             <TabPanel value='project' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectInfo
-                  type={'detail'}
-                  projectInfo={projectInfo!}
-                  edit={projectInfoEdit}
-                  setEdit={setProjectInfoEdit}
-                  orderId={Number(id!)}
-                  onSave={patchProjectInfoMutation.mutate}
-                />
+                {projectInfoEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <DatePickerWrapper>
+                      <Grid container spacing={6}>
+                        <ProjectInfoForm
+                          control={projectInfoControl}
+                          setValue={setProjectInfo}
+                          watch={projectInfoWatch}
+                          errors={projectInfoErrors}
+                          clientTimezone={getClientValue('contacts.timezone')}
+                          getClientValue={getClientValue}
+                          getValues={getProjectInfo}
+                        />
+                        {renderSubmitButton({
+                          onCancel: () =>
+                            onDiscard({
+                              callback: () => setProjectInfoEdit(false),
+                            }),
+                          onSave: () => onProjectInfoSave(),
+                          isValid: isProjectInfoValid,
+                        })}
+                      </Grid>
+                    </DatePickerWrapper>
+                  </Card>
+                ) : (
+                  <Fragment>
+                    <ProjectInfo
+                      type={'detail'}
+                      project={projectInfo!}
+                      setEditMode={setProjectInfoEdit}
+                      isUpdatable={
+                        currentRole! && currentRole.name !== 'CLIENT'
+                      }
+                      updateStatus={(status: number) =>
+                        updateProject.mutate({ status: status })
+                      }
+                      updateProject={updateProject}
+                      client={client}
+                      statusList={statusList!}
+                      role={currentRole!}
+                    />
+                  </Fragment>
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='item' sx={{ pt: '24px' }}>
@@ -717,87 +1353,128 @@ const OrderDetail = () => {
                     orderId={Number(id!)}
                     langItemsEdit={langItemsEdit}
                     setLangItemsEdit={setLangItemsEdit}
+                    project={projectInfo!}
+                    updateItems={patchItems}
+                    onClickSplitOrder={onClickSplitOrder}
+                    onClickCancelSplitOrder={onClickCancelSplitOrder}
+                    onClickSplitOrderConfirm={onClickSplitOrderConfirm}
+                    selectedIds={selectedIds}
+                    setSelectedIds={setSelectedIds}
+                    splitReady={splitReady}
                   />
-                  <Grid
-                    item
-                    xs={12}
-                    display='flex'
-                    padding='24px'
-                    alignItems='center'
-                    justifyContent='space-between'
-                    mt={6}
-                    mb={6}
-                    sx={{ background: '#F5F5F7', marginBottom: '24px' }}
-                  >
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      <Checkbox
-                        disabled={!langItemsEdit}
-                        checked={taxable}
-                        onChange={e => {
-                          if (!e.target.checked) {
-                            setTax(null)
-                          }
-                          setTaxable(e.target.checked)
-                        }}
-                      />
-                      <Typography>Tax</Typography>
-                    </Box>
-                    <Box display='flex' alignItems='center' gap='4px'>
-                      {langItemsEdit ? (
-                        <>
-                          <TextField
-                            size='small'
-                            type='number'
-                            value={!tax ? '-' : tax}
-                            disabled={!taxable}
-                            sx={{ maxWidth: '120px', padding: 0 }}
-                            inputProps={{ inputMode: 'decimal' }}
-                            onChange={e => {
-                              if (e.target.value.length > 10) return
-                              setTax(Number(e.target.value))
-                            }}
-                          />
-                          %
-                        </>
-                      ) : (
-                        <Box>{tax ? `${tax} %` : null} </Box>
-                      )}
-                    </Box>
-                  </Grid>
-                  {langItemsEdit ? (
-                    <Grid item xs={12}>
+
+                  <Grid item xs={12}>
+                    <Box sx={{ display: 'flex', justifyContent: 'flex-end' }}>
                       <Box
                         sx={{
                           display: 'flex',
-                          gap: '16px',
+                          gap: '20px',
+                          borderBottom: '2px solid #666CFF',
                           justifyContent: 'center',
+                          width: '257px',
                         }}
                       >
+                        <Typography
+                          fontWeight={600}
+                          variant='subtitle1'
+                          sx={{
+                            padding: '16px 16px 16px 20px',
+                            flex: 1,
+                            textAlign: 'right',
+                          }}
+                        >
+                          Subtotal
+                        </Typography>
+                        <Typography
+                          fontWeight={600}
+                          variant='subtitle1'
+                          sx={{ padding: '16px 16px 16px 20px', flex: 1 }}
+                        >
+                          {projectInfo?.subtotal}
+                        </Typography>
+                      </Box>
+                    </Box>
+                  </Grid>
+
+                  {currentRole?.name === 'CLIENT' ? null : (
+                    <Grid
+                      item
+                      xs={12}
+                      display='flex'
+                      padding='24px'
+                      alignItems='center'
+                      justifyContent='space-between'
+                      mt={6}
+                      mb={6}
+                      sx={{ background: '#F5F5F7', marginBottom: '24px' }}
+                    >
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        <Checkbox
+                          disabled={!langItemsEdit}
+                          checked={taxable}
+                          onChange={e => {
+                            if (!e.target.checked) {
+                              setTax(null)
+                            }
+                            setTaxable(e.target.checked)
+                          }}
+                        />
+                        <Typography>Tax</Typography>
+                      </Box>
+                      <Box display='flex' alignItems='center' gap='4px'>
+                        {langItemsEdit ? (
+                          <>
+                            <TextField
+                              size='small'
+                              type='number'
+                              value={!tax ? '-' : tax}
+                              disabled={!taxable}
+                              sx={{ maxWidth: '120px', padding: 0 }}
+                              inputProps={{ inputMode: 'decimal' }}
+                              onChange={e => {
+                                if (e.target.value.length > 10) return
+                                setTax(Number(e.target.value))
+                              }}
+                            />
+                            %
+                          </>
+                        ) : (
+                          <Box>{tax ? `${tax} %` : null} </Box>
+                        )}
+                      </Box>
+                    </Grid>
+                  )}
+
+                  {langItemsEdit
+                    ? renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({
+                            callback: () => setLangItemsEdit(false),
+                          }),
+                        onSave: () => onSubmitItems(),
+                        isValid: isItemValid || (taxable && tax! > 0),
+                      })
+                    : null}
+                  {splitReady && selectedIds ? (
+                    <Grid item xs={12}>
+                      <Box display='flex' gap='16px' justifyContent='center'>
                         <Button
                           variant='outlined'
                           color='secondary'
-                          onClick={() => setLangItemsEdit(false)}
+                          onClick={onClickCancelSplitOrder}
                         >
                           Cancel
                         </Button>
                         <Button
                           variant='contained'
-                          disabled={!isItemValid || (taxable && !(tax! > 0))}
-                          onClick={() => {
-                            openModal({
-                              type: 'LanguageAndItemEditModal',
-                              children: (
-                                <EditSaveModal
-                                  onClose={() =>
-                                    closeModal('LanguageAndItemEditModal')
-                                  }
-                                  onClick={onSubmitItems}
-                                />
-                              ),
-                            })
-                          }}
+                          // disabled={!isValid}
+                          disabled={
+                            selectedIds.filter(value => value.selected)
+                              .length === 0
+                          }
+                          onClick={onClickSplitOrderConfirm}
                         >
-                          Save
+                          Split order
                         </Button>
                       </Box>
                     </Grid>
@@ -806,41 +1483,85 @@ const OrderDetail = () => {
               </Card>
             </TabPanel>
             <TabPanel value='client' sx={{ pt: '24px' }}>
-              <OrderDetailClient
-                type={'detail'}
-                client={client!}
-                edit={clientEdit}
-                setEdit={setClientEdit}
-                orderId={Number(id!)}
-                setTax={setTax}
-                setTaxable={setTaxable}
-              />
+              <Suspense>
+                {clientEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <Grid container spacing={6}>
+                      <ClientQuotesFormContainer
+                        control={clientControl}
+                        setValue={setClientValue}
+                        watch={clientWatch}
+                        setTax={setTax}
+                        setTaxable={setTaxable}
+                        type='order'
+                        formType='edit'
+                      />
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({ callback: () => setClientEdit(false) }),
+                        onSave: () => onClientSave(),
+                        isValid: isClientValid,
+                      })}
+                    </Grid>
+                  </Card>
+                ) : (
+                  <OrderDetailClient
+                    type={'detail'}
+                    client={client!}
+                    setEdit={setClientEdit}
+                    isUpdatable={
+                      projectInfo?.status !== 101100 &&
+                      projectInfo?.status !== 101200 &&
+                      client?.contactPerson?.userId !== null
+                    }
+                  />
+                )}
+              </Suspense>
             </TabPanel>
             <TabPanel value='team' sx={{ pt: '24px' }}>
               <Suspense>
-                <ProjectTeam
-                  type='detail'
-                  list={projectTeam!}
-                  listCount={projectTeam?.length!}
-                  columns={getProjectTeamColumns()}
-                  page={projectTeamListPage}
-                  setPage={setProjectTeamListPage}
-                  pageSize={projectTeamListPageSize}
-                  setPageSize={setProjectTeamListPageSize}
-                  edit={projectTeamEdit}
-                  setEdit={setProjectTeamEdit}
-                  teamControl={teamControl}
-                  members={members}
-                  appendMember={appendMember}
-                  removeMember={removeMember}
-                  updateMember={updateMember}
-                  getTeamValues={getTeamValues}
-                  setTeamValues={setTeamValues}
-                  teamErrors={teamErrors}
-                  isTeamValid={isTeamValid}
-                  teamWatch={teamWatch}
-                  orderId={Number(id!)}
-                />
+                {projectTeamEdit ? (
+                  <Card sx={{ padding: '24px' }}>
+                    <Grid container spacing={6}>
+                      <ProjectTeamFormContainer
+                        control={teamControl}
+                        field={members}
+                        append={appendMember}
+                        remove={removeMember}
+                        update={updateMember}
+                        setValue={setTeamValues}
+                        errors={teamErrors}
+                        isValid={isTeamValid}
+                        watch={teamWatch}
+                      />
+                      {renderSubmitButton({
+                        onCancel: () =>
+                          onDiscard({
+                            callback: () => setProjectTeamEdit(false),
+                          }),
+                        onSave: () => onProjectTeamSave(),
+                        isValid: isTeamValid,
+                      })}
+                    </Grid>
+                  </Card>
+                ) : (
+                  <ProjectTeam
+                    type='detail'
+                    list={projectTeam!}
+                    listCount={projectTeam?.length!}
+                    columns={getProjectTeamColumns()}
+                    page={projectTeamListPage}
+                    setPage={setProjectTeamListPage}
+                    pageSize={projectTeamListPageSize}
+                    setPageSize={setProjectTeamListPageSize}
+                    setEdit={setProjectTeamEdit}
+                    updateProject={updateProject}
+                    isUpdatable={
+                      projectInfo?.status !== 101100 &&
+                      projectInfo?.status !== 101200
+                    }
+                  />
+                )}
               </Suspense>
             </TabPanel>
             <TabPanel value='history' sx={{ pt: '24px' }}>
@@ -854,6 +1575,16 @@ const OrderDetail = () => {
                 setPageSize={setVersionHistoryListPageSize}
                 onClickRow={onClickVersionHistoryRow}
               />
+            </TabPanel>
+            <TabPanel value='deliveries-feedback' sx={{ pt: '24px' }}>
+              <Suspense>
+                <DeliveriesFeedback
+                  project={projectInfo!}
+                  isSubmittable={true}
+                  updateProject={updateProject}
+                  statusList={statusList!}
+                />
+              </Suspense>
             </TabPanel>
           </TabContext>
         </Box>

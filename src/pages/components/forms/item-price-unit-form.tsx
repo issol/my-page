@@ -1,5 +1,5 @@
 // ** react
-import { useRef, useState } from 'react'
+import { useRef, useState, useEffect, useMemo } from 'react'
 
 // ** styled components
 import Paper from '@mui/material/Paper'
@@ -28,7 +28,7 @@ import {
   PriceUnitListType,
   StandardPriceListType,
 } from '@src/types/common/standard-price'
-import { ItemType } from '@src/types/common/item.type'
+import { ItemDetailType, ItemType } from '@src/types/common/item.type'
 
 // ** react hook form
 import {
@@ -50,6 +50,14 @@ import {
 import { CurrencyList } from '@src/shared/const/currency/currency'
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 
+// ** hooks
+import useModal from '@src/hooks/useModal'
+
+// ** components
+import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
+
+import styled from 'styled-components'
+
 type Props = {
   control: Control<{ items: ItemType[] }, any>
   index: number
@@ -64,15 +72,17 @@ type Props = {
   getValues: UseFormGetValues<{ items: ItemType[] }>
   append: UseFieldArrayAppend<{ items: ItemType[] }, `items.${number}.detail`>
   update: UseFieldArrayUpdate<{ items: ItemType[] }, `items.${number}.detail`>
-  getTotalPrice: (n?: boolean) => void
-  getEachPrice: (idx: number) => void
+  getTotalPrice: () => void
+  getEachPrice: (idx: number, showMinimum?:boolean, isNotApplicable?:boolean) => void
   onDeletePriceUnit: (idx: number) => void
-  onItemBoxLeave: () => void
+  // onItemBoxLeave: () => void
   isValid: boolean
-  showMinimum: { checked: boolean; show: boolean }
-  setShowMinimum: (n: { checked: boolean; show: boolean }) => void
-  isNotApplicable: boolean
+  // showMinimum: { checked: boolean; show: boolean }
+  // setShowMinimum: (n: { checked: boolean; show: boolean }) => void
+  // isNotApplicable: boolean
   type: string
+  sumTotalPrice: () => void
+  // checkMinimumPrice: () => void
 }
 
 export default function ItemPriceUnitForm({
@@ -87,17 +97,19 @@ export default function ItemPriceUnitForm({
   getTotalPrice,
   getEachPrice,
   onDeletePriceUnit,
-  onItemBoxLeave,
+  // onItemBoxLeave,
   isValid,
-  showMinimum,
-  setShowMinimum,
-  isNotApplicable,
+  // showMinimum,
+  // setShowMinimum,
+  // isNotApplicable,
   priceUnitsList,
   type,
+  sumTotalPrice,
+  // checkMinimumPrice,
 }: Props) {
   const itemName: `items.${number}.detail` = `items.${index}.detail`
-  const currentItem = getValues(`${itemName}`)
-
+  const currentItem = getValues(`${itemName}`) || []
+  
   type NestedPriceUnitType = PriceUnitListType & {
     subPriceUnits: PriceUnitListType[]
     groupName: string
@@ -146,9 +158,57 @@ export default function ItemPriceUnitForm({
     }
     return prices
   }
+  const [totalPrice, setTotalPrice] = useState(getValues(`items.${index}.totalPrice`))
+  const [isNotApplicable, setIsNotApplicable] = useState(getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false)
+  const [showMinimum, setShowMinimum] = useState(false)
+
+  const checkPriceId = () => {
+    setIsNotApplicable(getValues(`items.${index}.priceId`) === NOT_APPLICABLE ? true : false)
+  }
+  useEffect(() => {
+    if (minimumPrice && 
+      totalPrice <= minimumPrice && 
+      // type === 'edit' &&
+      !showMinimum
+    ) {
+      setShowMinimum(true)
+    }
+    if (minimumPrice && 
+      totalPrice > minimumPrice && 
+      // type === 'edit' &&
+      showMinimum
+    ) {
+      setShowMinimum(false)
+    }
+  }, [totalPrice, showMinimum])
+
+
 
   const Row = ({ idx }: { idx: number }) => {
-    const savedValue = getValues(`${itemName}.${idx}`)
+    const [savedValue, setSavedValue] = useState<ItemDetailType>(currentItem[idx]);
+    const [price, setPrice] = useState(savedValue.prices)
+
+    const updatePrice = (e?:any) => {
+      const newPrice = getValues(`${itemName}.${idx}`)
+      
+      getEachPrice(idx, showMinimum, isNotApplicable) //폼 데이터 업데이트 (setValue)
+      getTotalPrice() // 합계 데이터 업데이트 (setValue)
+      setSavedValue(newPrice) // setValue된 값 가져오기
+      setPrice(newPrice.prices) // setValue된 값에서 price 정보 가져오기
+    }
+  
+    const updateTotalPrice = () => {
+      checkPriceId()
+      getTotalPrice()
+      const newTotalPrice = getValues(`items.${index}.totalPrice`)
+      setTotalPrice(newTotalPrice)
+      sumTotalPrice()
+    }
+
+    useEffect(() => {
+      updatePrice()
+      updateTotalPrice()
+    },[priceData])
 
     const [open, setOpen] = useState(false)
     const priceFactor = priceData?.languagePairs?.[0]?.priceFactor || null
@@ -158,10 +218,10 @@ export default function ItemPriceUnitForm({
         hover
         tabIndex={-1}
         onMouseLeave={() => {
-          getEachPrice(idx)
+          updateTotalPrice()
         }}
       >
-        <TableCell>
+        <TableCell sx={{ width: '10%' }}>
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
@@ -179,9 +239,12 @@ export default function ItemPriceUnitForm({
                       placeholder='0'
                       type='number'
                       value={value}
-                      sx={{ maxWidth: '80px', padding: 0 }}
+                      sx={{ maxWidth: '85px', padding: 0 }}
                       inputProps={{ inputMode: 'decimal' }}
-                      onChange={onChange}
+                      onChange={e => {
+                        onChange(e)
+                        updatePrice(e)
+                      }}
                     />
                     {savedValue.unit === 'Percent' ? '%' : null}
                   </Box>
@@ -190,7 +253,7 @@ export default function ItemPriceUnitForm({
             />
           )}
         </TableCell>
-        <TableCell>
+        <TableCell sx={{width: 'auto'}}>
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
@@ -338,13 +401,17 @@ export default function ItemPriceUnitForm({
         </TableCell>
         <TableCell
           align={
-            type === 'detail' || type === 'invoiceDetail' ? 'left' : 'center'
+            type === 'detail' || type === 'invoiceDetail' ? 'left' : 'left'
           }
+          sx={{width: '15%'}}
         >
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
-                {getValues(`${itemName}.${idx}.unitPrice`) ?? '-'}
+                {formatCurrency(
+                  getValues(`${itemName}.${idx}.unitPrice`),
+                  priceData?.currency ?? 'USD'
+                ) ?? '-'}
               </Typography>
             </Box>
           ) : (
@@ -354,20 +421,23 @@ export default function ItemPriceUnitForm({
               render={({ field: { value, onChange } }) => {
                 return (
                   <TextField
-                    placeholder='0.00'
+                    placeholder='0.0012'
+                    inputProps={{ inputMode: 'decimal' }}
+                    type='number'
                     value={savedValue.unit === 'Percent' ? '-' : value}
                     disabled={savedValue.unit === 'Percent'}
                     onChange={e => {
                       onChange(e)
+                      updatePrice(e)
                     }}
-                    sx={{ maxWidth: '80px', padding: 0 }}
+                    sx={{ maxWidth: '104px', padding: 0 }}
                   />
                 )
               }}
             />
           )}
         </TableCell>
-        <TableCell align='center'>
+        <TableCell sx={{width: '15%'}} align='center'>
           {type === 'detail' || type === 'invoiceDetail' ? (
             <Box display='flex' alignItems='center' gap='8px' height={38}>
               <Typography variant='subtitle1' fontSize={14} lineHeight={21}>
@@ -388,6 +458,7 @@ export default function ItemPriceUnitForm({
                     options={CurrencyList}
                     onChange={(e, v) => {
                       if (v?.value) onChange(v.value)
+                      updatePrice(e)
                     }}
                     value={
                       CurrencyList.find(item => item.value === value) || null
@@ -405,13 +476,24 @@ export default function ItemPriceUnitForm({
             />
           ) : null}
         </TableCell>
-        <TableCell align='center'>
-          <Typography>
-            {!priceData || priceData.id === NOT_APPLICABLE
-              ? savedValue.prices
+        <TableCell sx={{width: '20%'}} align='left'>
+          <Typography fontSize={14}>
+            {isNotApplicable
+              ? formatCurrency(
+                formatByRoundingProcedure(
+                  Number(price),
+                  (savedValue.currency === 'USD' || 
+                  savedValue.currency === 'SGD')
+                  ? 2
+                  : 1000,
+                  0,
+                  savedValue.currency,
+                ),
+                savedValue.currency
+              )
               : formatCurrency(
                   formatByRoundingProcedure(
-                    Number(savedValue.prices),
+                    Number(price),
                     priceData?.decimalPlace!,
                     priceData?.roundingProcedure!,
                     priceData?.currency!,
@@ -420,8 +502,7 @@ export default function ItemPriceUnitForm({
                 )}
           </Typography>
         </TableCell>
-
-        <TableCell align='center'>
+        <TableCell sx={{width: '5%'}} align='center'>
           {type === 'detail' || type === 'invoiceDetail' ? null : (
             <IconButton onClick={() => onDeletePriceUnit(idx)}>
               <Icon icon='mdi:trash-outline' />
@@ -436,49 +517,75 @@ export default function ItemPriceUnitForm({
     <Grid
       item
       xs={12}
-      onMouseLeave={() => type !== 'invoiceDetail' && onItemBoxLeave()}
+      // onMouseLeave={() => {
+      //   if (type !== 'invoiceDetail' && type !== 'detail') {
+      //     // onItemBoxLeave()
+      //   }
+      // }}
     >
-      <TableContainer component={Paper} sx={{ maxHeight: 440 }}>
+      <TableContainer component={Paper} sx={{ maxHeight: 400 }}>
         <Table stickyHeader aria-label='sticky table'>
-          <TableHead>
+          <TableHead sx={{ position: 'sticky', top: 0}}>
             <TableRow>
-              {[
-                'Quantity',
-                'Price unit',
-                'Unit price',
-                'Currency',
-                'Prices',
-                '',
-              ].map((item, idx) => (
-                <HeaderCell key={idx} align='left'>
-                  {item}
-                </HeaderCell>
-              ))}
+              <HeaderCell sx={{width: '10%', textTransform: 'none'}} align='left'>
+                Quantity
+              </HeaderCell>
+              <HeaderCell sx={{width: 'auto', textTransform: 'none'}} align='left'>
+                Price unit
+              </HeaderCell>
+              <HeaderCell sx={{width: '15%', textTransform: 'none'}} align='left'>
+                Unit price
+              </HeaderCell>
+              <HeaderCell sx={{width: '17%', textTransform: 'none'}} align='left'>
+                Currency
+              </HeaderCell>
+              <HeaderCell sx={{width: '17%', textTransform: 'none'}} align='left'>
+                Prices
+              </HeaderCell>
+              <HeaderCell sx={{width: '5%', textTransform: 'none'}} align='left'></HeaderCell>
             </TableRow>
           </TableHead>
           <TableBody>
             {details?.map((row, idx) => (
               <Row key={row.id} idx={idx} />
             ))}
-            {showMinimum.show ? (
+            {showMinimum && !isNotApplicable ? (
               <TableRow
                 hover
                 tabIndex={-1} /* onBlur={() => onItemBoxLeave()} */
               >
                 <TableCell>
-                  <Typography color='primary'>1</Typography>
+                  <Typography color='primary' fontSize={14}>1</Typography>
                 </TableCell>
                 <TableCell>
-                  <Typography color='primary'>
+                  <Typography color='primary' fontSize={14}>
                     Minimum price per item
                   </Typography>
                 </TableCell>
-                <TableCell align='center'>
-                  <Typography color='primary'>{minimumPrice}</Typography>
+                <TableCell align='left'>
+                  <Typography color='primary' fontSize={14}>
+                  {(!priceData || priceData.id === NOT_APPLICABLE) ||
+                    type === 'edit'
+                      ? formatByRoundingProcedure(
+                        minimumPrice ?? 0,
+                        priceData?.decimalPlace!,
+                        priceData?.roundingProcedure!,
+                        priceData?.currency!,
+                      )
+                      : formatCurrency(
+                          formatByRoundingProcedure(
+                            minimumPrice ?? 0,
+                            priceData?.decimalPlace!,
+                            priceData?.roundingProcedure!,
+                            priceData?.currency!,
+                          ),
+                          priceData?.currency ?? 'USD',
+                        )}
+                  </Typography>
                 </TableCell>
                 <TableCell align='center'></TableCell>
-                <TableCell align='center'>
-                  <Typography color='primary'>
+                <TableCell align='left'>
+                  <Typography color='primary' fontSize={14}>
                     {!priceData || priceData.id === NOT_APPLICABLE
                       ? minimumPrice ?? 0
                       : formatCurrency(
@@ -496,7 +603,7 @@ export default function ItemPriceUnitForm({
                   {type === 'detail' || type === 'invoiceDetail' ? null : (
                     <IconButton
                       onClick={() =>
-                        setShowMinimum({ show: false, checked: true })
+                        setShowMinimum(false)
                       }
                     >
                       <Icon icon='mdi:trash-outline' />
@@ -505,64 +612,89 @@ export default function ItemPriceUnitForm({
                 </TableCell>
               </TableRow>
             ) : null}
-            {type === 'detail' || type === 'invoiceDetail' ? null : (
-              <TableRow hover tabIndex={-1}>
-                <TableCell colSpan={6}>
-                  <Button
-                    onClick={() =>
-                      append({
-                        priceUnitId: -0,
-                        quantity: 0,
-                        unitPrice: 0,
-                        prices: 0,
-                        unit: '',
-                        currency: priceData?.currency ?? 'USD',
-                      })
-                    }
-                    variant='contained'
-                    disabled={!isValid}
-                    sx={{ p: 0.7, minWidth: 26 }}
-                  >
-                    <Icon icon='material-symbols:add' />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            )}
-            <TableRow tabIndex={-1}>
-              <TableCell colSpan={5} align='right'>
-                <Typography fontWeight='bold'>Total price</Typography>
-              </TableCell>
-              <TableCell colSpan={1} align='right'>
-                <Box
-                  display='flex'
-                  alignItems='center'
-                  gap='8px'
-                  justifyContent='flex-end'
-                >
-                  <Typography fontWeight='bold'>
-                    {!priceData || priceData.id === NOT_APPLICABLE
-                      ? getValues(`items.${index}.totalPrice`)
-                      : formatCurrency(
-                          formatByRoundingProcedure(
-                            getValues(`items.${index}.totalPrice`),
-                            priceData?.decimalPlace!,
-                            priceData?.roundingProcedure!,
-                            priceData?.currency!,
-                          ),
-                          priceData?.currency ?? 'USD',
-                        )}
-                  </Typography>
-                  {type === 'detail' || type === 'invoiceDetail' ? null : (
-                    <IconButton onClick={() => getTotalPrice()}>
-                      <Icon icon='material-symbols:refresh' />
-                    </IconButton>
-                  )}
-                </Box>
-              </TableCell>
-            </TableRow>
           </TableBody>
         </Table>
       </TableContainer>
+      {type === 'detail' || type === 'invoiceDetail' ? null : (
+        <Grid item xs={12}>
+          <Box 
+            display='flex'
+            alignItems='center'
+            justifyContent='flex'
+            height={60}
+            marginLeft={5} 
+          >
+          <Button
+            onClick={() =>
+              append({
+                priceUnitId: -0,
+                quantity: 0,
+                unitPrice: 0,
+                prices: 0,
+                unit: '',
+                currency: priceData?.currency ?? 'USD',
+              })
+            }
+            variant='contained'
+            disabled={!isValid}
+            sx={{ p: 0.7, minWidth: 26 }}
+          >
+            <Icon icon='material-symbols:add' />
+          </Button>
+          </Box>
+        </Grid>
+      )}
+      <Grid item xs={12}>
+        <Box 
+          display='flex'
+          alignItems='center'
+          justifyContent='flex-end'
+          height={60}
+        >
+          <Typography fontWeight='bold' fontSize={14}>Total price</Typography>
+          <Box
+            display='flex'
+            alignItems='center'
+            marginLeft={20} 
+            marginRight={5}
+          >
+            <Typography fontWeight='bold' fontSize={14}>
+              {!priceData || priceData.id === NOT_APPLICABLE
+                  ? formatCurrency(
+                    formatByRoundingProcedure(
+                      totalPrice,
+                      priceData?.decimalPlace!,
+                      priceData?.roundingProcedure!,
+                      currentItem[0]?.currency ?? 'USD',
+                    ),
+                    currentItem[0]?.currency ?? 'USD',
+                  )
+                : formatCurrency(
+                    formatByRoundingProcedure(
+                      totalPrice,
+                      priceData?.decimalPlace!,
+                      priceData?.roundingProcedure!,
+                      priceData?.currency! ?? 'USD',
+                    ),
+                    priceData?.currency ?? 'USD',
+                  )}
+            </Typography>
+            {type === 'detail' || type === 'invoiceDetail' ? null : (
+              <IconButton onClick={() => getTotalPrice()}>
+                <Icon icon='material-symbols:refresh' />
+              </IconButton>
+            )}
+          </Box>
+        </Box>
+      </Grid>
     </Grid>
   )
 }
+
+const CustomTableCell = styled(TableCell)`
+  display: flex !important;
+  align-items: center;
+  height: 65px;
+  margin: 0px;
+  padding: 5px;
+`

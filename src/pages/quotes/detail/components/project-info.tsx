@@ -38,6 +38,7 @@ import { updateProjectInfoType } from '../[id]'
 import { update } from 'lodash'
 import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
 import { CancelReasonType } from '@src/types/requests/detail.type'
+import { ReasonType } from '@src/types/quotes/quote'
 
 type Props = {
   project: ProjectInfoType | undefined
@@ -83,16 +84,13 @@ export default function QuotesProjectInfoDetail({
     >
   >([])
 
-  const onClickReason = (
-    status: string,
-    canceledReason: CancelReasonType | null,
-  ) => {
+  const onClickReason = (status: string, reason: ReasonType | null) => {
     openModal({
       type: `${status}ReasonModal`,
       children: (
         <ReasonModal
           onClose={() => closeModal(`${status}ReasonModal`)}
-          canceledReason={canceledReason}
+          reason={reason}
           type={status}
           vary='info'
         />
@@ -111,6 +109,20 @@ export default function QuotesProjectInfoDetail({
           },
         },
       )
+  }
+
+  const filterStatusList = () => {
+    if (client && statusList) {
+      if (client.contactPerson && client.contactPerson?.userId) {
+        return statusList?.filter(
+          value =>
+            value.label === 'New' ||
+            value.label === 'In preparation' ||
+            value.label === 'Internal Review',
+        )
+      }
+    }
+    return statusList!
   }
 
   useEffect(() => {
@@ -153,7 +165,7 @@ export default function QuotesProjectInfoDetail({
     }
   }, [client])
 
-  console.log(contactPersonId)
+  // console.log(contactPersonId)
 
   return (
     <Fragment>
@@ -187,7 +199,8 @@ export default function QuotesProjectInfoDetail({
           <Grid item xs={6}>
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
-              {isUpdatable &&
+              {type === 'detail' &&
+              isUpdatable &&
               project.status !== 'Quote sent' &&
               project.status !== 'Client review' &&
               project.status !== 'Revision requested' &&
@@ -201,7 +214,7 @@ export default function QuotesProjectInfoDetail({
                 <Autocomplete
                   autoHighlight
                   fullWidth
-                  options={statusList ?? []}
+                  options={filterStatusList() ?? []}
                   onChange={(e, v) => {
                     if (updateStatus && v?.value) {
                       updateStatus(v.value as number)
@@ -232,14 +245,17 @@ export default function QuotesProjectInfoDetail({
                     project.status === 'Rejected' ||
                     project.status === 'Canceled') && (
                     <IconButton
-                      onClick={() =>
-                        onClickReason(
-                          project.status === 'Revision requested'
-                            ? 'Requested'
-                            : project.status,
-                          project.canceledReason,
-                        )
-                      }
+                      onClick={() => {
+                        project.reason &&
+                          onClickReason(
+                            project.reason.type === 'revision-request'
+                              ? 'Requested'
+                              : project.reason.type?.replace(/^[a-z]/, char =>
+                                  char.toUpperCase(),
+                                ),
+                            project.reason,
+                          )
+                      }}
                     >
                       <img
                         src='/images/icons/onboarding-icons/more-reason.svg'
@@ -342,7 +358,11 @@ export default function QuotesProjectInfoDetail({
                     {client?.contactPerson?.jobTitle
                       ? ` / ${client?.contactPerson?.jobTitle}`
                       : ''}
-                    {type === 'history' ? null : (
+                    {type === 'history' && 
+                      (project.status === 'Changed into order' ||
+                      project.status === 'Rejected' ||
+                      project.status === 'Canceled')
+                    ? null : (
                       <IconButton onClick={() => setContactPersonEdit(true)}>
                         <Icon icon='mdi:pencil-outline' />
                       </IconButton>
@@ -397,7 +417,7 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer>
               <CustomTypo fontWeight={600}>Area of expertise</CustomTypo>
               <CustomTypo variant='body2'>
-                {project.expertise ?? '-'}
+                {project.expertise?.join(', ') ?? '-'}
               </CustomTypo>
             </LabelContainer>
           </Grid>

@@ -56,14 +56,14 @@ const Calendar = (props: Props) => {
     },
 
     eventClick({ event }: any) {
-      setCurrentListId(event?.id)
+      setCurrentListId(Number(event?.id))
     },
   }
 
   async function handleMonthChange(payload: DatesSetArg) {
     const currDate = payload.view.currentStart
     const currYear = currDate.getFullYear()
-    const currMonth = currDate.getMonth()
+    const currMonth = currDate.getMonth() + 1
     setYear(currYear)
     setMonth(currMonth)
   }

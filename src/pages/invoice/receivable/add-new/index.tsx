@@ -38,24 +38,15 @@ import { ClientFormType, clientSchema } from '@src/types/schema/client.schema'
 import { StandardPriceListType } from '@src/types/common/standard-price'
 import { itemSchema } from '@src/types/schema/item.schema'
 import { ItemType } from '@src/types/common/item.type'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
+
 import { ProjectTeamFormType } from '@src/types/common/orders-and-quotes.type'
 import { MemberType } from '@src/types/schema/project-team.schema'
 
 // ** components
-import PageLeaveModal from '@src/pages/client/components/modals/page-leave-modal'
 import Stepper from '@src/pages/components/stepper'
 import ProjectTeamFormContainer from '@src/pages/quotes/components/form-container/project-team-container'
 import ClientQuotesFormContainer from '@src/pages/components/form-container/clients/client-container'
 import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
 import AddLanguagePairForm from '@src/pages/components/forms/add-language-pair-form'
 import ItemForm from '@src/pages/components/forms/items-form'
 import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-modal'
@@ -82,15 +73,11 @@ import {
 import { NOT_APPLICABLE } from '@src/shared/const/not-applicable'
 import { getClientPriceList } from '@src/apis/company/company-price.api'
 import InvoiceProjectInfoForm from '@src/pages/components/forms/invoice-receivable-info-form'
-import {
-  InvoiceProjectInfoFormType,
-  InvoiceReceivableStatusType,
-} from '@src/types/invoice/common.type'
+import { InvoiceProjectInfoFormType } from '@src/types/invoice/common.type'
 import {
   invoiceProjectInfoDefaultValue,
   invoiceProjectInfoSchema,
 } from '@src/types/schema/invoice-project-info.schema'
-import { useGetInvoiceStatus } from '@src/queries/invoice/common.query'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -104,6 +91,7 @@ import {
 import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { createInvoice } from '@src/apis/invoice/receivable.api'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useGetStatusList } from '@src/queries/common.query'
 
 export type languageType = {
   id: number | string
@@ -133,8 +121,9 @@ export const defaultOption: StandardPriceListType & {
 export default function AddNewInvoice() {
   const router = useRouter()
   const { user } = useContext(AuthContext)
-  const { data: statusList, isLoading } = useGetInvoiceStatus()
+  const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
+  const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
 
   useEffect(() => {
@@ -147,6 +136,20 @@ export default function AddNewInvoice() {
 
   const { openModal, closeModal } = useModal()
 
+  const [subPrice, setSubPrice] = useState(0)
+  function sumTotalPrice() {
+    const subPrice = getItem()?.items!
+    if (subPrice) {
+      const total = subPrice.reduce((accumulator, item) => {
+        return accumulator + item.totalPrice
+      }, 0)
+      setSubPrice(total)
+    }
+  }
+  useEffect(() => {
+    sumTotalPrice()
+  }, [])
+
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
 
@@ -156,7 +159,7 @@ export default function AddNewInvoice() {
     (data: InvoiceReceivablePatchParamsType) => createInvoice(data),
     {
       onSuccess: (data: CreateInvoiceReceivableRes) => {
-        console.log(data)
+        // console.log(data)
 
         closeModal('CreateInvoiceModal')
         router.push(`/invoice/receivable/detail/${data.data.id}`)
@@ -367,6 +370,7 @@ export default function AddNewInvoice() {
   }
 
   function onSubmit() {
+    setIsWarn(false)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -387,7 +391,6 @@ export default function AddNewInvoice() {
       members: teams.member,
       contactPersonId: clients.contactPersonId,
       orderId: Number(router.query.orderId),
-      invoiceStatus: projectInfo.status,
       invoicedAt: projectInfo.invoiceDate,
       payDueAt: projectInfo.paymentDueDate.date,
       description: projectInfo.invoiceDescription,
@@ -504,13 +507,13 @@ export default function AddNewInvoice() {
         })
       getProjectInfo(id)
         .then(res => {
-          console.log(res)
+          // console.log(res)
 
           projectInfoReset({
-            status: 'In preparation' as InvoiceReceivableStatusType,
             invoiceDate: Date(),
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
+            showDescription: res?.showDescription ?? false,
             invoiceDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
@@ -558,6 +561,7 @@ export default function AddNewInvoice() {
               totalPrice: item?.totalPrice ?? 0,
               dueAt: item.dueAt,
               contactPersonId: item.contactPersonId,
+              showItemDescription: item.showItemDescription,
             }
           })
           itemReset({ items: result })
@@ -570,7 +574,7 @@ export default function AddNewInvoice() {
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/invoice/receivable',
   })
 
@@ -641,6 +645,7 @@ export default function AddNewInvoice() {
                 setTax={setTax}
                 setTaxable={(n: boolean) => setProjectInfo('isTaxable', n)}
                 type='invoice'
+                formType='create'
               />
               <Grid item xs={12} display='flex' justifyContent='space-between'>
                 <Button
@@ -671,7 +676,6 @@ export default function AddNewInvoice() {
                   watch={projectInfoWatch}
                   errors={projectInfoErrors}
                   clientTimezone={getClientValue('contacts.timezone')}
-                  statusList={statusList!}
                 />
                 <Grid
                   item
@@ -725,6 +729,7 @@ export default function AddNewInvoice() {
                   priceUnitsList={priceUnitsList || []}
                   type='invoiceDetail'
                   itemTrigger={itemTrigger}
+                  sumTotalPrice={sumTotalPrice}
                 />
               </Grid>
 
@@ -757,9 +762,7 @@ export default function AddNewInvoice() {
                     >
                       {formatCurrency(
                         formatByRoundingProcedure(
-                          items.reduce((acc, cur) => {
-                            return acc + cur.totalPrice
-                          }, 0),
+                          subPrice,
                           priceInfo?.decimalPlace!,
                           priceInfo?.roundingProcedure!,
                           priceInfo?.currency!,

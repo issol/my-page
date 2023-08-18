@@ -1,5 +1,5 @@
 // ** React Imports
-import { MouseEvent, SyntheticEvent, useContext, useState } from 'react'
+import { MouseEvent, Suspense, SyntheticEvent, useState } from 'react'
 
 // ** styled components
 import styled from 'styled-components'
@@ -26,6 +26,7 @@ import PaymentInfo from '../components/payment-info'
 import UserInfoCard from '@src/@core/components/userInfo'
 import logger from '@src/@core/utils/logger'
 import { useGetProOverview } from '@src/queries/pro/pro-details.query'
+import FallbackSpinner from '@src/@core/components/spinner'
 import { AuthContext } from '@src/context/AuthContext'
 import { useAppSelector } from '@src/hooks/useRedux'
 import ProInvoices from '../components/invoices'
@@ -97,7 +98,11 @@ export default function ProDetail() {
           <ProDetailOverviews />
         </TabPanel>
         <TabPanel value='paymentInfo'>
-          {id && <PaymentInfo id={Number(id)} userRole={currentRole?.name!} />}
+          <Suspense fallback={<FallbackSpinner />}>
+            {id && (
+              <PaymentInfo id={Number(id)} userRole={currentRole?.name!} />
+            )}
+          </Suspense>
         </TabPanel>
       </TabContext>
     </div>

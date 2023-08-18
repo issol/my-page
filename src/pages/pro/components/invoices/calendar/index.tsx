@@ -11,7 +11,6 @@ import { Typography } from '@mui/material'
 // ** components
 import ReceivableCalendar from './calendar'
 
-import CalendarSideBar from '@src/pages/components/sidebar'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
 
 // ** Hooks
@@ -22,21 +21,17 @@ import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 // ** types
 import { CalendarEventType } from '@src/types/common/calendar.type'
-import {
-  InvoiceReceivableFilterType,
-  InvoiceReceivableListType,
-} from '@src/types/invoice/receivable.type'
-
-import { InvoiceCalenderStatus } from '@src/shared/const/status/statuses'
 
 // ** apis
-import { useGetReceivableCalendar } from '@src/queries/invoice/receivable.query'
 import ProInvoiceList from '../list/list'
 import {
+  InvoiceReceivableStatusType,
   ProInvoiceListFilterType,
   ProInvoiceListType,
 } from '@src/types/invoice/common.type'
 import { useGetProInvoiceListCalendar } from '@src/queries/pro/pro-details.query'
+import { useGetStatusList } from '@src/queries/common.query'
+import { getReceivableStatusColor } from '@src/shared/helpers/colors.helper'
 
 const CalendarContainer = () => {
   // ** States
@@ -59,13 +54,17 @@ const CalendarContainer = () => {
     take: 10,
   })
 
+  const { data: statusList } = useGetStatusList('InvoiceReceivable')
+
+  const statuses = statusList?.map(i => ({
+    value: i.value,
+    label: i.label,
+    color: getReceivableStatusColor(i.value as InvoiceReceivableStatusType),
+  }))
+
   const [year, setYear] = useState(new Date().getFullYear())
   const [month, setMonth] = useState(new Date().getMonth() + 1)
-  const { data, refetch, isLoading } = useGetProInvoiceListCalendar(
-    year,
-    month,
-    filter,
-  )
+  const { data, isLoading } = useGetProInvoiceListCalendar(year, month, filter)
   const [event, setEvent] = useState<
     Array<CalendarEventType<ProInvoiceListType>>
   >([])
@@ -74,10 +73,6 @@ const CalendarContainer = () => {
   const [currentList, setCurrentList] = useState<
     Array<CalendarEventType<ProInvoiceListType>>
   >([])
-
-  useEffect(() => {
-    refetch()
-  }, [year, month])
 
   useEffect(() => {
     if (currentListId && data?.data) {
@@ -116,7 +111,7 @@ const CalendarContainer = () => {
       >
         <CalendarStatusSideBar
           alertIconStatus='Canceled'
-          status={InvoiceCalenderStatus}
+          status={statuses || []}
           mdAbove={mdAbove}
           leftSidebarWidth={leftSidebarWidth}
         />

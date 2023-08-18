@@ -10,7 +10,7 @@ type Props = {
   onClose: () => void
 }
 export default function DeleteModal({ row, onDelete, onClose }: Props) {
-  console.log(row)
+  // console.log(row)
   const message = !row.isBase
     ? 'Are you sure you want to delete this price unit?'
     : 'Are you sure you want to delete this base price unit? The associated price units will also be deleted.'

@@ -1,5 +1,5 @@
 // ** React Imports
-import { useEffect, useState } from 'react'
+import { Suspense, useContext, useEffect, useState } from 'react'
 
 // ** MUI Imports
 import Box from '@mui/material/Box'
@@ -16,68 +16,61 @@ import { useSettings } from 'src/@core/hooks/useSettings'
 import CalendarWrapper from 'src/@core/styles/libs/fullcalendar'
 
 import { Typography } from '@mui/material'
-import { useGetProjectCalendarData } from '@src/queries/pro-project/project.query'
-import { CalendarEventType, SortingType } from '@src/apis/pro/pro-projects.api'
 
-import { ClientProjectCalendarEventType } from '@src/apis/client.api'
-import ClientProjectCalendar from './order-list-calendar-view'
-import { useGetClientProjectsCalendar } from '@src/queries/client/client-detail'
-import ClientProjectList from '../list/list'
-import { UserDataType } from '@src/context/types'
-import { ClientProjectListType } from '@src/types/client/client-projects.type'
 import { OrderListCalendarEventType } from '@src/apis/order-list.api'
 import { OrderListType } from '@src/types/orders/order-list'
 import { useGetOrderListCalendar } from '@src/queries/order/order.query'
-import OrderListCalendarView from './order-list-calendar-view'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
-import CalendarSideBar from '@src/pages/components/sidebar'
+import { AuthContext } from '@src/context/AuthContext'
+import { getCurrentRole } from '@src/shared/auth/storage'
+import { useGetStatusList } from '@src/queries/common.query'
+import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
+import { CalendarEventType } from '@src/types/common/calendar.type'
+import Calendar from './order-list-calendar-view'
+import { OrderStatusType } from '@src/types/common/orders.type'
+import { getOrderStatusColor } from '@src/shared/helpers/colors.helper'
 
-type Props = {
-  user: UserDataType
-}
-
-const OrderListCalendar = ({ user }: Props) => {
+const OrderListCalendar = () => {
   // ** States
   const [leftSidebarOpen, setLeftSidebarOpen] = useState<boolean>(false)
   const [hideFilter, setHideFilter] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
   const router = useRouter()
+  const { user } = useContext(AuthContext)
+  const currentRole = getCurrentRole()
+  const { data: statusList } = useGetStatusList('Order')
 
   // ** Hooks
   const { settings } = useSettings()
 
-  // ** calendar values
+  // ** calendar valuesee
   const leftSidebarWidth = 260
   const { skin, direction } = settings
   const mdAbove = useMediaQuery((theme: Theme) => theme.breakpoints.up('md'))
 
   const [year, setYear] = useState(new Date().getFullYear())
-  const [month, setMonth] = useState(new Date().getMonth())
-  const { data, isLoading } = useGetOrderListCalendar(year, month)
-  const [event, setEvent] = useState<Array<OrderListCalendarEventType>>([])
+  const [month, setMonth] = useState(new Date().getMonth() + 1)
+  const { data, isLoading } = useGetOrderListCalendar(year, month, {})
+  const [event, setEvent] = useState<Array<CalendarEventType<OrderListType>>>(
+    [],
+  )
 
   const [currentListId, setCurrentListId] = useState<null | number>(null)
   const [currentList, setCurrentList] = useState<
     Array<OrderListCalendarEventType>
   >([])
 
-  const [selected, setSelected] = useState<number | null>(null)
+  const [statuses, setStatuses] = useState<
+    Array<{ color: string; value: number; label: string }>
+  >([])
 
   const handleRowClick = (row: OrderListType) => {
     router.push(`/orders/order-list/detail/${row.id}`)
   }
 
-  const isSelected = (index: number) => {
-    return index === selected
-  }
-
   useEffect(() => {
-    console.log(currentListId)
-
     if (currentListId && data?.data) {
-      console.log(currentListId)
-
       setCurrentList(data?.data.filter(item => item.id === currentListId))
     }
   }, [currentListId])
@@ -92,13 +85,35 @@ const OrderListCalendar = ({ user }: Props) => {
 
   useEffect(() => {
     if (data?.data.length && hideFilter) {
-      setEvent(data.data.filter(item => item.status !== 'Completed'))
+      setEvent(
+        data.data.filter(
+          item =>
+            item.status !== 10700 &&
+            item.status !== 101200 &&
+            item.status !== 101000 &&
+            item.status !== 101100,
+        ),
+      )
     } else if (data?.data.length && !hideFilter) {
       setEvent([...data.data])
     }
   }, [data, hideFilter])
 
   const handleLeftSidebarToggle = () => setLeftSidebarOpen(!leftSidebarOpen)
+
+  useEffect(() => {
+    if (statusList) {
+      const res = statusList.map(value => ({
+        ...value,
+        color: getOrderStatusColor(value.value as OrderStatusType),
+      }))
+      setStatuses(res)
+    }
+  }, [statusList])
+
+  useEffect(() => {
+    // console.log(event)
+  }, [event])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '24px' }}>
@@ -109,19 +124,24 @@ const OrderListCalendar = ({ user }: Props) => {
           ...(skin === 'bordered' && {
             border: theme => `1px solid ${theme.palette.divider}`,
           }),
+          '& .fc-daygrid-event-harness': {
+            '& .fc-event': {
+              padding: '0 !important',
+            },
+            '.fc-h-event': {
+              border: 'none',
+            },
+          },
         }}
       >
-        <CalendarSideBar
-          title='Projects in'
-          alertIconStatus='Canceled'
-          event={event}
-          month={month}
-          mdAbove={mdAbove}
-          leftSidebarWidth={leftSidebarWidth}
-          leftSidebarOpen={leftSidebarOpen}
-          handleLeftSidebarToggle={handleLeftSidebarToggle}
-          setCurrentListId={setCurrentListId}
-        />
+        <Suspense>
+          <CalendarStatusSideBar
+            alertIconStatus='Canceled'
+            status={statuses!}
+            mdAbove={mdAbove}
+            leftSidebarWidth={leftSidebarWidth}
+          />
+        </Suspense>
         <Box
           sx={{
             px: 5,
@@ -159,7 +179,7 @@ const OrderListCalendar = ({ user }: Props) => {
               />
             </Box>
           </Box>
-          <OrderListCalendarView
+          <Calendar
             event={event}
             setYear={setYear}
             setMonth={setMonth}
@@ -174,9 +194,10 @@ const OrderListCalendar = ({ user }: Props) => {
           list={currentList}
           listCount={currentList.length}
           handleRowClick={handleRowClick}
-          user={user}
+          user={user!}
           isLoading={isLoading}
           isCardHeader={false}
+          role={currentRole!}
         />
       ) : null}
     </Box>

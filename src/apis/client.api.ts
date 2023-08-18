@@ -25,6 +25,15 @@ import {
   ClientProjectFilterType,
   ClientProjectListType,
 } from '@src/types/client/client-projects.type'
+import { CorporateClientInfoType } from '@src/context/types'
+import {
+  getOrderStatusColor,
+  getQuoteStatusColor,
+  getReceivableStatusColor,
+} from '@src/shared/helpers/colors.helper'
+import { QuotesStatusType } from '@src/types/common/quotes.type'
+import { OrderStatusType } from '@src/types/common/orders.type'
+import { FileType } from '@src/types/common/file.type'
 
 export type StatusType = 'New' | 'Active' | 'Inactive' | 'Contacted' | 'Blocked'
 export type ClientRowType = {
@@ -51,7 +60,8 @@ export const getClientList = async (
 ): Promise<ClientListDataType> => {
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/al?${makeQuery(filters)}`,
+      // `/api/enough/u/client/al?${makeQuery(filters)}`,
+      `/api/enough/u/client/guideline/al?${makeQuery(filters)}`,
     )
     return data
   } catch (e: any) {
@@ -65,7 +75,8 @@ export const getClientList = async (
 
 export type CreateClientBodyType = CompanyInfoFormType &
   ClientAddressFormType &
-  ClientContactPersonType
+  ClientContactPersonType &
+  CorporateClientInfoType
 
 export const createClient = async (
   form: CreateClientBodyType,
@@ -73,6 +84,43 @@ export const createClient = async (
   try {
     const { data } = await axios.post(`/api/enough/u/client`, form)
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateClient = async (
+  clientId: number,
+  form: CreateClientBodyType,
+): Promise<CreateClientResType> => {
+  try {
+    const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, form)
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createNotesToClient = async (clientId: number, note: string) => {
+  try {
+    await axios.post(`/api/enough/u/client/payment-info/notes`, {
+      clientId,
+      note,
+    })
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const createNotesToClientFiles = async (
+  clientId: number,
+  files: FileType[],
+) => {
+  try {
+    await axios.post(`/api/enough/u/client/payment-info/notes/file`, {
+      clientId,
+      files,
+    })
   } catch (e: any) {
     throw new Error(e)
   }
@@ -103,6 +151,19 @@ export const getClientMemo = async (
   }
 }
 
+export const getClientNotes = async (
+  clientId: number,
+): Promise<{ id?: number; note: string | null; file: Array<FileType> }> => {
+  try {
+    const { data } = await axios.get(
+      `/api/enough/u/client/payment-info/notes?clientId=${clientId}`,
+    )
+    return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
 export type updateClientInfoType = Omit<CompanyInfoFormType, 'memo'>
 export const updateClientInfo = async (
   clientId: number,
@@ -111,6 +172,20 @@ export const updateClientInfo = async (
   try {
     const { data } = await axios.patch(`/api/enough/u/client/${clientId}`, body)
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const updateNotesToClient = async (
+  clientId: number,
+  note: string | null,
+) => {
+  try {
+    await axios.patch(`/api/enough/u/client/payment-info/notes`, {
+      clientId,
+      note,
+    })
   } catch (e: any) {
     throw new Error(e)
   }
@@ -177,6 +252,14 @@ export const deleteContactPerson = async (
       `/api/enough/u/contact-person/${contactPersonId}`,
     )
     return data
+  } catch (e: any) {
+    throw new Error(e)
+  }
+}
+
+export const deleteNotesToClientFiles = async (fileId: number) => {
+  try {
+    await axios.delete(`/api/enough/u/client/payment-info/notes/file/${fileId}`)
   } catch (e: any) {
     throw new Error(e)
   }
@@ -273,7 +356,10 @@ export const getClientProjectList = async (
     //   totalCount: list.length,
     // }
   } catch (e: any) {
-    throw new Error(e)
+    return {
+      data: [],
+      count: 0,
+    }
   }
 }
 
@@ -291,40 +377,27 @@ export const getClientProjectsCalendarData = async (
   id: number,
   year: number,
   month: number,
+  selectedType: 'quote' | 'order',
 ): Promise<ClientProjectCalendarData> => {
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = 'overdue'
-
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}`,
+      `/api/enough/u/client/${id}/projects?year=${year}&month=${month}&projectType=${selectedType}`,
     )
 
     return {
-      data: data.data.map((item: ClientProjectListType, idx: number) => ({
-        ...item,
-        extendedProps: {
-          // TODO : change color by Order, Quote ( To. Jay )
-          calendar:
-            item.status === 'Overdue' ||
-            item.status === 'Overdue (Reminder sent)' ||
-            item.status === 'Canceled'
-              ? color_overdue
-              : item.status === 'In preparation'
-              ? '#F572D8'
-              : item.status === 'Checking in progress'
-              ? '#FDB528'
-              : item.status === 'Accepted by client'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #64C623'
-              : item.status === 'Tax invoice issued'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #46A4Ce'
-              : item.status === 'Paid'
-              ? 'linear-gradient(0deg, #FFF 0%, #FFF 100%), #267838'
-              : 'default',
-        },
-        allDay: true,
-      })),
-      count: data.count ?? 0,
+      data: data.data?.map((item: ClientProjectListType, idx: number) => {
+        return {
+          ...item,
+          extendedProps: {
+            calendar:
+              item.type === 'order'
+                ? getOrderStatusColor(item.status as OrderStatusType)
+                : getQuoteStatusColor(item.status as QuotesStatusType),
+          },
+          allDay: true,
+        }
+      }),
+      count: data?.length ?? 0,
     }
   } catch (e: any) {
     return {
@@ -364,14 +437,10 @@ export const getClientInvoicesCalendarData = async (
   id: number,
   year: number,
   month: number,
-  // filter: ClientInvoiceFilterType,
 ): Promise<ClientInvoiceCalendarData> => {
-  const colors = ['primary', 'secondary', 'success', 'error', 'warning', 'info']
-  const color_overdue = '#FF4D49'
-
   try {
     const { data } = await axios.get(
-      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month + 1}`,
+      `/api/enough/u/client/${id}/invoices?year=${year}&month=${month}`,
     )
 
     return {
@@ -379,22 +448,7 @@ export const getClientInvoicesCalendarData = async (
         return {
           ...item,
           extendedProps: {
-            calendar:
-              item.invoiceStatus === 'Overdue' ||
-              item.invoiceStatus === 'Overdue (Reminder sent)' ||
-              item.invoiceStatus === 'Canceled'
-                ? color_overdue
-                : item.invoiceStatus === 'In preparation'
-                ? '#F572D8'
-                : item.invoiceStatus === 'Checking in progress'
-                ? '#FDB528'
-                : item.invoiceStatus === 'Accepted by client'
-                ? ' #64C623'
-                : item.invoiceStatus === 'Tax invoice issued'
-                ? '#46A4Ce'
-                : item.invoiceStatus === 'Paid'
-                ? '#267838'
-                : 'default',
+            calendar: getReceivableStatusColor(item.invoiceStatus),
           },
           allDay: true,
         }

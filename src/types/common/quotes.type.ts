@@ -3,6 +3,7 @@ import {
   LanguageAndItemType,
   ProjectTeamListType,
 } from '../orders/order-detail'
+import { ReasonType } from '../quotes/quote'
 import { CancelReasonType } from '../requests/detail.type'
 import { ClientAddressType } from '../schema/client-address.schema'
 import { ContactPersonType } from '../schema/client-contact-person.schema'
@@ -13,7 +14,7 @@ import { CurrencyType } from './standard-price'
 export type QuoteStatusType =
   | 'New'
   | 'In preparation'
-  | 'Internal review'
+  | 'Internal Review'
   | 'Client review'
   | 'Quote sent'
   | 'Expired'
@@ -25,6 +26,21 @@ export type QuoteStatusType =
   | 'Revision requested'
   | 'Under revision'
   | 'Revised'
+
+export type QuotesStatusType =
+  | 20000
+  | 20100
+  | 20200
+  | 20300
+  | 20400
+  | 20500
+  | 20600
+  | 20700
+  | 20800
+  | 20900
+  | 201000
+  | 201100
+  | 201200
 
 export type QuotesProjectInfoFormType = {
   status: QuoteStatusType
@@ -39,9 +55,9 @@ export type QuotesProjectInfoFormType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  isShowDescription: boolean
+  showDescription: boolean
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type QuotesProjectInfoAddNewType = {
@@ -57,9 +73,9 @@ export type QuotesProjectInfoAddNewType = {
   quoteDeadline: { date: string; timezone: CountryType }
   quoteExpiryDate: { date: string; timezone: CountryType }
   estimatedDeliveryDate: { date: string; timezone: CountryType }
-  isShowDescription: boolean
+  showDescription: boolean
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
 }
 
 export type QuotesListType = {
@@ -108,9 +124,10 @@ export type ProjectInfoType = {
   estimatedDeliveryDate: string
   estimatedDeliveryDateTimezone: CountryType
   tax: number | null
-  taxable: boolean
+  isTaxable: boolean
   isConfirmed: boolean
-  canceledReason: CancelReasonType | null
+  confirmedAt: string | null
+  reason: ReasonType | null
   linkedOrder: {
     id: number
     corporationId: string
@@ -136,7 +153,6 @@ export type HistoryType = {
   items: LanguageAndItemType
 }
 
-// TODO: 스키마수정하기
 export type QuoteDownloadData = {
   quoteId: number
   adminCompanyName: string

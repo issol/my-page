@@ -10,7 +10,10 @@ export type ClientAddressFormType = {
 }
 
 export type AddressType = 'billing' | 'shipping' | 'additional'
-export type ClientAddressType = {
+
+//** 서버에서 받아오는 데이터는 T=number, form에서는 T=string으로 사용하기 */
+export type ClientAddressType<T extends string | number = string> = {
+  id?: T
   addressType?: AddressType
   name?: string | null
   baseAddress?: string | null //street1
@@ -54,4 +57,29 @@ export const clientAddressSchema = yup.object().shape({
       }),
     )
     .nullable(),
+})
+
+export const clientAddressAllRequiredSchema = yup.object().shape({
+  clientAddresses: yup.array().of(
+    yup.object().shape({
+      addressType: yup
+        .string()
+        .oneOf(['billing', 'shipping', 'additional'])
+        .nullable(),
+      name: yup
+        .string()
+        .nullable()
+        .when('addressType', (addressType, schema) =>
+          addressType === 'additional'
+            ? yup.string().required(FormErrors.required)
+            : schema,
+        ),
+      baseAddress: yup.string().required(FormErrors.required),
+      detailAddress: yup.string().nullable(),
+      city: yup.string().required(FormErrors.required),
+      state: yup.string().nullable(),
+      country: yup.string().required(FormErrors.required),
+      zipCode: yup.string().required(FormErrors.required),
+    }),
+  ),
 })

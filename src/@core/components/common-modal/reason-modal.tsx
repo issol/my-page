@@ -18,19 +18,22 @@ import Icon from 'src/@core/components/icon'
 import AlertIcon from '../alert-icon'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import { ca } from 'date-fns/locale'
+import { ReasonType } from '@src/types/quotes/quote'
 type Props = {
   onClose: any
 
   type: string
   vary: 'error' | 'info' | 'error-report' | 'progress' | 'successful'
-  canceledReason: CancelReasonType | null
+  reason: ReasonType | null
+  showType?: boolean
 }
 export default function ReasonModal({
   onClose,
 
   type,
   vary,
-  canceledReason,
+  reason,
+  showType = true,
 }: Props) {
   return (
     <Box
@@ -71,14 +74,18 @@ export default function ReasonModal({
 
         <DialogContentText id='alert-dialog-slide-description'>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-              <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                {type}&nbsp; reason
-              </Typography>
-              <Typography variant='body1'>
-                {canceledReason ? canceledReason?.reason : '-'}
-              </Typography>
-            </Box>
+            {!showType ? null : (
+              <Box
+                sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}
+              >
+                <Typography variant='body1' sx={{ fontWeight: 600 }}>
+                  {type}&nbsp; reason
+                </Typography>
+                <Typography variant='body1'>
+                  {reason ? reason?.reason : '-'}
+                </Typography>
+              </Box>
+            )}
             <Box
               sx={{
                 display: 'flex',
@@ -88,14 +95,14 @@ export default function ReasonModal({
               }}
             >
               <Typography variant='body1' sx={{ fontWeight: 600 }}>
-                Message {canceledReason?.from === 'lsp' ? 'from' : 'to'} LSP
+                Message {reason?.from === 'lsp' ? 'from' : 'to'} LSP
               </Typography>
               <Typography
                 variant='body2'
                 fontSize={16}
                 sx={{ whiteSpace: 'pre-line !important' }}
               >
-                {canceledReason ? canceledReason?.message : '-'}
+                {reason ? reason?.message : '-'}
               </Typography>
             </Box>
           </Box>

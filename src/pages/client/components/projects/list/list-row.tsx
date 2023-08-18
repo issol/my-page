@@ -132,7 +132,7 @@ export default function ClientProjectsRows(props: {
           size='small'
         >
           <Typography variant='body1' sx={{ fontWeight: 600 }}>
-            {row.workName}
+            {row.workName ?? '-'}
           </Typography>
         </TableCell>
         {separateLine()}
@@ -146,7 +146,7 @@ export default function ClientProjectsRows(props: {
           }}
           size='small'
         >
-          <Typography variant='body1'>{row.projectName}</Typography>
+          <Typography variant='body1'>{row.projectName ?? '-'}</Typography>
         </TableCell>
         {separateLine()}
         <TableCell
@@ -164,7 +164,11 @@ export default function ClientProjectsRows(props: {
           }}
           size='small'
         >
-          <JobTypeChip label={row.category} type={row.category} />
+          {row.category ? (
+            <JobTypeChip label={row.category} type={row.category} />
+          ) : (
+            '-'
+          )}
         </TableCell>
         {separateLine()}
         <TableCell
@@ -178,8 +182,13 @@ export default function ClientProjectsRows(props: {
           }}
           size='small'
         >
-          <ServiceTypeChip label={row.serviceType[0]} />
-          {row.serviceType.slice(1).length ? (
+          {row.serviceType && row.serviceType.length ? (
+            <ServiceTypeChip label={row.serviceType[0]} />
+          ) : (
+            '-'
+          )}
+
+          {row.serviceType && row.serviceType.slice(1).length ? (
             <ExtraNumberChip label={`+${row.serviceType.slice(1).length}`} />
           ) : null}
         </TableCell>

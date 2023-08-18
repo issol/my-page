@@ -1,13 +1,13 @@
 import {
+  Autocomplete,
   Box,
   Button,
   Card,
+  Checkbox,
   Divider,
   Grid,
   IconButton,
-  MenuItem,
-  Select,
-  SelectChangeEvent,
+  TextField,
   Typography,
 } from '@mui/material'
 import {
@@ -16,218 +16,526 @@ import {
   ServiceTypeChip,
 } from '@src/@core/components/chips/chips'
 import Icon from '@src/@core/components/icon'
-import { OrderStatus } from '@src/shared/const/status/statuses'
 import {
   FullDateHelper,
   FullDateTimezoneHelper,
 } from '@src/shared/helpers/date.helper'
-import {
-  OrderProjectInfoFormType,
-  OrderStatusType,
-} from '@src/types/common/orders.type'
-import { ProjectInfoType } from '@src/types/orders/order-detail'
-import {
-  orderProjectInfoDefaultValue,
-  orderProjectInfoSchema,
-} from '@src/types/schema/orders-project-info.schema'
-import { useForm } from 'react-hook-form'
+
+import { ClientType, ProjectInfoType } from '@src/types/orders/order-detail'
+
 import { v4 as uuidv4 } from 'uuid'
-import { yupResolver } from '@hookform/resolvers/yup'
-import { Dispatch, SetStateAction, useEffect, useState } from 'react'
-import ProjectInfoForm from '@src/pages/components/forms/orders-project-info-form'
-import DatePickerWrapper from '@src/@core/styles/libs/react-datepicker'
+
+import { useEffect, useState } from 'react'
+
 import useModal from '@src/hooks/useModal'
-import DiscardModal from '@src/@core/components/common-modal/discard-modal'
-import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
-import CustomModal from '@src/@core/components/common-modal/custom-modal'
-import { useMutation, useQueryClient } from 'react-query'
-import { deleteOrder, patchProjectInfo } from '@src/apis/order-detail.api'
-import toast from 'react-hot-toast'
-import { Router, useRouter } from 'next/router'
-import dayjs from 'dayjs'
+
+import { UseMutationResult, useMutation, useQueryClient } from 'react-query'
+import { deleteOrder } from '@src/apis/order-detail.api'
+
+import { useRouter } from 'next/router'
+
+import { UserRoleType } from '@src/context/types'
+import { updateOrderType } from '../[id]'
+import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
+import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
+import { CancelReasonType } from '@src/types/requests/detail.type'
+import { CancelOrderReason } from '@src/shared/const/reason/reason'
+import AlertModal from '@src/@core/components/common-modal/alert-modal'
+import ReasonModal from '@src/@core/components/common-modal/reason-modal'
+import { ContactPersonType } from '@src/types/schema/client-contact-person.schema'
+import { getClientDetail } from '@src/apis/client.api'
+import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
 type Props = {
-  type: string
-  projectInfo: ProjectInfoType
-  edit: boolean
-  setEdit?: Dispatch<SetStateAction<boolean>>
-  orderId: number
-  onSave?: (data: { id: number; form: OrderProjectInfoFormType }) => void
+  project: ProjectInfoType
+  setEditMode?: (v: boolean) => void
+  isUpdatable: boolean
+  updateStatus?: (status: number) => void
+  role: UserRoleType
+  client?: ClientType
+  type: 'detail' | 'history'
+  updateProject?: UseMutationResult<void, unknown, updateOrderType, unknown>
+  statusList?: Array<{ value: number; label: string }>
 }
 const ProjectInfo = ({
+  project,
+  setEditMode,
+  isUpdatable,
+  updateStatus,
+  role,
+  client,
   type,
-  projectInfo,
-  edit,
-  setEdit,
-  orderId,
-  onSave,
+  updateProject,
+  statusList,
 }: Props) => {
   const { openModal, closeModal } = useModal()
   const router = useRouter()
   const queryClient = useQueryClient()
-  const [value, setValue] = useState<string>(projectInfo.status)
 
-  const {
-    control: projectInfoControl,
-    getValues: getProjectInfo,
-    setValue: setProjectInfo,
-    watch: projectInfoWatch,
-    reset: projectInfoReset,
-    formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
-  } = useForm<OrderProjectInfoFormType>({
-    mode: 'onChange',
-    defaultValues: orderProjectInfoDefaultValue,
-    resolver: yupResolver(orderProjectInfoSchema),
+  const [contactPersonEdit, setContactPersonEdit] = useState(false)
+  const [contactPersonId, setContactPersonId] = useState<number | null>(null)
+  const [contactPersonList, setContactPersonList] = useState<
+    Array<
+      ContactPersonType<number> & {
+        value: number
+        label: string
+      }
+    >
+  >([])
+
+  const [showDescription, setShowDescription] = useState<boolean>(
+    project.showDescription,
+  )
+
+  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
+    onSuccess: () => {
+      queryClient.invalidateQueries(['orderList'])
+      router.push('/orders/order-list')
+    },
   })
 
-  const handleChange = (event: SelectChangeEvent) => {
-    setValue(event.target.value as string)
-    const data = getProjectInfo()
-    if (onSave) {
-      onSave({
-        id: projectInfo.id,
-        form: { ...data, status: event.target.value as OrderStatusType },
+  const onClickDelete = () => {
+    if (!project.linkedInvoiceReceivable && !project.linkedJobs.length) {
+      openModal({
+        type: 'DeleteOrderModal',
+        children: (
+          <DeleteConfirmModal
+            onClose={() => closeModal('DeleteOrderModal')}
+            onDelete={() => deleteOrderMutation.mutate(project.id)}
+            message='Are you sure you want to delete this order?'
+            title={`[${project?.corporationId}] ${project?.projectName}`}
+          />
+        ),
+      })
+    } else if (!project.linkedInvoiceReceivable) {
+      openModal({
+        type: 'DisableDeleteOrderModal',
+        children: (
+          <AlertModal
+            onClick={() => closeModal('DisableDeleteOrderModal')}
+            title='This order cannot be deleted because invoice have already been created.'
+            subtitle={`[${project?.corporationId}] ${project?.projectName}`}
+            vary='error'
+            buttonText='Okay'
+          />
+        ),
+      })
+    } else if (!project.linkedJobs.length) {
+      openModal({
+        type: 'DisableDeleteOrderModal',
+        children: (
+          <AlertModal
+            onClick={() => closeModal('DisableDeleteOrderModal')}
+            title='This order cannot be deleted because jobs has already been created.'
+            subtitle={`[${project?.corporationId}] ${project?.projectName}`}
+            vary='error'
+            buttonText='Okay'
+          />
+        ),
       })
     }
   }
 
-  const deleteOrderMutation = useMutation((id: number) => deleteOrder(id), {
-    onSuccess: () => {
-      closeModal('DeleteOrderModal')
-      router.push('/orders/order-list')
-      queryClient.invalidateQueries('orderList')
-    },
-  })
-
-  const onClickDiscard = () => {
-    setEdit!(false)
-    closeModal('DiscardModal')
-  }
-
-  const onClickSave = () => {
-    const data = getProjectInfo()
-    const res = {
-      ...data,
-      projectDueAt: data.projectDueDate.date,
-      projectDueTimezone: data.projectDueDate.timezone,
-      tax: !data.taxable ? null : data.tax,
-    }
-    if (onSave) {
-      onSave({ id: projectInfo.id, form: res })
-    }
-  }
-
-  const handleDeleteOrder = () => {
-    deleteOrderMutation.mutate(orderId)
-    console.log('delete')
-  }
-
-  useEffect(() => {
-    if (projectInfo) {
-      setValue(projectInfo.status)
-      const res = {
-        ...projectInfo,
-        orderDate: projectInfo.orderedAt ?? Date(),
-        projectDueDate: {
-          date: projectInfo.projectDueAt ?? '',
-          timezone: projectInfo.projectDueTimezone,
-        },
-      }
-      projectInfoReset(res)
-    }
-  }, [projectInfo])
-
-  const onClickDelete = () => {
+  const onClickCancel = () => {
     openModal({
-      type: 'DeleteOrderModal',
+      type: 'CancelOrderModal',
       children: (
-        <CustomModal
-          onClose={() => closeModal('DeleteOrderModal')}
-          onClick={handleDeleteOrder}
-          title='Are you sure you want to delete this order?'
+        <SelectReasonModal
+          onClose={() => closeModal('CancelOrderModal')}
+          onClick={(status: number, reason: CancelReasonType) =>
+            updateProject &&
+            updateProject.mutate(
+              { status: status, reason: reason },
+              {
+                onSuccess: () => {
+                  closeModal('CancelOrderModal')
+                },
+              },
+            )
+          }
+          title='Are you sure you want to cancel this order?'
           vary='error'
-          rightButtonText='Delete'
-          subtitle={`[${projectInfo.corporationId}] ${projectInfo.projectName}}`}
+          rightButtonText='Cancel'
+          action='Canceled'
+          from='lsp'
+          statusList={statusList!}
+          type='canceled'
+          reasonList={CancelOrderReason}
         />
       ),
     })
   }
 
+  const onClickReason = () => {
+    openModal({
+      type: `${project.status}ReasonModal`,
+      children: (
+        <ReasonModal
+          onClose={() => closeModal(`${project.status}ReasonModal`)}
+          reason={project.reason}
+          type={
+            project.status === 10800
+              ? 'Requested'
+              : statusList?.find(i => i.value === project?.status)?.label || ''
+          }
+          vary='info'
+        />
+      ),
+    })
+  }
+
+  const filterStatusList = () => {
+    if (client && statusList) {
+      if (client.contactPerson && client.contactPerson?.userId) {
+        return statusList?.filter(
+          value =>
+            value.label !== 'Invoiced' &&
+            value.label !== 'Paid' &&
+            value.label !== 'Canceled',
+        )
+      } else {
+        return statusList?.filter(
+          value =>
+            value.label === 'New' ||
+            value.label === 'In preparation' ||
+            value.label === 'Internal review',
+        )
+      }
+    } else {
+      return statusList!
+    }
+  }
+
+  const onClickEditSaveContactPerson = () => {
+    // TODO api
+    updateProject &&
+      updateProject.mutate(
+        { contactPersonId: contactPersonId },
+        {
+          onSuccess: () => {
+            setContactPersonEdit(false)
+          },
+        },
+      )
+  }
+
+  useEffect(() => {
+    if (client) {
+      setContactPersonId(client.contactPerson ? client.contactPerson.id! : null)
+
+      getClientDetail(client.client.clientId)
+        .then(res => {
+          if (res?.contactPersons?.length) {
+            const result: Array<
+              ContactPersonType<number> & {
+                value: number
+                label: string
+              }
+            > = res.contactPersons.map(item => ({
+              ...item,
+              value: item.id!,
+              label: !item?.jobTitle
+                ? getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })
+                : `${getLegalName({
+                    firstName: item.firstName!,
+                    middleName: item.middleName,
+                    lastName: item.lastName!,
+                  })} / ${item.jobTitle}`,
+            }))
+            setContactPersonList(result)
+          } else {
+            setContactPersonList([])
+          }
+        })
+        .catch(e => {
+          setContactPersonList([])
+        })
+    }
+  }, [client])
+
   return (
     <>
       <Card sx={{ padding: '24px' }}>
-        {edit ? (
-          <DatePickerWrapper>
-            <Grid container xs={12} spacing={6}>
-              <ProjectInfoForm
-                control={projectInfoControl}
-                setValue={setProjectInfo}
-                watch={projectInfoWatch}
-                errors={projectInfoErrors}
-              />
-              <Grid item xs={12}>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'space-between',
+              alignItems: 'center',
+            }}
+          >
+            <Typography variant='h6'>{project.projectName}</Typography>
+            {type === 'detail' && isUpdatable ? (
+              <IconButton
+                onClick={() => {
+                  updateProject && updateProject.mutate({ status: 105 })
+                  setEditMode!(true)
+                }}
+              >
+                <Icon icon='mdi:pencil-outline' />
+              </IconButton>
+            ) : null}
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            <Box sx={{ display: 'flex' }}>
+              <Box sx={{ display: 'flex', flex: 1 }}>
                 <Box
                   sx={{
                     display: 'flex',
-                    justifyContent: 'center',
-                    gap: '16px',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '25.21%',
                   }}
                 >
-                  <Button
-                    variant='outlined'
-                    color='secondary'
-                    onClick={() =>
-                      openModal({
-                        type: 'DiscardModal',
-                        children: (
-                          <DiscardModal
-                            onClose={() => closeModal('DiscardModal')}
-                            onClick={onClickDiscard}
-                          />
-                        ),
-                      })
-                    }
+                  <Typography
+                    variant='subtitle1'
+                    sx={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      width: '100%',
+                    }}
                   >
-                    Cancel
-                  </Button>
-                  <Button
-                    variant='contained'
-                    disabled={!isProjectInfoValid}
-                    onClick={() =>
-                      openModal({
-                        type: 'EditSaveModal',
-                        children: (
-                          <EditSaveModal
-                            onClose={() => closeModal('EditSaveModal')}
-                            onClick={onClickSave}
-                          />
-                        ),
-                      })
-                    }
-                  >
-                    Save
-                  </Button>
+                    Order date
+                  </Typography>
                 </Box>
-              </Grid>
-            </Grid>
-          </DatePickerWrapper>
-        ) : (
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '36px' }}>
-            <Box
-              sx={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-              }}
-            >
-              <Typography variant='h6'>{projectInfo.projectName}</Typography>
-              {type === 'detail' ? (
-                <IconButton onClick={() => setEdit!(true)}>
-                  <Icon icon='mdi:pencil-outline' />
-                </IconButton>
-              ) : null}
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '73.45%',
+                  }}
+                >
+                  <Typography
+                    variant='subtitle2'
+                    sx={{
+                      width: '100%',
+                    }}
+                  >
+                    {FullDateHelper(project.orderedAt)}
+                  </Typography>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', flex: 1 }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '25.21%',
+                  }}
+                >
+                  <Typography
+                    variant='subtitle1'
+                    sx={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      width: '100%',
+                    }}
+                  >
+                    Status
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '73.45%',
+                  }}
+                >
+                  {type === 'detail' &&
+                  isUpdatable &&
+                  (project.status === 10000 ||
+                    project.status === 10100 ||
+                    project.status === 10200) ? (
+                    <Autocomplete
+                      autoHighlight
+                      fullWidth
+                      disableClearable={true}
+                      options={filterStatusList() ?? []}
+                      onChange={(e, v) => {
+                        if (updateStatus && v?.value) {
+                          updateStatus(v.value as number)
+                        }
+                      }}
+                      isOptionEqualToValue={(option, newValue) => {
+                        return option.value === newValue.value
+                      }}
+                      value={
+                        statusList &&
+                        statusList.find(item => item.value === project.status)
+                      }
+                      renderInput={params => (
+                        <TextField
+                          {...params}
+                          placeholder='Status'
+                          size='small'
+                          sx={{ maxWidth: '300px' }}
+                        />
+                      )}
+                    />
+                  ) : (
+                    <Box
+                      sx={{ display: 'flex', gap: '8px', alignItems: 'center' }}
+                    >
+                      <OrderStatusChip
+                        status={project.status}
+                        label={
+                          statusList?.find(
+                            item => item.value === project.status,
+                          )?.label || ''
+                        }
+                      />
+                      {(project.status === 10800 ||
+                        project.status === 101200) && (
+                        <IconButton
+                          onClick={() => {
+                            project.reason && onClickReason()
+                          }}
+                        >
+                          <img
+                            src='/images/icons/onboarding-icons/more-reason.svg'
+                            alt='more'
+                          />
+                        </IconButton>
+                      )}
+                    </Box>
+                  )}
+                </Box>
+              </Box>
             </Box>
-            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+            {role.name === 'CLIENT' ? (
+              <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', width: '50%' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+
+                      width: '25.21%',
+                    }}
+                  >
+                    <Typography fontSize={14} fontWeight={600}>
+                      Contact person
+                    </Typography>
+                  </Box>
+                  {contactPersonEdit ? (
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        gap: '10px',
+                        width: '300px',
+                      }}
+                    >
+                      <Autocomplete
+                        autoHighlight
+                        fullWidth
+                        options={contactPersonList
+                          .filter(item => item.id !== contactPersonId)
+                          .map(value => ({
+                            value: value.value,
+                            label: value.label,
+                          }))}
+                        onChange={(e, v) => {
+                          // onChange(v.value)
+                          const res = contactPersonList.filter(
+                            item => item.id === Number(v.value),
+                          )
+                          setContactPersonId(
+                            res.length ? res[0].id! : Number(v.value)!,
+                          )
+                        }}
+                        disableClearable
+                        // disabled={type === 'request'}
+                        value={
+                          contactPersonList
+                            .filter(value => value.id === contactPersonId)
+                            .map(value => ({
+                              value: value.value,
+                              label: value.label,
+                            }))[0] || { value: '', label: '' }
+                        }
+                        renderInput={params => (
+                          <TextField
+                            {...params}
+                            size='small'
+                            // label='Contact person*'
+                            inputProps={{
+                              ...params.inputProps,
+                            }}
+                          />
+                        )}
+                      />
+                      <Box
+                        sx={{
+                          display: 'flex',
+                          gap: '5px',
+                          alignItems: 'center',
+                        }}
+                      >
+                        <Button
+                          variant='outlined'
+                          sx={{
+                            width: '26px !important',
+                            height: '26px',
+                            minWidth: '26px !important',
+                            padding: '0 !important',
+                            border: 'none',
+                            color: 'rgba(76, 78, 100, 0.6)',
+                          }}
+                          onClick={() => setContactPersonEdit(false)}
+                        >
+                          <Icon icon='ic:outline-close' fontSize={20} />
+                        </Button>
+                        <Button
+                          variant='contained'
+                          sx={{
+                            width: '26px !important',
+                            height: '26px',
+                            minWidth: '26px !important',
+                            padding: '0 !important',
+                          }}
+                          onClick={onClickEditSaveContactPerson}
+                        >
+                          <Icon icon='mdi:check' fontSize={20} />
+                        </Button>
+                      </Box>
+                    </Box>
+                  ) : (
+                    <Typography
+                      variant='body2'
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: '10px',
+                      }}
+                    >
+                      {getLegalName({
+                        firstName: client?.contactPerson?.firstName,
+                        middleName: client?.contactPerson?.middleName,
+                        lastName: client?.contactPerson?.lastName,
+                      })}
+                      {client?.contactPerson?.jobTitle
+                        ? ` / ${client?.contactPerson?.jobTitle}`
+                        : ''}
+                      {type === 'history' ? null : (
+                        <IconButton onClick={() => setContactPersonEdit(true)}>
+                          <Icon icon='mdi:pencil-outline' />
+                        </IconButton>
+                      )}
+                    </Typography>
+                  )}
+                </Box>
+              </Box>
+            ) : null}
+            <Divider />
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
               <Box sx={{ display: 'flex' }}>
                 <Box sx={{ display: 'flex', flex: 1 }}>
                   <Box
@@ -246,7 +554,7 @@ const ProjectInfo = ({
                         width: '100%',
                       }}
                     >
-                      Order date
+                      Work name
                     </Typography>
                   </Box>
                   <Box
@@ -263,7 +571,7 @@ const ProjectInfo = ({
                         width: '100%',
                       }}
                     >
-                      {FullDateHelper(projectInfo.orderedAt)}
+                      {project.workName ?? '-'}
                     </Typography>
                   </Box>
                 </Box>
@@ -284,7 +592,7 @@ const ProjectInfo = ({
                         width: '100%',
                       }}
                     >
-                      Status
+                      Category
                     </Typography>
                   </Box>
                   <Box
@@ -295,186 +603,102 @@ const ProjectInfo = ({
                       width: '73.45%',
                     }}
                   >
-                    {type === 'history' ? (
-                      <OrderStatusChip
-                        status={projectInfo.status}
-                        label={projectInfo.status}
+                    {project.category ? (
+                      <JobTypeChip
+                        label={project.category}
+                        type={project.category}
                       />
                     ) : (
-                      <Select
-                        value={value}
-                        onChange={handleChange}
-                        size='small'
-                        sx={{ width: '253px' }}
-                      >
-                        {OrderStatus.map(status => {
-                          return (
-                            <MenuItem key={uuidv4()} value={status.value}>
-                              {status.label}
-                            </MenuItem>
-                          )
-                        })}
-                      </Select>
+                      '-'
                     )}
                   </Box>
                 </Box>
               </Box>
-              <Divider />
-              <Box
-                sx={{ display: 'flex', flexDirection: 'column', gap: '15px' }}
-              >
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
+              <Box sx={{ display: 'flex' }}>
+                <Box sx={{ display: 'flex', flex: 1, alignItems: 'start' }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      alignItems: 'center',
+                      width: '25.21%',
+                    }}
+                  >
+                    <Typography
+                      variant='subtitle1'
                       sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        width: '100%',
                       }}
                     >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Work name
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle2'
-                        sx={{
-                          width: '100%',
-                        }}
-                      >
-                        {projectInfo.workName}
-                      </Typography>
-                    </Box>
+                      Service type
+                    </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Category
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '73.45%',
-                      }}
-                    >
-                      <JobTypeChip
-                        label={projectInfo.category}
-                        type={projectInfo.category}
-                      />
-                    </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+
+                      width: '73.45%',
+                      flexWrap: 'wrap',
+                    }}
+                  >
+                    {project.serviceType
+                      ? project.serviceType.map(value => {
+                          return (
+                            <ServiceTypeChip label={value} key={uuidv4()} />
+                          )
+                        })
+                      : '-'}
                   </Box>
                 </Box>
-                <Box sx={{ display: 'flex' }}>
-                  <Box sx={{ display: 'flex', flex: 1, alignItems: 'start' }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        alignItems: 'center',
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Service type
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
+                <Box sx={{ display: 'flex', flex: 1 }}>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
 
-                        width: '73.45%',
-                        flexWrap: 'wrap',
+                      width: '25.21%',
+                    }}
+                  >
+                    <Typography
+                      variant='subtitle1'
+                      sx={{
+                        fontSize: '14px',
+                        fontWeight: 600,
+                        width: '100%',
                       }}
                     >
-                      {projectInfo.serviceType.map(value => {
-                        return <ServiceTypeChip label={value} key={uuidv4()} />
-                      })}
-                    </Box>
+                      Area of expertise
+                    </Typography>
                   </Box>
-                  <Box sx={{ display: 'flex', flex: 1 }}>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-
-                        width: '25.21%',
-                      }}
-                    >
-                      <Typography
-                        variant='subtitle1'
-                        sx={{
-                          fontSize: '14px',
-                          fontWeight: 600,
-                          width: '100%',
-                        }}
-                      >
-                        Area of expertise
-                      </Typography>
-                    </Box>
-                    <Box
-                      sx={{
-                        display: 'flex',
-                        gap: '8px',
-                        flexWrap: 'wrap',
-                        width: '73.45%',
-                      }}
-                    >
-                      {projectInfo.expertise.map((value, idx) => {
-                        return (
-                          <Typography key={uuidv4()} variant='subtitle2'>
-                            {projectInfo.expertise.length === idx + 1
-                              ? value
-                              : `${value}, `}
-                          </Typography>
-                        )
-                      })}
-                    </Box>
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      gap: '8px',
+                      flexWrap: 'wrap',
+                      width: '73.45%',
+                    }}
+                  >
+                    {project.expertise
+                      ? project.expertise.map((value, idx) => {
+                          return (
+                            <Typography key={uuidv4()} variant='subtitle2'>
+                              {project.expertise.length === idx + 1
+                                ? value
+                                : `${value}, `}
+                            </Typography>
+                          )
+                        })
+                      : '-'}
                   </Box>
                 </Box>
               </Box>
-              <Divider />
-              <Box sx={{ display: 'flex' }}>
+            </Box>
+            <Divider />
+            <Box sx={{ display: 'flex' }}>
+              {role.name === 'CLIENT' ? null : (
                 <Box sx={{ display: 'flex', flex: 1 }}>
                   <Box
                     sx={{
@@ -495,91 +719,7 @@ const ProjectInfo = ({
                       Revenue from
                     </Typography>
                   </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '73.45%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle2'
-                      sx={{
-                        width: '100%',
-                      }}
-                    >
-                      {projectInfo.revenueFrom}
-                    </Typography>
-                  </Box>
-                </Box>
-                <Box sx={{ display: 'flex', flex: 1 }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '25.21%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Project due date
-                    </Typography>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '73.45%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle2'
-                      sx={{
-                        width: '100%',
-                      }}
-                    >
-                      {FullDateTimezoneHelper(
-                        projectInfo.projectDueAt,
-                        projectInfo.projectDueTimezone,
-                      )}
-                    </Typography>
-                  </Box>
-                </Box>
-              </Box>
-              <Divider />
-              <Box sx={{ width: '100%' }}>
-                <Box
-                  sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}
-                >
-                  <Box
-                    sx={{
-                      display: 'flex',
 
-                      gap: '8px',
-                      alignItems: 'center',
-                      width: '25.21%',
-                    }}
-                  >
-                    <Typography
-                      variant='subtitle1'
-                      sx={{
-                        fontSize: '14px',
-                        fontWeight: 600,
-                        width: '100%',
-                      }}
-                    >
-                      Project description
-                    </Typography>
-                  </Box>
                   <Box
                     sx={{
                       display: 'flex',
@@ -594,17 +734,151 @@ const ProjectInfo = ({
                         width: '100%',
                       }}
                     >
-                      {projectInfo.projectDescription}
+                      {project.revenueFrom}
                     </Typography>
                   </Box>
+                </Box>
+              )}
+
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: role.name === 'CLIENT' ? 0.5 : 1,
+                }}
+              >
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '25.21%',
+                  }}
+                >
+                  <Typography
+                    variant='subtitle1'
+                    sx={{
+                      fontSize: '14px',
+                      fontWeight: 600,
+                      width: '100%',
+                    }}
+                  >
+                    Project due date
+                  </Typography>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    gap: '8px',
+                    alignItems: 'center',
+                    width: '73.45%',
+                  }}
+                >
+                  <Typography
+                    variant='subtitle2'
+                    sx={{
+                      width: '100%',
+                    }}
+                  >
+                    {FullDateTimezoneHelper(
+                      project.projectDueAt,
+                      project.projectDueTimezone,
+                    )}
+                  </Typography>
                 </Box>
               </Box>
             </Box>
+            <Divider />
+
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Box
+                sx={{
+                  display: 'flex',
+
+                  alignItems: 'center',
+                  justifyContent: 'space-between',
+                }}
+              >
+                <Typography
+                  variant='subtitle1'
+                  sx={{
+                    fontSize: '14px',
+                    fontWeight: 600,
+                    width: '100%',
+                  }}
+                >
+                  Project description
+                </Typography>
+                {role.name === 'CLIENT' ? null : (
+                  <Box
+                    sx={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      opacity:
+                        project?.status === 10900 ||
+                        project.status === 101100 ||
+                        project.status === 101000 ||
+                        project.status === 101200
+                          ? 0.5
+                          : 1,
+                    }}
+                  >
+                    <Checkbox
+                      value={showDescription}
+                      onChange={e => {
+                        updateProject &&
+                          updateProject.mutate({
+                            showDescription: e.target.checked,
+                          })
+                        setShowDescription(e.target.checked)
+                      }}
+                      checked={showDescription}
+                      disabled={
+                        project?.status === 10700 ||
+                        project.status === 101100 ||
+                        project.status === 101000 ||
+                        project.status === 101200
+                      }
+                    />
+
+                    <Typography
+                      variant='body1'
+                      fontSize={14}
+                      fontWeight={400}
+                      lineHeight='21px'
+                      letterSpacing='0.15px'
+                      sx={{ minWidth: 230 }}
+                    >
+                      Show project description to client
+                    </Typography>
+                  </Box>
+                )}
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  gap: '8px',
+                  alignItems: 'center',
+                  width: '73.45%',
+                }}
+              >
+                <Typography
+                  variant='subtitle2'
+                  sx={{
+                    width: '100%',
+                  }}
+                >
+                  {project.projectDescription &&
+                  project.projectDescription === ''
+                    ? project.projectDescription
+                    : '-'}
+                </Typography>
+              </Box>
+            </Box>
           </Box>
-        )}
+        </Box>
       </Card>
-      {edit || type === 'history' ? null : (
-        <Grid xs={12} container sx={{ mt: '24px' }}>
+      {type === 'history' || role.name === 'CLIENT' ? null : (
+        <Grid container sx={{ mt: '24px' }} xs={12} spacing={4}>
           <Grid item xs={4}>
             <Card sx={{ padding: '20px', width: '100%' }}>
               <Button
@@ -612,6 +886,29 @@ const ProjectInfo = ({
                 fullWidth
                 color='error'
                 size='large'
+                disabled={
+                  project?.status === 101000 ||
+                  project?.status === 101200 ||
+                  project?.status === 101100
+                }
+                onClick={onClickCancel}
+              >
+                Cancel this order
+              </Button>
+            </Card>
+          </Grid>
+          <Grid item xs={4}>
+            <Card sx={{ padding: '20px', width: '100%' }}>
+              <Button
+                variant='outlined'
+                fullWidth
+                color='error'
+                size='large'
+                disabled={
+                  project?.status !== 10000 &&
+                  project?.status !== 10100 &&
+                  project?.status !== 10200
+                }
                 onClick={onClickDelete}
               >
                 Delete this order
