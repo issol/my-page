@@ -302,10 +302,12 @@ export default function ProPaymentInfo({ user }: Props) {
                 case 'tax':
                   if (taxCodes) {
                     const taxInfo = getTaxInfo()
-                    const statusCode = taxCodes.find(
-                      i => i.info === taxInfo.taxInfo,
-                    )?.statusCode!
-                    updateProTaxInfo(user.userId!, statusCode)
+
+                    updateProTaxInfo(
+                      user.userId!,
+                      taxInfo.taxInfo,
+                      taxInfo?.tax!,
+                    )
                       .then(() => {
                         if (taxInfo.businessLicense) {
                           const formData = new FormData()
@@ -353,16 +355,13 @@ export default function ProPaymentInfo({ user }: Props) {
     const taxInfo = getTaxInfo()
 
     if (billingMethodData && taxCodes) {
-      const statusCode = taxCodes.find(i => i.info === taxInfo.taxInfo)
-        ?.statusCode!
-
       updatePaymentMethod(billingMethodData).then(() => {
         if (taxInfo.businessLicense) {
           const formData = new FormData()
           formData.append('file', taxInfo.businessLicense)
           Promise.all([
             updateProBillingAddress(billingAddress),
-            updateProTaxInfo(user.userId!, statusCode),
+            updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
             uploadProPaymentFile('businessLicense', formData),
           ])
             .then(() => invalidatePaymentInfo())
@@ -370,7 +369,7 @@ export default function ProPaymentInfo({ user }: Props) {
         } else {
           Promise.all([
             updateProBillingAddress(billingAddress),
-            updateProTaxInfo(user.userId!, statusCode),
+            updateProTaxInfo(user.userId!, taxInfo.taxInfo, taxInfo?.tax!),
           ])
             .then(() => invalidatePaymentInfo())
             .catch(onError)

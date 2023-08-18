@@ -24,7 +24,12 @@ import HorizontalAppBarContent from './components/horizontal/AppBarContent'
 // ** Hook Import
 import { useSettings } from 'src/@core/hooks/useSettings'
 import { useAppSelector } from '@src/hooks/useRedux'
-import { LPMMenu, TADMenu, PROMenu } from '@src/shared/const/menu/menu'
+import {
+  LPMMenu,
+  TADMenu,
+  PROMenu,
+  CLIENTMenu,
+} from '@src/shared/const/menu/menu'
 import { getCurrentRole } from 'src/shared/auth/storage'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
 interface Props {
@@ -87,8 +92,16 @@ const UserLayout = ({ children, contentHeightFixed }: Props) => {
               ? HorizontalNavItems().filter(value =>
                   TADMenu.includes(value.title),
                 )
-              : HorizontalNavItems().filter(value =>
+              : currentRole.name === 'LPM'
+              ? HorizontalNavItems().filter(value =>
                   LPMMenu.includes(value.title),
+                )
+              : currentRole.name === 'PRO'
+              ? HorizontalNavItems().filter(value =>
+                  PROMenu.includes(value.title),
+                )
+              : HorizontalNavItems().filter(value =>
+                  CLIENTMenu.includes(value.title),
                 )
             : HorizontalNavItems(),
         },
