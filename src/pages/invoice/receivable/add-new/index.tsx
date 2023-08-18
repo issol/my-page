@@ -123,6 +123,7 @@ export default function AddNewInvoice() {
   const { user } = useContext(AuthContext)
   const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
+  const [isWarn, setIsWarn] = useState(true)
   const queryClient = useQueryClient()
 
   useEffect(() => {
@@ -140,14 +141,14 @@ export default function AddNewInvoice() {
     const subPrice = getItem()?.items!
     if (subPrice) {
       const total = subPrice.reduce((accumulator, item) => {
-        return accumulator + item.totalPrice;
+        return accumulator + item.totalPrice
       }, 0)
       setSubPrice(total)
     }
   }
   useEffect(() => {
     sumTotalPrice()
-  },[])
+  }, [])
 
   // ** stepper
   const [activeStep, setActiveStep] = useState<number>(0)
@@ -369,6 +370,7 @@ export default function AddNewInvoice() {
   }
 
   function onSubmit() {
+    setIsWarn(false)
     const teams = transformTeamData(getTeamValues())
     const clients: any = {
       ...getClientValue(),
@@ -572,7 +574,7 @@ export default function AddNewInvoice() {
 
   const { ConfirmLeaveModal } = useConfirmLeave({
     // shouldWarn안에 isDirty나 isSubmitting으로 조건 줄 수 있음
-    shouldWarn: true,
+    shouldWarn: isWarn,
     toUrl: '/invoice/receivable',
   })
 
