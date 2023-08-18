@@ -19,6 +19,7 @@ import { useDropzone } from 'react-dropzone'
 import SimpleAlertModal from '../modals/simple-alert-modal'
 import { FileType } from '@src/types/common/file.type'
 import { v4 as uuidv4 } from 'uuid'
+import { isEqual } from 'lodash'
 
 type Props = {
   onClose: any
@@ -99,6 +100,18 @@ const NotesToClientForm = ({
   const handleRemoveSavedFile = (file: FileType) => {
     setSavedFiles(savedFiles.filter(item => item.name !== file.name))
     setDeletedFiles([...deletedFiles, file])
+  }
+
+  const saveButtonDisableCheck = () => {
+    const isNoteChanged = clientNotes.note !== note
+    const isFileChanged =
+      !isEqual(clientNotes.file, files) || deletedFiles.length > 0
+
+    if (isNoteChanged || isFileChanged) {
+      return false
+    } else {
+      return true
+    }
   }
 
   const fileList = files.map((file: FileType) => (
@@ -266,7 +279,11 @@ const NotesToClientForm = ({
           multiline
           rows={4}
           value={note}
-          onChange={e => setNote(e.target.value)}
+          onChange={e => {
+            if (e.target.value === '') {
+              setNote(null)
+            } else setNote(e.target.value)
+          }}
         />
       </Box>
       <Box sx={{ display: 'flex', gap: '16px', justifyContent: 'center' }}>
@@ -278,6 +295,7 @@ const NotesToClientForm = ({
           onClick={() =>
             onClickSaveNotesToClient(files, setFiles, note, deletedFiles)
           }
+          disabled={saveButtonDisableCheck()}
         >
           Save
         </Button>
