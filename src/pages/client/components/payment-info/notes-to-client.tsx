@@ -293,42 +293,42 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
   }, [notesToClient.file])
 
   return (
-    <Card>
-      <CardHeader
-        title={
-          <Box
-            display='flex'
-            alignItems='center'
-            justifyContent='space-between'
-          >
-            <Box sx={{ display: 'flex', gap: '16px' }}>
-              <Typography variant='h6'>Notes to client</Typography>
-              <Button
-                variant='outlined'
-                sx={{
-                  height: '34px',
-                }}
-                startIcon={<Icon icon='mdi:download' />}
-                onClick={() => downloadAllFiles(notesToClient?.file)}
-                disabled={!notesToClient?.file?.length}
-                // onClick={() => downloadAllFiles(currentVersion?.files)}
-              >
-                Download all
-              </Button>
-            </Box>
-
-            <IconButton onClick={onClickEditNotesToClient}>
-              <Icon icon='mdi:pencil-outline' />
-            </IconButton>
+    <Card sx={{ padding: '24px' }}>
+      <Box display='flex' flexDirection='column'>
+        <Box
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+          }}
+        >
+          <Box sx={{ display: 'flex', gap: '16px' }}>
+            <Typography variant='h6'>Notes to client</Typography>
+            <Button
+              variant='outlined'
+              sx={{
+                height: '34px',
+              }}
+              startIcon={<Icon icon='mdi:download' />}
+              onClick={() => downloadAllFiles(notesToClient?.file)}
+              disabled={!notesToClient?.file?.length}
+              // onClick={() => downloadAllFiles(currentVersion?.files)}
+            >
+              Download all
+            </Button>
           </Box>
-        }
-      />
-      <CardContent>
-        <Box>
-          <Typography variant='body2'>
-            {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
-          </Typography>
-          <Divider />
+          <IconButton onClick={onClickEditNotesToClient}>
+            <Icon icon='mdi:pencil-outline' />
+          </IconButton>
+        </Box>
+
+        <Typography variant='body2'>
+          {formatFileSize(fileSize)}/ {byteToMB(MAXIMUM_FILE_SIZE)}
+        </Typography>
+      </Box>
+
+      <Box sx={{ display: 'flex', flexDirection: 'column', marginTop: '10px' }}>
+        {savedFileList.length > 0 && (
           <Box sx={{ padding: '20px 0' }}>
             <Box
               sx={{
@@ -337,11 +337,16 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
                 gridGap: '16px',
               }}
             >
-              {savedFiles.length > 0 ? savedFileList : '-'}
+              {savedFileList}
             </Box>
           </Box>
+        )}
+
+        <Divider />
+        <Box>
+          <Typography variant='body1'>{notesToClient.note ?? '-'}</Typography>
         </Box>
-      </CardContent>
+      </Box>
     </Card>
   )
 }
