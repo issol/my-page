@@ -20,6 +20,7 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 import { RequestDetailType } from '@src/types/requests/detail.type'
+import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
 
 type Props = {
   data: RequestDetailType | undefined
@@ -121,6 +122,14 @@ export default function RequestDetailCard({ data, openReasonModal }: Props) {
                     <CustomTypo fontWeight={600}>Quantity</CustomTypo>
                     <CustomTypo variant='body2'>
                       {item?.quantity ?? '-'}
+                    </CustomTypo>
+                  </LabelContainer>
+                </Grid>
+                <Grid item xs={6}>
+                  <LabelContainer>
+                    <CustomTypo fontWeight={600}>Language pair</CustomTypo>
+                    <CustomTypo variant='body2'>
+                      {convertLanguageCodeToPair(item?.sourceLanguage, item?.targetLanguage)}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>
