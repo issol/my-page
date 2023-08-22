@@ -26,6 +26,7 @@ import { RequestDetailType } from '@src/types/requests/detail.type'
 import { StyledNextLink } from '@src/@core/components/customLink'
 import { RequestStatusType } from '@src/types/requests/common.type'
 import { UserDataType, UserRoleType } from '@src/context/types'
+import { convertLanguageCodeToPair } from 'src/shared/helpers/language.helper'
 
 type Props = {
   data: RequestDetailType | undefined
@@ -174,6 +175,14 @@ export default function RequestDetailCard({
                     <CustomTypo fontWeight={600}>Quantity</CustomTypo>
                     <CustomTypo variant='body2'>
                       {item?.quantity ?? '-'}
+                    </CustomTypo>
+                  </LabelContainer>
+                </Grid>
+                <Grid item xs={6}>
+                  <LabelContainer>
+                    <CustomTypo fontWeight={600}>Language pair</CustomTypo>
+                    <CustomTypo variant='body2'>
+                      {convertLanguageCodeToPair(item?.sourceLanguage, item?.targetLanguage)}
                     </CustomTypo>
                   </LabelContainer>
                 </Grid>

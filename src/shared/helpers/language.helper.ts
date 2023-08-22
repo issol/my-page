@@ -7,3 +7,10 @@ export default function languageHelper(value: any) {
   const temp = languageList.find((lang: { value: any }) => lang.value == value)
   return temp?.label
 }
+
+export const convertLanguageCodeToPair = (source?: string, target?: string) => {
+  if (source && target) {
+    return `${languageHelper(source)} -> ${languageHelper(target)}`
+  }
+  return '-'
+}
