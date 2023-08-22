@@ -33,7 +33,7 @@ import ListResume from './list/list-resume'
 
 import { ModalContext } from '@src/context/ModalContext'
 import FilePreviewDownloadModal from '../components/pro-detail-modal/modal/file-preview-download-modal'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
@@ -68,7 +68,7 @@ const Pro = () => {
   })
 
   const { data: proList, isLoading } = useGetProList(filters)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { setModal } = useContext(ModalContext)
 
   const { currentRole } = useAppSelector(state => state.userAccess)

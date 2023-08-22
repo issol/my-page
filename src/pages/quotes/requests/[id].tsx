@@ -42,7 +42,7 @@ import { client_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { updateRequest } from '@src/apis/requests/client-request.api'
 
 // ** types
@@ -60,7 +60,7 @@ export default function RequestDetail() {
   const { openModal, closeModal } = useModal()
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const User = new client_request(user?.id!)
 
@@ -318,8 +318,7 @@ export default function RequestDetail() {
                     Sample files
                   </Typography>
                   <Typography variant='body2'>
-                    {formatFileSize(fileSize)}
-                    / {byteToGB(MAXIMUM_FILE_SIZE)}
+                    {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
                   </Typography>
                 </Box>
                 {!data?.sampleFiles?.length ? (

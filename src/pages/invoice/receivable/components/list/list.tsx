@@ -20,7 +20,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useGetStatusList } from '@src/queries/common.query'
 import { UserRoleType } from '@src/context/types'
 
@@ -51,7 +51,7 @@ export default function ReceivableList({
   role,
 }: Props) {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { data: statusList } = useGetStatusList('InvoiceReceivable')
 
   function NoList() {

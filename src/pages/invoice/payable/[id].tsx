@@ -19,7 +19,7 @@ import styled from 'styled-components'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** hooks
 import { useRouter } from 'next/router'
@@ -64,7 +64,7 @@ export default function PayableDetail() {
   const router = useRouter()
   const { id } = router.query
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
 
   const queryClient = useQueryClient()

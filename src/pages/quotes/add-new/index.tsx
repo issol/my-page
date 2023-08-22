@@ -65,7 +65,7 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** apis
 import { useGetClientPriceList } from '@src/queries/company/standard-price'
@@ -110,7 +110,7 @@ export const defaultOption: StandardPriceListType & {
 
 export default function AddNewQuotes() {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const requestId = router.query?.requestId
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))

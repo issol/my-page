@@ -38,7 +38,8 @@ import { ModalButtonGroup, ModalContainer } from 'src/@core/components/modal'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -90,7 +91,7 @@ const ClientGuidelineEdit = () => {
   const router = useRouter()
   const id = Number(router.query.id)
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { setModal } = useContext(ModalContext)
 
   const { data: clientData } = useGetClientList({ take: 1000, skip: 0 })

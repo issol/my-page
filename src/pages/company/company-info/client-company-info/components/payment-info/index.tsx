@@ -26,7 +26,7 @@ import PaymentMethodForm from './payment-method-form'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** hooks
@@ -85,7 +85,7 @@ export default function CompanyPaymentInfo() {
   const queryClient = useQueryClient()
 
   const ability = useContext(AbilityContext)
-  const { user, company } = useContext(AuthContext)
+  const { user, company } = useRecoilValue(authState)
 
   const User = new client_payment(user?.id!)
   const isUpdatable = ability.can('update', User)

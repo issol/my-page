@@ -17,7 +17,7 @@ import { JobsTrackerListType } from '@src/types/jobs/jobs.type'
 import { useRouter } from 'next/router'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useContext } from 'react'
 
 // ** helpers
@@ -47,7 +47,7 @@ export default function JobsTrackerList({
   list,
   isLoading,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const router = useRouter()
 
   const columns: GridColumns<JobsTrackerListType> = [

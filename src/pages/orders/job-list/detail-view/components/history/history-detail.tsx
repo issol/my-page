@@ -21,7 +21,7 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from '../prices/view-prices'
 import AssignPro from '../assign-pro/assign-pro'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 
 type Props = {
@@ -63,7 +63,7 @@ export default function HistoryDetail({
 }: Props) {
   const [value, setValue] = useState<string>('jobInfo')
   const { openModal, closeModal } = useModal()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const [proListSkip, setProListSkip] = useState(0)
   const [proPageSize, setProPageSize] = useState(10)

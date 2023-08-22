@@ -36,7 +36,7 @@ import { set } from 'nprogress'
 import { c } from 'msw/lib/glossary-de6278a9'
 import DiscardChangesModal from '@src/pages/components/modals/discard-modals/discard-changes'
 import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useMutation } from 'react-query'
 import {
   patchCompanyAddress,
@@ -64,7 +64,7 @@ const CompanyInfoPageComponent = () => {
 
   const [tab, setTab] = useState<string>('overview')
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data: companyInfo, refetch } = useGetCompanyInfo(user?.company!)
 

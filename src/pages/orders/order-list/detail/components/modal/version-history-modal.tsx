@@ -30,7 +30,7 @@ import {
 } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useGetStatusList } from '@src/queries/common.query'
 import ClientOrder from '../client-order'
 
@@ -42,7 +42,7 @@ type Props = {
 }
 
 const VersionHistoryModal = ({ history, onClose, onClick, project }: Props) => {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [downloadData, setDownloadData] = useState<OrderDownloadData | null>(
     null,
   )

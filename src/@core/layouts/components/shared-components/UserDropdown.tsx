@@ -18,7 +18,6 @@ import Typography from '@mui/material/Typography'
 import Icon from 'src/@core/components/icon'
 
 // ** Context
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Type Imports
 import { Settings } from 'src/@core/context/settingsContext'
@@ -29,6 +28,10 @@ import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
 // import { setCurrentRole } from '@src/store/permission'
 import { setCurrentRole, getCurrentRole } from 'src/shared/auth/storage'
+import { useRecoilValue } from 'recoil'
+
+import { authState } from '@src/states/auth'
+import useAuth from '@src/hooks/useAuth'
 
 interface Props {
   settings: Settings
@@ -52,14 +55,14 @@ const UserDropdown = (props: Props) => {
   // ** redux
   const { role } = useAppSelector(state => state.userAccess)
 
-  const auth = useAuth()
+  const { user } = useRecoilValue(authState)
 
   // ** States
   const [anchorEl, setAnchorEl] = useState<Element | null>(null)
 
   // ** Hooks
   const router = useRouter()
-  const { logout } = useAuth()
+  const auth = useAuth()
 
   // ** Vars
   const { direction } = settings
@@ -120,7 +123,7 @@ const UserDropdown = (props: Props) => {
   }
 
   const handleLogout = () => {
-    logout()
+    auth.logout()
     handleDropdownClose()
   }
 
@@ -182,9 +185,9 @@ const UserDropdown = (props: Props) => {
               }}
             >
               <Typography sx={{ fontWeight: 600 }}>
-                {auth?.user?.username?.includes('undefined')
+                {user?.username?.includes('undefined')
                   ? 'anonymous'
-                  : auth?.user?.username}
+                  : user?.username}
               </Typography>
 
               {role && hasTadAndLpm(role) ? (

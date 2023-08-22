@@ -20,7 +20,7 @@ import { useForm } from 'react-hook-form'
 import OrdersFilters from './list/filters'
 import { useGetOrderList } from '@src/queries/order/order.query'
 import OrdersList from './list/list'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useRouter } from 'next/router'
 import OrderListCalendar from './calendar'
 import { useGetStatusList } from '@src/queries/common.query'
@@ -72,7 +72,7 @@ export default function OrderList() {
   const { data: statusList } = useGetStatusList('Order')
   const [menu, setMenu] = useState<MenuType>('list')
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [orderListPage, setOrderListPage] = useState(0)
   const [orderListRowsPerPage, setOrderListRowsPerPage] = useState(10)
 

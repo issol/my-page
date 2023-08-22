@@ -32,7 +32,7 @@ import Icon from 'src/@core/components/icon'
 import { toast } from 'react-hot-toast'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** types & validation
 import { RequestFormType } from '@src/types/requests/common.type'
@@ -65,13 +65,16 @@ import { byteToGB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 
 // ** values
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { convertDateToLocalTimezoneISOString, convertLocalTimezoneToUTC } from '@src/shared/helpers/date.helper'
+import {
+  convertDateToLocalTimezoneISOString,
+  convertLocalTimezoneToUTC,
+} from '@src/shared/helpers/date.helper'
 import { changeTimezoneFromLocalTimezoneISOString } from '@src/shared/helpers/timezone.helper'
 
 export default function AddNewRequest() {
   const router = useRouter()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { openModal, closeModal } = useModal()
 
   // ** file values
@@ -118,9 +121,9 @@ export default function AddNewRequest() {
       type: 'dropReject',
       children: (
         <SimpleAlertModal
-          message={`The maximum file size you can upload is ${
-            byteToGB(MAXIMUM_FILE_SIZE)
-          }.`}
+          message={`The maximum file size you can upload is ${byteToGB(
+            MAXIMUM_FILE_SIZE,
+          )}.`}
           onClose={() => closeModal('dropReject')}
         />
       ),
@@ -190,13 +193,19 @@ export default function AddNewRequest() {
     const dateFixedItem = data.items.map(item => {
       // const newDesiredDueDate = convertLocalTimezoneToUTC(new Date(item.desiredDueDate)).toISOString()
       const newDesiredDueDate = () => {
-        const convertISOString = convertDateToLocalTimezoneISOString(new Date(item.desiredDueDate))
-        if (convertISOString) return changeTimezoneFromLocalTimezoneISOString(convertISOString, item.desiredDueTimezone.code)
+        const convertISOString = convertDateToLocalTimezoneISOString(
+          new Date(item.desiredDueDate),
+        )
+        if (convertISOString)
+          return changeTimezoneFromLocalTimezoneISOString(
+            convertISOString,
+            item.desiredDueTimezone.code,
+          )
         return item.desiredDueDate
-      } 
-      return {...item, desiredDueDate:newDesiredDueDate()}
+      }
+      return { ...item, desiredDueDate: newDesiredDueDate() }
     })
-    const calData = {...data, items:dateFixedItem}
+    const calData = { ...data, items: dateFixedItem }
     if (files.length) {
       const fileInfo: Array<{ fileName: string; fileSize: number }> = []
       const paths: string[] = files?.map(file =>
@@ -477,8 +486,7 @@ export default function AddNewRequest() {
                 Sample files
               </Typography>
               <Typography variant='body2'>
-                {formatFileSize(fileSize)}
-                / {byteToGB(MAXIMUM_FILE_SIZE)}
+                {formatFileSize(fileSize)}/ {byteToGB(MAXIMUM_FILE_SIZE)}
               </Typography>
             </Box>
             <div {...getRootProps({ className: 'dropzone' })}>

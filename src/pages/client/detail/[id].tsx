@@ -39,12 +39,14 @@ import ClientProjects from '../components/projects'
 import { client } from '@src/shared/const/permission-class'
 import { useGetClientMemo } from '@src/queries/client.query'
 import ClientProfile from './components/profile'
-import { AuthContext } from '@src/context/AuthContext'
+
 import { Box } from '@mui/material'
 import ClientInvoices from '../components/invoices'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import PaymentInfo from '../components/payment-info'
 import FallbackSpinner from '@src/@core/components/spinner'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 export default function ClientDetail() {
   const router = useRouter()
@@ -53,7 +55,7 @@ export default function ClientDetail() {
   const [value, setValue] = useState<string>('1')
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const User = new client(user?.id!)
 

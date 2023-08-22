@@ -15,7 +15,7 @@ import {
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -54,7 +54,7 @@ export default function PayableHistory({
   invoiceCorporationId,
   isUpdatable,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const queryClient = useQueryClient()
 

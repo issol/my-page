@@ -40,7 +40,7 @@ import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import ItemDetail from '@src/pages/components/item-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './client-quote'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import {
   formatByRoundingProcedure,
   formatCurrency,
@@ -74,7 +74,7 @@ const VersionHistoryModal = ({ id, history }: Props) => {
   )
   const [downloadLanguage, setDownloadLanguage] = useState<'EN' | 'KO'>('EN')
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   useEffect(() => {
     if (history) {

@@ -54,7 +54,7 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 type Props = {
   clientId: number
@@ -77,7 +77,7 @@ export default function ClientInfo({
   const [open, setOpen] = useState(false)
   const { openModal, closeModal } = useModal()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const {
     control,

@@ -34,7 +34,7 @@ import styled from 'styled-components'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** store
@@ -160,7 +160,7 @@ export default function QuotesDetail() {
   const router = useRouter()
   const { data: statusList } = useGetStatusList('Quote')
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const currentRole = getCurrentRole()
   const { id } = router.query
 

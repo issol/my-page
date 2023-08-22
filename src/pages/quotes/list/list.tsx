@@ -18,7 +18,7 @@ import { useRouter } from 'next/router'
 import { QuotesListType } from '@src/types/common/quotes.type'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { useContext, useState } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { formatCurrency } from '@src/shared/helpers/price.helper'
 import { QuotesFilterType, SortType } from '@src/types/quotes/quote'
 import { UserRoleType } from '@src/context/types'
@@ -54,7 +54,7 @@ export default function QuotesList({
   role,
 }: Props) {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const columns: GridColumns<QuotesListType> = [
     {

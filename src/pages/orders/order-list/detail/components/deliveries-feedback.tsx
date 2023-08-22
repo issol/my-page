@@ -36,7 +36,7 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { v4 as uuidv4 } from 'uuid'
 import { formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { CancelReasonType } from '@src/types/requests/detail.type'
 import SelectReasonModal from '@src/pages/quotes/components/modal/select-reason-modal'
 import {
@@ -69,7 +69,7 @@ const DeliveriesFeedback = ({
   const MAXIMUM_FILE_SIZE = FILE_SIZE.DELIVERY_FILE
   const { openModal, closeModal } = useModal()
   const currentRole = getCurrentRole()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data: jobDetails, refetch } = useGetJobDetails(project.id)
 

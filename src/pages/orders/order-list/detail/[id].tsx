@@ -36,7 +36,7 @@ import { GridColumns } from '@mui/x-data-grid'
 import ProjectTeam from './components/project-team'
 import VersionHistory from './components/version-history'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import useModal from '@src/hooks/useModal'
 import VersionHistoryModal from './components/modal/version-history-modal'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -159,7 +159,7 @@ const OrderDetail = () => {
   const router = useRouter()
   const menuQuery = router.query.menu as MenuType
   const { id } = router.query
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const currentRole = getCurrentRole()
   const [value, setValue] = useState<MenuType>(
     currentRole && currentRole.name === 'CLIENT' ? 'order' : 'project',

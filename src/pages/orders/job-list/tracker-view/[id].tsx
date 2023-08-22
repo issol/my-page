@@ -24,7 +24,7 @@ import {
 } from '@src/@core/styles/typography'
 
 // ** contexts
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** apis
@@ -73,7 +73,7 @@ export default function JobTrackerDetail() {
   const router = useRouter()
   const workName = router.query.workName
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
 
   const User = new job_list(user?.id!)

@@ -5,8 +5,9 @@ import { ReactNode, ReactElement, useEffect } from 'react'
 import { useRouter } from 'next/router'
 
 // ** Hooks Import
-import { useAuth } from 'src/hooks/useAuth'
+
 import { getUserDataFromBrowser } from 'src/shared/auth/storage'
+import { useRecoilValue } from 'recoil'
 
 interface GuestGuardProps {
   children: ReactNode
@@ -15,7 +16,7 @@ interface GuestGuardProps {
 
 const GuestGuard = (props: GuestGuardProps) => {
   const { children, fallback } = props
-  const auth = useAuth()
+
   const router = useRouter()
 
   useEffect(() => {

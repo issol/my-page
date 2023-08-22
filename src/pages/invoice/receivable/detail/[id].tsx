@@ -46,7 +46,7 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import InvoiceClient from './components/client'
 import InvoiceProjectTeam from './components/project-team'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
@@ -109,7 +109,7 @@ type MenuType =
 const ReceivableInvoiceDetail = () => {
   const router = useRouter()
   const { id } = router.query
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
   const dispatch = useAppDispatch()
   const currentRole = getCurrentRole()

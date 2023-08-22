@@ -8,7 +8,6 @@ import { useRouter } from 'next/router'
 import styled from 'styled-components'
 
 // ** context
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'
@@ -27,6 +26,7 @@ import { googleAuth } from 'src/apis/sign.api'
 import jwt_decode from 'jwt-decode'
 import { toast } from 'react-hot-toast'
 import logger from '@src/@core/utils/logger'
+import useAuth from '@src/hooks/useAuth'
 
 export default function GoogleButton() {
   const router = useRouter()
@@ -60,21 +60,22 @@ export default function GoogleButton() {
         }
       },
       onError: err => {
-        logger.debug("Fail Google login",err)
+        logger.debug('Fail Google login', err)
         if (err === 'NOT_A_MEMBER') {
           openModal({
             type: 'move-signup-modal',
             children: (
               <MoveSignupModal
                 onClose={() => closeModal('move-signup-modal')}
-                onConfirm={() =>        
+                onConfirm={() =>
                   router.replace(
-                  {
-                    pathname: '/signup/',
-                    query: { email: emailRef.current },
-                  },
-                  '/signup/',
-                )}
+                    {
+                      pathname: '/signup/',
+                      query: { email: emailRef.current },
+                    },
+                    '/signup/',
+                  )
+                }
               />
             ),
           })

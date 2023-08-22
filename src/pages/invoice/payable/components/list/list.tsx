@@ -15,7 +15,7 @@ import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** contexts
 import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import Link from 'next/link'
 
 type CellType = {
@@ -49,7 +49,7 @@ export default function PayableList({
   isLoading,
 }: Props) {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   function NoList() {
     return (

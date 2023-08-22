@@ -53,7 +53,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -120,7 +120,7 @@ export const defaultOption: StandardPriceListType & {
 
 export default function AddNewInvoice() {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { data: statusList, isLoading } = useGetStatusList('InvoiceReceivable')
   const [isReady, setIsReady] = useState(false)
   const [isWarn, setIsWarn] = useState(true)

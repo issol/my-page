@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
@@ -107,7 +108,7 @@ const ClientGuidelineDetail = () => {
 
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data, refetch, isError } = useGetGuideLineDetail(id)
   const MAXIMUM_FILE_SIZE = FILE_SIZE.CLIENT_GUIDELINE

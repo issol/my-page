@@ -47,7 +47,8 @@ import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -115,7 +116,7 @@ interface FileProp {
 const TestMaterialPost = () => {
   const router = useRouter()
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { edit } = router.query
   const { id } = router.query
   const queryClient = useQueryClient()

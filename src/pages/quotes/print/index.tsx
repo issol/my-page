@@ -1,6 +1,6 @@
 import { ReactNode, useContext } from 'react'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 import { useAppSelector } from '@src/hooks/useRedux'
 
@@ -11,7 +11,7 @@ import PrintQuotePage from '../detail/components/pdf-download/quote-preview'
 const QuotePrint = () => {
   const quote = useAppSelector(state => state.quote.quoteTotalData)
   const lang = useAppSelector(state => state.quote.lang)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   if (!quote) {
     return <Error404 />
   } else {

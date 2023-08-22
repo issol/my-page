@@ -42,7 +42,7 @@ import CustomAvatar from 'src/@core/components/mui/avatar'
 import { NotificationType } from '@src/types/common/notification.type'
 import { useRouter } from 'next/router'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { AuthContext } from '@src/context/AuthContext'
+
 import {
   FetchNextPageOptions,
   InfiniteData,
@@ -62,6 +62,8 @@ import { CircularProgress } from '@mui/material'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import useInterval from '@src/hooks/useInterval'
 import { transformMessage } from '@src/shared/transformer/notification-message'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 interface Props {
   settings: Settings
@@ -181,7 +183,7 @@ const NotificationDropdown = (props: Props) => {
 
   const [refreshing, setRefreshing] = useState(false)
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { ref, inView } = useInView()
 

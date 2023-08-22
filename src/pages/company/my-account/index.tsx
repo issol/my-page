@@ -1,6 +1,6 @@
 import { Box, Button, Card, Typography, styled } from '@mui/material'
 import { MemberChip, PermissionChip } from '@src/@core/components/chips/chips'
-import { AuthContext } from '@src/context/AuthContext'
+
 import { RoleType } from '@src/context/types'
 import { useAppSelector } from '@src/hooks/useRedux'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -20,8 +20,10 @@ import EditSaveModal from '@src/@core/components/common-modal/edit-save-modal'
 import DiscardModal from '@src/@core/components/common-modal/discard-modal'
 import { useMutation } from 'react-query'
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
-import { useAuth } from '@src/hooks/useAuth'
+import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const MyAccount = () => {
   const auth = useAuth()
@@ -33,7 +35,7 @@ const MyAccount = () => {
 
   const { openModal, closeModal } = useModal()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { data: userInfo, refetch } = useGetProfile(user?.id! ?? 0)
   const role = useAppSelector(state => state.userAccess.role)
 

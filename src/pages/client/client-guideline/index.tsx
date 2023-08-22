@@ -15,7 +15,7 @@ import {
   ServiceTypePair,
 } from 'src/shared/const/service-type/service-types'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import Filters from '../components/client-guideline/filter'
 import ClientGuideLineList from '../components/client-guideline/list'
 
@@ -51,7 +51,7 @@ export default function ClientGuidLines() {
   })
 
   const [serviceType, setServiceType] = useState<Array<ConstType>>([])
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data: list, isLoading } = useGetGuideLines(activeFilter)
 

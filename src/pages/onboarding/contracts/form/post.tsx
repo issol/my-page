@@ -27,7 +27,8 @@ import CustomChip from 'src/@core/components/mui/chip'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { useRouter } from 'next/router'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
@@ -49,7 +50,7 @@ const ContractForm = () => {
   const language = router.query.language as LangType
   const [value, setValue] = useState(EditorState.createEmpty())
   const [showError, setShowError] = useState(false)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { setModal } = useContext(ModalContext)
 
   useEffect(() => {

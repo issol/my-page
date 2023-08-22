@@ -22,7 +22,7 @@ import { OrderListType } from '@src/types/orders/order-list'
 import { useGetOrderListCalendar } from '@src/queries/order/order.query'
 import OrdersList from '../list/list'
 import { useRouter } from 'next/router'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import { useGetStatusList } from '@src/queries/common.query'
 import CalendarStatusSideBar from '@src/pages/components/sidebar/status-sidebar'
@@ -37,7 +37,7 @@ const OrderListCalendar = () => {
   const [hideFilter, setHideFilter] = useState(false)
   const [seeMyOrders, setSeeMyOrders] = useState(false)
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const currentRole = getCurrentRole()
   const { data: statusList } = useGetStatusList('Order')
 

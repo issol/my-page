@@ -15,7 +15,8 @@ import { useGetTestMaterialList } from 'src/queries/certification-test/ceritific
 import TestMaterialFilters from './components/list/filters'
 import { useRouter } from 'next/router'
 import { OnboardingListRolePair } from '@src/shared/const/role/roles'
-import { AuthContext } from '@src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const defaultValues: TestMaterialFilterType = {
   testType: [],
@@ -27,7 +28,7 @@ const defaultValues: TestMaterialFilterType = {
 
 const CertificationTest = () => {
   const router = useRouter()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [testMaterialListPage, setTestMaterialListPage] = useState<number>(0)
 
   const [testMaterialListPageSize, setTestMaterialListPageSize] =

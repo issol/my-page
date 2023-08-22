@@ -28,7 +28,7 @@ import { useForm, Controller } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+
 // ** Configs
 import themeConfig from 'src/configs/themeConfig'
 
@@ -36,12 +36,19 @@ import themeConfig from 'src/configs/themeConfig'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** fetches
-import { redirectLinkedInAuth } from 'src/apis/sign.api'
-import { getRememberMe, removeRememberMe } from 'src/shared/auth/storage'
+import { login, redirectLinkedInAuth } from 'src/apis/sign.api'
+import {
+  getRememberMe,
+  removeRememberMe,
+  saveRememberMe,
+  saveUserDataToBrowser,
+  saveUserTokenToBrowser,
+} from 'src/shared/auth/storage'
 
 // ** values
 import { FormErrors } from 'src/shared/const/formErrors'
 import GoogleButton from '../components/google-button'
+import useAuth from '@src/hooks/useAuth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -90,8 +97,6 @@ interface FormData {
 const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState<boolean>(false)
   const [showPassword, setShowPassword] = useState<boolean>(false)
-
-  // ** Hooks
   const auth = useAuth()
 
   const {

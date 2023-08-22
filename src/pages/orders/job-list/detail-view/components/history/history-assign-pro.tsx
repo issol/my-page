@@ -5,7 +5,7 @@ import {
   TableTitleTypography,
   TitleTypography,
 } from '@src/@core/styles/typography'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Link from 'next/link'
@@ -54,7 +54,7 @@ export default function HistoryAssignPro({
   pageSize,
   setPageSize,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const columns: GridColumns<AssignProType> = [
     {
       field: 'corporationId',

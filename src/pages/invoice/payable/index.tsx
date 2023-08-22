@@ -16,7 +16,7 @@ import ToggleViewButton, {
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** types
 import { InvoicePayableFilterType } from '@src/types/invoice/payable.type'

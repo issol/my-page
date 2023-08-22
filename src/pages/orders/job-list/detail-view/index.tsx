@@ -34,7 +34,7 @@ import {
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 type Props = {
   tab?: string
@@ -79,7 +79,7 @@ const JobInfoDetailView = ({ tab, row, orderDetail, item, refetch }: Props) => {
   const queryClient = useQueryClient()
   const [value, setValue] = useState<string>(tab ?? 'jobInfo')
   const [success, setSuccess] = useState(false)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [contactPersonList, setContactPersonList] = useState<
     { value: string; label: string; userId: any }[]
   >([])

@@ -21,7 +21,7 @@ import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getCurrencyMark } from '@src/shared/helpers/price.helper'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useContext } from 'react'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 
@@ -49,7 +49,7 @@ export default function JobsList({
   list,
   isLoading,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const router = useRouter()
 
   const columns: GridColumns<JobsListType> = [

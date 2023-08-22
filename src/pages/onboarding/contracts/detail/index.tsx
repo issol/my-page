@@ -35,7 +35,8 @@ import Icon from 'src/@core/components/icon'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from 'src/shared/helpers/date.helper'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 
@@ -74,7 +75,7 @@ type CellType = {
 const ContractDetail = () => {
   const router = useRouter()
   const invalidate = useInvalidateContractQuery()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
   const type = router.query.type as ContractType
   const language = router.query.language as LangType

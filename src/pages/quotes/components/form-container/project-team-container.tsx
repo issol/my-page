@@ -1,5 +1,5 @@
 import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** mui
 import { Box, Button, Grid } from '@mui/material'
@@ -63,7 +63,7 @@ export default function ProjectTeamFormContainer({
 // handleCancel,
 // type,
 Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { data } = useGetMemberList()
 
   return (

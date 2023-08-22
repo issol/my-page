@@ -3,7 +3,7 @@ import { useState, useContext } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** mui
@@ -18,7 +18,7 @@ import logger from '@src/@core/utils/logger'
 import {
   PriceUnitFormType,
   PriceUnitType,
-  PriceUnitDataType
+  PriceUnitDataType,
 } from '@src/types/common/standard-price'
 
 // ** components
@@ -53,7 +53,7 @@ export default function PriceUnits({
   pageSize,
   setPageSize,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
 
   const [editModeRow, setEditModeRow] = useState<PriceUnitType>()

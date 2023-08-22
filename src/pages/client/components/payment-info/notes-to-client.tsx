@@ -10,7 +10,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import useModal from '@src/hooks/useModal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -58,7 +58,7 @@ const NotesToClient = ({ notesToClient, clientId }: Props) => {
   const MAXIMUM_FILE_SIZE = FILE_SIZE.NOTES_TO_CLIENT
   const queryClient = useQueryClient()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [savedFiles, setSavedFiles] = useState<FileType[]>(notesToClient.file)
 
   const { openModal, closeModal } = useModal()

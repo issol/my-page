@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
@@ -100,7 +101,7 @@ const RecruitingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data, refetch, isSuccess, isError } = useGetRecruitingDetail(
     id,
@@ -449,47 +450,49 @@ const RecruitingDetail = () => {
             </Grid>
             <Grid item md={3} xs={12}>
               <Card>
-                {isWriter || isMaster ? (<Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isWriter && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='clarity:eye-hide-line' />}
-                      onClick={onHide}
-                    >
-                      {currentVersion?.isHide ? 'Re-post' : 'Hide'}
-                    </Button>
-                  )}
-                  {isMaster && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  )}
+                {isWriter || isMaster ? (
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isWriter && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='clarity:eye-hide-line' />}
+                        onClick={onHide}
+                      >
+                        {currentVersion?.isHide ? 'Re-post' : 'Hide'}
+                      </Button>
+                    )}
+                    {isMaster && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    )}
 
-                  {isMaster || isWriter ? (
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  ) : (
-                    ''
-                  )}
-                </Box>) : null}
+                    {isMaster || isWriter ? (
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : (
+                      ''
+                    )}
+                  </Box>
+                ) : null}
               </Card>
             </Grid>
           </Grid>

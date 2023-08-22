@@ -48,7 +48,8 @@ import {
   patchTestStatus,
   setCertifiedRole,
 } from 'src/apis/onboarding.api'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import modal from '@src/@core/components/modal'
 
 import About from '@src/pages/components/pro-detail-component/about'
@@ -106,7 +107,7 @@ function OnboardingDetail() {
   const { data: appliedRole } = useGetAppliedRole(Number(id!))
   const { data: certifiedRole } = useGetCertifiedRole(Number(id!))
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)

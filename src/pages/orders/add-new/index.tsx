@@ -59,7 +59,7 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
@@ -139,7 +139,7 @@ export default function AddNewOrder() {
   const requestId = router.query?.requestId
   const orderId = router.query?.orderId
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data: requestData } = useGetClientRequestDetail(Number(requestId))
   const [isWarn, setIsWarn] = useState(true)

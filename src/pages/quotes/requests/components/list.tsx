@@ -26,7 +26,7 @@ import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
 import { useContext } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 type CellType = {
   row: RequestListType
@@ -59,7 +59,7 @@ export default function List({
   isLoading,
   onRowClick,
 }: Props) {
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const columns = [
     {

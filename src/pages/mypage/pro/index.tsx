@@ -12,7 +12,7 @@ import Icon from 'src/@core/components/icon'
 // ** nextJS
 import { useRouter } from 'next/router'
 import { Suspense, useContext, useState } from 'react'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 // ** components
 import Header from '../components/header'
@@ -28,7 +28,7 @@ type MenuType = 'overview' | 'paymentInfo' | 'myAccount'
 export default function ProMyPage() {
   const router = useRouter()
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const {
     data: userInfo,
     isError,

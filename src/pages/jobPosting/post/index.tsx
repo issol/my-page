@@ -44,7 +44,8 @@ import styled from 'styled-components'
 
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** form
 import { useForm, Controller } from 'react-hook-form'
@@ -79,7 +80,7 @@ export default function JobPostingPost() {
   const languageList = getGloLanguage()
 
   // ** contexts
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const { setModal } = useContext(ModalContext)
 
   // ** states

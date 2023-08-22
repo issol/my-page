@@ -8,7 +8,7 @@ import { useGetTestDetail } from 'src/queries/certification-test/certification-t
 import IconButton from '@mui/material/IconButton'
 import OpenInNewIcon from '@mui/icons-material/OpenInNew'
 import { useContext, useEffect, useState, Fragment } from 'react'
-import { AuthContext } from 'src/context/AuthContext'
+
 import Divider from '@mui/material/Divider'
 import CustomChip from 'src/@core/components/mui/chip'
 
@@ -47,6 +47,8 @@ import { getDownloadUrlforCommon } from 'src/apis/common.api'
 import { S3FileType } from 'src/shared/const/signedURLFileType'
 import { byteToMB, formatFileSize } from '@src/shared/helpers/file-size.helper'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type CellType = {
   row: CurrentTestType
@@ -55,7 +57,7 @@ type CellType = {
 const CertificationTestDetail = () => {
   const router = useRouter()
   const { id } = router.query
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
   const { role } = useAppSelector(state => state.userAccess)

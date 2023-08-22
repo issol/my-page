@@ -1,4 +1,4 @@
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { Fragment, useContext, useEffect, useState } from 'react'
 
@@ -59,7 +59,7 @@ type Props = {
 export default function ClientMemo({ clientId, memo }: Props) {
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const User = new client_comment(user?.id!)
 
   const isUpdatable = ability.can('update', User)

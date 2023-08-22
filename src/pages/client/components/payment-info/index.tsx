@@ -51,12 +51,13 @@ import { updateClientAddress } from '@src/apis/client.api'
 
 // ** context
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
 
 import { client } from '@src/shared/const/permission-class'
 import SelectOffice from './select-office'
 import NotesToClient from './notes-to-client'
 import { ClientDetailType } from '@src/types/client/client'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   clientId: number
@@ -71,7 +72,10 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
   const [editAddress, setEditAddress] = useState(false)
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  // const { user } = useRecoilValue(authState)
+  const user = useRecoilValue(authState)
+
+  console.log(user)
 
   const User = new client(clientId)
 

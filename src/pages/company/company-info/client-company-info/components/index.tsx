@@ -36,7 +36,7 @@ import useModal from '@src/hooks/useModal'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { getCurrentRole } from '@src/shared/auth/storage'
@@ -86,7 +86,7 @@ export default function ClientCompanyInfoPageComponent() {
 
   const [tab, setTab] = useState<MenuType>('companyInfo')
 
-  const { user, company } = useContext(AuthContext)
+  const { user, company } = useRecoilValue(authState)
 
   const [infoEdit, setInfoEdit] = useState(false)
   const [addressEdit, setAddressEdit] = useState(false)

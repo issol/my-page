@@ -87,7 +87,7 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { toast } from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
@@ -176,7 +176,7 @@ const InvoiceInfo = ({
   const [files, setFiles] = useState<File[]>([])
   const [savedFiles, setSavedFiles] = useState<DeliveryFileType[]>([])
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const isInvoiceInfoUpdatable =
     ![30900, 301200].includes(invoiceInfo.invoiceStatus) && isUpdatable

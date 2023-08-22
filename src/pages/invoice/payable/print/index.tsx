@@ -1,6 +1,6 @@
 import { ReactNode, useContext } from 'react'
 
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 
 import { useAppSelector } from '@src/hooks/useRedux'
 
@@ -13,7 +13,7 @@ const InvoicePayablePrint = () => {
     state => state.invoicePayable.invoicePayableData,
   )
   const lang = useAppSelector(state => state.invoicePayable.lang)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   if (!invoicePayable) {
     return <Error404 />
   } else {

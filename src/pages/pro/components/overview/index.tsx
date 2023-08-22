@@ -53,7 +53,8 @@ import {
   patchAppliedRole,
   patchTestStatus,
 } from 'src/apis/onboarding.api'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import NegativeActionsTestModal from '@src/pages/components/pro-detail-modal/modal/negative-actions-test-modal'
 import CertifyRoleModal from '@src/pages/components/pro-detail-modal/modal/certify-role-modal'
 import ResumeTestModal from '@src/pages/components/pro-detail-modal/modal/resume-test-modal'
@@ -118,7 +119,7 @@ function ProDetailOverview() {
   const userId = isFetched && !isError ? userInfo!.userId : undefined
   // const { data: appliedRole } = useGetAppliedRole(userId!)
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const [hideFailedTest, setHideFailedTest] = useState(false)
 

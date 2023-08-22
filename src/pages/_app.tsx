@@ -40,11 +40,19 @@ import AuthGuard from 'src/@core/components/auth/AuthGuard'
 import GuestGuard from 'src/@core/components/auth/GuestGuard'
 import WindowWrapper from 'src/@core/components/window-wrapper'
 
+import {
+  RecoilRoot,
+  atom,
+  selector,
+  useRecoilState,
+  useRecoilValue,
+} from 'recoil'
+
 // ** Spinner Import
 import Spinner from 'src/@core/components/spinner'
 
 // ** Contexts
-import { AuthProvider } from 'src/context/AuthContext'
+
 import {
   SettingsConsumer,
   SettingsProvider,
@@ -95,6 +103,8 @@ import logger from '@src/@core/utils/logger'
 import ModalContainer from '@src/@core/components/modal-container'
 import { ErrorBoundary } from 'react-error-boundary'
 import DetailNoUser from '@src/@core/components/error/detail-no-user'
+import useAuth from '@src/hooks/useAuth'
+import AuthProvider from '@src/shared/auth/auth-provider'
 
 /* msw mock server */
 if (process.env.NEXT_PUBLIC_API_MOCKING === 'true') {
@@ -212,88 +222,93 @@ const App = (props: ExtendedAppProps) => {
 
   const { reset } = useQueryErrorResetBoundary()
   const [errorString, setErrorString] = useState('app')
+
   return (
     <QueryClientProvider client={queryClient}>
-      <Provider store={store}>
-        <CacheProvider value={emotionCache}>
-          <Head>
-            <title>{`${themeConfig.templateName}`}</title>
-            <meta
-              name='description'
-              content={`${themeConfig.templateName} – E'nuff`}
-            />
-            <meta name='keywords' content={`E'nuff`} />
-            <meta
-              name='viewport'
-              content='initial-scale=1, width=device-width'
-            />
-          </Head>
-          <AuthProvider>
-            <SettingsProvider
-              {...(setConfig ? { pageSettings: setConfig() } : {})}
-            >
-              <SettingsConsumer>
-                {({ settings }) => {
-                  return (
-                    <ThemeComponent settings={settings}>
-                      {/* <WindowWrapper> */}
-                      <ModalContainer />
-                      <ModalProvider selector='modal'>
-                        <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                          <AclGuard
-                            aclAbilities={aclAbilities}
-                            guestGuard={guestGuard}
-                          >
-                            <Suspense fallback={<FallbackSpinner />}>
-                              <ErrorBoundary
-                                onReset={details => {
-                                  reset()
-                                  setErrorString('')
-                                }}
-                                resetKeys={[errorString]}
-                                fallbackRender={({
-                                  error,
-                                  resetErrorBoundary,
-                                }) => {
-                                  if (
-                                    error &&
-                                    error.response.status === 400 &&
-                                    (router.asPath.includes('/pro/detail') ||
-                                      router.asPath.includes(
-                                        '/onboarding/detail',
-                                      ))
-                                  ) {
-                                    return <DetailNoUser />
-                                  } else {
-                                    return (
-                                      <ErrorFallback
-                                        resetErrorBoundary={resetErrorBoundary}
-                                      />
-                                    )
-                                  }
-                                }}
-                              >
-                                {getLayout(<Component {...pageProps} />)}
-                              </ErrorBoundary>
-                            </Suspense>
-                          </AclGuard>
-                        </Guard>
-                      </ModalProvider>
-                      {/* </WindowWrapper> */}
-                      <ReactHotToast>
-                        <Toaster
-                          position={settings.toastPosition}
-                          toastOptions={{ className: 'react-hot-toast' }}
-                        />
-                      </ReactHotToast>
-                    </ThemeComponent>
-                  )
-                }}
-              </SettingsConsumer>
-            </SettingsProvider>
-          </AuthProvider>
-        </CacheProvider>
-      </Provider>
+      <RecoilRoot>
+        <Provider store={store}>
+          <CacheProvider value={emotionCache}>
+            <Head>
+              <title>{`${themeConfig.templateName}`}</title>
+              <meta
+                name='description'
+                content={`${themeConfig.templateName} – E'nuff`}
+              />
+              <meta name='keywords' content={`E'nuff`} />
+              <meta
+                name='viewport'
+                content='initial-scale=1, width=device-width'
+              />
+            </Head>
+            <AuthProvider>
+              <SettingsProvider
+                {...(setConfig ? { pageSettings: setConfig() } : {})}
+              >
+                <SettingsConsumer>
+                  {({ settings }) => {
+                    return (
+                      <ThemeComponent settings={settings}>
+                        {/* <WindowWrapper> */}
+                        <ModalContainer />
+                        <ModalProvider selector='modal'>
+                          <Guard authGuard={authGuard} guestGuard={guestGuard}>
+                            <AclGuard
+                              aclAbilities={aclAbilities}
+                              guestGuard={guestGuard}
+                            >
+                              <Suspense fallback={<FallbackSpinner />}>
+                                <ErrorBoundary
+                                  onReset={details => {
+                                    reset()
+                                    setErrorString('')
+                                  }}
+                                  resetKeys={[errorString]}
+                                  fallbackRender={({
+                                    error,
+                                    resetErrorBoundary,
+                                  }) => {
+                                    if (
+                                      error &&
+                                      error.response.status === 400 &&
+                                      (router.asPath.includes('/pro/detail') ||
+                                        router.asPath.includes(
+                                          '/onboarding/detail',
+                                        ))
+                                    ) {
+                                      return <DetailNoUser />
+                                    } else {
+                                      return (
+                                        <ErrorFallback
+                                          resetErrorBoundary={
+                                            resetErrorBoundary
+                                          }
+                                        />
+                                      )
+                                    }
+                                  }}
+                                >
+                                  {getLayout(<Component {...pageProps} />)}
+                                </ErrorBoundary>
+                              </Suspense>
+                            </AclGuard>
+                          </Guard>
+                        </ModalProvider>
+                        {/* </WindowWrapper> */}
+                        <ReactHotToast>
+                          <Toaster
+                            position={settings.toastPosition}
+                            toastOptions={{ className: 'react-hot-toast' }}
+                          />
+                        </ReactHotToast>
+                      </ThemeComponent>
+                    )
+                  }}
+                </SettingsConsumer>
+              </SettingsProvider>
+            </AuthProvider>
+          </CacheProvider>
+        </Provider>
+      </RecoilRoot>
     </QueryClientProvider>
   )
 }

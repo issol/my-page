@@ -33,7 +33,8 @@ import Icon from 'src/@core/components/icon'
 // ** contexts
 import { ModalContext } from 'src/context/ModalContext'
 import { AbilityContext } from 'src/layouts/components/acl/Can'
-import { AuthContext } from 'src/context/AuthContext'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import {
@@ -69,7 +70,7 @@ const JobPostingDetail = () => {
   const { setModal } = useContext(ModalContext)
   const ability = useContext(AbilityContext)
 
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
 
   const { data, refetch, isSuccess, isError } = useGetJobPostingDetail(
     id,
@@ -377,35 +378,37 @@ const JobPostingDetail = () => {
                 </Box>
               </Card>
               <Card style={{ marginTop: '24px' }}>
-                {isDeletable || isUpdatable ? (<Box
-                  sx={{
-                    padding: '20px',
-                    display: 'flex',
-                    flexDirection: 'column',
-                    gap: '12px',
-                  }}
-                >
-                  {isDeletable && (
-                    <Button
-                      variant='outlined'
-                      color='secondary'
-                      startIcon={<Icon icon='mdi:delete-outline' />}
-                      onClick={onDelete}
-                    >
-                      Delete
-                    </Button>
-                  )}
+                {isDeletable || isUpdatable ? (
+                  <Box
+                    sx={{
+                      padding: '20px',
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '12px',
+                    }}
+                  >
+                    {isDeletable && (
+                      <Button
+                        variant='outlined'
+                        color='secondary'
+                        startIcon={<Icon icon='mdi:delete-outline' />}
+                        onClick={onDelete}
+                      >
+                        Delete
+                      </Button>
+                    )}
 
-                  {isUpdatable ? (
-                    <Button
-                      variant='contained'
-                      startIcon={<Icon icon='mdi:pencil-outline' />}
-                      onClick={onEdit}
-                    >
-                      Edit
-                    </Button>
-                  ) : null}
-                </Box>) : null}
+                    {isUpdatable ? (
+                      <Button
+                        variant='contained'
+                        startIcon={<Icon icon='mdi:pencil-outline' />}
+                        onClick={onEdit}
+                      >
+                        Edit
+                      </Button>
+                    ) : null}
+                  </Box>
+                ) : null}
               </Card>
             </Grid>
           </Grid>

@@ -8,7 +8,7 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import useModal from '@src/hooks/useModal'
 import { useGetJobHistory } from '@src/queries/jobs.query'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -51,7 +51,7 @@ export default function JobHistory({
   projectTeam,
 }: Props) {
   const { openModal, closeModal } = useModal()
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const [skip, setSkip] = useState(0)
   const [pageSize, setPageSize] = useState(10)
 

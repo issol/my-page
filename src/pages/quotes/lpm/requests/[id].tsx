@@ -44,7 +44,7 @@ import { lpm_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/context/AuthContext'
+import { AuthContext } from '@src/shared/auth/auth-provider'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 // ** types
@@ -65,7 +65,7 @@ export default function RequestDetail() {
   const { openModal, closeModal } = useModal()
 
   const ability = useContext(AbilityContext)
-  const { user } = useContext(AuthContext)
+  const { user } = useRecoilValue(authState)
   const currentRole = getCurrentRole()
 
   const User = new lpm_request(user?.id!)
