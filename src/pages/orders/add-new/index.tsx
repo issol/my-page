@@ -266,6 +266,7 @@ export default function AddNewOrder() {
     control: projectInfoControl,
     getValues: getProjectInfoValues,
     setValue: setProjectInfo,
+    trigger: triggerProjectInfo,
     watch: projectInfoWatch,
     reset: projectInfoReset,
     formState: { errors: projectInfoErrors, isValid: isProjectInfoValid },
@@ -888,6 +889,8 @@ export default function AddNewOrder() {
                         shouldDirty: true,
                         shouldValidate: true,
                       })
+
+                      triggerProjectInfo('isTaxable')
                     }}
                   />
                   <Typography>Tax</Typography>
@@ -897,8 +900,8 @@ export default function AddNewOrder() {
                   <TextField
                     size='small'
                     type='number'
-                    value={getProjectInfoValues().isTaxable ? '-' : tax}
-                    disabled={getProjectInfoValues().isTaxable}
+                    value={!getProjectInfoValues().isTaxable ? '-' : tax}
+                    disabled={!getProjectInfoValues().isTaxable}
                     sx={{ maxWidth: '120px', padding: 0 }}
                     inputProps={{ inputMode: 'decimal' }}
                     onChange={e => {
