@@ -75,12 +75,20 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
 
   const User = new client(clientId)
 
+  const isAccountManager = ability.can('read', 'account_manage')
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  console.log(isAccountManager)
 
   const { data: fileList } = useGetClientPaymentFile(clientId)
-  const { data: billingAddress } = useGetClientBillingAddress(clientId)
-  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(clientId)
+  const { data: billingAddress } = useGetClientBillingAddress(
+    clientId,
+    isAccountManager,
+  )
+  const { data: paymentInfo, isLoading } = useGetClientPaymentInfo(
+    clientId,
+    isAccountManager,
+  )
   const { data: notesToClient } = useGetClientNotes(clientId)
 
   const {
@@ -152,6 +160,10 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
         .catch(e => onError())
     }
   }
+  const replaceDots = (value: string) => {
+    if (!value) return '-'
+    return value.replaceAll('*', '•')
+  }
 
   function onDeleteFile(file: FileItemType) {
     deleteClientPaymentFile(clientId, file.id!)
@@ -206,13 +218,15 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
     )
   }
 
+  console.log(paymentInfo)
+
   return (
     <Grid container spacing={6}>
       <Grid item xs={12} md={8}>
         <Box display='flex' flexDirection='column' gap='24px'>
           {/* office details */}
           <Suspense>
-            {paymentInfo && paymentInfo.length === 0 ? (
+            {paymentInfo === null ? (
               <SelectOffice isUpdatable={isUpdatable} clientId={clientId} />
             ) : (
               <OfficeDetails
@@ -241,11 +255,24 @@ export default function PaymentInfo({ clientId, clientInfo }: Props) {
               }
             />
             <CardContent>
-              <BillingAddress billingAddress={billingAddress} />
+              <BillingAddress
+                billingAddress={{
+                  baseAddress: replaceDots(billingAddress?.baseAddress ?? ''),
+                  city: replaceDots(billingAddress?.city ?? ''),
+                  country: replaceDots(billingAddress?.country ?? ''),
+                  detailAddress: replaceDots(
+                    billingAddress?.detailAddress ?? '',
+                  ),
+                  state: replaceDots(billingAddress?.state ?? ''),
+                  zipCode: replaceDots(
+                    billingAddress?.zipCode?.toString() ?? '',
+                  ),
+                }}
+              />
             </CardContent>
           </Card>
           <Suspense>
-            {paymentInfo && paymentInfo.length === 0 ? null : (
+            {paymentInfo === null ? null : (
               <NotesToClient
                 notesToClient={notesToClient!}
                 clientId={clientId}
