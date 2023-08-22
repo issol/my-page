@@ -8,5 +8,5 @@ export default {
   userInfo: 'userData',
   permission: 'enough_permission',
   redirectPath: 'redirectPath',
-  currentRole: 'currentRole'
+  currentRole: 'currentRole',
 }
