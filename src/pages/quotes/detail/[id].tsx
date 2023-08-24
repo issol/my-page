@@ -1268,10 +1268,10 @@ export default function QuotesDetail() {
               {isIncludeProjectTeam() ? (
                 <Button
                   variant='outlined'
-                  onClick={() =>
+                  onClick={() => 
                     router.push({
                       pathname: `/orders/add-new`,
-                      query: { orderId: id },
+                      query: { quoteId: id },
                     })
                   }
                   disabled={!canUseFeature('button-CreateOrder')}
