@@ -55,7 +55,7 @@ type Props = {
   office: OfficeType
   cancel: () => void
   openDiscardModal: (onClick: any) => void
-  paymentInfo: ClientPaymentInfoDetail[] | undefined
+  paymentInfo: ClientPaymentInfoDetail | undefined
   onSave: (
     paymentMethod: PaymentType,
     office: OfficeType,
@@ -74,7 +74,7 @@ export default function PaymentMethodForm({
   const methodList = PaymentMethodPairs[office]
 
   const currentPaymentInfo = useMemo(
-    () => paymentInfo?.find(i => i.office === office),
+    () => paymentInfo,
     [office, paymentInfo],
   )
 

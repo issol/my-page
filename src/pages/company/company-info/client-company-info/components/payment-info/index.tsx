@@ -90,11 +90,10 @@ export default function CompanyPaymentInfo() {
   const User = new client_payment(user?.id!)
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountManager = ability.can('read', 'account_manage')
 
-  const { data: paymentInfo } = useGetClientPaymentInfo(company?.clientId!)
-  const { data: billingAddress } = useGetClientBillingAddress(
-    company?.clientId!,
-  )
+  const { data: paymentInfo } = useGetClientPaymentInfo(company?.clientId!, isAccountManager)
+  const { data: billingAddress } = useGetClientBillingAddress(company?.clientId!, isAccountManager)
   const { data: fileList } = useGetClientPaymentFile(company?.clientId!)
 
   const [editInfo, setEditInfo] = useState(false)
@@ -105,13 +104,13 @@ export default function CompanyPaymentInfo() {
   const [fileSize, setFileSize] = useState(0)
 
   const isLSPReviewedPaymentMethod = useMemo(
-    () => !!paymentInfo?.length,
+    () => !!paymentInfo?.office,
     [paymentInfo],
   )
 
   const office: OfficeType | null = useMemo(() => {
-    if (!paymentInfo?.length) return null
-    return paymentInfo[0].office
+    if (!paymentInfo) return null
+    return paymentInfo?.office
   }, [paymentInfo])
 
   const {
@@ -272,7 +271,7 @@ export default function CompanyPaymentInfo() {
     taxData: OfficeTaxType,
   ) {
     if (!company?.clientId) return
-    const existData = paymentInfo?.find(info => info.office === office)
+    const existData = paymentInfo
     let data = {
       clientId: company.clientId,
       office,
@@ -376,7 +375,7 @@ export default function CompanyPaymentInfo() {
               ) : (
                 <PaymentMethodDetail
                   office={office}
-                  paymentInfo={paymentInfo}
+                  paymentInfo={paymentInfo!}
                 />
               )}
             </Card>
@@ -490,7 +489,7 @@ export default function CompanyPaymentInfo() {
                 office={office}
                 cancel={() => setEditInfo(false)}
                 onSave={onSavePaymentInfo}
-                paymentInfo={paymentInfo}
+                paymentInfo={paymentInfo!}
                 openDiscardModal={openDiscardModal}
               />
             </Card>
