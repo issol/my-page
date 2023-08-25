@@ -1,5 +1,5 @@
-import { ReactNode, useEffect, useState } from 'react'
-import { useRecoilState } from 'recoil'
+import { ReactNode, Suspense, useEffect, useState } from 'react'
+import { useRecoilState, useRecoilValue } from 'recoil'
 
 import {
   getUserDataFromBrowser,
@@ -19,6 +19,8 @@ import { UserDataType, UserRoleType, ClientUserType } from '../../context/types'
 
 import { useRouter } from 'next/router'
 import { authState } from '@src/states/auth'
+import { permissionSelector } from '@src/states/permission'
+import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory'
 
 type Props = {
   children: ReactNode
@@ -29,6 +31,9 @@ const AuthProvider = ({ children }: Props) => {
     company: ClientUserType | undefined | null
     loading: boolean
   }>(authState)
+
+  const permission = useRecoilValue(permissionSelector(auth.user !== null))
+
   const [fetchClient, setFetchClient] = useState(false)
   const { data: companyData } = useGetClientUserInfo(fetchClient)
   const dispatch = useAppDispatch()
@@ -51,7 +56,7 @@ const AuthProvider = ({ children }: Props) => {
           .includes('CLIENT')
         setFetchClient(isClient)
       })
-      dispatch(getPermission())
+      // dispatch(getPermission())
     }
   }, [auth.user])
 

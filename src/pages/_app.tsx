@@ -240,72 +240,79 @@ const App = (props: ExtendedAppProps) => {
                 content='initial-scale=1, width=device-width'
               />
             </Head>
-            <AuthProvider>
-              <SettingsProvider
-                {...(setConfig ? { pageSettings: setConfig() } : {})}
-              >
-                <SettingsConsumer>
-                  {({ settings }) => {
-                    return (
-                      <ThemeComponent settings={settings}>
-                        {/* <WindowWrapper> */}
-                        <ModalContainer />
-                        <ModalProvider selector='modal'>
-                          <Guard authGuard={authGuard} guestGuard={guestGuard}>
-                            <AclGuard
-                              aclAbilities={aclAbilities}
+            <Suspense>
+              <AuthProvider>
+                <SettingsProvider
+                  {...(setConfig ? { pageSettings: setConfig() } : {})}
+                >
+                  <SettingsConsumer>
+                    {({ settings }) => {
+                      return (
+                        <ThemeComponent settings={settings}>
+                          {/* <WindowWrapper> */}
+                          <ModalContainer />
+                          <ModalProvider selector='modal'>
+                            <Guard
+                              authGuard={authGuard}
                               guestGuard={guestGuard}
                             >
-                              <Suspense fallback={<FallbackSpinner />}>
-                                <ErrorBoundary
-                                  onReset={details => {
-                                    reset()
-                                    setErrorString('')
-                                  }}
-                                  resetKeys={[errorString]}
-                                  fallbackRender={({
-                                    error,
-                                    resetErrorBoundary,
-                                  }) => {
-                                    if (
-                                      error &&
-                                      error.response.status === 400 &&
-                                      (router.asPath.includes('/pro/detail') ||
-                                        router.asPath.includes(
-                                          '/onboarding/detail',
-                                        ))
-                                    ) {
-                                      return <DetailNoUser />
-                                    } else {
-                                      return (
-                                        <ErrorFallback
-                                          resetErrorBoundary={
-                                            resetErrorBoundary
-                                          }
-                                        />
-                                      )
-                                    }
-                                  }}
-                                >
-                                  {getLayout(<Component {...pageProps} />)}
-                                </ErrorBoundary>
-                              </Suspense>
-                            </AclGuard>
-                          </Guard>
-                        </ModalProvider>
-                        {/* </WindowWrapper> */}
-                        <ReactHotToast>
-                          <Toaster
-                            position={settings.toastPosition}
-                            toastOptions={{ className: 'react-hot-toast' }}
-                          />
-                        </ReactHotToast>
-                      </ThemeComponent>
-                    )
-                  }}
-                </SettingsConsumer>
-              </SettingsProvider>
-            </AuthProvider>
+                              <AclGuard
+                                aclAbilities={aclAbilities}
+                                guestGuard={guestGuard}
+                              >
+                                <Suspense fallback={<FallbackSpinner />}>
+                                  <ErrorBoundary
+                                    onReset={details => {
+                                      reset()
+                                      setErrorString('')
+                                    }}
+                                    resetKeys={[errorString]}
+                                    fallbackRender={({
+                                      error,
+                                      resetErrorBoundary,
+                                    }) => {
+                                      if (
+                                        error &&
+                                        error.response.status === 400 &&
+                                        (router.asPath.includes(
+                                          '/pro/detail',
+                                        ) ||
+                                          router.asPath.includes(
+                                            '/onboarding/detail',
+                                          ))
+                                      ) {
+                                        return <DetailNoUser />
+                                      } else {
+                                        return (
+                                          <ErrorFallback
+                                            resetErrorBoundary={
+                                              resetErrorBoundary
+                                            }
+                                          />
+                                        )
+                                      }
+                                    }}
+                                  >
+                                    {getLayout(<Component {...pageProps} />)}
+                                  </ErrorBoundary>
+                                </Suspense>
+                              </AclGuard>
+                            </Guard>
+                          </ModalProvider>
+                          {/* </WindowWrapper> */}
+                          <ReactHotToast>
+                            <Toaster
+                              position={settings.toastPosition}
+                              toastOptions={{ className: 'react-hot-toast' }}
+                            />
+                          </ReactHotToast>
+                        </ThemeComponent>
+                      )
+                    }}
+                  </SettingsConsumer>
+                </SettingsProvider>
+              </AuthProvider>
+            </Suspense>
           </CacheProvider>
         </Provider>
       </RecoilRoot>
