@@ -94,6 +94,7 @@
     "react-slick": "^0.29.0",
     "recharts": "2.1.16",
     "recoil": "^0.7.7",
+    "recoil-persist": "^5.1.0",
     "slick-carousel": "^1.8.1",
     "styled-components": "^5.3.6",
     "stylis": "4.1.3",

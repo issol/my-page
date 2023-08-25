@@ -1,9 +1,14 @@
 // ** Config
-import { CreateClientBodyType } from '@src/apis/client.api'
-import { CountryType } from '@src/types/sign/personalInfoTypes'
+
 import authConfig from 'src/configs/auth'
 import { UserDataType, UserRoleType } from 'src/context/types'
+import { recoilPersist } from 'recoil-persist'
+import { useRecoilState } from 'recoil'
+import { roleSelector } from '@src/states/permission'
 /* session, local storage에 저장/삭제하는 로직을 여기서 관리 */
+
+const sessionStorage =
+  typeof window !== 'undefined' ? window.sessionStorage : undefined
 
 export function removeAllStorage() {
   if (typeof window === 'object') {
@@ -98,11 +103,5 @@ export function getCurrentRole(): UserRoleType | null {
     // return JSON.parse(window.localStorage.getItem(authConfig.currentRole))
   } else {
     return null
-  }
-}
-
-export function setCurrentRole(role?: UserRoleType) {
-  if (typeof window === 'object') {
-    window.sessionStorage.setItem(authConfig.currentRole, JSON.stringify(role))
   }
 }

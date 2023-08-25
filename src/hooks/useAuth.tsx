@@ -2,9 +2,11 @@ import { login, logout } from '@src/apis/sign.api'
 import { getUserInfo } from '@src/apis/user.api'
 import axios from '@src/configs/axios'
 import {
+  ClientUserType,
   ErrCallbackType,
   LoginParams,
   RegisterParams,
+  UserDataType,
 } from '@src/context/types'
 import useModal from '@src/hooks/useModal'
 import SignupNotApprovalModal from '@src/pages/components/modals/confirm-modals/signup-not-approval-modal'
@@ -19,11 +21,22 @@ import {
 import { authState } from '@src/states/auth'
 import { loginResType } from '@src/types/sign/signInTypes'
 import { useRouter } from 'next/router'
-import { useSetRecoilState } from 'recoil'
+import {
+  useRecoilRefresher_UNSTABLE,
+  useRecoilState,
+  useSetRecoilState,
+} from 'recoil'
 import authConfig from 'src/configs/auth'
+import useRecoilCacheRefresh from './useRecoilCacheRefresh'
+import {
+  currentRoleSelector,
+  permissionSelector,
+  permissionState,
+} from '@src/states/permission'
 
 const useAuth = () => {
   const setAuth = useSetRecoilState(authState)
+  const setCurrentRole = useSetRecoilState(currentRoleSelector)
   const router = useRouter()
   const { openModal, closeModal } = useModal()
 
@@ -100,8 +113,11 @@ const useAuth = () => {
 
   const handleLogout = () => {
     setAuth(prev => ({ ...prev, user: null }))
+    setCurrentRole(null)
+
     removeUserDataFromBrowser()
     removeUserTokenFromBrowser()
+
     logout()
     router.push('/login')
   }

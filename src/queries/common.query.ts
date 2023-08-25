@@ -16,14 +16,14 @@ export const useGetStatusList = (type: StatusType) => {
   )
 }
 
-export const useGetClientUserInfo = (fetchClient: boolean) => {
+export const useGetClientUserInfo = () => {
   return useQuery(
-    [`clientUserInfo`, fetchClient],
+    [`clientUserInfo`],
     () => {
       return getClientUserInfo()
     },
     {
-      enabled: !!fetchClient,
+      enabled: false,
       suspense: true,
       staleTime: 60 * 10000,
       keepPreviousData: true,

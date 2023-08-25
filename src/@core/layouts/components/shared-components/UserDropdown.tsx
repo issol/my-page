@@ -26,12 +26,17 @@ import { RoleType, UserRoleType } from 'src/context/types'
 // ** hooks
 import { useAppDispatch, useAppSelector } from 'src/hooks/useRedux'
 import { Switch } from '@mui/material'
-// import { setCurrentRole } from '@src/store/permission'
-import { setCurrentRole, getCurrentRole } from 'src/shared/auth/storage'
-import { useRecoilValue } from 'recoil'
+
+import { getCurrentRole } from 'src/shared/auth/storage'
+import { useRecoilState, useRecoilValue, useSetRecoilState } from 'recoil'
 
 import { authState } from '@src/states/auth'
 import useAuth from '@src/hooks/useAuth'
+import {
+  currentRoleSelector,
+  roleSelector,
+  roleState,
+} from '@src/states/permission'
 
 interface Props {
   settings: Settings
@@ -50,10 +55,10 @@ const UserDropdown = (props: Props) => {
   // ** Props
   const { settings } = props
   const [checked, setChecked] = useState<boolean>(false)
-  const dispatch = useAppDispatch()
+  const [currentRole, setCurrentRole] = useRecoilState(currentRoleSelector)
+  const role = useRecoilValue(roleState)
 
   // ** redux
-  const { role } = useAppSelector(state => state.userAccess)
 
   const { user } = useRecoilValue(authState)
 
@@ -80,7 +85,6 @@ const UserDropdown = (props: Props) => {
 
   useEffect(() => {
     if (role && hasTadAndLpm(role)) {
-      const currentRole = getCurrentRole()
       if (currentRole?.name === 'TAD') setChecked(false)
       else if (currentRole?.name === 'LPM') setChecked(true)
       else setChecked(false)
@@ -91,11 +95,13 @@ const UserDropdown = (props: Props) => {
     setChecked(event.target.checked)
     // 스위치가 바뀔때 Role을 세션 스토리지에 저장
     if (hasTadAndLpm(role)) {
-      setCurrentRole(
-        event.target.checked
-          ? role.find(item => item.name === 'LPM')
-          : role.find(item => item.name === 'TAD'),
-      )
+      const switchedRole: UserRoleType | undefined = event.target.checked
+        ? role.find(item => item.name === 'LPM')
+        : role.find(item => item.name === 'TAD')
+
+      console.log(switchedRole)
+
+      setCurrentRole(switchedRole!)
     }
     router.push('/home')
   }

@@ -1,4 +1,4 @@
-import { ReactNode, Suspense, useEffect, useState } from 'react'
+import { ReactNode, useEffect, useCallback } from 'react'
 import { useRecoilState, useRecoilValue } from 'recoil'
 
 import {
@@ -7,24 +7,24 @@ import {
   removeUserDataFromBrowser,
   getRedirectPath,
   removeRedirectPath,
-  getCurrentRole,
-  setCurrentRole,
 } from 'src/shared/auth/storage'
-import { getPermission, getRole } from 'src/store/permission'
-import { useAppDispatch } from 'src/hooks/useRedux'
-import { useAppSelector } from 'src/hooks/useRedux'
+
 import { useGetClientUserInfo } from '@src/queries/common.query'
 
 import { UserDataType, UserRoleType, ClientUserType } from '../../context/types'
 
 import { useRouter } from 'next/router'
 import { authState } from '@src/states/auth'
-import { permissionSelector } from '@src/states/permission'
-import finalPropsSelectorFactory from 'react-redux/es/connect/selectorFactory'
+import {
+  currentRoleSelector,
+  permissionSelector,
+  roleSelector,
+} from '@src/states/permission'
 
 type Props = {
   children: ReactNode
 }
+
 const AuthProvider = ({ children }: Props) => {
   const [auth, setAuth] = useRecoilState<{
     user: UserDataType | null
@@ -32,64 +32,55 @@ const AuthProvider = ({ children }: Props) => {
     loading: boolean
   }>(authState)
 
-  const permission = useRecoilValue(permissionSelector(auth.user !== null))
+  const permission = useRecoilValue(permissionSelector)
+  const [roles, setRoles] = useRecoilState(roleSelector)
+  const [currentRole, setCurrentRole] = useRecoilState(currentRoleSelector)
 
-  const [fetchClient, setFetchClient] = useState(false)
-  const { data: companyData } = useGetClientUserInfo(fetchClient)
-  const dispatch = useAppDispatch()
+  const { data: companyData, refetch } = useGetClientUserInfo()
+
   const router = useRouter()
 
-  const userAccess = useAppSelector(state => state.userAccess)
-
-  function hasTadAndLpm(role: UserRoleType[]): boolean {
+  const hasTadAndLpm = useCallback((role: UserRoleType[]): boolean => {
     return (
       role.some(value => value.name === 'TAD') &&
       role.some(value => value.name === 'LPM')
     )
-  }
+  }, [])
 
-  useEffect(() => {
-    if (auth.user) {
-      dispatch(getRole(auth.user.id)).then(res => {
-        const isClient = res.payload.roles
-          ?.map((i: { name: string }) => i.name)
-          .includes('CLIENT')
-        setFetchClient(isClient)
-      })
-      // dispatch(getPermission())
-    }
-  }, [auth.user])
-
-  useEffect(() => {
-    if (companyData) {
-      setAuth(prev => ({ ...prev, company: companyData }))
-    }
-  }, [companyData])
-
-  useEffect(() => {
-    if (auth.user && userAccess.role.length) {
-      const roles = userAccess.role.map(item => item.name)
+  const handleSetCurrentRole = useCallback(() => {
+    if (auth.user && roles.length) {
+      setRoles(roles)
+      const roleNames = roles.map(item => item.name)
 
       const redirectPath = getRedirectPath()
-      const storageRole = getCurrentRole()
+      const storageRole = currentRole
+
+      console.log(currentRole)
+
       if (!storageRole) {
         const TADRole =
-          hasTadAndLpm(userAccess.role) &&
-          userAccess.role.find(item => item.name === 'TAD')
-        TADRole ? setCurrentRole(TADRole) : setCurrentRole(userAccess.role[0])
+          hasTadAndLpm(roles) && roles.find(item => item.name === 'TAD')
+
+        console.log(TADRole)
+        console.log(roles[0])
+
+        TADRole ? setCurrentRole(TADRole) : setCurrentRole(roles[0])
       } else {
-        const findRole = userAccess.role.find(
-          item => item.name === storageRole.name,
-        )
-        if (findRole && storageRole.type !== findRole?.type)
-          setCurrentRole(findRole)
-        else setCurrentRole(userAccess.role[0])
+        // const findRole = roles.find(item => item.name === storageRole.name)
+        // console.log(findRole)
+
+        // if (findRole && storageRole.type !== findRole?.type)
+        //   setCurrentRole(findRole)
+        // else setCurrentRole(roles[0])
+        setCurrentRole(storageRole)
       }
 
-      const isClient = roles?.includes('CLIENT')
-      const isProUpdatedProfile = roles?.includes('PRO') && auth.user?.firstName
+      const isClient = roleNames?.includes('CLIENT')
+      isClient && refetch()
+      const isProUpdatedProfile =
+        roleNames?.includes('PRO') && auth.user?.firstName
       const isManagerUpdatedProfile =
-        (roles?.includes('TAD') || roles?.includes('LPM')) &&
+        (roleNames?.includes('TAD') || roleNames?.includes('LPM')) &&
         auth.user?.firstName
 
       if (!isClient) {
@@ -101,7 +92,7 @@ const AuthProvider = ({ children }: Props) => {
         return
       } else if (isClient && auth.company !== undefined) {
         const isClientGeneral =
-          userAccess.role.find(i => i.name === 'CLIENT')?.type === 'General'
+          roles.find(i => i.name === 'CLIENT')?.type === 'General'
         if (!auth.company?.name) {
           router.replace('/signup/finish/client')
         } else if (isClientGeneral && !auth.user.firstName) {
@@ -116,7 +107,17 @@ const AuthProvider = ({ children }: Props) => {
         router.push(`/home`)
       }
     }
-  }, [userAccess.role, auth.user, auth.company])
+  }, [auth.user, roles, auth.company, hasTadAndLpm, router, refetch])
+
+  useEffect(() => {
+    if (companyData) {
+      setAuth(prev => ({ ...prev, company: companyData }))
+    }
+  }, [companyData])
+
+  useEffect(() => {
+    handleSetCurrentRole()
+  }, [handleSetCurrentRole])
 
   useEffect(() => {
     const initAuth = async (): Promise<void> => {
