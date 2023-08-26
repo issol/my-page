@@ -76,6 +76,13 @@ import {
 } from '@src/apis/order.api'
 import CopyOrdersList from '../order-list/components/copy-order-list'
 import {
+  getClient as getQuoteClient,
+  getLangItems as getQuoteLangItems,
+  getProjectInfo as getQuoteProjectInfo,
+  getProjectTeam as getQuoteProjectTeam,
+} from '@src/apis/quote/quotes.api'
+
+import {
   getClient,
   getLangItems,
   getProjectInfo,
@@ -138,7 +145,7 @@ export const proDefaultOption: StandardPriceListType & {
 export default function AddNewOrder() {
   const router = useRouter()
   const requestId = router.query?.requestId
-  const orderId = router.query?.orderId
+  const quoteId = router.query?.quoteId
 
   const { user } = useRecoilValue(authState)
 
@@ -151,8 +158,8 @@ export default function AddNewOrder() {
 
   useEffect(() => {
     if (!router.isReady) return
-    if (orderId) {
-      onCopyOrder(Number(orderId))
+    if (quoteId) {
+      onCopyOrder(Number(quoteId))
     }
     if (requestId) {
       initializeFormWithRequest()
@@ -527,7 +534,7 @@ export default function AddNewOrder() {
     const priceList = await getClientPriceList({})
     closeModal('copy-order')
     if (id) {
-      getProjectTeam(id)
+      getQuoteProjectTeam(id)
         .then(res => {
           const teams: Array<{
             type: MemberType
@@ -553,7 +560,7 @@ export default function AddNewOrder() {
           return
         })
 
-      getClient(id)
+      getQuoteClient(id)
         .then(res => {
           const addressType = res.clientAddress.find(
             address => address.isSelected,
@@ -568,7 +575,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-      getProjectInfo(id)
+      getQuoteProjectInfo(id)
         .then(res => {
           projectInfoReset({
             // status: 'In preparation' as OrderStatusType,
@@ -576,12 +583,12 @@ export default function AddNewOrder() {
             workName: res?.workName ?? '',
             projectName: res?.projectName ?? '',
             showDescription: false,
-            status: statusList!.find(item => item.value === res?.status)?.value,
+            status: 10000, //초기값(New) 설정
             projectDescription: '',
             category: res?.category ?? '',
             serviceType: res?.serviceType ?? [],
             expertise: res?.expertise ?? [],
-            revenueFrom: res?.revenueFrom ?? null,
+            revenueFrom: undefined,
             projectDueAt: res?.projectDueAt ?? '',
             projectDueTimezone: res?.projectDueTimezone ?? {
               label: '',
@@ -596,7 +603,7 @@ export default function AddNewOrder() {
         .catch(e => {
           return
         })
-      getLangItems(id).then(res => {
+        getQuoteLangItems(id).then(res => {
         if (res) {
           setLanguagePairs(
             res?.languagePairs?.map(item => {

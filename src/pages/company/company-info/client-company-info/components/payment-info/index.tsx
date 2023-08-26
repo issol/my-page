@@ -382,7 +382,7 @@ export default function CompanyPaymentInfo() {
               ) : (
                 <PaymentMethodDetail
                   office={office}
-                  paymentInfo={paymentInfo}
+                  paymentInfo={paymentInfo!}
                 />
               )}
             </Card>
@@ -496,7 +496,7 @@ export default function CompanyPaymentInfo() {
                 office={office}
                 cancel={() => setEditInfo(false)}
                 onSave={onSavePaymentInfo}
-                paymentInfo={paymentInfo}
+                paymentInfo={paymentInfo!}
                 openDiscardModal={openDiscardModal}
               />
             </Card>

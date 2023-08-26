@@ -200,17 +200,21 @@ export default function QuotesProjectInfoDetail({
             <LabelContainer>
               <CustomTypo fontWeight={600}>Status</CustomTypo>
               {type === 'detail' &&
-              isUpdatable &&
-              project.status !== 'Quote sent' &&
-              project.status !== 'Client review' &&
-              project.status !== 'Revision requested' &&
-              project.status !== 'Under revision' &&
-              project.status !== 'Revised' &&
-              project.status !== 'Accepted' &&
-              project.status !== 'Changed into order' &&
-              project.status !== 'Expired' &&
-              project.status !== 'Rejected' &&
-              project.status !== 'Canceled' ? (
+                (isUpdatable &&
+                  // 연결된 Client가 있는 경우
+                  (project.status !== 'Quote sent' &&
+                  project.status !== 'Client review' &&
+                  project.status !== 'Revision requested' &&
+                  project.status !== 'Under revision' &&
+                  project.status !== 'Revised' &&
+                  project.status !== 'Accepted' &&
+                  project.status !== 'Changed into order' &&
+                  project.status !== 'Expired' &&
+                  project.status !== 'Rejected' &&
+                  project.status !== 'Canceled') || 
+                  // 연결된 Client가 없는 경우
+                  (!!!client?.contactPerson?.userId)
+                ) ? (
                 <Autocomplete
                   autoHighlight
                   fullWidth

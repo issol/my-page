@@ -153,7 +153,7 @@ export const createItemsForQuotes = async (
 ): Promise<any> => {
   try {
     const { data } = await axios.post(
-      `/api/enough/u/order/item?orderId=${orderId}`,
+      `/api/enough/u/quote/item?orderId=${orderId}`,
       { items: form },
     )
     return data
