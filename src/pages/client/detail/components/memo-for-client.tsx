@@ -1,4 +1,5 @@
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 import { Fragment, useContext, useEffect, useState } from 'react'
 

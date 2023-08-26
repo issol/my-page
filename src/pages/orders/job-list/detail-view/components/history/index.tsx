@@ -8,7 +8,8 @@ import {
   Typography,
 } from '@mui/material'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import useModal from '@src/hooks/useModal'
 import { useGetJobHistory } from '@src/queries/jobs.query'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'

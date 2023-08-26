@@ -26,7 +26,8 @@ import { RequestFilterType, SortType } from '@src/types/requests/filters.type'
 
 // ** contexts
 import { useContext } from 'react'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type CellType = {
   row: RequestListType

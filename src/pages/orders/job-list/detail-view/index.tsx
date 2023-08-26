@@ -34,7 +34,8 @@ import {
   useGetJobInfo,
   useGetJobPrices,
 } from '@src/queries/order/job.query'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   tab?: string

@@ -59,7 +59,8 @@ import SimpleAlertModal from '@src/pages/client/components/modals/simple-alert-m
 import DeleteConfirmModal from '@src/pages/client/components/modals/delete-confirm-modal'
 
 // ** context
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** helpers
 import { getLegalName } from '@src/shared/helpers/legalname.helper'

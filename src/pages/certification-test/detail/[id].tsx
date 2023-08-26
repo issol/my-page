@@ -60,7 +60,6 @@ const CertificationTestDetail = () => {
   const { user } = useRecoilValue(authState)
   const ability = useContext(AbilityContext)
   const { setModal } = useContext(ModalContext)
-  const { role } = useAppSelector(state => state.userAccess)
 
   const { data } = useGetTestDetail(Number(id!), true)
   const [pageSize, setPageSize] = useState(5)

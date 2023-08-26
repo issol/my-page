@@ -19,7 +19,8 @@ import styled from 'styled-components'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** hooks
 import { useRouter } from 'next/router'

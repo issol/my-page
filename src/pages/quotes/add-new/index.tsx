@@ -65,7 +65,8 @@ import languageHelper from '@src/shared/helpers/language.helper'
 import { findEarliestDate } from '@src/shared/helpers/date.helper'
 
 // ** contexts
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** apis
 import { useGetClientPriceList } from '@src/queries/company/standard-price'

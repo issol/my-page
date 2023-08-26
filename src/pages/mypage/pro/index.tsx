@@ -12,7 +12,8 @@ import Icon from 'src/@core/components/icon'
 // ** nextJS
 import { useRouter } from 'next/router'
 import { Suspense, useContext, useState } from 'react'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** components
 import Header from '../components/header'

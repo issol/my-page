@@ -10,7 +10,7 @@ import {
   Tooltip,
   Typography,
 } from '@mui/material'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+
 import useModal from '@src/hooks/useModal'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
@@ -45,6 +45,8 @@ import {
   deleteNotesToClientFiles,
   updateNotesToClient,
 } from '@src/apis/client.api'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   notesToClient: {

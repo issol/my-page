@@ -2,7 +2,7 @@
 import { configureStore } from '@reduxjs/toolkit'
 
 // ** Reducers
-import userAccess from './permission'
+
 import modal from './modal'
 import order from './order'
 import quote from './quote'
@@ -11,7 +11,6 @@ import invoicePayable from './invoice-payable'
 
 export const store = configureStore({
   reducer: {
-    userAccess,
     modal,
     order,
     quote,

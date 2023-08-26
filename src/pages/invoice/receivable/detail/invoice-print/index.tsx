@@ -13,7 +13,8 @@ import { OrderDownloadData } from '@src/types/orders/order-detail'
 import BlankLayout from '@src/@core/layouts/BlankLayout'
 import Error404 from '@src/pages/404'
 import { Box } from '@mui/material'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import PrintInvoicePage from './print-page'
 
 const InvoicePrint = () => {

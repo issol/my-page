@@ -26,7 +26,8 @@ import PaymentMethodForm from './payment-method-form'
 import { FileItemType } from '@src/@core/components/swiper/file-swiper-s3'
 
 // ** contexts
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** hooks
@@ -90,10 +91,15 @@ export default function CompanyPaymentInfo() {
   const User = new client_payment(user?.id!)
   const isUpdatable = ability.can('update', User)
   const isDeletable = ability.can('delete', User)
+  const isAccountManager = ability.can('read', 'account_manage')
 
-  const { data: paymentInfo } = useGetClientPaymentInfo(company?.clientId!)
+  const { data: paymentInfo } = useGetClientPaymentInfo(
+    company?.clientId!,
+    isAccountManager,
+  )
   const { data: billingAddress } = useGetClientBillingAddress(
     company?.clientId!,
+    isAccountManager,
   )
   const { data: fileList } = useGetClientPaymentFile(company?.clientId!)
 
@@ -105,13 +111,13 @@ export default function CompanyPaymentInfo() {
   const [fileSize, setFileSize] = useState(0)
 
   const isLSPReviewedPaymentMethod = useMemo(
-    () => !!paymentInfo?.length,
+    () => !!paymentInfo?.office,
     [paymentInfo],
   )
 
   const office: OfficeType | null = useMemo(() => {
-    if (!paymentInfo?.length) return null
-    return paymentInfo[0].office
+    if (!paymentInfo) return null
+    return paymentInfo?.office
   }, [paymentInfo])
 
   const {
@@ -272,7 +278,7 @@ export default function CompanyPaymentInfo() {
     taxData: OfficeTaxType,
   ) {
     if (!company?.clientId) return
-    const existData = paymentInfo?.find(info => info.office === office)
+    const existData = paymentInfo
     let data = {
       clientId: company.clientId,
       office,

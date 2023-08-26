@@ -40,7 +40,8 @@ import { useGetClientPriceList } from '@src/queries/company/standard-price'
 import ItemDetail from '@src/pages/components/item-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
 import ClientQuote from './client-quote'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import {
   formatByRoundingProcedure,
   formatCurrency,

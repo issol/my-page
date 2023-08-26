@@ -17,7 +17,8 @@ import { JobsTrackerListType } from '@src/types/jobs/jobs.type'
 import { useRouter } from 'next/router'
 
 // ** contexts
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useContext } from 'react'
 
 // ** helpers

@@ -32,7 +32,8 @@ import Icon from 'src/@core/components/icon'
 import { toast } from 'react-hot-toast'
 
 // ** context
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** types & validation
 import { RequestFormType } from '@src/types/requests/common.type'

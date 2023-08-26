@@ -17,7 +17,8 @@ import {
   ServiceTypePair,
 } from 'src/shared/const/service-type/service-types'
 
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 export type ConstType = {
   label: string

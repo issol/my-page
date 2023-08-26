@@ -30,7 +30,8 @@ import {
 } from '@src/types/orders/order-detail'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'
 import { getCurrentRole } from '@src/shared/auth/storage'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useGetStatusList } from '@src/queries/common.query'
 import ClientOrder from '../client-order'
 

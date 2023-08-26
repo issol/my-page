@@ -34,7 +34,8 @@ import styled from 'styled-components'
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** contexts
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** store

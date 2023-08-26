@@ -1,5 +1,6 @@
 import { useContext } from 'react'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** mui
 import { Box, Button, Grid } from '@mui/material'

@@ -15,7 +15,8 @@ import {
 import { DataGrid, GridColumns } from '@mui/x-data-grid'
 
 // ** context
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 // ** hooks
 import useModal from '@src/hooks/useModal'

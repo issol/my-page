@@ -44,7 +44,8 @@ import { lpm_request } from '@src/shared/const/permission-class'
 
 // ** contexts
 import { AbilityContext } from '@src/layouts/components/acl/Can'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { getCurrentRole } from '@src/shared/auth/storage'
 
 // ** types

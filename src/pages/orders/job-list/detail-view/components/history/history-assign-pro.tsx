@@ -5,7 +5,8 @@ import {
   TableTitleTypography,
   TitleTypography,
 } from '@src/@core/styles/typography'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
 import Link from 'next/link'

@@ -54,7 +54,8 @@ import ConfirmSaveAllChanges from '@src/pages/components/modals/confirm-save-mod
 // ** hooks
 import useModal from '@src/hooks/useModal'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 type Props = {
   clientId: number

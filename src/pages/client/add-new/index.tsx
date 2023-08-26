@@ -78,6 +78,8 @@ import {
 // ** third parties
 import { toast } from 'react-hot-toast'
 import { useConfirmLeave } from '@src/hooks/useConfirmLeave'
+import { useRecoilValue } from 'recoil'
+import { roleSelector } from '@src/states/permission'
 
 type PriceListCopyRowType = Omit<
   StandardPriceListType,
@@ -90,7 +92,7 @@ type PriceListCopyRowType = Omit<
 export default function AddNewClient() {
   const router = useRouter()
 
-  const { role, isLoading } = useAppSelector(state => state.userAccess)
+  const role = useRecoilValue(roleSelector)
   const [isGeneral, setIsGeneral] = useState(true)
 
   const { openModal, closeModal } = useModal()

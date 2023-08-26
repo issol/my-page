@@ -21,7 +21,8 @@ import { yupResolver } from '@hookform/resolvers/yup'
 import { jobItemSchema } from '@src/types/schema/item.schema'
 import ViewPrices from '../prices/view-prices'
 import AssignPro from '../assign-pro/assign-pro'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useGetJobInfo, useGetJobPrices } from '@src/queries/order/job.query'
 
 type Props = {

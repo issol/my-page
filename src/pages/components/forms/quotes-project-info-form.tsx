@@ -61,7 +61,8 @@ import {
   QuotesProjectInfoAddNewType,
   QuotesProjectInfoFormType,
 } from '@src/types/common/quotes.type'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 

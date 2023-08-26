@@ -58,7 +58,8 @@ import { DateTimePickerDefaultOptions } from 'src/shared/const/datePicker'
 
 // ** types
 import { CountryType } from '@src/types/sign/personalInfoTypes'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { ClientFormType } from '@src/types/schema/client.schema'
 import { getGmtTime } from '@src/shared/helpers/timezone.helper'
 

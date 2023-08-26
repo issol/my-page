@@ -87,7 +87,8 @@ import {
   uploadFileToS3,
 } from '@src/apis/common.api'
 import { S3FileType } from '@src/shared/const/signedURLFileType'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { toast } from 'react-hot-toast'
 import { useDropzone } from 'react-dropzone'
 import { FILE_SIZE } from '@src/shared/const/maximumFileSize'

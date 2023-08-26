@@ -3,7 +3,8 @@ import { useState, useContext } from 'react'
 
 // ** context
 import { ModalContext } from '@src/context/ModalContext'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** mui

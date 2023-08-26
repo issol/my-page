@@ -36,7 +36,8 @@ import useModal from '@src/hooks/useModal'
 import { Controller, useFieldArray, useForm } from 'react-hook-form'
 import { yupResolver } from '@hookform/resolvers/yup'
 
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useMutation, useQueryClient } from 'react-query'
 
 import { getCurrentRole } from '@src/shared/auth/storage'

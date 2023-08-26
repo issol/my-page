@@ -24,7 +24,8 @@ import {
 } from '@src/@core/styles/typography'
 
 // ** contexts
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { AbilityContext } from '@src/layouts/components/acl/Can'
 
 // ** apis

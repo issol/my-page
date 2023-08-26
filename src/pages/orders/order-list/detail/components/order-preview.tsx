@@ -32,7 +32,8 @@ import { useRouter } from 'next/router'
 import PrintOrderPage from '../../../order-print/print-page'
 import useModal from '@src/hooks/useModal'
 import { OrderDownloadData } from '@src/types/orders/order-detail'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import { useAppSelector } from '@src/hooks/useRedux'
 
 type Props = {

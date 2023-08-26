@@ -46,7 +46,8 @@ import {
   projectTeamSchema,
 } from '@src/types/schema/project-team.schema'
 import { getLegalName } from '@src/shared/helpers/legalname.helper'
-import { AuthContext } from '@src/shared/auth/auth-provider'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 import InvoiceClient from './components/client'
 import InvoiceProjectTeam from './components/project-team'
 import { getProjectTeamColumns } from '@src/shared/const/columns/order-detail'

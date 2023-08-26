@@ -20,6 +20,8 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 /* redux */
 import { useAppSelector } from 'src/hooks/useRedux'
 import FallbackSpinner from '../spinner'
+import { permissionSelector } from '@src/states/permission'
+import { useRecoilValue } from 'recoil'
 
 interface AclGuardProps {
   children: ReactNode
@@ -33,7 +35,8 @@ const AclGuard = (props: AclGuardProps) => {
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
-  const { permission, isLoading } = useAppSelector(state => state.userAccess)
+  // const { permission, isLoading } = useAppSelector(state => state.userAccess)
+  const permission = useRecoilValue(permissionSelector)
 
   // ** Hooks
   const router = useRouter()
@@ -65,11 +68,7 @@ const AclGuard = (props: AclGuardProps) => {
   // Render Not Authorized component if the current user has limited access
   return (
     <BlankLayout>
-      {!permission.length || isLoading || !ability ? (
-        <FallbackSpinner />
-      ) : (
-        <NotAuthorized />
-      )}
+      {!permission.length || !ability ? <FallbackSpinner /> : <NotAuthorized />}
       {/* <FallbackSpinner /> */}
     </BlankLayout>
   )
