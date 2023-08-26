@@ -9,7 +9,7 @@ import { useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+
 import { useMutation } from 'react-query'
 
 // ** third parties
@@ -31,6 +31,8 @@ import IndividualClientForm from './components/individual-client-form'
 // ** apis
 import { createClient } from '@src/apis/client.api'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -66,13 +68,10 @@ export default function NewClientProfileForm() {
   const currentRole = getCurrentRole()
 
   // ** Hooks
-  const { company } = useAuth()
+  const { company } = useRecoilValue(authState)
 
   useEffect(() => {
-    if (
-      company?.name ||
-      currentRole?.name !== 'CLIENT'
-    ) {
+    if (company?.name || currentRole?.name !== 'CLIENT') {
       router.push('/')
     }
   }, [company])

@@ -29,6 +29,8 @@ import {
 import { AbilityContext } from 'src/layouts/components/acl/Can'
 import { useAppSelector } from 'src/hooks/useRedux'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import { roleSelector, roleState } from '@src/states/permission'
+import { useRecoilValue } from 'recoil'
 
 const RoleArray = ['TAD', 'LPM']
 const Members = () => {
@@ -42,10 +44,10 @@ const Members = () => {
     ability.can('read', 'members'),
   )
 
-  const userAccess = useAppSelector(state => state.userAccess)
+  const role = useRecoilValue(roleState)
   const hasGeneralPermission = () => {
     let flag = false
-    userAccess.role.map(item => {
+    role.map(item => {
       if (
         (item.name === 'LPM' ||
           item.name === 'TAD' ||

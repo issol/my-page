@@ -38,7 +38,6 @@ import { authState } from '@src/states/auth'
 import { FullDateTimezoneHelper } from '@src/shared/helpers/date.helper'
 import { setDate } from 'date-fns'
 import { getDownloadUrlforCommon } from 'src/apis/common.api'
-import { useAppSelector } from '@src/hooks/useRedux'
 
 const defaultValues: ProFilterType = {
   jobType: [],
@@ -72,12 +71,6 @@ const Pro = () => {
   const { user } = useRecoilValue(authState)
   const { setModal } = useContext(ModalContext)
 
-  const { currentRole } = useAppSelector(state => state.userAccess)
-
-  // console.log(currentRole)
-
-  // const { data: totalStatistics } = useGetStatistic()
-  // const { data: onboardingStatistic } = useGetOnboardingStatistic()
   const [jobTypeOptions, setJobTypeOptions] = useState<SelectType[]>(JobList)
   const [roleOptions, setRoleOptions] = useState<RoleSelectType[]>(
     OnboardingListRolePair,

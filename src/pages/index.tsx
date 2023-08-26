@@ -17,7 +17,6 @@ const Home = () => {
   // ** Hooks
 
   const router = useRouter()
-  const { permission, isLoading } = useAppSelector(state => state.userAccess)
 
   useEffect(() => {
     router.replace('/home')

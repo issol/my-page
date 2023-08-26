@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography'
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 import { useRouter } from 'next/router'
-import { useAuth } from 'src/hooks/useAuth'
+
 import { loginResType } from 'src/types/sign/signInTypes'
 
 const BoxWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({

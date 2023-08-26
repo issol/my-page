@@ -9,18 +9,13 @@ import { Button, Grid, Typography, useMediaQuery } from '@mui/material'
 import BlankLayout from 'src/@core/layouts/BlankLayout'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
+
 import { useMutation } from 'react-query'
 
 // ** third parties
 import toast from 'react-hot-toast'
 
 // ** types
-import {
-  ClientClassificationType,
-  ClientCompanyInfoType,
-  CorporateClientInfoType,
-} from '@src/context/types'
 
 // ** components
 
@@ -36,6 +31,9 @@ import {
 } from '@src/types/schema/client-contact-person.schema'
 import CreateContactPersonForm from '@src/pages/components/forms/create-contact-person-form'
 import { updateClientUserInfo } from '@src/apis/user.api'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -64,7 +62,8 @@ export default function NewGeneralClientForm() {
   const currentRole = getCurrentRole()
 
   // ** Hooks
-  const { company, user } = useAuth()
+
+  const { company, user } = useRecoilValue(authState)
 
   useEffect(() => {
     if (

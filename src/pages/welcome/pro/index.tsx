@@ -32,7 +32,6 @@ import Cleave from 'cleave.js/react'
 import 'cleave.js/dist/addons/cleave-phone.us'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -89,6 +88,8 @@ import {
 } from '@src/types/schema/client-billing-address.schema'
 import ClientBillingAddressesForm from '@src/pages/client/components/forms/client-billing-address'
 import { ClientAddressType } from '@src/types/schema/client-address.schema'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -149,7 +150,7 @@ const PersonalInfoPro = () => {
   const [fileSize, setFileSize] = useState(0)
 
   // ** Hooks
-  const auth = useAuth()
+  const { user } = useRecoilValue(authState)
 
   // ** State
   const [files, setFiles] = useState<File[]>([])
@@ -170,10 +171,10 @@ const PersonalInfoPro = () => {
   })
 
   useEffect(() => {
-    if (auth.user?.firstName) {
+    if (user?.firstName) {
       router.replace(`/`)
     }
-  }, [auth])
+  }, [user])
 
   const handleRemoveFile = (file: FileType) => {
     const uploadedFiles = files
@@ -248,11 +249,11 @@ const PersonalInfoPro = () => {
       updateConsumerUserInfo(data),
     {
       onSuccess: () => {
-        getUserInfo(auth.user?.id!).then(res => {
+        getUserInfo(user?.id!).then(res => {
           /* @ts-ignore */
           auth.updateUserInfo({
-            userId: auth?.user!.id,
-            email: auth?.user!.email,
+            userId: user!.id,
+            email: user!.email,
           })
           router.push('/home')
         })
@@ -306,7 +307,7 @@ const PersonalInfoPro = () => {
       const promiseArr = data.resume.map((file, idx) => {
         return getUploadUrlforCommon(
           S3FileType.RESUME,
-          getResumeFilePath(auth.user?.id as number, file.name),
+          getResumeFilePath(user?.id as number, file.name),
         ).then(res => {
           return uploadFileToS3(res.url, file)
         })
@@ -314,7 +315,7 @@ const PersonalInfoPro = () => {
       Promise.all(promiseArr)
         .then(res => {
           const finalData: ProUserInfoType & { userId: number } = {
-            userId: auth.user?.id || 0,
+            userId: user?.id || 0,
             firstName: data.firstName,
             lastName: data.lastName,
             country: data.timezone.label,

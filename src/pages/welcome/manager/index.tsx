@@ -25,7 +25,6 @@ import Cleave from 'cleave.js/react'
 import 'cleave.js/dist/addons/cleave-phone.us'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** Layout Import
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -46,6 +45,9 @@ import { ModalContext } from 'src/context/ModalContext'
 
 import { getUserInfo, updateManagerUserInfo } from 'src/apis/user.api'
 import { useAppSelector } from 'src/hooks/useRedux'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 const RightWrapper = muiStyled(Box)<BoxProps>(({ theme }) => ({
   width: '100%',
@@ -94,7 +96,7 @@ const PersonalInfoManager = () => {
   const hidden = useMediaQuery(theme.breakpoints.down('md'))
 
   // ** Hooks
-  const auth = useAuth()
+  const { user } = useRecoilValue(authState)
 
   function isInvalidPhoneNumber(str: string) {
     const regex = /^[0-9]+$/
@@ -102,10 +104,10 @@ const PersonalInfoManager = () => {
   }
 
   useEffect(() => {
-    if (auth.user?.firstName) {
+    if (user?.firstName) {
       router.replace(`/`)
     }
-  }, [auth])
+  }, [user])
 
   const {
     control,
@@ -125,11 +127,11 @@ const PersonalInfoManager = () => {
       updateManagerUserInfo({ ...data, company: 'GloZ' }),
     {
       onSuccess: () => {
-        getUserInfo(auth.user?.id!).then(res => {
+        getUserInfo(user?.id!).then(res => {
           /* @ts-ignore */
           auth.updateUserInfo({
-            userId: auth?.user!.id,
-            email: auth?.user!.email,
+            userId: user!.id,
+            email: user!.email,
           })
           router.push('/home')
         })
@@ -175,7 +177,7 @@ const PersonalInfoManager = () => {
 
   const onSubmit = (data: ManagerInfo) => {
     const finalData: ManagerUserInfoType & { userId: number } = {
-      userId: auth.user?.id || 0,
+      userId: user?.id || 0,
       firstName: data.firstName,
       middleName: data.middleName,
       lastName: data.lastName,

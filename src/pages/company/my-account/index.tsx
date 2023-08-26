@@ -24,6 +24,7 @@ import useAuth from '@src/hooks/useAuth'
 import { useGetProfile } from '@src/queries/userInfo/userInfo-query'
 import { useRecoilValue } from 'recoil'
 import { authState } from '@src/states/auth'
+import { roleState } from '@src/states/permission'
 
 const MyAccount = () => {
   const auth = useAuth()
@@ -37,7 +38,7 @@ const MyAccount = () => {
 
   const { user } = useRecoilValue(authState)
   const { data: userInfo, refetch } = useGetProfile(user?.id! ?? 0)
-  const role = useAppSelector(state => state.userAccess.role)
+  const role = useRecoilValue(roleState)
 
   const saveUserInfoMutation = useMutation(
     (data: ManagerUserInfoType & { userId: number }) =>

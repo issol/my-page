@@ -13,7 +13,6 @@ import { Grid, OutlinedInput, Radio } from '@mui/material'
 import { Icon } from '@iconify/react'
 
 // ** Hooks
-import { useAuth } from 'src/hooks/useAuth'
 
 // ** layout
 import BlankLayout from 'src/@core/layouts/BlankLayout'
@@ -33,9 +32,14 @@ import CustomModal from '@src/@core/components/common-modal/custom-modal'
 import { requestJoinToCompany } from '@src/apis/user.api'
 import { toast } from 'react-hot-toast'
 import { getCurrentRole } from '@src/shared/auth/storage'
+import useAuth from '@src/hooks/useAuth'
+import { useRecoilValue } from 'recoil'
+import { authState } from '@src/states/auth'
 
 export default function ClientInformationHome() {
-  const { company, logout, user } = useAuth()
+  const { logout } = useAuth()
+
+  const { company, user } = useRecoilValue(authState)
 
   const roles = getCurrentRole()
 

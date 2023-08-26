@@ -20,7 +20,7 @@ import BlankLayout from 'src/@core/layouts/BlankLayout'
 /* redux */
 import { useAppSelector } from 'src/hooks/useRedux'
 import FallbackSpinner from '../spinner'
-import { permissionSelector } from '@src/states/permission'
+import { permissionSelector, permissionState } from '@src/states/permission'
 import { useRecoilValue } from 'recoil'
 
 interface AclGuardProps {
@@ -35,8 +35,7 @@ const AclGuard = (props: AclGuardProps) => {
 
   const [ability, setAbility] = useState<AppAbility | undefined>(undefined)
 
-  // const { permission, isLoading } = useAppSelector(state => state.userAccess)
-  const permission = useRecoilValue(permissionSelector)
+  const permission = useRecoilValue(permissionState)
 
   // ** Hooks
   const router = useRouter()
